@@ -65,7 +65,7 @@ def export(checkpoint,*,base_binding,output,route,device='cpu'):
             expected_base_binding_hash=binding['binding_sha256'],device=device)
         identity=read_json(Path(checkpoint).parent/'IDENTITY.json')
         payload={'schema':'action_effect_private_deploy_v1','route':'B','arm':model.arm,
-            'config':asdict(model.adapter.config),'state_dict':model.adapter.state_dict()}
+            **model.adapter.velocity_export()}
         head_receipt=identity['head']['head_receipt']
         required=['current_original_planner_condition','original_initial_noise']
     elif route=='A':

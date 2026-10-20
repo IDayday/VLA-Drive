@@ -72,21 +72,22 @@ class FlowLossRecipe:
     preserve: float = 1.
     effect: float = .2
     direction: float = .2
+    representation: float = .2
 
     def validate(self):
         if self.repeat!=8 or type(self.microbatch_scenes) is not int or self.microbatch_scenes<1:
             raise ValueError('Original repeat8 and positive scene microbatch are required')
-        for v in (self.velocity,self.preserve,self.effect,self.direction):
+        for v in (self.velocity,self.preserve,self.effect,self.direction,self.representation):
             if type(v) not in (int,float) or not math.isfinite(v) or v<0:
                 raise ValueError('Explicit finite nonnegative loss weights required')
         if self.velocity<=0:raise ValueError('The original FM target cannot be disabled')
         return self
 
 
-def build_flow_arm(head,*,arm,init_seed,hidden=256,layers=2,heads=4):
+def build_flow_arm(head,*,arm,init_seed,hidden=256,layers=2,heads=4,effect_dim=0,effect_protocol='legacy_endpoint_proxy'):
     adapter=EffectFlowAdapter(EffectFlowAdapterConfig(condition_dim=2048,hidden_dim=hidden,
-        heads=heads,layers=layers,init_seed=init_seed))
-    return EffectInternalizedFlow(head,adapter,arm=arm)
+        heads=heads,layers=layers,init_seed=init_seed,effect_dim=effect_dim))
+    return EffectInternalizedFlow(head,adapter,arm=arm,effect_protocol=effect_protocol)
 
 
 class FlowStep:
@@ -128,7 +129,8 @@ class FlowStep:
         preserve_denom=int(keep.sum())*repeat*8*4
         if velocity_denom==0 and preserve_denom==0:
             raise ValueError('No valid repair or preservation supervision; refusing empty optimizer update')
-        effect_delta=effect_valid=None;effect_denom=direction_denom=None
+        effect_delta=effect_valid=teacher_embedding=None;effect_denom=direction_denom=representation_denom=None
+        teacher_calls=0;teacher_mse=0.;verified=getattr(model,'effect_protocol',None)=='verified_pair_v1'
         if model.arm=='B1-effect':
             if self.teacher is None or self.effect_scales is None:
                 raise ValueError('B1-effect needs this campaign verified frozen G1 and fixed scales')
@@ -137,7 +139,25 @@ class FlowStep:
             effect_denom=int(effect_valid.sum())*repeat
             scales=torch.as_tensor(self.effect_scales,device=self.device)
             direction_denom=float((effect_delta.abs()/scales*effect_valid*(effect_delta.abs()/scales>1e-6)).sum())*repeat
-        totals={'velocity':0.,'preserve':0.,'effect_consistency':0.,'effect_direction':0.}
+            if verified:
+                if not hasattr(self.teacher,'verified_pair'):raise ValueError('Only frozen verified-pair G1 bridge is permitted')
+                teacher_embedding=torch.zeros(count,model.adapter.config.hidden_dim,device=self.device)
+                representation_denom=int(repair.sum())*repeat*model.adapter.config.hidden_dim
+                chosen=repair.nonzero().flatten().tolist()
+                if chosen:
+                    actual_base=torch.stack([records[i]['physical'] for i in chosen]).to(self.device).detach()
+                    actual_target=torch.stack([torch.as_tensor(rows[i]['target_physical'],dtype=torch.float32) for i in chosen]).to(self.device).detach()
+                    # Supervision only: no raw decode roundtrip, no predicted endpoint.
+                    context=self.context_batcher([records[i] for i in chosen],self.device)
+                    with torch.no_grad():target=self.teacher.verified_pair(context,actual_base,actual_target)
+                    embedding=target['effect_embedding'].detach()
+                    if (embedding.shape!=(len(chosen),model.adapter.config.hidden_dim) or not torch.isfinite(embedding).all()
+                            or target['mean_delta'].shape!=(len(chosen),effect_delta.shape[1]) or not torch.isfinite(target['mean_delta']).all()):
+                        raise ValueError('G1 verified-pair representation/delta schema mismatch')
+                    teacher_embedding[chosen]=embedding
+                    v=effect_valid[chosen];err=((target['mean_delta'].detach()-effect_delta[chosen])/scales).square()
+                    teacher_mse=float((err*v).sum()/max(int(v.sum()),1));teacher_calls=1
+        totals={'velocity':0.,'preserve':0.,'effect_consistency':0.,'effect_direction':0.,'effect_representation':0.}
         for at in range(0,count,self.recipe.microbatch_scenes):
             end=min(at+self.recipe.microbatch_scenes,count)
             # Same selected scenes from each repeat, maintaining original noise.
@@ -146,11 +166,15 @@ class FlowStep:
             cond=condition[at:end].repeat(repeat,1,1)
             kwargs={}
             if model.arm=='B1-effect':
-                context=self.context_batcher(records[at:end],self.device)
-                kwargs=dict(teacher=self.teacher,true_delta=effect_delta[at:end].repeat(repeat,1),
+                kwargs=dict(true_delta=effect_delta[at:end].repeat(repeat,1),
                     effect_valid=effect_valid[at:end].repeat(repeat,1),effect_scales=self.effect_scales,
-                    effect_global_denominator=effect_denom,direction_global_denominator=direction_denom,
-                    effect_context={k:x.repeat((repeat,)+(1,)*(x.ndim-1)) for k,x in context.items()})
+                    effect_global_denominator=effect_denom,direction_global_denominator=direction_denom)
+                if verified:
+                    kwargs.update(teacher_embedding=teacher_embedding[at:end].repeat(repeat,1),
+                        representation_global_denominator=representation_denom)
+                else:
+                    context=self.context_batcher(records[at:end],self.device)
+                    kwargs.update(teacher=self.teacher,effect_context={k:x.repeat((repeat,)+(1,)*(x.ndim-1)) for k,x in context.items()})
             result=model(cond,pair,repair[at:end].repeat(repeat),global_denominator=velocity_denom,**kwargs)
             losses=result['losses']
             # A keep has plus==minus, hence both arms already evaluated its
@@ -160,13 +184,16 @@ class FlowStep:
             loss=(self.recipe.velocity*losses['velocity']+self.recipe.preserve*preserve)
             if model.arm=='B1-effect':
                 loss=loss+self.recipe.effect*losses['effect_consistency']+self.recipe.direction*losses['effect_direction']
+                if verified:loss=loss+self.recipe.representation*losses['effect_representation']
             loss.backward()
             totals['velocity']+=float(losses['velocity'].detach());totals['preserve']+=float(preserve.detach())
-            for k in ('effect_consistency','effect_direction'):
+            for k in ('effect_consistency','effect_direction','effect_representation'):
                 if k in losses:totals[k]+=float(losses[k].detach())
         return {**totals,'repair_scenes':int(repair.sum()),'preserve_scenes':int(keep.sum()),
             'unique_scene_ids':len({r['scene_id'] for r in records}),'scene_presentations':count,
-            'FM_noise_presentations':count*repeat,'optimizer_step':optimizer_step}
+            'FM_noise_presentations':count*repeat,'optimizer_step':optimizer_step,
+            'verified_pair_teacher_calls':teacher_calls,'verified_pair_teacher_native_delta_mse':teacher_mse,
+            'effect_supervised_scenes':int(repair.sum()) if model.arm=='B1-effect' and verified else 0}
 
 
 def load_flow_examples(repair_dataset,reader):
@@ -218,6 +245,7 @@ def load_flow_examples(repair_dataset,reader):
         target=(record['raw'].clone() if preserve else
                 torch.from_numpy(encode_ego(np.asarray(row['target_physical'],dtype=np.float32))))
         examples.append({'scene_id':row['scene_id'],'source_log':row['source_log'],'target_raw':target,
+                         'target_physical':torch.as_tensor(row['target_physical'],dtype=torch.float32),
                          'is_repair':not preserve,'is_preserve':preserve,
                          'effect_delta':delta,'effect_valid':valid,'target_kind':kind})
         counts['preserve' if preserve else 'repairs']+=1
@@ -267,6 +295,21 @@ class RawActionEffectTeacher(torch.nn.Module):
             raise ValueError('Undefined sin/cos heading in velocity-derived teacher proxy')
         prediction=self.model(context,decode_ego(base_raw),decode_ego(modified))
         return prediction['mean_delta']
+
+    @torch.no_grad()
+    def verified_pair(self,context,base_physical,modified_physical):
+        """Only actual native-verified endpoints; no noisy endpoint proxy here."""
+        if (set(context)!={'memory','ego','mask'} or self.model.training
+                or any(p.requires_grad for p in self.model.parameters())):
+            raise ValueError('Frozen eval G1 and current-only context required')
+        if (base_physical.ndim!=3 or base_physical.shape[1:]!=(8,3)
+                or modified_physical.shape!=base_physical.shape
+                or base_physical.dtype!=torch.float32 or modified_physical.dtype!=torch.float32
+                or not torch.isfinite(base_physical).all() or not torch.isfinite(modified_physical).all()):
+            raise ValueError('Original verified physical FP32 endpoint pair required')
+        result=self.model({k:v.detach() for k,v in context.items()},base_physical.detach(),modified_physical.detach())
+        if 'effect_embedding' not in result:raise ValueError('G1 lacks the versioned read-only verified-pair representation')
+        return {k:result[k].detach() for k in ('mean_delta','effect_embedding')}
 
 
 def _verify_worker(args):
@@ -343,7 +386,7 @@ def verify_head_roundtrip(reader,*,base_binding,output,device,max_samples=1):
 
 def train(cfg,*,context_manifest,repair_dataset,arm,device,seed,max_updates,
           output,stop_after=None,resume=False,effect_checkpoint=None,
-          velocity_weight=1.,preserve_weight=1.,effect_weight=.2,direction_weight=.2):
+          velocity_weight=1.,preserve_weight=1.,effect_weight=.2,direction_weight=.2,representation_weight=.2):
     """One separately initialized arm using only this campaign's fixed data."""
     from .context_data import ContextReader,batch_context
     from .training import run_training
@@ -352,7 +395,7 @@ def train(cfg,*,context_manifest,repair_dataset,arm,device,seed,max_updates,
     examples,sampling_identity=balance_examples(examples)
     t=cfg['training']
     recipe=FlowLossRecipe(microbatch_scenes=t['microbatch_scenes'],velocity=velocity_weight,
-        preserve=preserve_weight,effect=effect_weight,direction=direction_weight).validate()
+        preserve=preserve_weight,effect=effect_weight,direction=direction_weight,representation=representation_weight).validate()
     if arm not in EffectInternalizedFlow.ARMS:raise ValueError('Unknown IEG arm')
     if (arm=='B1-effect')!=(effect_checkpoint is not None):
         raise ValueError('Only B1-effect requires/permits a verified G1 checkpoint')
@@ -360,7 +403,8 @@ def train(cfg,*,context_manifest,repair_dataset,arm,device,seed,max_updates,
     if not 1<=max_updates<=t['max_updates']:raise ValueError('Explicit bounded training updates required')
     head,head_identity=load_original_action_head(verify_artifact(reader.manifest['head_receipt']),
                                                cfg['base_binding'],device=device)
-    model=build_flow_arm(head,arm=arm,init_seed=seed,hidden=t['hidden'],layers=t['layers'],heads=t['heads']).to(device)
+    model=build_flow_arm(head,arm=arm,init_seed=seed,hidden=t['hidden'],layers=t['layers'],heads=t['heads'],
+        effect_dim=len(data_identity['label_spec']['names']),effect_protocol='verified_pair_v1').to(device)
     teacher=None;scales=None;teacher_identity=None
     if arm=='B1-effect':
         from .train_effect_model import load_effect_teacher
@@ -369,6 +413,7 @@ def train(cfg,*,context_manifest,repair_dataset,arm,device,seed,max_updates,
         if (list(g1.label_spec.names)!=data_identity['label_spec']['names'] or
                 list(g1.label_spec.units)!=data_identity['label_spec']['units']):
             raise ValueError('G1 physical delta schema differs from G0 repair labels')
+        if g1.config.hidden_dim!=model.adapter.config.hidden_dim:raise ValueError('G1/student representation widths must match the locked common recipe')
         teacher=RawActionEffectTeacher(g1);scales=g1.label_spec.scales;teacher_identity=g1.provenance
     ng=torch.Generator(device=device).manual_seed(seed+301)
     tg=torch.Generator(device=device).manual_seed(seed+302)
@@ -380,6 +425,8 @@ def train(cfg,*,context_manifest,repair_dataset,arm,device,seed,max_updates,
         'head':head_identity,'adapter_config':asdict(model.adapter.config),
         'sampling':sampling_identity,'loss_recipe':asdict(recipe),'effect_teacher':teacher_identity,
         'noise_seed':seed+301,'time_seed':seed+302,'flow_semantics':'original_repeat8_Beta1.5_1_s.999',
+        'effect_protocol':'verified_pair_v1','teacher_query':'actual native-verified physical pair only',
+        'effect_auxiliary_modules':'same allocated heads in all three arms; supervised only in B1-effect; stripped from deploy',
         'validation':'offline fixed endpoint Euler10 and NAVSIM; no simulator inside optimizer loop',
         'deployment':'single Euler10 generation, no teacher/refiner/simulator'}
     Path(output).mkdir(parents=True,exist_ok=True)
@@ -397,7 +444,7 @@ def parser():
     p.add_argument('--stop-after',type=int);p.add_argument('--output');p.add_argument('--effect-checkpoint')
     p.add_argument('--resume',action='store_true',help='Restore the latest complete checkpoint in this exact arm/output; never restart.')
     p.add_argument('--dry-run',action='store_true',help='Validate declared command/config; does not load weights or run training.')
-    for name,default in [('velocity',1.),('preserve',1.),('effect',.2),('direction',.2)]:
+    for name,default in [('velocity',1.),('preserve',1.),('effect',.2),('direction',.2),('representation',.2)]:
         p.add_argument('--'+name+'-weight',type=float,default=default)
     p.add_argument('--verify-head-only',action='store_true',help='Two independent strict-load original-head processes; no VLM/simulator/optimizer.')
     p.add_argument('--max-samples',type=int,default=1)
@@ -432,7 +479,7 @@ def main():
     if not 1<=a.max_updates<=cfg['training']['max_updates']:p.error('Update budget exceeds locked configuration')
     if a.stop_after is not None and not 1<=a.stop_after<=a.max_updates:p.error('Invalid bounded --stop-after')
     FlowLossRecipe(velocity=a.velocity_weight,preserve=a.preserve_weight,
-                   effect=a.effect_weight,direction=a.direction_weight).validate()
+                   effect=a.effect_weight,direction=a.direction_weight,representation=a.representation_weight).validate()
     if a.dry_run:
         print(json.dumps({'status':'NOT_RUN','arm':a.arm,'max_updates':a.max_updates,
             'output':a.output,'resume_requested':a.resume,'fixed_repair_keep_ratio':'1:1'}));return
@@ -440,7 +487,7 @@ def main():
         arm=a.arm,device=a.device,seed=a.seed,max_updates=a.max_updates,output=a.output,
         stop_after=a.stop_after,resume=a.resume,effect_checkpoint=a.effect_checkpoint,
         velocity_weight=a.velocity_weight,preserve_weight=a.preserve_weight,
-        effect_weight=a.effect_weight,direction_weight=a.direction_weight)))
+        effect_weight=a.effect_weight,direction_weight=a.direction_weight,representation_weight=a.representation_weight)))
 
 
 if __name__=='__main__':main()

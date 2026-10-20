@@ -143,7 +143,14 @@ def test_cli_help_and_strict_teacher_arm_boundary():
     assert result.returncode!=0 and 'Only B1-effect' in result.stderr
 
 
-def test_actual_g0_adapter_role_join_raw_keep_and_missing_class(tmp_path):
+def test_actual_g0_adapter_role_join_raw_keep_and_missing_class(tmp_path,monkeypatch):
+    # This fixture isolates the parser, not native feedback validation (which
+    # has separate real receipt/negative coverage). Keep the production check.
+    from tools.action_effect import verified_data
+    checked=[]
+    def fixture_validation(path,*,kind):
+        checked.append((path,kind));return {'scope':'synthetic parser fixture only'}
+    monkeypatch.setattr(verified_data,'validate_compact_dataset',fixture_validation)
     records,examples=fixtures();binding={'base_checkpoint':{'sha256':'base'},'identity':'binding'}
     reader=SimpleNamespace(binding=binding,rows={s:{'scene_id':s} for s in records})
     class Reader:
@@ -166,6 +173,7 @@ def test_actual_g0_adapter_role_join_raw_keep_and_missing_class(tmp_path):
     def save():
         data.pop('identity',None);data['identity']=digest(data);p=tmp_path/'DATA.json';p.write_text(json.dumps(data));return p
     loaded,report=load_flow_examples(save(),Reader())
+    assert checked and checked[0][1]=='repair'
     assert report['counts']['repairs']==2 and report['counts']['preserve']==2
     for ex in loaded:
         if ex['is_preserve']:assert torch.equal(ex['target_raw'],records[ex['scene_id']]['raw'])

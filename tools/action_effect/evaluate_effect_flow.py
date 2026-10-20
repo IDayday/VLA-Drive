@@ -45,11 +45,13 @@ def load_flow_policy(checkpoint,*,base_binding,expected_base_binding_hash,device
             or state['optimizer_step']<1):raise ValueError('No complete actually updated IEG checkpoint')
     head,pin=load_original_action_head(verify_artifact(identity['head']['head_receipt']),base_binding,device=device)
     if pin!=identity['head']:raise ValueError('Canonical head dependency changed')
-    model=EffectInternalizedFlow(head,EffectFlowAdapter(EffectFlowAdapterConfig(**identity['adapter_config'])),arm=identity['arm']).to(device)
+    model=EffectInternalizedFlow(head,EffectFlowAdapter(EffectFlowAdapterConfig(**identity['adapter_config'])),
+        arm=identity['arm'],effect_protocol=identity.get('effect_protocol','legacy_endpoint_proxy')).to(device)
     load_private(model,state['model']);model.requires_grad_(False).eval()
     model.provenance={'checkpoint':artifact(checkpoint),'identity':artifact(checkpoint.parent/'IDENTITY.json'),
         'optimizer_step':state['optimizer_step'],'run_identity':state['run_identity'],'arm':identity['arm'],
         'base_binding_hash':expected_base_binding_hash,'teacher_deployed':False,'generation':'one original Euler10',
+        'effect_protocol':identity.get('effect_protocol','legacy_endpoint_proxy'),
         'inference_backend':backend}
     return model
 

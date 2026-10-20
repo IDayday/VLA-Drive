@@ -139,3 +139,37 @@ def effect_consistency_loss(teacher, effect_context, pair, predicted_velocity, t
                  if denom > 0 else pred.sum()*0)
     return {'effect_consistency': consistency, 'effect_direction': direction,
             'predicted_effect': predicted_delta, 'endpoint_proxy': endpoint_proxy}
+
+
+def verified_pair_effect_loss(student_delta,student_embedding,*,true_delta,teacher_embedding,
+        effect_valid,repair_valid,effect_scales,global_denominator=None,direction_global_denominator=None,
+        representation_global_denominator=None,world_size=1,direction_temperature=.1):
+    """Native-delta supervision and frozen verified-pair representation targets.
+
+No learned teacher query occurs here, and targets never enter the student
+forward. This is auxiliary representation distillation, not a velocity gradient
+from a simulator and not a query at an unsupported eps+v endpoint.
+    """
+    if (student_delta.ndim!=2 or student_delta.shape!=true_delta.shape or effect_valid.shape!=true_delta.shape
+            or effect_valid.dtype!=torch.bool or repair_valid.shape!=(len(student_delta),) or repair_valid.dtype!=torch.bool
+            or student_embedding.ndim!=2 or student_embedding.shape!=teacher_embedding.shape
+            or len(student_embedding)!=len(student_delta) or direction_temperature<=0):
+        raise ValueError('Verified effect/representation target shapes or masks differ')
+    if not all(torch.isfinite(x).all() for x in (student_delta,student_embedding,true_delta,teacher_embedding)):
+        raise FloatingPointError('Nonfinite verified effect target or student prediction')
+    scales=torch.as_tensor(effect_scales,device=student_delta.device,dtype=torch.float32)
+    if scales.shape!=(student_delta.shape[1],) or not torch.isfinite(scales).all() or (scales<=0).any():
+        raise ValueError('Declared positive native physical scales required')
+    valid=effect_valid & repair_valid[:,None]
+    target=true_delta.detach().float()/scales;prediction=student_delta.float()/scales
+    consistency=masked_mean((prediction-target).square(),valid,global_denominator=global_denominator,world_size=world_size)
+    weight=target.abs()*valid*(target.abs()>1e-6);local_weight=float(weight.sum().detach())
+    if world_size!=1 and direction_global_denominator is None:raise ValueError('DDP direction requires a global weight sum')
+    denom=local_weight if direction_global_denominator is None else float(direction_global_denominator)
+    if not math.isfinite(denom) or denom<local_weight:raise ValueError('Invalid verified direction denominator')
+    direction=((F.softplus(-target.sign()*prediction/direction_temperature)*weight).sum()*world_size/denom
+        if denom>0 else prediction.sum()*0)
+    rep_valid=repair_valid[:,None].expand_as(student_embedding)
+    representation=masked_mean((student_embedding.float()-teacher_embedding.detach().float()).square(),rep_valid,
+        global_denominator=representation_global_denominator,world_size=world_size)
+    return {'effect_consistency':consistency,'effect_direction':direction,'effect_representation':representation}
