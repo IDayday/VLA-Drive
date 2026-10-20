@@ -3,6 +3,7 @@ from dataclasses import asdict
 from pathlib import Path
 from types import SimpleNamespace
 import json
+import os
 import numpy as np
 import pytest
 import torch
@@ -176,3 +177,32 @@ def test_optional_prediction_join_is_after_policy_and_checks_identity(tmp_path,m
     wrong=tmp_path/'WRONG.json';write_json(wrong,m)
     with pytest.raises(ValueError,match='identity-bound'):
         online.compare_prediction(wrong,'S0',{'physical':row['physical']},actual)
+
+
+def test_only_trusted_importlib_atomic_code_writes_are_exempt(tmp_path):
+    code=tmp_path/'code';(code/'__pycache__').mkdir(parents=True)
+    (code/'future_latent_head.py').write_text('VALUE=1\n')
+    path=code/'__pycache__/future_latent_head.cpython-310.pyc.123456'
+    guard=online.DeploymentReadGuard(code_roots=[code])
+    flags=os.O_WRONLY|os.O_CREAT|os.O_EXCL
+    guard('open',(str(path),None,flags))
+    assert len(guard.permitted_code_cache_writes)==1 and not guard.blocked
+    for name,mode in ((path,os.O_RDONLY),(path,os.O_RDWR|os.O_CREAT),
+                      (path.with_name('future_latent_head.cpython-310.pyc.BAD'),flags),
+                      (code/'future_targets.pt',flags)):
+        with pytest.raises(PermissionError):guard('open',(str(name),None,mode))
+    outside=tmp_path/'data';(outside/'__pycache__').mkdir(parents=True)
+    (outside/'future_latent_head.py').write_text('VALUE=1\n')
+    with pytest.raises(PermissionError):guard('open',(str(outside/'__pycache__'/path.name),None,flags))
+
+
+def test_rejected_resource_has_safe_stack_and_durable_diagnostic(tmp_path):
+    guard=online.DeploymentReadGuard();imports=online.DeploymentImportGuard()
+    with pytest.raises(PermissionError):guard('open',('/data/metric_cache.pkl','rb',os.O_RDONLY))
+    with pytest.raises(ImportError):imports.find_spec('tools.action_effect.context_data')
+    result=online.dependency_audit(tmp_path,guard,imports)
+    assert result['status']=='FAIL' and (tmp_path/'DEPENDENCY_AUDIT.json').exists()
+    detail=result['blocked_data_opens'][0]
+    assert detail['stack'] and all(set(f)=={'file','line','function'} for f in detail['stack'])
+    assert 'metric_cache.pkl' not in detail['path'] # Unknown external paths are hashed, never emitted raw.
+    assert result['blocked_import_attempts'][0]['module']=='tools.action_effect.context_data'

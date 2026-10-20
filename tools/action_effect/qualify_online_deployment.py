@@ -9,13 +9,31 @@ import argparse
 import json
 import os
 import resource
+import re
 import subprocess
 import sys
 import time
+import traceback
+import hashlib
 import numpy as np
 import torch
 
 from .common import artifact,read_json,sha256,verify_artifact,verify_identity,write_json
+
+_ACTIVE_RUNTIME_GUARDS=None
+
+
+def safe_resource_path(path):
+    """Only source/project paths, never file contents, locals or URL credentials."""
+    value=os.fsdecode(path)
+    if any(value.startswith(str(root)+os.sep) for root in (Path('/mnt/project'),Path(sys.prefix),Path(sys.base_prefix))):
+        return re.sub(r'(?<=//)[^/@]+@','<redacted>@',value)
+    return '<external-path-sha256:'+hashlib.sha256(value.encode()).hexdigest()+'>'
+
+
+def diagnostic_stack():
+    return [{'file':safe_resource_path(frame.filename),'line':frame.lineno,'function':frame.name}
+            for frame in traceback.extract_stack(limit=9)[:-1]]
 
 
 class DeploymentReadGuard:
@@ -24,17 +42,39 @@ class DeploymentReadGuard:
            'interaction_targets','feedback','native_feedback','lidar','teacher_cache'}
     names={'PAIR_DATASET.json','REPAIR_DATASET.json','TRAINING_MANIFEST.json','PREDICTIONS.json'}
 
-    def __init__(self):self.blocked=[];self.current_images=set();self.current_image_opens=0
+    def __init__(self,code_roots=None):
+        root=Path(__file__).resolve().parents[2]
+        self.code_roots=tuple(Path(p).resolve() for p in (code_roots or
+            (root/'starVLA',root/'tools',Path(sys.prefix)/'lib',Path(sys.base_prefix)/'lib')))
+        self.blocked=[];self.permitted_code_cache_writes=[];self.current_images=set();self.current_image_opens=0
+
+    def atomic_python_cache_write(self,path,args):
+        # importlib._write_atomic creates NAME.cpython-310.pyc.<id(path)>.
+        # This is an optional code write, not future-label data access. Restrict
+        # the exception to a real source module under declared trusted roots.
+        if path.parent.name!='__pycache__' or len(args)<3 or not isinstance(args[2],int):return False
+        flags=args[2]
+        if (flags&os.O_ACCMODE)!=os.O_WRONLY or not flags&os.O_CREAT:return False
+        match=re.fullmatch(r'([A-Za-z_][A-Za-z0-9_]*)\.cpython-[0-9]+(?:\.opt-[12])?\.pyc\.[0-9]+',path.name)
+        if match is None:return False
+        source=(path.parent.parent/(match.group(1)+'.py')).resolve()
+        return source.is_file() and any(source.is_relative_to(root) for root in self.code_roots)
 
     def __call__(self,event,args):
         if event!='open' or not args or not isinstance(args[0],(str,bytes,os.PathLike)):return
         path=Path(os.fsdecode(args[0]));parts={x.lower() for x in path.parts}
         if str(path) in self.current_images:self.current_image_opens+=1
+        if self.atomic_python_cache_write(path,args):
+            self.permitted_code_cache_writes.append({'path':safe_resource_path(str(path)),
+                'reason':'trusted_importlib_atomic_python_bytecode_write','stack':diagnostic_stack()})
+            return
         if path.suffix in ('.py','.pyc','.so'):return
         if (parts&self.parts or path.name in self.names or path.name.lower().startswith(('metric_cache','feedback_'))
             or any(x.startswith('future_') or x.endswith('_targets') for x in parts)):
-            self.blocked.append(str(path))
-            raise PermissionError('Deployment process denied supervision/cache data: '+str(path))
+            detail={'path':safe_resource_path(str(path)),'event':'open','reason':'supervision_or_feature_cache_data',
+                    'stack':diagnostic_stack()}
+            self.blocked.append(detail)
+            raise PermissionError('Deployment process denied supervision/cache data: '+detail['path'])
 
 
 class DeploymentImportGuard:
@@ -42,9 +82,26 @@ class DeploymentImportGuard:
         'tools.action_effect.train_refiner','tools.action_effect.evaluate_refiner',
         'tools.action_effect.context_data','tools.action_effect.evaluation_context_data')
 
+    def __init__(self):self.blocked=[]
+
     def find_spec(self,fullname,path=None,target=None):
         if any(fullname==x or fullname.startswith(x+'.') for x in self.denied):
+            self.blocked.append({'module':fullname,'stack':diagnostic_stack()})
             raise ImportError('Deployment process denied teacher/simulator/cache module: '+fullname)
+
+
+def dependency_audit(output,guard,imports):
+    loaded=[{'module':name,'source':safe_resource_path(getattr(module,'__file__','<namespace>') or '<namespace>')}
+            for name,module in sys.modules.items()
+            if any(name==x or name.startswith(x+'.') for x in imports.denied)]
+    evidence={'schema':'action_effect_deployment_dependency_audit_v1',
+        'status':'FAIL' if loaded or guard.blocked or imports.blocked else 'PASS',
+        'blocked_data_opens':guard.blocked,'blocked_import_attempts':imports.blocked,
+        'forbidden_loaded_modules':loaded,'permitted_atomic_code_cache_writes':guard.permitted_code_cache_writes,
+        'logged_content':'safe paths, module names and filename/line/function stacks only; no locals/source lines/file contents',
+        'scope':'dependency boundary only, not model quality or latency'}
+    write_json(Path(output)/'DEPENDENCY_AUDIT.json',evidence,immutable=False)
+    return evidence
 
 
 def current_only(observation):
@@ -144,13 +201,14 @@ def latency_summary(values):
 
 
 def worker(args):
+    global _ACTIVE_RUNTIME_GUARDS
     from .evaluate_effect_flow import canonical_inference_backend
     backend=canonical_inference_backend()
     if not args.device.startswith('cuda') or not torch.cuda.is_available():raise ValueError('Actual allocated CUDA device required')
     if torch.cuda.device_count()!=1:raise ValueError('Expose exactly one admitted CUDA device')
     torch.cuda.set_device(args.device);torch.set_num_threads(2)
-    guard=DeploymentReadGuard();sys.addaudithook(guard)
-    sys.meta_path.insert(0,DeploymentImportGuard())
+    guard=DeploymentReadGuard();imports=DeploymentImportGuard();_ACTIVE_RUNTIME_GUARDS=(guard,imports)
+    sys.addaudithook(guard);sys.meta_path.insert(0,imports)
     from tools.st_world_policy.base_binding import read_binding
     from tools.foresight.checkpoints import load_student,scene_noise
     from starVLA.dataloader.foresight_dataset import ForesightCurrentDataset
@@ -219,8 +277,9 @@ def worker(args):
                 'complete_generations':1,'teacher_calls':0,'simulator_calls':0,'VLM_calls':1}
             del result,snap,poison,reference,final
     finally:pipeline.close()
-    forbidden_loaded=[m for m in sys.modules if any(m==x or m.startswith(x+'.') for x in DeploymentImportGuard.denied)]
-    if forbidden_loaded or guard.blocked:raise ValueError('Forbidden training/simulator/cache dependency used')
+    dependencies=dependency_audit(args.output,guard,imports)
+    if dependencies['status']!='PASS':
+        raise ValueError('Forbidden training/simulator/cache dependency used; inspect DEPENDENCY_AUDIT.json safe paths/stacks')
     if 'S0' in outputs:
         for mode in ('A','B'):
             if mode in outputs:
@@ -244,6 +303,7 @@ def worker(args):
         'timing_definition':'current JSON + original three-image decode/crop/resize + original processor/VLM + Euler10 + optional A refiner + CPU physical output; loading weights, diagnostics and cached-output comparison excluded',
         'file_cache_state':'repeated same scene; OS/file caches warm, not population throughput or cold-storage benchmark',
         'elapsed_seconds':time.perf_counter()-started,'scientific_gain':'UNTESTED','blocked_data_opens':guard.blocked,
+        'dependency_audit':artifact(Path(args.output)/'DEPENDENCY_AUDIT.json'),
         'blocked_imports_verified':True,'source_policy':'same frozen repository/source contract, independent fresh Python worker'}
     write_json(Path(args.output)/'WORKER_RESULT.json',result)
     return result
@@ -323,6 +383,9 @@ def main(argv=None):
         result=worker(a) if a.worker and not a.dry_run else launch(a)
         print(json.dumps(result));return 0 if result['status'] in ('PASS','NOT_RUN') else 1
     except Exception as e:
+        if a.worker and _ACTIVE_RUNTIME_GUARDS is not None:
+            try:dependency_audit(a.output,*_ACTIVE_RUNTIME_GUARDS)
+            except Exception:pass # Preserve the first error; normal worker outputs are outside prohibited data roots.
         print(json.dumps({'status':'FAIL','error_type':type(e).__name__,'error':str(e),'scientific_gain':'UNTESTED'}));return 1
 
 
