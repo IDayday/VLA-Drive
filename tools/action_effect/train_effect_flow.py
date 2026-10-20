@@ -223,7 +223,7 @@ def load_flow_examples(repair_dataset,reader):
         counts['preserve' if preserve else 'repairs']+=1
     if not counts['repairs']:raise ValueError('BLOCKED_NO_REPAIR: no verified local repair fit scenes')
     if not counts['preserve']:raise ValueError('BLOCKED_NO_KEEP: no valid high-quality replay')
-    return examples,{'dataset':artifact(repair_dataset),'native_validation':native_validation,'counts':counts,'label_spec':label_spec,
+    return examples,{'dataset':artifact(repair_dataset),'native_verification':'full native-to-compact chain; immutable inventory reuse allowed','counts':counts,'label_spec':label_spec,
                      'repair_log_count':len({r['source_log'] for r in examples if r['is_repair']})}
 
 

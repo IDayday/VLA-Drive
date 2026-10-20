@@ -23,3 +23,11 @@ B uses fixed1:1 repair/keep exposure; all arms report actual unique support and
 replacement. Initial finite budget1000 updates/arm; early engineering smoke uses
 stop_after against that unchanged schedule. Only supported finalists receive
 additional seeds43/44. No development/navtest feedback chooses these rules.
+
+Before any A0/A1/ScoreRefiner update and before1024 feedback results, EGR exposure
+is fixed to the same1:1 verified repair/high-quality identity-reference mixture
+as IEG. The64 cost pilot contained only1 repair/44 fit keeps, so natural scene
+sampling would give very few repair updates. This does not add unique support.
+All EGR arms share the exact reference list; unique scenes, class exposure and
+replacement are recorded. A missing class blocks this recipe, rather than
+silently changing the training objective. No DEV result informed this choice.

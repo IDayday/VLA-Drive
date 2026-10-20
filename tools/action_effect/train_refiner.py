@@ -10,6 +10,7 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 import subprocess
+import math
 
 import numpy as np
 import torch
@@ -229,6 +230,15 @@ def train(cfg, *, dataset_path, context_manifest, output, arm, device, seed, max
         raise ValueError("Explicit bounded updates exceed the campaign recipe")
     dataset = prepare_dataset(cfg, dataset_path, context_manifest, campaign_binding)
     if not dataset.fit: raise ValueError("NO_VERIFIED_FIT_REPAIR_OR_KEEP_TARGETS")
+    repairs=[r for r in dataset.fit if r['target_kind']=='verified_local_repair']
+    keeps=[r for r in dataset.fit if r['target_kind']=='identity_preservation']
+    if not repairs or not keeps:raise ValueError('BLOCKED_NO_REPAIR_OR_KEEP: fixed1:1 EGR recipe requires both')
+    n=math.lcm(len(repairs),len(keeps))
+    if 2*n>2_000_000:raise ValueError('Bounded EGR reference index exceeded')
+    dataset.fit=[repairs[i%len(repairs)] for i in range(n)]+[keeps[i%len(keeps)] for i in range(n)]
+    sampling={'recipe':'uniform1:1 verified repair/high-quality identity references',
+              'unique_repairs':len(repairs),'unique_keeps':len(keeps),'virtual_references':2*n,
+              'reference_hash':digest([r['scene_id'] for r in dataset.fit]),'new_unique_scenes':0}
     model = build_model(cfg, dataset, arm=arm, seed=seed, device=device,
                         effect_checkpoint=effect_checkpoint, effect_identity=effect_identity)
     source = subprocess.check_output(["git", "-C", str(Path(__file__).resolve().parents[2]), "rev-parse", "HEAD"], text=True).strip()
@@ -236,7 +246,7 @@ def train(cfg, *, dataset_path, context_manifest, output, arm, device, seed, max
         "data_artifact": artifact(dataset_path), "context_artifact": artifact(context_manifest),
         "model_config": asdict(model.refiner.config), "label_spec": asdict(dataset.label_spec),
         "effect_teacher": getattr(model.effect_teacher, "provenance", None),
-        "fit_scene_ids": [r["scene_id"] for r in dataset.fit], "fit_logs": sorted({r["source_log"] for r in dataset.fit}),
+        "fit_scene_ids": sorted({r["scene_id"] for r in dataset.fit}), "sampling":sampling, "fit_logs": sorted({r["source_log"] for r in dataset.fit}),
         "role": "fit_only", "event_guidance_enabled": False,
         "continuous_combinations": "OOD relative to the discrete fixed24 grid; requires actual simulator evaluation"}
     Path(output).mkdir(parents=True, exist_ok=True)
