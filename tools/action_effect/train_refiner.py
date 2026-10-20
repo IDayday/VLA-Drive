@@ -61,13 +61,11 @@ class RepairDataset:
                 or m["score_protocol_hash"] != self.registration["spec"]["score_protocol_hash"]):
             raise ValueError("Repair simulation identity changed")
         if verify_feedback:
-            # Reconstruct compact rows from immutable native scene receipts.
-            # Self-hashing a modified compact JSON is not native provenance.
-            # This performs no simulation and reuses deterministic completed data.
-            from .build_effect_pairs import build
-            rebuilt = build(Path(m["registration"]["path"]).parent)
-            if rebuilt["repair_dataset"]["sha256"] != artifact(self.path)["sha256"]:
-                raise ValueError("Compact repairs differ from deterministic native receipt reconstruction")
+            # The shared strict builder attests both compact outputs against
+            # native receipts. Reuse requires every source/payload checksum and
+            # immutable file version; never redo the whole bank per A arm.
+            from .verified_data import validate_compact_dataset
+            self.validation_receipt = validate_compact_dataset(self.path, kind="repair")
         self.reader = context_reader
         self.entries, self.by_id, logs = [], {}, {}
         all_entries = m["entries"]
