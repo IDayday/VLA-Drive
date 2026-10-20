@@ -88,6 +88,19 @@ def test_repair_role_and_observation_contracts_reject_invalid_joins(tmp_path):
         with pytest.raises(ValueError): RepairDataset(p,dataset.reader,verify_feedback=False)
 
 
+def test_compact_self_hash_cannot_replace_native_row_provenance(tmp_path, monkeypatch):
+    dataset, _ = fixture_dataset(tmp_path)
+    from tools.action_effect import build_effect_pairs
+    calls = []
+    def native_rebuild(root):
+        calls.append(root)
+        return {"repair_dataset": {"sha256": "not-the-compact-file-checksum"}}
+    monkeypatch.setattr(build_effect_pairs, "build", native_rebuild)
+    with pytest.raises(ValueError, match="deterministic native receipt"):
+        RepairDataset(dataset.path, dataset.reader)
+    assert calls == [tmp_path]
+
+
 @pytest.mark.parametrize("arm", ["A0", "A1"])
 def test_entry_microbatch_preserves_complete_update_objective_and_frozen_teacher(tmp_path, arm):
     dataset, _ = fixture_dataset(tmp_path)
