@@ -243,5 +243,5 @@ def test_compact_content_gate_rejects_rehashed_labels_before_training(tmp_path, 
     # Isolate here that matching self-hashes cannot bypass the expected source hash.
     monkeypatch.setattr(builder, "build", lambda _: {"pair_dataset": artifact(tmp_path / "original.json")})
     reader = SimpleNamespace(binding={"identity": "frozen-binding", "base_checkpoint": {"sha256": "base"}})
-    with pytest.raises(ValueError, match="differ from their verified native"):
+    with pytest.raises(ValueError, match="Compact (pair )?rows differ"):
         PairData(tmp_path / "altered.json", reader)
