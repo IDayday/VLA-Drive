@@ -62,10 +62,18 @@ def prepare(cfg):
     from tools.st_world_policy.base_binding import read_binding
     root=Path(cfg['artifact_root']);check_space(cfg)
     repo=Path(__file__).resolve().parents[2]
-    contracts=['tools/action_effect/collect_base_trajectories.py',
-        'tools/foresight/checkpoints.py','starVLA/dataloader/foresight_dataset.py',
-        'starVLA/model/framework/DDPForesight.py','starVLA/model/framework/QwenOFT.py',
-        'starVLA/model/modules/action_model/GR00T_ActionHeader.py']
+    # Source-only closure: no scanning of weights, images or cached tensors.
+    contracts=set(['tools/action_effect/collect_base_trajectories.py',
+        'tools/action_effect/common.py','tools/st_world_policy/base_binding.py',
+        'tools/foresight/checkpoints.py','tools/foresight/deployment_precision.py',
+        'starVLA/dataloader/foresight_dataset.py','starVLA/cache/navsim_feature_cache.py',
+        'starVLA/model/tools.py','starVLA/model/modules/vehicle_joint/initialization.py'])
+    for directory in ['starVLA/model/framework','starVLA/model/modules/foresight',
+                      'starVLA/model/modules/action_model','starVLA/model/modules/vlm',
+                      'starVLA/training/trainer_utils']:
+        contracts.update(str(p.relative_to(repo)) for p in (repo/directory).rglob('*.py')
+                         if 'effect_' not in p.name)
+    contracts=sorted(contracts)
     extraction_contract={'schema':'action_effect_s0_context_fp32_v1',
         'code':{p:sha256(repo/p) for p in contracts},
         'packages':{p:version(p) for p in ['torch','transformers','deepspeed']},
@@ -208,10 +216,12 @@ def collect(cfg, *, max_samples, device):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',required=True)
     p.add_argument('--max-samples',type=int,required=True);p.add_argument('--device',required=True)
-    p.add_argument('--dry-run',action='store_true');p.add_argument('--resume',action='store_true')
+    p.add_argument('--dry-run',action='store_true');p.add_argument('--resume',action='store_true',
+        help='Explicitly acknowledge resuming immutable partial shards; valid complete shards are always idempotently reused')
     args=p.parse_args();cfg=load_config(args.config)
     if args.dry_run:print(json.dumps({'status':'NOT_RUN','config_hash':digest(cfg),'max_samples':args.max_samples}));return
-    result=collect(cfg,max_samples=args.max_samples,device=args.device);print(json.dumps(result))
+    # All resume paths perform the same strict dependency/coverage validation.
+    result=collect(cfg,max_samples=args.max_samples,device=args.device);result['resume_requested']=args.resume;print(json.dumps(result))
 
 
 if __name__=='__main__':main()
