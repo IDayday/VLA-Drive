@@ -76,7 +76,13 @@ def run_training(model, *, output, identity, dataset_size, step_fn, validation_f
     output=Path(output);output.mkdir(parents=True,exist_ok=True);t=cfg['training'];stateful=stateful or {}
     if 'source_commit' not in identity:raise ValueError('Source snapshot identity required')
     identity={**identity,'schema':'action_effect_small_training_v1','seed':seed,'dataset_size':dataset_size,
-              'max_updates':max_updates,'recipe':t,'private_names':sorted(private_state(model))}
+              'max_updates':max_updates,'recipe':t,'private_names':sorted(private_state(model)),
+              'runtime':{'torch':torch.__version__,'cuda':torch.version.cuda,'device':str(device),
+                 'gpu_name':torch.cuda.get_device_name(device) if str(device).startswith('cuda') else None,
+                 'deterministic':torch.are_deterministic_algorithms_enabled(),
+                 'matmul_tf32':torch.backends.cuda.matmul.allow_tf32,'cudnn_tf32':torch.backends.cudnn.allow_tf32,
+                 'cudnn_benchmark':torch.backends.cudnn.benchmark,
+                 'trainable_dtype':'float32','autocast':'disabled'}}
     ih=digest(identity);write_json(output/'IDENTITY.json',identity)
     params=[p for p in model.parameters() if p.requires_grad]
     if not params or any(p.dtype!=torch.float32 for p in params):raise ValueError('Private parameters must be FP32')
