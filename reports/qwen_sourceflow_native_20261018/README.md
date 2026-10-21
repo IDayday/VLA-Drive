@@ -1,5 +1,7 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
+**2026-10-21更新：40k完整DEV PDMS为88.093495，较20k提高3.570545分；训练实际进度与最近吞吐见[40k结果及实时状态](interim_IL040000_20261021.md)。没有新的Navtest，已完成的仍为20k的80.370064；正式RL尚未启动。**
+
 **最新：按用户要求完成20k IL中期全量Navtest，canonical v1.1单候选PDMS为80.370064（12146场景/136 logs、seed2101、shift5 ODE K10），未达到92。这不是RL成绩，不用于IL父模型选择。** 详见[全量Navtest报告](interim_NAVTEST_IL020000_20261020.md)。正式IL继续运行；后续CPU owner已迁移为`campaign_v3`，只修复评价源码/缓存路由，训练仍固定`d4d0012`。
 
 **2026-10-20 14:51执行快照：正式8卡IL到35,868步，首个20k模型完整DEV（1696场景/16 logs）canonical单候选PDMS为84.522951。20k不是最新35k权重。完整IL、两组正式RL及选定父模型的最终Navtest尚未完成，没有达到92或已有RL净收益的结论。**
