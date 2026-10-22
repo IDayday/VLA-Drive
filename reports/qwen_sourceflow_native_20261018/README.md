@@ -1,8 +1,10 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
+**2026-10-22最新49k IL全量Navtest：PDMS 86.810426，较40k变化+1.023870分；同一canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL结果，正式RL尚未开始。** [49k报告与配对分析](interim_NAVTEST_IL049000_20261022.md)。
+
 **2026-10-22资源更新：按最新用户指示排除tsinghua-zt2；此前tsinghua-zt6禁用保持生效。后续训练、评价、重试与资源巡检使用动态授权过滤，历史主机清单仅作执行记录。当前原生IL位于tsinghua-zt，不受该撤销影响。** [撤销收据](resource_withdrawal_tsinghua_zt2_20261022.json)。
 
-**2026-10-22最新：40k IL全量Navtest PDMS为85.786557，较20k的80.370064变化+5.416493分。12146场景/136 logs、seed2101、单候选shift5 ODE K10、canonical v1.1；这是IL进展，不是RL收益。** 详见[40k全量Navtest与配对分析](interim_NAVTEST_IL040000_20261022.md)。
+**2026-10-22历史40k快照：40k IL全量Navtest PDMS为85.786557，较20k的80.370064变化+5.416493分。12146场景/136 logs、seed2101、单候选shift5 ODE K10、canonical v1.1；这是IL进展，不是RL收益。** 详见[40k全量Navtest与配对分析](interim_NAVTEST_IL040000_20261022.md)。
 
 **2026-10-21更新：40k完整DEV PDMS为88.093495，较20k提高3.570545分；训练实际进度与最近吞吐见[40k结果及实时状态](interim_IL040000_20261021.md)。没有新的Navtest，已完成的仍为20k的80.370064；正式RL尚未启动。**
 

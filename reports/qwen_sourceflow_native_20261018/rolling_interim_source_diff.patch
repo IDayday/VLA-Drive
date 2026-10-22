@@ -1,0 +1,446 @@
+diff --git a/scripts/analysis/qwen_sourceflow/analyze_il_milestones.py b/scripts/analysis/qwen_sourceflow/analyze_il_milestones.py
+new file mode 100644
+index 0000000..6eb1ba1
+--- /dev/null
++++ b/scripts/analysis/qwen_sourceflow/analyze_il_milestones.py
+@@ -0,0 +1,139 @@
++"""Read-only paired comparison of two complete native IL evaluations."""
++import argparse
++import json
++from pathlib import Path
++
++import numpy as np
++
++from scripts.analysis.qwen_sourceflow.analyze_paired import read
++from scripts.analysis.simwam_recipe.analyze_evaluation import METRICS, SAFETY, motion
++from starVLA.rl.flow_grpo.transactions import atomic_json
++from starVLA.rl.qwen_sourceflow.contracts import file_sha, fingerprint
++from starVLA.rl.safe_flow_improvement.diagnostics import log_bootstrap_difference
++
++
++METADATA_ONLY_SOURCE_FILES = {
++    'starVLA/rl/qwen_sourceflow/loading.py',
++    'starVLA/rl/qwen_sourceflow/interim_evaluation.py',
++    'scripts/analysis/qwen_sourceflow/evaluate_policy.py',
++    'scripts/analysis/qwen_sourceflow/validate_interim_evaluation.py',
++    'scripts/analysis/qwen_sourceflow/analyze_il_milestones.py',
++    'scripts/analysis/qwen_sourceflow/campaign.py',
++    'scripts/analysis/qwen_sourceflow/summarize_results.py',
++    'scripts/analysis/qwen_sourceflow/validate_campaign.py',
++}
++
++
++def match_source_files(current, reference, receipt=None):
++    """Keep strict equality by default; bind an audited metadata-only pair."""
++    before, after = reference['source_files'], current['source_files']
++    if before == after:
++        return dict(mode='identical_source_files')
++    if receipt is None:
++        raise ValueError('Different sources require explicit qualified compatibility receipt')
++    record = json.loads(Path(receipt).read_text()); body = dict(record); seal = body.pop('sha256')
++    changed = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
++    if (fingerprint(body) != seal or record.get('schema') != 'native_interim_evaluation_metadata_compatibility_v1'
++            or record.get('reference_source_files_sha256') != fingerprint(before)
++            or record.get('evaluation_source_files_sha256') != fingerprint(after)
++            or record.get('changed_files') != changed or not set(changed) <= METADATA_ONLY_SOURCE_FILES
++            or record.get('evaluation_model_sha256') != current['parent_model_sha256']):
++        raise ValueError('Compatibility receipt does not cover the exact source/model pair')
++    for evidence in record['evidence_files']:
++        if file_sha(evidence['path']) != evidence['sha256']:
++            raise ValueError('Changed compatibility evidence')
++    proof = json.loads(Path(record['qualification']['path']).read_text())
++    if (file_sha(record['qualification']['path']) != record['qualification']['sha256']
++            or proof.get('status') != 'PASS'
++            or proof.get('reference_source_files_sha256') != fingerprint(before)
++            or proof.get('evaluation_source_files_sha256') != fingerprint(after)
++            or proof.get('evaluation_model_sha256') != current['parent_model_sha256']
++            or not proof.get('normal_loader_AST_unchanged')
++            or not proof.get('evaluation_scientific_AST_unchanged')
++            or not proof.get('all_other_numerical_source_bytes_unchanged')
++            or proof.get('real_same_checkpoint_ODE_max_abs') != 0.0):
++        raise ValueError('Source pair lacks exact numerical/metadata qualification')
++    return dict(mode='explicit_metadata_only_compatibility',receipt=str(receipt),
++        receipt_sha256=file_sha(receipt),changed_files=changed,actor_scorer_population_modified=False)
++
++
++def main():
++    parser = argparse.ArgumentParser(__doc__)
++    parser.add_argument('--evaluation', required=True)
++    parser.add_argument('--reference', required=True)
++    parser.add_argument('--output', required=True)
++    parser.add_argument('--source-compatibility', help='Qualified exact metadata-only source-pair receipt')
++    args = parser.parse_args()
++    destination = Path(args.output)
++    if destination.exists():
++        raise FileExistsError('Preserve previous analyses: ' + str(destination))
++
++    current, tokens, rows, values = read(args.evaluation)
++    reference, ref_tokens, ref_rows, base = read(args.reference)
++    for key in ['schema', 'cohort', 'data_sha256', 'token_sha256', 'count',
++                'metric', 'protocol', 'seed', 'inference', 'precision']:
++        if current[key] != reference[key]:
++            raise ValueError('Unmatched native IL evaluation: ' + key)
++    compatibility = match_source_files(current, reference, args.source_compatibility)
++    if tokens != ref_tokens or current['rl_export'] is not None or reference['rl_export'] is not None:
++        raise ValueError('This analyzer requires paired IL milestones, not RL exports')
++    if current['parent_model_sha256'] == reference['parent_model_sha256']:
++        raise ValueError('Require two distinct, explicitly identified IL models')
++
++    delta = values[:, 0] - base[:, 0]
++    old_safe = (base[:, 1:4] == 1).all(1)
++    new_safe = (values[:, 1:4] == 1).all(1)
++    bootstrap = log_bootstrap_difference(delta, [r['log'] for r in rows])
++    bootstrap['mean_PDMS_points'] = 100 * bootstrap['mean']
++    bootstrap['CI95_PDMS_points'] = [100 * x for x in bootstrap['CI95']]
++    result = dict(
++        schema='native_IL_milestones_paired_v1', status='COMPLETE',
++        interpretation='IL checkpoint learning only; not RL gain or IL parent selection',
++        evaluation=args.evaluation, reference=args.reference,
++        current_checkpoint=current['checkpoint'], reference_checkpoint=reference['checkpoint'],
++        current_model_sha256=current['parent_model_sha256'],
++        reference_model_sha256=reference['parent_model_sha256'],
++        analysis_sha256=file_sha(__file__), scenes=len(tokens),
++        source_compatibility=compatibility,
++        logs=len({r['log'] for r in rows}), seed=current['seed'],
++        inference=current['inference'], metric=current['metric'],
++        training_seed_repeats=1, inference_seeds=1,
++        uncertainty='Scene-weighted log-cluster bootstrap; excludes training/inference seed uncertainty',
++        current_mean_percent={k: float(100 * values[:, i].mean()) for i, k in enumerate(METRICS)},
++        reference_mean_percent={k: float(100 * base[:, i].mean()) for i, k in enumerate(METRICS)},
++        mean_delta_percentage_points={k: float(100 * (values[:, i] - base[:, i]).mean())
++                                      for i, k in enumerate(METRICS)},
++        PDMS_log_cluster_bootstrap=bootstrap,
++        G_plus_raw_score_sum=float(delta[delta > 0].sum()),
++        G_minus_raw_score_sum=float(-delta[delta < 0].sum()),
++        G_plus_PDMS_points=float(100 * delta[delta > 0].sum() / len(delta)),
++        G_minus_PDMS_points=float(-100 * delta[delta < 0].sum() / len(delta)),
++        any_improved=int((delta > 0).sum()), any_degraded=int((delta < 0).sum()),
++        practical_improved_ge005=int((delta >= .005).sum()),
++        practical_degraded_le_minus005=int((delta <= -.005).sum()),
++        reference_zero_scenes=int((base[:, 0] == 0).sum()),
++        current_zero_scenes=int((values[:, 0] == 0).sum()),
++        nonzero_to_zero=int(((base[:, 0] > 0) & (values[:, 0] == 0)).sum()),
++        zero_to_nonzero=int(((base[:, 0] == 0) & (values[:, 0] > 0)).sum()),
++        reference_joint_safe_scenes=int(old_safe.sum()), current_joint_safe_scenes=int(new_safe.sum()),
++        reference_safe_new_joint_violation=int((old_safe & ~new_safe).sum()),
++        reference_unsafe_joint_recovery=int((~old_safe & new_safe).sum()),
++        current_full_score_scenes=int((values[:, 0] == 1).sum()), safety_transitions={})
++    for i, key in enumerate(SAFETY, 1):
++        old, new = base[:, i] < 1, values[:, i] < 1
++        result['safety_transitions'][key] = dict(
++            reference_violation=int(old.sum()), current_violation=int(new.sum()),
++            new_violation=int((~old & new).sum()), recovery=int((old & ~new).sum()))
++    for label, population in [('current', rows), ('reference', ref_rows)]:
++        motions = [motion(row['feedback']) for row in population]
++        result[label + '_motion'] = {
++            key: dict(mean=float(np.mean(v)) if v else None, defined_scenes=len(v))
++            for key in motions[0] for v in [[m[key] for m in motions if m[key] is not None]]}
++    result['sha256'] = fingerprint(result)
++    destination.parent.mkdir(parents=True, exist_ok=True)
++    atomic_json(destination, result)
++    print(json.dumps({k: result[k] for k in ['status', 'scenes', 'mean_delta_percentage_points']}))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/scripts/analysis/qwen_sourceflow/campaign.py b/scripts/analysis/qwen_sourceflow/campaign.py
+index 644d651..a5c8d94 100644
+--- a/scripts/analysis/qwen_sourceflow/campaign.py
++++ b/scripts/analysis/qwen_sourceflow/campaign.py
+@@ -82,9 +82,10 @@ def scene_stream_hash(run):
+ 
+ 
+ class Campaign:
+-    def __init__(self,root,control,training_source,analysis_source):
++    def __init__(self,root,control,training_source,analysis_source,evaluation_source=None):
+         self.root=Path(root);self.control=Path(control)
+         self.training=training_source;self.analysis=analysis_source
++        self.evaluation=evaluation_source or training_source
+         (self.control/'jobs').mkdir(parents=True,exist_ok=True)
+         self.selection=self.root/'frozen_IL_parent.json'
+ 
+@@ -106,6 +107,12 @@ class Campaign:
+             else:
+                 operator=receipt/'operator.json'
+                 if not operator.exists() or not operator_alive(spec,read(operator)):
++                    # A successful owner can publish its result and exit while
++                    # the remote liveness probe is in flight. Re-read evidence.
++                    if result.exists():
++                        if read(result)['status']!='PROCESS_COMPLETE':
++                            raise RuntimeError('No automatic retry; inspect '+str(result))
++                        continue
+                     raise RuntimeError('Lost or partially dispatched invocation: '+str(receipt))
+                 done=False
+         return done
+@@ -237,7 +244,7 @@ class Campaign:
+         args=['--checkpoint',parent['path'],'--output',str(output),'--cohort',cohort,'--data',str(data)]
+         if cohort=='NAVTEST':args+=['--parent-selection',str(self.selection)]
+         if export is not None:args+=['--rl-export',str(export)]
+-        self.submit(name,'scripts.analysis.qwen_sourceflow.evaluate_policy',args,routes,self.training)
++        self.submit(name,'scripts.analysis.qwen_sourceflow.evaluate_policy',args,routes,self.evaluation)
+         return None
+ 
+     def qualification(self,variant):
+@@ -269,7 +276,7 @@ class Campaign:
+         validate_selection(self.selection,parent)
+         registration=self.control/'registration.json'
+         body=dict(schema='native_two_RL_formal_campaign_v1',IL_parent=parent['path'],IL_model_sha256=parent['files']['model.pt'],
+-            IL_selection_sha256=file_sha(self.selection),training=self.training,analysis=self.analysis,
++            IL_selection_sha256=file_sha(self.selection),training=self.training,analysis=self.analysis,evaluation=self.evaluation,
+             training_seed=42,inference_seed=2101,group_size=8,denoising_steps=10,
+             variants={v:dict(optimizer_updates=50000,fresh_global_rollouts=12500,scene_exposures=100000,candidates=800000,
+                 config_sha256=file_sha(Path(self.training['path'])/f'configs/qwen_sourceflow/rl_{v}.yaml')) for v in VARIANTS},
+@@ -343,21 +350,23 @@ class Campaign:
+ def main():
+     p=argparse.ArgumentParser(__doc__);p.add_argument('--root',default=str(ROOT));p.add_argument('--control-dir',required=True)
+     p.add_argument('--training-source',required=True);p.add_argument('--analysis-source',required=True)
++    p.add_argument('--evaluation-source',help='Explicit qualified inference/scoring entry; training snapshot stays fixed')
+     p.add_argument('--once',action='store_true');a=p.parse_args();require_dispatch()
+     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Campaign owner must be CPU-only')
+     control=Path(a.control_dir);control.mkdir(parents=True,exist_ok=True)
+     lock=(control/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+     train=immutable_source(a.training_source);analysis=immutable_source(a.analysis_source);root=Path(a.root)
++    evaluation=immutable_source(a.evaluation_source) if a.evaluation_source else train
+     nav=[d for d in (root/'data').iterdir() if d.is_dir() and 'NAVTEST' in d.name.upper()]
+     if len(nav)!=1:raise ValueError('Require one concrete locked Navtest data directory')
+-    identity=dict(schema='native_finite_campaign_owner_v1',training=train,analysis=analysis,
++    identity=dict(schema='native_finite_campaign_owner_v2',training=train,analysis=analysis,evaluation=evaluation,
+         root=str(root.resolve()),data=dict(DEV=str(root/'data/DEV_v2'),NAVTEST=str(nav[0])),
+         qualification_updates=16,formal_updates=50000,variants=list(VARIANTS),milestones=list(MILESTONES),
+         best_DEV_rule='highest canonical PDMS among trained milestones; exact tie later update',
+         no_automatic_retry=True,no_recipe_changes=True)
+     if (control/'identity.json').exists() and read(control/'identity.json')!=identity:raise ValueError('Campaign owner identity changed')
+     atomic_json(control/'identity.json',identity);atomic_json(control/'owner.json',dict(pid=os.getpid(),start_unix=time.time()))
+-    queue=Campaign(root,control,train,analysis)
++    queue=Campaign(root,control,train,analysis,evaluation)
+     try:
+         while True:
+             value=queue.tick();atomic_json(control/'status.json',dict(observed_unix=time.time(),**value))
+diff --git a/scripts/analysis/qwen_sourceflow/evaluate_policy.py b/scripts/analysis/qwen_sourceflow/evaluate_policy.py
+index 853bf5f..6916c72 100644
+--- a/scripts/analysis/qwen_sourceflow/evaluate_policy.py
++++ b/scripts/analysis/qwen_sourceflow/evaluate_policy.py
+@@ -69,7 +69,8 @@ def main():
+     if not 0<=a.rank<a.world:raise ValueError('Bad evaluation shard')
+     cache_roots=evaluation_caches(a.cohort)
+     preflight_caches(data,tokens[a.rank::a.world],cache_roots)
+-    model,parent=load_il(a.checkpoint,device=device,qualification=a.qualification)
++    model,parent=load_il(a.checkpoint,device=device,qualification=a.qualification,
++        interim_navtest_registration=a.interim_navtest_registration)
+     interim=None
+     if a.interim_navtest_registration:
+         from starVLA.rl.qwen_sourceflow.interim_evaluation import validate_interim_registration
+diff --git a/scripts/analysis/qwen_sourceflow/summarize_results.py b/scripts/analysis/qwen_sourceflow/summarize_results.py
+index 258e1b2..61d1a8f 100644
+--- a/scripts/analysis/qwen_sourceflow/summarize_results.py
++++ b/scripts/analysis/qwen_sourceflow/summarize_results.py
+@@ -34,6 +34,8 @@ def main():
+     export=identity.get('rl_export')
+     result=dict(schema='native_evaluation_summary_v2',status='COMPLETE',
+         policy_type='RL_MERGED' if export else 'IL',evaluation=str(root.resolve()),
++        evaluation_role='USER_REQUESTED_INTERIM' if identity.get('user_requested_interim_navtest') else 'REGISTERED',
++        user_requested_interim_navtest=identity.get('user_requested_interim_navtest'),
+         checkpoint=export['checkpoint'] if export else identity['checkpoint'],
+         IL_parent_checkpoint=identity['checkpoint'],
+         model_sha256=export['model_sha256'] if export else identity['parent_model_sha256'],
+diff --git a/scripts/analysis/qwen_sourceflow/validate_campaign.py b/scripts/analysis/qwen_sourceflow/validate_campaign.py
+index a110166..f8fb9cd 100644
+--- a/scripts/analysis/qwen_sourceflow/validate_campaign.py
++++ b/scripts/analysis/qwen_sourceflow/validate_campaign.py
+@@ -28,6 +28,28 @@ class CampaignTests(unittest.TestCase):
+             self.assertEqual(self.queue.tick()['status'],'WAITING_FOR_FULL_IL_AND_FIVE_DEV')
+             launch.assert_not_called()
+ 
++    def test_evaluation_source_is_separate_from_training(self):
++        evaluation=dict(path='/qualified-evaluation',sha='eval')
++        self.queue.evaluation=evaluation
++        data=self.root/'data/NAVTEST';data.mkdir(parents=True);(data/'manifest.json').write_text('{}')
++        routes=[dict(host='allowed',gpu=0,uuid='GPU-eval')]
++        with patch.object(module,'available',return_value=(routes,{})),patch.object(self.queue,'submit') as submit:
++            self.queue.ensure_evaluation('intermediate',dict(path='parent'),'NAVTEST')
++            self.assertEqual(submit.call_args.args[-1],evaluation)
++            self.assertEqual(self.queue.training,self.source)
++
++    def test_default_evaluation_source_preserves_old_execution(self):
++        self.assertEqual(self.queue.evaluation,self.source)
++
++    def test_completion_during_dead_owner_probe(self):
++        receipt=self.root/'receipt';receipt.mkdir()
++        atomic_json(receipt/'operator.json',dict(operator_pid=1,start_ticks=1))
++        atomic_json(self.queue.task_path('eval'),dict(name='eval',workers=[dict(receipt_dir=str(receipt))]))
++        def probe(*_):
++            atomic_json(receipt/'result.json',dict(status='PROCESS_COMPLETE',exit_code=0));return False
++        with patch.object(module,'operator_alive',side_effect=probe):
++            self.assertTrue(self.queue.done('eval'))
++
+     def test_unfinished_qualification_blocks_formal(self):
+         parent=self.parent()
+         with patch.object(module,'inspect_il',return_value=parent),patch.object(module,'validate_selection'),\
+diff --git a/scripts/analysis/qwen_sourceflow/validate_interim_evaluation.py b/scripts/analysis/qwen_sourceflow/validate_interim_evaluation.py
+index 8d67b55..55b7f11 100644
+--- a/scripts/analysis/qwen_sourceflow/validate_interim_evaluation.py
++++ b/scripts/analysis/qwen_sourceflow/validate_interim_evaluation.py
+@@ -7,7 +7,7 @@ import tempfile
+ from types import SimpleNamespace
+ import unittest
+ from unittest.mock import patch
+-from starVLA.rl.qwen_sourceflow.contracts import fingerprint
++from starVLA.rl.qwen_sourceflow.contracts import fingerprint,file_sha
+ from starVLA.rl.qwen_sourceflow.interim_evaluation import validate_interim_registration
+ 
+ 
+@@ -17,7 +17,8 @@ class RegistrationTests(unittest.TestCase):
+         self.tokens=[str(i) for i in range(12146)]
+         self.data=SimpleNamespace(sha='data',tokens=self.tokens,manifest=dict(cohort='NAVTEST'),
+             records={t:dict(log=str(i%136)) for i,t in enumerate(self.tokens)})
+-        self.parent=dict(path='/sealed/IL20k',files={'model.pt':'model'},seal=dict(updates=20000))
++        self.parent=dict(path='/sealed/IL20k',files={'model.pt':'model'},seal=dict(updates=20000),
++            identity=dict(qualification=False))
+         self.body=dict(schema='native_user_interim_NAVTEST_v1',checkpoint='/sealed/IL20k',model_sha256='model',
+             updates=20000,data_sha256='data',token_sha256=fingerprint(self.tokens),count=12146,logs=136,
+             seed=2101,metric='canonical_NAVSIM_v1.1',inference='single_candidate_source_shift5_ODE_K10',
+@@ -55,9 +56,70 @@ class RegistrationTests(unittest.TestCase):
+         with self.assertRaises(FileNotFoundError):preflight_caches(self.data,self.tokens[:1],[self.temp.name])
+ 
+ 
++class RollingCheckpointTests(unittest.TestCase):
++    def setUp(self):
++        self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name)
++        self.checkpoint=self.root/'update049000';self.checkpoint.mkdir()
++        self.request=self.root/'request.json'
++        self.write_checkpoint()
++
++    def tearDown(self):self.temp.cleanup()
++
++    def write_checkpoint(self,updates=49000,qualification=False,phase='READY'):
++        identity=dict(schema='native_qwen_sourceflow_IL_v1',qualification=qualification,
++            config=dict(milestones=[20000,40000,60000,80000,100000]))
++        (self.checkpoint/'identity.json').write_text(json.dumps(identity))
++        files={'identity.json':file_sha(self.checkpoint/'identity.json'),'model.pt':'synthetic-metadata-only'}
++        (self.checkpoint/'files.json').write_text(json.dumps(files))
++        (self.checkpoint/'COMPLETE').write_text(json.dumps(dict(schema='native_qwen_flow_IL_READY_v1',
++            phase=phase,updates=updates,files_sha256=file_sha(self.checkpoint/'files.json'))))
++        body=dict(schema='native_user_interim_NAVTEST_v1',checkpoint=str(self.checkpoint),
++            model_sha256=files['model.pt'],updates=updates,count=12146,logs=136,
++            seed=2101,metric='canonical_NAVSIM_v1.1',inference='single_candidate_source_shift5_ODE_K10',
++            used_for_parent_selection=False,used_for_training_or_tuning=False)
++        body['sha256']=fingerprint(body);self.request.write_text(json.dumps(body))
++
++    def test_rolling_remains_ineligible_for_RL(self):
++        from starVLA.rl.qwen_sourceflow.loading import inspect_il
++        with self.assertRaises(ValueError):inspect_il(self.checkpoint)
++
++    def test_explicit_request_accepts_rolling_evaluation_only(self):
++        from starVLA.rl.qwen_sourceflow.loading import inspect_il
++        self.assertEqual(inspect_il(self.checkpoint,interim_navtest_registration=self.request)['seal']['updates'],49000)
++        with self.assertRaises(ValueError):inspect_il(self.checkpoint)
++
++    def test_normal_milestone_eligibility_unchanged(self):
++        from starVLA.rl.qwen_sourceflow.loading import inspect_il
++        self.write_checkpoint(updates=40000)
++        self.assertEqual(inspect_il(self.checkpoint)['seal']['updates'],40000)
++
++    def test_no_qualification_flag_workaround(self):
++        from starVLA.rl.qwen_sourceflow.loading import inspect_il
++        with self.assertRaises(ValueError):inspect_il(self.checkpoint,qualification=True,interim_navtest_registration=self.request)
++
++    def test_qualification_weights_cannot_be_interim_formal_model(self):
++        from starVLA.rl.qwen_sourceflow.loading import inspect_il
++        self.write_checkpoint(qualification=True)
++        with self.assertRaises(ValueError):inspect_il(self.checkpoint,interim_navtest_registration=self.request)
++
++    def test_uncommitted_checkpoint_rejected(self):
++        from starVLA.rl.qwen_sourceflow.loading import inspect_il
++        self.write_checkpoint(phase='COLLECTING')
++        with self.assertRaises(ValueError):inspect_il(self.checkpoint,interim_navtest_registration=self.request)
++
++    def test_checkpoint_gate_does_not_consume_sampling_RNG(self):
++        import torch
++        from starVLA.rl.qwen_sourceflow.loading import inspect_il
++        before=torch.get_rng_state().clone()
++        inspect_il(self.checkpoint,interim_navtest_registration=self.request)
++        self.assertTrue(torch.equal(before,torch.get_rng_state()))
++
++
+ def main():
+     parser=argparse.ArgumentParser(__doc__);parser.add_argument('--output');args=parser.parse_args()
+-    result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(RegistrationTests))
++    suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
++        for c in [RegistrationTests,RollingCheckpointTests])
++    result=unittest.TextTestRunner(verbosity=2).run(suite)
+     if args.output:Path(args.output).write_text(json.dumps(dict(status='PASS' if result.wasSuccessful() else 'FAIL',tests=result.testsRun),indent=2)+'\n')
+     if not result.wasSuccessful():raise SystemExit(1)
+ 
+diff --git a/starVLA/rl/qwen_sourceflow/interim_evaluation.py b/starVLA/rl/qwen_sourceflow/interim_evaluation.py
+index 1b524f4..a7523d7 100644
+--- a/starVLA/rl/qwen_sourceflow/interim_evaluation.py
++++ b/starVLA/rl/qwen_sourceflow/interim_evaluation.py
+@@ -4,14 +4,29 @@ from pathlib import Path
+ from .contracts import fingerprint
+ 
+ 
+-def validate_interim_registration(path, parent, data, tokens, output):
++def validate_interim_checkpoint(path, parent):
++    """Bind a user-requested evaluation to a sealed, non-qualification IL model.
++
++    This grants no RL-parent eligibility. Full data/output matching is checked
++    separately by the evaluator before any policy inference.
++    """
+     record=json.loads(Path(path).read_text());body=dict(record);seal=body.pop('sha256')
+     if fingerprint(body)!=seal or record['schema']!='native_user_interim_NAVTEST_v1':
+         raise ValueError('Invalid interim evaluation registration')
+     expected=dict(checkpoint=parent['path'],model_sha256=parent['files']['model.pt'],
+-        updates=parent['seal']['updates'],data_sha256=data.sha,token_sha256=fingerprint(tokens),
+-        count=len(tokens),logs=len({data.records[t]['log'] for t in tokens}),
++        updates=parent['seal']['updates'],count=12146,logs=136,
+         seed=2101,metric='canonical_NAVSIM_v1.1',inference='single_candidate_source_shift5_ODE_K10',
++        used_for_parent_selection=False,used_for_training_or_tuning=False)
++    if (parent['identity']['qualification'] or parent['seal']['updates']<=0 or
++        any(record.get(k)!=v for k,v in expected.items())):
++        raise ValueError('Interim checkpoint registration differs or permits selection/tuning')
++    return record
++
++
++def validate_interim_registration(path, parent, data, tokens, output):
++    record=validate_interim_checkpoint(path,parent)
++    expected=dict(data_sha256=data.sha,token_sha256=fingerprint(tokens),
++        count=len(tokens),logs=len({data.records[t]['log'] for t in tokens}),
+         output=str(Path(output).resolve()))
+     if any(record.get(k)!=v for k,v in expected.items()):
+         raise ValueError('Interim registration differs from model/data/output/protocol')
+diff --git a/starVLA/rl/qwen_sourceflow/loading.py b/starVLA/rl/qwen_sourceflow/loading.py
+index b8fa141..bcad091 100644
+--- a/starVLA/rl/qwen_sourceflow/loading.py
++++ b/starVLA/rl/qwen_sourceflow/loading.py
+@@ -7,7 +7,7 @@ from starVLA.model.modules.qwen_sourceflow.vendor.action_dit import ActionDiT
+ from .contracts import QWEN_PATH, ACTION_CONFIG, file_sha, runtime_identity
+ 
+ 
+-def inspect_il(path, *, qualification=False):
++def inspect_il(path, *, qualification=False, interim_navtest_registration=None):
+     path=Path(path)
+     seal=json.loads((path/'COMPLETE').read_text());files=json.loads((path/'files.json').read_text())
+     identity=json.loads((path/'identity.json').read_text())
+@@ -16,13 +16,18 @@ def inspect_il(path, *, qualification=False):
+         file_sha(path/'files.json')!=seal['files_sha256'] or
+         file_sha(path/'identity.json')!=files['identity.json']):
+         raise ValueError('Unsealed/incompatible native IL checkpoint')
+-    if not qualification and (identity['qualification'] or seal['updates'] not in identity['config']['milestones']):
++    info=dict(path=str(path),seal=seal,files=files,identity=identity)
++    if interim_navtest_registration is not None:
++        if qualification:raise ValueError('Interim evaluation cannot use qualification eligibility')
++        from .interim_evaluation import validate_interim_checkpoint
++        validate_interim_checkpoint(interim_navtest_registration,info)
++    elif not qualification and (identity['qualification'] or seal['updates'] not in identity['config']['milestones']):
+         raise ValueError('Formal RL requires a registered, fully trained IL candidate')
+-    return dict(path=str(path),seal=seal,files=files,identity=identity)
++    return info
+ 
+ 
+-def load_il(path, *, device='cpu', qualification=False, verify=True):
+-    info=inspect_il(path,qualification=qualification);path=Path(path)
++def load_il(path, *, device='cpu', qualification=False, verify=True, interim_navtest_registration=None):
++    info=inspect_il(path,qualification=qualification,interim_navtest_registration=interim_navtest_registration);path=Path(path)
+     if info['identity'].get('runtime')!=runtime_identity():
+         raise ValueError('IL deployment/runtime differs from its qualified execution')
+     if verify and file_sha(path/'model.pt')!=info['files']['model.pt']:

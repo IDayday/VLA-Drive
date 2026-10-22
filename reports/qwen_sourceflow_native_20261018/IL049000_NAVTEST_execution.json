@@ -1,0 +1,70 @@
+{
+  "schema": "native_IL049000_NAVTEST_execution_v1",
+  "status": "COMPLETE",
+  "role": "USER_REQUESTED_INTERIM",
+  "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/interim_navtest_rolling_20261022",
+  "source_sha": "d3a7ce8ce3836194e103354797d613bfc27c596c",
+  "training_source": "d4d0012769540af8378e013c072d6d8053d9f275",
+  "training_source_unchanged": true,
+  "hosts": {
+    "training-vla-zt": 8,
+    "training-vlawm-tsinghua-zt3": 8,
+    "training-vlawm-tsinghua-zt4": 8
+  },
+  "unique_GPUs": 24,
+  "workers": 24,
+  "process_complete": 24,
+  "failed_workers": 0,
+  "logical_single_candidates": 12146,
+  "physical_evaluation_inferences": 12146,
+  "qualification_forwards": 2,
+  "qualification_scoring_calls": 0,
+  "qualification_worker_wall_seconds": 248.0163110885769,
+  "qualification_peak_GPU_bytes": 18105284608,
+  "controller_wall_seconds": 949.7294542789459,
+  "elapsed_worker_span_seconds": 694.7874076366425,
+  "worker_wall_seconds": 15785.57910802029,
+  "model_loading_seconds": 1834.0669249296188,
+  "forward_worker_seconds": 10671.573277108371,
+  "scoring_wait_worker_seconds": 1259.9174589440227,
+  "GPU_cost_semantics": "Worker occupancy on authorized GPUs, possibly shared; not exclusive GPU compute seconds",
+  "pressure_restoration": {
+    "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+    "hosts": {
+      "training-vla-zt": {
+        "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+        "at": 1792677387.1118565,
+        "window_seconds": 1800,
+        "threshold_percent": 15,
+        "immediate_pressure_started": false
+      },
+      "training-vlawm-tsinghua-zt3": {
+        "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+        "at": 1792677387.280151,
+        "window_seconds": 1800,
+        "threshold_percent": 15,
+        "immediate_pressure_started": false
+      },
+      "training-vlawm-tsinghua-zt4": {
+        "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+        "at": 1792677387.4548235,
+        "window_seconds": 1800,
+        "threshold_percent": 15,
+        "immediate_pressure_started": false
+      }
+    }
+  },
+  "retained_checkpoint_bytes": 40177708013,
+  "checkpoint_pin_method": "same-filesystem hardlinks, unchanged payload and native metadata",
+  "excluded_hosts": {
+    "training-vlawm-tsinghua-zt6": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt2": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt": "native IL insufficient memory",
+    "training-rl-zt2": "invisible GPU owners",
+    "training-vlawm-tsinghua-zt5": "unexplained active GPU use without visible owner"
+  },
+  "monitor_policy": "Routine human progress checks/reports every30min; completion event reported separately. Operational worker completion receipts are separate from training-log monitoring.",
+  "exact_PID_start_exit_verified": 24,
+  "original_pressure_monitor_policy_verified_hosts": 3,
+  "progress_snapshot": "progress_NAVTEST_IL049000_20261022.json"
+}
