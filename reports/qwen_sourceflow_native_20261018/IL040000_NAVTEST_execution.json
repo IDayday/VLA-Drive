@@ -1,0 +1,50 @@
+{
+  "schema": "native_IL040000_NAVTEST_execution_v1",
+  "status": "COMPLETE",
+  "role": "USER_REQUESTED_INTERIM",
+  "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/interim_navtest_cachefix_20261020",
+  "source_sha": "777a9bdfc6b67dc9e28f1b00deafbc5930476fe6",
+  "training_source_unchanged": true,
+  "hosts": {
+    "training-vla-zt": 8,
+    "training-vlawm-tsinghua-zt3": 8,
+    "training-vlawm-tsinghua-zt4": 8
+  },
+  "unique_GPUs": 24,
+  "workers": 24,
+  "process_complete": 24,
+  "failed_workers": 0,
+  "logical_single_candidates": 12146,
+  "physical_inference_including_retries": 12146,
+  "job_wall_seconds": 789.3311161994934,
+  "elapsed_worker_span_seconds": 714.5504431724548,
+  "worker_wall_seconds": 15717.035363456234,
+  "model_loading_seconds": 1563.7085817344487,
+  "forward_worker_seconds": 10889.464078223333,
+  "scoring_wait_worker_seconds": 1254.1353297773749,
+  "GPU_cost_semantics": "Worker occupancy on authorized GPUs, possibly shared; not exclusive GPU compute seconds",
+  "sharing": "Existing ReCogDrive work on vla-zt/tsinghua-zt4 retained; native IL host excluded for insufficient headroom",
+  "excluded_hosts": {
+    "training-vlawm-tsinghua-zt6": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt": "native IL insufficient memory",
+    "training-rl-zt2": "invisible GPU owners",
+    "training-vlawm-tsinghua-zt2": "unexplained active GPU use without visible owner",
+    "training-vlawm-tsinghua-zt5": "unexplained active GPU use without visible owner"
+  },
+  "pressure_restoration": {
+    "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+    "at": 1792629866.706223,
+    "window_seconds": 1800,
+    "threshold_percent": 15,
+    "immediate_pressure_started": false
+  },
+  "exact_population_and_payload_validation": "Native summarize_results and paired read verify all scene/log membership and payload hashes",
+  "monitor_instruction": "User requested half-hour progress checks/reports; no additional manual training-log query after initial status check during this evaluation",
+  "exact_PID_start_exit_verified": 24,
+  "pressure_monitor_live_verification": {
+    "paused_marker": false,
+    "paused": false,
+    "workers": 0,
+    "window_seconds": 1800
+  }
+}
