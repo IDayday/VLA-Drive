@@ -12,11 +12,57 @@ from starVLA.rl.qwen_sourceflow.contracts import file_sha, fingerprint
 from starVLA.rl.safe_flow_improvement.diagnostics import log_bootstrap_difference
 
 
+METADATA_ONLY_SOURCE_FILES = {
+    'starVLA/rl/qwen_sourceflow/loading.py',
+    'starVLA/rl/qwen_sourceflow/interim_evaluation.py',
+    'scripts/analysis/qwen_sourceflow/evaluate_policy.py',
+    'scripts/analysis/qwen_sourceflow/validate_interim_evaluation.py',
+    'scripts/analysis/qwen_sourceflow/analyze_il_milestones.py',
+    'scripts/analysis/qwen_sourceflow/campaign.py',
+    'scripts/analysis/qwen_sourceflow/summarize_results.py',
+    'scripts/analysis/qwen_sourceflow/validate_campaign.py',
+}
+
+
+def match_source_files(current, reference, receipt=None):
+    """Keep strict equality by default; bind an audited metadata-only pair."""
+    before, after = reference['source_files'], current['source_files']
+    if before == after:
+        return dict(mode='identical_source_files')
+    if receipt is None:
+        raise ValueError('Different sources require explicit qualified compatibility receipt')
+    record = json.loads(Path(receipt).read_text()); body = dict(record); seal = body.pop('sha256')
+    changed = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
+    if (fingerprint(body) != seal or record.get('schema') != 'native_interim_evaluation_metadata_compatibility_v1'
+            or record.get('reference_source_files_sha256') != fingerprint(before)
+            or record.get('evaluation_source_files_sha256') != fingerprint(after)
+            or record.get('changed_files') != changed or not set(changed) <= METADATA_ONLY_SOURCE_FILES
+            or record.get('evaluation_model_sha256') != current['parent_model_sha256']):
+        raise ValueError('Compatibility receipt does not cover the exact source/model pair')
+    for evidence in record['evidence_files']:
+        if file_sha(evidence['path']) != evidence['sha256']:
+            raise ValueError('Changed compatibility evidence')
+    proof = json.loads(Path(record['qualification']['path']).read_text())
+    if (file_sha(record['qualification']['path']) != record['qualification']['sha256']
+            or proof.get('status') != 'PASS'
+            or proof.get('reference_source_files_sha256') != fingerprint(before)
+            or proof.get('evaluation_source_files_sha256') != fingerprint(after)
+            or proof.get('evaluation_model_sha256') != current['parent_model_sha256']
+            or not proof.get('normal_loader_AST_unchanged')
+            or not proof.get('evaluation_scientific_AST_unchanged')
+            or not proof.get('all_other_numerical_source_bytes_unchanged')
+            or proof.get('real_same_checkpoint_ODE_max_abs') != 0.0):
+        raise ValueError('Source pair lacks exact numerical/metadata qualification')
+    return dict(mode='explicit_metadata_only_compatibility',receipt=str(receipt),
+        receipt_sha256=file_sha(receipt),changed_files=changed,actor_scorer_population_modified=False)
+
+
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--evaluation', required=True)
     parser.add_argument('--reference', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--source-compatibility', help='Qualified exact metadata-only source-pair receipt')
     args = parser.parse_args()
     destination = Path(args.output)
     if destination.exists():
@@ -25,9 +71,10 @@ def main():
     current, tokens, rows, values = read(args.evaluation)
     reference, ref_tokens, ref_rows, base = read(args.reference)
     for key in ['schema', 'cohort', 'data_sha256', 'token_sha256', 'count',
-                'metric', 'protocol', 'seed', 'inference', 'precision', 'source_files']:
+                'metric', 'protocol', 'seed', 'inference', 'precision']:
         if current[key] != reference[key]:
             raise ValueError('Unmatched native IL evaluation: ' + key)
+    compatibility = match_source_files(current, reference, args.source_compatibility)
     if tokens != ref_tokens or current['rl_export'] is not None or reference['rl_export'] is not None:
         raise ValueError('This analyzer requires paired IL milestones, not RL exports')
     if current['parent_model_sha256'] == reference['parent_model_sha256']:
@@ -47,6 +94,7 @@ def main():
         current_model_sha256=current['parent_model_sha256'],
         reference_model_sha256=reference['parent_model_sha256'],
         analysis_sha256=file_sha(__file__), scenes=len(tokens),
+        source_compatibility=compatibility,
         logs=len({r['log'] for r in rows}), seed=current['seed'],
         inference=current['inference'], metric=current['metric'],
         training_seed_repeats=1, inference_seeds=1,

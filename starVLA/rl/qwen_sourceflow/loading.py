@@ -7,7 +7,7 @@ from starVLA.model.modules.qwen_sourceflow.vendor.action_dit import ActionDiT
 from .contracts import QWEN_PATH, ACTION_CONFIG, file_sha, runtime_identity
 
 
-def inspect_il(path, *, qualification=False):
+def inspect_il(path, *, qualification=False, interim_navtest_registration=None):
     path=Path(path)
     seal=json.loads((path/'COMPLETE').read_text());files=json.loads((path/'files.json').read_text())
     identity=json.loads((path/'identity.json').read_text())
@@ -16,13 +16,18 @@ def inspect_il(path, *, qualification=False):
         file_sha(path/'files.json')!=seal['files_sha256'] or
         file_sha(path/'identity.json')!=files['identity.json']):
         raise ValueError('Unsealed/incompatible native IL checkpoint')
-    if not qualification and (identity['qualification'] or seal['updates'] not in identity['config']['milestones']):
+    info=dict(path=str(path),seal=seal,files=files,identity=identity)
+    if interim_navtest_registration is not None:
+        if qualification:raise ValueError('Interim evaluation cannot use qualification eligibility')
+        from .interim_evaluation import validate_interim_checkpoint
+        validate_interim_checkpoint(interim_navtest_registration,info)
+    elif not qualification and (identity['qualification'] or seal['updates'] not in identity['config']['milestones']):
         raise ValueError('Formal RL requires a registered, fully trained IL candidate')
-    return dict(path=str(path),seal=seal,files=files,identity=identity)
+    return info
 
 
-def load_il(path, *, device='cpu', qualification=False, verify=True):
-    info=inspect_il(path,qualification=qualification);path=Path(path)
+def load_il(path, *, device='cpu', qualification=False, verify=True, interim_navtest_registration=None):
+    info=inspect_il(path,qualification=qualification,interim_navtest_registration=interim_navtest_registration);path=Path(path)
     if info['identity'].get('runtime')!=runtime_identity():
         raise ValueError('IL deployment/runtime differs from its qualified execution')
     if verify and file_sha(path/'model.pt')!=info['files']['model.pt']:
