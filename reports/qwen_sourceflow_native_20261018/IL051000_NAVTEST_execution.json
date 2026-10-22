@@ -1,0 +1,225 @@
+{
+  "schema": "native_IL051000_NAVTEST_execution_v1",
+  "status": "COMPLETE",
+  "role": "USER_REQUESTED_INTERIM",
+  "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/interim_navtest_rolling_20261022",
+  "source_sha": "d3a7ce8ce3836194e103354797d613bfc27c596c",
+  "same_evaluation_source_as_IL49k": true,
+  "model_training_scorer_code_changed": false,
+  "training_source": "d4d0012769540af8378e013c072d6d8053d9f275",
+  "hosts": {
+    "training-vla-zt": 8,
+    "training-vlawm-tsinghua-zt3": 8,
+    "training-vlawm-tsinghua-zt4": 8
+  },
+  "workers": 24,
+  "unique_GPUs": 24,
+  "process_complete": 24,
+  "failed_workers": 0,
+  "logical_single_candidates": 12146,
+  "physical_evaluation_inferences": 12146,
+  "reused_scenes": 0,
+  "controller_wall_seconds": 1092.3891961574554,
+  "elapsed_worker_span_seconds": 998.6441469192505,
+  "worker_wall_seconds": 19848.383734669536,
+  "model_loading_seconds": 2149.7112865503877,
+  "forward_worker_seconds": 13372.685222333297,
+  "scoring_wait_worker_seconds": 1562.2089543230832,
+  "GPU_cost_semantics": "Worker occupancy on authorized GPUs, possibly shared; not exclusive GPU compute seconds",
+  "pressure_restoration": {
+    "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+    "hosts": {
+      "training-vla-zt": {
+        "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+        "at": 1792711790.006446,
+        "window_seconds": 1800,
+        "threshold_percent": 15,
+        "immediate_pressure_started": false
+      },
+      "training-vlawm-tsinghua-zt3": {
+        "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+        "at": 1792711790.283218,
+        "window_seconds": 1800,
+        "threshold_percent": 15,
+        "immediate_pressure_started": false
+      },
+      "training-vlawm-tsinghua-zt4": {
+        "status": "ORIGINAL_MONITOR_POLICY_RESTORED",
+        "at": 1792711790.533074,
+        "window_seconds": 1800,
+        "threshold_percent": 15,
+        "immediate_pressure_started": false
+      }
+    }
+  },
+  "preparation_failure": "One-off redacted receipt emission after first owned pressure pause failed; exact existing capture/marker adopted, no model inference/score yet; all originals restored after use",
+  "qualification_forwards": 0,
+  "qualification_reason": "Unchanged previously qualified evaluator reused; no repeated numeric matrix",
+  "excluded_hosts": {
+    "training-vlawm-tsinghua-zt6": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt2": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt": "native IL insufficient memory",
+    "training-rl-zt2": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt5": "unexplained active GPU use without visible owner"
+  },
+  "exact_PID_start_exit_verified": 24,
+  "original_pressure_monitor_policy_verified_hosts": 3,
+  "worker_exit_verification": {
+    "training-vla-zt": {
+      "at": 1792711820.42213,
+      "workers": [
+        {
+          "pid": 3124404,
+          "start_ticks": 1414934365,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3124410,
+          "start_ticks": 1414934369,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3124408,
+          "start_ticks": 1414934368,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3124407,
+          "start_ticks": 1414934367,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3124405,
+          "start_ticks": 1414934366,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3124403,
+          "start_ticks": 1414934362,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3124406,
+          "start_ticks": 1414934367,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3124409,
+          "start_ticks": 1414934368,
+          "same_process_alive": false
+        }
+      ],
+      "pressure": {
+        "paused_marker": false,
+        "paused": false,
+        "agent_pid": 1075691,
+        "workers": 0,
+        "window_seconds": 1800
+      }
+    },
+    "training-vlawm-tsinghua-zt3": {
+      "at": 1792711820.6564002,
+      "workers": [
+        {
+          "pid": 2681761,
+          "start_ticks": 1414953214,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2681796,
+          "start_ticks": 1414953214,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2681762,
+          "start_ticks": 1414953214,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2681281,
+          "start_ticks": 1414953211,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2681282,
+          "start_ticks": 1414953211,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2681264,
+          "start_ticks": 1414953211,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2685749,
+          "start_ticks": 1414953233,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2693218,
+          "start_ticks": 1414953270,
+          "same_process_alive": false
+        }
+      ],
+      "pressure": {
+        "paused_marker": false,
+        "paused": false,
+        "agent_pid": 1269422,
+        "workers": 0,
+        "window_seconds": 1800
+      }
+    },
+    "training-vlawm-tsinghua-zt4": {
+      "at": 1792711820.6754184,
+      "workers": [
+        {
+          "pid": 3657041,
+          "start_ticks": 1414952952,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3657061,
+          "start_ticks": 1414952952,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3657058,
+          "start_ticks": 1414952952,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3657063,
+          "start_ticks": 1414952952,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3656186,
+          "start_ticks": 1414952947,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3656425,
+          "start_ticks": 1414952948,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3658495,
+          "start_ticks": 1414952960,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3664328,
+          "start_ticks": 1414952990,
+          "same_process_alive": false
+        }
+      ],
+      "pressure": {
+        "paused_marker": false,
+        "paused": false,
+        "agent_pid": 539722,
+        "workers": 0,
+        "window_seconds": 1800
+      }
+    }
+  }
+}
