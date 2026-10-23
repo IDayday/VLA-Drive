@@ -23,7 +23,7 @@ def main():
     for name in ['optimizer.pt','identity.json']:
         if file_sha(path/name)!=files[name]:raise ValueError('Changed RL artifact '+name)
     parent_path=info['IL_parent']['path'];qualification=info['purpose']!='formal'
-    model,parent=load_il(parent_path,qualification=qualification)
+    model,parent=load_il(parent_path,qualification=qualification,parent_selection=info.get('parent_selection_path'))
     if parent['files']['model.pt']!=info['SFT_sha256']:raise ValueError('IL parent changed')
     actor=NativeRecipeActor(model.policy.action_expert,info['recipe'])
     saved=torch.load(path/'optimizer.pt',map_location='cpu',weights_only=False);restore_adapters(actor,saved['adapters'])

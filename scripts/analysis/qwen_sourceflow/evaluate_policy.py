@@ -70,7 +70,7 @@ def main():
     cache_roots=evaluation_caches(a.cohort)
     preflight_caches(data,tokens[a.rank::a.world],cache_roots)
     model,parent=load_il(a.checkpoint,device=device,qualification=a.qualification,
-        interim_navtest_registration=a.interim_navtest_registration)
+        interim_navtest_registration=a.interim_navtest_registration,parent_selection=a.parent_selection)
     interim=None
     if a.interim_navtest_registration:
         from starVLA.rl.qwen_sourceflow.interim_evaluation import validate_interim_registration

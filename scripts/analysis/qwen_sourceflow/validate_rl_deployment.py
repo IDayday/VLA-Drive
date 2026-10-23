@@ -36,7 +36,8 @@ def main():
     del data
     state=torch.tensor([obs['proprio']],device='cuda',dtype=torch.float32)
     noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',2101,token))).cuda()
-    model,parent=load_il(info['IL_parent']['path'],device='cuda',qualification=qualification)
+    model,parent=load_il(info['IL_parent']['path'],device='cuda',qualification=qualification,
+        parent_selection=info.get('parent_selection_path'))
     actor=NativeRecipeActor(model.policy.action_expert,info['recipe'])
     saved=torch.load(path/'optimizer.pt',map_location='cpu',weights_only=False)
     restore_adapters(actor,saved['adapters'])

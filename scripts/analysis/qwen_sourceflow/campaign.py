@@ -82,12 +82,12 @@ def scene_stream_hash(run):
 
 
 class Campaign:
-    def __init__(self,root,control,training_source,analysis_source,evaluation_source=None):
+    def __init__(self,root,control,training_source,analysis_source,evaluation_source=None,*,parent_selection=None):
         self.root=Path(root);self.control=Path(control)
         self.training=training_source;self.analysis=analysis_source
         self.evaluation=evaluation_source or training_source
         (self.control/'jobs').mkdir(parents=True,exist_ok=True)
-        self.selection=self.root/'frozen_IL_parent.json'
+        self.selection=Path(parent_selection).resolve() if parent_selection else self.root/'frozen_IL_parent.json'
 
     def task_path(self,name):
         return self.control/'jobs'/(name+'.json')
@@ -241,8 +241,8 @@ class Campaign:
             # The concrete data directory is recorded before queue launch;
             # no alternate population or silent fallback is admitted here.
             data=Path(read(self.control/'identity.json')['data'][cohort])
-        args=['--checkpoint',parent['path'],'--output',str(output),'--cohort',cohort,'--data',str(data)]
-        if cohort=='NAVTEST':args+=['--parent-selection',str(self.selection)]
+        args=['--checkpoint',parent['path'],'--output',str(output),'--cohort',cohort,'--data',str(data),
+            '--parent-selection',str(self.selection)]
         if export is not None:args+=['--rl-export',str(export)]
         self.submit(name,'scripts.analysis.qwen_sourceflow.evaluate_policy',args,routes,self.evaluation)
         return None
@@ -272,18 +272,21 @@ class Campaign:
     def tick(self):
         require_dispatch()
         if not self.selection.exists():return dict(status='WAITING_FOR_FULL_IL_AND_FIVE_DEV')
-        selection=read(self.selection);parent=inspect_il(selection['selected']['checkpoint'])
+        selection=read(self.selection);parent=inspect_il(selection['selected']['checkpoint'],parent_selection=self.selection)
         validate_selection(self.selection,parent)
         registration=self.control/'registration.json'
         body=dict(schema='native_two_RL_formal_campaign_v1',IL_parent=parent['path'],IL_model_sha256=parent['files']['model.pt'],
             IL_selection_sha256=file_sha(self.selection),training=self.training,analysis=self.analysis,evaluation=self.evaluation,
+            IL_parent_selection_used_Navtest=bool(selection.get('Navtest_used')),
             training_seed=42,inference_seed=2101,group_size=8,denoising_steps=10,
             variants={v:dict(optimizer_updates=50000,fresh_global_rollouts=12500,scene_exposures=100000,candidates=800000,
                 config_sha256=file_sha(Path(self.training['path'])/f'configs/qwen_sourceflow/rl_{v}.yaml')) for v in VARIANTS},
             DEV_updates=[0,*MILESTONES],RL_selection_rule='highest DEV canonical PDMS among 5k/10k/20k/35k/50k; exact tie later',
             primary_comparison='fixed 50k endpoints; DEV-selected trained checkpoints separately reported',
             final_NAVTEST='RL Navtest only after both 50k endpoints and all registered DEV are locked; seed2101 single shift5 ODE',
-            IL_baseline_NAVTEST='After IL selection is frozen; measured independently and never used for RL config/checkpoint selection',
+            IL_baseline_NAVTEST=('User explicitly selected observed IL53k; fresh matching-source baseline measures the same parent; no RL checkpoint selection from Navtest'
+                if selection.get('Navtest_used') else
+                'After IL selection is frozen; measured independently and never used for RL config/checkpoint selection'),
             qualification_weights_excluded=True)
         if registration.exists() and read(registration)!=body:raise ValueError('Registered campaign identity changed')
         if not registration.exists():atomic_json(registration,body)
@@ -351,6 +354,7 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--root',default=str(ROOT));p.add_argument('--control-dir',required=True)
     p.add_argument('--training-source',required=True);p.add_argument('--analysis-source',required=True)
     p.add_argument('--evaluation-source',help='Explicit qualified inference/scoring entry; training snapshot stays fixed')
+    p.add_argument('--parent-selection',help='Explicit sealed user decision; default preserves original DEV-only queue')
     p.add_argument('--once',action='store_true');a=p.parse_args();require_dispatch()
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Campaign owner must be CPU-only')
     control=Path(a.control_dir);control.mkdir(parents=True,exist_ok=True)
@@ -364,9 +368,10 @@ def main():
         qualification_updates=16,formal_updates=50000,variants=list(VARIANTS),milestones=list(MILESTONES),
         best_DEV_rule='highest canonical PDMS among trained milestones; exact tie later update',
         no_automatic_retry=True,no_recipe_changes=True)
+    if a.parent_selection:identity['parent_selection']=str(Path(a.parent_selection).resolve())
     if (control/'identity.json').exists() and read(control/'identity.json')!=identity:raise ValueError('Campaign owner identity changed')
     atomic_json(control/'identity.json',identity);atomic_json(control/'owner.json',dict(pid=os.getpid(),start_unix=time.time()))
-    queue=Campaign(root,control,train,analysis,evaluation)
+    queue=Campaign(root,control,train,analysis,evaluation,parent_selection=a.parent_selection)
     try:
         while True:
             value=queue.tick();atomic_json(control/'status.json',dict(observed_unix=time.time(),**value))

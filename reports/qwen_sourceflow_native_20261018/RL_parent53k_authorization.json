@@ -1,0 +1,23 @@
+{
+  "schema": "native_IL_user_parent_authorization_v1",
+  "observed_UTC": "2026-10-23T09:36:38.228946+00:00",
+  "user_instruction": "我觉得可以用53k的权重开启RL训练看看，这个基线分数基本合格",
+  "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000",
+  "model_sha256": "4c5188dec5674fc08f4b75b1a464c05348bf8a54623fd85f6598fb921ae5e786",
+  "updates": 53000,
+  "training_identity": "97376f31ea99420057ed718d03f98727ebbc356d3668eb5a8ab8ef8b1aeba3bd",
+  "Navtest_observed": true,
+  "IL_training_continues": true,
+  "RL_variants": [
+    "canonical",
+    "source"
+  ],
+  "RL_updates_per_variant": 50000,
+  "training_seed": 42,
+  "evaluation_seed": 2101,
+  "supersedes_selection_rule": "For this RL campaign only, explicit user-selected53k replaces waiting for all five20k/40k/60k/80k/100k DEV milestones. Original IL100k training and DEV observations remain active.",
+  "unchanged_recipe": "G8/K10 shift5, random steps7/8/9, source clamps/global std/LoRA/anchor/AdamW/inner4; canonical vs source reward only",
+  "observed_Navtest_summary": "/mnt/project/qwen-sourceflow-native-20261018/analysis/IL_update053000_NAVTEST_interim_20261023.json",
+  "observed_Navtest_PDMS": 87.01602541637695,
+  "sha256": "1313bb8b71c5176eb6df7827f7a77345ef9447c86df63a0529d1641a959f51cf"
+}

@@ -21,13 +21,13 @@ class NativeRuntime:
     @staticmethod
     def add_arguments(parser):
         parser.add_argument('--il-checkpoint',required=True)
-        parser.add_argument('--parent-selection',help='Sealed DEV-only parent selection receipt')
+        parser.add_argument('--parent-selection',help='Sealed DEV or explicitly user-selected parent receipt')
         parser.add_argument('--data',default=str(ROOT/'data/TRAIN_v3'))
 
     def load_recipe(self,args):
         configure_native_numerics()
         cfg=load_recipe(args.config)
-        self.parent=inspect_il(args.il_checkpoint,qualification=args.qualification)
+        self.parent=inspect_il(args.il_checkpoint,qualification=args.qualification,parent_selection=args.parent_selection)
         if not args.qualification:
             from .selection import validate_selection
             self.selection=validate_selection(args.parent_selection,self.parent)
@@ -40,7 +40,8 @@ class NativeRuntime:
         return SourceTokenStream(args.manifest,world)
 
     def make_actor(self,cfg,args,device):
-        model,self.parent=load_il(args.il_checkpoint,device=device,qualification=args.qualification)
+        model,self.parent=load_il(args.il_checkpoint,device=device,qualification=args.qualification,
+            parent_selection=args.parent_selection)
         data=RawSceneData(args.data,cohort='TRAIN')
         self.conditions=FrozenConditions(model,data,self.parent['files']['model.pt'])
         actor=NativeRecipeActor(model.policy.action_expert,cfg,self.conditions)
@@ -61,6 +62,7 @@ class NativeRuntime:
         return dict(schema='native_qwen_sourceflow_RL_v1',recipe=cfg,
             upstream_commit='1433ee7e06a62bd8b89da74455df0d82bda7b726',
             SFT_sha256=self.parent['files']['model.pt'],IL_parent=self.parent,parent_selection=self.selection,
+            parent_selection_path=str(Path(args.parent_selection).resolve()) if self.selection is not None else None,
             hard_manifest_sha256=file_sha(args.manifest),projected_condition_identity=condition_sha,
             policy_ratio='source relative-clamped dimension-mean stochastic-transition surrogate',
             deployment='native Qwen full tokens, source 8x3, single candidate shift5 ODE10')

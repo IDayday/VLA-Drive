@@ -1,0 +1,43 @@
+{
+  "schema": "native_Qwen_flow_user53k_RL_registration_v1",
+  "registered_UTC": "2026-10-23T09:38:52.026671+00:00",
+  "parent_selection": "/mnt/project/qwen-sourceflow-native-20261018/frozen_IL_parent53k_user20261023.json",
+  "parent_model_sha256": "4c5188dec5674fc08f4b75b1a464c05348bf8a54623fd85f6598fb921ae5e786",
+  "parent_updates": 53000,
+  "parent_baseline_NAVTEST_PDMS": 87.01602541637695,
+  "Navtest_observed_before_user_selection": true,
+  "IL100k_continues": true,
+  "variants": [
+    "canonical",
+    "source"
+  ],
+  "training_seed": 42,
+  "evaluation_seed": 2101,
+  "world_size": 8,
+  "group_size": 8,
+  "steps": 10,
+  "inner_optimizer_updates": 4,
+  "formal_optimizer_updates_each": 50000,
+  "fresh_global_rollouts_each": 12500,
+  "scene_exposures_each": 100000,
+  "new_candidates_each": 800000,
+  "registered_DEV_observations": [
+    0,
+    5000,
+    10000,
+    20000,
+    35000,
+    50000
+  ],
+  "hard_manifest": "/mnt/project/simwam-source-process-20261018/source_manifest.json",
+  "TRAIN_hard_scenes": 17037,
+  "qualification": {
+    "updates_each": 16,
+    "fresh_rollouts_each": 4,
+    "candidates_each": 256,
+    "weights_excluded_from_formal": true
+  },
+  "formal_status": "PENDING_SAME_PARENT_QUALIFICATION",
+  "old_waiting_campaign": "campaign_v3 retired with STOP_AFTER_TICK; IL and DEV queues retained",
+  "unchanged": "native actor, full-token provider, source SDE/probability/loss/optimizer/recipe bytes unchanged; only explicit parent eligibility and campaign routing added"
+}
