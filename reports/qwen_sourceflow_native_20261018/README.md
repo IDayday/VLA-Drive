@@ -1,5 +1,7 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
+**2026-10-23：按用户明确指定，53k IL已开启CANONICAL/SOURCE两条正式RL，各8卡/seed42/50k。10:02 UTC更新208/188，两组均已核验100更新原生恢复点；当前尚无RL部署分数。** [启动、资格与恢复证据](RL_parent53k_start_20261023.md)。
+
 **2026-10-23最新53k IL全量Navtest：PDMS 87.016025，相对51k变化+0.340551分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL阶段，正式RL尚未开始。** [53k报告与配对结果](interim_NAVTEST_IL053000_20261023.md)。
 
 **2026-10-22历史51k快照：51k IL全量Navtest：PDMS 86.675474，相对49k变化-0.134953分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL结果，正式RL尚未开始。** [51k报告与配对结果](interim_NAVTEST_IL051000_20261022.md)。

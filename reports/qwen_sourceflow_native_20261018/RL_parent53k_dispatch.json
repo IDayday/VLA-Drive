@@ -1,0 +1,178 @@
+{
+  "schema": "native_IL53k_RL_dispatch_v1",
+  "status": "TWO_FORMAL_RUNS_ACTIVE",
+  "snapshot_UTC": "2026-10-23T10:02:03.316229+00:00",
+  "training": {
+    "path": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+    "sha": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1"
+  },
+  "evaluation": {
+    "path": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+    "sha": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1"
+  },
+  "controller": {
+    "path": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_owner_v2",
+    "sha": "bfe2e52567291f07ad78a7c6297436f2160d2fe0"
+  },
+  "controller_launch": {
+    "pid": 3349428,
+    "start_ticks": 1418742550,
+    "start_unix": 1792748812.330042,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-u",
+      "-m",
+      "scripts.analysis.qwen_sourceflow.campaign",
+      "--root",
+      "/mnt/project/qwen-sourceflow-native-20261018",
+      "--control-dir",
+      "/mnt/project/qwen-sourceflow-native-20261018/campaign_IL053000_user20261023",
+      "--training-source",
+      "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+      "--analysis-source",
+      "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_owner_v2",
+      "--evaluation-source",
+      "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+      "--parent-selection",
+      "/mnt/project/qwen-sourceflow-native-20261018/frozen_IL_parent53k_user20261023.json"
+    ],
+    "CUDA_VISIBLE_DEVICES": "",
+    "controller_single_owner": true,
+    "old_campaign_v3_exited": true
+  },
+  "tasks": {
+    "canonical": {
+      "host": "training-vla-zt",
+      "GPU_count": 8,
+      "GPU_uuids": [
+        "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+        "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+        "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+        "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+        "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+        "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+        "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+        "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+      ],
+      "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+      "source_sha": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nproc_per_node=8",
+        "-m",
+        "scripts.analysis.qwen_sourceflow.train_rl",
+        "--config",
+        "configs/qwen_sourceflow/rl_canonical.yaml",
+        "--manifest",
+        "/mnt/project/simwam-source-process-20261018/source_manifest.json",
+        "--il-checkpoint",
+        "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000",
+        "--output",
+        "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_seed42",
+        "--parent-selection",
+        "/mnt/project/qwen-sourceflow-native-20261018/frozen_IL_parent53k_user20261023.json"
+      ],
+      "receipt_dir": "/mnt/project/qwen-sourceflow-native-20261018/campaign_IL053000_user20261023/invocations/canonical_formal50k/rank000"
+    },
+    "source": {
+      "host": "training-vlawm-tsinghua-zt4",
+      "GPU_count": 8,
+      "GPU_uuids": [
+        "GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42",
+        "GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f",
+        "GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59",
+        "GPU-4fe15b93-9f87-08ea-699d-40375083da94",
+        "GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f",
+        "GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f",
+        "GPU-af5442fd-0c84-7903-61fa-9e9c49eca2ce",
+        "GPU-568199b4-3db3-da75-7c8c-c9b94d0c28b7"
+      ],
+      "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+      "source_sha": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nproc_per_node=8",
+        "-m",
+        "scripts.analysis.qwen_sourceflow.train_rl",
+        "--config",
+        "configs/qwen_sourceflow/rl_source.yaml",
+        "--manifest",
+        "/mnt/project/simwam-source-process-20261018/source_manifest.json",
+        "--il-checkpoint",
+        "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000",
+        "--output",
+        "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_SOURCE_seed42",
+        "--parent-selection",
+        "/mnt/project/qwen-sourceflow-native-20261018/frozen_IL_parent53k_user20261023.json"
+      ],
+      "receipt_dir": "/mnt/project/qwen-sourceflow-native-20261018/campaign_IL053000_user20261023/invocations/source_formal50k/rank000"
+    }
+  },
+  "pressure_lease": {
+    "status": "RL_PARENT53K_OWNED_PRESSURE_LEASE",
+    "hosts": {
+      "training-vla-zt": {
+        "status": "OWNED_PRESSURE_WORKERS_PAUSED",
+        "private_capture": "/var/tmp/qwen-sourceflow-RL-IL053000-20261023/capture.json",
+        "capture_sha256": "9e88e7ddcb710f3d5cf99f226a2f98d459f35e7c4ccf0a4d6be726123e8f32be",
+        "workers": 8,
+        "gpu_uuids": [
+          "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+          "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+          "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+          "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+          "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+          "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+          "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+          "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+        ],
+        "monitor_preserved": true,
+        "original_policy": {
+          "window_seconds": 1800,
+          "threshold_percent": 15
+        },
+        "restore_only_after_use": true
+      },
+      "training-vlawm-tsinghua-zt4": {
+        "status": "OWNED_PRESSURE_WORKERS_PAUSED",
+        "private_capture": "/var/tmp/qwen-sourceflow-RL-IL053000-20261023/capture.json",
+        "capture_sha256": "93d12253a863c196a7a28e42dd652779ddd61bf56916347abcada01812b21c62",
+        "workers": 8,
+        "gpu_uuids": [
+          "GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42",
+          "GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f",
+          "GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59",
+          "GPU-4fe15b93-9f87-08ea-699d-40375083da94",
+          "GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f",
+          "GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f",
+          "GPU-af5442fd-0c84-7903-61fa-9e9c49eca2ce",
+          "GPU-568199b4-3db3-da75-7c8c-c9b94d0c28b7"
+        ],
+        "monitor_preserved": true,
+        "original_policy": {
+          "window_seconds": 1800,
+          "threshold_percent": 15
+        },
+        "restore_only_after_use": true
+      }
+    }
+  },
+  "restoration_guard": {
+    "pid": 3349810,
+    "start_ticks": 1418748921,
+    "at": 1792748876.0394688,
+    "script": "/mnt/project/qwen-sourceflow-native-20261018/resources/RL_parent53k_20261023/restore_pressure_after_campaign.py"
+  },
+  "old_waiting_controller_retired": true,
+  "private_pressure_environment_uploaded": false,
+  "IL_immutable_source_modified": false,
+  "source_math_or_optimizer_changed": false
+}
