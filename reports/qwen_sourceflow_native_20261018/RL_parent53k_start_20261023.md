@@ -28,6 +28,8 @@
 
 实际登记、资格与正式启动收据将在本目录补充。当前[登记](RL_parent53k_registration.json)的正式状态为`PENDING_SAME_PARENT_QUALIFICATION`，不宣称训练已经完成。
 
+父模型的完整DEV读出同时登记为0-update基线，固定终点完成条件也要求它完成；与后续RL的5k/10k/20k/35k/50k DEV分开记录。该补充仅属于评价队列，不改训练源码或loss。
+
 ## 已执行入口
 
 ```bash

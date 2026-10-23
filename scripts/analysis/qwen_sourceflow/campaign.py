@@ -308,10 +308,11 @@ class Campaign:
                 if export is not None:
                     summary=self.ensure_evaluation(f'RL_{variant}_update{update:06d}_DEV',parent,'DEV',export=export)
                     if summary is not None:dev[variant][update]=dict(summary=str(summary),summary_sha256=file_sha(summary),PDMS=read(summary)['PDMS'],export=str(export))
-        # The IL model was already fixed using DEV. This independent baseline
-        # never influences the two pre-registered RL configs or their selection.
+        # The IL parent is already locked by its explicit selection receipt.
+        # These matching baselines never select RL configs/checkpoints.
+        baseline_dev=self.ensure_evaluation('selected_IL_DEV',parent,'DEV')
         baseline=self.ensure_evaluation('selected_IL_NAVTEST',parent,'NAVTEST')
-        if len(complete)!=2 or any(len(dev[v])!=len(MILESTONES) for v in VARIANTS):
+        if baseline_dev is None or len(complete)!=2 or any(len(dev[v])!=len(MILESTONES) for v in VARIANTS):
             return dict(status='FORMAL_RL_AND_DEV',complete_variants=list(complete),complete_DEV={v:list(dev[v]) for v in VARIANTS})
         locked=self.control/'RL_ENDPOINTS_AND_SELECTION_LOCKED.json'
         choices={v:max(dev[v],key=lambda u:(dev[v][u]['PDMS'],u)) for v in VARIANTS}
@@ -343,6 +344,7 @@ class Campaign:
             target=self.root/'analysis'/f'RL_{variant}_training50k.json'
             if not target.exists():self.run_analysis('scripts.analysis.simwam_recipe.summarize_training',['--run',str(run),'--output',str(target)])
         final=dict(schema='native_Qwen_flow_campaign_completion_v1',status='COMPLETE',IL_navtest_summary=str(baseline),
+            IL_dev_summary=str(baseline_dev),
             results=results,fixed_endpoint_updates=50000,DEV_selected_updates=choices,
             training_seeds=[42],inference_seeds=[2101],registration_sha256=file_sha(registration),
             endpoint_lock_sha256=file_sha(locked),reached92={v:{str(u):read(x['paired'])['reached92'] for u,x in rows.items()} for v,rows in results.items()})

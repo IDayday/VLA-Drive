@@ -75,7 +75,7 @@ class CampaignTests(unittest.TestCase):
              patch.object(self.queue,'ensure_export',return_value=None),\
              patch.object(self.queue,'ensure_evaluation',return_value=None) as evaluation:
             self.assertEqual(self.queue.tick()['status'],'FORMAL_RL_AND_DEV')
-            self.assertEqual([c.args[0] for c in evaluation.call_args_list],['selected_IL_NAVTEST'])
+            self.assertEqual([c.args[0] for c in evaluation.call_args_list],['selected_IL_DEV','selected_IL_NAVTEST'])
 
     def test_zero_exit_is_not_a_formal_endpoint(self):
         run=self.root/'run';run.mkdir()
