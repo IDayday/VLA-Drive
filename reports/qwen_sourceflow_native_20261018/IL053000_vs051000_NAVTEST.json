@@ -1,0 +1,181 @@
+{
+  "schema": "native_IL_milestones_paired_v1",
+  "status": "COMPLETE",
+  "interpretation": "IL checkpoint learning only; not RL gain or IL parent selection",
+  "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_update053000_NAVTEST_interim_20261023",
+  "reference": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_update051000_NAVTEST_interim_20261022",
+  "current_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000",
+  "reference_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL051000_20261022/pinned_checkpoint_update051000",
+  "current_model_sha256": "4c5188dec5674fc08f4b75b1a464c05348bf8a54623fd85f6598fb921ae5e786",
+  "reference_model_sha256": "b3c2e0768deca18f06cce636bdbedbe9dc7a7ce278e1ad60cd13e47939a3399c",
+  "analysis_sha256": "9002ed919f4cbe0dbba61519f421b3a4b5465424757eb2c70c79182be9e18183",
+  "scenes": 12146,
+  "source_compatibility": {
+    "mode": "identical_source_files"
+  },
+  "logs": 136,
+  "seed": 2101,
+  "inference": "single_candidate_source_shift5_ODE_K10",
+  "metric": "canonical_NAVSIM_v1.1",
+  "training_seed_repeats": 1,
+  "inference_seeds": 1,
+  "uncertainty": "Scene-weighted log-cluster bootstrap; excludes training/inference seed uncertainty",
+  "current_mean_percent": {
+    "score": 87.01602541637695,
+    "no_at_fault_collisions": 98.08990614193974,
+    "drivable_area_compliance": 95.2741643339371,
+    "time_to_collision_within_bound": 94.05565618310555,
+    "ego_progress": 81.72265469511001,
+    "comfort": 99.95060102091223,
+    "driving_direction_compliance": 98.41099950601021
+  },
+  "reference_mean_percent": {
+    "score": 86.67547395016781,
+    "no_at_fault_collisions": 97.83879466491025,
+    "drivable_area_compliance": 95.17536637576157,
+    "time_to_collision_within_bound": 93.75926230857897,
+    "ego_progress": 81.46793575062296,
+    "comfort": 99.96706734727482,
+    "driving_direction_compliance": 98.38630001646632
+  },
+  "mean_delta_percentage_points": {
+    "score": 0.34055146620912147,
+    "no_at_fault_collisions": 0.25111147702947473,
+    "drivable_area_compliance": 0.09879795817553103,
+    "time_to_collision_within_bound": 0.2963938745265931,
+    "ego_progress": 0.2547189444870503,
+    "comfort": -0.016466326362588508,
+    "driving_direction_compliance": 0.024699489543882756
+  },
+  "PDMS_log_cluster_bootstrap": {
+    "mean": 0.003405514662091215,
+    "CI95": [
+      -0.0024097052358120507,
+      0.009223101808346859
+    ],
+    "scenes": 12146,
+    "logs": 136,
+    "bootstrap_repeats": 2000,
+    "seed": 42,
+    "training_seed_uncertainty_included": false,
+    "mean_PDMS_points": 0.34055146620912147,
+    "CI95_PDMS_points": [
+      -0.24097052358120508,
+      0.9223101808346859
+    ]
+  },
+  "G_plus_raw_score_sum": 370.2276853446609,
+  "G_minus_raw_score_sum": 328.86430425890103,
+  "G_plus_PDMS_points": 3.0481449476754565,
+  "G_minus_PDMS_points": 2.707593481466335,
+  "any_improved": 4210,
+  "any_degraded": 3917,
+  "practical_improved_ge005": 2863,
+  "practical_degraded_le_minus005": 2722,
+  "reference_zero_scenes": 826,
+  "current_zero_scenes": 784,
+  "nonzero_to_zero": 256,
+  "zero_to_nonzero": 298,
+  "reference_joint_safe_scenes": 10851,
+  "current_joint_safe_scenes": 10905,
+  "reference_safe_new_joint_violation": 357,
+  "reference_unsafe_joint_recovery": 411,
+  "current_full_score_scenes": 3637,
+  "safety_transitions": {
+    "no_at_fault_collisions": {
+      "reference_violation": 275,
+      "current_violation": 244,
+      "new_violation": 49,
+      "recovery": 80
+    },
+    "drivable_area_compliance": {
+      "reference_violation": 586,
+      "current_violation": 574,
+      "new_violation": 220,
+      "recovery": 232
+    },
+    "time_to_collision_within_bound": {
+      "reference_violation": 758,
+      "current_violation": 722,
+      "new_violation": 170,
+      "recovery": 206
+    }
+  },
+  "current_motion": {
+    "request_final_forward_m": {
+      "mean": 19.27508487217355,
+      "defined_scenes": 12146
+    },
+    "request_final_lateral_m": {
+      "mean": 0.7941998792365966,
+      "defined_scenes": 12146
+    },
+    "request_mean_segment_speed_mps": {
+      "mean": 5.014946463882465,
+      "defined_scenes": 12146
+    },
+    "request_segment_jerk_RMS_mps3": {
+      "mean": 3.948378649452297,
+      "defined_scenes": 12146
+    },
+    "simulated_final_forward_m": {
+      "mean": 19.78219096760154,
+      "defined_scenes": 12146
+    },
+    "simulated_abs_final_lateral_m": {
+      "mean": 2.5949701941448327,
+      "defined_scenes": 12146
+    },
+    "simulated_mean_segment_speed_mps": {
+      "mean": 5.132179503726983,
+      "defined_scenes": 12146
+    },
+    "simulated_time_to_90percent_own_path_s": {
+      "mean": 3.5407788572369507,
+      "defined_scenes": 12146
+    },
+    "raw_progress_meters": {
+      "mean": 20.434187809783555,
+      "defined_scenes": 12146
+    }
+  },
+  "reference_motion": {
+    "request_final_forward_m": {
+      "mean": 19.024906328781302,
+      "defined_scenes": 12146
+    },
+    "request_final_lateral_m": {
+      "mean": 0.6296569016115995,
+      "defined_scenes": 12146
+    },
+    "request_mean_segment_speed_mps": {
+      "mean": 4.962779191897428,
+      "defined_scenes": 12146
+    },
+    "request_segment_jerk_RMS_mps3": {
+      "mean": 4.471431122660266,
+      "defined_scenes": 12146
+    },
+    "simulated_final_forward_m": {
+      "mean": 19.676961253867212,
+      "defined_scenes": 12146
+    },
+    "simulated_abs_final_lateral_m": {
+      "mean": 2.5836753286939316,
+      "defined_scenes": 12146
+    },
+    "simulated_mean_segment_speed_mps": {
+      "mean": 5.10756967873161,
+      "defined_scenes": 12146
+    },
+    "simulated_time_to_90percent_own_path_s": {
+      "mean": 3.5648608595422364,
+      "defined_scenes": 12146
+    },
+    "raw_progress_meters": {
+      "mean": 20.352365300812977,
+      "defined_scenes": 12146
+    }
+  },
+  "sha256": "c4b0a5035b9876d1c510424b1c1848918baa3546b7dbd69f19476bcaea22b721"
+}

@@ -1,6 +1,8 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
-**2026-10-22最新51k IL全量Navtest：PDMS 86.675474，相对49k变化-0.134953分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL结果，正式RL尚未开始。** [51k报告与配对结果](interim_NAVTEST_IL051000_20261022.md)。
+**2026-10-23最新53k IL全量Navtest：PDMS 87.016025，相对51k变化+0.340551分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL阶段，正式RL尚未开始。** [53k报告与配对结果](interim_NAVTEST_IL053000_20261023.md)。
+
+**2026-10-22历史51k快照：51k IL全量Navtest：PDMS 86.675474，相对49k变化-0.134953分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL结果，正式RL尚未开始。** [51k报告与配对结果](interim_NAVTEST_IL051000_20261022.md)。
 
 **2026-10-22历史49k快照：49k IL全量Navtest：PDMS 86.810426，较40k变化+1.023870分；同一canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL结果，正式RL尚未开始。** [49k报告与配对分析](interim_NAVTEST_IL049000_20261022.md)。
 

@@ -1,0 +1,217 @@
+{
+  "schema": "native_IL053000_NAVTEST_execution_v1",
+  "status": "COMPLETE",
+  "role": "USER_REQUESTED_INTERIM",
+  "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/interim_navtest_rolling_20261022",
+  "source_sha": "d3a7ce8ce3836194e103354797d613bfc27c596c",
+  "same_evaluation_source_as_IL51k": true,
+  "model_training_scorer_code_changed": false,
+  "training_source": "d4d0012769540af8378e013c072d6d8053d9f275",
+  "hosts": {
+    "training-vla-zt": 8,
+    "training-vlawm-tsinghua-zt3": 8,
+    "training-vlawm-tsinghua-zt4": 8
+  },
+  "workers": 24,
+  "unique_GPUs": 24,
+  "process_complete": 24,
+  "failed_workers": 0,
+  "logical_single_candidates": 12146,
+  "physical_evaluation_inferences": 12146,
+  "reused_scenes": 0,
+  "controller_wall_seconds": 1093.9248404502869,
+  "elapsed_worker_span_seconds": 1011.8854167461395,
+  "worker_wall_seconds": 19644.267017439008,
+  "model_loading_seconds": 2088.4970635063946,
+  "forward_worker_seconds": 13047.761036101729,
+  "scoring_wait_worker_seconds": 1564.27952696383,
+  "GPU_cost_semantics": "Worker occupancy on authorized GPUs, possibly shared; not exclusive GPU compute seconds",
+  "resource_actions": {
+    "status": "NO_RESOURCE_PROCESS_PREEMPTED",
+    "pressure_monitor_modified": false,
+    "real_or_unknown_process_signalled": false
+  },
+  "worker_exit_verification": {
+    "training-vla-zt": {
+      "at": 1792736035.75317,
+      "workers": [
+        {
+          "pid": 3298125,
+          "start_ticks": 1417349828,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3298119,
+          "start_ticks": 1417349825,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3298121,
+          "start_ticks": 1417349827,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3298122,
+          "start_ticks": 1417349827,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3298120,
+          "start_ticks": 1417349827,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3298124,
+          "start_ticks": 1417349828,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3298118,
+          "start_ticks": 1417349823,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3298123,
+          "start_ticks": 1417349828,
+          "same_process_alive": false
+        }
+      ],
+      "pressure": {
+        "paused_marker": false,
+        "paused": false,
+        "agent_pid": 1075691,
+        "workers": 0,
+        "window_seconds": 1800
+      }
+    },
+    "training-vlawm-tsinghua-zt3": {
+      "at": 1792736035.8945525,
+      "workers": [
+        {
+          "pid": 2641832,
+          "start_ticks": 1417368829,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2641842,
+          "start_ticks": 1417368829,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2640739,
+          "start_ticks": 1417368823,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2641995,
+          "start_ticks": 1417368830,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2641881,
+          "start_ticks": 1417368830,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2641600,
+          "start_ticks": 1417368828,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2640691,
+          "start_ticks": 1417368823,
+          "same_process_alive": false
+        },
+        {
+          "pid": 2641586,
+          "start_ticks": 1417368828,
+          "same_process_alive": false
+        }
+      ],
+      "pressure": {
+        "paused_marker": false,
+        "paused": false,
+        "agent_pid": 1269422,
+        "workers": 0,
+        "window_seconds": 1800
+      }
+    },
+    "training-vlawm-tsinghua-zt4": {
+      "at": 1792736035.9022877,
+      "workers": [
+        {
+          "pid": 3553148,
+          "start_ticks": 1417368410,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3552345,
+          "start_ticks": 1417368405,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3552913,
+          "start_ticks": 1417368409,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3552893,
+          "start_ticks": 1417368408,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3556498,
+          "start_ticks": 1417368427,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3562347,
+          "start_ticks": 1417368457,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3567106,
+          "start_ticks": 1417368482,
+          "same_process_alive": false
+        },
+        {
+          "pid": 3571851,
+          "start_ticks": 1417368506,
+          "same_process_alive": false
+        }
+      ],
+      "pressure": {
+        "paused_marker": false,
+        "paused": false,
+        "agent_pid": 539722,
+        "workers": 0,
+        "window_seconds": 1800
+      }
+    }
+  },
+  "controller_recovery": {
+    "schema": "native_NAVTEST_receipt_owner_recovery_v1",
+    "cause": "Control daemon restart; original unified-exec owner exited",
+    "original_owner": {
+      "pid": 3297619,
+      "start_unix": 1792734852.0444524
+    },
+    "recovery_pid": 3302572,
+    "recovery_start_ticks": 1417428589,
+    "recovery_start_unix": 1792735672.7599013,
+    "model_workers_restarted": 0,
+    "new_inference_dispatches": 0,
+    "resume_existing_receipts_only": true,
+    "completed_unix": 1792736007.019596,
+    "status": "RECEIPT_COLLECTION_AND_ANALYSIS_COMPLETE"
+  },
+  "qualification_forwards": 0,
+  "qualification_reason": "Unchanged previously qualified evaluator; no repeated numeric matrix",
+  "excluded_hosts": {
+    "training-vlawm-tsinghua-zt6": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt2": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt": "native IL insufficient memory",
+    "training-rl-zt2": "USER_WITHDRAWN",
+    "training-vlawm-tsinghua-zt5": "unexplained active GPU use without visible owner"
+  }
+}
