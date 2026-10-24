@@ -57,6 +57,8 @@ CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/pyt
 
 该命令必须等待L1/L2/L3的DEV随机、TRAIN随机、DEV均值读出及对应L0参考全部封存；缺失时输出`WAITING_FOR_SEALED_EVALUATIONS`且不创建分析结果。固定256更新终点、readout与seed集合有校验。所有配对及bootstrap调用公共分析器，额外按scene一次汇总真实root q的联合prior KL与std；已在现有L0/L0-S完整记录验证KL为0及2.44019865，后者与24维高斯解析式一致。此处root KL不是最终轨迹KL，也不将五次部署draw当K32搜索曲线。
 
+终点薄入口最初只执行了缺失门禁，root审阅发现完整分支把`population/reference`误写为`population[reference]`。此分析编排错误已修复，不影响训练、轨迹或之前通过公共CLI取得的尺度对照。新增[完整分支验收](terminal_analysis_complete_case_v2.json)：14份完整sealed CPU合成评测实际执行全部13项比较、CSV发布和root诊断；另通过同一`write_pair`实际重算已有L0-S/L0各1280输出，结果严格一致。合成算术记录不属于驾驶结果。
+
 ## 研究判断进度
 
 第一份已完成的部署对照见[固定尺度0.7报告](fixed_scale_control_07.md)：DEV_SELECT预登记256场景/8logs、五个评价噪声种子，L0-S为92.180332，L0为92.143105，净差+0.037228点，log-bootstrap区间[−0.103974,+0.181690]。其余固定尺度和学习臂未完成前不选择温度，不将此开发集92分写成Navtest达到92。

@@ -96,7 +96,7 @@ def main():
                 raise ValueError('Only registered matched terminal models enter terminal analysis: '+name)
     output=Path(args.output)
     output.mkdir(parents=True,exist_ok=False)
-    pairs={name:write_pair(output,name,population/current,population[reference],protocol,args.reference_strata)
+    pairs={name:write_pair(output,name,population/current,population/reference,protocol,args.reference_strata)
            for name,(current,reference) in comparisons.items()}
     summary=dict(schema='frozen_root_terminal_screen_analysis_v1',status='COMPLETE',
                  protocol_sha256=protocol['sha256'],source_sha256=file_sha(__file__),
