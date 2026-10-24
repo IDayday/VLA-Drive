@@ -104,28 +104,38 @@ class QwenEncoder(nn.Module):
         ti, tm = pack_indices(valid & ~visual)
         positions = torch.zeros((*vm.shape, 3), device=device, dtype=torch.long)
         camera_ids = torch.full(vm.shape, -1, device=device, dtype=torch.long)
+        time_ids = torch.zeros(vm.shape, device=device, dtype=torch.long)
         grids = kwargs['image_grid_thw'].tolist()
-        cursor = 0
+        cursor = 0; image_layout = []
         for b, cameras in enumerate(batch['camera_indices']):
             offset = 0
+            times = batch.get('image_time_indices', [[0]*len(c) for c in batch['camera_indices']])[b]
+            if len(times) != len(cameras) or any(t not in (-2,-1,0) for t in times):
+                raise ValueError('Explicit current/two-history frame coordinates required')
+            layout = []
             # Reserve the same tile width for a missing view; no black-image token.
             scene_grids = grids[cursor:cursor+len(cameras)]
             tile_width = max(g[2] // self.merge_size for g in scene_grids)
-            for camera, (t, h, w) in zip(cameras, scene_grids):
+            for camera, frame_time, (t, h, w) in zip(cameras, times, scene_grids):
                 if t != 1 or h % self.merge_size or w % self.merge_size:
                     raise ValueError('Unexpected current-image merge grid')
                 mh, mw = h // self.merge_size, w // self.merge_size
                 n = mh * mw
+                positions[b, offset:offset+n, 0] = frame_time
                 # Official merger order: row-major blocks after spatial merging.
                 positions[b, offset:offset+n, 1] = torch.arange(mh, device=device).repeat_interleave(mw)
                 positions[b, offset:offset+n, 2] = torch.arange(mw, device=device).repeat(mh) + camera * tile_width
                 camera_ids[b, offset:offset+n] = camera
+                time_ids[b, offset:offset+n] = frame_time
+                layout.append(dict(camera=camera, frame_time=frame_time, offset=offset, height=mh, width=mw))
                 offset += n
             if offset != int(vm[b].sum()):
                 raise ValueError('Image token count differs from image_grid_thw / merge^2')
             cursor += len(cameras)
+            image_layout.append(layout)
         if cursor != len(grids):
             raise ValueError('Image grids cross scene boundary')
         return dict(hidden_states=hidden, final_hidden=out.last_hidden_state,
                     visual_indices=vi, visual_mask=vm, visual_positions=positions,
-                    camera_ids=camera_ids, text_indices=ti, text_mask=tm)
+                    camera_ids=camera_ids, time_ids=time_ids, image_layout=image_layout,
+                    text_indices=ti, text_mask=tm)

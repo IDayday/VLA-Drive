@@ -26,7 +26,7 @@ class VisualProjection(nn.Module):
 
 
 class QwenConditionProvider(nn.Module):
-    def __init__(self, action_expert, qwen_hidden=2048, qwen_layers=28, proprio_dim=8):
+    def __init__(self, action_expert, qwen_hidden=2048, qwen_layers=28, proprio_dim=8, history_frames=0):
         super().__init__()
         self.layer_mapping = depth_mapping(qwen_layers, len(action_expert.blocks))
         self.visual_bridge = nn.Linear(qwen_hidden, action_expert.hidden_dim)
@@ -34,6 +34,8 @@ class QwenConditionProvider(nn.Module):
         # Source current-state linear encoder appended to text, with raw SI units.
         self.proprio_encoder = nn.Linear(proprio_dim, action_expert.text_dim)
         self.proprio_dim = proprio_dim
+        if history_frames not in (0,2):raise ValueError('Only current or explicit two-frame history supported')
+        self.history_frames = history_frames
         self.visual_projections = nn.ModuleList([VisualProjection(b) for b in action_expert.blocks])
         self.num_heads = action_expert.num_heads
         self.head_dim = action_expert.attn_head_dim
@@ -48,11 +50,15 @@ class QwenConditionProvider(nn.Module):
         if proprio.shape != (vm.shape[0], self.proprio_dim):
             raise ValueError('Current proprio shape changed')
         spatial = encoded['visual_positions']  # [B,S,3] time/row/tiled-column
-        if (spatial[..., 0] != 0).any() or spatial.max() >= 1024 or spatial.min() < 0:
-            raise ValueError('Invalid current-image memory coordinates')
+        if (spatial[..., 0] > 0).any() or (spatial[..., 0] < -self.history_frames).any() or (spatial[..., 1:] < 0).any() or spatial.max() >= 1024:
+            raise ValueError('Invalid registered current/history memory coordinates')
         freqs = [f.to(vm.device) for f in self._freqs]
         # Source rope_apply accepts a broadcast batch dimension for positions.
-        freq = torch.cat([f[spatial[..., axis]] for axis, f in enumerate(freqs)], -1).unsqueeze(2)
+        # Source exp(i*position*frequency): negative historical coordinates use
+        # the conjugate of positive source frequencies. Current remains zero.
+        temporal = freqs[0][spatial[..., 0].abs()]
+        temporal = torch.where((spatial[..., 0] < 0)[..., None], temporal.conj(), temporal)
+        freq = torch.cat([temporal, freqs[1][spatial[..., 1]], freqs[2][spatial[..., 2]]], -1).unsqueeze(2)
         kv, bridged = [], {}
         for j, projection in zip(self.layer_mapping, self.visual_projections):
             if j not in bridged:

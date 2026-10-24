@@ -1,0 +1,34 @@
+model: TemporalDINOFlowVLA
+seed: 42
+evaluation_seed: 2101
+parent_update: 60000
+max_updates: 40000
+global_batch: 32
+FM_repeat: 1
+history_frames: 2
+camera_order: [cam_l0, cam_f0, cam_r0]
+time_coordinates: [-2, -1, 0]
+current_dino:
+  teacher_identity: bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e
+  channels: 1024
+  grid_hw: [6, 8]
+  weight: 1.0
+  input: final_current_visual_tokens
+  readout: affine_after_full_field_bilinear_resampling
+  teacher_camera_reorder: [1, 0, 2]
+learning_rates:
+  qwen_language_merger: 0.00001
+  qwen_vision: 0.000001
+  action_interfaces: 0.0001
+betas: [0.9, 0.95]
+eps: 0.00000001
+weight_decay: 0.01
+gradient_clip: 1.0
+optimizer: torch_2_5_ZeroRedundancyOptimizer_FP32_AdamW
+scheduler: inherit_native_parent_cosine_phase
+inherit_base_Adam_moments: true
+save_every: 250
+milestones: [1000, 5000, 10000, 20000, 30000, 40000]
+rolling_recovery_keep: 2
+inference: single_candidate_source_shift5_ODE_K10
+metric: canonical_NAVSIM_v1.1
