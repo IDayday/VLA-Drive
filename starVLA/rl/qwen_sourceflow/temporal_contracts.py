@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import socket
+import os
 from .contracts import file_sha, fingerprint
 
 ROOT=Path('/mnt/project/qwen-sourceflow-temporal-dino-20261024')
@@ -17,6 +18,11 @@ def require_temporal_dispatch():
         raise PermissionError('Unauthorized temporal-DINO task host: '+host)
     if policy.get('global_dispatch_prohibitions',{}).get(host,{}).get('new_task_dispatch_allowed') is False:
         raise PermissionError('Withdrawn temporal-DINO task host: '+host)
+    visible=os.environ.get('CUDA_VISIBLE_DEVICES','')
+    if visible:
+        allowed=policy['task_authorizations'][TASK]['authorized_gpu_indices'][host]
+        if any(not value.isdigit() or int(value) not in allowed for value in visible.split(',')):
+            raise PermissionError('GPU range withdrawn from temporal-DINO task')
     return host
 
 

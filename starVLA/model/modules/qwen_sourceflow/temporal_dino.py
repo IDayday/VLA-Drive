@@ -10,7 +10,7 @@ from .qwen_encoder import QwenObservationProcessor, CAMERAS
 class TemporalQwenProcessor(QwenObservationProcessor):
     """One official prefill; real chronological images, no image replication."""
     def __call__(self, observations):
-        messages, images, views, frame_indices = [], [], [], []
+        messages, images, views, frame_indices, presence = [], [], [], [], []
         for obs in observations:
             state = obs['proprio'];frames = obs['frames']
             if len(state)!=8 or len(frames)!=3 or [f['offset'] for f in frames]!=[-2,-1,0]:
@@ -26,6 +26,7 @@ class TemporalQwenProcessor(QwenObservationProcessor):
                 'Two historical frames and the current frame follow chronologically. '
                 'Each frame contains synchronized left/front/right camera views.'))]
             cameras, times = [], []
+            presence.append([[f['images'].get(c) is not None for c in CAMERAS] for f in frames])
             for frame in frames:
                 content.append(dict(type='text', text=f'Frame relative to current (seconds): {float(frame["relative_seconds"]):.6f}.'))
                 present = 0
@@ -42,6 +43,8 @@ class TemporalQwenProcessor(QwenObservationProcessor):
         text=[self.processor.apply_chat_template(m,tokenize=False,add_generation_prompt=True) for m in messages]
         batch=self.processor(text=text,images=images,padding=True,return_tensors='pt')
         batch['camera_indices']=views;batch['image_time_indices']=frame_indices
+        batch['observation_frame_offsets']=[[-2,-1,0] for _ in observations]
+        batch['view_presence']=torch.tensor(presence,dtype=torch.bool)
         return batch
 
 
@@ -115,7 +118,25 @@ class TemporalDINOFlowVLA(QwenSourceFlowVLA):
         self.provider.history_frames=2
         self.current_dino_head=CurrentDINOHead(self.qwen.hidden_dim)
 
+    def check_temporal_batch(self,batch):
+        cameras=batch.get('camera_indices');times=batch.get('image_time_indices');present=batch.get('view_presence')
+        if cameras is None or times is None or present is None or batch.get('observation_frame_offsets')!=[[-2,-1,0] for _ in cameras]:
+            raise ValueError('Temporal model refuses legacy current-only or compressed observations')
+        if tuple(present.shape)!=(len(cameras),3,3) or present.dtype!=torch.bool:raise ValueError('Explicit3x3 camera/time presence required')
+        for b,row in enumerate(present.tolist()):
+            expected_camera=[];expected_time=[]
+            for t,mask in zip([-2,-1,0],row):
+                for c,valid in enumerate(mask):
+                    if valid:expected_camera.append(c);expected_time.append(t)
+            if cameras[b]!=expected_camera or times[b]!=expected_time or not any(row[-1]):
+                raise ValueError('Camera/time/padding metadata do not match actual images')
+
+    def encode_condition(self,observation_batch,proprio):
+        self.check_temporal_batch(observation_batch)
+        return super().encode_condition(observation_batch,proprio)
+
     def forward(self,observation_batch,proprio,normalized_action,*,dino_target,dino_valid,head_only=False,**fm_randomness):
+        self.check_temporal_batch(observation_batch)
         encoded=self.qwen(observation_batch)
         if head_only:
             fm=normalized_action.new_zeros(());terms={}

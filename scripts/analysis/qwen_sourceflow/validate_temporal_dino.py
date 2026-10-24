@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import torch
 from torch import nn
-from starVLA.model.modules.qwen_sourceflow.temporal_dino import TemporalQwenProcessor,CurrentDINOHead,current_dino_loss
+from starVLA.model.modules.qwen_sourceflow.temporal_dino import TemporalQwenProcessor,CurrentDINOHead,current_dino_loss,TemporalDINOFlowVLA
 from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenEncoder
 from starVLA.rl.qwen_sourceflow.temporal_data import TemporalSceneData
 from starVLA.rl.qwen_sourceflow.contracts import QWEN_PATH
@@ -43,6 +43,9 @@ class Arithmetic(unittest.TestCase):
         p=torch.zeros(1,3,5,2,2)
         with self.assertRaises(ValueError):current_dino_loss(p,p,torch.zeros(1,3,2,2,dtype=torch.bool),torch.ones(1,3,dtype=torch.bool))
 
+    def test_legacy_input_is_rejected(self):
+        with self.assertRaises(ValueError):TemporalDINOFlowVLA.check_temporal_batch(None,dict(camera_indices=[[0,1,2]]))
+
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);a=p.parse_args()
@@ -52,6 +55,7 @@ def main():
     batch=processor([o]);assert batch['camera_indices']==[[0,1,2]*3]
     assert batch['image_time_indices']==[[-2]*3+[-1]*3+[0]*3]
     assert len(batch['image_grid_thw'])==9
+    TemporalDINOFlowVLA.check_temporal_batch(None,batch)
     dirty=dict(o,requested_GT=torch.randn(8,3),reward=999.,future_images='not actor input')
     other=processor([dirty])
     for k in batch:
@@ -59,6 +63,7 @@ def main():
         else:assert batch[k]==other[k],k
     missing=copy.deepcopy(o);missing['frames'][0]['images']['cam_r0']=None
     padded=processor([o,missing]);assert len(padded['image_grid_thw'])==17
+    TemporalDINOFlowVLA.check_temporal_batch(None,padded)
     receipt=dict(status='PASS',CPU_arithmetic_tests=result.testsRun,real_processor_images=9,
         camera_order='chronological then L/F/R',frame_coordinates=[-2,-1,0],
         actual_grids=batch['image_grid_thw'].tolist(),future_labels_ignored=True,missing_historical_view_explicit=True,
