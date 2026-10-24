@@ -56,6 +56,8 @@ def main():
     manifest=json.loads(Path(a.teacher_manifest).read_text());body=dict(manifest);sha=body.pop('sha256')
     if fingerprint(body)!=sha or manifest['data_sha256']!=data.sha or manifest['teacher_identity']!=teacher.identity['identity'] or manifest['scenes']!=len(data.tokens):
         raise ValueError('Teacher/current-data preflight identity changed')
+    if file_sha(Path(a.teacher)/'identity.json')!=manifest['teacher_identity_file_sha256']:
+        raise ValueError('Teacher preprocessing/source identity changed')
     if rank==0:
         for name in ['model.pt','optimizer.pt']:
             if file_sha(Path(a.parent)/name)!=info['files'][name]:raise ValueError('Changed full parent asset')
@@ -66,7 +68,9 @@ def main():
     if set(parent)!=set(initialized)-set(head) or set(head)!={'current_dino_head.projection.weight','current_dino_head.projection.bias'}:
         raise ValueError('Warm-start may add only the explicit current-DINO projection')
     model.load_state_dict(dict(parent,**head),strict=True);del parent,initialized,head;gc.collect()
-    model=model.to(device).train();model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
+    model=model.to(device).train().requires_grad_(True)
+    if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError('Native full FP32 parameter storage required')
+    model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     optimizer=build_optimizer(model,cfg)
     payload=torch.load(Path(a.parent)/'optimizer.pt',map_location='cpu',weights_only=False,mmap=True)
     name_by_id={id(p):n for n,p in model.named_parameters()};parent_steps={};offset=0
@@ -81,6 +85,7 @@ def main():
         teacher_identity=teacher.identity,source_files=temporal_sources(),optimizer='FP32 AdamW exact arithmetic; torch2.5 ZeRO state partition',
         schedule='original native100k cosine evaluated at60000+new_updates',seed=42,teacher_loss='previous C1 global element MSE, weight1')
     identity['sha256']=fingerprint(identity);publish_identity(out,identity,resume=bool(a.resume))
+    if file_sha(Path(a.parent)/f'rank{rank}.pt')!=info['files'][f'rank{rank}.pt']:raise ValueError('Parent rank RNG/data cursor changed')
     own=torch.load(Path(a.parent)/f'rank{rank}.pt',map_location='cpu',weights_only=False)
     state=dict(updates=0,cursor=own['state']['cursor'],phase='READY')
     rng=own['rng'];random.setstate(rng['python']);np.random.set_state(rng['numpy']);torch.set_rng_state(rng['torch']);torch.cuda.set_rng_state(rng['cuda'])
@@ -110,13 +115,20 @@ def main():
                         (loss/accumulation).backward()
                     fm_sum+=float(terms['FM'])/accumulation;dino_sum+=float(terms['current_DINO'])/accumulation
                 if any(p.grad is None for p in model.parameters()):raise ValueError('Missing full-model/auxiliary gradient')
+                gradient_probe={}
+                if a.qualification or state['updates']%20==0:
+                    for name,p in model.named_parameters():
+                        if name in ['provider.visual_bridge.weight','current_dino_head.projection.weight',
+                            'qwen.model.language_model.layers.27.mlp.down_proj.weight',
+                            'policy.runner.mixtures.action.head.weight']:
+                            gradient_probe[name]=float(p.grad.float().norm())
                 grad=torch.nn.utils.clip_grad_norm_(model.parameters(),cfg['gradient_clip'],error_if_nonfinite=True,foreach=False)
                 lrs={g['name']:g['lr'] for g in optimizer.param_groups};optimizer.step();scheduler.step()
                 state['updates']+=1;state['cursor']+=cfg['global_batch'];torch.cuda.synchronize()
                 row=dict(updates=state['updates'],parent_plus_updates=60000+state['updates'],cursor=state['cursor'],rank=rank,tokens=tokens,
                     FM=fm_sum,current_DINO=dino_sum,loss=fm_sum+dino_sum,grad_norm=float(grad),learning_rates=lrs,
                     visual_tokens=input_tokens,seconds=time.monotonic()-begin,peak_GPU_bytes=torch.cuda.max_memory_allocated(),
-                    new_scene_exposures=state['updates']*cfg['global_batch'],invocation=inv)
+                    gradient_probe=gradient_probe,new_scene_exposures=state['updates']*cfg['global_batch'],invocation=inv)
                 journal.write(json.dumps(row,allow_nan=False)+'\n')
                 if rank==0 and (state['updates']<=5 or state['updates']%20==0):print(json.dumps(row),flush=True)
                 flag=torch.tensor(int(STOP),device=device);dist.all_reduce(flag,op=dist.ReduceOp.MAX)
