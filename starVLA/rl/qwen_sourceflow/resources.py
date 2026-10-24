@@ -13,9 +13,10 @@ MODEL_PYTHON='/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
 
 
 def allowed_hosts():
+    from .contracts import ROOT
+    from .resource_authorization import authorized_hosts
     p=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
-    return [h for h in p['task_authorizations']['qwen_sourceflow_native_20261018']['allowed_hosts']
-        if h in p['allowed_hosts'] and not (p.get('global_dispatch_prohibitions',{}).get(h,{}).get('new_task_dispatch_allowed') is False)]
+    return authorized_hosts(p,ROOT)
 
 
 def remote(host,args):

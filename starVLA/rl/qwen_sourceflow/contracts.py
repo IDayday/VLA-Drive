@@ -26,13 +26,11 @@ def fingerprint(value):
 
 
 def require_dispatch():
+    from .resource_authorization import authorized_hosts
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     host = socket.gethostname().removesuffix('-worker-0')
-    auth = policy['task_authorizations']['qwen_sourceflow_native_20261018']
-    if host not in policy['allowed_hosts'] or host not in auth['allowed_hosts']:
+    if host not in authorized_hosts(policy,ROOT):
         raise PermissionError('Unauthorized native Qwen-Flow host: ' + host)
-    if policy.get('global_dispatch_prohibitions', {}).get(host, {}).get('new_task_dispatch_allowed') is False:
-        raise PermissionError('Withdrawn host: ' + host)
     return host
 
 
