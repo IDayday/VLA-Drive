@@ -1,10 +1,12 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
-**2026-10-24训练检查：两组20k真实buffer/optimizer检查通过；已修复离线分析identity与feedback关联校验缺口，16项回归通过，原成绩重验不变。新20k匹配Navtest正在执行，尚非50k终点。** [检查与代码修复](RL_training_review_20261024.md)。
+**2026-10-24最新完整Navtest：RL_CANONICAL20k为90.284539，RL_SOURCE20k为90.233689，同一IL53k为87.016025；净提升+3.268513/+3.217663分。** 固定seed2101、单候选shift5 ODE K10、canonical v1.1、各12146场景/136 logs。两组相对IL的NC/DAC/TTC均值均提高，仍有84/114个新增零分和120/210个固定IL-safe新增联合违规；未达到92。这是匹配20k中期观察，50k终点尚未完成。[完整报告、配对区间与成本](RL20k_NAVTEST_20261024.md)。
 
-**2026-10-23：按用户明确指定，53k IL已开启CANONICAL/SOURCE两条正式RL，各8卡/seed42/50k。10:02 UTC更新208/188，两组均已核验100更新原生恢复点；当前尚无RL部署分数。** [启动、资格与恢复证据](RL_parent53k_start_20261023.md)。
+**2026-10-24训练检查：两组20k真实buffer/optimizer检查通过；已修复离线分析identity与feedback关联校验缺口，16项回归通过，原成绩重验不变。** 当前00:57 UTC快照CANONICAL26960、SOURCE23248、IL58469，继续原预算；不可变训练源码未修改。[检查与代码修复](RL_training_review_20261024.md)。
 
-**2026-10-23最新53k IL全量Navtest：PDMS 87.016025，相对51k变化+0.340551分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL阶段，正式RL尚未开始。** [53k报告与配对结果](interim_NAVTEST_IL053000_20261023.md)。
+**2026-10-23启动快照：按用户明确指定，53k IL已开启CANONICAL/SOURCE两条正式RL，各8卡/seed42/50k。10:02 UTC更新208/188，两组均已核验100更新原生恢复点；当时尚无RL部署分数。** [启动、资格与恢复证据](RL_parent53k_start_20261023.md)。
+
+**2026-10-23的53k IL全量Navtest：PDMS 87.016025，相对51k变化+0.340551分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。这是随后被用户指定为RL父模型的IL结果；评分完成时正式RL尚未开始。** [53k报告与配对结果](interim_NAVTEST_IL053000_20261023.md)。
 
 **2026-10-22历史51k快照：51k IL全量Navtest：PDMS 86.675474，相对49k变化-0.134953分；canonical v1.1、单候选shift5 ODE、seed2101、12146场景。仍是IL结果，正式RL尚未开始。** [51k报告与配对结果](interim_NAVTEST_IL051000_20261022.md)。
 
@@ -39,8 +41,8 @@
 | 初始化 | 官方通用Qwen＋官方通用Wan转换；重新初始化所有新接口，不使用资格验收或旧驾驶权重 |
 | IL 数据 | 101592 TRAIN场景、1176 logs；global32、FM repeat1、seed42 |
 | IL 预算 | 接口稳定1000步计入100000总步；随后完整Qwen/provider/action训练 |
-| IL 观察与选择 | 固定20k/40k/60k/80k/100k全量DEV；全部完成后按DEV canonical PDMS最高选父模型，精确同分选较晚步数；Navtest不参与 |
-| 两组正式 RL | 尚未开始；必须使用同一个完整IL父模型。CANONICAL 5:5:2、SOURCE 10:5:2，各50k，其他设置匹配 |
+| IL 观察与选择 | 固定20k/40k/60k/80k/100k全量DEV继续；原等待全部DEV再选父模型的规则已被2026-10-23用户明确指定53k覆盖，仅作用于当前两条RL。53k Navtest已被用户观察，披露Navtest_used=true |
+| 两组正式 RL | 已从同一个完整53k IL启动；CANONICAL 5:5:2、SOURCE 10:5:2，各50k，其他设置匹配。当前完整20k DEV/Navtest见上方，不将中期观察当50k终点 |
 | 正式评价 | seed2101、单候选10步shift5 ODE、canonical NAVSIM v1.1；没有best-of-N、teacher选择或新增seed |
 
 正式首个update的loss、梯度norm、数据顺序和LR与先前8卡global32资格profile**完全一致**，见 [首步核对](qualification_formal_first_update.json)。这验证启动修复没有改变正常IL计算，不是驾驶能力证据。
@@ -72,7 +74,7 @@ ActionDiT保持30层、hidden1024、FF4096、text4096、24×128 attention空间�
 
 [TRAIN](data_TRAIN.json)、[DEV](data_DEV.json)、[Navtest](data_navtest.json) 均从原始Scene读取，分别101592/1696/12146场景、1176/16/136 logs。动作是当前rear-axle局部坐标x前/y左/heading弧度，8个0.5秒未来点，源absolute min/max归一化，不裁剪合法超范围标签。全TRAIN往返最大误差为 `[5.722e-6m, 2.861e-6m, 1.788e-7rad]`，见 [codec证据](qualification_real_TRAIN_codec.json)。
 
-TRAIN678、DEV2、Navtest36场景存在原始帧时间间隔异常；保留官方Scene索引和0.5秒名义间隔，不自行插值或过滤。部分TRAIN原图路径缺失时仅使用另一已授权位置的同一原始JPEG；没有黑图或删场景。Navtest记录已准备，但尚未运行新模型正式Navtest。
+TRAIN678、DEV2、Navtest36场景存在原始帧时间间隔异常；保留官方Scene索引和0.5秒名义间隔，不自行插值或过滤。部分TRAIN原图路径缺失时仅使用另一已授权位置的同一原始JPEG；没有黑图或删场景。此处为数据准备合同，已完成的IL和RL Navtest结果见本页最新记录。
 
 RL固定作者公开hard list与TRAIN交集17037，排除352个DEV重叠；成员不由新模型分数动态变化。IL使用完整TRAIN。新模型训练不使用DEV标签。
 

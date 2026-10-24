@@ -1,0 +1,158 @@
+{
+  "schema": "native_matched20k_reward_comparison_v1",
+  "status": "COMPLETE",
+  "analysis_sha256": "bd035bb743272fd060163018b97d607f3493a42287d547f9e9d4c2d9fee40bc9",
+  "interpretation": "Fixed matched20k reward-version comparison; not final50k or checkpoint selection",
+  "scenes": 12146,
+  "logs": 136,
+  "seed": 2101,
+  "mean_percent": {
+    "CANONICAL": {
+      "score": 90.28453876435194,
+      "no_at_fault_collisions": 98.75267577803392,
+      "drivable_area_compliance": 97.87584389922608,
+      "time_to_collision_within_bound": 96.5667709534003,
+      "ego_progress": 83.48252828636726,
+      "comfort": 99.96706734727482,
+      "driving_direction_compliance": 98.22575333443109
+    },
+    "SOURCE": {
+      "score": 90.23368869311936,
+      "no_at_fault_collisions": 98.3410176189692,
+      "drivable_area_compliance": 97.78527910423185,
+      "time_to_collision_within_bound": 94.99423678577308,
+      "ego_progress": 85.27656175841626,
+      "comfort": 99.74477194137987,
+      "driving_direction_compliance": 98.04050716285197
+    }
+  },
+  "SOURCE_minus_CANONICAL_PDMS_points": -0.050850071232603156,
+  "SOURCE_minus_CANONICAL_metric_points": {
+    "score": -0.050850071232603156,
+    "no_at_fault_collisions": -0.4116581590647127,
+    "drivable_area_compliance": -0.09056479499423678,
+    "time_to_collision_within_bound": -1.5725341676272024,
+    "ego_progress": 1.7940334720490072,
+    "comfort": -0.22229540589494481,
+    "driving_direction_compliance": -0.1852461715791207
+  },
+  "PDMS_log_cluster_bootstrap": {
+    "mean": -0.0005085007123260315,
+    "CI95": [
+      -0.00311750780780566,
+      0.0021044659009460433
+    ],
+    "scenes": 12146,
+    "logs": 136,
+    "bootstrap_repeats": 2000,
+    "seed": 42,
+    "training_seed_uncertainty_included": false,
+    "CI95_PDMS_points": [
+      -0.311750780780566,
+      0.2104465900946043
+    ]
+  },
+  "SOURCE_new_joint_violation_relative_CANONICAL": 258,
+  "SOURCE_joint_recovery_relative_CANONICAL": 60,
+  "SOURCE_new_zero_relative_CANONICAL": 106,
+  "SOURCE_zero_recovery_relative_CANONICAL": 47,
+  "original_IL_parent_sha256": "4c5188dec5674fc08f4b75b1a464c05348bf8a54623fd85f6598fb921ae5e786",
+  "safety_transitions": {
+    "no_at_fault_collisions": {
+      "CANONICAL_violations": 159,
+      "SOURCE_violations": 211,
+      "new_in_SOURCE": 60,
+      "recovered_in_SOURCE": 8
+    },
+    "drivable_area_compliance": {
+      "CANONICAL_violations": 258,
+      "SOURCE_violations": 269,
+      "new_in_SOURCE": 52,
+      "recovered_in_SOURCE": 41
+    },
+    "time_to_collision_within_bound": {
+      "CANONICAL_violations": 417,
+      "SOURCE_violations": 608,
+      "new_in_SOURCE": 215,
+      "recovered_in_SOURCE": 24
+    }
+  },
+  "policies": {
+    "IL53k": {
+      "PDMS": 87.01602541637695,
+      "zero_scenes": 784,
+      "joint_safe_scenes": 10905,
+      "full_score_scenes": 3637,
+      "means": {
+        "score": 87.01602541637695,
+        "no_at_fault_collisions": 98.08990614193974,
+        "drivable_area_compliance": 95.2741643339371,
+        "time_to_collision_within_bound": 94.05565618310555,
+        "ego_progress": 81.72265469511001,
+        "comfort": 99.95060102091223,
+        "driving_direction_compliance": 98.41099950601021
+      },
+      "violations": {
+        "no_at_fault_collisions": 244,
+        "drivable_area_compliance": 574,
+        "time_to_collision_within_bound": 722
+      }
+    },
+    "CANONICAL": {
+      "PDMS": 90.28453876435194,
+      "zero_scenes": 396,
+      "joint_safe_scenes": 11487,
+      "full_score_scenes": 3799,
+      "means": {
+        "score": 90.28453876435194,
+        "no_at_fault_collisions": 98.75267577803392,
+        "drivable_area_compliance": 97.87584389922608,
+        "time_to_collision_within_bound": 96.5667709534003,
+        "ego_progress": 83.48252828636726,
+        "comfort": 99.96706734727482,
+        "driving_direction_compliance": 98.22575333443109
+      },
+      "violations": {
+        "no_at_fault_collisions": 159,
+        "drivable_area_compliance": 258,
+        "time_to_collision_within_bound": 417
+      }
+    },
+    "SOURCE": {
+      "PDMS": 90.23368869311936,
+      "zero_scenes": 455,
+      "joint_safe_scenes": 11289,
+      "full_score_scenes": 4108,
+      "means": {
+        "score": 90.23368869311936,
+        "no_at_fault_collisions": 98.3410176189692,
+        "drivable_area_compliance": 97.78527910423185,
+        "time_to_collision_within_bound": 94.99423678577308,
+        "ego_progress": 85.27656175841626,
+        "comfort": 99.74477194137987,
+        "driving_direction_compliance": 98.04050716285197
+      },
+      "violations": {
+        "no_at_fault_collisions": 211,
+        "drivable_area_compliance": 269,
+        "time_to_collision_within_bound": 608
+      }
+    }
+  },
+  "own_IL_transitions": {
+    "CANONICAL": {
+      "new_joint_violation": 120,
+      "joint_recovery": 702,
+      "new_zero": 84,
+      "zero_recovery": 472
+    },
+    "SOURCE": {
+      "new_joint_violation": 210,
+      "joint_recovery": 594,
+      "new_zero": 114,
+      "zero_recovery": 443
+    }
+  },
+  "uncertainty": "Scene-weighted log bootstrap only; not training/inference seed uncertainty",
+  "sha256": "ff48e2216c9fc831b07b27ec0bfdb7674c7319bcebb8cc98eee1c4611e583b25"
+}
