@@ -171,6 +171,7 @@ def main(runtime=None):
                seconds_rollout=0.,seconds_scoring_wait=0.,seconds_scoring_cpu=0.,seconds_old_probability=0.,seconds_update=0.)
     rollout=None
     if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,migration=migration)
+    if runtime is not None and hasattr(runtime,'initialize_state'):runtime.initialize_state(state)
     if rollout is not None and 'chain_identity' not in rollout:rollout['chain_identity']=rollout_digest(rollout)
     invocation=Invocation(root,rank,state,identity,a.resume)
     invocation.record.update(process_start_unix=process_started_unix,preparation_seconds=time.monotonic()-process_started)
@@ -215,7 +216,9 @@ def main(runtime=None):
                 try:fault('before_finalize')
                 except Exception:error=traceback.format_exc()
                 if not all_ok(error,device):raise RuntimeError('Collection not committed before advantage finalization')
-                finalize_advantages(rollout)
+                if runtime is not None and hasattr(runtime,'finalize_advantages'):
+                    runtime.finalize_advantages(rollout,state)
+                else:finalize_advantages(rollout)
                 state['collections']+=1;state['raw_scene_exposures']+=world;state['new_candidates']+=world*8;state['scene_cursor']+=world
                 for k,v in rollout['seconds'].items():state['seconds_'+k]+=v
                 state['next_inner']=0
@@ -269,6 +272,8 @@ def main(runtime=None):
                      gradient_norm=grad_norm,ratio_max_abs_from_one=fresh_error,
                      source_clamp_hit_rate=current['source_clamp_hit_rate'],seconds_update=elapsed,
                      metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
+            if 'safety' in rollout:
+                row['safety_objective']=rollout['advantage_statistics']
             journal.write(json.dumps(row,allow_nan=False)+'\n')
             if state['next_inner']==4:rollout=None;state['next_inner']=0
             state['phase']=boundary_phase(state,cfg['max_steps'])

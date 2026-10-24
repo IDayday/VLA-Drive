@@ -11,6 +11,7 @@ SCIENTIFIC_KEYS=('recipe','upstream_commit','SFT_sha256','hard_manifest_sha256',
 def scientific_identity(identity):
     fields={k:identity[k] for k in SCIENTIFIC_KEYS}
     if 'data_stream_identity' in identity:fields['data_stream_identity']=identity['data_stream_identity']
+    if 'safety_research' in identity:fields['safety_research']=identity['safety_research']
     return dict(schema='simwam_scientific_v2',sha256=fingerprint(fields),fields=fields)
 
 

@@ -32,6 +32,7 @@ def rollout_digest(rollout):
     keys = ['chain', 'old_logp', 'advantages', 'adv_mask', 'behavior_version']
     if rollout.get('cond_bg', {}).get('schema') == 'native_frozen_observation_v1':
         keys.append('cond_bg')
+    if 'safety' in rollout:keys.append('safety')
     return {k: tensor_digest(rollout[k]) for k in keys}
 
 
@@ -67,6 +68,10 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
     if pending != (rollout is not None): raise ValueError('Phase/rollout presence mismatch')
     summary = dict(phase=phase, updates=u, collections=c, scene_cursor=state['scene_cursor'],
                    next_inner=i, run=identity['sha256'], pending=pending)
+    if identity.get('safety_research'):
+        from starVLA.rl.qwen_sourceflow.safe_runtime import boundary_summary
+        safe_summary=boundary_summary(state,rollout,identity)
+        if safe_summary is not None:summary['safety']=safe_summary
     if pending:
         required = ('cond_bg', 'chain', 'timesteps', 'deltas', 'stoch_idx', 'old_logp',
                     'rewards', 'old_probability', 'records', 'token', 'log', 'behavior_version',
@@ -125,6 +130,10 @@ def validate_ranks(summaries):
     for item in summaries:
         if {k: item[k] for k in common} != {k: summaries[0][k] for k in common}:
             raise ValueError('Ranks disagree on recovery boundary')
+    if 'safety' in summaries[0]:
+        common_safety=('dual_state_digest','budget_sha256')
+        if any({k:s['safety'][k] for k in common_safety}!={k:summaries[0]['safety'][k] for k in common_safety} for s in summaries):
+            raise ValueError('Ranks disagree on the independently checkpointed dual/budget')
     if summaries[0]['pending']:
         if any(s['behavior'] != summaries[0]['behavior'] for s in summaries):
             raise ValueError('Ranks disagree on collection-start behavior')
@@ -134,6 +143,15 @@ def validate_ranks(summaries):
         expected = ((offsets - offsets.mean(1, keepdim=True)) / (std + 1e-8)).float()
         mask = (offsets.std(1, unbiased=False) > 1e-8).float()
         for rank, s in enumerate(summaries):
+            if 'safety' in s:
+                all_costs=torch.tensor([r['safety']['costs'][0] for r in summaries],dtype=torch.float64)
+                mean=all_costs.mean((0,1))
+                for r in summaries:
+                    if r['safety']['lambda_snapshot']!=summaries[0]['safety']['lambda_snapshot']:
+                        raise ValueError('Ranks used different frozen multipliers')
+                    torch.testing.assert_close(torch.tensor(r['safety']['global_unfiltered_cost_mean'],dtype=torch.float64),mean,atol=0,rtol=0)
+                if abs(s['global_std']-float(std))>1e-12:raise ValueError('Raw global diagnostic std changed')
+                continue  # Component advantages were independently recomputed in validate_boundary.
             if abs(s['global_std'] - float(std)) > 1e-12 or not torch.allclose(
                     torch.tensor(s['advantages']), expected[rank], atol=1e-7, rtol=1e-6):
                 raise ValueError('Advantage was not globally finalized')

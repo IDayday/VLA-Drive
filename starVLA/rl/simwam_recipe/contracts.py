@@ -26,7 +26,7 @@ SAFETY25_SAMPLING = dict(schema='fixed_SFT_safety_6plus2_v1', safe_groups=6,
 def registered_stochastic_steps(variant):
     if variant == 'R_CANONICAL_LAST_ODE':
         return [6, 7, 8]
-    if variant in ('R_SOURCE', 'R_CANONICAL', 'R_CANONICAL_X1', SAFETY25_VARIANT):
+    if variant in ('R_SOURCE', 'R_CANONICAL', 'R_CANONICAL_X1', SAFETY25_VARIANT, 'R_CANONICAL_SCADV3'):
         return [7, 8, 9]
     raise ValueError('Unknown registered sampler variant: ' + str(variant))
 

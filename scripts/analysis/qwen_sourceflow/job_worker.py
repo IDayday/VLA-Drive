@@ -12,6 +12,7 @@ from starVLA.rl.qwen_sourceflow.contracts import require_dispatch,file_sha,finge
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 MODULES={'scripts.analysis.qwen_sourceflow.train_il','scripts.analysis.qwen_sourceflow.train_rl',
+    'scripts.analysis.qwen_sourceflow.train_safe_rl','scripts.analysis.qwen_sourceflow.calibrate_safe_rl',
     'scripts.analysis.qwen_sourceflow.evaluate_policy','scripts.analysis.qwen_sourceflow.validate_deployment',
     'scripts.analysis.qwen_sourceflow.export_policy','scripts.analysis.qwen_sourceflow.validate_rl_deployment'}
 
@@ -41,6 +42,9 @@ def main():
     lock=(root/'worker.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     if (root/'process.json').exists():raise FileExistsError('Never duplicate or silently retry an invocation')
     host=require_dispatch();source=Path(spec['source']);started=time.time();record=dict(status='PREPARING',start_unix=started,host=host,spec_sha256=fingerprint(spec))
+    if spec['module'].endswith(('train_safe_rl','calibrate_safe_rl')):
+        from starVLA.rl.qwen_sourceflow.safe_admission import require_dispatch as require_safe_dispatch
+        require_safe_dispatch()
     try:
         if host!=spec['host']:raise ValueError('Wrong worker host')
         if subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip()!=spec['source_sha']:
@@ -64,8 +68,11 @@ def main():
                 except subprocess.TimeoutExpired:pass
                 try:require_dispatch();withdrawn=False
                 except PermissionError:withdrawn=True
+                if module.endswith(('train_safe_rl','calibrate_safe_rl')):
+                    try:require_safe_dispatch()
+                    except PermissionError:withdrawn=True
                 if not stopping and (withdrawn or (root/'STOP_AFTER_BOUNDARY').exists()):
-                    if module.endswith(('train_il','train_rl')):
+                    if module.endswith(('train_il','train_rl','train_safe_rl')):
                         pids=request_native_stop(child,module)
                         atomic_json(root/'stop_request.json',dict(native_boundary=True,pids=pids,withdrawn=withdrawn,time_unix=time.time()))
                     else:
