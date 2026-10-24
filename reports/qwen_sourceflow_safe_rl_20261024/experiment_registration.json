@@ -1,0 +1,123 @@
+{
+  "schema": "native_safe_RL_registration_v2",
+  "registered_utc": "2026-10-24T13:04:57.941113+00:00",
+  "user_request": "在已有效的Qwen-Flow RL中迁移旧安全改进并开启完整训练",
+  "baseline_source": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1",
+  "baseline": "existing original R_CANONICAL fixed50000; no baseline retrain",
+  "parent": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000",
+  "parent_model_sha256": "4c5188dec5674fc08f4b75b1a464c05348bf8a54623fd85f6598fb921ae5e786",
+  "parent_selection": "/mnt/project/qwen-sourceflow-native-20261018/frozen_IL_parent53k_user20261023.json",
+  "Navtest_used_for_user_parent_selection": true,
+  "manifest": "/mnt/project/simwam-source-process-20261018/source_manifest.json",
+  "variants": {
+    "wla_adv": {
+      "key": "wla_adv",
+      "name": "R_CANONICAL_WLA_ADV",
+      "modification": "DriveWLA v1 Eq8/9 and AppendixC advantage only; weighted submetrics plus variance shrinkage tau0.1",
+      "config": "configs/qwen_sourceflow/rl_wla_adv.yaml",
+      "full_paper_recipe_reproduction": false
+    },
+    "scadv3": {
+      "key": "scadv3",
+      "name": "R_CANONICAL_SCADV3",
+      "modification": "Previously implemented constrained scalarized component advantages with independent OmniSafe multipliers, PDMS objective and official NC/DAC/TTC binary costs",
+      "config": "configs/qwen_sourceflow/rl_scadv3.yaml",
+      "full_paper_recipe_reproduction": false
+    }
+  },
+  "each": {
+    "optimizer_updates": 50000,
+    "fresh_global_rollouts": 12500,
+    "scene_exposures": 100000,
+    "candidates": 800000,
+    "world": 8,
+    "scene_batch_per_rank": 1,
+    "G": 8,
+    "K": 10,
+    "inner": 4,
+    "training_seed": 42,
+    "evaluation_seed": 2101,
+    "stochastic_steps": [
+      7,
+      8,
+      9
+    ],
+    "deployment": "single_candidate_source_shift5_ODE_K10",
+    "reward": "canonical_NAVSIM_v1.1_5:5:2",
+    "LoRA": "source native action self/cross attention q/k/v/o, r16 alpha32 dropout0",
+    "optimizer": "same AdamW5e-5 betas0.9/0.95 eps1e-8 WD0.01, warmup100 constant, effective gradclip0",
+    "reference": "permanently fixed IL53k",
+    "no_extra_GT_replay_BC_noise_head_search": true
+  },
+  "calibration": {
+    "population": "first512 fixed source epoch42 public-hard TRAIN scenes",
+    "G": 8,
+    "new_candidates": 4096,
+    "baseline": "same IL53k unmodified original SDE",
+    "costs": [
+      "I[NC<1]",
+      "I[DAC<1]",
+      "I[TTC<1]"
+    ],
+    "statistics": "unfiltered mean over512 scenes x8 candidates; no DEV/Navtest",
+    "dual": {
+      "initial": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Adam_lr": 0.01,
+      "update_once_per_collection": true
+    },
+    "floors": [
+      0.01,
+      1e-08,
+      1e-08,
+      1e-08
+    ],
+    "sealed_budget_path": "/mnt/project/qwen-sourceflow-safe-rl-20261024/calibration/SFT53k_public_hard512_v1/budget.json",
+    "budget_sha256": "ff6b5ffaff51358717a656cbca15ed01c88f7333df607c7c575e2f98d726add9"
+  },
+  "DEV_observations": [
+    0,
+    5000,
+    10000,
+    20000,
+    35000,
+    50000
+  ],
+  "checkpoint_selection": "highest complete DEV canonical PDMS among5k/10k/20k/35k/50k; tie later; fixed50k reported separately",
+  "NAVTEST": "after fixed endpoints and DEV selection locked; seed2101 full12146/136; no best-of",
+  "severe_stop_rules": {
+    "numerical": "nonfinite chain/loss/gradient, fresh ratio error>1e-4, dual>1000 or abs_adv>1e4: save valid boundary/evidence and stop",
+    "DEV": "after5k if two consecutive complete DEV observations are >=5 PDMS points below own IL OR >=5 percentage points worse in joint safety: preserve checkpoint/evidence and hold corresponding variant; not a safety guarantee"
+  },
+  "estimated_exclusive": {
+    "seconds_per_update": [
+      2.0,
+      2.4
+    ],
+    "hours_per_variant": [
+      27.8,
+      33.4
+    ],
+    "occupied_GPU_hours_per_variant": [
+      222.3,
+      267.2
+    ],
+    "sharing_not_accounted_yet": true
+  },
+  "preserve_original_runs": true,
+  "qualification_weights_excluded": true,
+  "no_training_on_evaluation_population": true,
+  "config_sha256": {
+    "wla_adv": "5ab623962ca35450de7e2a61fd3975eeb61b54348d640b6b435cc8e985bc2538",
+    "scadv3": "bbc0f6063f418b9e0033c9698e84bd00e133dffaf8b8b5807405a396e677c04d"
+  },
+  "revised_utc": "2026-10-24T13:42:10.134594+00:00",
+  "revision_reason": "User asks rechecking prior safety-progress and GRPO papers before formal launch; X1 qualified engineering control is not a primary formal method",
+  "supersedes_registration": "/mnt/project/qwen-sourceflow-safe-rl-20261024/experiment_registration_v1_X1_engineering_plan.json",
+  "no_formal_run_started_before_revision": true,
+  "other_methods": "X1 short acceptance retained, no formal50k; Run-then-Walk/Plan-R1/DAPO reviewed separately; no silent recipe bundle",
+  "sha256": "6d7ad45a4dde6759d89d759b88c1e6438c815db92330d71286393398ea4146db"
+}

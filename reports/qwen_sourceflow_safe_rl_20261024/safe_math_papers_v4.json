@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "qualification_only": true,
+  "checks": [
+    "G8/C3 matches prior G16/C5 population-moment kernel under duplicated candidates and zero added costs",
+    "Increasing safety lambda decreases violating relative advantage; no post whitening",
+    "Exact tied components remain zero",
+    "Absolute 0.01 reward floor does not inflate micro-progress",
+    "NC=0.5 counts as a violation; no invalid feedback fallback",
+    "Independent dual signs, nonnegative projection, exact Adam state continuation",
+    "Four inner reuse cannot update dual four times",
+    "X1 entire resolved diff is name and longitudinal anchor only",
+    "DriveWLA Eq8/9 NumPy-style independent tensor oracle; all-zero PDMS shrinkage=0 despite varying EP",
+    "All admitted adapters execute actual source K10/G8 sampler and four native3D LoRA optimizer updates; old chain fixed"
+  ],
+  "native_action_tests": [
+    {
+      "variant": "R_CANONICAL_X1",
+      "ratios": [
+        0.0,
+        0.002772092819213867,
+        0.005488157272338867,
+        0.007218718528747559
+      ],
+      "all_LoRA_gradients_finite": true,
+      "optimizer_steps": 4,
+      "frozen_base_reference": true
+    },
+    {
+      "variant": "R_CANONICAL_SCADV3",
+      "ratios": [
+        0.0,
+        0.0037845373153686523,
+        0.007645666599273682,
+        0.00888890027999878
+      ],
+      "all_LoRA_gradients_finite": true,
+      "optimizer_steps": 4,
+      "frozen_base_reference": true
+    },
+    {
+      "variant": "R_CANONICAL_WLA_ADV",
+      "ratios": [
+        0.0,
+        0.003159761428833008,
+        0.006399333477020264,
+        0.007866501808166504
+      ],
+      "all_LoRA_gradients_finite": true,
+      "optimizer_steps": 4,
+      "frozen_base_reference": true
+    }
+  ],
+  "no_driving_efficacy_claim": true
+}

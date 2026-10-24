@@ -1,0 +1,33 @@
+{
+  "schema": "native_SFT_event_cost_budget_v1",
+  "status": "COMPLETE",
+  "SFT_sha256": "4c5188dec5674fc08f4b75b1a464c05348bf8a54623fd85f6598fb921ae5e786",
+  "hard_manifest_sha256": "d8ee28e06b69633ba78201d75b4204b03143b4158ab8dfb036c13767399b10a9",
+  "population": "TRAIN_only_public_hard",
+  "scenes": 512,
+  "candidates": 4096,
+  "world": 8,
+  "training_seed": 42,
+  "calibration_RNG": "native_safe_budget_calibration namespace; independent of formal rollout and evaluation2101",
+  "cost_metrics": [
+    "no_at_fault_collisions",
+    "drivable_area_compliance",
+    "time_to_collision_within_bound"
+  ],
+  "cost_definition": "I[official_metric < 1]",
+  "cost_sums": [
+    171.0,
+    566.0,
+    570.0
+  ],
+  "budgets": [
+    0.041748046875,
+    0.13818359375,
+    0.13916015625
+  ],
+  "sampling": "initial SFT, G8 K10 source shift5 rigorous SDE, stochastic[7,8,9]",
+  "no_updates": true,
+  "caveat": "Finite TRAIN stochastic reference expected costs; not a hard or per-scene safety guarantee",
+  "sha256": "ff6b5ffaff51358717a656cbca15ed01c88f7333df607c7c575e2f98d726add9",
+  "scope": "aggregate only; original seal refers to full private budget record with exact tokens and source identity"
+}

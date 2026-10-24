@@ -1,0 +1,28 @@
+{
+  "schema": "qwen_sourceflow_safe_RL_authorization_v1",
+  "utc": "2026-10-24T13:02:09.971305+00:00",
+  "task": "qwen_sourceflow_safe_rl_20261024",
+  "user_instruction": "把此前DDP上的安全改进迁移至已有效Qwen-Flow RL，利用空闲GPU开启完整训练",
+  "allowed_hosts": [
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt",
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt4",
+    "training-vlawm-tsinghua-zt5"
+  ],
+  "scope": "Two paper-informed full50k native safety methods (WLA advantage and constrainedScAdv3); original X1 engineering qualification retained, no formal X1",
+  "training_seed": 42,
+  "evaluation_seed": 2101,
+  "updates_per_variant": 50000,
+  "variants": [
+    "R_CANONICAL_WLA_ADV",
+    "R_CANONICAL_SCADV3"
+  ],
+  "preserve_existing_IL_RL_temporal_and_unknown_jobs": true,
+  "Navtest_only_hosts_not_training_authorized": [
+    "training-vlawm-zt",
+    "training-vlawm-tsinghua-zt6"
+  ],
+  "GPU_sharing": "prior user authorization retained; measured safe headroom required; no unknown process eviction",
+  "revision_reason": "User asks rechecking prior safety-progress and GRPO papers before formal launch; X1 qualified engineering control is not a primary formal method"
+}
