@@ -1,0 +1,2147 @@
+{
+  "audit": {
+    "TRAIN_activation": {
+      "first_tanh_abs_gt099_fraction": 0.7344512939453125,
+      "first_tanh_between_scene_RMS": 0.9484912700934556
+    },
+    "TRAIN_feature_q": {
+      "joint_prior_KL_mean": 0.10081555880040845,
+      "logstd_between_scene_RMS": 0.04046492560063409,
+      "mean_RMS": 0.07117317789625882,
+      "mean_between_scene_RMS": 0.07022655600027965
+    },
+    "TRAIN_unique_scenes": 512,
+    "all_four_inner_behavior_fixed": true,
+    "all_source_files_match": true,
+    "checkpoint_state": {
+      "arm": "L1_CENTER_V1",
+      "new_candidates": 16384,
+      "next_inner": 0,
+      "phase": "COMPLETE",
+      "raw_scene_exposures": 1024,
+      "round": 64,
+      "seed": 42,
+      "updates": 256
+    },
+    "eval_q": {
+      "L1_CENTER_V1_DEV_SELECT_sample": {
+        "joint_prior_KL_mean": 0.11131145683687939,
+        "joint_prior_KL_quantiles": [
+          0.003920252245397993,
+          0.10277176022147344,
+          0.20932487125014265,
+          0.27147022946639665
+        ],
+        "logstd_between_scene_RMS": 0.03866535763600777,
+        "mean_RMS": 0.07499291056744375,
+        "mean_between_scene_RMS": 0.0672167298172395,
+        "mean_max_coordinate_range": 0.6189160645008087,
+        "scenes": 256,
+        "std_max": 1.1766278894985054,
+        "std_mean": 0.9995128274693151,
+        "std_min": 0.8597661554500076
+      },
+      "L1_CENTER_V1_TRAIN_sample": {
+        "joint_prior_KL_mean": 0.10081556137714105,
+        "joint_prior_KL_quantiles": [
+          0.00422655754017387,
+          0.0967529616631774,
+          0.1922799570419832,
+          0.30307268667337417
+        ],
+        "logstd_between_scene_RMS": 0.04046492685466183,
+        "mean_RMS": 0.07117317793095539,
+        "mean_between_scene_RMS": 0.07022655601778637,
+        "mean_max_coordinate_range": 0.6518033146858215,
+        "scenes": 512,
+        "std_max": 1.1797549494572337,
+        "std_mean": 1.0000574738837968,
+        "std_min": 0.8535755170447872
+      }
+    },
+    "exact_repeat_feature_max_error": 0.0,
+    "frozen_generator_hash": "513f0489968d0175f6d288f43d3a6bc7b02e8e840dae8bc5c6ebfb7e3e53ef2c",
+    "frozen_generator_unchanged": true,
+    "identity_sha256": "8d03367142439c8713e5c425617d32c88be9110e89b88b24a3342a9c1031bb11",
+    "invocations": [
+      {
+        "arm": "L1_CENTER_V1",
+        "end_unix": 1792879518.2461562,
+        "invocation_start_round": 0,
+        "invocation_start_updates": 0,
+        "qualification": false,
+        "resume": null,
+        "seed": 42,
+        "start_unix": 1792875193.2753303,
+        "status": "COMPLETE",
+        "wall_seconds": 4324.970825910568
+      }
+    ],
+    "ledger": {
+      "GPU_semantics": "Shared GPU worker wall occupancy, not exclusive GPU compute time",
+      "cache_reused_candidates": 0,
+      "candidate_attempts": 16384,
+      "condition_seconds": 398.562790280208,
+      "generation_seconds": 3467.97142726928,
+      "invocation_wall_seconds": 4324.839999673888,
+      "latent_network_scene_forwards": 6144,
+      "latent_root_proposal_attempts": 16384,
+      "logical_scoring_cost": 16384,
+      "model_forward_calls": 40960,
+      "optimizer_updates": 256,
+      "qwen_prefills": 1021,
+      "scored_candidates": 16384,
+      "scorer_batch_calls": 1024,
+      "scoring_wait_seconds": 180.5526620913297,
+      "update_seconds": 47.147382309660316
+    },
+    "normalizer_buffer_unchanged": true,
+    "policy_sha256": "85a30b899321e07db6a0c21f2fe33486031e88a2646f387c1c0881510a285b01",
+    "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+    "schema": "CENTER_actual_terminal_audit_v1",
+    "sha256": "186a47070c1594e2bef9ef3786874d0f7892a1d4fbe5fa54edf3bb3b76364db5",
+    "source_sha": "7ec40a7f3e11496d7fa9ae3a0700a02926da5eed",
+    "status": "PASS",
+    "trainable_parameters": 943344
+  },
+  "comparisons": {
+    "DEV_vs_L0": {
+      "G_minus_PDMS_points": 0.015951568325805632,
+      "G_plus_PDMS_points": 0.2818348671403003,
+      "current_PDMS": 92.40898804184113,
+      "current_zero": {
+        "all_fixed_seeds_zero_scenes": 2,
+        "any_seed_zero_scenes": 4,
+        "scene_mean_exact_zero_scenes": 2,
+        "scene_mean_near_zero_le1e6_scenes": 2,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.0109375
+      },
+      "delta_PDMS_points": 0.2658832988144947,
+      "fixed_reference_strata": {
+        "finite_reference_joint_safe": {
+          "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+          "current_any_seed_joint_violation_scenes": 0,
+          "paired_new_joint_violation_scene_count": 0,
+          "scenes": 246
+        },
+        "low_nonzero": {
+          "control_PDMS": 46.13489499954447,
+          "current_PDMS": 58.91586647661763,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 3,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.0005994862867924056,
+              0.2562189158282556
+            ],
+            "CI95_PDMS_points": [
+              -0.059948628679240556,
+              25.621891582825562
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 2,
+            "mean": 0.1278097147707316,
+            "mean_PDMS_points": 12.78097147707316,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 4,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 12.78097147707316,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 4
+        },
+        "other_or_unstable": {
+          "control_PDMS": 86.58104766688277,
+          "current_PDMS": 86.75677163453435,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 4,
+          "current_mean_improved_ge_useful_from_independent_reference": 13,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              0.00038394688776403804,
+              0.004190427643771624
+            ],
+            "CI95_PDMS_points": [
+              0.038394688776403806,
+              0.41904276437716237
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": 0.0017572396765157894,
+            "mean_PDMS_points": 0.17572396765157894,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 81,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.17572396765157894,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 81
+        },
+        "stable_high": {
+          "control_PDMS": 96.98834540354517,
+          "current_PDMS": 97.00437260596198,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 7,
+          "current_mean_improved_ge_useful_from_independent_reference": 9,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              2.9517219012945673e-05,
+              0.00029960720470328586
+            ],
+            "CI95_PDMS_points": [
+              0.0029517219012945672,
+              0.029960720470328585
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": 0.00016027202416805326,
+            "mean_PDMS_points": 0.016027202416805327,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 169,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.016027202416805327,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 169
+        },
+        "stable_zero": {
+          "control_PDMS": 0.0,
+          "current_PDMS": 0.0,
+          "current_all_seed_zero_scenes": 2,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 2,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 1,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": true,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 2,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 2
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "logs": 8,
+      "native_mean_delta_points": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 0.23437500000000003,
+        "driving_direction_compliance": -0.03906249999999999,
+        "ego_progress": 0.23186991715478772,
+        "no_at_fault_collisions": 0.0,
+        "score": 0.2658832988144947,
+        "time_to_collision_within_bound": 0.078125
+      },
+      "new_joint_violation": {
+        "paired_seed_event_count": 0,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.0
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.0,
+          "mean_percentage_points": 0.0,
+          "observed_any_event": false,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.0,
+          "rate_percent": 0.0,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": true
+        },
+        "scene_any_seed_count": 0
+      },
+      "new_zero": {
+        "paired_seed_event_count": 0,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.0
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.0,
+          "mean_percentage_points": 0.0,
+          "observed_any_event": false,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.0,
+          "rate_percent": 0.0,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": true
+        },
+        "scene_all_fixed_seeds_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "paired_log_CI95_PDMS_points": [
+        0.022827443644875534,
+        0.7103184300702725
+      ],
+      "reference_PDMS": 92.14310474302663,
+      "reference_zero": {
+        "all_fixed_seeds_zero_scenes": 2,
+        "any_seed_zero_scenes": 4,
+        "scene_mean_exact_zero_scenes": 2,
+        "scene_mean_near_zero_le1e6_scenes": 2,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01328125
+      },
+      "repaired_joint_violation": {
+        "paired_seed_event_count": 4,
+        "scene_any_seed_count": 3
+      },
+      "repaired_zero": {
+        "paired_seed_event_count": 3,
+        "scene_any_seed_count": 2
+      },
+      "safety_events": {
+        "drivable_area_compliance": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 3
+        },
+        "no_at_fault_collisions": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        },
+        "time_to_collision_within_bound": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 1
+        }
+      },
+      "scenes": 256
+    },
+    "DEV_vs_L1": {
+      "G_minus_PDMS_points": 0.28560379512904244,
+      "G_plus_PDMS_points": 0.2191975223714909,
+      "current_PDMS": 92.40898804184113,
+      "current_zero": {
+        "all_fixed_seeds_zero_scenes": 2,
+        "any_seed_zero_scenes": 4,
+        "scene_mean_exact_zero_scenes": 2,
+        "scene_mean_near_zero_le1e6_scenes": 2,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.0109375
+      },
+      "delta_PDMS_points": -0.0664062727575515,
+      "fixed_reference_strata": {
+        "finite_reference_joint_safe": {
+          "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+          "current_any_seed_joint_violation_scenes": 0,
+          "paired_new_joint_violation_scene_count": 0,
+          "scenes": 246
+        },
+        "low_nonzero": {
+          "control_PDMS": 48.14673835867686,
+          "current_PDMS": 58.91586647661763,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 3,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.04608908901623687,
+              0.26147165137505224
+            ],
+            "CI95_PDMS_points": [
+              -4.608908901623687,
+              26.147165137505223
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 2,
+            "mean": 0.10769128117940768,
+            "mean_PDMS_points": 10.769128117940769,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 4,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 1,
+          "paired_delta_PDMS_points": 10.769128117940769,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 4
+        },
+        "other_or_unstable": {
+          "control_PDMS": 87.18244778837828,
+          "current_PDMS": 86.75677163453435,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 4,
+          "current_mean_improved_ge_useful_from_independent_reference": 13,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.006711034026008862,
+              -0.0030000791544249087
+            ],
+            "CI95_PDMS_points": [
+              -0.6711034026008862,
+              -0.3000079154424909
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": -0.004256761538439544,
+            "mean_PDMS_points": -0.4256761538439544,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 81,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 20,
+          "paired_delta_PDMS_points": -0.4256761538439544,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 81
+        },
+        "stable_high": {
+          "control_PDMS": 97.15583266416516,
+          "current_PDMS": 97.00437260596198,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 7,
+          "current_mean_improved_ge_useful_from_independent_reference": 9,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.0019768619702980085,
+              -0.0011764984071562993
+            ],
+            "CI95_PDMS_points": [
+              -0.19768619702980084,
+              -0.11764984071562994
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": -0.0015146005820317133,
+            "mean_PDMS_points": -0.15146005820317132,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 169,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 14,
+          "paired_delta_PDMS_points": -0.15146005820317132,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 169
+        },
+        "stable_zero": {
+          "control_PDMS": 0.0,
+          "current_PDMS": 0.0,
+          "current_all_seed_zero_scenes": 2,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 2,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 1,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": true,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 2,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 2
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "logs": 8,
+      "native_mean_delta_points": {
+        "comfort": 0.07812499999999999,
+        "drivable_area_compliance": 0.23437500000000003,
+        "driving_direction_compliance": 0.03906249999999999,
+        "ego_progress": -0.44062505461812307,
+        "no_at_fault_collisions": 0.0,
+        "score": -0.0664062727575515,
+        "time_to_collision_within_bound": -0.078125
+      },
+      "new_joint_violation": {
+        "paired_seed_event_count": 1,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.002678571428571429
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.2678571428571429
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "Finite-sample scene-weighted event rate",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.00078125,
+          "mean_percentage_points": 0.078125,
+          "observed_any_event": true,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.00078125,
+          "rate_percent": 0.078125,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": false
+        },
+        "scene_any_seed_count": 1
+      },
+      "new_zero": {
+        "paired_seed_event_count": 0,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.0
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.0,
+          "mean_percentage_points": 0.0,
+          "observed_any_event": false,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.0,
+          "rate_percent": 0.0,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": true
+        },
+        "scene_all_fixed_seeds_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "paired_log_CI95_PDMS_points": [
+        -0.3334522938476871,
+        0.41397172221431217
+      ],
+      "reference_PDMS": 92.47539431459867,
+      "reference_zero": {
+        "all_fixed_seeds_zero_scenes": 3,
+        "any_seed_zero_scenes": 4,
+        "scene_mean_exact_zero_scenes": 3,
+        "scene_mean_near_zero_le1e6_scenes": 3,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01328125
+      },
+      "repaired_joint_violation": {
+        "paired_seed_event_count": 3,
+        "scene_any_seed_count": 2
+      },
+      "repaired_zero": {
+        "paired_seed_event_count": 3,
+        "scene_any_seed_count": 2
+      },
+      "safety_events": {
+        "drivable_area_compliance": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 3
+        },
+        "no_at_fault_collisions": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        },
+        "time_to_collision_within_bound": {
+          "new_paired_seed_event_count": 1,
+          "recovered_paired_seed_event_count": 0
+        }
+      },
+      "scenes": 256
+    },
+    "DEV_vs_scale13": {
+      "G_minus_PDMS_points": 0.12990054707441911,
+      "G_plus_PDMS_points": 0.21445372272714103,
+      "current_PDMS": 92.40898804184113,
+      "current_zero": {
+        "all_fixed_seeds_zero_scenes": 2,
+        "any_seed_zero_scenes": 4,
+        "scene_mean_exact_zero_scenes": 2,
+        "scene_mean_near_zero_le1e6_scenes": 2,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.0109375
+      },
+      "delta_PDMS_points": 0.08455317565272191,
+      "fixed_reference_strata": {
+        "finite_reference_joint_safe": {
+          "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+          "current_any_seed_joint_violation_scenes": 0,
+          "paired_new_joint_violation_scene_count": 0,
+          "scenes": 246
+        },
+        "low_nonzero": {
+          "control_PDMS": 55.28967485942532,
+          "current_PDMS": 58.91586647661763,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 3,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.0022383256964087495,
+              0.07476215804025485
+            ],
+            "CI95_PDMS_points": [
+              -0.22383256964087495,
+              7.476215804025485
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 2,
+            "mean": 0.03626191617192305,
+            "mean_PDMS_points": 3.626191617192305,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 4,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 1,
+          "paired_delta_PDMS_points": 3.626191617192305,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 4
+        },
+        "other_or_unstable": {
+          "control_PDMS": 86.70025642956034,
+          "current_PDMS": 86.75677163453435,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 4,
+          "current_mean_improved_ge_useful_from_independent_reference": 13,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              0.00021180946472561474,
+              0.0012947637533337237
+            ],
+            "CI95_PDMS_points": [
+              0.021180946472561475,
+              0.12947637533337236
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": 0.0005651520497399408,
+            "mean_PDMS_points": 0.05651520497399408,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 81,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 3,
+          "paired_delta_PDMS_points": 0.05651520497399408,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 81
+        },
+        "stable_high": {
+          "control_PDMS": 96.98920624563397,
+          "current_PDMS": 97.00437260596198,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 7,
+          "current_mean_improved_ge_useful_from_independent_reference": 9,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -9.366966441503327e-05,
+              0.0005156089410138596
+            ],
+            "CI95_PDMS_points": [
+              -0.009366966441503328,
+              0.05156089410138596
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": 0.00015166360328012254,
+            "mean_PDMS_points": 0.015166360328012255,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 169,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 2,
+          "paired_delta_PDMS_points": 0.015166360328012255,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 169
+        },
+        "stable_zero": {
+          "control_PDMS": 0.0,
+          "current_PDMS": 0.0,
+          "current_all_seed_zero_scenes": 2,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 2,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 1,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": true,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 2,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 2
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "logs": 8,
+      "native_mean_delta_points": {
+        "comfort": 0.07812499999999999,
+        "drivable_area_compliance": 0.07812500000000003,
+        "driving_direction_compliance": 0.03906249999999999,
+        "ego_progress": 0.06230262156653235,
+        "no_at_fault_collisions": 0.0,
+        "score": 0.08455317565272191,
+        "time_to_collision_within_bound": 0.0
+      },
+      "new_joint_violation": {
+        "paired_seed_event_count": 1,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0025002615062761496
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.25002615062761496
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "Finite-sample scene-weighted event rate",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.00078125,
+          "mean_percentage_points": 0.078125,
+          "observed_any_event": true,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.00078125,
+          "rate_percent": 0.078125,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": false
+        },
+        "scene_any_seed_count": 1
+      },
+      "new_zero": {
+        "paired_seed_event_count": 1,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0025002615062761496
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.25002615062761496
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "Finite-sample scene-weighted event rate",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.00078125,
+          "mean_percentage_points": 0.078125,
+          "observed_any_event": true,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.00078125,
+          "rate_percent": 0.078125,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": false
+        },
+        "scene_all_fixed_seeds_count": 0,
+        "scene_any_seed_count": 1
+      },
+      "paired_log_CI95_PDMS_points": [
+        0.018714244403575126,
+        0.2134225140130645
+      ],
+      "reference_PDMS": 92.3244348661884,
+      "reference_zero": {
+        "all_fixed_seeds_zero_scenes": 2,
+        "any_seed_zero_scenes": 4,
+        "scene_mean_exact_zero_scenes": 2,
+        "scene_mean_near_zero_le1e6_scenes": 2,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01171875
+      },
+      "repaired_joint_violation": {
+        "paired_seed_event_count": 2,
+        "scene_any_seed_count": 1
+      },
+      "repaired_zero": {
+        "paired_seed_event_count": 2,
+        "scene_any_seed_count": 1
+      },
+      "safety_events": {
+        "drivable_area_compliance": {
+          "new_paired_seed_event_count": 1,
+          "recovered_paired_seed_event_count": 2
+        },
+        "no_at_fault_collisions": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        },
+        "time_to_collision_within_bound": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        }
+      },
+      "scenes": 256
+    },
+    "MEAN_vs_L0": {
+      "G_minus_PDMS_points": 0.03974912549131269,
+      "G_plus_PDMS_points": 0.04494792541840202,
+      "current_PDMS": 92.08062790162352,
+      "current_zero": {
+        "all_fixed_seeds_zero_scenes": 3,
+        "any_seed_zero_scenes": 3,
+        "scene_mean_exact_zero_scenes": 3,
+        "scene_mean_near_zero_le1e6_scenes": 3,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01171875
+      },
+      "delta_PDMS_points": 0.005198799927089333,
+      "fixed_reference_strata": {
+        "finite_reference_joint_safe": {
+          "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+          "current_any_seed_joint_violation_scenes": 0,
+          "paired_new_joint_violation_scene_count": 0,
+          "scenes": 246
+        },
+        "low_nonzero": {
+          "control_PDMS": 47.704971416151075,
+          "current_PDMS": 47.6727828430351,
+          "current_all_seed_zero_scenes": 1,
+          "current_any_seed_zero_scenes": 1,
+          "current_mean_drop_ge_useful_from_independent_reference": 2,
+          "current_mean_improved_ge_useful_from_independent_reference": 1,
+          "current_mean_zero_scenes": 1,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.00039210980111570315,
+              -0.000251661661203717
+            ],
+            "CI95_PDMS_points": [
+              -0.039210980111570315,
+              -0.025166166120371702
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 2,
+            "mean": -0.0003218857311597101,
+            "mean_PDMS_points": -0.03218857311597101,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 4,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": -0.03218857311597101,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 4
+        },
+        "other_or_unstable": {
+          "control_PDMS": 86.58475903803398,
+          "current_PDMS": 86.58745310060564,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 6,
+          "current_mean_improved_ge_useful_from_independent_reference": 10,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.00035830341906256023,
+              0.00054209598146095
+            ],
+            "CI95_PDMS_points": [
+              -0.03583034190625602,
+              0.054209598146094995
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": 2.6940625716753435e-05,
+            "mean_PDMS_points": 0.0026940625716753435,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 81,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 3,
+          "paired_delta_PDMS_points": 0.0026940625716753435,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 81
+        },
+        "stable_high": {
+          "control_PDMS": 96.84689042774512,
+          "current_PDMS": 96.8542361555883,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 16,
+          "current_mean_improved_ge_useful_from_independent_reference": 2,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.0001179049266122502,
+              0.00022207368795399066
+            ],
+            "CI95_PDMS_points": [
+              -0.01179049266122502,
+              0.022207368795399068
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": 7.345727843154145e-05,
+            "mean_PDMS_points": 0.007345727843154145,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 169,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 1,
+          "paired_delta_PDMS_points": 0.007345727843154145,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 169
+        },
+        "stable_zero": {
+          "control_PDMS": 0.0,
+          "current_PDMS": 0.0,
+          "current_all_seed_zero_scenes": 2,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 2,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 1,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": true,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 2,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 2
+        }
+      },
+      "inference_seeds": [
+        2101
+      ],
+      "logs": 8,
+      "native_mean_delta_points": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 0.0,
+        "ego_progress": 0.012477119825013754,
+        "no_at_fault_collisions": 0.0,
+        "score": 0.005198799927089333,
+        "time_to_collision_within_bound": 0.0
+      },
+      "new_joint_violation": {
+        "paired_seed_event_count": 0,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.0
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.0,
+          "mean_percentage_points": 0.0,
+          "observed_any_event": false,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.0,
+          "rate_percent": 0.0,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": true
+        },
+        "scene_any_seed_count": 0
+      },
+      "new_zero": {
+        "paired_seed_event_count": 0,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.0
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.0,
+          "mean_percentage_points": 0.0,
+          "observed_any_event": false,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.0,
+          "rate_percent": 0.0,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": true
+        },
+        "scene_all_fixed_seeds_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "paired_log_CI95_PDMS_points": [
+        -0.018379092051156433,
+        0.025115837349531468
+      ],
+      "reference_PDMS": 92.07542910169641,
+      "reference_zero": {
+        "all_fixed_seeds_zero_scenes": 3,
+        "any_seed_zero_scenes": 3,
+        "scene_mean_exact_zero_scenes": 3,
+        "scene_mean_near_zero_le1e6_scenes": 3,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01171875
+      },
+      "repaired_joint_violation": {
+        "paired_seed_event_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "repaired_zero": {
+        "paired_seed_event_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "safety_events": {
+        "drivable_area_compliance": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        },
+        "no_at_fault_collisions": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        },
+        "time_to_collision_within_bound": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        }
+      },
+      "scenes": 256
+    },
+    "MEAN_vs_L1": {
+      "G_minus_PDMS_points": 0.15381444126441865,
+      "G_plus_PDMS_points": 0.047737421693359566,
+      "current_PDMS": 92.08062790162352,
+      "current_zero": {
+        "all_fixed_seeds_zero_scenes": 3,
+        "any_seed_zero_scenes": 3,
+        "scene_mean_exact_zero_scenes": 3,
+        "scene_mean_near_zero_le1e6_scenes": 3,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01171875
+      },
+      "delta_PDMS_points": -0.10607701957105908,
+      "fixed_reference_strata": {
+        "finite_reference_joint_safe": {
+          "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+          "current_any_seed_joint_violation_scenes": 0,
+          "paired_new_joint_violation_scene_count": 0,
+          "scenes": 246
+        },
+        "low_nonzero": {
+          "control_PDMS": 47.827373057054146,
+          "current_PDMS": 47.6727828430351,
+          "current_all_seed_zero_scenes": 1,
+          "current_any_seed_zero_scenes": 1,
+          "current_mean_drop_ge_useful_from_independent_reference": 2,
+          "current_mean_improved_ge_useful_from_independent_reference": 1,
+          "current_mean_zero_scenes": 1,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.0023890772648428316,
+              -0.0007027270155380849
+            ],
+            "CI95_PDMS_points": [
+              -0.23890772648428316,
+              -0.07027270155380849
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 2,
+            "mean": -0.0015459021401904582,
+            "mean_PDMS_points": -0.15459021401904582,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 4,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": -0.15459021401904582,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 4
+        },
+        "other_or_unstable": {
+          "control_PDMS": 86.76961199650721,
+          "current_PDMS": 86.58745310060564,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 6,
+          "current_mean_improved_ge_useful_from_independent_reference": 10,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.0030050246501313856,
+              -0.0009064243228330976
+            ],
+            "CI95_PDMS_points": [
+              -0.30050246501313854,
+              -0.09064243228330976
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": -0.0018215889590155502,
+            "mean_PDMS_points": -0.182158895901555,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 81,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 12,
+          "paired_delta_PDMS_points": -0.182158895901555,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 81
+        },
+        "stable_high": {
+          "control_PDMS": 96.92395500521013,
+          "current_PDMS": 96.8542361555883,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 16,
+          "current_mean_improved_ge_useful_from_independent_reference": 2,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.0012177085390153216,
+              -0.0003547286726693365
+            ],
+            "CI95_PDMS_points": [
+              -0.12177085390153217,
+              -0.03547286726693365
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 8,
+            "mean": -0.0006971884962182832,
+            "mean_PDMS_points": -0.06971884962182832,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 169,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 5,
+          "paired_delta_PDMS_points": -0.06971884962182832,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 169
+        },
+        "stable_zero": {
+          "control_PDMS": 0.0,
+          "current_PDMS": 0.0,
+          "current_all_seed_zero_scenes": 2,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 2,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 1,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": true,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 2,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 2
+        }
+      },
+      "inference_seeds": [
+        2101
+      ],
+      "logs": 8,
+      "native_mean_delta_points": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 0.0,
+        "ego_progress": -0.2545848469705408,
+        "no_at_fault_collisions": 0.0,
+        "score": -0.10607701957105908,
+        "time_to_collision_within_bound": 0.0
+      },
+      "new_joint_violation": {
+        "paired_seed_event_count": 0,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.0
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.0,
+          "mean_percentage_points": 0.0,
+          "observed_any_event": false,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.0,
+          "rate_percent": 0.0,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": true
+        },
+        "scene_any_seed_count": 0
+      },
+      "new_zero": {
+        "paired_seed_event_count": 0,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.0
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+          "limited_log_resolution": false,
+          "logs": 8,
+          "mean": 0.0,
+          "mean_percentage_points": 0.0,
+          "observed_any_event": false,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.0,
+          "rate_percent": 0.0,
+          "scenes": 256,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": true
+        },
+        "scene_all_fixed_seeds_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "paired_log_CI95_PDMS_points": [
+        -0.15345697208494238,
+        -0.06145007736633572
+      ],
+      "reference_PDMS": 92.18670492119458,
+      "reference_zero": {
+        "all_fixed_seeds_zero_scenes": 3,
+        "any_seed_zero_scenes": 3,
+        "scene_mean_exact_zero_scenes": 3,
+        "scene_mean_near_zero_le1e6_scenes": 3,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01171875
+      },
+      "repaired_joint_violation": {
+        "paired_seed_event_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "repaired_zero": {
+        "paired_seed_event_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "safety_events": {
+        "drivable_area_compliance": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        },
+        "no_at_fault_collisions": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        },
+        "time_to_collision_within_bound": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0
+        }
+      },
+      "scenes": 256
+    },
+    "TRAIN_vs_L0": {
+      "G_minus_PDMS_points": 0.0753569898581776,
+      "G_plus_PDMS_points": 0.0841789491696983,
+      "current_PDMS": 93.85671205540113,
+      "current_zero": {
+        "all_fixed_seeds_zero_scenes": 4,
+        "any_seed_zero_scenes": 7,
+        "scene_mean_exact_zero_scenes": 4,
+        "scene_mean_near_zero_le1e6_scenes": 4,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.009375
+      },
+      "delta_PDMS_points": 0.008821959311520695,
+      "fixed_reference_strata": {
+        "finite_reference_joint_safe": {
+          "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+          "current_any_seed_joint_violation_scenes": 4,
+          "paired_new_joint_violation_scene_count": 1,
+          "scenes": 500
+        },
+        "low_nonzero": {
+          "control_PDMS": 58.333333333333336,
+          "current_PDMS": 58.333333333333336,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 1,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": true,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 1,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 1
+        },
+        "other_or_unstable": {
+          "control_PDMS": 85.52127800905627,
+          "current_PDMS": 85.52609929902253,
+          "current_all_seed_zero_scenes": 1,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 15,
+          "current_mean_improved_ge_useful_from_independent_reference": 33,
+          "current_mean_zero_scenes": 1,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.004152171807352524,
+              0.0035576194875343633
+            ],
+            "CI95_PDMS_points": [
+              -0.4152171807352524,
+              0.3557619487534363
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 110,
+            "mean": 4.821289966256692e-05,
+            "mean_PDMS_points": 0.004821289966256692,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 120,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 1,
+          "paired_delta_PDMS_points": 0.004821289966256692,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 120
+        },
+        "stable_high": {
+          "control_PDMS": 97.24029132674691,
+          "current_PDMS": 97.25044155450864,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 25,
+          "current_mean_improved_ge_useful_from_independent_reference": 11,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.00048540860638484224,
+              0.0006655032722948471
+            ],
+            "CI95_PDMS_points": [
+              -0.04854086063848422,
+              0.0665503272294847
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 282,
+            "mean": 0.00010150227761721117,
+            "mean_PDMS_points": 0.010150227761721116,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 388,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 1,
+          "paired_delta_PDMS_points": 0.010150227761721116,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 388
+        },
+        "stable_zero": {
+          "control_PDMS": 0.0,
+          "current_PDMS": 0.0,
+          "current_all_seed_zero_scenes": 3,
+          "current_any_seed_zero_scenes": 3,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 3,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 3,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 3,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 3
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "logs": 344,
+      "native_mean_delta_points": {
+        "comfort": 0.078125,
+        "drivable_area_compliance": -0.039062500000000014,
+        "driving_direction_compliance": 0.03906249999999999,
+        "ego_progress": 0.06804770234764922,
+        "no_at_fault_collisions": 0.03906249999999999,
+        "score": 0.008821959311520695,
+        "time_to_collision_within_bound": -0.03906249999999999
+      },
+      "new_joint_violation": {
+        "paired_seed_event_count": 2,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.0019723865877712033
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.19723865877712032
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "Finite-sample scene-weighted event rate",
+          "limited_log_resolution": false,
+          "logs": 344,
+          "mean": 0.00078125,
+          "mean_percentage_points": 0.078125,
+          "observed_any_event": true,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.00078125,
+          "rate_percent": 0.078125,
+          "scenes": 512,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": false
+        },
+        "scene_any_seed_count": 2
+      },
+      "new_zero": {
+        "paired_seed_event_count": 1,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.001219636635141861
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.12196366351418611
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "Finite-sample scene-weighted event rate",
+          "limited_log_resolution": false,
+          "logs": 344,
+          "mean": 0.000390625,
+          "mean_percentage_points": 0.0390625,
+          "observed_any_event": true,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.000390625,
+          "rate_percent": 0.0390625,
+          "scenes": 512,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": false
+        },
+        "scene_all_fixed_seeds_count": 0,
+        "scene_any_seed_count": 1
+      },
+      "paired_log_CI95_PDMS_points": [
+        -0.09467031261703285,
+        0.10145088273070274
+      ],
+      "reference_PDMS": 93.84789009608963,
+      "reference_zero": {
+        "all_fixed_seeds_zero_scenes": 4,
+        "any_seed_zero_scenes": 8,
+        "scene_mean_exact_zero_scenes": 4,
+        "scene_mean_near_zero_le1e6_scenes": 4,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.009375
+      },
+      "repaired_joint_violation": {
+        "paired_seed_event_count": 0,
+        "scene_any_seed_count": 0
+      },
+      "repaired_zero": {
+        "paired_seed_event_count": 1,
+        "scene_any_seed_count": 1
+      },
+      "safety_events": {
+        "drivable_area_compliance": {
+          "new_paired_seed_event_count": 1,
+          "recovered_paired_seed_event_count": 0
+        },
+        "no_at_fault_collisions": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 1
+        },
+        "time_to_collision_within_bound": {
+          "new_paired_seed_event_count": 1,
+          "recovered_paired_seed_event_count": 0
+        }
+      },
+      "scenes": 512
+    },
+    "TRAIN_vs_L1": {
+      "G_minus_PDMS_points": 0.32846992597358077,
+      "G_plus_PDMS_points": 0.2410485731550143,
+      "current_PDMS": 93.85671205540113,
+      "current_zero": {
+        "all_fixed_seeds_zero_scenes": 4,
+        "any_seed_zero_scenes": 7,
+        "scene_mean_exact_zero_scenes": 4,
+        "scene_mean_near_zero_le1e6_scenes": 4,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.009375
+      },
+      "delta_PDMS_points": -0.08742135281856647,
+      "fixed_reference_strata": {
+        "finite_reference_joint_safe": {
+          "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+          "current_any_seed_joint_violation_scenes": 4,
+          "paired_new_joint_violation_scene_count": 0,
+          "scenes": 500
+        },
+        "low_nonzero": {
+          "control_PDMS": 58.333333333333336,
+          "current_PDMS": 58.333333333333336,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 0,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 1,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": true,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 1,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 1
+        },
+        "other_or_unstable": {
+          "control_PDMS": 85.65318976701278,
+          "current_PDMS": 85.52609929902253,
+          "current_all_seed_zero_scenes": 1,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 15,
+          "current_mean_improved_ge_useful_from_independent_reference": 33,
+          "current_mean_zero_scenes": 1,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.011506063302992451,
+              0.01294747299816383
+            ],
+            "CI95_PDMS_points": [
+              -1.150606330299245,
+              1.294747299816383
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 110,
+            "mean": -0.0012709046799024876,
+            "mean_PDMS_points": -0.12709046799024876,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 120,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 34,
+          "paired_delta_PDMS_points": -0.12709046799024876,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 120
+        },
+        "stable_high": {
+          "control_PDMS": 97.32649535988048,
+          "current_PDMS": 97.25044155450864,
+          "current_all_seed_zero_scenes": 0,
+          "current_any_seed_zero_scenes": 2,
+          "current_mean_drop_ge_useful_from_independent_reference": 25,
+          "current_mean_improved_ge_useful_from_independent_reference": 11,
+          "current_mean_zero_scenes": 0,
+          "paired_bootstrap": {
+            "CI95": [
+              -0.001970534762842014,
+              0.0007885632439290515
+            ],
+            "CI95_PDMS_points": [
+              -0.1970534762842014,
+              0.07885632439290514
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": false,
+            "logs": 282,
+            "mean": -0.0007605380537184582,
+            "mean_PDMS_points": -0.07605380537184582,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 388,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 38,
+          "paired_delta_PDMS_points": -0.07605380537184582,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 388
+        },
+        "stable_zero": {
+          "control_PDMS": 0.0,
+          "current_PDMS": 0.0,
+          "current_all_seed_zero_scenes": 3,
+          "current_any_seed_zero_scenes": 3,
+          "current_mean_drop_ge_useful_from_independent_reference": 0,
+          "current_mean_improved_ge_useful_from_independent_reference": 0,
+          "current_mean_zero_scenes": 3,
+          "paired_bootstrap": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_PDMS_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "limited_log_resolution": true,
+            "logs": 3,
+            "mean": 0.0,
+            "mean_PDMS_points": 0.0,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "raw_PDMS_score_difference",
+            "scenes": 3,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "paired_control_to_current_drop_ge_useful": 0,
+          "paired_delta_PDMS_points": 0.0,
+          "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+          "scenes": 3
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "logs": 344,
+      "native_mean_delta_points": {
+        "comfort": 0.078125,
+        "drivable_area_compliance": -0.078125,
+        "driving_direction_compliance": -5.421010862427522e-18,
+        "ego_progress": -0.5066862467645596,
+        "no_at_fault_collisions": 0.15625,
+        "score": -0.08742135281856647,
+        "time_to_collision_within_bound": 0.23437500000000003
+      },
+      "new_joint_violation": {
+        "paired_seed_event_count": 2,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.002439273270283722
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.24392732702837222
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "Finite-sample scene-weighted event rate",
+          "limited_log_resolution": false,
+          "logs": 344,
+          "mean": 0.00078125,
+          "mean_percentage_points": 0.078125,
+          "observed_any_event": true,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.00078125,
+          "rate_percent": 0.078125,
+          "scenes": 512,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": false
+        },
+        "scene_any_seed_count": 1
+      },
+      "new_zero": {
+        "paired_seed_event_count": 2,
+        "per_draw_rate": {
+          "CI95": [
+            0.0,
+            0.002439273270283722
+          ],
+          "CI95_percentage_points": [
+            0.0,
+            0.24392732702837222
+          ],
+          "bootstrap_repeats": 2000,
+          "inference_seed_uncertainty_included": false,
+          "interpretation": "Finite-sample scene-weighted event rate",
+          "limited_log_resolution": false,
+          "logs": 344,
+          "mean": 0.00078125,
+          "mean_percentage_points": 0.078125,
+          "observed_any_event": true,
+          "one_log_interval_is_degenerate": false,
+          "quantity": "event_rate_or_rate_difference",
+          "rate": 0.00078125,
+          "rate_percent": 0.078125,
+          "scenes": 512,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "zero_observed_event_does_not_prove_zero_true_probability": false
+        },
+        "scene_all_fixed_seeds_count": 0,
+        "scene_any_seed_count": 1
+      },
+      "paired_log_CI95_PDMS_points": [
+        -0.3613933281285596,
+        0.2723594735429157
+      ],
+      "reference_PDMS": 93.9441334082197,
+      "reference_zero": {
+        "all_fixed_seeds_zero_scenes": 4,
+        "any_seed_zero_scenes": 7,
+        "scene_mean_exact_zero_scenes": 4,
+        "scene_mean_near_zero_le1e6_scenes": 4,
+        "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+        "single_draw_zero_rate": 0.01015625
+      },
+      "repaired_joint_violation": {
+        "paired_seed_event_count": 8,
+        "scene_any_seed_count": 5
+      },
+      "repaired_zero": {
+        "paired_seed_event_count": 4,
+        "scene_any_seed_count": 1
+      },
+      "safety_events": {
+        "drivable_area_compliance": {
+          "new_paired_seed_event_count": 2,
+          "recovered_paired_seed_event_count": 0
+        },
+        "no_at_fault_collisions": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 4
+        },
+        "time_to_collision_within_bound": {
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 6
+        }
+      },
+      "scenes": 512
+    }
+  },
+  "deployment_doc_link_audit": {
+    "documents": {
+      "deployment_package.md": {
+        "private_exists": true,
+        "public_exists": true,
+        "same_bytes": true
+      },
+      "pure_q_deployment_CPU_v1.json": {
+        "private_exists": true,
+        "public_exists": true,
+        "same_bytes": true
+      },
+      "pure_q_deployment_index_v1.json": {
+        "private_exists": true,
+        "public_exists": true,
+        "same_bytes": true
+      }
+    },
+    "links": [
+      {
+        "document": "deployment_package.md",
+        "label": "\u5305\u7d22\u5f15",
+        "private_exists": true,
+        "public_exists": true,
+        "target": "pure_q_deployment_index_v1.json"
+      },
+      {
+        "document": "deployment_package.md",
+        "label": "CPU\u9a8c\u6536",
+        "private_exists": true,
+        "public_exists": true,
+        "target": "pure_q_deployment_CPU_v1.json"
+      }
+    ],
+    "required_public_bundle": [
+      "deployment_package.md",
+      "pure_q_deployment_CPU_v1.json",
+      "pure_q_deployment_index_v1.json"
+    ]
+  },
+  "evaluation_costs": {
+    "L1_CENTER_V1_DEV_SELECT_sample": {
+      "actual_new_scored": 1280,
+      "logical_outputs": 1280,
+      "model_forward_calls": 12800,
+      "qwen_prefills": 256,
+      "worker_wall_seconds": 1260.6960783358663
+    },
+    "L1_CENTER_V1_DEV_mean": {
+      "actual_new_scored": 256,
+      "logical_outputs": 256,
+      "model_forward_calls": 2560,
+      "qwen_prefills": 256,
+      "worker_wall_seconds": 373.4315666835755
+    },
+    "L1_CENTER_V1_TRAIN_sample": {
+      "actual_new_scored": 2560,
+      "logical_outputs": 2560,
+      "model_forward_calls": 25600,
+      "qwen_prefills": 512,
+      "worker_wall_seconds": 2452.347308188677
+    }
+  },
+  "event_decomposition": {
+    "joint_recovery": {
+      "contribution_PDMS_points": 0.23269736806101773,
+      "draws": 4
+    },
+    "new_joint_failure": {
+      "contribution_PDMS_points": 0.0,
+      "draws": 0
+    },
+    "safe_to_safe": {
+      "contribution_PDMS_points": 0.03378569319221768,
+      "draws": 1251
+    },
+    "still_joint_unsafe": {
+      "contribution_PDMS_points": -0.0005997624387410732,
+      "draws": 25
+    },
+    "zero_recovery": {
+      "contribution_PDMS_points": 0.20014528472768442,
+      "draws": 3
+    }
+  },
+  "judgment_scope": "Condition-dependent q recovered; small sampled DEV improvement, not a demonstrated practical0.5point gain or independent conditional-policy advantage",
+  "limits": [
+    "DEV_vs_scale13 gain0.084553PDMS is below registered0.5point scale; sameDEV selection and one training seed limit inference",
+    "CENTER has lower root jointKL than original L1, so safer outcomes do not isolate conditionality from conservative update scale",
+    "Full TRAIN net improvement is uncertain; mean-root secondary has no demonstrated gain over its own baseline",
+    "Do not select L1 orCENTER again using audit/test; preserve both registered endpoints",
+    "No additional43/44 or new controls launched; complete already sealed evaluations for all routes before promotion"
+  ],
+  "physical_behavior": {
+    "maximum_acceleration_mps2": {
+      "current": 1.4678264210241172,
+      "delta": -0.002986222041616804,
+      "reference": 1.470812643065734
+    },
+    "maximum_jerk_mps3": {
+      "current": 4.394496149959627,
+      "delta": -0.009234310209997432,
+      "reference": 4.4037304601696245
+    },
+    "mean_future_speed_mps": {
+      "current": 4.4186365303253865,
+      "delta": 0.0065884850184199095,
+      "reference": 4.412048045306967
+    },
+    "raw_progress_m": {
+      "current": 17.606349133413612,
+      "delta": 0.02584968721627945,
+      "reference": 17.580499446197333
+    },
+    "request_ADE_m": 0.03156033546376094,
+    "request_FDE_m": 0.04918581555856716,
+    "requested_final_forward_m": {
+      "current": 16.911428798083215,
+      "delta": 0.017826561350375414,
+      "reference": 16.89360223673284
+    },
+    "simulated_final_forward_m": {
+      "current": 17.19866268936555,
+      "delta": 0.025173992825401115,
+      "reference": 17.173488696540147
+    },
+    "stop_future_fraction": {
+      "current": 0.026269531250000002,
+      "delta": -0.00021484374999999542,
+      "reference": 0.026484374999999998
+    }
+  },
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "real_model_qualification_extra_candidates": 256,
+  "real_model_qualification_extra_worker_seconds": 151.89372205734253,
+  "route_judgment": "\u6761\u4ef6\u652f\u6301",
+  "schema": "L1_CENTER_V1_terminal_human_review_v1",
+  "sha256": "bad78d8daa842b236901b8159c7139648d6541948e69aaa27c54db00958094a2",
+  "status": "COMPLETE",
+  "total_evaluation_outputs": 4096,
+  "total_evaluation_worker_wall_seconds": 4086.4749532081187,
+  "training_evaluation_qualification_total_new_candidates": 20736
+}
