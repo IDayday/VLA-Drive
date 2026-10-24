@@ -55,13 +55,14 @@ def gpu_rows():
     return {int(i):dict(uuid=u.strip(),free_MiB=int(m)) for i,u,m in (x.split(',') for x in output.splitlines())}
 
 
-def busy_study_gpus(root):
+def busy_study_gpus(root, host=None):
     busy=set()
     for p in (root/'dispatch').glob('*/spec.json'):
         if not (p.parent/'result.json').exists():
             # A missing result remains held even if the process was lost.
             # Never silently recover or schedule over an unreviewed invocation.
-            busy.update(read(p).get('gpus',[]))
+            spec=read(p)
+            if host is None or spec['host']==host:busy.update(spec.get('gpus',[]))
     return busy
 
 
@@ -81,7 +82,7 @@ def submit(plan, job, gpu, physical):
 
 
 def tick(plan):
-    admitted(plan);root=Path(plan['root']);busy=busy_study_gpus(root);physical=gpu_rows();states={}
+    admitted(plan);root=Path(plan['root']);busy=busy_study_gpus(root,plan['host']);physical=gpu_rows();states={}
     for job in plan['jobs']:
         receipt=root/'dispatch'/job['name'];result=receipt/'result.json'
         if result.exists():
@@ -91,7 +92,7 @@ def tick(plan):
         status=dependency_state(job)
         if status!='READY':states[job['name']]=status;continue
         states[job['name']]='WAITING_FOR_MEASURED_GPU'
-        if (root/'finite_queue/STOP_DISPATCH').exists():continue
+        if (Path(plan.get('control_dir',root/'finite_queue'))/'STOP_DISPATCH').exists():continue
         for gpu in job.get('preferred_gpus',plan['gpu_indices']):
             if gpu in busy or gpu not in plan['gpu_indices']:continue
             row=physical[gpu]
@@ -112,7 +113,7 @@ def main():
     plan=read(a.plan);body=dict(plan)
     if body.pop('sha256')!=seal(body):raise ValueError('Changed finite operator plan')
     if len({j['name'] for j in plan['jobs']})!=len(plan['jobs']):raise ValueError('Duplicate planned invocation')
-    control=Path(plan['root'])/'finite_queue';control.mkdir(exist_ok=True)
+    control=Path(plan.get('control_dir',Path(plan['root'])/'finite_queue'));control.mkdir(exist_ok=True)
     lock=(control/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     atomic(control/'owner.json',dict(pid=os.getpid(),at=time.time(),plan_sha256=plan['sha256']))
     try:
@@ -121,7 +122,7 @@ def main():
             if result['terminal']:
                 atomic(control/'COMPLETE.json',result)
                 # Release only once all already-running study workers also exit.
-                if not busy_study_gpus(Path(plan['root'])):
+                if plan.get('release_reservation_on_complete',True) and not busy_study_gpus(Path(plan['root'])):
                     reservation=Path(plan['root'])/'DEVICE_RESERVATION.json'
                     value=read(reservation);atomic(control/'reservation_before_release.json',value)
                     value.update(status='RELEASED',released_unix=time.time(),reason='finite registered screen queue reached terminal state')

@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--protocol')
     parser.add_argument('--evaluation')
     parser.add_argument('--reference')
-    parser.add_argument('--reference-strata',default=str(ROOT/'reference_strata.json'))
+    parser.add_argument('--reference-strata',default=str(ROOT/'common_bank/reference_strata.json'))
     parser.add_argument('--output',required=True)
     parser.add_argument('--paired-scenes-output',help='Private per-scene CSV; defaults beside aggregate output')
     parser.add_argument('--bootstrap-repeats',type=int,default=2000)

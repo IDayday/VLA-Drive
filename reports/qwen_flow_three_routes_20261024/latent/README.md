@@ -13,7 +13,7 @@
 
 ## 受控矩阵与部署
 
-L0为原先验；L0-S仅比较登记的std0.7/1/1.3，选择仅用dev_select、成本全计。L1条件高斯＋prior KL，L2全局高斯＋相同KL，L3条件高斯无prior KL。首轮各在线学习臂B16/G16、64 fresh rounds、四次inner，即16384真实新候选及256实际optimizer更新；formal必须等待共同profile预算锁定。
+L0为原先验；L0-S仅比较登记的std0.7/1/1.3，选择仅用dev_select、成本全计。L1条件高斯＋prior KL，L2全局高斯＋相同KL，L3条件高斯无prior KL。首轮各在线学习臂B16/G16、64 fresh rounds、四次inner，即16384真实新候选及256实际optimizer更新；共同profile和预算已锁定，三个学习臂已由主agent按统一源码快照实际启动。
 
 Adam峰值LR1e-4，按共同短窗采用3% warmup（256更新对应8）后constant。优势显式使用公共FP64组中心化／fresh raw共同std（floor0.01），不私下沿用旧逐组std或最终whitening。无成本乘子、搜索标签或轨迹replay混入本路线。
 
@@ -47,6 +47,20 @@ CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/pyt
 
 评估入口为`latent_evaluate --protocol ... --output ... --arm ... --checkpoint ... --split DEV_SELECT --readout sample`。L0/L0-S不得加载学习checkpoint，L0-S显式`--scale 0.7|1|1.3`。默认采用预登记诊断人口，`--full-split`才是完整split；dev_audit受公共封存门禁控制。未完成记录不能从分母中消失。
 
+终点统一CPU分析入口已实现并执行过未完成门禁：
+
+```bash
+CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/python \
+  -m scripts.analysis.qwen_flow_exploration.latent_analyze \
+  --output /mnt/project/qwen-flow-three-routes-20261024/analysis/latent_terminal_v1
+```
+
+该命令必须等待L1/L2/L3的DEV随机、TRAIN随机、DEV均值读出及对应L0参考全部封存；缺失时输出`WAITING_FOR_SEALED_EVALUATIONS`且不创建分析结果。固定256更新终点、readout与seed集合有校验。所有配对及bootstrap调用公共分析器，额外按scene一次汇总真实root q的联合prior KL与std；已在现有L0/L0-S完整记录验证KL为0及2.44019865，后者与24维高斯解析式一致。此处root KL不是最终轨迹KL，也不将五次部署draw当K32搜索曲线。
+
 ## 研究判断进度
 
-目前已证明接口与数值链可用，尚需完成同预算L1/L2/L3、固定尺度对照及新噪声单轨评价，才能判断条件化是否有独立价值。现阶段不因短资格的loss/候选表现而宣称路线成立，也不把尚未完成称为当前设计无效。
+第一份已完成的部署对照见[固定尺度0.7报告](fixed_scale_control_07.md)：DEV_SELECT预登记256场景/8logs、五个评价噪声种子，L0-S为92.180332，L0为92.143105，净差+0.037228点，log-bootstrap区间[−0.103974,+0.181690]。其余固定尺度和学习臂未完成前不选择温度，不将此开发集92分写成Navtest达到92。
+
+共同分析器[CPU资格](common_analysis_cpu_v4.json)通过12项检查，并已实际读取两臂全部各1280条记录。兼容latent与merged-adapter的readout别名时，会核对原生噪声namespace、CPU FP32、10步shift5、3维动作、source base及固定seed集合，还逐条复现实际root创新；不同namespace的早期feedback自动评测只作辅助结果。
+
+尚需完成同预算L1/L2/L3及新噪声单轨评价，才能判断条件化是否有独立价值。训练中已看到条件MLP在同LR下的分布位移大于全局48参数高斯，因此即使L1最终优于L2，也必须披露更新幅度这一替代解释，不能直接归因于场景条件化。现阶段不因短资格的loss/候选表现而宣称路线成立，也不把尚未完成称为当前设计无效。

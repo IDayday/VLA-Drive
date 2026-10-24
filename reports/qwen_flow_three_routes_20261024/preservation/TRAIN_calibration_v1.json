@@ -1,0 +1,122 @@
+{
+  "schema": "preservation_TRAIN_calibration_v1",
+  "status": "COMPLETE",
+  "qualification": false,
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+  "TRAIN_token_hash": "49c4318c88c68c2544d156802294a039be44df88c67fdb6231456318b5564d96",
+  "shared_ODE_K32_pool_hash": "66a0caa335d1502417b2370254278ac62bf4b245ed07c91f3d8eec41c90da87a",
+  "archive_path": "/mnt/project/qwen-flow-three-routes-20261024/preservation/initial_archive.json",
+  "archive_file_sha256": "c21a652983217696170106f7207f87ad8261242770fbc8dabd39ad9916042c71",
+  "archive_state_hash": "addd8d7a4430ff1c3558741f84c15fb11d74b8b380eba188df50fd40b8548834",
+  "replay_coefficient": 1.0,
+  "replay_gradient_calibration": {
+    "status": "LOCKED_FROM_TRAIN",
+    "coefficient": 1.0,
+    "raw_coefficient": 4.728160473433161,
+    "max_bound_hit": true,
+    "target_replay_to_PG_ratio": 0.25,
+    "policy_norm": 0.034617993939184744,
+    "replay_norm": 0.0018304155566259946,
+    "cosine": 0.18452697865587286,
+    "TRAIN_scenes": 4
+  },
+  "cost_metrics": [
+    "no_at_fault_collisions",
+    "drivable_area_compliance",
+    "time_to_collision_within_bound"
+  ],
+  "cost_formula": "1-official_metric",
+  "cost_budgets": [
+    0.036376953125,
+    0.1318359375,
+    0.12353515625
+  ],
+  "epsilon_budget": 0.0,
+  "reference_SDE_scenes": 128,
+  "reference_SDE_candidates": 2048,
+  "reference_SDE_pool_sha256": "50ad9a946790c40c017b5c1ddd8656b008f7c1eb841f364d904f2ceba7c09a28",
+  "costs_reference_identity": "unmodified common-base source SDE, same kernel as P0-P5; not ODE candidate budgets",
+  "P1_learning_rate_multiplier": 0.5,
+  "P1_matching": {
+    "status": "NOT_MATCHED",
+    "selected_learning_rate": 2.5e-05,
+    "selected_experiment_id": "P1_shadow_LR0.5",
+    "maximum_relative_error": 0.4910468429254565,
+    "tolerance": 0.2,
+    "target": {
+      "mean_ADE_m": 0.006708162822126305,
+      "RMS_heading_rad": 0.00019539825343718782,
+      "scenes": 4,
+      "interpretation": "common-root requested trajectory drift proxy; not output-distribution KL"
+    },
+    "selected_drift": {
+      "mean_ADE_m": 0.0034141406464912624,
+      "RMS_heading_rad": 0.00010029355809172714,
+      "scenes": 4,
+      "interpretation": "common-root requested trajectory drift proxy; not output-distribution KL"
+    },
+    "trials": 2,
+    "split": "TRAIN",
+    "interpretation": "If NOT_MATCHED the slower-learning explanation remains unresolved"
+  },
+  "P1_trials": [
+    {
+      "split": "TRAIN",
+      "learning_rate": 1e-05,
+      "LR_multiplier": 0.2,
+      "experiment_id": "P1_shadow_LR0.2",
+      "drift": {
+        "mean_ADE_m": 0.001195543930058717,
+        "RMS_heading_rad": 3.7126595232354233e-05,
+        "scenes": 4,
+        "interpretation": "common-root requested trajectory drift proxy; not output-distribution KL"
+      },
+      "actual_optimizer_updates": 4
+    },
+    {
+      "split": "TRAIN",
+      "learning_rate": 2.5e-05,
+      "LR_multiplier": 0.5,
+      "experiment_id": "P1_shadow_LR0.5",
+      "drift": {
+        "mean_ADE_m": 0.0034141406464912624,
+        "RMS_heading_rad": 0.00010029355809172714,
+        "scenes": 4,
+        "interpretation": "common-root requested trajectory drift proxy; not output-distribution KL"
+      },
+      "actual_optimizer_updates": 4
+    }
+  ],
+  "P5_shadow_drift": {
+    "mean_ADE_m": 0.006708162822126305,
+    "RMS_heading_rad": 0.00019539825343718782,
+    "scenes": 4,
+    "interpretation": "common-root requested trajectory drift proxy; not output-distribution KL"
+  },
+  "shadow_optimizer_updates": 12,
+  "shadow_weights_used_for_formal": false,
+  "planned_optimizer_updates": 256,
+  "warmup_updates": 8,
+  "formal_initialization_must_be_common_base_zero_B": true,
+  "wall_seconds": 1300.2783773895353,
+  "reference_sampling_and_archive_construction_costs_separate": true,
+  "physical_ledger": {
+    "candidate_attempts": 2048,
+    "scored_candidates": 2048,
+    "scorer_batch_calls": 128,
+    "logical_scoring_cost": 2048,
+    "cache_reused_candidates": 0,
+    "model_forward_calls": 8084,
+    "qwen_prefills": 148,
+    "optimizer_updates": 12,
+    "scoring_wait_seconds": 26.8943701274693,
+    "condition_seconds": 59.64113391935825,
+    "generation_seconds": 901.9569298177958,
+    "update_seconds": 270.8744069635868,
+    "backward_calls": 20,
+    "invocation_wall_seconds": 1354.6748766172677,
+    "GPU_semantics": "Shared GPU worker wall occupancy, not exclusive GPU compute time"
+  },
+  "sha256": "232621d861399c940a50953886a547bff7ee7e857cc07a40ee869655f96646e7"
+}

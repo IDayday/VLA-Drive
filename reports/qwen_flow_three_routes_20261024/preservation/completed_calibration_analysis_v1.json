@@ -1,0 +1,332 @@
+{
+  "schema": "preservation_completed_TRAIN_calibration_analysis_v1",
+  "status": "COMPLETE",
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "calibration_sha256": "232621d861399c940a50953886a547bff7ee7e857cc07a40ee869655f96646e7",
+  "initial_pool_sha256": "50ad9a946790c40c017b5c1ddd8656b008f7c1eb841f364d904f2ceba7c09a28",
+  "all_candidates_unfiltered": true,
+  "TRAIN_scenes": 128,
+  "TRAIN_logs": 117,
+  "SDE_G16": {
+    "scenes": 128,
+    "candidates_per_scene": 16,
+    "new_candidates": 2048,
+    "PDMS": 70.84488815511504,
+    "native_mean_percent": {
+      "no_at_fault_collisions": 96.3623046875,
+      "drivable_area_compliance": 86.81640625,
+      "time_to_collision_within_bound": 87.646484375,
+      "ego_progress": 72.05913628777876,
+      "comfort": 64.6484375,
+      "driving_direction_compliance": 96.0693359375
+    },
+    "expected_cost": {
+      "no_at_fault_collisions": 0.036376953125,
+      "drivable_area_compliance": 0.1318359375,
+      "time_to_collision_within_bound": 0.12353515625
+    },
+    "complete_pass_violation_rate": {
+      "no_at_fault_collisions": 0.0380859375,
+      "drivable_area_compliance": 0.1318359375,
+      "time_to_collision_within_bound": 0.12353515625
+    },
+    "joint_candidate_safe_fraction": 0.7626953125,
+    "scenes_with_at_least_one_joint_safe": 127,
+    "equal_PDMS_groups": 1,
+    "all_zero_groups": 1,
+    "all_one_groups": 0,
+    "nonzero_PDMS_advantage_groups": 127,
+    "nonzero_PDMS_group_fraction": 0.9921875,
+    "nonzero_PDMS_group_std_above1e8_groups": 127,
+    "small_variance_nontied_std_lt001": 0,
+    "progress_only_groups": 0,
+    "progress_only_fraction_of_effective": 0.0,
+    "official_safety_submetric_varies_groups": 107,
+    "global_raw_reward_std_whole128": 0.346573581660569,
+    "NC_half_candidates": 7
+  },
+  "ODE_IID_K32_same128_scenes": {
+    "scenes": 128,
+    "candidates_per_scene": 32,
+    "new_candidates": 4096,
+    "PDMS": 93.53870153560226,
+    "native_mean_percent": {
+      "no_at_fault_collisions": 99.9755859375,
+      "drivable_area_compliance": 99.1943359375,
+      "time_to_collision_within_bound": 98.92578125,
+      "ego_progress": 86.7438602479454,
+      "comfort": 99.90234375,
+      "driving_direction_compliance": 99.15771484375
+    },
+    "expected_cost": {
+      "no_at_fault_collisions": 0.000244140625,
+      "drivable_area_compliance": 0.008056640625,
+      "time_to_collision_within_bound": 0.0107421875
+    },
+    "complete_pass_violation_rate": {
+      "no_at_fault_collisions": 0.000244140625,
+      "drivable_area_compliance": 0.008056640625,
+      "time_to_collision_within_bound": 0.0107421875
+    },
+    "joint_candidate_safe_fraction": 0.981201171875,
+    "scenes_with_at_least_one_joint_safe": 127,
+    "equal_PDMS_groups": 42,
+    "all_zero_groups": 1,
+    "all_one_groups": 41,
+    "nonzero_PDMS_advantage_groups": 86,
+    "nonzero_PDMS_group_fraction": 0.671875,
+    "nonzero_PDMS_group_std_above1e8_groups": 86,
+    "small_variance_nontied_std_lt001": 71,
+    "progress_only_groups": 77,
+    "progress_only_fraction_of_effective": 0.8953488372093024,
+    "official_safety_submetric_varies_groups": 7,
+    "global_raw_reward_std_whole128": 0.11349899217167483,
+    "NC_half_candidates": 0
+  },
+  "ODE_independent_five_reference_same128_scenes": {
+    "scenes": 128,
+    "candidates_per_scene": 5,
+    "new_candidates": 640,
+    "PDMS": 93.62160178337999,
+    "native_mean_percent": {
+      "no_at_fault_collisions": 100.0,
+      "drivable_area_compliance": 99.21875,
+      "time_to_collision_within_bound": 99.0625,
+      "ego_progress": 86.72309428011195,
+      "comfort": 100.0,
+      "driving_direction_compliance": 99.21875
+    },
+    "expected_cost": {
+      "no_at_fault_collisions": 0.0,
+      "drivable_area_compliance": 0.0078125,
+      "time_to_collision_within_bound": 0.009375
+    },
+    "complete_pass_violation_rate": {
+      "no_at_fault_collisions": 0.0,
+      "drivable_area_compliance": 0.0078125,
+      "time_to_collision_within_bound": 0.009375
+    },
+    "joint_candidate_safe_fraction": 0.9828125,
+    "scenes_with_at_least_one_joint_safe": 126,
+    "equal_PDMS_groups": 48,
+    "all_zero_groups": 1,
+    "all_one_groups": 46,
+    "nonzero_PDMS_advantage_groups": 80,
+    "nonzero_PDMS_group_fraction": 0.625,
+    "nonzero_PDMS_group_std_above1e8_groups": 80,
+    "small_variance_nontied_std_lt001": 74,
+    "progress_only_groups": 79,
+    "progress_only_fraction_of_effective": 0.9875,
+    "official_safety_submetric_varies_groups": 1,
+    "global_raw_reward_std_whole128": 0.11129057663369567,
+    "NC_half_candidates": 0
+  },
+  "paired_SDE_minus_ODE_mean_costs_and_score": {
+    "no_at_fault_collisions": {
+      "mean": 0.0361328125,
+      "CI95": [
+        0.019137596899224806,
+        0.05693117847914358
+      ],
+      "scenes": 128,
+      "logs": 117,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false,
+      "quantity": "event_rate_or_rate_difference",
+      "CI95_percentage_points": [
+        1.9137596899224805,
+        5.693117847914357
+      ],
+      "mean_percentage_points": 3.61328125,
+      "inference_seed_uncertainty_included": false,
+      "limited_log_resolution": false,
+      "one_log_interval_is_degenerate": false
+    },
+    "drivable_area_compliance": {
+      "mean": 0.123779296875,
+      "CI95": [
+        0.09476605527143982,
+        0.15428149606299213
+      ],
+      "scenes": 128,
+      "logs": 117,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false,
+      "quantity": "event_rate_or_rate_difference",
+      "CI95_percentage_points": [
+        9.476605527143981,
+        15.428149606299213
+      ],
+      "mean_percentage_points": 12.3779296875,
+      "inference_seed_uncertainty_included": false,
+      "limited_log_resolution": false,
+      "one_log_interval_is_degenerate": false
+    },
+    "time_to_collision_within_bound": {
+      "mean": 0.11279296875,
+      "CI95": [
+        0.08677884615384615,
+        0.1422841698232323
+      ],
+      "scenes": 128,
+      "logs": 117,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false,
+      "quantity": "event_rate_or_rate_difference",
+      "CI95_percentage_points": [
+        8.677884615384615,
+        14.22841698232323
+      ],
+      "mean_percentage_points": 11.279296875,
+      "inference_seed_uncertainty_included": false,
+      "limited_log_resolution": false,
+      "one_log_interval_is_degenerate": false
+    },
+    "canonical_PDMS": {
+      "mean": -0.22693813380487207,
+      "CI95": [
+        -0.25756861382431034,
+        -0.1981804896260641
+      ],
+      "scenes": 128,
+      "logs": 117,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false,
+      "quantity": "raw_PDMS_score_difference",
+      "CI95_PDMS_points": [
+        -25.756861382431033,
+        -19.81804896260641
+      ],
+      "mean_PDMS_points": -22.693813380487207,
+      "inference_seed_uncertainty_included": false,
+      "limited_log_resolution": false,
+      "one_log_interval_is_degenerate": false
+    }
+  },
+  "cost_mean_caveat": "Costs=1-native metric are distinct from event rates; NC0.5 contributes0.5 cost and is a complete-pass violation. Samples are finite TRAIN calibration, not hard guarantees.",
+  "sampler_comparison_caveat": "Same128 TRAIN scenes and same base; SDE16 vs ODE32 means, no max/min selection. Independent sampler RNG and group counts differ; not a deployment result or equal-sampling-budget efficacy comparison.",
+  "group_signal_virtual_initial_B16": [
+    {
+      "groups": 16,
+      "raw_global_std": 0.30455953622684745,
+      "scale": 0.30455953622684745,
+      "P0_effective": 16,
+      "cost_scalarized_effective_at_initial_lambda1": 16,
+      "historical_adv_clip5_would_hit_fraction": 0.04296875
+    },
+    {
+      "groups": 16,
+      "raw_global_std": 0.3019392397187756,
+      "scale": 0.3019392397187756,
+      "P0_effective": 16,
+      "cost_scalarized_effective_at_initial_lambda1": 16,
+      "historical_adv_clip5_would_hit_fraction": 0.03515625
+    },
+    {
+      "groups": 16,
+      "raw_global_std": 0.3664672158922273,
+      "scale": 0.3664672158922273,
+      "P0_effective": 15,
+      "cost_scalarized_effective_at_initial_lambda1": 15,
+      "historical_adv_clip5_would_hit_fraction": 0.0234375
+    },
+    {
+      "groups": 16,
+      "raw_global_std": 0.38773235708524545,
+      "scale": 0.38773235708524545,
+      "P0_effective": 16,
+      "cost_scalarized_effective_at_initial_lambda1": 16,
+      "historical_adv_clip5_would_hit_fraction": 0.01171875
+    },
+    {
+      "groups": 16,
+      "raw_global_std": 0.29489059690355796,
+      "scale": 0.29489059690355796,
+      "P0_effective": 16,
+      "cost_scalarized_effective_at_initial_lambda1": 16,
+      "historical_adv_clip5_would_hit_fraction": 0.05078125
+    },
+    {
+      "groups": 16,
+      "raw_global_std": 0.34109629472435987,
+      "scale": 0.34109629472435987,
+      "P0_effective": 16,
+      "cost_scalarized_effective_at_initial_lambda1": 16,
+      "historical_adv_clip5_would_hit_fraction": 0.05859375
+    },
+    {
+      "groups": 16,
+      "raw_global_std": 0.358323486017503,
+      "scale": 0.358323486017503,
+      "P0_effective": 16,
+      "cost_scalarized_effective_at_initial_lambda1": 16,
+      "historical_adv_clip5_would_hit_fraction": 0.0546875
+    },
+    {
+      "groups": 16,
+      "raw_global_std": 0.39163363958046243,
+      "scale": 0.39163363958046243,
+      "P0_effective": 16,
+      "cost_scalarized_effective_at_initial_lambda1": 16,
+      "historical_adv_clip5_would_hit_fraction": 0.01953125
+    }
+  ],
+  "virtual_group_caveat": "Posthoc frozen initial reference pool split into8 contiguous16-scene batches for signal diagnostics; not formal on-policy update collections or new samples.",
+  "replay": {
+    "coefficient": 1.0,
+    "target_replay_to_PG_gradient_ratio": 0.25,
+    "actual_calibration_gradient_ratio": 0.05287468591743306,
+    "maximum_coefficient_bound_hit": true,
+    "PG_replay_cosine": 0.18452697865587286,
+    "probe_scenes": 4,
+    "limitation": "Ratio5.29% is from one fixed TRAIN probe; later gradient scale/direction may differ. No retuning."
+  },
+  "P1": {
+    "status": "NOT_MATCHED",
+    "selected_learning_rate": 2.5e-05,
+    "selected_experiment_id": "P1_shadow_LR0.5",
+    "maximum_relative_error": 0.4910468429254565,
+    "tolerance": 0.2,
+    "target": {
+      "mean_ADE_m": 0.006708162822126305,
+      "RMS_heading_rad": 0.00019539825343718782,
+      "scenes": 4,
+      "interpretation": "common-root requested trajectory drift proxy; not output-distribution KL"
+    },
+    "selected_drift": {
+      "mean_ADE_m": 0.0034141406464912624,
+      "RMS_heading_rad": 0.00010029355809172714,
+      "scenes": 4,
+      "interpretation": "common-root requested trajectory drift proxy; not output-distribution KL"
+    },
+    "trials": 2,
+    "split": "TRAIN",
+    "interpretation": "If NOT_MATCHED the slower-learning explanation remains unresolved"
+  },
+  "P1_limitation": "NOT_MATCHED: candidate LR0.5 remains49.1% below target drift, above20% tolerance; cannot exclude mere conservatism in P5-vs-P1 interpretation. Retain both trials, do not tune again.",
+  "calibration_cost": {
+    "candidate_attempts": 2048,
+    "scored_candidates": 2048,
+    "scorer_batch_calls": 128,
+    "logical_scoring_cost": 2048,
+    "cache_reused_candidates": 0,
+    "model_forward_calls": 8084,
+    "qwen_prefills": 148,
+    "optimizer_updates": 12,
+    "scoring_wait_seconds": 26.8943701274693,
+    "condition_seconds": 59.64113391935825,
+    "generation_seconds": 901.9569298177958,
+    "update_seconds": 270.8744069635868,
+    "backward_calls": 20,
+    "invocation_wall_seconds": 1354.6748766172677,
+    "GPU_semantics": "Shared GPU worker wall occupancy, not exclusive GPU compute time"
+  },
+  "shadow_optimizer_updates": 12,
+  "formal_initialization_uses_shadow": false,
+  "current_research_conclusion": "Candidate/gradient/calibration evidence only. Wait for complete P0-P5 new-seed single-output evaluations; no claim of preservation efficacy or deployment improvement.",
+  "sha256": "941643bcff1c4b72eed68962e94677fe3324202c8007abbabbdfa69b47920102"
+}
