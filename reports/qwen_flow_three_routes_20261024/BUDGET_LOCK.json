@@ -1,0 +1,127 @@
+{
+  "schema": "three_route_finite_budget_v1",
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "registered_utc": "2026-10-24T17:58:10.730917+00:00",
+  "resources": "only currently authorized permanent hosts; one new study model per GPU; preserve existing IL/RL/temporal and unknown jobs",
+  "stage_selection_uses_NAVTEST": false,
+  "scientific_success_not_assumed": true,
+  "phase": "SCREEN_LOCKED",
+  "latent": {
+    "arms": [
+      "L1",
+      "L2",
+      "L3"
+    ],
+    "training_seeds": [
+      42
+    ],
+    "rounds": 64,
+    "B": 16,
+    "G": 16,
+    "inner": 4,
+    "optimizer_updates": 256,
+    "new_candidates_per_arm": 16384,
+    "warmup_updates": 8
+  },
+  "preservation": {
+    "arms": [
+      "P0",
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5"
+    ],
+    "training_seeds": [
+      42
+    ],
+    "rounds": 64,
+    "B": 16,
+    "G": 16,
+    "inner": 4,
+    "optimizer_updates": 256,
+    "new_candidates_per_arm": 16384,
+    "warmup_updates": 8
+  },
+  "feedback": {
+    "methods": [
+      "F0_IID",
+      "F1_BLIND",
+      "F2_SCALAR",
+      "F3_FEEDBACK",
+      "F4_NOVELTY"
+    ],
+    "students": [
+      "S1",
+      "S2",
+      "S3"
+    ],
+    "training_seeds": [
+      42
+    ],
+    "optimizer_updates": 256,
+    "B": 16,
+    "warmup_updates": 8,
+    "teacher_gradient_ratio": 1.0,
+    "teacher_beta_bounds": [
+      0.05,
+      2.0
+    ],
+    "fixed_teacher_quality_floor": 0.9,
+    "fixed_gain_floor": 0.005
+  },
+  "constraint_calibration": {
+    "sampler": "unmodified initial sourceSDE",
+    "TRAIN_scenes": 128,
+    "G": 16,
+    "new_candidates": 2048,
+    "slack": 0.0,
+    "shadow_updates": 12,
+    "max_LR_candidates": 2
+  },
+  "screen_evaluation": {
+    "split": "DEV_SELECT",
+    "scenes": 256,
+    "noise_seeds": [
+      2101,
+      2102,
+      2103,
+      2104,
+      2105
+    ],
+    "mean_root_separate": true
+  },
+  "confirmation": {
+    "training_seeds": [
+      42,
+      43,
+      44
+    ],
+    "max_TRAIN": 2048,
+    "new_candidates_per_arm_per_seed": 32768,
+    "conditional_on_screen_evidence": true,
+    "necessary_controls_required": true
+  },
+  "estimated_shared_worker_hours": {
+    "latent_per_arm": [
+      1.2,
+      2.0
+    ],
+    "preservation_per_arm": [
+      7.0,
+      12.0
+    ],
+    "student_FM_per_arm": [
+      0.7,
+      1.5
+    ]
+  },
+  "estimates_are_not_exclusive_GPU_compute": true,
+  "profile_evidence": [
+    "qualification/common_smoke_v2.json",
+    "qualification/latent_profile_L1_v1.json",
+    "preservation/profile_real_v1/profile.json"
+  ],
+  "no_automatic_budget_expansion": true,
+  "sha256": "cf7a5218dca617ab0f47a2e858d2372f3ea4210ca0efe4252760dce798ce0608"
+}

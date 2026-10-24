@@ -1,0 +1,45 @@
+schema: native_preservation_route_v1
+status: profile_and_common_protocol_required_before_formal_dispatch
+base: shared_mature_CANONICAL50000_merged
+arms:
+  P0: {archive: none, constrained: false, LR_multiplier: 1.0}
+  P1: {archive: none, constrained: false, LR_multiplier: TRAIN_calibration_max_two_trials}
+  P2: {archive: fixed_single_best, constrained: false, LR_multiplier: 1.0}
+  P3: {archive: fixed_diverse_max4, constrained: false, LR_multiplier: 1.0}
+  P4: {archive: none, constrained: true, LR_multiplier: 1.0}
+  P5: {archive: fixed_diverse_max4, constrained: true, LR_multiplier: 1.0}
+archive:
+  minimum_reward: 0.9
+  near_best_tolerance: 0.01
+  capacity: 4
+  duplicate_ADE_m: 0.15
+  duplicate_heading_rms_rad: 0.03
+  reward_temperature: 0.1
+  dynamic_updates: false
+  replay_population: uniform_over_same_eligible_TRAIN_scenes_for_P2_P3_P5
+  coefficient: measured_once_TRAIN_gradient_ratio_then_locked
+  target_replay_to_policy_gradient_ratio: 0.25
+  maximum_coefficient: 1.0
+  FM: actual_native_source_sigma_noise_minus_action_and_source_weight
+costs:
+  metrics: [no_at_fault_collisions, drivable_area_compliance, time_to_collision_within_bound]
+  formula: 1 - official_metric
+  budgets: common_base_unfiltered_TRAIN_expected_costs
+  epsilon_budget: 0.0
+  dual: projected_SGD
+  learning_rate: 0.01
+  initial: 1.0
+  update_frequency: once_per_fresh_unfiltered_collection
+  advantages: scene_centered_cost_divided_by_same_RAW_global_reward_std_floor0.01
+  post_scalarization_normalization: false
+  numerical_multiplier_alarm: 1000
+reference: permanently_frozen_common_base
+policy_old: fixed_per_fresh_collection_and_four_inners
+baseline_anchor: unchanged_source_transition_mean_MSE_beta50
+P1_calibration:
+  population: TRAIN_only
+  maximum_LR_trials: 2
+  proposed_LR_multipliers: [0.2, 0.5]
+  drift: paired_common_root_requested_ADE_and_heading_RMS
+  relative_tolerance: 0.2
+  interpretation: proxy_not_output_KL

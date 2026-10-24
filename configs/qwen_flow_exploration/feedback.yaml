@@ -1,0 +1,45 @@
+schema: native_feedback_search_route_v1
+base: common_locked_protocol
+methods: [F0_IID, F1_BLIND, F2_PDMS, F3_FEEDBACK, F4_NOVELTY]
+candidate_budget: 32
+common_initial_ODE_candidates: 8
+adaptive_rounds: 3
+proposals_per_round: 8
+proposal: existing_four_control_Hermite_clock_lateral
+anchor: first_common_ODE_candidate
+elite_count: 4
+old_distribution_smoothing: 0.25
+parameter_lower: [-0.5, 0.25, -0.6, -0.35]
+parameter_upper: [0.15, 2.5, 0.6, 0.35]
+std_floor_fraction: 0.05
+requested_curve_dynamic_limits: diagnostics_only_not_executed_trajectory
+dynamic_feedback_source: actual_canonical_simulated_states
+F2_feedback: only_scalar_official_PDMS
+F3_feedback: official_metric_deficits_full_future_road_mask_simulated_dynamic_excess
+event_time_ranking: false
+continuous_geometry_margin: false
+F4_quality_proposals: 6
+F4_novelty_proposals: 2
+F4_no_qualified_archive: disable_novelty
+F4_normalization: fixed_TRAIN_only_robust_5_95_percentiles
+F4_minimum_quality: 0.9
+F4_best_quality_tolerance_raw: 0.005
+teacher_candidates_per_scene_maximum: 4
+teacher_minimum_PDMS: 0.9
+teacher_improvement_raw: 0.005
+teacher_minimum_pairwise_ADE_m: 0.2
+teacher_temperature_raw: 0.1
+teacher_coefficient_calibration: fixed_first16_TRAIN_gradient_norm_ratio_shared_S2_S3
+teacher_target_initial_gradient_ratio: 1.0
+teacher_coefficient_bounds: [0.05, 2.0]
+GT_replay_coefficient: 1.0
+student_optimizer_updates: 256
+student_scene_batch: 16
+student_LoRA_learning_rate: 0.00005
+student_warmup_updates: 8
+student_LR_after_warmup: constant
+teacher_target: requested_native_absolute8x3
+teacher_FM: original_source_sigma_shift5_noise_minus_action_training_weight
+teacher_interpolation_noise: independent_of_candidate_root
+teacher_probability: not_an_on_policy_GRPO_sample
+training_and_evaluation_budget: locked_by_primary_after_profile

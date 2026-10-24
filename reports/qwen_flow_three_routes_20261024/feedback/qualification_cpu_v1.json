@@ -1,0 +1,339 @@
+{
+  "status": "PASS",
+  "qualification_only": true,
+  "synthetic_score_fixture_is_not_driving_evidence": true,
+  "checks": [
+    "Zero control exactly preserves native8x3 request, including heading",
+    "Shared smooth four-parameter proposal, bounded physical driving-time validation",
+    "Scalar-only PDMS versus feasible-first full-window feedback; delaying first accident alone is not rewarded",
+    "Physical missingness is explicit; no invented per-time collision/TTC or minimum TTC",
+    "All F0-F4 preserve32 attempts, common first8, independent official-score callbacks, no external on-policy probabilities",
+    "Instrumented F2 cannot read NC/DAC/TTC or any extra metric during search",
+    "Only verified TRAIN targets, positive scene-normalized target sampling, no manufactured success labels",
+    "Native source shift5 weighted FM loss and every parameter gradient match original policy exactly; real optimizer step"
+  ],
+  "methods": [
+    {
+      "method": "F0_IID",
+      "costs": {
+        "candidate_attempts": 32,
+        "common_reference_logical_scores": 8,
+        "new_candidate_actual_scores": 24,
+        "scorer_batch_callback_calls": 3,
+        "invalid_attempts": 0,
+        "duplicate_attempts": 0,
+        "model_forward_calls": null,
+        "model_forward_counter_source": "shared native model runner ledger required",
+        "wall_seconds": 0.0013075638562440872
+      },
+      "budget_curve": [
+        {
+          "K": 8,
+          "attempted": 8,
+          "scored": 8,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.807,
+          "feasible_oracle_PDMS": 0.807,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 1
+        },
+        {
+          "K": 16,
+          "attempted": 16,
+          "scored": 16,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.9,
+          "feasible_oracle_PDMS": 0.9,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 2
+        },
+        {
+          "K": 24,
+          "attempted": 24,
+          "scored": 24,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.9,
+          "feasible_oracle_PDMS": 0.9,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 3
+        },
+        {
+          "K": 32,
+          "attempted": 32,
+          "scored": 32,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.9,
+          "feasible_oracle_PDMS": 0.9,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 4
+        }
+      ]
+    },
+    {
+      "method": "F1_BLIND",
+      "costs": {
+        "candidate_attempts": 32,
+        "common_reference_logical_scores": 8,
+        "new_candidate_actual_scores": 24,
+        "scorer_batch_callback_calls": 3,
+        "invalid_attempts": 0,
+        "duplicate_attempts": 0,
+        "model_forward_calls": null,
+        "model_forward_counter_source": "shared native model runner ledger required",
+        "wall_seconds": 0.0232932697981596
+      },
+      "budget_curve": [
+        {
+          "K": 8,
+          "attempted": 8,
+          "scored": 8,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.807,
+          "feasible_oracle_PDMS": 0.807,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 1
+        },
+        {
+          "K": 16,
+          "attempted": 16,
+          "scored": 16,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9375,
+          "oracle_PDMS": 0.8669669342041015,
+          "feasible_oracle_PDMS": 0.8669669342041015,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 9
+        },
+        {
+          "K": 24,
+          "attempted": 24,
+          "scored": 24,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9583333333333334,
+          "oracle_PDMS": 0.8761421203613281,
+          "feasible_oracle_PDMS": 0.8761421203613281,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 17
+        },
+        {
+          "K": 32,
+          "attempted": 32,
+          "scored": 32,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9375,
+          "oracle_PDMS": 0.8846612548828124,
+          "feasible_oracle_PDMS": 0.8846612548828124,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 25
+        }
+      ]
+    },
+    {
+      "method": "F2_PDMS",
+      "costs": {
+        "candidate_attempts": 32,
+        "common_reference_logical_scores": 8,
+        "new_candidate_actual_scores": 24,
+        "scorer_batch_callback_calls": 3,
+        "invalid_attempts": 0,
+        "duplicate_attempts": 0,
+        "model_forward_calls": null,
+        "model_forward_counter_source": "shared native model runner ledger required",
+        "wall_seconds": 0.023357950150966644
+      },
+      "budget_curve": [
+        {
+          "K": 8,
+          "attempted": 8,
+          "scored": 8,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.807,
+          "feasible_oracle_PDMS": 0.807,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 1
+        },
+        {
+          "K": 16,
+          "attempted": 16,
+          "scored": 16,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9375,
+          "oracle_PDMS": 0.8669669342041015,
+          "feasible_oracle_PDMS": 0.8669669342041015,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 9
+        },
+        {
+          "K": 24,
+          "attempted": 24,
+          "scored": 24,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9583333333333334,
+          "oracle_PDMS": 0.8677654266357422,
+          "feasible_oracle_PDMS": 0.8677654266357422,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 17
+        },
+        {
+          "K": 32,
+          "attempted": 32,
+          "scored": 32,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.96875,
+          "oracle_PDMS": 0.8719927215576172,
+          "feasible_oracle_PDMS": 0.8719927215576172,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 25
+        }
+      ]
+    },
+    {
+      "method": "F3_FEEDBACK",
+      "costs": {
+        "candidate_attempts": 32,
+        "common_reference_logical_scores": 8,
+        "new_candidate_actual_scores": 24,
+        "scorer_batch_callback_calls": 3,
+        "invalid_attempts": 0,
+        "duplicate_attempts": 0,
+        "model_forward_calls": null,
+        "model_forward_counter_source": "shared native model runner ledger required",
+        "wall_seconds": 0.026577554643154144
+      },
+      "budget_curve": [
+        {
+          "K": 8,
+          "attempted": 8,
+          "scored": 8,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.807,
+          "feasible_oracle_PDMS": 0.807,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 1
+        },
+        {
+          "K": 16,
+          "attempted": 16,
+          "scored": 16,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9375,
+          "oracle_PDMS": 0.8669669342041015,
+          "feasible_oracle_PDMS": 0.8669669342041015,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 9
+        },
+        {
+          "K": 24,
+          "attempted": 24,
+          "scored": 24,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9583333333333334,
+          "oracle_PDMS": 0.8669669342041015,
+          "feasible_oracle_PDMS": 0.8669669342041015,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 17
+        },
+        {
+          "K": 32,
+          "attempted": 32,
+          "scored": 32,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.96875,
+          "oracle_PDMS": 0.8708386993408203,
+          "feasible_oracle_PDMS": 0.8708386993408203,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 25
+        }
+      ]
+    },
+    {
+      "method": "F4_NOVELTY",
+      "costs": {
+        "candidate_attempts": 32,
+        "common_reference_logical_scores": 8,
+        "new_candidate_actual_scores": 24,
+        "scorer_batch_callback_calls": 3,
+        "invalid_attempts": 0,
+        "duplicate_attempts": 0,
+        "model_forward_calls": null,
+        "model_forward_counter_source": "shared native model runner ledger required",
+        "wall_seconds": 0.033131347969174385
+      },
+      "budget_curve": [
+        {
+          "K": 8,
+          "attempted": 8,
+          "scored": 8,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 1.0,
+          "oracle_PDMS": 0.807,
+          "feasible_oracle_PDMS": 0.807,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 1
+        },
+        {
+          "K": 16,
+          "attempted": 16,
+          "scored": 16,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9375,
+          "oracle_PDMS": 0.8669669342041015,
+          "feasible_oracle_PDMS": 0.8669669342041015,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 9
+        },
+        {
+          "K": 24,
+          "attempted": 24,
+          "scored": 24,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.9583333333333334,
+          "oracle_PDMS": 0.8669669342041015,
+          "feasible_oracle_PDMS": 0.8669669342041015,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 17
+        },
+        {
+          "K": 32,
+          "attempted": 32,
+          "scored": 32,
+          "valid_official_score_fraction": 1.0,
+          "feasible": true,
+          "feasible_fraction": 0.96875,
+          "oracle_PDMS": 0.8708386993408203,
+          "feasible_oracle_PDMS": 0.8708386993408203,
+          "found_useful_safe_improvement": true,
+          "unique_scored_requests": 25
+        }
+      ]
+    }
+  ],
+  "source_FM_loss": 2.164853096008301,
+  "source_FM_gradient_exact": true
+}

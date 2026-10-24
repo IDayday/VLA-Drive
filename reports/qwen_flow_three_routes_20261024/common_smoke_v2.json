@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "qualification_only": true,
+  "checks": [
+    {
+      "split": "TRAIN",
+      "test": "ODE_B1_chunk4",
+      "normalized_max_abs": 1.0132789611816406e-06
+    },
+    {
+      "split": "TRAIN",
+      "test": "official_singleton_batch_order_and_simulated_state_isolation",
+      "max_score_abs": 0.0
+    },
+    {
+      "split": "TRAIN",
+      "test": "official_singleton_batch_order_and_simulated_state_isolation",
+      "max_score_abs": 0.0
+    },
+    {
+      "split": "DEV_SELECT",
+      "test": "ODE_B1_chunk4",
+      "normalized_max_abs": 9.5367431640625e-07
+    },
+    {
+      "split": "DEV_SELECT",
+      "test": "official_singleton_batch_order_and_simulated_state_isolation",
+      "max_score_abs": 0.0
+    },
+    {
+      "split": "DEV_SELECT",
+      "test": "official_singleton_batch_order_and_simulated_state_isolation",
+      "max_score_abs": 0.0
+    },
+    {
+      "test": "smoke_real_population",
+      "TRAIN": 32,
+      "DEV_SELECT": 16,
+      "real_candidates": 192
+    },
+    {
+      "test": "actual_native_source_SDE_G16_chunk4_and_four_optimizer_steps",
+      "changed_LoRA_tensors": 480,
+      "ratios": [
+        0.0,
+        0.0051163434982299805,
+        0.004861712455749512,
+        0.006702065467834473
+      ]
+    }
+  ],
+  "condition_bytes_max": 512754468,
+  "peak_GPU_bytes": 28522313728,
+  "wall_seconds": 169.31716279871762,
+  "ledger": {
+    "candidate_attempts": 232,
+    "scored_candidates": 232,
+    "scorer_batch_calls": 61,
+    "logical_scoring_cost": 232,
+    "cache_reused_candidates": 0,
+    "model_forward_calls": 708,
+    "qwen_prefills": 49,
+    "optimizer_updates": 4,
+    "scoring_wait_seconds": 9.795410118997097,
+    "condition_seconds": 23.297573801130056,
+    "generation_seconds": 47.73673504777253,
+    "update_seconds": 0.0,
+    "invocation_wall_seconds": 169.29234202764928,
+    "GPU_semantics": "Shared GPU worker wall occupancy, not exclusive GPU compute time"
+  },
+  "not_a_driving_effectiveness_result": true
+}
