@@ -52,3 +52,11 @@ TRAIN全人口原101592场景/1176logs，DEV1696/16logs，Navtest12146/136logs�
 L1/L2/L3、GT-only S1和P0进入实际正式筛选；更新后部署结果仍未完成。P0首inner因旧评价调度器第三进程抢入共享显存OOM，未发生optimizer更新；保存的256候选合法提交链仍可原样恢复。缺少failure_evidence目录导致的二次异常已最小修复并CPU注入验收；不更改算法。后续用原97不可变训练源码加预建目录恢复，不重采原链。旧调度器CPU owner只扩展资源预留，所有既有GPU训练不受信号。[失败证据](preservation/formal_failure_P0_initial.json)
 
 主配对部署锁定为native_qwen_sourceflow_ODE命名空间、CPU FP32场景绑定root、每seed B1、原shift5 K10。97版本S1自动评价使用另一命名空间，只保留为辅助；主评价统一用无teacher/ref/archive依赖的合并纯ActionDiT入口。主协议及已完成轨迹不改。[评价执行锁](EVALUATION_LOCK.json)
+
+## 完整学习窗口与新增机制限制
+
+L1/L2/L3均已完成64份fresh collection、1024自然场景曝光（512各两次）、16384条真实新候选、256次连续Adam更新。全部冻结参数和buffers保持；每份old行为四inner固定，预算未用inner复用虚增。[终点审计](latent/terminal_training_audit_v1.json)
+
+已保存TRAIN特征的CPU诊断显示L1/L3小MLP学到首Tanh饱和，输出近乎全局常量；初始网络不饱和、LayerNorm分母正常。这是已学到的条件塌缩，不是Gaussian密度或采样bug。L2的jointKL位移又明显小于L1，不能将未来L1>L2直接归因场景条件化。原结果保留；固定TRAIN均值中心化仅在准备资格，尚未启动新正式臂。[最小诊断](latent/conditionality_minimum_diagnosis_v1.json)
+
+新增只读行为分析入口对已保存完整评价计算请求ADE/FDE、heading漂移、实际执行速度/jerk/越界、固定参考路径距离到达时间。后者是距离代理，未到明确保留，不能称官方到达时间。局部请求坐标和全局执行坐标明确分开，所有结果来自实际模拟而非8点请求差分估计安全。
