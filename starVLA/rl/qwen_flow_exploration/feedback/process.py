@@ -87,4 +87,3 @@ class NoveltyScale:
 
     def identity(self):
         return dict(features=list(NOVELTY_NAMES), center=self.center.tolist(), scale=self.scale.tolist(), fitted_split='TRAIN')
-

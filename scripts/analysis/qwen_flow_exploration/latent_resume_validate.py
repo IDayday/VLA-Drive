@@ -6,6 +6,8 @@ rewards. The tiny generator still runs the unchanged native source ActionDiT.
 import argparse
 import copy
 import json
+import os
+import signal
 from pathlib import Path
 import sys
 import tempfile
@@ -111,6 +113,28 @@ def main():
             assert tensor_digest(lp[key])==tensor_digest(rp[key]),key
         assert lp['history']==rp['history']
         assert lp['history'][0]['behavior_batch_digest']==old_batch
+        for mode in ['file','SIGUSR1']:
+            stopped=root/('stopped_'+mode)
+            def native_stop_save(run_path,state,payload,sha):
+                checkpoint=actual_save(run_path,state,payload,sha)
+                if state['updates']==1:
+                    if mode=='file':
+                        (Path(run_path)/'STOP_AFTER_BOUNDARY').touch()
+                    else:
+                        os.kill(os.getpid(),signal.SIGUSR1)
+                return checkpoint
+            with patch.object(latent_train,'save_state',native_stop_save):
+                run(stopped)
+            status=json.loads((stopped/'progress.json').read_text())
+            assert status['status']=='STOPPED' and status['phase']=='INNER_COMMITTED' and status['updates']==1
+            if mode=='file':
+                (stopped/'STOP_AFTER_BOUNDARY').unlink()
+            run(stopped,resume=True)
+            stopped_state,sp=load_state(stopped,protocol['sha256'],restore_rng=False)
+            assert stopped_state==left
+            for key in ['policy','optimizer','scheduler','root_generator_state']:
+                assert tensor_digest(sp[key])==tensor_digest(lp[key]),(mode,key)
+            assert sp['history']==lp['history']
         # A collecting failure is not a restorable boundary and cannot replace latest.
         original_latest=(interrupted/'latest.json').read_bytes()
         bad=dict(right,phase='COLLECTING')
@@ -126,6 +150,7 @@ def main():
             interruption='after inner1 checkpoint then actual CLI --resume',
             exact_matches=['policy','Adam','scheduler','custom root RNG','effective metrics ancestry','subsequent sampled behavior batch'],
             failure_does_not_advance_latest=True, common_atomic_checkpoint_exercised=True,
+            native_SIGUSR1_and_STOP_file_resume_bitwise=True,
             reward='CPU mock; not canonical PDMS or driving evidence',
             generator='actual native tiny ActionDiT source shift5 ODE')
     out=Path(args.output)

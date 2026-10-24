@@ -6,6 +6,7 @@ from pathlib import Path
 import time
 import uuid
 import traceback
+import signal
 
 import numpy as np
 import torch
@@ -17,7 +18,7 @@ from starVLA.rl.qwen_flow_exploration.protocol import read_protocol,require_budg
 from starVLA.rl.qwen_flow_exploration.native import NativeEnvironment
 from starVLA.rl.qwen_flow_exploration.checkpoint import save_state,load_state
 from starVLA.rl.qwen_flow_exploration.feedback.student import (adapter_digest,frozen_digest,load_teacher_bank,
-    choose_teacher,teacher_normalized_target,independent_fm_draw,evaluate_student)
+    choose_teacher,teacher_normalized_target,independent_fm_draw,evaluate_student,EvaluationStopped)
 from scripts.analysis.qwen_flow_exploration.feedback_search_bank import jsonable
 
 
@@ -27,6 +28,9 @@ def main():
     p.add_argument('--updates',type=int,default=256);p.add_argument('--scene-batch',type=int,default=16);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--save-every',type=int,default=32);p.add_argument('--resume');p.add_argument('--stop-after-update',type=int)
     p.add_argument('--evaluate',action='store_true');a=p.parse_args();protocol=read_protocol(a.protocol);require_budget_lock(protocol)
+    stopped=[False]
+    def request_stop(signum,frame):stopped[0]=True
+    signal.signal(signal.SIGUSR1,request_stop);signal.signal(signal.SIGTERM,request_stop)
     if a.updates!=256 or a.scene_batch!=16:raise ValueError('Initial registered FM window is256updates/B16; use profile for qualification')
     output=Path(a.output);output.mkdir(parents=True,exist_ok=bool(a.resume))
     teachers={token:[] for token in protocol['splits']['TRAIN']};teacher_hash=None;beta=0.;calibration_sha=None
@@ -77,6 +81,7 @@ def main():
         if not a.resume:boundary()
         metrics=(attempt_root/'metrics.jsonl').open('x')
         while state['updates']<a.updates:
+            if stopped[0]:boundary();break
             optimizer.zero_grad();started=time.monotonic();GT_losses=[];teacher_losses=[];current_teacher=0
             for slot in range(a.scene_batch):
                 exposure=state['scene_cursor']+slot;epoch,index=divmod(exposure,len(tokens))
@@ -101,10 +106,10 @@ def main():
                 GT_exposures=GT_exposures,teacher_exposures=teacher_exposures,gradient_norm=gradient_norm,lr=optimizer.param_groups[0]['lr'],
                 teacher_coefficient=beta,update_seconds=time.monotonic()-started)
             metrics.write(json.dumps(row)+'\n');metrics.flush()
-            if state['updates']%a.save_every==0 or state['updates']==a.updates or state['updates']==a.stop_after_update:boundary()
-            if a.stop_after_update and state['updates']>=a.stop_after_update:break
+            if state['updates']%a.save_every==0 or state['updates']==a.updates or state['updates']==a.stop_after_update or stopped[0]:boundary()
+            if stopped[0] or (a.stop_after_update and state['updates']>=a.stop_after_update):break
         metrics.close()
-        if state['updates']==a.updates:
+        if state['updates']==a.updates and not stopped[0]:
             if frozen_digest(env)!=frozen_before:raise ValueError('FM student changed frozen model/reference')
             state['phase']='COMPLETE';checkpoint=boundary()
             env.set_behavior_identity(dict(kind='feedback_student',arm=a.arm,updates=state['updates'],LoRA_sha256=adapter_digest(env.actor)))
@@ -113,11 +118,13 @@ def main():
                 frozen_hash_unchanged=True,checkpoint=str(checkpoint),config_sha256=config['sha256'],ledger=env.ledger.snapshot())
             if a.evaluate:
                 for split in ['TRAIN','DEV_SELECT']:
-                    evaluation=evaluate_student(env,protocol['diagnostic'][split],split,seeds=protocol['evaluation_seeds'],output=output/'evaluation'/split)
+                    evaluation=evaluate_student(env,protocol['diagnostic'][split],split,seeds=protocol['evaluation_seeds'],output=output/'evaluation'/split,stop_requested=lambda:stopped[0])
                     atomic_json(output/f'evaluation_{split}.json',jsonable(evaluation))
                 result['evaluation']='fresh_prior_single_ODE_each_fixed_seed_not_candidate_selection'
             atomic_json(output/'COMPLETE.json',result);print(json.dumps(result))
-        invocation['status']='COMPLETE' if state['updates']==a.updates else 'STOPPED_AT_READY_BOUNDARY'
+        invocation['status']='COMPLETE' if state['updates']==a.updates and not stopped[0] else 'STOPPED_AT_READY_BOUNDARY'
+    except EvaluationStopped:
+        state['phase']='READY';boundary();invocation['status']='STOPPED_AT_READY_BOUNDARY'
     except BaseException:
         invocation.update(status='FAILED',error=traceback.format_exc())
         raise

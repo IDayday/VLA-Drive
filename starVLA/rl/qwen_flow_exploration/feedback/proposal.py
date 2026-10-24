@@ -86,4 +86,3 @@ class StructuredCEM(BoundedCEM):
         return dict(spec=asdict(self.spec), kind=self.kind, parameters=list(PARAMETER_NAMES),
                     coordinate='ego_rear_axle_local_x_forward_y_left_heading_radians',
                     physical_time_seconds=[.5, 1., 1.5, 2., 2.5, 3., 3.5, 4.])
-

@@ -13,6 +13,10 @@ from starVLA.model.modules.qwen_sourceflow.vendor.scheduler_continuous import Wa
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
+class EvaluationStopped(RuntimeError):
+    """Owned stop request after an atomic scene; incomplete is never COMPLETE."""
+
+
 def independent_fm_draw(seed, exposure, kind):
     generator = torch.Generator().manual_seed(seed_for('feedback_source_FM_'+kind, seed, str(exposure)))
     noise = torch.randn((1, 8, 3), generator=generator)
@@ -83,7 +87,7 @@ def teacher_normalized_target(row, codec):
 
 
 @torch.no_grad()
-def evaluate_student(env, tokens, split, *, seeds, namespace='three_route_ODE_eval', output=None):
+def evaluate_student(env, tokens, split, *, seeds, namespace='three_route_ODE_eval', output=None, stop_requested=None):
     rows = []
     root = Path(output) if output is not None else None
     identity = dict(common_protocol_sha256=env.protocol['sha256'],base_model_sha256=env.base['model_sha256'],
@@ -96,6 +100,8 @@ def evaluate_student(env, tokens, split, *, seeds, namespace='three_route_ODE_ev
         atomic_json(root/'identity.json',identity)
     reused = 0
     for token in tokens:
+        if stop_requested is not None and stop_requested():
+            raise EvaluationStopped('Stop after the previous committed evaluation scene')
         destination = root/'scenes'/f'{token}.json' if root is not None else None
         if destination is not None and destination.exists():
             saved=json.loads(destination.read_text());body=dict(saved)
@@ -114,4 +120,3 @@ def evaluate_student(env, tokens, split, *, seeds, namespace='three_route_ODE_ev
     return dict(scenes=len(tokens), inference_seeds=list(seeds), single_candidate_each_seed=True,reused_scenes=reused,
                 mean={key: float(np.mean([row['native_subscores'][key] for row in rows])) for key in metrics},
                 records=rows)
-

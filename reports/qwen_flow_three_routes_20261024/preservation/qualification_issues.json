@@ -1,0 +1,19 @@
+{
+  "status": "QUALIFICATION_FAILURES_PRESERVED",
+  "formal_runs_affected": 0,
+  "issues": [
+    {
+      "attempt": "qualification_CPU_v2",
+      "type": "constructor_API_error",
+      "details": "seed_for requires namespace,seed,token; supplied two args in new replay-RNG constructor",
+      "failed_tests": 4
+    },
+    {
+      "attempt": "qualification_CPU_v3",
+      "type": "same_constructor_API_error",
+      "details": "Rerun while separately fixing raw_reward_tied diagnostic; same missing token still raised before any update",
+      "failed_tests": 4
+    }
+  ],
+  "fixes": "Pass shared_population token separately for scene/target/FM RNG namespaces; common tied diagnostic uses returned std, not valid-mask. All17 CPU tests then passed v4/v5; actualGPU profile passed afterward."
+}

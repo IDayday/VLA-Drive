@@ -44,6 +44,27 @@ class ArchiveTests(unittest.TestCase):
         a=np.asarray(records[0]['planned_trajectory']);b=a.copy();b[:,2]+=2*np.pi
         self.assertLess(trajectory_distance(a,b)[1],1e-12)
 
+    def test_identical_candidate_identity_merges_frequency_not_weight(self):
+        a=candidate(0);a['seed']=1
+        b=copy.deepcopy(a);b['seed']=2;b['proposal_source']='common_reference_ODE'
+        other=candidate(1,y=.5)
+        archive=self.build([a,b,other])
+        self.assertEqual(len(archive.entries['s0']),2)
+        entry=archive.entries['s0'][0]
+        self.assertEqual(entry['frequency'],2)
+        self.assertEqual(entry['occurrence_seeds'],[1,2])
+        self.assertEqual(archive.provenance['input_candidates'],3)
+        self.assertEqual(archive.provenance['unique_input_candidates'],2)
+        self.assertFalse(archive.provenance['duplicate_frequency_affects_replay_mass'])
+        plain=self.build([a,other])
+        ta,ids_a=archive.sample(['s0']*128,generator=torch.Generator().manual_seed(818))
+        tb,ids_b=plain.sample(['s0']*128,generator=torch.Generator().manual_seed(818))
+        self.assertEqual(ids_a,ids_b);torch.testing.assert_close(ta,tb,atol=0,rtol=0)
+        bad=copy.deepcopy(a);bad['raw_reward']=.96
+        with self.assertRaises(ValueError):self.build([a,bad])
+        bad=copy.deepcopy(a);bad['native_subscores']['no_at_fault_collisions']=.5
+        with self.assertRaises(ValueError):self.build([a,bad])
+
     def test_no_good_trajectory_no_success_label(self):
         archive=self.build([candidate(0,reward=0.),candidate(1,reward=.5,nc=0.)])
         self.assertEqual(archive.scenes,[])

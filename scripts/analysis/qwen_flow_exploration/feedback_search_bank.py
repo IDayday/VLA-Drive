@@ -89,8 +89,11 @@ def main():
         if not a.novelty_scale:
             raise ValueError('F4 requires frozen TRAIN-only normalization')
         value = json.loads(Path(a.novelty_scale).read_text())
-        if value.get('fitted_split') != 'TRAIN':
-            raise ValueError('No DEV calibration for novelty')
+        body = dict(value)
+        if (body.pop('sha256') != fingerprint(body) or value.get('fitted_split') != 'TRAIN' or
+                value['common_protocol_sha256'] != protocol['sha256'] or
+                value['base_model_sha256'] != protocol['base_model_sha256']):
+            raise ValueError('Changed/non-TRAIN/other-base novelty calibration')
         scale = NoveltyScale(value['center'], value['scale'])
         identity['novelty_scale_sha256'] = file_sha(a.novelty_scale)
     identity['sha256'] = fingerprint(identity)

@@ -3,6 +3,7 @@ import argparse
 import copy
 import json
 import math
+import signal
 from pathlib import Path
 import time
 import traceback
@@ -84,6 +85,16 @@ def main():
     info = dict(status='RUNNING', start_unix=time.time(), resume=args.resume,
                 arm=args.arm, seed=args.seed, qualification=args.qualification)
     atomic_json(invocation/'invocation.json', info)
+    stop = dict(requested=False, signal=None)
+    previous_handlers = {value:signal.getsignal(value) for value in [signal.SIGUSR1,signal.SIGTERM]}
+    def request_stop(signum, _):
+        stop.update(requested=True, signal=signum)
+    for signum in previous_handlers:
+        signal.signal(signum,request_stop)
+    def stop_requested():
+        return stop['requested'] or (run/'STOP_AFTER_BOUNDARY').exists()
+    class StopAtBoundary(Exception):
+        pass
     try:
         env = NativeEnvironment(protocol, trainable='frozen', scorer_workers=args.scorer_workers,
             ledger_path=invocation/'ledger.json', experiment_id=args.arm+'_seed'+str(args.seed))
@@ -153,6 +164,8 @@ def main():
         info['invocation_start_updates'] = state['updates']
         info['invocation_start_round'] = state['round']
         atomic_json(invocation/'invocation.json', info)
+        if state['phase'] != 'COMPLETE' and stop_requested():
+            raise StopAtBoundary()
         while state['phase'] != 'COMPLETE':
             if state['phase'] == 'READY':
                 phase = 'COLLECTING'
@@ -168,6 +181,8 @@ def main():
                              raw_scene_exposures=state['raw_scene_exposures']+B,
                              new_candidates=state['new_candidates']+B*G)
                 publish()
+                if stop_requested():
+                    raise StopAtBoundary()
             phase = 'UPDATING'
             active_batch = batch
 
@@ -188,12 +203,16 @@ def main():
                     batch = None
                     batch_records_path = None
                 publish()
+                if state['phase'] != 'COMPLETE' and stop_requested():
+                    raise StopAtBoundary()
 
             tick = time.monotonic()
-            train_collected_batch(policy, optimizer, active_batch, inner_epochs=inner_epochs,
-                start_inner=state['next_inner'], clip_range=.2, prior_coefficient=beta,
-                checkpoint_callback=inner_commit)
-            env.ledger.add(update_seconds=time.monotonic()-tick)
+            try:
+                train_collected_batch(policy, optimizer, active_batch, inner_epochs=inner_epochs,
+                    start_inner=state['next_inner'], clip_range=.2, prior_coefficient=beta,
+                    checkpoint_callback=inner_commit)
+            finally:
+                env.ledger.add(update_seconds=time.monotonic()-tick)
         if frozen_digest(env.model) != frozen_before:
             raise ValueError('Frozen generator parameters or buffers changed during learning')
         result = dict(status='COMPLETE', identity=identity['sha256'], **state,
@@ -206,6 +225,12 @@ def main():
         atomic_json(run/'progress.json', result)
         info['status'] = 'COMPLETE'
         print(json.dumps({key:result[key] for key in ['status','arm','seed','round','updates','new_candidates']}))
+    except StopAtBoundary:
+        info.update(status='STOPPED',phase=state['phase'],last_legal_checkpoint=str(last_checkpoint) if last_checkpoint else args.resume,
+                    stop_signal=stop['signal'],stop_file=(run/'STOP_AFTER_BOUNDARY').exists())
+        atomic_json(run/'progress.json',dict(state,status='STOPPED',checkpoint=info['last_legal_checkpoint']))
+        atomic_json(invocation/'native_stop.json',info)
+        print(json.dumps(dict(status='STOPPED',phase=state['phase'],updates=state['updates'],round=state['round'])))
     except BaseException:
         info.update(status='FAILED', phase=phase, error=traceback.format_exc())
         atomic_json(invocation/'failure.json', info)
@@ -217,6 +242,8 @@ def main():
         atomic_json(invocation/'invocation.json', info)
         if env is not None:
             env.close()
+        for signum,handler in previous_handlers.items():
+            signal.signal(signum,handler)
 
 
 if __name__ == '__main__':

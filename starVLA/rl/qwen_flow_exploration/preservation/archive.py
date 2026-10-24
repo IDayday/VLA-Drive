@@ -75,7 +75,10 @@ def _validated(row, train_tokens, token_logs, config):
     entry = dict(candidate_id=str(row['candidate_id']), scene_token=token, log_id=str(row['log_id']),
                  reward=reward, planned_trajectory=physical.tolist(), normalized_action=normalized.tolist(),
                  scorer_config_hash=str(row['scorer_config_hash']), checkpoint_id=str(row['checkpoint_id']),
-                 proposal_source=str(row['proposal_source']), on_policy_probability=None)
+                 sampler_config_hash=str(row.get('sampler_config_hash', 'not_provided')),
+                 native_subscores=json.loads(json.dumps(metrics, allow_nan=False)),
+                 proposal_source=str(row['proposal_source']), proposal_sources=[str(row['proposal_source'])],
+                 occurrence_seeds=[row.get('seed')], frequency=1, on_policy_probability=None)
     return entry, reward >= config.minimum_reward and all(float(metrics[k]) == 1 for k in config.feasibility_metrics)
 
 
@@ -92,15 +95,27 @@ class FrozenArchive:
               config=ArchiveConfig(), reference_candidate_ids=None):
         train_tokens = set(train_tokens)
         refs = reference_candidate_ids or {}
-        grouped, rejected = {}, dict(below_quality_or_infeasible=0, duplicate=0)
-        ids = set()
+        grouped, rejected = {}, dict(below_quality_or_infeasible=0, duplicate=0, exact_duplicate_occurrences=0)
+        ids = {}
         protocol, checkpoint = set(), set()
         for row in records:
             entry, valid = _validated(row, train_tokens, token_logs, config)
             key = (entry['scene_token'], entry['candidate_id'])
             if key in ids:
-                raise ValueError('Duplicate candidate identity in fixed shared pool')
-            ids.add(key);protocol.add(entry['scorer_config_hash']);checkpoint.add(entry['checkpoint_id'])
+                original = ids[key]
+                # Candidate hashes intentionally identify the executed request,
+                # not a fresh discovery. Repeated proposals consume scoring
+                # budget but do not buy extra replay probability mass.
+                fields = ('scene_token','log_id','reward','planned_trajectory','normalized_action',
+                          'scorer_config_hash','checkpoint_id','sampler_config_hash','native_subscores')
+                if any(original[name] != entry[name] for name in fields):
+                    raise ValueError('Same candidate identity has inconsistent scorer/base/trajectory/reward feedback')
+                original['frequency'] += 1
+                original['proposal_sources'] = sorted(set(original['proposal_sources']+entry['proposal_sources']))
+                original['occurrence_seeds'].extend(entry['occurrence_seeds'])
+                rejected['exact_duplicate_occurrences'] += 1
+                continue
+            ids[key]=entry;protocol.add(entry['scorer_config_hash']);checkpoint.add(entry['checkpoint_id'])
             grouped.setdefault(entry['scene_token'], [])
             if valid:
                 grouped[entry['scene_token']].append(entry)
@@ -138,6 +153,7 @@ class FrozenArchive:
         provenance = dict(schema='native_fixed_success_archive_v1', input_pool_hash=fingerprint(list(records)),
                           input_candidates=len(records), input_scenes=len(grouped), covered_scenes=len(result),
                           stored_candidates=sum(map(len, result.values())), rejected=rejected,
+                          unique_input_candidates=len(ids), duplicate_frequency_affects_replay_mass=False,
                           scorer_config_hash=next(iter(protocol), None), checkpoint_id=next(iter(checkpoint), None),
                           labels='requested physical trajectory reencoded with native source codec', dynamic_updates=False)
         return cls(result, config, provenance)

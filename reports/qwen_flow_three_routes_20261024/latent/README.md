@@ -25,6 +25,8 @@ Adam峰值LR1e-4，按共同短窗采用3% warmup（256更新对应8）后consta
 
 [实际CLI恢复v2](cpu_CLI_resume_v2.json)调用真正latent_train入口，两个round、八次真实Adam更新；inner1发布后注入中断，再通过CLI --resume继续，policy、Adam、scheduler、自定义root RNG、后续behavior batch和有效history严格一致。COLLECTING状态拒绝发布，latest不推进。评分器为明确标注的CPU mock；[原资格记录](cpu_CLI_resume.json)保留。
 
+[STOP与恢复v3](cpu_CLI_resume_stop_v3.json)进一步实际执行了run/STOP_AFTER_BOUNDARY和SIGUSR1两种停止路径：仅在inner1已发布的合法边界退出，保留原old batch，恢复后八次更新与连续运行严格一致。SIGTERM使用相同只置flag的handler；不会在信号处理函数中触发CUDA、保存或随机抽样。收集期间的停止延至完整collection提交，不把半成品当可恢复rollout。
+
 [真实完整模型profile](real_profile_L1_v1.json)已由主agent在GPU1集中执行：32个TRAIN场景、G4、128条真实canonical评分，22/32组有PG；四次真实小策略更新，初始ratio精确1，VLM/provider/DiT全部参数与named_buffers hash不变。峰值16,616,440,320 bytes（约15.48GiB）。总137.61秒，condition14.47秒、ODE生成27.04秒、评分7.46秒、噪声策略更新0.367秒；冻结hash另用28.83秒。第4个inner联合prior/old KL约0.002，ratio约0.8219—1.2887，clip比例0.0078。该资格并不证明驾驶提分，资格权重禁止作为正式初始化。
 
 ## 入口与恢复

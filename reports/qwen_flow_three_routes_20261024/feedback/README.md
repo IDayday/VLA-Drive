@@ -44,3 +44,11 @@ CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/pyt
 v1全部证据保留。正式搜索前做最小修正：旧请求曲线极值只记录为诊断，有限/shape/参数范围合法请求必须进入锁定的真实控制器；F3仍基于实际模拟状态的动态量。未改变官方评分或安全门槛，未给异常填0。需要新v2资格ID重跑外部搜索与吸收。最新CPU v3补充了这个接口语义检查。
 
 正式学生预算由主agent锁定为S1/S2/S3各256 updates、B16、相同512 TRAIN人口和GT曝光，AdamW5e-5、8步warmup后constant。S2/S3 teacher系数在固定TRAIN梯度上校准一次，目标teacher/GT梯度比例1.0、bounds[0.05,2]，保存cosine和bound命中；不使用DEV成绩调权重。由于共同起点已是RL50k，必须同时报告S3−S0和S3−S1，不能靠GT-only S1退化制造表面增益。
+
+## 真实资格v2：外部请求确已评分与反传
+
+不可变源码`5075dc5`上的v2真实GPU2资格已完成，进程exit0。F1-F4各24条外部请求全部进入canonical评分，无请求代理误拒；共224条真实评分、40批scorer，4次GT＋外部请求FM更新，480个LoRA Adam状态均到step4，冻结模型/reference hash不变。被选为编码/梯度probe的外部严格可行请求与base的ADE为0.18846m，明确`not_improvement_qualification=true`，没有因此放宽正式teacher阈值。[聚合证据](qualification_native_v2_summary.json)
+
+该单个搜索场景完全安全，F2/F3/F4的K32安全oracle均约0.842633，F1约0.848656、F0约0.846046。它不支持物理反馈的额外价值判断，也不能拿搜索最高分当学生部署成绩。8TRAIN/4DEV的小型新root评测只用于接口与有限更新检查，未进入正式模型选择。v1误筛失败证据保留，所有资格权重均不用作正式学生初始化。
+
+最新CPU v4另通过实际tiny原生LoRA/source-FM的READY保存与恢复：后续参数和Adam moments逐位一致。正式入口有预算锁；SIGUSR1/SIGTERM只请求完整optimizer后保存READY退出，评估在下一原子scene边界退出并可复用已完成记录，不把中断写成COMPLETE。
