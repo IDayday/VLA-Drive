@@ -1,0 +1,247 @@
+{
+  "schema": "native_measured_training_efficiency_v1",
+  "observed_utc": "2026-10-24T04:44:47.689889+00:00",
+  "read_only": true,
+  "source": "Existing complete per-rank journal rows and immutable checkpoint publication times; no model profiling workload",
+  "runs": {
+    "IL": {
+      "updates_by_rank": [
+        59460,
+        59460,
+        59460,
+        59460,
+        59460,
+        59460,
+        59460,
+        59460
+      ],
+      "end_common_update": 59460,
+      "planned_updates": 100000,
+      "latest_checkpoint_update": 59000,
+      "window_updates": [
+        58961,
+        59460
+      ],
+      "global_scene_batch": 32,
+      "mean_step_body_seconds": 13.694257562961429,
+      "median_step_body_seconds": 13.792457270435989,
+      "p95_step_body_seconds": 15.028286528401077,
+      "mean_rank_data_seconds": 0.4907474640477449,
+      "mean_rank_step_seconds": 13.688064781824593,
+      "scene_exposures_per_second_body": 2.3367458843880464,
+      "sealed_publication_window_updates": [
+        58000,
+        59000
+      ],
+      "sealed_publication_window_seconds": 13734.0,
+      "end_to_end_seconds_per_update": 13.734,
+      "end_to_end_updates_per_second": 0.072811999417504,
+      "end_to_end_fresh_scene_exposures_per_second": 2.329983981360128,
+      "remaining_hours_if_recent_rate_holds": 154.6601,
+      "next_60k_hours_if_recent_rate_holds": 2.0601,
+      "last_save_seconds": 108.41688136383891,
+      "publication_time_crosscheck_with_observed_monotonic_progress": 13734.404692023993,
+      "timing_limits": "Per-step max rank body excludes saves/inter-step work. End-to-end interval includes them; snapshot clocks are read-only metadata, not CUDA kernel timing."
+    },
+    "CANONICAL": {
+      "updates_by_rank": [
+        33955,
+        33955,
+        33955,
+        33955,
+        33955,
+        33955,
+        33955,
+        33955
+      ],
+      "end_common_update": 33955,
+      "planned_updates": 50000,
+      "latest_checkpoint_update": 33900,
+      "window_updates": [
+        33401,
+        33900
+      ],
+      "fresh_global_rollouts": 125,
+      "scene_exposures": 1000,
+      "new_candidates": 8000,
+      "mean_update_body_seconds": 1.2937189357690513,
+      "median_update_body_seconds": 1.2805814808234572,
+      "p95_update_body_seconds": 1.3570342847146093,
+      "end_to_end_window_seconds": 991.0,
+      "end_to_end_seconds_per_update": 1.982,
+      "end_to_end_updates_per_second": 0.5045408678102926,
+      "end_to_end_fresh_scene_exposures_per_second": 1.0090817356205852,
+      "end_to_end_new_candidates_per_second": 8.072653884964682,
+      "end_to_end_seconds_per_fresh_collection": 7.928,
+      "remaining_hours_if_recent_rate_holds": 8.83366388888889,
+      "phase_delta_rank_mean_seconds": {
+        "rollout": 187.45804368914105,
+        "old_probability": 48.894854437792674,
+        "update": 646.3123024122324,
+        "scoring_wait": 16.533728080568835,
+        "scoring_cpu": 7.692241401411593
+      },
+      "phase_delta_rank_mean_percent_of_wall": {
+        "rollout": 18.916048808187796,
+        "old_probability": 4.933890457900371,
+        "update": 65.2181939871072,
+        "scoring_wait": 1.6683883027819209,
+        "scoring_cpu": 0.7762100304148933
+      },
+      "cumulative_native_save_worker_seconds": 2963.5057331323624,
+      "phase_seconds_all_ranks": {
+        "rollout": [
+          185.8909554090351,
+          186.4938437268138,
+          185.8060012459755,
+          191.10793022438884,
+          185.0583717878908,
+          185.31696588546038,
+          191.19043802842498,
+          188.79984320513904
+        ],
+        "old_probability": [
+          48.198455672711134,
+          49.15367438457906,
+          48.67643757537007,
+          49.82421934604645,
+          48.33963926322758,
+          48.64939650148153,
+          49.349153973162174,
+          48.96785878576338
+        ],
+        "update": [
+          646.3126162178814,
+          646.2158256024122,
+          646.283740606159,
+          646.3664488252252,
+          646.2323230244219,
+          646.2662470731884,
+          646.3827749285847,
+          646.4384430199862
+        ],
+        "scoring_wait": [
+          17.068918451666832,
+          15.305224129930139,
+          16.376449396833777,
+          16.742443941533566,
+          15.687233222648501,
+          16.605169970542192,
+          17.274129630997777,
+          17.210255900397897
+        ],
+        "scoring_cpu": [
+          7.9828984923660755,
+          7.515924984589219,
+          7.599604729562998,
+          7.798413770273328,
+          7.522360263392329,
+          7.759843930602074,
+          7.533435620367527,
+          7.8254494201391935
+        ]
+      },
+      "timing_limits": "One collection is8scenes*G8, four optimizer updates. Rank phase wall may overlap; scoring_cpu is scorer elapsed, not core time. Window publication interval includes checkpoint writes."
+    },
+    "SOURCE": {
+      "updates_by_rank": [
+        29240,
+        29240,
+        29240,
+        29240,
+        29240,
+        29240,
+        29240,
+        29240
+      ],
+      "end_common_update": 29240,
+      "planned_updates": 50000,
+      "latest_checkpoint_update": 29200,
+      "window_updates": [
+        28701,
+        29200
+      ],
+      "fresh_global_rollouts": 125,
+      "scene_exposures": 1000,
+      "new_candidates": 8000,
+      "mean_update_body_seconds": 1.5231016941852868,
+      "median_update_body_seconds": 1.3866986511275172,
+      "p95_update_body_seconds": 1.9010349331423635,
+      "end_to_end_window_seconds": 1153.0,
+      "end_to_end_seconds_per_update": 2.306,
+      "end_to_end_updates_per_second": 0.4336513443191674,
+      "end_to_end_fresh_scene_exposures_per_second": 0.8673026886383348,
+      "end_to_end_new_candidates_per_second": 6.9384215091066785,
+      "end_to_end_seconds_per_fresh_collection": 9.224,
+      "remaining_hours_if_recent_rate_holds": 13.297933333333333,
+      "phase_delta_rank_mean_seconds": {
+        "rollout": 204.12911242060363,
+        "old_probability": 52.28099640249275,
+        "update": 760.5685156455729,
+        "scoring_wait": 18.427676666295156,
+        "scoring_cpu": 8.471468539908528
+      },
+      "phase_delta_rank_mean_percent_of_wall": {
+        "rollout": 17.704172803174643,
+        "old_probability": 4.5343448744573065,
+        "update": 65.96431185130727,
+        "scoring_wait": 1.5982373518035695,
+        "scoring_cpu": 0.7347327441377735
+      },
+      "cumulative_native_save_worker_seconds": 2324.581462904811,
+      "phase_seconds_all_ranks": {
+        "rollout": [
+          197.03237253054976,
+          212.90685831569135,
+          200.7409624736756,
+          197.8779993187636,
+          209.14576403796673,
+          208.7340817116201,
+          202.99371619150043,
+          203.60114478506148
+        ],
+        "old_probability": [
+          51.97683425061405,
+          52.89737472683191,
+          52.409569857642055,
+          50.20040763169527,
+          52.62749430723488,
+          52.378976467996836,
+          52.34471218287945,
+          53.41260179504752
+        ],
+        "update": [
+          760.4973202422261,
+          760.5665506012738,
+          760.6533461995423,
+          760.5411478355527,
+          760.5582613795996,
+          760.5285094603896,
+          760.7516887262464,
+          760.4513007197529
+        ],
+        "scoring_wait": [
+          18.31889231875539,
+          18.60541282594204,
+          18.542646372690797,
+          18.97943101450801,
+          17.52667879126966,
+          18.358291858807206,
+          18.44723714888096,
+          18.64282299950719
+        ],
+        "scoring_cpu": [
+          8.610208766534925,
+          8.667429681867361,
+          8.524450900033116,
+          8.158923720940948,
+          8.537125864997506,
+          8.704736677929759,
+          8.30007921345532,
+          8.268793493509293
+        ]
+      },
+      "timing_limits": "One collection is8scenes*G8, four optimizer updates. Rank phase wall may overlap; scoring_cpu is scorer elapsed, not core time. Window publication interval includes checkpoint writes."
+    }
+  }
+}

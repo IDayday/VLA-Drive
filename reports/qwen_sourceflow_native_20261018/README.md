@@ -1,5 +1,7 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
+**2026-10-24 04:45 UTC效率快照：IL59460/100k，近期端到端13.73秒/步；RL_CANONICAL33955/50k、1.98秒/步；RL_SOURCE29240/50k、2.31秒/步。** IL较早期约4.6秒明显退速，当前原因未完全定位；RL约65%在inner更新，评分等待约1.6%。[窗口口径、吞吐和剩余时间](training_efficiency_20261024.md)。
+
 **2026-10-24最新完整Navtest：RL_CANONICAL20k为90.284539，RL_SOURCE20k为90.233689，同一IL53k为87.016025；净提升+3.268513/+3.217663分。** 固定seed2101、单候选shift5 ODE K10、canonical v1.1、各12146场景/136 logs。两组相对IL的NC/DAC/TTC均值均提高，仍有84/114个新增零分和120/210个固定IL-safe新增联合违规；未达到92。这是匹配20k中期观察，50k终点尚未完成。[完整报告、配对区间与成本](RL20k_NAVTEST_20261024.md)。
 
 **2026-10-24训练检查：两组20k真实buffer/optimizer检查通过；已修复离线分析identity与feedback关联校验缺口，16项回归通过，原成绩重验不变。** 当前00:57 UTC快照CANONICAL26960、SOURCE23248、IL58469，继续原预算；不可变训练源码未修改。[检查与代码修复](RL_training_review_20261024.md)。
