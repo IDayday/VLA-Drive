@@ -115,10 +115,13 @@ class TemporalDINOFlowVLA(QwenSourceFlowVLA):
         self.provider.history_frames=2
         self.current_dino_head=CurrentDINOHead(self.qwen.hidden_dim)
 
-    def forward(self,observation_batch,proprio,normalized_action,*,dino_target,dino_valid,**fm_randomness):
+    def forward(self,observation_batch,proprio,normalized_action,*,dino_target,dino_valid,head_only=False,**fm_randomness):
         encoded=self.qwen(observation_batch)
-        condition=self.provider(encoded,proprio)
-        fm,terms=self.policy(condition,normalized_action,**fm_randomness)
+        if head_only:
+            fm=normalized_action.new_zeros(());terms={}
+        else:
+            condition=self.provider(encoded,proprio)
+            fm,terms=self.policy(condition,normalized_action,**fm_randomness)
         prediction,view_valid=self.current_dino_head(encoded)
         dino=current_dino_loss(prediction,dino_target,dino_valid,view_valid)
         return fm+dino,dict(**terms,FM=fm.detach(),current_DINO=dino.detach())

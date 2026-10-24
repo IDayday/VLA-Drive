@@ -16,7 +16,7 @@ from starVLA.rl.qwen_sourceflow.temporal_contracts import ROOT,PARENT,require_te
 from starVLA.rl.qwen_sourceflow.loading import inspect_il_checkpoint
 from starVLA.rl.qwen_sourceflow.temporal_data import TemporalSceneData
 from starVLA.rl.qwen_sourceflow.current_dino_targets import CurrentDINOTargets
-from starVLA.rl.qwen_sourceflow.temporal_optimizer import build_optimizer,inherit_parent_adam,local_parameter_names,validate_local_adam
+from starVLA.rl.qwen_sourceflow.temporal_optimizer import build_optimizer,inherit_parent_adam,local_parameter_names,validate_local_adam,set_temporal_stage
 from starVLA.rl.qwen_sourceflow.il_optimization import lr_scale
 from starVLA.rl.qwen_sourceflow.il_checkpoint import publish_identity
 from starVLA.rl.qwen_sourceflow import temporal_checkpoint
@@ -36,11 +36,16 @@ def main():
     p.add_argument('--teacher-manifest',default=str(ROOT/'current_teacher_manifest.json'))
     p.add_argument('--qualification',action='store_true');p.add_argument('--stop-after',type=int)
     p.add_argument('--qualification-batch',type=int,default=2);p.add_argument('--qualification-save-every',type=int,default=2)
+    p.add_argument('--qualification-head-updates',type=int,default=2)
     a=p.parse_args();host=require_temporal_dispatch();configure_native_numerics()
     world=int(os.environ['WORLD_SIZE']);rank=int(os.environ['RANK']);local=int(os.environ['LOCAL_RANK'])
     cfg=yaml.safe_load(Path(a.config).read_text())
+    if (cfg['seed']!=42 or cfg['evaluation_seed']!=2101 or cfg['history_frames']!=2 or cfg['FM_repeat']!=1 or
+        cfg['current_dino']['weight']!=1. or cfg['current_dino']['grid_hw']!=[6,8] or cfg['current_dino']['channels']!=1024 or
+        cfg['current_dino']['teacher_camera_reorder']!=[1,0,2] or cfg['time_coordinates']!=[-2,-1,0]):
+        raise ValueError('Resolved temporal/DINO/input recipe differs from implementation')
     if not a.qualification and (world!=8 or cfg['max_updates']!=40000 or cfg['global_batch']!=32):raise ValueError('Fixed formal eight-GPU/40k/global32 contract')
-    if a.qualification:cfg=dict(cfg,global_batch=a.qualification_batch,save_every=a.qualification_save_every)
+    if a.qualification:cfg=dict(cfg,global_batch=a.qualification_batch,save_every=a.qualification_save_every,head_only_updates=a.qualification_head_updates)
     if cfg['global_batch']%world:raise ValueError('Nonintegral accumulation')
     accumulation=cfg['global_batch']//world
     torch.set_num_threads(8);torch.cuda.set_device(local);device=torch.device('cuda',local)
@@ -70,6 +75,7 @@ def main():
     model.load_state_dict(dict(parent,**head),strict=True);del parent,initialized,head;gc.collect()
     model=model.to(device).train().requires_grad_(True)
     if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError('Native full FP32 parameter storage required')
+    for p in model.current_dino_head.parameters():dist.broadcast(p.data,src=0)
     model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     optimizer=build_optimizer(model,cfg)
     payload=torch.load(Path(a.parent)/'optimizer.pt',map_location='cpu',weights_only=False,mmap=True)
@@ -78,19 +84,19 @@ def main():
         for param in group['params']:
             parent_steps[name_by_id[id(param)]]=int(payload['optimizer']['state'][offset]['step']);offset+=1
     inherit_parent_adam(model,optimizer,payload);del payload;gc.collect();torch.cuda.empty_cache()
-    scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda delta:lr_scale(60000+delta,parent_cfg))
+    scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda delta:lr_scale(60000+max(0,delta-cfg['head_only_updates']),parent_cfg))
     identity=dict(schema='native_temporal_DINO_IL_v1',config=cfg,qualification=a.qualification,world=world,
         parent=dict(path=str(Path(a.parent).resolve()),model_sha256=info['files']['model.pt'],optimizer_sha256=info['files']['optimizer.pt'],update=60000),
         parent_steps=parent_steps,runtime=runtime_identity(),data_sha256=data.sha,teacher_manifest_sha256=file_sha(a.teacher_manifest),
         teacher_identity=teacher.identity,source_files=temporal_sources(),optimizer='FP32 AdamW exact arithmetic; torch2.5 ZeRO state partition',
-        schedule='original native100k cosine evaluated at60000+new_updates',seed=42,teacher_loss='previous C1 global element MSE, weight1')
+        schedule='original native100k cosine evaluated at60000+new_joint_updates; frozen during head calibration',seed=42,teacher_loss='previous C1 global element MSE, weight1')
     identity['sha256']=fingerprint(identity);publish_identity(out,identity,resume=bool(a.resume))
     if file_sha(Path(a.parent)/f'rank{rank}.pt')!=info['files'][f'rank{rank}.pt']:raise ValueError('Parent rank RNG/data cursor changed')
     own=torch.load(Path(a.parent)/f'rank{rank}.pt',map_location='cpu',weights_only=False)
     state=dict(updates=0,cursor=own['state']['cursor'],phase='READY')
     rng=own['rng'];random.setstate(rng['python']);np.random.set_state(rng['numpy']);torch.set_rng_state(rng['torch']);torch.cuda.set_rng_state(rng['cuda'])
     if a.resume:state=temporal_checkpoint.restore(a.resume,model,optimizer,scheduler,identity)
-    ddp=DDP(model,device_ids=[local],find_unused_parameters=True,static_graph=False,bucket_cap_mb=25,gradient_as_bucket_view=True)
+    ddp=None;stage=None
     processor=TemporalQwenProcessor(QWEN_PATH);start=time.monotonic();start_update=state['updates'];inv=uuid.uuid4().hex
     invdir=out/'invocations'/inv;invdir.mkdir(parents=True,exist_ok=True);last_checkpoint=a.resume
     record=dict(invocation=inv,host=host,rank=rank,pid=os.getpid(),start_update=start_update,start_unix=time.time(),resume=a.resume,status='RUNNING')
@@ -101,6 +107,11 @@ def main():
             if rank==0:atomic_json(out/'progress.json',dict(state,checkpoint=last_checkpoint,status='RUNNING'))
         with (invdir/f'metrics_rank{rank}.jsonl').open('x',buffering=1) as journal:
             while state['updates']<stop_at:
+                desired='head_calibration' if state['updates']<cfg['head_only_updates'] else 'joint'
+                if desired!=stage:
+                    if ddp is not None:del ddp;gc.collect();torch.cuda.empty_cache()
+                    stage=set_temporal_stage(model,state['updates'],cfg['head_only_updates'])
+                    ddp=DDP(model,device_ids=[local],find_unused_parameters=True,static_graph=False,bucket_cap_mb=25,gradient_as_bucket_view=True)
                 begin=time.monotonic();optimizer.zero_grad(set_to_none=True);fm_sum=dino_sum=0.;tokens=[];input_tokens=[]
                 for micro in range(accumulation):
                     token=data.tokens[data.index(state['cursor']+micro*world+rank)];tokens.append(token)
@@ -110,22 +121,22 @@ def main():
                     target=ActionCodec.norm_odo(data.target(token)[None].to(device))
                     sync=ddp.no_sync() if micro<accumulation-1 else nullcontext()
                     with sync:
-                        with torch.autocast('cuda',dtype=torch.bfloat16):loss,terms=ddp(batch,state_input,target,dino_target=y[None].to(device),dino_valid=valid[None].to(device))
+                        with torch.autocast('cuda',dtype=torch.bfloat16):loss,terms=ddp(batch,state_input,target,dino_target=y[None].to(device),dino_valid=valid[None].to(device),head_only=stage=='head_calibration')
                         if not torch.isfinite(loss):raise FloatingPointError('Nonfinite FM/DINO loss')
                         (loss/accumulation).backward()
                     fm_sum+=float(terms['FM'])/accumulation;dino_sum+=float(terms['current_DINO'])/accumulation
-                if any(p.grad is None for p in model.parameters()):raise ValueError('Missing full-model/auxiliary gradient')
+                if any(p.grad is None for p in model.parameters() if p.requires_grad):raise ValueError('Missing expected stage gradient')
                 gradient_probe={}
                 if a.qualification or state['updates']%20==0:
                     for name,p in model.named_parameters():
-                        if name in ['provider.visual_bridge.weight','current_dino_head.projection.weight',
+                        if p.grad is not None and name in ['provider.visual_bridge.weight','current_dino_head.projection.weight',
                             'qwen.model.language_model.layers.27.mlp.down_proj.weight',
                             'policy.runner.mixtures.action.head.weight']:
                             gradient_probe[name]=float(p.grad.float().norm())
-                grad=torch.nn.utils.clip_grad_norm_(model.parameters(),cfg['gradient_clip'],error_if_nonfinite=True,foreach=False)
+                grad=torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad],cfg['gradient_clip'],error_if_nonfinite=True,foreach=False)
                 lrs={g['name']:g['lr'] for g in optimizer.param_groups};optimizer.step();scheduler.step()
                 state['updates']+=1;state['cursor']+=cfg['global_batch'];torch.cuda.synchronize()
-                row=dict(updates=state['updates'],parent_plus_updates=60000+state['updates'],cursor=state['cursor'],rank=rank,tokens=tokens,
+                row=dict(updates=state['updates'],parent_plus_joint_updates=60000+max(0,state['updates']-cfg['head_only_updates']),stage=stage,cursor=state['cursor'],rank=rank,tokens=tokens,
                     FM=fm_sum,current_DINO=dino_sum,loss=fm_sum+dino_sum,grad_norm=float(grad),learning_rates=lrs,
                     visual_tokens=input_tokens,seconds=time.monotonic()-begin,peak_GPU_bytes=torch.cuda.max_memory_allocated(),
                     gradient_probe=gradient_probe,new_scene_exposures=state['updates']*cfg['global_batch'],invocation=inv)

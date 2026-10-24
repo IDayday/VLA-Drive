@@ -44,12 +44,21 @@ def inherit_parent_adam(model,optimizer,payload):
     del state
 
 
-def validate_local_adam(model,optimizer,updates,parent_steps):
+def validate_local_adam(model,optimizer,updates,parent_steps,head_only_updates=0):
     names={id(p):n for n,p in model.named_parameters()}
     for group in optimizer.optim.param_groups:
         for p in group['params']:
-            n=names[id(p)];expected=parent_steps.get(n,0)+updates;s=optimizer.optim.state.get(p)
+            n=names[id(p)];new=updates if n.startswith('current_dino_head.') else max(0,updates-head_only_updates)
+            expected=parent_steps.get(n,0)+new;s=optimizer.optim.state.get(p)
             if expected and (s is None or float(s['step'])!=expected):raise ValueError('Adam count mismatch: '+n)
             if s:
                 if s['exp_avg'].dtype!=torch.float32 or s['exp_avg_sq'].dtype!=torch.float32:
                     raise ValueError('Adam moments must remain FP32')
+
+
+def set_temporal_stage(model,updates,head_only_updates):
+    head_only=updates<head_only_updates
+    for name,p in model.named_parameters():p.requires_grad_(not head_only or name.startswith('current_dino_head.'))
+    model.train()
+    if head_only:model.qwen.eval();model.provider.eval();model.policy.eval()
+    return 'head_calibration' if head_only else 'joint'

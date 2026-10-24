@@ -15,7 +15,7 @@ def save(root,model,optimizer,scheduler,state,identity):
     error=None
     try:
         if state['phase']!='READY' or scheduler.last_epoch!=state['updates']:raise ValueError('Uncommitted local phase/scheduler')
-        validate_local_adam(model,optimizer,state['updates'],identity['parent_steps'])
+        validate_local_adam(model,optimizer,state['updates'],identity['parent_steps'],identity['config'].get('head_only_updates',0))
     except Exception as e:error=repr(e)
     common.check_errors(error)
     summary=dict(state,identity=identity['sha256'])
@@ -77,7 +77,7 @@ def restore(path,model,optimizer,scheduler,identity):
     scheduler.load_state_dict(own['scheduler'])
     state=own['state']
     if any(s!=state for s in common.gather(state)):raise ValueError('Rank data cursors disagree')
-    validate_local_adam(model,optimizer,state['updates'],identity['parent_steps'])
+    validate_local_adam(model,optimizer,state['updates'],identity['parent_steps'],identity['config'].get('head_only_updates',0))
     if scheduler.last_epoch!=state['updates']:raise ValueError('Scheduler progress changed')
     rng=own['rng'];random.setstate(rng['python']);np.random.set_state(rng['numpy']);torch.set_rng_state(rng['torch'])
     if rng['cuda'] is not None:torch.cuda.set_rng_state(rng['cuda'])

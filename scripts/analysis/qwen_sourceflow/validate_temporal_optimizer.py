@@ -5,7 +5,7 @@ import torch
 from torch import nn
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from starVLA.rl.qwen_sourceflow.temporal_optimizer import build_optimizer,inherit_parent_adam,validate_local_adam
+from starVLA.rl.qwen_sourceflow.temporal_optimizer import build_optimizer,inherit_parent_adam,validate_local_adam,set_temporal_stage
 from starVLA.rl.qwen_sourceflow.il_optimization import parameter_groups
 from starVLA.rl.qwen_sourceflow import temporal_checkpoint as cp
 from starVLA.rl.qwen_sourceflow.contracts import fingerprint
@@ -17,8 +17,8 @@ class Tiny(nn.Module):
     def __init__(self):
         super().__init__();self.qwen=nn.ModuleDict(dict(visual=nn.Linear(5,6),language=nn.Linear(6,6)))
         self.provider=nn.Linear(6,7);self.policy=nn.Linear(7,2)
-    def forward(self,x,y,d=None):
-        h=self.qwen['language'](self.qwen['visual'](x)).tanh();loss=(self.policy(self.provider(h))-y).square().mean()
+    def forward(self,x,y,d=None,head_only=False):
+        h=self.qwen['language'](self.qwen['visual'](x)).tanh();loss=x.new_zeros(()) if head_only else (self.policy(self.provider(h))-y).square().mean()
         if d is not None:loss=loss+(self.current_dino_head(h)-d).square().mean()
         return loss
 
@@ -27,7 +27,7 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);a=p.parse_args()
     rank=int(os.environ['RANK']);dist.init_process_group('gloo');common.init_control_group();torch.set_num_threads(1);torch.manual_seed(42)
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True)
-    cfg=dict(learning_rates=dict(qwen_language_merger=1e-3,qwen_vision=1e-4,action_interfaces=1e-2),betas=[.9,.95],eps=1e-8,weight_decay=.01)
+    cfg=dict(learning_rates=dict(qwen_language_merger=1e-3,qwen_vision=1e-4,action_interfaces=1e-2),betas=[.9,.95],eps=1e-8,weight_decay=.01,head_only_updates=2)
     model=Tiny();parent_opt=torch.optim.AdamW(parameter_groups(model,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01,foreach=False)
     for _ in range(2):
         x=torch.randn(2,5);y=torch.randn(2,2);parent_opt.zero_grad();model(x,y).backward();parent_opt.step()
@@ -41,17 +41,23 @@ def main():
     old=copy.deepcopy(payload['optimizer']);offset=sum(len(g['params']) for g in old['param_groups'])
     head={k:v for k,v in refopt.param_groups[-1].items() if k!='params'};head['params']=list(range(offset,offset+2));head['initial_lr']=.01
     old['param_groups'].append(head);refopt.load_state_dict(old)
-    sched=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda _:1.);ddp=DDP(model)
+    sched=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda _:1.);ddp=None;stage=None
     identity=dict(schema='native_temporal_DINO_IL_v1',qualification=True,world=2,parent_steps=steps,config=cfg)
     identity['sha256']=fingerprint(identity)
     torch.manual_seed(100+rank);saved=None;errors=[];inputs=[]
     def update(step,compare):
+        nonlocal ddp,stage
+        desired='head_calibration' if step<=2 else 'joint'
+        if stage!=desired:
+            if ddp is not None:del ddp
+            stage=set_temporal_stage(model,step-1,2);set_temporal_stage(reference,step-1,2)
+            ddp=DDP(model,find_unused_parameters=True)
         x=torch.randn(1,5);y=torch.randn(1,2);d=torch.randn(1,3)
-        optimizer.zero_grad(set_to_none=True);ddp(x,y,d).backward();optimizer.step();sched.step()
-        validate_local_adam(model,optimizer,step,steps)
+        optimizer.zero_grad(set_to_none=True);ddp(x,y,d,head_only=step<=2).backward();optimizer.step();sched.step()
+        validate_local_adam(model,optimizer,step,steps,2)
         if compare:
             all_inputs=common.gather((x,y,d));refopt.zero_grad()
-            reference(*(torch.cat([z[i] for z in all_inputs]) for i in range(3))).backward();refopt.step()
+            reference(*(torch.cat([z[i] for z in all_inputs]) for i in range(3)),head_only=step<=2).backward();refopt.step()
             errors.append(max(float((p-q).abs().max()) for p,q in zip(model.parameters(),reference.parameters())))
         return x.clone(),y.clone(),d.clone()
     for step in range(1,5):
