@@ -92,6 +92,12 @@ class Campaign:
     def task_path(self,name):
         return self.control/'jobs'/(name+'.json')
 
+    def admitted_hosts(self):
+        return allowed_hosts()
+
+    def admitted_routes(self,min_free_MiB):
+        return available(self.reserved(),min_free_MiB=min_free_MiB)
+
     def tasks(self):
         return [read(p) for p in sorted((self.control/'jobs').glob('*.json'))]
 
@@ -124,13 +130,13 @@ class Campaign:
                 for spec in task['workers']:uuids.update(spec['gpu_uuids'])
         return uuids
 
-    def submit(self,name,module,args,routes,source,*,distributed=False,cpu_host=None):
+    def submit(self,name,module,args,routes,source,*,distributed=False,cpu_host=None,minimum_free_MiB=None):
         if self.task_path(name).exists():raise FileExistsError('Never duplicate '+name)
         workers=[]
         assignments=[routes] if distributed or not routes else [[r] for r in routes]
         for rank,assignment in enumerate(assignments):
             host=assignment[0]['host'] if assignment else cpu_host
-            if host not in allowed_hosts():raise PermissionError('No longer authorized: '+str(host))
+            if host not in self.admitted_hosts():raise PermissionError('No longer authorized: '+str(host))
             receipt=self.control/'invocations'/name/f'rank{rank:03d}'
             receipt.mkdir(parents=True,exist_ok=False)
             command=[MODEL_PYTHON,'-u','-m']
@@ -143,7 +149,7 @@ class Campaign:
                 command+=['--rank',str(rank),'--world',str(len(assignments))]
             spec=dict(source=source['path'],source_sha=source['sha'],host=host,
                 gpus=[r['gpu'] for r in assignment],gpu_uuids=[r['uuid'] for r in assignment],
-                min_free_MiB=60000 if distributed else 32000 if assignment else 0,
+                min_free_MiB=(minimum_free_MiB if minimum_free_MiB is not None else 60000 if distributed else 32000 if assignment else 0),
                 module=module,command=command,receipt_dir=str(receipt))
             atomic_json(receipt/'spec.json',spec);workers.append(spec)
         # Publish the complete dispatch intent before any child can start.
@@ -166,7 +172,7 @@ class Campaign:
 
     def ensure_training(self,name,variant,parent,output,*,qualification):
         if self.task_path(name).exists():return self.done(name)
-        routes,inventory=available(self.reserved(),min_free_MiB=60000)
+        routes,inventory=self.admitted_routes(60000)
         atomic_json(self.control/'last_training_admission.json',dict(time_unix=time.time(),inventory=inventory))
         groups=defaultdict(list)
         for route in routes:groups[route['host']].append(route)
@@ -192,7 +198,7 @@ class Campaign:
             if self.task_path(parity).exists():
                 if self.done(parity):raise ValueError('Parity process exited without a result')
                 return None
-            routes,_=available(self.reserved(),min_free_MiB=32000)
+            routes,_=self.admitted_routes(32000)
             if routes:
                 checkpoint=Path(run)/'checkpoints'/f'update{update:06d}_inner0'
                 report.parent.mkdir(parents=True,exist_ok=True)
@@ -208,8 +214,8 @@ class Campaign:
         def capacity(host):
             try:return host,probe(host)
             except Exception:return host,None
-        with ThreadPoolExecutor(max_workers=max(1,len(allowed_hosts()))) as pool:
-            capacity_rows=list(pool.map(capacity,allowed_hosts()))
+        with ThreadPoolExecutor(max_workers=max(1,len(self.admitted_hosts()))) as pool:
+            capacity_rows=list(pool.map(capacity,self.admitted_hosts()))
         suitable=[(host,row) for host,row in capacity_rows if row and
             row['available_memory_bytes']>=48*1024**3 and row['CPU_affinity']>=8 and row['load1']<row['CPU_affinity']]
         if not suitable:return None
@@ -233,7 +239,7 @@ class Campaign:
                     ['--evaluation',str(output),'--output',str(summary)])
                 return summary
             return None
-        routes,inventory=available(self.reserved(),min_free_MiB=32000)
+        routes,inventory=self.admitted_routes(32000)
         atomic_json(self.control/'last_evaluation_admission.json',dict(time_unix=time.time(),inventory=inventory))
         if not routes:return None
         data=self.root/'data'/('DEV_v2' if cohort=='DEV' else 'NAVTEST')

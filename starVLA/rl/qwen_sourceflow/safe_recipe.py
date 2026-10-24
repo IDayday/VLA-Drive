@@ -12,7 +12,7 @@ from .recipe import expected_recipe as base_recipe
 from .safe_admission import TASK, require_dispatch
 
 ROOT = Path('/mnt/project/qwen-sourceflow-safe-rl-20261024')
-VARIANTS = ('R_CANONICAL_X1', 'R_CANONICAL_SCADV3')
+VARIANTS = ('R_CANONICAL_X1', 'R_CANONICAL_SCADV3', 'R_CANONICAL_WLA_ADV')
 COSTS = ('no_at_fault_collisions', 'drivable_area_compliance',
          'time_to_collision_within_bound')
 
@@ -24,7 +24,7 @@ def expected_recipe(variant):
     cfg['variant'] = variant
     if variant == 'R_CANONICAL_X1':
         cfg['grpo']['train']['kl_dim_weights'] = [1., 1., 1.]
-    else:
+    elif variant == 'R_CANONICAL_SCADV3':
         cfg['grpo']['train']['adv_clip_max'] = None
         cfg['safe_objective'] = dict(
             schema='component_floor_official_events_dual_v1',
@@ -39,6 +39,18 @@ def expected_recipe(variant):
             numerical_alarm_abs_advantage=1e4, numerical_alarm_multiplier=1000.,
             dual_updates='once per fresh unfiltered global collection; before four fixed inners',
             dynamic_group_filtering=False, safety_guarantee=False)
+    else:
+        cfg['factorized_objective'] = dict(schema='DriveWLA_v1_equations8_9_advantage_only',
+            paper='https://arxiv.org/html/2610.17903v1',
+            metrics=['no_at_fault_collisions','drivable_area_compliance','ego_progress',
+                     'time_to_collision_within_bound','comfort'],
+            weights=[2.,2.,5.,5.,2.], epsilon=1e-8, shrinkage_tau=.1,
+            moments='FP64 stable scene population moments over G8',
+            combined_normalization='weighted component sum / sqrt(scene variance + epsilon)',
+            shrinkage='canonical_PDMS_scene_variance / (variance + tau**2)',
+            full_DriveWLA_recipe=False,
+            kept_effective_SimWAM_sampler_anchor_optimizer=True,
+            not_transferred=['world/language experts','ten stochastic steps','discount0.8','BC0.1','eight epochs'])
     return cfg
 
 

@@ -8,7 +8,7 @@ from .contracts import configure_native_numerics, fingerprint, file_sha
 from .loading import inspect_il
 from .selection import validate_selection
 from .safe_recipe import load_recipe, require_dispatch, COSTS
-from .safe_advantages import component_advantages, event_costs, EventMultipliers
+from .safe_advantages import component_advantages, event_costs, EventMultipliers, factorized_advantages
 from starVLA.rl.simwam_recipe import checkpoint
 from starVLA.rl.simwam_recipe.collection import finalize_advantages as source_finalize
 from starVLA.rl.simwam_recipe.recovery_state import tensor_digest
@@ -35,6 +35,13 @@ class SafeRuntime(NativeRuntime):
         self.cfg = cfg = load_recipe(args.config)
         self.parent = inspect_il(args.il_checkpoint, qualification=args.qualification, parent_selection=args.parent_selection)
         self.selection = validate_selection(args.parent_selection, self.parent) if not args.qualification else None
+        if not args.qualification:
+            from .safe_recipe import ROOT
+            registration=json.loads((ROOT/'experiment_registration.json').read_text())
+            active={v['name']:v for v in registration['variants'].values()}
+            if (cfg['variant'] not in active or registration['parent_model_sha256']!=self.parent['files']['model.pt'] or
+                    registration['config_sha256'][active[cfg['variant']]['key']]!=file_sha(args.config)):
+                raise ValueError('Unregistered formal safety method/configuration')
         self.budget = None
         if cfg['variant'] == 'R_CANONICAL_SCADV3':
             if not args.safety_budget: raise ValueError('SCADV3 requires a sealed calibration, not a default zero budget')
@@ -69,6 +76,15 @@ class SafeRuntime(NativeRuntime):
 
     def finalize_advantages(self, rollout, state):
         source_finalize(rollout)  # RAW global std still logged; never the SCADV denominator.
+        if self.cfg['variant']=='R_CANONICAL_WLA_ADV':
+            a,stats=factorized_advantages(rollout['rewards'],rollout['records'])
+            rollout['advantages']=a
+            rollout['adv_mask']=torch.full_like(a,float(bool((a!=0).any())))
+            rollout['factorized_advantage']=stats
+            rollout['advantage_statistics'].update(normalization='DriveWLA_v1 component z; combined scene std; PDMS variance shrinkage',
+                effective_PG_candidate_fraction=float(rollout['adv_mask'].mean()),
+                shrinkage=float(stats['shrinkage']),PDMS_variance=float(stats['PDMS_variance']))
+            return
         if self.budget is None: return
         self.dual.load_state_dict(state['safety_dual'])
         before = self.dual.state_dict(); snapshot = self.dual.snapshot()
@@ -115,7 +131,8 @@ def boundary_summary(state, rollout, identity):
             s['dual_before']['collections'] != state['collections'] - 1 or
             tensor_digest(s['dual_after']) != tensor_digest(dual)):
         raise ValueError('Frozen behavior advantage/dual ancestry mismatch')
-    torch.testing.assert_close(s['lambda_snapshot'], torch.tensor(s['dual_before']['values']), atol=0, rtol=0)
+    torch.testing.assert_close(s['lambda_snapshot'], torch.tensor(s['dual_before']['values'],
+        device=s['lambda_snapshot'].device,dtype=s['lambda_snapshot'].dtype), atol=0, rtol=0)
     a, _ = component_advantages(rollout['rewards'], costs, s['lambda_snapshot'].to(costs.device))
     torch.testing.assert_close(a.reshape(-1), rollout['advantages'], atol=0, rtol=0)
     mask = (a != 0).any(-1).float().expand_as(a).reshape(-1)
@@ -123,3 +140,12 @@ def boundary_summary(state, rollout, identity):
     summary.update(costs=costs.cpu().tolist(), lambda_snapshot=s['lambda_snapshot'].tolist(),
                    global_unfiltered_cost_mean=s['global_unfiltered_cost_mean'].tolist())
     return summary
+
+
+def validate_factorized_boundary(rollout):
+    a,stats=factorized_advantages(rollout['rewards'],rollout['records'])
+    torch.testing.assert_close(a,rollout['advantages'],atol=0,rtol=0)
+    mask=torch.full_like(a,float(bool((a!=0).any())))
+    torch.testing.assert_close(mask,rollout['adv_mask'],atol=0,rtol=0)
+    for k,v in stats.items():torch.testing.assert_close(v,rollout['factorized_advantage'][k],atol=0,rtol=0)
+    return dict(formula='DriveWLA_v1_8_9',digest=tensor_digest(rollout['factorized_advantage']))

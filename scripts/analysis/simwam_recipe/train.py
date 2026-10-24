@@ -274,6 +274,8 @@ def main(runtime=None):
                      metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
             if 'safety' in rollout:
                 row['safety_objective']=rollout['advantage_statistics']
+            if 'factorized_advantage' in rollout:
+                row['factorized_objective']=rollout['advantage_statistics']
             journal.write(json.dumps(row,allow_nan=False)+'\n')
             if state['next_inner']==4:rollout=None;state['next_inner']=0
             state['phase']=boundary_phase(state,cfg['max_steps'])

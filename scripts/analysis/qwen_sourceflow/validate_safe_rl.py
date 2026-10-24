@@ -4,7 +4,7 @@ import copy
 import json
 from pathlib import Path
 import torch
-from starVLA.rl.qwen_sourceflow.safe_advantages import component_advantages, event_costs, EventMultipliers
+from starVLA.rl.qwen_sourceflow.safe_advantages import component_advantages, event_costs, EventMultipliers, factorized_advantages
 from starVLA.rl.qwen_sourceflow.safe_recipe import expected_recipe, COSTS
 from starVLA.rl.qwen_sourceflow.recipe import expected_recipe as baseline_recipe
 from starVLA.rl.constrained_flow_noise.component_advantages import component_advantages as old_components
@@ -52,15 +52,32 @@ def main():
     head=ActionDiT(**architecture).eval()
     condition=dict(context=torch.randn(8,5,40),context_mask=torch.ones(8,5,dtype=torch.bool),visual_mask=torch.ones(8,7,dtype=torch.bool),
         visual_kv=[dict(k=torch.randn(8,7,24),v=torch.randn(8,7,24)) for _ in range(3)])
+    paper_records=[]
+    for ep in [.2,.3,.4,.5,.6,.7,.8,.9]:
+        paper_records.append(dict(status='OK',metrics=dict(no_at_fault_collisions=1.,drivable_area_compliance=1.,
+            ego_progress=ep,time_to_collision_within_bound=1.,comfort=1.,score=(5*ep+7)/12)))
+    paper_rewards=torch.tensor([[r['metrics']['score'] for r in paper_records]])
+    paper_a,paper_stats=factorized_advantages(paper_rewards,paper_records)
+    vector=paper_stats['metric_vector'];std=vector.std(1,unbiased=False,keepdim=True)
+    z=(vector-vector.mean(1,keepdim=True))/(std+1e-8)
+    combined=(z*vector.new_tensor([2.,2.,5.,5.,2.])).sum(-1)
+    variance=paper_rewards.double().var(1,unbiased=False,keepdim=True)
+    oracle=combined/torch.sqrt(combined.var(1,unbiased=False,keepdim=True)+1e-8)*variance/(variance+.01)
+    torch.testing.assert_close(paper_a,oracle.float().reshape(-1),atol=2e-7,rtol=1e-6)
+    failed=copy.deepcopy(paper_records)
+    for r in failed:r['metrics']['no_at_fault_collisions']=0.;r['metrics']['score']=0.
+    no_signal,_=factorized_advantages(torch.zeros(1,8),failed)
+    assert not no_signal.any()
+    checks.append('DriveWLA Eq8/9 NumPy-style independent tensor oracle; all-zero PDMS shrinkage=0 despite varying EP')
     details=[]
-    for variant in ('R_CANONICAL_X1','R_CANONICAL_SCADV3'):
+    for variant in ('R_CANONICAL_X1','R_CANONICAL_SCADV3','R_CANONICAL_WLA_ADV'):
         actor=NativeRecipeActor(copy.deepcopy(head),expected_recipe(variant));actor.record_sampling_terms=True
         chain,times,deltas,indices=actor.sample_action_chain(condition,8,generator=torch.Generator().manual_seed(345))
         old=actor.action_chain_logprobs(condition,chain,times,deltas,stoch_idx=indices).detach();sampled=actor.sampling_terms
         for i,(mean,std) in enumerate(sampled):
             torch.testing.assert_close(mean,actor._probability_audit['current']['mean'][:,i],atol=0,rtol=0)
             torch.testing.assert_close(torch.tensor(std,dtype=torch.float32),actor._probability_audit['current']['std'][i],atol=0,rtol=0)
-        adv=new[1] if variant.endswith('SCADV3') else advantages(reward[1:])['advantages']
+        adv=(new[1] if variant.endswith('SCADV3') else paper_a if variant.endswith('WLA_ADV') else advantages(reward[1:])['advantages'])
         batch=dict(cond_bg=condition,chain=chain,timesteps=times,deltas=deltas,stoch_idx=indices,old_logp=old,advantages=adv,adv_mask=torch.ones(8))
         fixed=tensor_digest(batch);opt=torch.optim.AdamW([p for p in actor.parameters() if p.requires_grad],lr=5e-5,betas=(.9,.95),weight_decay=.01)
         frozen={n:p.clone() for n,p in actor.named_parameters() if not p.requires_grad};ratios=[]
@@ -71,7 +88,7 @@ def main():
         assert all(torch.equal(p,frozen[n]) for n,p in actor.named_parameters() if n in frozen)
         assert all(float(s['step'])==4 for s in opt.state.values())
         details.append(dict(variant=variant,ratios=ratios,all_LoRA_gradients_finite=True,optimizer_steps=4,frozen_base_reference=True))
-    checks.append('Both variants execute actual source K10/G8 sampler and four native3D LoRA optimizer updates; old chain fixed')
+    checks.append('All admitted adapters execute actual source K10/G8 sampler and four native3D LoRA optimizer updates; old chain fixed')
     out=Path(a.output);out.parent.mkdir(parents=True,exist_ok=True)
     result=dict(status='PASS',qualification_only=True,checks=checks,native_action_tests=details,no_driving_efficacy_claim=True)
     out.write_text(json.dumps(result,indent=2)+'\n');print(out.read_text())

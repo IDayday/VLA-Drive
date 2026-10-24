@@ -33,6 +33,7 @@ def rollout_digest(rollout):
     if rollout.get('cond_bg', {}).get('schema') == 'native_frozen_observation_v1':
         keys.append('cond_bg')
     if 'safety' in rollout:keys.append('safety')
+    if 'factorized_advantage' in rollout:keys.append('factorized_advantage')
     return {k: tensor_digest(rollout[k]) for k in keys}
 
 
@@ -112,6 +113,9 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
                        rewards=rollout['rewards'].double().cpu().tolist(),
                        advantages=rollout['advantages'].double().cpu().tolist(),
                        mask=rollout['adv_mask'].cpu().tolist(), global_std=float(rollout['global_std']))
+        if cfg['variant']=='R_CANONICAL_WLA_ADV':
+            from starVLA.rl.qwen_sourceflow.safe_runtime import validate_factorized_boundary
+            summary['factorized_advantage']=validate_factorized_boundary(rollout)
     if optimizer is not None:
         opt = optimizer.state_dict() if hasattr(optimizer, 'state_dict') else optimizer
         steps = [float(v['step']) for v in opt['state'].values()]
@@ -143,6 +147,9 @@ def validate_ranks(summaries):
         expected = ((offsets - offsets.mean(1, keepdim=True)) / (std + 1e-8)).float()
         mask = (offsets.std(1, unbiased=False) > 1e-8).float()
         for rank, s in enumerate(summaries):
+            if 'factorized_advantage' in s:
+                if abs(s['global_std']-float(std))>1e-12:raise ValueError('Raw global diagnostic std changed')
+                continue  # Paper estimator independently recomputed at each boundary.
             if 'safety' in s:
                 all_costs=torch.tensor([r['safety']['costs'][0] for r in summaries],dtype=torch.float64)
                 mean=all_costs.mean((0,1))

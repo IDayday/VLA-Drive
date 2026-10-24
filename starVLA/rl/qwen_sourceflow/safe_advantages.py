@@ -44,6 +44,38 @@ def component_advantages(rewards, costs, multipliers, floors=(.01, 1e-8, 1e-8, 1
     return advantage.float().detach(), dict(component_z=z, component_std=torch.stack(stds, -1))
 
 
+@torch.no_grad()
+def factorized_advantages(rewards, records, *, epsilon=1e-8, tau=.1):
+    """DriveWLA v1 Eq8/9 + Appendix C; advantage-only native adaptation.
+
+    No official executable training code was verified. This is an explicit
+    paper-formula implementation, not a claim to reuse their full trainer.
+    """
+    metrics=('no_at_fault_collisions','drivable_area_compliance','ego_progress',
+             'time_to_collision_within_bound','comfort')
+    if rewards.shape!=(1,8) or len(records)!=8 or any(r['status']!='OK' for r in records) or epsilon!=1e-8 or tau!=.1:
+        raise ValueError('Locked native DriveWLA-advantage contract changed')
+    values=torch.tensor([[r['metrics'][k] for k in metrics] for r in records],device=rewards.device,dtype=torch.float64).unsqueeze(0)
+    if not torch.isfinite(values).all() or (values<0).any() or (values>1).any():
+        raise ValueError('Invalid official metric vector')
+    z=[]
+    for k in range(5):
+        centered,std,_=centered_group_rewards(values[...,k])
+        z.append(torch.where(std==0,0.,centered/(std+epsilon)))
+    z=torch.stack(z,-1)
+    combined=(z*values.new_tensor([2.,2.,5.,5.,2.])).sum(-1)
+    centered,std,_=centered_group_rewards(combined)
+    # Eq9 divides the weighted sum itself, not a newly whitened reward vector.
+    # Each component was centered already; no extra batch/global whitening.
+    factorized=combined/torch.sqrt(std.square()+epsilon)
+    _,reward_std,_=centered_group_rewards(rewards)
+    variance=reward_std.square();shrink=variance/(variance+tau*tau)
+    advantage=factorized*shrink
+    if not torch.isfinite(advantage).all():raise FloatingPointError('Nonfinite factorized advantage')
+    return advantage.float().reshape(-1).detach(),dict(component_z=z,weighted_sum=combined,
+        combined_std=std,PDMS_variance=variance,shrinkage=shrink,metric_vector=values)
+
+
 class EventMultipliers:
     """Three independent original OmniSafe optimizers; no actor parameter here."""
     def __init__(self, budgets):
