@@ -32,7 +32,7 @@ class StepShard(nn.Module):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--checkpoint',required=True)
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--native-run',dest='run',required=True);p.add_argument('--checkpoint',required=True)
     p.add_argument('--collection',type=int,default=5000);p.add_argument('--logical-world',type=int,default=8)
     p.add_argument('--shard-steps',action='store_true');p.add_argument('--output',required=True);a=p.parse_args()
     host=require_dispatch();world=int(os.environ.get('WORLD_SIZE',1));rank=int(os.environ.get('RANK',0));local=int(os.environ.get('LOCAL_RANK',0))
