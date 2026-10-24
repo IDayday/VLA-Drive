@@ -1,0 +1,121 @@
+{
+  "schema": "native_evaluation_summary_v3",
+  "status": "COMPLETE",
+  "integrity_analysis_sha256": "2f6b9c0daf7c47c21753e6b7b846c44f653034a9423129bf8a9cdfe2159ebde5",
+  "integrity_checks": {
+    "identity_seal": true,
+    "score_protocol_seal": true,
+    "inline_scene_seals": true,
+    "scene_feedback_token_log_protocol": true,
+    "finite_native_8x3_requests": true,
+    "scored_request_equals_policy_request": true
+  },
+  "policy_type": "RL_MERGED",
+  "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/canonical_update046200_NAVTEST_user_20261024T113127Z",
+  "evaluation_role": "REGISTERED",
+  "user_requested_interim_navtest": null,
+  "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/checkpoints/canonical_update046200",
+  "IL_parent_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000",
+  "model_sha256": "da3a93aa268cdeb01ad40e8a2b08721b4d2ccfbc7b40aea55c4ba0c99fd13276",
+  "rl_export": {
+    "schema": "native_Qwen_sourceflow_merged_deployment_v1",
+    "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/checkpoints/canonical_update046200",
+    "run_identity": "755bb7ad92839e7fe5c92eb1ade8e8ee2cb9ac112a2442afbf2bdb10e249231e",
+    "parent_model_sha256": "4c5188dec5674fc08f4b75b1a464c05348bf8a54623fd85f6598fb921ae5e786",
+    "updates": 46200,
+    "model_sha256": "da3a93aa268cdeb01ad40e8a2b08721b4d2ccfbc7b40aea55c4ba0c99fd13276",
+    "qualification": false,
+    "inference": "single_candidate_source_shift5_ODE_K10",
+    "action_shape": [
+      8,
+      3
+    ],
+    "action_config": {
+      "action_dim": 3,
+      "hidden_dim": 1024,
+      "ffn_dim": 4096,
+      "num_heads": 24,
+      "attn_head_dim": 128,
+      "num_layers": 30,
+      "text_dim": 4096,
+      "freq_dim": 256,
+      "eps": 1e-06,
+      "use_gradient_checkpointing": true
+    },
+    "runtime": {
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0",
+      "native_Qwen_runtime": {
+        "transformers.models.qwen3_vl.modeling_qwen3_vl": {
+          "sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da"
+        },
+        "transformers.models.qwen3_vl.processing_qwen3_vl": {
+          "sha256": "efd8d64aaf608aad1ffb3e6d503d6a99e5227d007df95c1d9fa905d998cda4a9"
+        },
+        "transformers.models.qwen2_vl.image_processing_qwen2_vl_fast": {
+          "sha256": "09bfa9b17df7c3f0c6159bc34008ee50f21d2472cd5bae7e5c21ba1ca13a423c"
+        },
+        "transformers.models.qwen2.tokenization_qwen2_fast": {
+          "sha256": "1025a3b86526283bd86a447f0fe2d991d09775b32d3fdcc233c9e447b0611049"
+        }
+      },
+      "image_processor": "Qwen2VLImageProcessorFast",
+      "licenses": {
+        "Qwen3-VL": {
+          "url": "https://raw.githubusercontent.com/QwenLM/Qwen3-VL/96588727e44c78b25ba03ea03b8e12f7e64fd0da/LICENSE",
+          "commit": "96588727e44c78b25ba03ea03b8e12f7e64fd0da",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        },
+        "Wan2.2": {
+          "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/1ea34ff48f87168174e12956e200b1d908b1c5ff/LICENSE.txt",
+          "commit": "1ea34ff48f87168174e12956e200b1d908b1c5ff",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      },
+      "weight_licenses": "Official pinned model cards explicitly declare Apache-2.0",
+      "SimWAM_license": "vendor/LICENSE.SimWAM (MIT)"
+    },
+    "processor_files": {
+      "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+      "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+      "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+      "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+      "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+      "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+      "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+      "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "no_training_cache_teacher_scorer_dependency": true,
+    "not_resume_use_native_unmerged_checkpoint": true,
+    "merge": "FP32 B@A, frozen original base plus delta; full Qwen/provider included"
+  },
+  "cohort": "NAVTEST",
+  "seed": 2101,
+  "metric": "canonical_NAVSIM_v1.1",
+  "inference": "single_candidate_source_shift5_ODE_K10",
+  "qualification": false,
+  "full_population": true,
+  "scenes": 12146,
+  "logs": 136,
+  "means": {
+    "no_at_fault_collisions": 0.9858801251440804,
+    "drivable_area_compliance": 0.9817223777375268,
+    "ego_progress": 0.8378443756371728,
+    "time_to_collision_within_bound": 0.9617981228387946,
+    "comfort": 0.9998353367363741,
+    "driving_direction_compliance": 0.977811625226412,
+    "score": 0.9038082811292766
+  },
+  "PDMS": 90.38082811292766,
+  "source_identity": "a8641327dc2fc6bb03e05f389f760a3dd382f31c0d7cc0ea324a0b2665d723f4",
+  "logical_single_candidates": 12146,
+  "physical_inference_including_retries": 12146,
+  "reused_scenes": 0,
+  "model_loading_seconds": 954.2610462810844,
+  "worker_wall_seconds": 14142.249129533768,
+  "elapsed_span_seconds": 1538.1370141506195,
+  "forward_worker_seconds": 10894.849357672036,
+  "scoring_wait_worker_seconds": 1049.6675356198102,
+  "GPU_cost_semantics": "Worker occupancy on authorized GPUs, possibly shared; not exclusive GPU compute seconds",
+  "sha256": "37bab48bc0a5dae44e6ab7673ef942fbdc9feb6b264d1d22758ecb2dd53c17eb"
+}

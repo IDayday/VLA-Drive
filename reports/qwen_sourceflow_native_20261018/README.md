@@ -1,4 +1,6 @@
-**2026-10-24最新完整Navtest：IL59,787=87.1061；CANONICAL35,800=90.0771；SOURCE30,800=90.2648。** [完整结果、配对安全变化与空闲GPU迁移](latest_navtest_20261024/README.md)。两条RL均相对自身IL提高，尚未达到92；步数不同，不据此判断reward版本优劣。
+**2026-10-24 11:31 UTC锁定的最新完整Navtest：IL63k=87.4194；RL_CANONICAL46.2k=90.3808；RL_SOURCE39.6k=90.0141。** [完整结果、安全配对与成本](latest_navtest_20261024T113127Z/README.md)。两条RL相对共同IL53k分别+3.3648／+2.9981点，均未达到92；当前RL步数不同，不能据此做等预算reward因果比较。
+
+历史05:45 UTC最新权重观察见[IL59,787／CANONICAL35.8k／SOURCE30.8k](latest_navtest_20261024/README.md)，原结果保留。
 
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 

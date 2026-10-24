@@ -1,0 +1,78 @@
+{
+  "schema": "native_latest_IL_RL_user_NAVTEST_v1",
+  "captured_utc": "2026-10-24T11:31:27.634019+00:00",
+  "user_instruction": "\u7528\u6700\u65b0\u7684IL\u548cRL ckpts\u5b8c\u6210navtest \u8bc4\u4f30",
+  "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+  "source_sha": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1",
+  "analysis_source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_training_review_20261024",
+  "seed": 2101,
+  "metric": "canonical_NAVSIM_v1.1",
+  "inference": "single_candidate_source_shift5_ODE_K10",
+  "scenes_each": 12146,
+  "logs_each": 136,
+  "selection": "Latest complete checkpoint at registration, without consulting new scores; RL updates differ and are not a matched reward-version comparison",
+  "baseline_evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/selected_IL_NAVTEST",
+  "parent_selection": "/mnt/project/qwen-sourceflow-native-20261018/frozen_IL_parent53k_user20261023.json",
+  "models": {
+    "IL": {
+      "run": "/mnt/project/qwen-sourceflow-native-20261018/runs/IL_seed42_v2",
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/IL_seed42_v2/checkpoints/update063000",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/checkpoints/IL_update063000",
+      "updates": 63000,
+      "files_sha256": "c724cee5d93a07cc185ed4fece84d98cbd824242f273ef917503c23c8fa932cd",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_update063000_NAVTEST_user_20261024T113127Z",
+      "model_sha256": "f33dd9f5892bed6374668f3c01ce4cf97de32af2ad2efb208b529334510561fd",
+      "interim_registration": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/IL_interim_registration.json"
+    },
+    "canonical": {
+      "run": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_seed42",
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_seed42/checkpoints/update046200_inner0",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/checkpoints/canonical_update046200",
+      "updates": 46200,
+      "files_sha256": "7b6de634dc9bd8666239019876236deac5709fc27761e251bb83e97b108a38ac",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/canonical_update046200_NAVTEST_user_20261024T113127Z",
+      "optimizer_sha256": "a0980527aa57e2631de03fd30cc811c9fa6c20e69de992e37ce767d5325a5ee4",
+      "bundle": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/exports/canonical"
+    },
+    "source": {
+      "run": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_SOURCE_seed42",
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_SOURCE_seed42/checkpoints/update039600_inner0",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/checkpoints/source_update039600",
+      "updates": 39600,
+      "files_sha256": "b7470b9847c5accc01ce77580c444c48eac915d93abfb903b2b262041bfe3df3",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/source_update039600_NAVTEST_user_20261024T113127Z",
+      "optimizer_sha256": "4192030b1bc669801a292826c594c6d59ed93e5c2d052f5445ad6e0e1f17e163",
+      "bundle": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T113127Z/exports/source"
+    }
+  },
+  "used_for_tuning_or_RL_parent_selection": false,
+  "formal_endpoints_unchanged": true,
+  "resources": {
+    "preferred_hosts": {
+      "training-vlawm-zt": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "training-vlawm-tsinghua-zt6": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "physical_GPUs": 15,
+    "maximum_workers_per_GPU": 2,
+    "preserve_original_IL_RL_and_new_temporal_training": true,
+    "checkpoint_capture_is_fixed": true
+  },
+  "sha256": "97b4cd75e1731e2a8461f31de67e523953b5b2dce4ad8c11b0c473aff9b28df7"
+}
