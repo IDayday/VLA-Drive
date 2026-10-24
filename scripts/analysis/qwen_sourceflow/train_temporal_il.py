@@ -68,7 +68,7 @@ def main():
             if file_sha(Path(a.parent)/name)!=info['files'][name]:raise ValueError('Changed full parent asset')
     dist.barrier()
     model=TemporalDINOFlowVLA(QWEN_PATH,ActionDiT(**ACTION_CONFIG))
-    parent=torch.load(Path(a.parent)/'model.pt',map_location='cpu',weights_only=True,mmap=True)
+    parent=torch.load(Path(a.parent)/'model.pt',map_location='cpu',weights_only=True,mmap=False)
     initialized=model.state_dict();head={k:v for k,v in initialized.items() if k.startswith('current_dino_head.')}
     if set(parent)!=set(initialized)-set(head) or set(head)!={'current_dino_head.projection.weight','current_dino_head.projection.bias'}:
         raise ValueError('Warm-start may add only the explicit current-DINO projection')
@@ -78,7 +78,7 @@ def main():
     for p in model.current_dino_head.parameters():dist.broadcast(p.data,src=0)
     model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     optimizer=build_optimizer(model,cfg)
-    payload=torch.load(Path(a.parent)/'optimizer.pt',map_location='cpu',weights_only=False,mmap=True)
+    payload=torch.load(Path(a.parent)/'optimizer.pt',map_location='cpu',weights_only=False,mmap=False)
     name_by_id={id(p):n for n,p in model.named_parameters()};parent_steps={};offset=0
     for group in optimizer.param_groups[:3]:
         for param in group['params']:

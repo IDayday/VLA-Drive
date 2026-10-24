@@ -19,5 +19,5 @@ def load_temporal(path,device='cpu',*,qualification=False):
     if identity['runtime']!=runtime_identity():raise ValueError('Unqualified numerical/runtime environment')
     cfg=json.loads((QWEN_PATH/'config.json').read_text())
     model=TemporalDINOFlowVLA(QWEN_PATH,ActionDiT(**ACTION_CONFIG),checkpoint_config=cfg)
-    model.load_state_dict(torch.load(path/'model.pt',map_location='cpu',weights_only=True,mmap=True),strict=True)
+    model.load_state_dict(torch.load(path/'model.pt',map_location='cpu',weights_only=True,mmap=False),strict=True)
     return model.to(device).eval().requires_grad_(False),dict(identity=identity,seal=seal,files=files)

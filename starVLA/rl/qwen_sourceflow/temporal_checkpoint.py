@@ -63,8 +63,8 @@ def restore(path,model,optimizer,scheduler,identity):
     files=json.loads((path/'files.json').read_text())
     for n in ['model.pt',f'rank{rank}.pt','identity.json']:
         if file_sha(path/n)!=files[n]:raise ValueError('Corrupt temporal checkpoint: '+n)
-    model.load_state_dict(torch.load(path/'model.pt',map_location='cpu',weights_only=True,mmap=True),strict=True)
-    own=torch.load(path/f'rank{rank}.pt',map_location='cpu',weights_only=False,mmap=True)
+    model.load_state_dict(torch.load(path/'model.pt',map_location='cpu',weights_only=True,mmap=False),strict=True)
+    own=torch.load(path/f'rank{rank}.pt',map_location='cpu',weights_only=False,mmap=False)
     if own['identity']!=identity['sha256'] or own['state']['phase']!='READY' or own['state']['updates']!=seal['updates']:
         raise ValueError('Uncommitted rank state')
     if own['local_parameter_names']!=local_parameter_names(model,optimizer):raise ValueError('Optimizer partition changed')
