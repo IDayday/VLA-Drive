@@ -1,0 +1,98 @@
+{
+  "schema": "native_five_latest_user_NAVTEST_v1",
+  "captured_utc": "2026-10-24T15:27:46.992083+00:00",
+  "user_instruction": "\u53ef\u4ee5\u7528\u65b0\u6743\u91cd\u5b8c\u6210navtest \u8bc4\u4f30",
+  "source": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/RL_parent53k_user20261023",
+  "source_sha": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1",
+  "analysis_source": "/mnt/project/qwen-sourceflow-safe-rl-20261024/snapshots/formal_v3",
+  "seed": 2101,
+  "metric": "canonical_NAVSIM_v1.1",
+  "inference": "single_candidate_source_shift5_ODE_K10",
+  "scenes_each": 12146,
+  "logs_each": 136,
+  "selection": "Fixed complete snapshots at user request; no new score consulted; early safety methods and differing updates are not endpoint or matched budget conclusions",
+  "baseline_evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/selected_IL_NAVTEST",
+  "parent_selection": "/mnt/project/qwen-sourceflow-native-20261018/frozen_IL_parent53k_user20261023.json",
+  "models": {
+    "IL": {
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/IL_seed42_v2/checkpoints/update065000",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/checkpoints/IL_update065000",
+      "updates": 65000,
+      "files_sha256": "b8355946d81fbfab10a41a3b9c4542b0221e7b002c3d3bf766740e0e4d4dedf6",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_update065000_NAVTEST_user_20261024T152508Z",
+      "model_sha256": "7e0786bb5a60d1f4f41bb27a6615c9f32b3935523da2d387b0c56320a6bad67a",
+      "interim_registration": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/IL_interim_registration.json"
+    },
+    "canonical": {
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_seed42/checkpoints/update050000_inner0",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/checkpoints/canonical_update050000",
+      "updates": 50000,
+      "files_sha256": "9df11a1ef4acc59cc5b252850c18674d6bc255ea10fd3d603e8d8623e289b0b0",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/canonical_update050000_NAVTEST_user_20261024T152508Z",
+      "optimizer_sha256": "29e15fedfe79ba6c68fdf564feefe7d0886dd4467fa3f13c07cbe804aa4fa1cd",
+      "bundle": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/exports/canonical"
+    },
+    "source": {
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_SOURCE_seed42/checkpoints/update045500_inner0",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/checkpoints/source_update045500",
+      "updates": 45500,
+      "files_sha256": "c46d57982b3e4a24bb639148f10e42a573cdd1e06363a60de633ef7f5d9d7d49",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/source_update045500_NAVTEST_user_20261024T152508Z",
+      "optimizer_sha256": "68bb91a8aa23cebc8d358f8261695ea04b505e80a62efa832e80053b5a7a4409",
+      "bundle": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/exports/source"
+    },
+    "wla_adv": {
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-safe-rl-20261024/runs/RL_WLA_ADV_seed42/checkpoints/update002000_inner0",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/checkpoints/wla_adv_update002000",
+      "updates": 2000,
+      "files_sha256": "ce98d9bd670f0cd371e6308a3e847bb3eabade10fef29974a64dc073a47a5730",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/wla_adv_update002000_NAVTEST_user_20261024T152508Z",
+      "optimizer_sha256": "40d0fa06878de2e10da57947a69fb2d79c04ab0745f62961dc775e5fb0cd94c4",
+      "bundle": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/exports/wla_adv"
+    },
+    "scadv3": {
+      "original_checkpoint": "/mnt/project/qwen-sourceflow-safe-rl-20261024/runs/RL_SCADV3_seed42/checkpoints/update001300_inner0",
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/checkpoints/scadv3_update001300",
+      "updates": 1300,
+      "files_sha256": "f4fd5475d6b95e475fd1f0a44e5fcec59c06d04aeb77031c8d90794ae97dd810",
+      "output": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/scadv3_update001300_NAVTEST_user_20261024T152508Z",
+      "optimizer_sha256": "f88834a551bb669935147ad7578c9017139753b5afa1569111aafa3a881c5ba8",
+      "bundle": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261024T152508Z/exports/scadv3"
+    }
+  },
+  "used_for_tuning_or_RL_parent_selection": false,
+  "formal_endpoints_unchanged": true,
+  "user_requested_interim_safety_NAVTEST": true,
+  "resources": {
+    "preferred_spare_hosts": {
+      "training-vlawm-zt": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "training-vlawm-tsinghua-zt6": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "additional_shared_host": "training-vla-zt",
+    "minimum_shared_free_MiB": 40000,
+    "maximum_workers_per_GPU_including_training": 2,
+    "preserve_all_training": true
+  },
+  "analysis_source_sha": "ee200bc11f03b026ee54c02e1997eb7db8a57861",
+  "lease_adapter": "/mnt/project/qwen-sourceflow-native-20261018/native_navtest_spare_lease.py",
+  "lease_adapter_sha256": "9630ea70c2b498a8bb4d3ab6bb96983733295c9d7c510a2bb6adcd29e57ec64e",
+  "navtest_data": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST",
+  "sha256": "1d59fdec57cb1cd1478564ccb483e8817740eaf4d173be893efc25ecb840f1d8"
+}
