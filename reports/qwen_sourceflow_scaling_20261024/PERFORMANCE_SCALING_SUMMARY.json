@@ -1,0 +1,330 @@
+{
+  "schema": "native_performance_scaling_summary_v1",
+  "observed_utc": "2026-10-24T05:56:45.101513+00:00",
+  "IL": {
+    "single_GPU_global4": {
+      "mean_seconds": 4.055473969317973,
+      "scenes_per_update": 4,
+      "scene_exposures_per_second": 0.9863212118391917,
+      "phases_mean_stream_seconds": {
+        "zero_grad": 0.0029589226245880125,
+        "data_processor_target": 0.299965934753418,
+        "qwen_forward": 0.5489936548868815,
+        "provider_forward": 0.09876922130584717,
+        "action_forward_FM": 0.5798716265360514,
+        "backward_all": 2.2836936950683593,
+        "gradient_validation_and_clip": 0.048476212819417316,
+        "AdamW_step": 0.17070287577311197
+      }
+    },
+    "fresh_host_world8": {
+      "mean_seconds": 4.581439364328981,
+      "max_rank_per_step_seconds": [
+        4.457568019628525,
+        4.503975875675678,
+        5.199887774884701,
+        4.355268647894263,
+        4.390496503561735
+      ],
+      "scenes_per_update": 32,
+      "scene_exposures_per_second": 6.9847044684584345,
+      "phases_mean_rank_seconds": {
+        "zero_grad": 0.0009615677874535323,
+        "data": 0.33737205346114935,
+        "forward": 1.3460973511449992,
+        "backward": 2.64137772009708,
+        "grad_clip": 0.04716232563368976,
+        "AdamW": 0.1750049156136811
+      }
+    },
+    "original_host_cold_world8": {
+      "mean_seconds": 6.185582012683153,
+      "max_rank_per_step_seconds": [
+        5.837215201929212,
+        5.943381227552891,
+        7.131262797862291,
+        6.115337856113911,
+        5.900712979957461
+      ],
+      "scenes_per_update": 32,
+      "scene_exposures_per_second": 5.1733207860450285,
+      "phases_mean_rank_seconds": {
+        "zero_grad": 0.0017516062129288913,
+        "data": 0.4547162840142846,
+        "forward": 1.7633084767498075,
+        "backward": 3.662118888925761,
+        "grad_clip": 0.05514213293790817,
+        "AdamW": 0.195604654494673
+      }
+    },
+    "native_resume": {
+      "schema": "native_IL_runtime_rebuild_evidence_v1",
+      "observed_utc": "2026-10-24T05:55:03.682173+00:00",
+      "restart_boundary": 59787,
+      "old_source_commit": "d4d0012769540af8378e013c072d6d8053d9f275",
+      "same_world": 8,
+      "same_global_batch": 32,
+      "same_optimizer_and_RNG": true,
+      "old_fixed_windows": [
+        {
+          "first": 59400,
+          "last": 59449,
+          "steps": 50,
+          "mean_max_rank_body_seconds": 13.64090311128646
+        },
+        {
+          "first": 59450,
+          "last": 59499,
+          "steps": 50,
+          "mean_max_rank_body_seconds": 9.60449231170118
+        },
+        {
+          "first": 59500,
+          "last": 59549,
+          "steps": 50,
+          "mean_max_rank_body_seconds": 6.027157021164894
+        },
+        {
+          "first": 59550,
+          "last": 59599,
+          "steps": 50,
+          "mean_max_rank_body_seconds": 5.989102272130549
+        },
+        {
+          "first": 59600,
+          "last": 59649,
+          "steps": 50,
+          "mean_max_rank_body_seconds": 6.0050872534886
+        },
+        {
+          "first": 59650,
+          "last": 59699,
+          "steps": 50,
+          "mean_max_rank_body_seconds": 5.9822005864605305
+        },
+        {
+          "first": 59700,
+          "last": 59749,
+          "steps": 50,
+          "mean_max_rank_body_seconds": 6.00890104431659
+        },
+        {
+          "first": 59750,
+          "last": 59787,
+          "steps": 38,
+          "mean_max_rank_body_seconds": 6.0009513483627845
+        }
+      ],
+      "new_window": {
+        "first": 59788,
+        "last": 59887,
+        "steps": 100,
+        "mean_max_rank_body_seconds": 6.230974432434887,
+        "mean_after_first10": 6.193642899083595
+      },
+      "resume_checks": [
+        {
+          "rank": 0,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        },
+        {
+          "rank": 1,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        },
+        {
+          "rank": 2,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        },
+        {
+          "rank": 3,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        },
+        {
+          "rank": 4,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        },
+        {
+          "rank": 5,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        },
+        {
+          "rank": 6,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        },
+        {
+          "rank": 7,
+          "first_resume_update": 59788,
+          "data_cursor_and_token_order": "PASS",
+          "resumed_LR": "PASS",
+          "loss_finite": true
+        }
+      ],
+      "attribution": "Speed had already improved BEFORE the controlled checkpoint/restart. Do not attribute the recovery to restarting. Resource/execution contention is supported; exact owner of earlier unaccounted GPU activity is not identified.",
+      "status": "PASS"
+    }
+  },
+  "communication": {
+    "local_vla_zt3_world2": {
+      "status": "PASS",
+      "rows": [
+        {
+          "bytes": 4192,
+          "median_max_rank_seconds": 6.608851253986359e-05,
+          "algorithm_GB_per_second": 0.06343008548530199
+        },
+        {
+          "bytes": 4194304,
+          "median_max_rank_seconds": 0.00010696239769458771,
+          "algorithm_GB_per_second": 39.21288312904219
+        },
+        {
+          "bytes": 67108864,
+          "median_max_rank_seconds": 0.0006175730377435684,
+          "algorithm_GB_per_second": 108.66546934302086
+        },
+        {
+          "bytes": 268435456,
+          "median_max_rank_seconds": 0.0022509805858135223,
+          "algorithm_GB_per_second": 119.25267489723164
+        }
+      ]
+    },
+    "cross_vla_zt3_source_world2": {
+      "status": "PASS",
+      "rows": [
+        {
+          "bytes": 4192,
+          "median_max_rank_seconds": 0.0004944168031215668,
+          "algorithm_GB_per_second": 0.008478676237403837
+        },
+        {
+          "bytes": 4194304,
+          "median_max_rank_seconds": 0.004821792244911194,
+          "algorithm_GB_per_second": 0.8698641059092851
+        },
+        {
+          "bytes": 67108864,
+          "median_max_rank_seconds": 0.05032944120466709,
+          "algorithm_GB_per_second": 1.3333917960085944
+        },
+        {
+          "bytes": 268435456,
+          "median_max_rank_seconds": 0.21408368088304996,
+          "algorithm_GB_per_second": 1.2538809819261347
+        }
+      ]
+    },
+    "cross_vla_zt3_canonical_world2": {
+      "status": "PASS",
+      "rows": [
+        {
+          "bytes": 4192,
+          "median_max_rank_seconds": 0.0006433520466089249,
+          "algorithm_GB_per_second": 0.006515872642507027
+        },
+        {
+          "bytes": 4194304,
+          "median_max_rank_seconds": 0.004933197051286697,
+          "algorithm_GB_per_second": 0.8502202438692417
+        },
+        {
+          "bytes": 67108864,
+          "median_max_rank_seconds": 0.0430180449038744,
+          "algorithm_GB_per_second": 1.5600165965226345
+        },
+        {
+          "bytes": 268435456,
+          "median_max_rank_seconds": 0.2347103115171194,
+          "algorithm_GB_per_second": 1.1436883802202307
+        }
+      ]
+    },
+    "local_IL_host_world2": {
+      "status": "PASS",
+      "rows": [
+        {
+          "bytes": 4192,
+          "median_max_rank_seconds": 0.00042878836393356323,
+          "algorithm_GB_per_second": 0.00977638469837188
+        },
+        {
+          "bytes": 4194304,
+          "median_max_rank_seconds": 0.0004680119454860687,
+          "algorithm_GB_per_second": 8.961959284273977
+        },
+        {
+          "bytes": 26214400,
+          "median_max_rank_seconds": 0.0006009954959154129,
+          "algorithm_GB_per_second": 43.61829693926616
+        },
+        {
+          "bytes": 67108864,
+          "median_max_rank_seconds": 0.0009280592203140259,
+          "algorithm_GB_per_second": 72.31097168270414
+        }
+      ]
+    }
+  },
+  "RL": {
+    "schema": "native_saved_step_sharding_equivalence_v1",
+    "status": "PASS",
+    "gradient_relative_L2": 9.102693721474147e-08,
+    "gradient_max_abs": 1.6007106751203537e-10,
+    "gradient_cosine": 1.0000000000004912,
+    "four_Adam_updates_parameter_max_abs": 1.4901161193847656e-08,
+    "same_G8_groups": true,
+    "same_saved_chain_old_logprob_advantages": true,
+    "new_rollouts": 0,
+    "new_scores": 0,
+    "formal_parameters_changed": false,
+    "timings": {
+      "full8": {
+        "world": 8,
+        "critical_update_seconds_excluding_first": [
+          1.2865703757852316,
+          1.289709148928523,
+          1.3094407059252262
+        ],
+        "mean": 1.2952400768796604,
+        "resource": "Dedicated empty8"
+      },
+      "step16_shared": {
+        "world": 16,
+        "critical_update_seconds_excluding_first": [
+          1.5866656471043825,
+          1.6848016902804375,
+          1.5606512892991304
+        ],
+        "mean": 1.6107062088946502,
+        "resource": "8auxiliary plus8shared with existing formal SOURCE"
+      }
+    },
+    "limitations": "Saved fixed batch execution probe, not fresh RL, not an efficacy comparison. Shared16 result cannot be claimed as dedicated16 scaling."
+  },
+  "limitations": [
+    "Dedicated8 versus shared16 timing confounds include GPU sharing, host and topology. No production world16 enabled.",
+    "Speed recovered at update~59450-59500 BEFORE controlled restart; not a restart success claim.",
+    "No new driving candidates or score calls in saved-RL qualification; updated weights are diagnostic copies only."
+  ]
+}

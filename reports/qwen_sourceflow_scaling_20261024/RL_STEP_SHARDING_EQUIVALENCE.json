@@ -1,0 +1,36 @@
+{
+  "schema": "native_saved_step_sharding_equivalence_v1",
+  "status": "PASS",
+  "gradient_relative_L2": 9.102693721474147e-08,
+  "gradient_max_abs": 1.6007106751203537e-10,
+  "gradient_cosine": 1.0000000000004912,
+  "four_Adam_updates_parameter_max_abs": 1.4901161193847656e-08,
+  "same_G8_groups": true,
+  "same_saved_chain_old_logprob_advantages": true,
+  "new_rollouts": 0,
+  "new_scores": 0,
+  "formal_parameters_changed": false,
+  "timings": {
+    "full8": {
+      "world": 8,
+      "critical_update_seconds_excluding_first": [
+        1.2865703757852316,
+        1.289709148928523,
+        1.3094407059252262
+      ],
+      "mean": 1.2952400768796604,
+      "resource": "Dedicated empty8"
+    },
+    "step16_shared": {
+      "world": 16,
+      "critical_update_seconds_excluding_first": [
+        1.5866656471043825,
+        1.6848016902804375,
+        1.5606512892991304
+      ],
+      "mean": 1.6107062088946502,
+      "resource": "8auxiliary plus8shared with existing formal SOURCE"
+    }
+  },
+  "limitations": "Saved fixed batch execution probe, not fresh RL, not an efficacy comparison. Shared16 result cannot be claimed as dedicated16 scaling."
+}
