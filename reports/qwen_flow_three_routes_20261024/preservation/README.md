@@ -148,3 +148,8 @@ $MODEL_PY -m scripts.analysis.qwen_flow_exploration.preservation_audit_sampler \
 **证据不足**，仅针对目前尚未完成的正式实验，不是对存档或约束方法的否定。必须等待P0/P3/P4/P5因子对照、P2单轨和P1幅度匹配控制，再以自然评估人口上的净收益、G+/G−及固定高分场景退化判断。
 
 最有信息量的下一项是完成同预算P0/P3/P4/P5，而不是增加archive容量或新的dual算法；若P0本身几乎不退化，还应明确这轮保留问题的统计判别力不足。
+
+
+2026-10-24 23:24机制快照：已提交的新源SDE组PG有效率100%，不能继续把这组训练缓慢归因零优势；第一inner clip0属正常，后几inner clipping也仅约0.13–0.42%。三个成本乘子变化仍小，大部分约束作用来自初始化成本惩罚。[中期机制及修正成本](interim_mechanism_v1.md)。这不是终点或ODE收益结论。
+
+P1完成一次合法mid-inner资源迁移：81→84的保存chain/old概率/奖励/优势/RNG逐值摘要不变，期间无新增评分；Adam与scheduler连续。暖inner约108.38→79.97秒，旧主机的P1–P5随后仅在原生边界退出并使用相同97源码恢复，P0保留本机分散CPU负载。[P1实际迁移证据](migration_P1_exact_boundary_v1.json)。
