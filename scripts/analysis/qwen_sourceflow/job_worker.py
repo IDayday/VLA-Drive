@@ -15,7 +15,8 @@ MODULES={'scripts.analysis.qwen_sourceflow.train_il','scripts.analysis.qwen_sour
     'scripts.analysis.qwen_sourceflow.evaluate_policy','scripts.analysis.qwen_sourceflow.validate_deployment',
     'scripts.analysis.qwen_sourceflow.export_policy','scripts.analysis.qwen_sourceflow.validate_rl_deployment',
     'scripts.analysis.qwen_sourceflow.profile_efficiency','scripts.analysis.qwen_sourceflow.benchmark_collectives',
-    'scripts.analysis.qwen_sourceflow.profile_il_distributed'}
+    'scripts.analysis.qwen_sourceflow.profile_il_distributed',
+    'scripts.analysis.qwen_sourceflow.profile_rl_step_sharding'}
 
 
 def request_native_stop(child, module):
