@@ -34,7 +34,8 @@ def condition_features(condition):
 
 class LatentNoisePolicy(nn.Module):
     def __init__(self, feature_dim, *, conditional=True, hidden_dims=(128, 64),
-                 log_std_bounds=(-math.log(2), math.log(2))):
+                 log_std_bounds=(-math.log(2), math.log(2)), feature_center=None,
+                 center_identity=None):
         super().__init__()
         low, high = map(float, log_std_bounds)
         if feature_dim <= 0 or not low < 0 < high or not math.isclose(low, -high):
@@ -42,6 +43,16 @@ class LatentNoisePolicy(nn.Module):
         self.feature_dim = int(feature_dim)
         self.conditional = bool(conditional)
         self.log_std_bounds = (low, high)
+        if feature_center is not None:
+            feature_center=torch.as_tensor(feature_center).detach().float().clone()
+            if not conditional or feature_center.shape!=(self.feature_dim,) or not torch.isfinite(feature_center).all() or not center_identity:
+                raise ValueError('Fixed TRAIN centering requires finite per-feature mean, conditional policy and bound identity')
+        elif center_identity is not None:
+            raise ValueError('Center identity cannot exist without its fixed tensor')
+        # None contributes no state_dict key or RNG draw. The old default's
+        # computation and initialization remain unchanged.
+        self.register_buffer('feature_center',feature_center)
+        self.center_identity=center_identity
         if conditional:
             layers = [nn.LayerNorm(feature_dim)]
             width = feature_dim
@@ -62,6 +73,8 @@ class LatentNoisePolicy(nn.Module):
         # Detachment documents the frozen-generator contract; only this small
         # policy is an actor. There is no reward path through the generator.
         features = features.detach().float()
+        if self.feature_center is not None:
+            features=features-self.feature_center
         # Rollout obtains one scene at a time. Keep the SAME tiny GEMM layout
         # when updating a collected B-scene batch, rather than fabricating old
         # densities with a different batch kernel. The large frozen generator
@@ -74,10 +87,14 @@ class LatentNoisePolicy(nn.Module):
         return GaussianParameters(mean.reshape(-1, 8, 3), log_std.reshape(-1, 8, 3)).validate()
 
     def identity(self):
-        return dict(schema='native_conditional_root_diagonal_Gaussian_v1',
+        value=dict(schema='native_conditional_root_diagonal_Gaussian_v1',
                     conditional=self.conditional, feature_dim=self.feature_dim, root_shape=[8, 3],
                     log_std_bounds=list(self.log_std_bounds), initial_prior='N(0,I)',
                     log_probability='joint sum over all24 root coordinates',
                     network_execution_layout='scene_batch1 for rollout and fixed-root recomputation',
                     feature_readout='masked mean text/state context + last visual V; full generator memory retained',
                     deterministic_readout='conditional mean root; separately reported from sampled root')
+        if self.feature_center is not None:
+            value.update(feature_normalization='fixed TRAIN mean center before unchanged per-scene LayerNorm; no stdwhitening',
+                         center_identity=self.center_identity)
+        return value

@@ -1,0 +1,52 @@
+{
+  "schema": "L1_CENTER_V1_CPU_acceptance_v1",
+  "status": "PASS",
+  "qualification_only": true,
+  "new_GPU_tasks": 0,
+  "new_rollouts": 0,
+  "new_scoring_calls": 0,
+  "real_normalizer": {
+    "path": "/mnt/project/qwen-flow-three-routes-20261024/qualification/latent_center_saved_data_v2/TRAIN512_feature_mean.pt",
+    "asset_sha256": "7069e5a3028a021b7b39c8ba200f0105ab486643bf158b8a07d777d5dfc2d0bf",
+    "identity": {
+      "schema": "TRAIN512_mean_center_then_existing_LayerNorm_v1",
+      "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+      "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+      "TRAIN_tokens_sha256": "49c4318c88c68c2544d156802294a039be44df88c67fdb6231456318b5564d96",
+      "scenes": 512,
+      "feature_dim": 7168,
+      "fit": "FP64 mean of one verified frozen feature vector per unique TRAIN scene, storedFP32",
+      "mean_tensor_sha256": "f5b6b0a799d4143f752a1f18cbd81d239edc51ee2c9ffed4945e0a79528d0a88",
+      "std_whitening": false,
+      "immutable_mean": true,
+      "existing_LayerNorm_eps": 1e-05,
+      "no_DEV_or_test_statistics": true,
+      "qualification_only": true,
+      "sha256": "ec7f07d576484f74ab35a5d04f3b62fa3b5d7778d4176c4ebb62ca500b50ea7c"
+    },
+    "origin": "Immutable frozen-base TRAIN statistic; not qualification actor weights"
+  },
+  "checks": [
+    "Default uncentered class matches immutable97 actual initial/nonzero checkpoints: keys, identity, outputs and every parameter gradient",
+    "Adding the fixed buffer consumes no RNG; seed42 initializes identical trainable tensors and only adds the mean buffer",
+    "Real mean and saved initial TRAIN batch: q0/root replay/joint density and B1 versus B16 fixed-layout outputs are identical",
+    "Four real Adam steps with original roots/rewards/advantages: all actor gradients finite, mean buffer unchanged, nonzero-policy B1/B16 outputs identical",
+    "Actual atomic mid-inner1/2/3 restore: centered policy factory, mean buffer, Adam, scheduler, fixed behavior batch and subsequent root RNG bitwise match",
+    "Formal CENTER without separate correction budget lock is rejected",
+    "Actual centered latent_train CLI with real mean/features and tiny source ActionDiT/mock scalar: inner1 interrupt/resume is bitwise equal to continuous4steps"
+  ],
+  "CPU_vs_saved_GPU_initial_joint_logprob_max_abs": 7.62939453125e-06,
+  "source_files": {
+    "/mnt/project/VLA-Drive-qwen-flow-three-routes-20261024/scripts/analysis/qwen_flow_exploration/latent_center_validate.py": "75c0b52ab337739075959d3cc1073aa580f28b4b91b0b4389a36ac6eb98ab1d7",
+    "starVLA/rl/qwen_flow_exploration/latent/policy.py": "0184891c9a64105aca75865ac5251b6beb5945cbee6f6c425d07b64b657df1c7",
+    "starVLA/rl/qwen_flow_exploration/latent/normalization.py": "01fae7aae4f168cb479ffed8fe93746fc6af299063064706d8bb744db9eeaac8",
+    "starVLA/rl/qwen_flow_exploration/latent/training.py": "c98a43e16ee761996d8d97001f6b769518998623bc4eaca687e3cafabc0ac4c4",
+    "starVLA/rl/qwen_flow_exploration/latent/frozen.py": "4f2f1bd64a510e7465cc13931d20b3662c5daac878286bebc67e36e61563a895",
+    "starVLA/rl/qwen_flow_exploration/latent/collection.py": "8a94b3a8095c610d1cb2d6fcc2700656b65b25ad5890c2ca726098a77f27f135",
+    "starVLA/rl/qwen_flow_exploration/latent/__init__.py": "2f0f5b5b50764b2ca833b33290ed3ac1cc406cb4779c6a0dfef12e29fea75c40",
+    "starVLA/rl/qwen_flow_exploration/latent/objective.py": "ddb25f6e1c369642bec042df7d959c3f9d3fe7159b1e3eccf3a539bb785c380e",
+    "starVLA/rl/qwen_flow_exploration/latent/gaussian.py": "5410ae240dabc40e9faeb92f6e3b6e52d657162395f446d5421bc94943bed230"
+  },
+  "formal_budget_dispatch_authorized": false,
+  "driving_improvement_not_tested": true
+}

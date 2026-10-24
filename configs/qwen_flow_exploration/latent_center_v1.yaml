@@ -1,0 +1,46 @@
+schema: L1_CENTER_V1_explicit_parameterization_correction
+arm: L1_CENTER_V1
+parent_arm: L1
+status: prepared_only_no_formal_dispatch
+runtime_entrypoint: scripts.analysis.qwen_flow_exploration.latent_train
+common_protocol_sha256: 4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095
+parent_budget_lock_sha256: 5ddfbae3503486b379e8666f2119621f6f205e7385e8a457d0d2a69c74014047
+formal_correction_budget_lock_required: true
+normalizer:
+  path: /mnt/project/qwen-flow-three-routes-20261024/qualification/latent_center_saved_data_v2/TRAIN512_feature_mean.pt
+  asset_sha256: 7069e5a3028a021b7b39c8ba200f0105ab486643bf158b8a07d777d5dfc2d0bf
+  mean_tensor_sha256: f5b6b0a799d4143f752a1f18cbd81d239edc51ee2c9ffed4945e0a79528d0a88
+  TRAIN_tokens_sha256: 49c4318c88c68c2544d156802294a039be44df88c67fdb6231456318b5564d96
+  operation: subtract_fixed_TRAIN512_mean_before_existing_LayerNorm
+  std_whitening: false
+  fit_during_training_or_evaluation: false
+  qualification_actor_weights_reused: false
+unchanged:
+  generator: common_CANONICAL50k_frozen_parameters_and_buffers
+  policy_network: LayerNorm7168_Linear128_tanh_Linear64_tanh_Linear48
+  initial_root: N_0_I
+  action_shape: [8, 3]
+  root_namespace_eval: native_qwen_sourceflow_ODE
+  forward_layout: scene_batch1
+  ODE_steps: 10
+  time_grid: source_shift5
+  training_seed: 42
+  rounds: 64
+  B: 16
+  G: 16
+  inner_epochs: 4
+  optimizer_updates: 256
+  fresh_candidates: 16384
+  learning_rate: 0.0001
+  optimizer: Adam
+  warmup_updates: 8
+  joint_PPO_clip: 0.2
+  prior_KL_coefficient: 0.01
+  advantages: common_protocol
+evaluation:
+  primary: q_sampled_single_fixed5seeds
+  secondary: deterministic_mean_root_separate1seed
+  normalizer_reconstructed_from_training_identity: true
+notes:
+  - This YAML describes the bounded recipe; CLI and sealed correction lock enforce active values.
+  - Prepared after observed learned_tanh_collapse; not a density_bug_fix or a PDMS_success_claim.

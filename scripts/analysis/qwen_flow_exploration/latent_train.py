@@ -16,6 +16,7 @@ from starVLA.rl.qwen_flow_exploration.latent.policy import LatentNoisePolicy, co
 from starVLA.rl.qwen_flow_exploration.latent.collection import collect_behavior
 from starVLA.rl.qwen_flow_exploration.latent.training import train_collected_batch
 from starVLA.rl.qwen_flow_exploration.latent.frozen import frozen_digest
+from starVLA.rl.qwen_flow_exploration.latent.normalization import CENTER_ARM,load_center_normalizer,require_center_lock,assert_center_unchanged
 from starVLA.rl.qwen_sourceflow.contracts import fingerprint, file_sha
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.safe_flow_improvement.contracts import seed_for
@@ -57,15 +58,31 @@ def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--protocol', required=True)
     parser.add_argument('--output', required=True)
-    parser.add_argument('--arm', choices=['L1', 'L2', 'L3'], required=True)
+    parser.add_argument('--arm', choices=['L1', 'L2', 'L3', CENTER_ARM], required=True)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--resume', help='Exact same run or its explicit committed checkpoint')
     parser.add_argument('--qualification', action='store_true')
     parser.add_argument('--limit', type=int, help='Qualification only: number of fresh rollout rounds')
     parser.add_argument('--scorer-workers', type=int, default=1)
+    parser.add_argument('--center-normalizer',help='CENTER only: immutable TRAIN mean asset; never fitted in the actor')
+    parser.add_argument('--correction-budget-lock',help='CENTER only: separate ROOT-approved bounded correction registration')
     args = parser.parse_args()
     protocol = read_protocol(args.protocol)
     budget_lock = None if args.qualification else require_budget_lock(protocol)
+    if args.arm!=CENTER_ARM and (args.center_normalizer or args.correction_budget_lock):
+        raise ValueError('Original L1/L2/L3 cannot silently enable the centering correction')
+    if args.arm==CENTER_ARM and not args.center_normalizer:
+        raise ValueError('CENTER requires its fixed TRAIN normalizer asset')
+    center_receipt,correction_lock=None,None
+    policy_kwargs={}
+    if args.arm==CENTER_ARM:
+        if args.seed!=42:raise ValueError('The bounded correction has only registered training seed42')
+        mean,center_receipt=load_center_normalizer(args.center_normalizer,protocol)
+        if not args.qualification:
+            correction_lock=require_center_lock(args.correction_budget_lock,protocol,center_receipt,args.seed)
+            if correction_lock['parent_budget_lock_sha256']!=budget_lock['sha256']:
+                raise ValueError('CENTER correction must bind the unchanged parent screen budget')
+        policy_kwargs=dict(feature_center=mean,center_identity=center_receipt['identity'])
     if args.limit and not args.qualification:
         raise ValueError('Never shorten one formal method silently')
     rounds = args.limit if args.limit else protocol['screen']['rollout_rounds']
@@ -102,8 +119,10 @@ def main():
         for token in tokens:
             require_scene(protocol, token, 'TRAIN', update=True)
         features = condition_features(env.condition(tokens[0], 'TRAIN'))
+        if center_receipt is not None and features.shape[-1]!=mean.numel():
+            raise ValueError('Live native condition disagrees with the registered feature dimension')
         torch.manual_seed(args.seed)
-        policy = LatentNoisePolicy(features.shape[-1], conditional=args.arm != 'L2').to(env.device)
+        policy = LatentNoisePolicy(features.shape[-1], conditional=args.arm != 'L2',**policy_kwargs).to(env.device)
         optimizer = torch.optim.Adam(policy.parameters(), lr=1e-4)
         warmup = max(1, math.ceil(.03*rounds*inner_epochs))
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda index: min(1., (index+1)/warmup))
@@ -118,6 +137,10 @@ def main():
             policy_identity=policy.identity(), data_order='source-style seed+epoch permutation of shared fixed TRAIN512',
             root_RNG='CPU three_routes_latent_train namespace; state checkpointed',
             common_advantage=protocol['advantages'], source_files=source_identity())
+        if args.arm==CENTER_ARM:
+            identity.update(parent_arm='L1',correction='fixed TRAIN mean center before unchanged LayerNorm; no stdwhitening',
+                            center_normalizer=center_receipt,
+                            correction_budget_lock_sha256=correction_lock['sha256'] if correction_lock else None)
         identity['sha256'] = fingerprint(identity)
         identity_path = run/'identity.json'
         if identity_path.exists():
@@ -147,6 +170,7 @@ def main():
 
         def publish():
             nonlocal last_checkpoint
+            assert_center_unchanged(policy,identity)
             validate_progress(state, rounds, inner_epochs)
             payload = dict(identity=identity, policy=copy.deepcopy(policy.state_dict()),
                            optimizer=copy.deepcopy(optimizer.state_dict()),

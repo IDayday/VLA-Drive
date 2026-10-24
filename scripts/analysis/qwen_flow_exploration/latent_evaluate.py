@@ -10,6 +10,7 @@ from starVLA.rl.qwen_flow_exploration.protocol import read_protocol, require_sce
 from starVLA.rl.qwen_flow_exploration.checkpoint import load_state
 from starVLA.rl.qwen_flow_exploration.latent.gaussian import sample_roots, joint_kl, joint_entropy
 from starVLA.rl.qwen_flow_exploration.latent.policy import LatentNoisePolicy, condition_features
+from starVLA.rl.qwen_flow_exploration.latent.normalization import CENTER_ARM,policy_from_identity,assert_center_unchanged
 from starVLA.rl.qwen_sourceflow.contracts import fingerprint, file_sha
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.safe_flow_improvement.contracts import seed_for
@@ -20,7 +21,7 @@ def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--protocol', required=True)
     parser.add_argument('--output', required=True)
-    parser.add_argument('--arm', choices=['L0','L0-S','L1','L2','L3'], required=True)
+    parser.add_argument('--arm', choices=['L0','L0-S','L1','L2','L3',CENTER_ARM], required=True)
     parser.add_argument('--seed', type=int, default=42, help='Training seed identity; inference seeds are in common protocol')
     parser.add_argument('--checkpoint', help='Complete native latent run or explicit committed checkpoint')
     parser.add_argument('--split', choices=['TRAIN','DEV_SELECT','DEV_AUDIT','NAVTEST'], default='DEV_SELECT')
@@ -32,7 +33,7 @@ def main():
     parser.add_argument('--scorer-workers', type=int, default=1)
     args = parser.parse_args()
     protocol = read_protocol(args.protocol)
-    learned = args.arm in ('L1','L2','L3')
+    learned = args.arm in ('L1','L2','L3',CENTER_ARM)
     if learned != bool(args.checkpoint):
         raise ValueError('Learned arms require a checkpoint; fixed priors must not load one')
     if args.scale not in (.7,1.,1.3) or (args.arm != 'L0-S' and args.scale != 1):
@@ -66,6 +67,9 @@ def main():
         root_scale=args.scale,selection='no oracle/GT/scorer selection',
         root_innovations='original native_qwen_sourceflow_ODE CPU scene-bound namespace',
         qualification=args.qualification)
+    if args.arm==CENTER_ARM:
+        identity.update(center_normalizer=payload['identity']['center_normalizer'],
+                        correction_budget_lock_sha256=payload['identity']['correction_budget_lock_sha256'])
     identity['sha256']=fingerprint(identity)
     if (root/'identity.json').exists():
         if json.loads((root/'identity.json').read_text()) != identity:
@@ -86,10 +90,9 @@ def main():
     try:
         policy=None
         if learned:
-            desc=payload['identity']['policy_identity']
-            policy=LatentNoisePolicy(desc['feature_dim'],conditional=desc['conditional'],
-                                    log_std_bounds=desc['log_std_bounds']).to(env.device)
+            policy=policy_from_identity(payload['identity'],protocol,env.device)
             policy.load_state_dict(payload['policy'],strict=True)
+            assert_center_unchanged(policy,payload['identity'])
             policy.eval().requires_grad_(False)
         env.set_behavior_identity(dict(experiment=env.experiment_id,root_policy_sha256=identity['root_policy_sha256'],
             checkpoint_state=state,arm=args.arm,scale=args.scale,readout=args.readout))

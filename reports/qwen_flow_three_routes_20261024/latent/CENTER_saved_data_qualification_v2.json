@@ -1,0 +1,150 @@
+{
+  "schema": "latent_CENTER_saved_data_feasibility_v1",
+  "status": "PASS",
+  "qualification_only": true,
+  "new_rollouts": 0,
+  "new_scoring_calls": 0,
+  "new_GPU_tasks": 0,
+  "policy_weights_exported": false,
+  "actual_training_source_identity": "57c0a3374346c6d1c8074c4b084c436dda533f1f8e9f25d23395801d620d7f82",
+  "normalizer": {
+    "schema": "TRAIN512_mean_center_then_existing_LayerNorm_v1",
+    "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+    "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+    "TRAIN_tokens_sha256": "49c4318c88c68c2544d156802294a039be44df88c67fdb6231456318b5564d96",
+    "scenes": 512,
+    "feature_dim": 7168,
+    "fit": "FP64 mean of one verified frozen feature vector per unique TRAIN scene, storedFP32",
+    "mean_tensor_sha256": "f5b6b0a799d4143f752a1f18cbd81d239edc51ee2c9ffed4945e0a79528d0a88",
+    "std_whitening": false,
+    "immutable_mean": true,
+    "existing_LayerNorm_eps": 1e-05,
+    "no_DEV_or_test_statistics": true,
+    "qualification_only": true,
+    "sha256": "ec7f07d576484f74ab35a5d04f3b62fa3b5d7778d4176c4ebb62ca500b50ea7c"
+  },
+  "normalizer_asset_sha256": "7069e5a3028a021b7b39c8ba200f0105ab486643bf158b8a07d777d5dfc2d0bf",
+  "exact_repeat_feature_max_error": 0.0,
+  "verified_unique_scenes": 512,
+  "verified_scene_visits": 1024,
+  "source_batch_identity_sha256": "49a5823532192678243db5e2d73e5ff2b8e54d2aa22118f6416c715e516058d4",
+  "CPU_vs_saved_GPU_initial_joint_logprob_max_abs": 7.62939453125e-06,
+  "same_input_four_inner_probe": {
+    "unchanged": {
+      "initial_root_distribution_exactly_N0I": true,
+      "first_inner_ratio_exactly1": true,
+      "old_roots_rewards_advantages_unchanged": true,
+      "optimizer_updates": 4,
+      "before": {
+        "first_preactivation_RMS": 0.5738763809204102,
+        "first_preactivation_between_scene_RMS": 0.002265587216243148,
+        "first_tanh_saturation_gt099_fraction": 0.0,
+        "first_tanh_between_scene_RMS": 0.0018055378459393978,
+        "root_mean_total_RMS": 0.0,
+        "root_mean_between_scene_RMS": 0.0,
+        "root_logstd_between_scene_RMS": 0.0,
+        "prior_KL_joint": 0.0
+      },
+      "after": {
+        "first_preactivation_RMS": 0.8320340514183044,
+        "first_preactivation_between_scene_RMS": 0.002265548100695014,
+        "first_tanh_saturation_gt099_fraction": 0.0,
+        "first_tanh_between_scene_RMS": 0.0015714853070676327,
+        "root_mean_total_RMS": 0.0032223111484199762,
+        "root_mean_between_scene_RMS": 4.84133693134936e-07,
+        "root_logstd_between_scene_RMS": 3.355095827828336e-07,
+        "prior_KL_joint": 0.0002442392287775874
+      },
+      "gradient_norms": [
+        0.5376091003417969,
+        0.5362105965614319,
+        0.6033450365066528,
+        0.709270179271698
+      ],
+      "actual_learning_rates": [
+        [
+          1.25e-05
+        ],
+        [
+          2.5e-05
+        ],
+        [
+          3.7500000000000003e-05
+        ],
+        [
+          5e-05
+        ]
+      ],
+      "final_parameter_gradient_norms": {
+        "network.0.weight": 0.00017700214812066406,
+        "network.0.bias": 0.00017319037578999996,
+        "network.1.weight": 0.025311758741736412,
+        "network.1.bias": 0.0002989773347508162,
+        "network.3.weight": 0.0040415627881884575,
+        "network.3.bias": 0.0006729727028869092,
+        "network.5.weight": 0.6684111952781677,
+        "network.5.bias": 0.23586633801460266
+      }
+    },
+    "CENTER_qualification_only": {
+      "initial_root_distribution_exactly_N0I": true,
+      "first_inner_ratio_exactly1": true,
+      "old_roots_rewards_advantages_unchanged": true,
+      "optimizer_updates": 4,
+      "before": {
+        "first_preactivation_RMS": 0.5668103098869324,
+        "first_preactivation_between_scene_RMS": 0.5664374828338623,
+        "first_tanh_saturation_gt099_fraction": 0.0,
+        "first_tanh_between_scene_RMS": 0.4513108432292938,
+        "root_mean_total_RMS": 0.0,
+        "root_mean_between_scene_RMS": 0.0,
+        "root_logstd_between_scene_RMS": 0.0,
+        "prior_KL_joint": 0.0
+      },
+      "after": {
+        "first_preactivation_RMS": 0.6516959071159363,
+        "first_preactivation_between_scene_RMS": 0.6511138081550598,
+        "first_tanh_saturation_gt099_fraction": 1.52587890625e-05,
+        "first_tanh_between_scene_RMS": 0.4965265393257141,
+        "root_mean_total_RMS": 0.0015203484799712896,
+        "root_mean_between_scene_RMS": 0.001516135991550982,
+        "root_logstd_between_scene_RMS": 0.0010893591679632664,
+        "prior_KL_joint": 5.6303491874132305e-05
+      },
+      "gradient_norms": [
+        0.5142889022827148,
+        0.5130978226661682,
+        0.5870347619056702,
+        0.7075721621513367
+      ],
+      "actual_learning_rates": [
+        [
+          1.25e-05
+        ],
+        [
+          2.5e-05
+        ],
+        [
+          3.7500000000000003e-05
+        ],
+        [
+          5e-05
+        ]
+      ],
+      "final_parameter_gradient_norms": {
+        "network.0.weight": 0.0001620925177121535,
+        "network.0.bias": 0.00015312367759179324,
+        "network.1.weight": 0.02251180075109005,
+        "network.1.bias": 0.00026107000303454697,
+        "network.3.weight": 0.003930542152374983,
+        "network.3.bias": 0.0006444240570999682,
+        "network.5.weight": 0.6665719747543335,
+        "network.5.bias": 0.23625712096691132
+      }
+    }
+  },
+  "wall_seconds": 21.30366432853043,
+  "interpretation": "Bounded feasibility and conditioning arithmetic only; no claim CENTER improves PDMS or remains nonsaturated after a full run",
+  "proposed_newrun": "L1_CENTER_V1 only if deployment evidence justifies it; fresh q0 and Adam, unchanged64round/256update budget, all other L1 settings fixed; no launch authorization consumed here",
+  "sha256": "dc0974c76c3a0590a57ede6dfeac63e56a9f66de458d3c0fac500628c5ade8b1"
+}
