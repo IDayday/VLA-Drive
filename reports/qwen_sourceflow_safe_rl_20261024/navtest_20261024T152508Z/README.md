@@ -24,3 +24,6 @@
 ```
 
 公开operator为[scripts/analysis/qwen_sourceflow/evaluate_registered_navtest.py](../../../scripts/analysis/qwen_sourceflow/evaluate_registered_navtest.py)。完整权重/原始图像/逐场景chain不上传Git。早期结果不能代替两组各50k的固定终点与DEV选择后的最终确认。
+
+
+完整评测已完成，见[RESULTS.md](RESULTS.md)及聚合JSON。
