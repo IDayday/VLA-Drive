@@ -1,0 +1,45 @@
+{
+  "schema": "native_navtest_resource_handoff_summary_v1",
+  "status": "COMPLETE",
+  "user_instructions": [
+    "navtest 评估用其余的空闲GPU，例如 vlawm-zt",
+    "以及tsinghua-zt6 1-7空闲卡"
+  ],
+  "actual_successor_allocation": {
+    "training-vlawm-zt": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "training-vlawm-tsinghua-zt6": [
+      1,
+      2
+    ]
+  },
+  "excluded_gpu": "tsinghua-zt6 GPU0",
+  "moved_unfinished_shards": 10,
+  "original_shards": 24,
+  "preserved_partition": "rank/world8 unchanged per model",
+  "source_sha": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1",
+  "inference": "single_candidate_source_shift5_ODE_K10",
+  "metric": "canonical_NAVSIM_v1.1",
+  "seed": 2101,
+  "scenes_per_model": 12146,
+  "logs_per_model": 136,
+  "training_interrupted": false,
+  "evidence_directory": "/mnt/project/qwen-sourceflow-native-20261018/navtest_resource_move_20261024",
+  "completed_scene_payloads_preserved": true,
+  "invocation_cost_semantics": "Old interrupted invocations and successor costs retained. Completed inference counters exclude potentially interrupted partial forwards; at most one per interrupted worker. Worker wall is not exclusive GPU time.",
+  "standingscope": "Future Navtest grant retained as qwen_sourceflow_navtest_resources_20261024; legacy-compatible current lease closed",
+  "files": {
+    "authorization.json": "67c804991d70cd7c7266888b7d906c832cbb59ae4f48f9ec4dcb833fa1c5fd36",
+    "dispatch.json": "cecb4b89b9bc47e1ba08700d2d22477e9c2f3eb7d57da58f9e30e1723e3dec60",
+    "COMPLETE.json": "f7f0dad17f4526c0e3dfcba9bc3307beeeb437e209b876208ec310dd0fb3de67",
+    "lease_closed.json": "a2412f8fbcee817bd8c01e6b5b0e9155f26845566f6fb9b077e63e1c9a436179"
+  }
+}

@@ -1,3 +1,5 @@
+**2026-10-24最新完整Navtest：IL59,787=87.1061；CANONICAL35,800=90.0771；SOURCE30,800=90.2648。** [完整结果、配对安全变化与空闲GPU迁移](latest_navtest_20261024/README.md)。两条RL均相对自身IL提高，尚未达到92；步数不同，不据此判断reward版本优劣。
+
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
 **当前有效版本代码交付（2026-10-24）：完整Qwen-Flow、IL/RL训练、恢复、导出与评价代码均已跟踪，正式运行源码hash逐项核对通过。** [有效版本与实际入口清单](effective_code_release_20261024.md)。DINO＋历史输入新版本另行开发。
