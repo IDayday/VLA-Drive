@@ -94,6 +94,7 @@ def main():
         current_model_sha256=current['parent_model_sha256'],
         reference_model_sha256=reference['parent_model_sha256'],
         analysis_sha256=file_sha(__file__), scenes=len(tokens),
+        integrity_analysis_sha256=file_sha(Path(__file__).with_name('evaluation_integrity.py')),
         source_compatibility=compatibility,
         logs=len({r['log'] for r in rows}), seed=current['seed'],
         inference=current['inference'], metric=current['metric'],

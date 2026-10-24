@@ -7,19 +7,18 @@ from scripts.analysis.simwam_recipe.analyze_evaluation import METRICS,SAFETY,mot
 from starVLA.rl.safe_flow_improvement.diagnostics import log_bootstrap_difference
 from starVLA.rl.qwen_sourceflow.contracts import POPULATION,fingerprint,file_sha
 from starVLA.rl.flow_grpo.transactions import atomic_json
+from scripts.analysis.qwen_sourceflow.evaluation_integrity import verify_identity,verify_scene
 
 
 def read(path):
-    path=Path(path);identity=json.loads((path/'identity.json').read_text())
+    path=Path(path);identity=verify_identity(json.loads((path/'identity.json').read_text()))
     if identity['qualification'] or not identity['full_population']:raise ValueError('No qualification/subset main result')
     pop=json.loads(POPULATION.read_text());tokens=pop[{'DEV':'dev_tokens','NAVTEST':'navtest_tokens','TRAIN':'train_tokens'}[identity['cohort']]]
     if fingerprint(tokens)!=identity['token_sha256']:raise ValueError('Changed evaluation population')
     rows=[]
     for token in tokens:
-        row=json.loads((path/'scenes'/f'{token}.json').read_text());sha=row.pop('sha256')
-        if (fingerprint(row)!=sha or row['identity']!=identity['sha256'] or row['token']!=token or
-            row['log']!=pop['token_logs'][token] or row['status']!='OK'):
-            raise ValueError('Changed/missing/invalid scored scene: '+token)
+        row=verify_scene(json.loads((path/'scenes'/f'{token}.json').read_text()),identity,
+            token=token,log=pop['token_logs'][token])
         rows.append(row)
     values=np.array([[row['feedback']['metrics'][k] for k in METRICS] for row in rows],dtype=np.float64)
     if not np.isfinite(values).all():raise ValueError('Nonfinite complete population')
@@ -39,6 +38,7 @@ def main():
     result=dict(schema='native_Qwen_sourceflow_paired_v1',status='COMPLETE',scenes=len(tokens),
         logs=len({r['log'] for r in rows}),seed=2101,training_seed_repeats=1,inference_seeds=1,
         evaluation=a.evaluation,reference=a.reference,analysis_sha256=file_sha(__file__),
+        integrity_analysis_sha256=file_sha(Path(__file__).with_name('evaluation_integrity.py')),
         mean_percent={k:float(100*value[:,i].mean()) for i,k in enumerate(METRICS)},
         own_IL_PDMS=float(100*base[:,0].mean()),RL_PDMS=float(100*value[:,0].mean()),
         RL_minus_own_IL_PDMS_points=float(100*delta.mean()),reached92=bool(100*value[:,0].mean()>=92),
