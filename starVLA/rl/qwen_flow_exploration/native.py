@@ -44,8 +44,16 @@ def tensor_bytes(value):
 
 class NativeEnvironment:
     def __init__(self, protocol=None, device='cuda', trainable='frozen', scorer_workers=1,
-                 ledger_path=None, experiment_id='qualification', cache_scenes=32):
-        require_dispatch(); configure_native_numerics(); torch.set_num_threads(4)
+                 ledger_path=None, experiment_id='qualification', cache_scenes=32, evaluation_scope=None):
+        if evaluation_scope is None:
+            require_dispatch()
+        elif evaluation_scope=='NAVTEST_ONLY' and trainable=='frozen':
+            from .evaluation_admission import require_navtest_dispatch
+            require_navtest_dispatch()
+        else:
+            raise PermissionError('Scoped spare GPUs only permit frozen NAVTEST inference')
+        self.evaluation_scope=evaluation_scope
+        configure_native_numerics(); torch.set_num_threads(4)
         self.protocol = read_protocol(protocol) if not isinstance(protocol, dict) else protocol
         self.device = torch.device(device)
         self.experiment_id = experiment_id
@@ -74,6 +82,8 @@ class NativeEnvironment:
         self.scorer_config_hash = self.service.protocol['sha256']
 
     def dataset(self, split):
+        if getattr(self,'evaluation_scope',None)=='NAVTEST_ONLY' and split!='NAVTEST':
+            raise PermissionError('This GPU grant does not allow TRAIN or DEV access')
         family = 'TRAIN' if split == 'TRAIN' else 'NAVTEST' if split == 'NAVTEST' else 'DEV'
         if family not in self.data:
             self.data[family] = RawSceneData(self.protocol['data'][family], cohort=family)
@@ -123,6 +133,8 @@ class NativeEnvironment:
     def score_actions(self, token, normalized_actions, split='TRAIN', proposal_source='policy',
                       latent_or_proposal_parameters=None, requested_trajectories=None,
                       parent_candidate_ids=None, seed=None):
+        if getattr(self,'evaluation_scope',None)=='NAVTEST_ONLY' and split!='NAVTEST':
+            raise PermissionError('This GPU grant only permits NAVTEST scoring')
         require_scene(self.protocol, token, split)
         normalized = torch.as_tensor(normalized_actions).detach().float().cpu()
         decoded = self.codec.denorm_odo(normalized).numpy()
@@ -223,6 +235,8 @@ class NativeEnvironment:
             yield loss,metrics,(end-start)/G
 
     def source_fm_loss(self, condition, normalized_targets, noise=None, times=None, generator=None):
+        if getattr(self,'evaluation_scope',None)=='NAVTEST_ONLY':
+            raise PermissionError('The scoped spare-GPU capability cannot compute training losses')
         target=torch.as_tensor(normalized_targets,device=self.device).float()
         if target.ndim==2:target=target[None]
         if noise is None:

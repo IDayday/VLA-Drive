@@ -119,6 +119,30 @@ $MODEL_PY -m scripts.analysis.qwen_flow_exploration.preservation_analyze \
 
 最终评价只依赖完整base和纯adapter包，加载训练checkpoint是一次独立离线提取。推理时不构建永久reference，不加载存档或teacher，不把dual作为actor输入。未更新权重的BASE与共同L0_sample可以复用，避免重复评分。分析入口拒绝qualification、不完整scene/seed人口和重复候选池；P3−P2、P5−P1及存档×约束对照会显式列出缺失实验。
 
+### 单独登记的终点SDE→ODE迁移审计
+
+主部署仍是前述pure-merged、DEV固定五seed、每seed单候选ODE。另实现了只读终点审计，用于区分“训练SDE均值提高”与“同root的ODE也提高”。这是评估预算，不增加算法训练臂。
+
+固定TRAIN128、每scene16条：六个P终点分别恢复实际LoRA，在全参数冻结、eval/no_grad状态下重跑原source SDE；新SDE的全部x0必须逐值等于初始reference_pool保存的x0，完整CPU RNG流也必须一致。随后使用同一当前未合并专家、同16个x0生成ODE并评分。BASE复用初始2048条SDE反馈，只补2048条同root ODE；六臂各新增4096条评分，因此合计26624条新评分。初始SDE的历史2048条成本只有一个共享来源，不能从总账中消失，也不能重复计为新评分。
+
+输出分别是SDE初始均值、SDE终点均值、ODE初始均值、ODE终点均值和配对差值；不使用best-of-N。审计专家保留LoRA wrapper，数值路径与训练采样一致，明确区别于主表的纯合并部署，不能将两种人口或精度路径混成一个分数。
+
+[CPU六项资格](qualification_sampler_audit_CPU_v2.json)通过，包括实际tiny源actor的adapter恢复、冻结hash/无梯度、源原始随机数调用、部分结果原子恢复、候选均值非oracle、预算身份/缺候选拒绝；还只读核对真实reference_pool的128×G16根噪声和源CPU RNG边界全部逐值一致。没有新GPU推理或评分。每scene完整请求、实际模拟后果、SDE chain/概率和RNG边界仅在私有artifact目录保存。
+
+CLI已执行`--help`及CPU验收；主agent必须先封存独立`TERMINAL_AUDIT_LOCKED`预算并集中派发，不修改运行中的immutable训练快照：
+
+```bash
+$MODEL_PY -m scripts.analysis.qwen_flow_exploration.preservation_audit_sampler \
+  --protocol <common_protocol.json> --budget-lock <terminal_audit_budget.json> \
+  --calibration <calibration_v1/calibration.json> --reference-pool <calibration_v1/reference_pool.pt> \
+  --arm BASE --output <新BASE审计目录>
+$MODEL_PY -m scripts.analysis.qwen_flow_exploration.preservation_audit_sampler \
+  --protocol <common_protocol.json> --budget-lock <terminal_audit_budget.json> \
+  --calibration <calibration_v1/calibration.json> --reference-pool <calibration_v1/reference_pool.pt> \
+  --arm P5 --seed 42 --checkpoint <已COMPLETE的P5run> \
+  --base-audit <已COMPLETE的BASE审计目录> --output <新P5审计目录>
+```
+
 ## 当前研究判断
 
 **证据不足**，仅针对目前尚未完成的正式实验，不是对存档或约束方法的否定。必须等待P0/P3/P4/P5因子对照、P2单轨和P1幅度匹配控制，再以自然评估人口上的净收益、G+/G−及固定高分场景退化判断。

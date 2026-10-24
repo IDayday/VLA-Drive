@@ -1,0 +1,284 @@
+{
+  "schema": "feedback_terminal_native_audit_v2",
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "shared_GT_scene_order_sha256": "2a2cb43edecd05b0dfb3ef4ee124e367d4aeb2f3824190df37a81762c7b15037",
+  "distinct_GT_scenes": 512,
+  "epochs": 8,
+  "order_evidence": "Reconstructed from pinned trainer seed/manifest/cursor; also checks every saved teacher-coverage footprint. Per-token execution traces were not logged.",
+  "no_actor_scoring_or_optimizer_calls": true,
+  "arms": {
+    "S1": {
+      "status": "COMPLETE_NATIVE_AND_APPLICATION",
+      "native_state": {
+        "phase": "COMPLETE",
+        "round": 256,
+        "updates": 256,
+        "next_inner": 0,
+        "arm": "feedback_S1",
+        "seed": 42,
+        "scene_cursor": 4096,
+        "metric_lineage": [
+          {
+            "attempt": "e0e6f4056b154572982dda71a28bec33",
+            "first_update": 1,
+            "last_update": 256
+          }
+        ]
+      },
+      "application_complete_sha256": "685983eeb0d84168e3bb8222665c93cac70fcd75b7656128012edecc0652472d",
+      "native_payload_sha256": "4254b3325dcb0cf245cbf277c5d5c1f02769123dcea63a311b2c1c4e295358a8",
+      "config_sha256": "d512f62d4407f57f7e58ffe08d1a0336ea467a8e8de13d1705a3b25e020860eb",
+      "initial_adapter_sha256": "a4600b0097db0351946dd9b8056d269a8c6c4f0d49c6b54859b28cc6a8bd2797",
+      "terminal_adapter_sha256": "3001d71e0f1566c2dedf8de34e229decae1d7c405ab656068680b417d40ced04",
+      "adapter_tensors": 480,
+      "changed_adapter_tensors": 480,
+      "Adam_states": 480,
+      "Adam_steps": [
+        256
+      ],
+      "all_Adam_moments_finite_FP32": true,
+      "stored_frozen_hash_matches_initial": true,
+      "trainer_terminal_recomputed_frozen_hash_before_COMPLETE": true,
+      "GT_exposures": 4096,
+      "teacher_exposures": 0,
+      "teacher_scene_coverage": 0,
+      "saved_metrics_update_sequence_contiguous": true,
+      "teacher_mask_matches_reconstructed_order": true,
+      "scheduler_last_epoch": 256,
+      "valid_updates": 256,
+      "epoch_mean_GT_loss": [
+        0.0014768568184002628,
+        0.0015899514646817436,
+        0.0015181543619840528,
+        0.0016256573379404005,
+        0.00137530980164835,
+        0.0015114949860748073,
+        0.001399151038244506,
+        0.001760025144931121
+      ],
+      "epoch_mean_teacher_loss": null,
+      "epoch_mean_teacher_loss_semantics": "Unweighted mean of per-update present-teacher means; not population loss. Use scene-weighted/objective curves below.",
+      "epoch_teacher_loss_per_teacher_scene_mean": null,
+      "epoch_teacher_objective_per_population_scene": null,
+      "FM_curve_uses_fresh_noise_time_not_fixed_fit_probe": true,
+      "training_cost": {
+        "optimizer_updates": 256,
+        "GT_terms": 4096,
+        "teacher_terms": 0,
+        "source_FM_forward_backward_terms": 4096,
+        "new_online_candidates": 0,
+        "sum_update_seconds": 3304.014132471755,
+        "mean_update_seconds": 12.906305204967794,
+        "training_phase_worker_wall_seconds": 3402.014218367636,
+        "unallocated_loading_saving_hash_other_overhead_seconds": 98.00008589588106,
+        "training_Qwen_prefills": 4084,
+        "all_invocation_wall_seconds": 5915.693271160126,
+        "final_scored_candidates_including_auxiliary": 3840,
+        "final_model_forwards_including_auxiliary": 19456,
+        "semantics": "Shared GPU worker wall; not dedicated GPU compute. S1 immutable97 auxiliary eval cost is preserved separately from training and primary eval."
+      }
+    },
+    "S2": {
+      "status": "COMPLETE_NATIVE_AND_APPLICATION",
+      "native_state": {
+        "phase": "COMPLETE",
+        "round": 256,
+        "updates": 256,
+        "next_inner": 0,
+        "arm": "feedback_S2",
+        "seed": 42,
+        "scene_cursor": 4096,
+        "metric_lineage": [
+          {
+            "attempt": "18d722a18ebe42258a4f7ac46c7c42a5",
+            "first_update": 1,
+            "last_update": 256
+          }
+        ]
+      },
+      "application_complete_sha256": "c1fd9f3a22ae1c38f62d4329912ab0f00294e91bfbdbff13990d19323054030a",
+      "native_payload_sha256": "e6ebc8f9662d904ec1be26f1452037ed2d8b14863196a2fcadacdf49a3028d82",
+      "config_sha256": "c3d6a52fae6e3d47851a2a3c9ea217ca59192f159b3957504f5e82ee61bedb86",
+      "initial_adapter_sha256": "a4600b0097db0351946dd9b8056d269a8c6c4f0d49c6b54859b28cc6a8bd2797",
+      "terminal_adapter_sha256": "8144123b585be2184bd789411c835aa76c31529145f9cc4adaab44418f9d9dfd",
+      "adapter_tensors": 480,
+      "changed_adapter_tensors": 480,
+      "Adam_states": 480,
+      "Adam_steps": [
+        256
+      ],
+      "all_Adam_moments_finite_FP32": true,
+      "stored_frozen_hash_matches_initial": true,
+      "trainer_terminal_recomputed_frozen_hash_before_COMPLETE": true,
+      "GT_exposures": 4096,
+      "teacher_exposures": 1896,
+      "teacher_scene_coverage": 237,
+      "saved_metrics_update_sequence_contiguous": true,
+      "teacher_mask_matches_reconstructed_order": true,
+      "scheduler_last_epoch": 256,
+      "valid_updates": 256,
+      "epoch_mean_GT_loss": [
+        0.0014787229556735282,
+        0.0016297514196334517,
+        0.0016022797179226379,
+        0.001783717765038384,
+        0.0015611273724097652,
+        0.001704230679004437,
+        0.001592149746775573,
+        0.001965723148003806
+      ],
+      "epoch_mean_teacher_loss": [
+        0.0966088302184811,
+        0.021165734418723728,
+        0.01220348018871631,
+        0.07055164621375712,
+        0.04489758470482321,
+        0.014289568940440584,
+        0.014879075754838506,
+        0.03144268281940711
+      ],
+      "epoch_mean_teacher_loss_semantics": "Unweighted mean of per-update present-teacher means; not population loss. Use scene-weighted/objective curves below.",
+      "epoch_teacher_loss_per_teacher_scene_mean": [
+        0.05227458382416121,
+        0.021173139785043017,
+        0.013095410840744948,
+        0.06492136220179645,
+        0.04942866402192673,
+        0.011529735615014112,
+        0.013035158973512685,
+        0.02511692804577796
+      ],
+      "epoch_teacher_objective_per_population_scene": [
+        0.04839482955596175,
+        0.019601695816621856,
+        0.012123485817408408,
+        0.060102979850881866,
+        0.045760130364049356,
+        0.010674013049837283,
+        0.01206770576844729,
+        0.023252781042380377
+      ],
+      "FM_curve_uses_fresh_noise_time_not_fixed_fit_probe": true,
+      "training_cost": {
+        "optimizer_updates": 256,
+        "GT_terms": 4096,
+        "teacher_terms": 1896,
+        "source_FM_forward_backward_terms": 5992,
+        "new_online_candidates": 0,
+        "sum_update_seconds": 4152.371215190738,
+        "mean_update_seconds": 16.220200059338822,
+        "training_phase_worker_wall_seconds": 4252.117681747302,
+        "unallocated_loading_saving_hash_other_overhead_seconds": 99.74646655656397,
+        "training_Qwen_prefills": 4084,
+        "all_invocation_wall_seconds": 4252.1890280246735,
+        "final_scored_candidates_including_auxiliary": 0,
+        "final_model_forwards_including_auxiliary": 5992,
+        "semantics": "Shared GPU worker wall; not dedicated GPU compute. S1 immutable97 auxiliary eval cost is preserved separately from training and primary eval."
+      }
+    },
+    "S3": {
+      "status": "COMPLETE_NATIVE_AND_APPLICATION",
+      "native_state": {
+        "phase": "COMPLETE",
+        "round": 256,
+        "updates": 256,
+        "next_inner": 0,
+        "arm": "feedback_S3",
+        "seed": 42,
+        "scene_cursor": 4096,
+        "metric_lineage": [
+          {
+            "attempt": "aa2689b0a7c44b438a6bf9c7f312a358",
+            "first_update": 1,
+            "last_update": 256
+          }
+        ]
+      },
+      "application_complete_sha256": "bcb0ffb1f8d04d770d0546ee6e8cd225b5755b6d7f773d1d71faa7a5314d1772",
+      "native_payload_sha256": "8bcb132377a871450b447e4979c2a2f88c4634136f41e6ac0d339f1a06eab50f",
+      "config_sha256": "c25970063c806783b8e664e3667318866ea5abf8d5d666ca8374c798857f6968",
+      "initial_adapter_sha256": "a4600b0097db0351946dd9b8056d269a8c6c4f0d49c6b54859b28cc6a8bd2797",
+      "terminal_adapter_sha256": "2e5260451e997ab4f042287475eadab37e27144e07e9c3eca9079356e0555b79",
+      "adapter_tensors": 480,
+      "changed_adapter_tensors": 480,
+      "Adam_states": 480,
+      "Adam_steps": [
+        256
+      ],
+      "all_Adam_moments_finite_FP32": true,
+      "stored_frozen_hash_matches_initial": true,
+      "trainer_terminal_recomputed_frozen_hash_before_COMPLETE": true,
+      "GT_exposures": 4096,
+      "teacher_exposures": 1896,
+      "teacher_scene_coverage": 237,
+      "saved_metrics_update_sequence_contiguous": true,
+      "teacher_mask_matches_reconstructed_order": true,
+      "scheduler_last_epoch": 256,
+      "valid_updates": 256,
+      "epoch_mean_GT_loss": [
+        0.0014787229556735282,
+        0.0016297006638458789,
+        0.001601141923475496,
+        0.0017872710412341064,
+        0.0015679906811992828,
+        0.0017014618034766893,
+        0.0015908022621611284,
+        0.0019763125092256972
+      ],
+      "epoch_mean_teacher_loss": [
+        0.0966088302184811,
+        0.02116395488295294,
+        0.012200054911486506,
+        0.07054538833387944,
+        0.04489068522315396,
+        0.014283397956961416,
+        0.01488392791702789,
+        0.03145138320795668
+      ],
+      "epoch_mean_teacher_loss_semantics": "Unweighted mean of per-update present-teacher means; not population loss. Use scene-weighted/objective curves below.",
+      "epoch_teacher_loss_per_teacher_scene_mean": [
+        0.05227458382416121,
+        0.021171952107932327,
+        0.013093907056719038,
+        0.06491521463866687,
+        0.04942060129912283,
+        0.011520301994482523,
+        0.01303965008560466,
+        0.025129474307587513
+      ],
+      "epoch_teacher_objective_per_population_scene": [
+        0.04839482955596175,
+        0.019600596287421723,
+        0.012122093642353171,
+        0.06009728855220331,
+        0.04575266604645356,
+        0.010665279580829523,
+        0.012071863555813689,
+        0.023264396136321253
+      ],
+      "FM_curve_uses_fresh_noise_time_not_fixed_fit_probe": true,
+      "training_cost": {
+        "optimizer_updates": 256,
+        "GT_terms": 4096,
+        "teacher_terms": 1896,
+        "source_FM_forward_backward_terms": 5992,
+        "new_online_candidates": 0,
+        "sum_update_seconds": 3871.0079957265407,
+        "mean_update_seconds": 15.1211249833068,
+        "training_phase_worker_wall_seconds": 3970.2465825118124,
+        "unallocated_loading_saving_hash_other_overhead_seconds": 99.23858678527176,
+        "training_Qwen_prefills": 4084,
+        "all_invocation_wall_seconds": 3970.2955753803253,
+        "final_scored_candidates_including_auxiliary": 0,
+        "final_model_forwards_including_auxiliary": 5992,
+        "semantics": "Shared GPU worker wall; not dedicated GPU compute. S1 immutable97 auxiliary eval cost is preserved separately from training and primary eval."
+      }
+    }
+  },
+  "identical_initial_LoRA": true,
+  "identical_initial_frozen_model_reference": true,
+  "matched_common_config_except_arm_teacher_fields": true,
+  "analysis_source_sha256": "c1cdfa3b38f8c8ab8c94267120b9ed505f0be3f354e05907c3f71d2697f8ddec",
+  "reference_semantics": "Teacher gain uses candidate0; five independent reference roots define discovery means/strata, never substituted for candidate0 during these runs.",
+  "sha256": "4be56a7ba617fcedd73e4f09bcf0532a10393733887be9b3482e77dfcdda689c"
+}

@@ -1,0 +1,168 @@
+{
+  "full_base_separate": true,
+  "packages": {
+    "CENTER_qualification_only": {
+      "metadata": {
+        "arm": "L1_CENTER_V1",
+        "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+        "checkpoint_state": {
+          "arm": "L1_CENTER_V1",
+          "new_candidates": 256,
+          "next_inner": 0,
+          "phase": "COMPLETE",
+          "raw_scene_exposures": 16,
+          "round": 1,
+          "seed": 42,
+          "updates": 4
+        },
+        "correction_budget_lock_sha256": null,
+        "dependencies": "only this q package and the separate immutable complete frozen base; no optimizer, training checkpoint, candidate bank or external normalizer asset",
+        "inference_contract": {
+          "feature_layout": "scene_batch1",
+          "generator_grid": "source_shift5",
+          "generator_steps": 10,
+          "primary": "q_sampled_single",
+          "root_RNG_device": "cpu",
+          "root_innovation_dtype": "float32",
+          "root_namespace": "native_qwen_sourceflow_ODE",
+          "root_shape": [
+            8,
+            3
+          ],
+          "secondary": "q_mean_root_single_separate",
+          "selection": "single output; no scorer/GT/oracle"
+        },
+        "normalizer_inline": {
+          "identity": {
+            "TRAIN_tokens_sha256": "49c4318c88c68c2544d156802294a039be44df88c67fdb6231456318b5564d96",
+            "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+            "existing_LayerNorm_eps": 1e-05,
+            "feature_dim": 7168,
+            "fit": "FP64 mean of one verified frozen feature vector per unique TRAIN scene, storedFP32",
+            "immutable_mean": true,
+            "mean_tensor_sha256": "f5b6b0a799d4143f752a1f18cbd81d239edc51ee2c9ffed4945e0a79528d0a88",
+            "no_DEV_or_test_statistics": true,
+            "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+            "qualification_only": true,
+            "scenes": 512,
+            "schema": "TRAIN512_mean_center_then_existing_LayerNorm_v1",
+            "sha256": "ec7f07d576484f74ab35a5d04f3b62fa3b5d7778d4176c4ebb62ca500b50ea7c",
+            "std_whitening": false
+          },
+          "source_kind": "fixed TRAIN statistic stored inline as feature_center; no feature cache or external normalizer path"
+        },
+        "policy_identity": {
+          "center_identity": {
+            "TRAIN_tokens_sha256": "49c4318c88c68c2544d156802294a039be44df88c67fdb6231456318b5564d96",
+            "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+            "existing_LayerNorm_eps": 1e-05,
+            "feature_dim": 7168,
+            "fit": "FP64 mean of one verified frozen feature vector per unique TRAIN scene, storedFP32",
+            "immutable_mean": true,
+            "mean_tensor_sha256": "f5b6b0a799d4143f752a1f18cbd81d239edc51ee2c9ffed4945e0a79528d0a88",
+            "no_DEV_or_test_statistics": true,
+            "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+            "qualification_only": true,
+            "scenes": 512,
+            "schema": "TRAIN512_mean_center_then_existing_LayerNorm_v1",
+            "sha256": "ec7f07d576484f74ab35a5d04f3b62fa3b5d7778d4176c4ebb62ca500b50ea7c",
+            "std_whitening": false
+          },
+          "conditional": true,
+          "deterministic_readout": "conditional mean root; separately reported from sampled root",
+          "feature_dim": 7168,
+          "feature_normalization": "fixed TRAIN mean center before unchanged per-scene LayerNorm; no stdwhitening",
+          "feature_readout": "masked mean text/state context + last visual V; full generator memory retained",
+          "initial_prior": "N(0,I)",
+          "log_probability": "joint sum over all24 root coordinates",
+          "log_std_bounds": [
+            -0.6931471805599453,
+            0.6931471805599453
+          ],
+          "network_execution_layout": "scene_batch1 for rollout and fixed-root recomputation",
+          "root_shape": [
+            8,
+            3
+          ],
+          "schema": "native_conditional_root_diagonal_Gaussian_v1"
+        },
+        "policy_sha256": "743bdeb441512b4a347ad4d3d3f16ea3c579d901a844468849d6a15a97f266ac",
+        "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+        "q_weights_file_sha256": "9edb75563f30f983ad05570f820342b4240acf70ef157e5477a24054d11403ba",
+        "qualification": true,
+        "schema": "frozen_root_q_deployment_package_v1",
+        "sha256": "700a5187ccf19da82bb8f88682601b4ada2956a818b95262ef836ebab790033b",
+        "source_training_files_sha256": "784900d802777c490e55fd67419de4591b5c9a36837b4bf70c6f867acca45338",
+        "source_training_identity_sha256": "d2230e86602082f9c52dbadc246c5ccd3f8e2a6938282a782600c6fd563763a9",
+        "training_seed": 42
+      },
+      "path": "/mnt/project/qwen-flow-three-routes-20261024/qualification/deployment_packages_v1/CENTER_qualification",
+      "weight_bytes": 3804860
+    },
+    "formal_L1": {
+      "metadata": {
+        "arm": "L1",
+        "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+        "checkpoint_state": {
+          "arm": "L1",
+          "new_candidates": 16384,
+          "next_inner": 0,
+          "phase": "COMPLETE",
+          "raw_scene_exposures": 1024,
+          "round": 64,
+          "seed": 42,
+          "updates": 256
+        },
+        "correction_budget_lock_sha256": null,
+        "dependencies": "only this q package and the separate immutable complete frozen base; no optimizer, training checkpoint, candidate bank or external normalizer asset",
+        "inference_contract": {
+          "feature_layout": "scene_batch1",
+          "generator_grid": "source_shift5",
+          "generator_steps": 10,
+          "primary": "q_sampled_single",
+          "root_RNG_device": "cpu",
+          "root_innovation_dtype": "float32",
+          "root_namespace": "native_qwen_sourceflow_ODE",
+          "root_shape": [
+            8,
+            3
+          ],
+          "secondary": "q_mean_root_single_separate",
+          "selection": "single output; no scorer/GT/oracle"
+        },
+        "normalizer_inline": null,
+        "policy_identity": {
+          "conditional": true,
+          "deterministic_readout": "conditional mean root; separately reported from sampled root",
+          "feature_dim": 7168,
+          "feature_readout": "masked mean text/state context + last visual V; full generator memory retained",
+          "initial_prior": "N(0,I)",
+          "log_probability": "joint sum over all24 root coordinates",
+          "log_std_bounds": [
+            -0.6931471805599453,
+            0.6931471805599453
+          ],
+          "network_execution_layout": "scene_batch1 for rollout and fixed-root recomputation",
+          "root_shape": [
+            8,
+            3
+          ],
+          "schema": "native_conditional_root_diagonal_Gaussian_v1"
+        },
+        "policy_sha256": "3145cce82090ca0e46a914cd6d48a036d3f1260340bbb3b8e1a1937fc06f3c41",
+        "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+        "q_weights_file_sha256": "18e331e6468770f192aee9857a621fc30aa2ae9055dcf8db73fd85324038fa04",
+        "qualification": false,
+        "schema": "frozen_root_q_deployment_package_v1",
+        "sha256": "8189ff78e09e0da82fc38b0a4a28108b747c797cea5d3e90b8492c941cfc72f1",
+        "source_training_files_sha256": "9f3f0857a05a13640a96c681354852069cb832c954d994d6b07689487d2c0b51",
+        "source_training_identity_sha256": "57c0a3374346c6d1c8074c4b084c436dda533f1f8e9f25d23395801d620d7f82",
+        "training_seed": 42
+      },
+      "path": "/mnt/project/qwen-flow-three-routes-20261024/deployment/q_L1_seed42_v1",
+      "weight_bytes": 3775936
+    }
+  },
+  "schema": "pure_q_deployment_index_v1",
+  "weights_not_committed": true
+}

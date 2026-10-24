@@ -1,6 +1,6 @@
 # 路线二：物理反馈搜索与源FM吸收
 
-本目录属于独立三路线研究，公共起点由主agent锁定为成熟CANONICAL50k完整合并模型；不是旧DDP策略提取实验的恢复。当前已完成CPU及真实模型资格、共同bank和F0–F4真实搜索；学生训练由主agent统一GPU调度。`qualification_cpu_v1.json`中的synthetic评分仅测试搜索逻辑，**不是驾驶研究结果**。
+本目录属于独立三路线研究，公共起点由主agent锁定为成熟CANONICAL50k完整合并模型；不是旧DDP策略提取实验的恢复。当前已完成CPU及真实模型资格、共同bank、F0–F4真实搜索、三组256更新及统一单候选评价。`qualification_cpu_v1.json`中的synthetic评分仅测试搜索逻辑，**不是驾驶研究结果**。
 
 ## 实际复用与边界
 
@@ -57,4 +57,12 @@ v1全部证据保留。正式搜索前做最小修正：旧请求曲线极值只
 
 immutable97上的CPU campaign已完成512 TRAIN、256 DEV_SELECT，各方法K32；没有失败、重试或额外GPU派发。TRAIN F1盲结构化proposal相对F0有限oracle提高0.47578点，DEV提高0.96639点；F3物理反馈相对F2仅标量则几乎相同，未多发现安全修复。F4的oracle增量很小，未达预登记实际价值量级。[完整分离发现/部署的报告](discovery_v1.md)、[聚合与paired CI](discovery_v1_summary.json)。
 
-S1/S2/S3的FM吸收与重新采样结论尚待正式训练和统一评价，不提前宣称路线成功。S1从immutable97启动时带的helper自动评价使用旧noise namespace与batch布局，保留为辅助读出；主配对统一使用plain merged adapter evaluator。[评价合同更正](evaluation_protocol_delta.md)、[有限CPU接口资格](evaluation_helper_cpu_v1.json)。该修正不热改运行快照，不改变训练、teacher门槛或官方评分。
+S1从immutable97启动时带的helper自动评价使用旧noise namespace与batch布局，保留为辅助读出；主配对统一使用plain merged adapter evaluator。[评价合同更正](evaluation_protocol_delta.md)、[有限CPU接口资格](evaluation_helper_cpu_v1.json)。该修正不热改运行快照，不改变训练、teacher门槛或官方评分。
+
+## 终点、准入与实际吸收
+
+S1/S2/S3均完成256更新与4096 GT曝光，S2/S3各1896 teacher曝光；初始化相同，480个Adam状态均到256步、有限且冻结hash一致。统一DEV_SELECT单候选结果：base92.14310、S1 91.80622、S2 92.37017、S3 92.34461。S3−base为+0.20151点、log区间跨0；不能只引用S3−S1的+0.53839，也不能将DEV超过92宣称为Navtest92。[完整终点与成本报告](terminal_results_v1.md)。
+
+237个教师场景的COMMON-nearest teacher ADE从base0.34923m降到S3 0.28174m，显示几何部分吸收；但安全恢复teacher场景的真实后果仍未保住。固定stable-zero中唯一被搜索修复的scene已以4个score1.0目标进入训练，学生新五个ODE输出仍全部为零。[实际吸收聚合](target_absorption_v1_summary.json)。
+
+发现到准入也存在覆盖损耗，但不是所有问题都在准入：296个五ref口径安全改善场景有70个未准入（51质量gate、19 candidate0参考增益gate）；teacher抽样期望的全人口账面差约+1.067点，不能当作实际部署增益或保证。[准入审计](admission_v1.md)、[抽样目标质量](admission_expected_target_v2.md)。后续GRPO未启动，因为单候选可信净增益这一前提尚未满足；未改变阈值、β或追加训练矩阵。

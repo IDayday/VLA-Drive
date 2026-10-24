@@ -1,0 +1,127 @@
+{
+  "actual_command": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "-u",
+    "-m",
+    "scripts.analysis.qwen_flow_exploration.latent_train",
+    "--protocol",
+    "/mnt/project/qwen-flow-three-routes-20261024/common_protocol.json",
+    "--arm",
+    "L1_CENTER_V1",
+    "--seed",
+    "42",
+    "--center-normalizer",
+    "/mnt/project/qwen-flow-three-routes-20261024/qualification/latent_center_saved_data_v2/TRAIN512_feature_mean.pt",
+    "--correction-budget-lock",
+    "/mnt/project/qwen-flow-three-routes-20261024/LATENT_CORRECTION_LOCK.json",
+    "--output",
+    "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42"
+  ],
+  "approved_lock_path": "/mnt/project/qwen-flow-three-routes-20261024/LATENT_CORRECTION_LOCK.json",
+  "approved_lock_sha256": "ab546a6082e20d521e42d4702862a34c2ed206c4e4a689b97a516c2767065829",
+  "eval_plan_sha256": "e697845c1ed0e2da9a7ac987de50c7e513e3ba400cd44fed11a8aeb2bb78e1c4",
+  "fixed_budget": {
+    "B": 16,
+    "G": 16,
+    "inner_epochs": 4,
+    "new_candidates": 16384,
+    "optimizer_updates": 256,
+    "rounds": 64,
+    "training_seed": 42
+  },
+  "formal_initialization": "fresh seed42 q0=N0I from original base, not qualification weights",
+  "formal_run_identity_sha256": "8d03367142439c8713e5c425617d32c88be9110e89b88b24a3342a9c1031bb11",
+  "formal_run_path": "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42",
+  "formal_start_utc": "2026-10-24T20:53:08.878415+00:00",
+  "formal_warmup_updates": 8,
+  "gpus": [
+    1
+  ],
+  "host": "training-vla-zt",
+  "original_draft_remains_unapproved": true,
+  "qualification": {
+    "candidates": 256,
+    "first_inner_ratio_max": 1.0,
+    "first_inner_ratio_min": 1.0,
+    "frozen_generator_unchanged": true,
+    "optimizer_updates": 4,
+    "path": "/mnt/project/qwen-flow-three-routes-20261024/qualification/L1_CENTER_V1_real_model_v1/COMPLETE.json",
+    "qualification_warmup_updates": 1,
+    "qualification_weights_reused_for_formal": false,
+    "scenes": 16,
+    "sha256": "ff0affa9a0ba34e46987eb44f3fed3d2927978cbb62e83669cf86c18762516ae",
+    "worker_wall_seconds": 151.89372205734253
+  },
+  "queued_evaluations": [
+    {
+      "arguments": [
+        "--protocol",
+        "/mnt/project/qwen-flow-three-routes-20261024/common_protocol.json",
+        "--arm",
+        "L1_CENTER_V1",
+        "--checkpoint",
+        "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42",
+        "--split",
+        "DEV_SELECT",
+        "--readout",
+        "sample",
+        "--output",
+        "/mnt/project/qwen-flow-three-routes-20261024/evaluations/L1_CENTER_V1_DEV_SELECT_sample"
+      ],
+      "name": "evaluate_L1_CENTER_V1_DEV_SELECT_sample",
+      "source_sha": "7ec40a7f3e11496d7fa9ae3a0700a02926da5eed",
+      "waits_for": [
+        "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42/COMPLETE.json"
+      ]
+    },
+    {
+      "arguments": [
+        "--protocol",
+        "/mnt/project/qwen-flow-three-routes-20261024/common_protocol.json",
+        "--arm",
+        "L1_CENTER_V1",
+        "--checkpoint",
+        "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42",
+        "--split",
+        "TRAIN",
+        "--readout",
+        "sample",
+        "--output",
+        "/mnt/project/qwen-flow-three-routes-20261024/evaluations/L1_CENTER_V1_TRAIN_sample"
+      ],
+      "name": "evaluate_L1_CENTER_V1_TRAIN_sample",
+      "source_sha": "7ec40a7f3e11496d7fa9ae3a0700a02926da5eed",
+      "waits_for": [
+        "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42/COMPLETE.json"
+      ]
+    },
+    {
+      "arguments": [
+        "--protocol",
+        "/mnt/project/qwen-flow-three-routes-20261024/common_protocol.json",
+        "--arm",
+        "L1_CENTER_V1",
+        "--checkpoint",
+        "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42",
+        "--split",
+        "DEV_SELECT",
+        "--readout",
+        "mean",
+        "--output",
+        "/mnt/project/qwen-flow-three-routes-20261024/evaluations/L1_CENTER_V1_DEV_mean"
+      ],
+      "name": "evaluate_L1_CENTER_V1_DEV_mean",
+      "source_sha": "7ec40a7f3e11496d7fa9ae3a0700a02926da5eed",
+      "waits_for": [
+        "/mnt/project/qwen-flow-three-routes-20261024/runs/L1_CENTER_V1_seed42/COMPLETE.json"
+      ]
+    }
+  ],
+  "recorded_utc": "2026-10-24T20:58:27.380989+00:00",
+  "registered_eval_owner": "/mnt/project/qwen-flow-three-routes-20261024/finite_queue_center_eval",
+  "schema": "CENTER_execution_index_v1",
+  "snapshot_caveat": "Dispatch and qualification evidence, not a live liveness assertion or a planning-performance result. Original97/9ecd experiments and pending13pair analysis are unchanged.",
+  "source": "/mnt/project/qwen-flow-three-routes-20261024/snapshots/latent_center_v1",
+  "source_sha": "7ec40a7f3e11496d7fa9ae3a0700a02926da5eed",
+  "status": "FORMAL_DISPATCHED_NOT_A_RESULT"
+}

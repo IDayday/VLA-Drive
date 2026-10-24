@@ -64,9 +64,16 @@ def deployment_contract(identity, protocol):
             'original native_qwen_sourceflow_ODE CPU scene-bound namespace',
         'native_plain_merged_preservation_evaluation_v1':
             'native_qwen_sourceflow_ODE scene-bound CPU FP32 namespace',
+        'three_route_partitioned_single_deployment_v1':
+            'native_qwen_sourceflow_ODE scene-bound CPU FP32 namespace',
     }
     if schema not in descriptions or identity.get('root_innovations') != descriptions[schema]:
         raise ValueError('Unaudited deployment schema/root namespace; auxiliary evaluations cannot enter the primary comparison')
+    if schema=='three_route_partitioned_single_deployment_v1':
+        if identity.get('deployment_contract')!=expected or not isinstance(identity.get('source_files'),dict):
+            raise ValueError('Partitioned evaluation lacks its explicit unchanged inference contract/source')
+        if not identity.get('qualification') and len(identity.get('execution_equivalence_sha256') or '')!=64:
+            raise ValueError('Formal partitioned evaluation lacks executed numerical equivalence evidence')
     if identity.get('deployment_contract',expected) != expected:
         raise ValueError('Changed deployment grid, root RNG, precision, action space or source base')
     if protocol.get('samplers',{}).get('deployment') != 'single source shift5 ODE10, original standard Gaussian root':

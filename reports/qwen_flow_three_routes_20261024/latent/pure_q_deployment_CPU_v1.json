@@ -1,0 +1,54 @@
+{
+  "schema": "pure_q_deployment_CPU_acceptance_v1",
+  "status": "PASS",
+  "qualification_only": true,
+  "new_GPU_tasks": 0,
+  "new_rollouts": 0,
+  "new_scoring_calls": 0,
+  "checks": [
+    "Actual L1 and actual CENTER qualification export only small q state/inline mean; copied parent checkpoint and normalizer are removed",
+    "Guarded loader reads exactly its3package files; original training/optimizer/normalizer/bank access forbidden; CPU RNG unchanged",
+    "Strict actual source outputs, same-root innovations, joint logprob, B1/B16, and normalized/decoded tiny source10stepODE outputs match exactly",
+    "Deployment policy is frozen/eval without autograd; qualification remains explicitly rejected for formal evaluation",
+    "Unknown q tensor key is rejected even in a self-consistently re-sealed synthetic package"
+  ],
+  "cases": [
+    {
+      "arm": "L1",
+      "qualification": false,
+      "policy_sha256": "3145cce82090ca0e46a914cd6d48a036d3f1260340bbb3b8e1a1937fc06f3c41",
+      "package_files": [
+        "COMPLETE",
+        "identity.json",
+        "q_weights.pt"
+      ],
+      "synthetic_parent_files_removed": true,
+      "no_external_asset_reads": true,
+      "source_outputs_roots_joint_logprob_B1_equal": true,
+      "tiny_source_shift5_10step_ODE_max_abs": 0.0,
+      "global_CPU_RNG_unchanged": true,
+      "policy_frozen_no_autograd": true
+    },
+    {
+      "arm": "L1_CENTER_V1",
+      "qualification": true,
+      "policy_sha256": "743bdeb441512b4a347ad4d3d3f16ea3c579d901a844468849d6a15a97f266ac",
+      "package_files": [
+        "COMPLETE",
+        "identity.json",
+        "q_weights.pt"
+      ],
+      "synthetic_parent_files_removed": true,
+      "no_external_asset_reads": true,
+      "source_outputs_roots_joint_logprob_B1_equal": true,
+      "tiny_source_shift5_10step_ODE_max_abs": 0.0,
+      "global_CPU_RNG_unchanged": true,
+      "policy_frozen_no_autograd": true
+    }
+  ],
+  "source_files": {
+    "/mnt/project/VLA-Drive-qwen-flow-three-routes-20261024/scripts/analysis/qwen_flow_exploration/latent_deployment_validate.py": "46016dbc53af56936f7b3e5d89741a056ca88b5b20205fa5e87a353dab456ed0",
+    "/mnt/project/VLA-Drive-qwen-flow-three-routes-20261024/starVLA/rl/qwen_flow_exploration/latent/deployment.py": "2134d71c5e5bc3a7469951b62e0d9c6aea15837099115376654b0644754ad0c0"
+  },
+  "scope": "Package/math/tiny sourceODE independence only, not a new driving-score evaluation"
+}

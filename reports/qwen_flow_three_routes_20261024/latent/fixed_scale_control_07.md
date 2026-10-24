@@ -1,5 +1,7 @@
 # Fixed root scale 0.7: first completed deployment control
 
+This preserves the initial control-analysis snapshot. Later completed-arm and correction status is in [README](README.md); pending items below describe this snapshot rather than live worker state.
+
 This is a **DEV_SELECT control**, not a trained-policy result and not a Navtest score. The complete registered scale comparison also contains scale 1.3, which is still pending. No scale has been selected from this partial result.
 
 The frozen CANONICAL50k Qwen-Flow generator is identical in both arms. L0 samples one root from `N(0,I)`; L0-S samples one root from `N(0,0.7²I)`. Both use one source shift5 ten-step ODE trajectory per scene/seed, with no scorer-based output selection. The same 256 pre-registered DEV_SELECT scenes, eight complete logs, and inference seeds 2101–2105 give 1,280 individual outputs per arm. Seeds are averaged within each scene before paired, scene-weighted log bootstrap (2,000 replicates).

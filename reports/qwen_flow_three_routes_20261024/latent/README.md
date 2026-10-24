@@ -65,4 +65,10 @@ CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/pyt
 
 共同分析器[CPU资格](common_analysis_cpu_v4.json)通过12项检查，并已实际读取两臂全部各1280条记录。兼容latent与merged-adapter的readout别名时，会核对原生噪声namespace、CPU FP32、10步shift5、3维动作、source base及固定seed集合，还逐条复现实际root创新；不同namespace的早期feedback自动评测只作辅助结果。
 
-尚需完成同预算L1/L2/L3及新噪声单轨评价，才能判断条件化是否有独立价值。训练中已看到条件MLP在同LR下的分布位移大于全局48参数高斯，因此即使L1最终优于L2，也必须披露更新幅度这一替代解释，不能直接归因于场景条件化。现阶段不因短资格的loss/候选表现而宣称路线成立，也不把尚未完成称为当前设计无效。
+L1/L2/L3均已完成64round/256update，每臂16384条真实新候选；[终点与条件性诊断](training_and_conditioning_diagnosis.md)核对了实际records、Adam/scheduler、四inner固定behavior、源码与冻结生成器hash。
+
+原版完整13项终点比较已封存，详见[完整初筛研究判断](terminal_results_v1.md)及[aggregate](terminal_results_v1.json)。primary DEV随机单轨：L1为92.475394（相对L0 +0.332290点，log CI95[+0.262152,+0.397236]），L2为92.147917（+0.004812），L3为92.449639（+0.306534）。均为预登记256场景/8logs、五固定推理seeds，不能称Navtest达到92。TRAIN512的L1/L3增量仅+0.096243/+0.142066，区间均跨零，且新增NC/TTC违规；不是全面安全保持。固定std1.3已得DEV+0.181330，L1相对它的+0.150959区间跨零。原版研究标签为“条件支持”，限于冻结生成器root分布调整的小幅单轨证据。
+
+但[全部256场景的参数记录](primary_DEV_conditionality_v1.json)确认L1/L3的root Gaussian几乎不随scene变化，首层tanh发生学到的饱和。L2在同LR下的分布位移又远小于L1，因此这些结果支持“冻结生成器上学习root分布可以产生小幅部署收益”，不支持“已学会有价值的场景条件化”，也不能据此宣布prior或条件化机制独立成立。
+
+唯一修正[L1_CENTER_V1](CENTER_V1.md)只加入固定TRAIN均值中心化。CPU同输入/概率/梯度、默认旧类等价、B1布局和inner恢复已通过；随后真实GPU资格完成256条评分、4次更新且frozen hash不变。主agent在2026-10-24 20:53 UTC按独立批准锁、immutable7ec40a7启动fresh q0正式64round/256update，未复用资格θ；[运行索引](CENTER_execution_index_v1.json)绑定实际命令和三个待终点评测。它不热改或覆盖已有97/9ecd结果，也没有新增其他修正/seed/控制矩阵。此为启动快照，四步资格不等于PDMS提升。
