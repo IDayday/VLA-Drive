@@ -147,5 +147,9 @@ def validate_factorized_boundary(rollout):
     torch.testing.assert_close(a,rollout['advantages'],atol=0,rtol=0)
     mask=torch.full_like(a,float(bool((a!=0).any())))
     torch.testing.assert_close(mask,rollout['adv_mask'],atol=0,rtol=0)
-    for k,v in stats.items():torch.testing.assert_close(v,rollout['factorized_advantage'][k],atol=0,rtol=0)
+    # Restore checks CPU tensors against CUDA-produced FP64 diagnostics. Real
+    # eight-rank evidence shows <=3.56e-15 reduction/sqrt roundoff here. Saved
+    # FP32 advantages above must still match bitwise, and payload hashes remain
+    # exact. This tolerance changes validation only, never sampling or loss.
+    for k,v in stats.items():torch.testing.assert_close(v,rollout['factorized_advantage'][k],atol=1e-12,rtol=1e-12)
     return dict(formula='DriveWLA_v1_8_9',digest=tensor_digest(rollout['factorized_advantage']))
