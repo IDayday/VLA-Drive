@@ -1,0 +1,313 @@
+{
+  "schema": "feedback_one_page_cost_ledger_v1",
+  "time_UTC": "2026-10-24T23:05:45.563700+00:00",
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "common_bank": {
+    "natural_TRAIN_scenes": 512,
+    "DEV_SELECT_scenes": 256,
+    "logical_K32_per_arm": 24576,
+    "shared_reference5_scores": 3840,
+    "shared_prefix8_scores": 6144,
+    "actual_bank_scores": 28416,
+    "pool32_scores": 24576,
+    "counts": {
+      "scored_candidates": 28416,
+      "scorer_batch_calls": 768,
+      "model_forward_calls": 76800,
+      "qwen_prefills": 768
+    },
+    "workers": {
+      "sum_worker_wall_seconds": 7646.7424075603485,
+      "elapsed_span_seconds": 1102.3824398517609,
+      "union_active_interval_seconds": 1102.3824398517609,
+      "workers": 7
+    },
+    "sum_environment_ledger_wall_seconds": 7595.345182118937,
+    "scorer_wait_worker_seconds": 248.4118395857513,
+    "cost_scope": "Shared across routes. Charge once globally; per-arm logical K32 still costs24576. model_forward_calls counts batches, not candidate-by-step evaluations."
+  },
+  "search": {
+    "F1_BLIND": {
+      "logical_K32_scores": 24576,
+      "cached_prefix_scores": 6144,
+      "actual_new_scores": 18432,
+      "actual_new_scorer_batches": 2304,
+      "script_wall_TRAIN_seconds": 123.28299031592906,
+      "script_wall_DEV_SELECT_seconds": 62.85823434405029,
+      "sum_script_wall_seconds": 186.14122465997934,
+      "scorer_child_CPU_seconds": 308.172017,
+      "extra_model_forwards": 0,
+      "extra_Qwen_prefills": 0
+    },
+    "F2_PDMS": {
+      "logical_K32_scores": 24576,
+      "cached_prefix_scores": 6144,
+      "actual_new_scores": 18432,
+      "actual_new_scorer_batches": 2304,
+      "script_wall_TRAIN_seconds": 124.46367424726486,
+      "script_wall_DEV_SELECT_seconds": 64.93643043935299,
+      "sum_script_wall_seconds": 189.40010468661785,
+      "scorer_child_CPU_seconds": 309.52329399999996,
+      "extra_model_forwards": 0,
+      "extra_Qwen_prefills": 0
+    },
+    "F3_FEEDBACK": {
+      "logical_K32_scores": 24576,
+      "cached_prefix_scores": 6144,
+      "actual_new_scores": 18432,
+      "actual_new_scorer_batches": 2304,
+      "script_wall_TRAIN_seconds": 127.44295939058065,
+      "script_wall_DEV_SELECT_seconds": 64.7220417149365,
+      "sum_script_wall_seconds": 192.16500110551715,
+      "scorer_child_CPU_seconds": 309.01338899999996,
+      "extra_model_forwards": 0,
+      "extra_Qwen_prefills": 0
+    },
+    "F4_NOVELTY": {
+      "logical_K32_scores": 24576,
+      "cached_prefix_scores": 6144,
+      "actual_new_scores": 18432,
+      "actual_new_scorer_batches": 2304,
+      "script_wall_TRAIN_seconds": 131.2683364097029,
+      "script_wall_DEV_SELECT_seconds": 65.1212329864502,
+      "sum_script_wall_seconds": 196.3895693961531,
+      "scorer_child_CPU_seconds": 312.783496,
+      "extra_model_forwards": 0,
+      "extra_Qwen_prefills": 0
+    }
+  },
+  "CPU_campaign": {
+    "actual_new_search_scores": 73728,
+    "actual_new_search_scorer_batches": 9216,
+    "actual_scorer_child_CPU_seconds": 1239.492196,
+    "all11_child_jobs": {
+      "sum_worker_wall_seconds": 955.6546657085419,
+      "elapsed_span_seconds": 541.0852234363556,
+      "union_active_interval_seconds": 520.6436080932617,
+      "workers": 11
+    },
+    "owner_elapsed_including_wait_seconds": 1136.789202928543,
+    "max_parallel_processes": 2,
+    "workers_each": 4,
+    "affinity_core_limit": 8,
+    "no_GPU": true,
+    "novelty_fitting_script_wall_seconds": 18.396476414054632,
+    "F0_cached_audit_script_wall_seconds": 143.48360713385046,
+    "scope": "All11 jobs include novelty fit, eight F1-F4 searches and two F0 cached audits. Sum worker wall is not end-to-end wall; owner also waited for bank sealing."
+  },
+  "training": {
+    "S1": {
+      "optimizer_updates": 256,
+      "GT_terms": 4096,
+      "teacher_terms": 0,
+      "source_FM_forward_backward_terms": 4096,
+      "new_online_candidates": 0,
+      "sum_update_seconds": 3304.014132471755,
+      "mean_update_seconds": 12.906305204967794,
+      "training_phase_worker_wall_seconds": 3402.014218367636,
+      "unallocated_loading_saving_hash_other_overhead_seconds": 98.00008589588106,
+      "training_Qwen_prefills": 4084,
+      "all_invocation_wall_seconds": 5915.693271160126,
+      "final_scored_candidates_including_auxiliary": 3840,
+      "final_model_forwards_including_auxiliary": 19456,
+      "semantics": "Shared GPU worker wall; not dedicated GPU compute. S1 immutable97 auxiliary eval cost is preserved separately from training and primary eval."
+    },
+    "S2": {
+      "optimizer_updates": 256,
+      "GT_terms": 4096,
+      "teacher_terms": 1896,
+      "source_FM_forward_backward_terms": 5992,
+      "new_online_candidates": 0,
+      "sum_update_seconds": 4152.371215190738,
+      "mean_update_seconds": 16.220200059338822,
+      "training_phase_worker_wall_seconds": 4252.117681747302,
+      "unallocated_loading_saving_hash_other_overhead_seconds": 99.74646655656397,
+      "training_Qwen_prefills": 4084,
+      "all_invocation_wall_seconds": 4252.1890280246735,
+      "final_scored_candidates_including_auxiliary": 0,
+      "final_model_forwards_including_auxiliary": 5992,
+      "semantics": "Shared GPU worker wall; not dedicated GPU compute. S1 immutable97 auxiliary eval cost is preserved separately from training and primary eval."
+    },
+    "S3": {
+      "optimizer_updates": 256,
+      "GT_terms": 4096,
+      "teacher_terms": 1896,
+      "source_FM_forward_backward_terms": 5992,
+      "new_online_candidates": 0,
+      "sum_update_seconds": 3871.0079957265407,
+      "mean_update_seconds": 15.1211249833068,
+      "training_phase_worker_wall_seconds": 3970.2465825118124,
+      "unallocated_loading_saving_hash_other_overhead_seconds": 99.23858678527176,
+      "training_Qwen_prefills": 4084,
+      "all_invocation_wall_seconds": 3970.2955753803253,
+      "final_scored_candidates_including_auxiliary": 0,
+      "final_model_forwards_including_auxiliary": 5992,
+      "semantics": "Shared GPU worker wall; not dedicated GPU compute. S1 immutable97 auxiliary eval cost is preserved separately from training and primary eval."
+    }
+  },
+  "primary_students": {
+    "S1": {
+      "logical_single_outputs": 3840,
+      "physical_inferences_including_retries": 3840,
+      "actual_scored_candidates": 3840,
+      "worker_intervals": {
+        "sum_worker_wall_seconds": 4061.7796864509583,
+        "elapsed_span_seconds": 2672.393208026886,
+        "union_active_interval_seconds": 2672.393208026886,
+        "workers": 2
+      },
+      "scoring_wait_seconds": 403.08066597767174,
+      "model_loading_and_merge_seconds": 108.05904044397175,
+      "velocity_forward_batch_calls": 38400,
+      "Qwen_prefills": 768,
+      "namespace": "native_qwen_sourceflow_ODE",
+      "model_batch": 1
+    },
+    "S2": {
+      "logical_single_outputs": 3840,
+      "physical_inferences_including_retries": 3840,
+      "actual_scored_candidates": 3840,
+      "worker_intervals": {
+        "sum_worker_wall_seconds": 4090.368336200714,
+        "elapsed_span_seconds": 2699.4139330387115,
+        "union_active_interval_seconds": 2699.4139330387115,
+        "workers": 2
+      },
+      "scoring_wait_seconds": 397.64215406030416,
+      "model_loading_and_merge_seconds": 112.70938621275127,
+      "velocity_forward_batch_calls": 38400,
+      "Qwen_prefills": 768,
+      "namespace": "native_qwen_sourceflow_ODE",
+      "model_batch": 1
+    },
+    "S3": {
+      "logical_single_outputs": 3840,
+      "physical_inferences_including_retries": 3840,
+      "actual_scored_candidates": 3840,
+      "worker_intervals": {
+        "sum_worker_wall_seconds": 4087.961709022522,
+        "elapsed_span_seconds": 2943.326080083847,
+        "union_active_interval_seconds": 2943.326080083847,
+        "workers": 2
+      },
+      "scoring_wait_seconds": 400.53723473474383,
+      "model_loading_and_merge_seconds": 110.90174713730812,
+      "velocity_forward_batch_calls": 38400,
+      "Qwen_prefills": 768,
+      "namespace": "native_qwen_sourceflow_ODE",
+      "model_batch": 1
+    }
+  },
+  "primary_student_intervals": {
+    "sum_worker_wall_seconds": 12240.109731674194,
+    "elapsed_span_seconds": 3726.556309700012,
+    "union_active_interval_seconds": 3726.556309700012,
+    "workers": 6
+  },
+  "shared_base_primary": {
+    "logical_single_outputs": 3840,
+    "actual_scored_candidates": 3840,
+    "environment_ledger_wall_seconds": 3927.274740582332,
+    "outer_worker_intervals": {
+      "sum_worker_wall_seconds": 3942.2871067523956,
+      "elapsed_span_seconds": 6030.259268283844,
+      "union_active_interval_seconds": 3942.2871067523956,
+      "workers": 2
+    },
+    "velocity_forward_batch_calls": 38400,
+    "Qwen_prefills": 768,
+    "scope": "Shared L0 across routes, count once. Outer process wall and environment-ledger wall have different start/stop scopes."
+  },
+  "S1_legacy_auxiliary": {
+    "physical_single_outputs": 3840,
+    "scorer_batches": 768,
+    "velocity_forward_batch_calls": 15360,
+    "Qwen_prefills": 766,
+    "generation_seconds": 2016.193969964981,
+    "scoring_wait_seconds": 99.32967060059309,
+    "full_invocation_seconds": 5915.693271160126,
+    "approximate_post_training_interval_seconds": 2513.6790527924895,
+    "namespace": "three_route_ODE_eval",
+    "model_batch": "five roots then chunk4",
+    "scope": "Additional physical cost, never primary scores. Approximate remainder combines auxiliary eval/finish overhead, not an independently timed stage."
+  },
+  "qualification_and_calibration": {
+    "profile_v1": {
+      "actual_scored_candidates": 128,
+      "optimizer_updates": [
+        {
+          "update": 1,
+          "loss": 7.957055640872568e-05,
+          "gradient_norm": 0.0008492531152925642
+        },
+        {
+          "update": 2,
+          "loss": 0.00011737901149899699,
+          "gradient_norm": 0.0049534288291518975
+        },
+        {
+          "update": 3,
+          "loss": 0.0011433314939495176,
+          "gradient_norm": 0.009924156684776256
+        },
+        {
+          "update": 4,
+          "loss": 0.0007497485785279423,
+          "gradient_norm": 0.0013697827199939223
+        }
+      ],
+      "environment_ledger_wall_seconds": 154.69738336466253,
+      "inner_fit_window_seconds": 99.69852028414607,
+      "formal_initialization_used": false
+    },
+    "profile_v2": {
+      "actual_scored_candidates": 224,
+      "optimizer_updates": [
+        {
+          "update": 1,
+          "loss": 0.00011515506776049733,
+          "gradient_norm": 0.0008818672631363299
+        },
+        {
+          "update": 2,
+          "loss": 0.00016648617020109668,
+          "gradient_norm": 0.0003302696157071799
+        },
+        {
+          "update": 3,
+          "loss": 0.0011339858174324036,
+          "gradient_norm": 0.0038379443658567327
+        },
+        {
+          "update": 4,
+          "loss": 0.0007510987343266606,
+          "gradient_norm": 0.0013291848053214224
+        }
+      ],
+      "environment_ledger_wall_seconds": 160.54978417232633,
+      "inner_fit_window_seconds": 101.48007617145777,
+      "formal_initialization_used": false,
+      "outer_worker_wall_seconds": 168.72618579864502
+    },
+    "teacher_beta_calibration": {
+      "actual_scored_candidates": 0,
+      "model_forward_backward_terms": 30,
+      "Qwen_prefills": 16,
+      "optimizer_updates": 0,
+      "environment_ledger_wall_seconds": 76.75520951487124
+    }
+  },
+  "caveats": [
+    "Shared GPU worker wall is not exclusive GPU compute time.",
+    "No global wall total formed by summing concurrent jobs or mixing cached logical cost with actual calls.",
+    "Read-only analysis/documentation CPU time was not uniformly instrumented; not reconstructable exactly from receipts.",
+    "Primary evaluation and independent reference5 population use different predeclared noise sets.",
+    "This is route2 + shared inputs, not the total compute of all three routes."
+  ],
+  "source_receipts": {
+    "common_bank_summary": "6cf23f499600f5b762707f0d9412286bf9c52561bc59455edb8a52a6cbfdb7cb",
+    "terminal_audit": "eaf4114e6db39c8bc0da73dd02fee18151dab85471c7c4c1ee9eed68c10147a0",
+    "CPU_campaign_complete": "2d55ee41c0e38287f1a557c50e2182dc2e0ced51bf9075799fb4ee63705389b5"
+  },
+  "sha256": "120fea8249b42afde17e31906c2cd87fdf2dcc355e49dd60a9946bdc45e03390"
+}

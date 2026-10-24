@@ -49,7 +49,7 @@ TRAIN全人口原101592场景/1176logs，DEV1696/16logs，Navtest12146/136logs�
 
 256选择场景K32 oracle：IID93.87686、盲结构化94.84325、标量CEM94.25631、物理反馈94.25450、新颖度94.28565。盲结构化相对IID +.96639点（log bootstrap95%CI[+.24865,+2.42259]）；物理反馈相对标量没有额外价值证据。F2/F3教师各237场景/748目标，511/512场景教师标签相同。因此后续S2/S3相近不能单独解释为“学生没吸收”。[搜索机制与全成本](feedback/discovery_v1.md)
 
-L1/L2/L3、GT-only S1和P0进入实际正式筛选；更新后部署结果仍未完成。P0首inner因旧评价调度器第三进程抢入共享显存OOM，未发生optimizer更新；保存的256候选合法提交链仍可原样恢复。缺少failure_evidence目录导致的二次异常已最小修复并CPU注入验收；不更改算法。后续用原97不可变训练源码加预建目录恢复，不重采原链。旧调度器CPU owner只扩展资源预留，所有既有GPU训练不受信号。[失败证据](preservation/formal_failure_P0_initial.json)
+L1/L2/L3与S1/S2/S3已完成正式筛选及重新采样部署评价；P0–P5仍在固定预算内训练。P0首inner因旧评价调度器第三进程抢入共享显存OOM，未发生optimizer更新；保存的256候选合法提交链仍可原样恢复。缺少failure_evidence目录导致的二次异常已最小修复并CPU注入验收；不更改算法。后续用原97不可变训练源码加预建目录恢复，不重采原链。旧调度器CPU owner只扩展资源预留，所有既有GPU训练不受信号。[失败证据](preservation/formal_failure_P0_initial.json)
 
 主配对部署锁定为native_qwen_sourceflow_ODE命名空间、CPU FP32场景绑定root、每seed B1、原shift5 K10。97版本S1自动评价使用另一命名空间，只保留为辅助；主评价统一用无teacher/ref/archive依赖的合并纯ActionDiT入口。主协议及已完成轨迹不改。[评价执行锁](EVALUATION_LOCK.json)
 
@@ -57,6 +57,32 @@ L1/L2/L3、GT-only S1和P0进入实际正式筛选；更新后部署结果仍未
 
 L1/L2/L3均已完成64份fresh collection、1024自然场景曝光（512各两次）、16384条真实新候选、256次连续Adam更新。全部冻结参数和buffers保持；每份old行为四inner固定，预算未用inner复用虚增。[终点审计](latent/terminal_training_audit_v1.json)
 
-已保存TRAIN特征的CPU诊断显示L1/L3小MLP学到首Tanh饱和，输出近乎全局常量；初始网络不饱和、LayerNorm分母正常。这是已学到的条件塌缩，不是Gaussian密度或采样bug。L2的jointKL位移又明显小于L1，不能将未来L1>L2直接归因场景条件化。原结果保留；固定TRAIN均值中心化仅在准备资格，尚未启动新正式臂。[最小诊断](latent/conditionality_minimum_diagnosis_v1.json)
+已保存TRAIN特征的CPU诊断显示L1/L3小MLP学到首Tanh饱和，输出近乎全局常量；初始网络不饱和、LayerNorm分母正常。这是已学到的条件塌缩，不是Gaussian密度或采样bug。L2的jointKL位移又明显小于L1，不能将未来L1>L2直接归因场景条件化。原结果保留；唯一的固定TRAIN均值中心化修正已另立L1_CENTER_V1，完成同预算训练与评价，正进行终点机制分析。[最小诊断](latent/conditionality_minimum_diagnosis_v1.json)
 
 新增只读行为分析入口对已保存完整评价计算请求ADE/FDE、heading漂移、实际执行速度/jerk/越界、固定参考路径距离到达时间。后者是距离代理，未到明确保留，不能称官方到达时间。局部请求坐标和全局执行坐标明确分开，所有结果来自实际模拟而非8点请求差分估计安全。
+
+
+## 已完成的单轨部署结果（2026-10-24，尚非最终研究结论）
+
+以下为固定256 DEV_SELECT、8个完整log、每scene五个新seed；先按scene汇总seed，再按log配对bootstrap。它不是完整Navtest，不应将92以上的切片均分称为达成最终92目标。所有行无best-of、无搜索选轨。
+
+|单轨策略|DEV_SELECT PDMS|相对同协议BASE|
+|---|---:|---:|
+|BASE/L0|92.14310|0|
+|固定root scale1.3|92.32443|+0.18133|
+|L1 条件潜策略+先验KL|92.47539|+0.33229|
+|L2 全局潜策略+先验KL|92.14792|+0.00481|
+|L3 条件潜策略无先验KL|92.44964|+0.30653|
+|S1 继续GT FM|91.80622|−0.33688|
+|S2 标量搜索教师FM|92.37017|+0.22706|
+|S3 物理反馈教师FM|92.34461|+0.20151|
+
+L1相对BASE的95%CI为[+0.26215,+0.39724]点，但相对固定scale1.3的CI跨零；原条件MLP又出现输出近乎全局常量，L2优化位移明显更小，尚不能证明条件策略的独立贡献。TRAIN上的L1均分变化CI跨零，且新增联合安全违规多于恢复。详见[潜策略完整结果](latent/terminal_results_v1.md)。
+
+S3相对BASE的CI跨零，S3相对S1的约+0.54点部分来自S1自身退化，不能代替相对共同BASE净收益。S2/S3教师几乎相同，部署也相近。学生到教师的最近ADE从0.349降至约0.282米，说明部分形状已被吸收；但发现的唯一稳定零分修复在学生重新采样后仍五次全零，部分安全修复场景还退化。当前问题包括投影后的实际安全后果，不能只看FM loss或轨迹距离。[学生吸收与成本](feedback/terminal_results_v1.md)
+
+P0–P5尚未完成，对存档、约束及其互补性暂不作结论。P1训练校准未达到预登记的漂移匹配容差，replay系数达到上限后梯度比例也低于目标；即使最终有增益，这些机制限制仍必须披露。新增加同x0的SDE/ODE终点均值审计，预算另封存26624条新评分，独立于主纯合并ODE单轨结果。
+
+新增纯q部署包包含全部所需网络与固定TRAIN均值buffer；无需原训练checkpoint、optimizer或外部normalizer。分片评价只划分独立scene，保持原B1前向、场景绑定CPU随机数与评分入口。实际L1/S3纯包与已有主评价的160条逐值对照已全部通过：root、归一化动作、请求轨迹、模拟状态和全部原生分项最大误差均为0；CPU发布/缺片/错误root/授权撤销六项亦通过。[实际GPU证据](partitioned_evaluation_GPU_v1.json)。该入口尚未派发封存审计/Navtest，等待全部训练终点和配置锁定。
+
+反馈路线费用已将共同缓存、73728条真实新搜索、三个学生、11520条主评价和S1旧3840条辅助评价分别计账。[完整成本账本](feedback/final_cost_ledger_v1.md)。

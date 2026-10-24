@@ -1,0 +1,55 @@
+{
+  "schema": "partitioned_native_single_deployment_GPU_equivalence_v1",
+  "status": "PASS",
+  "source_files": {
+    "starVLA/rl/qwen_flow_exploration/evaluation.py": "bea7319df4d0f74892d689859e5115279ff6ae9c1daf1b079663197c940a0ec6",
+    "scripts/analysis/qwen_flow_exploration/evaluate_sharded.py": "0407c42897d9c27c4e9fcb510a7dbb48ec3070c5bb22101834496dd80fa667f1",
+    "starVLA/rl/qwen_flow_exploration/native.py": "66541fb4c016289d684847a870d21c36b5fdb0ec2606f11bf218ede013e3b49b",
+    "starVLA/rl/qwen_flow_exploration/protocol.py": "fc5007bdd159c21fc5dbd8687d1b5e464de114ec358dae4d116d5ef04adb739d",
+    "starVLA/rl/qwen_flow_exploration/evaluation_admission.py": "63d75ee2805a179c7d412aef9b30af96bf529851da02d8cdcbc44d16d12a8af1",
+    "starVLA/rl/qwen_flow_exploration/latent/deployment.py": "2134d71c5e5bc3a7469951b62e0d9c6aea15837099115376654b0644754ad0c0",
+    "starVLA/rl/qwen_flow_exploration/latent/policy.py": "0184891c9a64105aca75865ac5251b6beb5945cbee6f6c425d07b64b657df1c7",
+    "starVLA/rl/qwen_flow_exploration/latent/gaussian.py": "5410ae240dabc40e9faeb92f6e3b6e52d657162395f446d5421bc94943bed230",
+    "starVLA/rl/qwen_flow_exploration/preservation/deployment.py": "90f675a230c058eabd0e7b3f1c5a360ee2c74f177f6bfec505faf6b9c746a25b",
+    "starVLA/model/modules/qwen_sourceflow/source_flow_policy.py": "16120b3881614df95a9f99b414eb046af07ae835d47c9682c8a74a696d1955d8",
+    "starVLA/model/modules/qwen_sourceflow/cached_action_runner.py": "a1558c46a3e35d134a64dcfc570bd6b96dea1d154dafb74cf2e0bb989b15ae73",
+    "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+    "starVLA/model/modules/qwen_sourceflow/condition_provider.py": "eaca6e2682d7bd1bf06d7abe13e8b5e66e5cac295e6c7ac7b3b2c4592f034850",
+    "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+    "__git_commit__": "3452f9bced6232632596e8a5efe5b7f932a9bb90"
+  },
+  "qualification_scope": "actual fixed DEV_SELECT first16, 5 independent scene seeds, batch1, pure L1 and S3 packages; no new scientific arm or scoring protocol",
+  "single_outputs": 160,
+  "checks": {
+    "L1": {
+      "single_outputs": 80,
+      "shards": 2,
+      "maximum_absolute_errors": {
+        "normalized_action": 0.0,
+        "planned_trajectory": 0.0,
+        "simulated_trajectory": 0.0,
+        "root": 0.0,
+        "native_subscores": 0.0
+      },
+      "original_primary": "/mnt/project/qwen-flow-three-routes-20261024/evaluations/L1_DEV_SELECT_sample",
+      "pure_package": true
+    },
+    "S3": {
+      "single_outputs": 80,
+      "shards": 2,
+      "maximum_absolute_errors": {
+        "normalized_action": 0.0,
+        "planned_trajectory": 0.0,
+        "simulated_trajectory": 0.0,
+        "root": 0.0,
+        "native_subscores": 0.0
+      },
+      "original_primary": "/mnt/project/qwen-flow-three-routes-20261024/evaluations/S3_DEV_SELECT",
+      "pure_package": true
+    }
+  },
+  "unchanged_training": true,
+  "CPU_publication_checks": "/mnt/project/qwen-flow-three-routes-20261024/qualification/partitioned_evaluation_CPU_v2.json",
+  "at_unix": 1792883179.609187,
+  "sha256": "e93a96fde9ed447cfd469fd6e8a489945c4ee5a4aed3020b126f954bca903ae0"
+}
