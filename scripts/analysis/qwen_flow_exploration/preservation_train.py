@@ -40,6 +40,7 @@ def main():
     p.add_argument('--qualification',action='store_true')
     p.add_argument('--rounds',type=int);p.add_argument('--B',type=int);p.add_argument('--G',type=int)
     args=p.parse_args();protocol=read_protocol(args.protocol);out=Path(args.output);out.mkdir(parents=True,exist_ok=True)
+    (out/'failure_evidence').mkdir(parents=True,exist_ok=True)
     owner=(out/'owner.lock').open('a');fcntl.flock(owner,fcntl.LOCK_EX|fcntl.LOCK_NB)
     inv=uuid.uuid4().hex;start=time.monotonic()
     stopping=[False]

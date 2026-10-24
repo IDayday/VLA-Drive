@@ -4,7 +4,7 @@
 
 ## 当前已完成与未完成
 
-已完成公共评分门槛、三个路线的CPU数学/恢复及真实GPU短更新资格；共同候选池正在实际生成。正式筛选和跨路线研究结论尚未完成，不能把资格PASS当成方法有效。
+已完成公共评分门槛、三个路线的CPU数学/恢复及真实GPU短更新资格；共同候选池28416条已实际完成，F0–F4的512TRAIN/256选择集搜索亦全部完成。正式筛选和跨路线研究结论尚未完成，不能把资格PASS当成方法有效。
 
 - 公共32TRAIN/16选择集、G4及候选增删/重排/官方单轨对照全部通过：原生分项与执行轨迹一致，评分最大差0；ODE batch1/chunk4归一化差约1e-6。G16真实源SDE四次更新，480个LoRA张量更新、第一inner ratio误差0。峰值28.52GB。[公共证据](common_smoke_v2.json)
 - 潜策略：32TRAIN/128真实候选、四次小网络更新；全部生成器参数和buffers hash不变，联合Gaussian密度/KL及实际inner恢复通过；约15.48GiB峰值。[路线与证据](latent/README.md)
@@ -41,4 +41,14 @@ TRAIN全人口原101592场景/1176logs，DEV1696/16logs，Navtest12146/136logs�
 
 私有根目录`/mnt/project/qwen-flow-three-routes-20261024`保存完整protocol、token/log清单、候选记录、所有RNG与checkpoint。Git只保存源码、配置、聚合证据、身份与复现入口；不上传权重、cache或场景图。
 
-已实际执行：`prepare_common`、`validate_common`，各路线`*_validate`和真实`*_profile`。共同bank正在运行`build_common_bank --protocol .../common_protocol.json --output .../common_bank --rank N --world 7`。route train/evaluate入口均真实存在；正式派发与完成状态将记录在同一私有根的dispatch/账本，不能从本报告快照推断实时完成。
+已实际执行：`prepare_common`、`validate_common`，各路线`*_validate`和真实`*_profile`。共同bank已完成`build_common_bank --protocol .../common_protocol.json --output .../common_bank --rank N --world 7`。route train/evaluate入口均真实存在；正式派发与完成状态将记录在同一私有根的dispatch/账本，不能从本报告快照推断实时完成。
+
+## 第一阶段已完成的发现结果
+
+512TRAIN的K32等分组166个：163个全满分、3个全零；346个非等分组中315个仅EP变化。独立五reference均分94.0226，K32有限安全候选上界95.2183；282/512场景发现至少.005原分数的安全改善。稳定零分只有3个，本人口对全零修复的分辨力有限。
+
+256选择场景K32 oracle：IID93.87686、盲结构化94.84325、标量CEM94.25631、物理反馈94.25450、新颖度94.28565。盲结构化相对IID +.96639点（log bootstrap95%CI[+.24865,+2.42259]）；物理反馈相对标量没有额外价值证据。F2/F3教师各237场景/748目标，511/512场景教师标签相同。因此后续S2/S3相近不能单独解释为“学生没吸收”。[搜索机制与全成本](feedback/discovery_v1.md)
+
+L1/L2/L3、GT-only S1和P0进入实际正式筛选；更新后部署结果仍未完成。P0首inner因旧评价调度器第三进程抢入共享显存OOM，未发生optimizer更新；保存的256候选合法提交链仍可原样恢复。缺少failure_evidence目录导致的二次异常已最小修复并CPU注入验收；不更改算法。后续用原97不可变训练源码加预建目录恢复，不重采原链。旧调度器CPU owner只扩展资源预留，所有既有GPU训练不受信号。[失败证据](preservation/formal_failure_P0_initial.json)
+
+主配对部署锁定为native_qwen_sourceflow_ODE命名空间、CPU FP32场景绑定root、每seed B1、原shift5 K10。97版本S1自动评价使用另一命名空间，只保留为辅助；主评价统一用无teacher/ref/archive依赖的合并纯ActionDiT入口。主协议及已完成轨迹不改。[评价执行锁](EVALUATION_LOCK.json)

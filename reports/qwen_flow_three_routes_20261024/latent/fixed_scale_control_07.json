@@ -1,0 +1,565 @@
+{
+  "G_minus_PDMS_points": 0.1503449508599431,
+  "G_minus_raw_score_sum": 0.38488307420145434,
+  "G_plus_PDMS_points": 0.18757249750963856,
+  "G_plus_raw_score_sum": 0.4801855936246747,
+  "analysis_cli_sha256": "58c1cbcf3a5cf69a36e1b6ad3f45107000687f013aa56b930e2e65b14e016625",
+  "analysis_source_sha256": "0a7c1ad309cceb6433fa7d4256d887fa6b9f6566db9e6b41f8f5b11693335d7c",
+  "any_degraded_scenes": 103,
+  "any_improved_scenes": 68,
+  "budget_comparison": {
+    "current_checkpoint_progress": null,
+    "note": "Optimizer updates, actual scorer calls and total compute are distinct budgets; use recorded run ledgers, not this comparison alone",
+    "reference_checkpoint_progress": null
+  },
+  "current_PDMS": 92.18033228967631,
+  "current_mean_percent": {
+    "comfort": 100.0,
+    "drivable_area_compliance": 99.53125,
+    "driving_direction_compliance": 99.9609375,
+    "ego_progress": 83.92029749522317,
+    "no_at_fault_collisions": 99.21875,
+    "score": 92.18033228967631,
+    "time_to_collision_within_bound": 98.28125
+  },
+  "current_score_tail": {
+    "p01": 0.2913320289913974,
+    "p05": 0.8006044236402077,
+    "p10": 0.8553343791441769,
+    "p50": 0.9330144903716486
+  },
+  "current_training_seed": 42,
+  "current_zero": {
+    "all_fixed_seeds_zero_scenes": 3,
+    "any_seed_zero_scenes": 4,
+    "scene_mean_exact_zero_scenes": 3,
+    "scene_mean_near_zero_le1e6_scenes": 3,
+    "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+    "single_draw_zero_rate": 0.0125
+  },
+  "data_history": "Both DEV halves have historical baseline observations. Sealed only for this new study; not a newly blind test.",
+  "delta_PDMS_points": 0.03722754664969546,
+  "evaluation": "/mnt/project/qwen-flow-three-routes-20261024/evaluations/L0S_07",
+  "evaluation_costs": {
+    "L0S_07": {
+      "GPU_semantics": "Shared GPU worker wall occupancy, not exclusive GPU compute time",
+      "cache_reused_candidates": 0,
+      "candidate_attempts": 1280,
+      "condition_seconds": 100.09139349125326,
+      "generation_seconds": 938.0641737878323,
+      "invocation_wall_seconds": 1290.8731355518103,
+      "logical_scoring_cost": 1280,
+      "model_forward_calls": 12800,
+      "optimizer_updates": 0,
+      "qwen_prefills": 256,
+      "scored_candidates": 1280,
+      "scorer_batch_calls": 1280,
+      "scoring_wait_seconds": 125.80718363262713,
+      "update_seconds": 0.0
+    },
+    "L0_sample": {
+      "GPU_semantics": "Shared GPU worker wall occupancy, not exclusive GPU compute time",
+      "cache_reused_candidates": 0,
+      "candidate_attempts": 1280,
+      "condition_seconds": 99.42558381892741,
+      "generation_seconds": 931.074311811477,
+      "invocation_wall_seconds": 1290.6300955023617,
+      "logical_scoring_cost": 1280,
+      "model_forward_calls": 12800,
+      "optimizer_updates": 0,
+      "qwen_prefills": 256,
+      "scored_candidates": 1280,
+      "scorer_batch_calls": 1280,
+      "scoring_wait_seconds": 132.5995404869318,
+      "update_seconds": 0.0
+    }
+  },
+  "evaluation_identity": "a1e661e4a3fca7be06c6c8fa502757eea44486b7063da454056f0aa3e8acbbf0",
+  "fixed_reference_strata": {
+    "finite_reference_joint_safe": {
+      "caveat": "Safe in a finite independent reference sample, not all noise or true-road safety",
+      "current_any_seed_joint_violation_scenes": 0,
+      "paired_new_joint_violation_scene_count": 0,
+      "scenes": 246
+    },
+    "low_nonzero": {
+      "control_PDMS": 46.13489499954447,
+      "current_PDMS": 47.8152620930081,
+      "current_all_seed_zero_scenes": 1,
+      "current_any_seed_zero_scenes": 2,
+      "current_mean_drop_ge_useful_from_independent_reference": 1,
+      "current_mean_improved_ge_useful_from_independent_reference": 2,
+      "current_mean_zero_scenes": 1,
+      "paired_bootstrap": {
+        "CI95": [
+          -0.04311232682124272,
+          0.07671966869051552
+        ],
+        "CI95_PDMS_points": [
+          -4.311232682124272,
+          7.671966869051553
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": true,
+        "logs": 2,
+        "mean": 0.016803670934636403,
+        "mean_PDMS_points": 1.6803670934636403,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "raw_PDMS_score_difference",
+        "scenes": 4,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "paired_control_to_current_drop_ge_useful": 2,
+      "paired_delta_PDMS_points": 1.6803670934636403,
+      "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+      "scenes": 4
+    },
+    "other_or_unstable": {
+      "control_PDMS": 86.58104766688277,
+      "current_PDMS": 86.66994672240091,
+      "current_all_seed_zero_scenes": 0,
+      "current_any_seed_zero_scenes": 0,
+      "current_mean_drop_ge_useful_from_independent_reference": 5,
+      "current_mean_improved_ge_useful_from_independent_reference": 7,
+      "current_mean_zero_scenes": 0,
+      "paired_bootstrap": {
+        "CI95": [
+          -0.00044181119218249655,
+          0.003202680324142776
+        ],
+        "CI95_PDMS_points": [
+          -0.04418111921824965,
+          0.3202680324142776
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": 0.00088899055518141,
+        "mean_PDMS_points": 0.088899055518141,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "raw_PDMS_score_difference",
+        "scenes": 81,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "paired_control_to_current_drop_ge_useful": 2,
+      "paired_delta_PDMS_points": 0.088899055518141,
+      "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+      "scenes": 81
+    },
+    "stable_high": {
+      "control_PDMS": 96.98834540354517,
+      "current_PDMS": 96.96235700160139,
+      "current_all_seed_zero_scenes": 0,
+      "current_any_seed_zero_scenes": 0,
+      "current_mean_drop_ge_useful_from_independent_reference": 8,
+      "current_mean_improved_ge_useful_from_independent_reference": 6,
+      "current_mean_zero_scenes": 0,
+      "paired_bootstrap": {
+        "CI95": [
+          -0.00036757169865133554,
+          -0.00013709580401626484
+        ],
+        "CI95_PDMS_points": [
+          -0.036757169865133554,
+          -0.013709580401626483
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": -0.0002598840194379849,
+        "mean_PDMS_points": -0.025988401943798492,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "raw_PDMS_score_difference",
+        "scenes": 169,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "paired_control_to_current_drop_ge_useful": 0,
+      "paired_delta_PDMS_points": -0.025988401943798492,
+      "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+      "scenes": 169
+    },
+    "stable_zero": {
+      "control_PDMS": 0.0,
+      "current_PDMS": 0.0,
+      "current_all_seed_zero_scenes": 2,
+      "current_any_seed_zero_scenes": 2,
+      "current_mean_drop_ge_useful_from_independent_reference": 0,
+      "current_mean_improved_ge_useful_from_independent_reference": 0,
+      "current_mean_zero_scenes": 2,
+      "paired_bootstrap": {
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "CI95_PDMS_points": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": true,
+        "logs": 1,
+        "mean": 0.0,
+        "mean_PDMS_points": 0.0,
+        "one_log_interval_is_degenerate": true,
+        "quantity": "raw_PDMS_score_difference",
+        "scenes": 2,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "paired_control_to_current_drop_ge_useful": 0,
+      "paired_delta_PDMS_points": 0.0,
+      "reference_noise_comparison": "Stratum/reference_mean are frozen independent reference seeds, not the current evaluation noise",
+      "scenes": 2
+    }
+  },
+  "inference_seeds": [
+    2101,
+    2102,
+    2103,
+    2104,
+    2105
+  ],
+  "logs": 8,
+  "matched_deployment_contract": {
+    "action_dim": 3,
+    "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+    "horizon": 8,
+    "readout_family": "stochastic_root_single",
+    "root_innovation_dtype": "float32",
+    "root_namespace": "native_qwen_sourceflow_ODE",
+    "root_rng_device": "cpu",
+    "steps": 10,
+    "time_grid": "source_shift5"
+  },
+  "native_mean_delta_points": {
+    "comfort": 0.0,
+    "drivable_area_compliance": 0.078125,
+    "driving_direction_compliance": -0.03906249999999999,
+    "ego_progress": -0.02002888804073274,
+    "no_at_fault_collisions": 0.0,
+    "score": 0.03722754664969546,
+    "time_to_collision_within_bound": 2.168404344971009e-17
+  },
+  "net_raw_score_sum": 0.09530251942322038,
+  "new_joint_violation": {
+    "paired_seed_event_count": 2,
+    "per_draw_rate": {
+      "CI95": [
+        0.0,
+        0.0037387565266991333
+      ],
+      "CI95_percentage_points": [
+        0.0,
+        0.37387565266991335
+      ],
+      "bootstrap_repeats": 2000,
+      "inference_seed_uncertainty_included": false,
+      "interpretation": "Finite-sample scene-weighted event rate",
+      "limited_log_resolution": false,
+      "logs": 8,
+      "mean": 0.0015625,
+      "mean_percentage_points": 0.15625,
+      "observed_any_event": true,
+      "one_log_interval_is_degenerate": false,
+      "quantity": "event_rate_or_rate_difference",
+      "rate": 0.0015625,
+      "rate_percent": 0.15625,
+      "scenes": 256,
+      "seed": 42,
+      "training_seed_uncertainty_included": false,
+      "zero_observed_event_does_not_prove_zero_true_probability": false
+    },
+    "scene_any_seed_count": 2
+  },
+  "new_zero": {
+    "paired_seed_event_count": 1,
+    "per_draw_rate": {
+      "CI95": [
+        0.0,
+        0.0025002615062761496
+      ],
+      "CI95_percentage_points": [
+        0.0,
+        0.25002615062761496
+      ],
+      "bootstrap_repeats": 2000,
+      "inference_seed_uncertainty_included": false,
+      "interpretation": "Finite-sample scene-weighted event rate",
+      "limited_log_resolution": false,
+      "logs": 8,
+      "mean": 0.00078125,
+      "mean_percentage_points": 0.078125,
+      "observed_any_event": true,
+      "one_log_interval_is_degenerate": false,
+      "quantity": "event_rate_or_rate_difference",
+      "rate": 0.00078125,
+      "rate_percent": 0.078125,
+      "scenes": 256,
+      "seed": 42,
+      "training_seed_uncertainty_included": false,
+      "zero_observed_event_does_not_prove_zero_true_probability": false
+    },
+    "scene_all_fixed_seeds_count": 0,
+    "scene_any_seed_count": 1
+  },
+  "paired_PDMS_log_cluster_bootstrap": {
+    "CI95": [
+      -0.0010397364348933447,
+      0.0018169018827807113
+    ],
+    "CI95_PDMS_points": [
+      -0.10397364348933447,
+      0.18169018827807112
+    ],
+    "bootstrap_repeats": 2000,
+    "inference_seed_uncertainty_included": false,
+    "limited_log_resolution": false,
+    "logs": 8,
+    "mean": 0.0003722754664969546,
+    "mean_PDMS_points": 0.03722754664969546,
+    "one_log_interval_is_degenerate": false,
+    "quantity": "raw_PDMS_score_difference",
+    "scenes": 256,
+    "seed": 42,
+    "training_seed_uncertainty_included": false
+  },
+  "paired_scene_results_sha256": "7e4fa83c5c3f5eed905b8e552bc4402832dac08fc2b0fa56bc10094fd43fc474",
+  "practical": {
+    "CI_excludes_zero_on_positive_side": false,
+    "bootstrap_noninferiority_criterion_met": true,
+    "mean_gain_raw": 0.005,
+    "mean_gain_reaches_scale": false,
+    "new_failure_rate_absolute": 0.002,
+    "no_difference_is_not_equivalence": true,
+    "noninferiority_raw": 0.002,
+    "research_noninferiority_conclusion": "Not automatic: assess log/seed resolution, rare-event evidence and matching controls"
+  },
+  "practical_degraded_scenes": 4,
+  "practical_improved_scenes": 2,
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "public_copy_note": "Aggregate-only copy; paired private scene CSV is retained outside git. Original analysis SHA remains in source_analysis_sha256.",
+  "readout_family": "stochastic_root_single",
+  "reference": "/mnt/project/qwen-flow-three-routes-20261024/evaluations/L0_sample",
+  "reference_PDMS": 92.14310474302663,
+  "reference_identity": "f4296002471d3a7136c5eca40b72293c23f804ce93307d3541b4eacff7a3782b",
+  "reference_mean_percent": {
+    "comfort": 100.0,
+    "drivable_area_compliance": 99.453125,
+    "driving_direction_compliance": 100.0,
+    "ego_progress": 83.9403263832639,
+    "no_at_fault_collisions": 99.21875,
+    "score": 92.14310474302663,
+    "time_to_collision_within_bound": 98.28125
+  },
+  "reference_score_tail": {
+    "p01": 0.26346589747220617,
+    "p05": 0.8032858342673378,
+    "p10": 0.8550339657794676,
+    "p50": 0.9333480762643099
+  },
+  "reference_strata_content_sha256": "a5622f8be5eaf6da400c2d91555ccb32ff0118be1716c1371b6339b507430142",
+  "reference_training_seed": 42,
+  "reference_zero": {
+    "all_fixed_seeds_zero_scenes": 2,
+    "any_seed_zero_scenes": 4,
+    "scene_mean_exact_zero_scenes": 2,
+    "scene_mean_near_zero_le1e6_scenes": 2,
+    "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+    "single_draw_zero_rate": 0.01328125
+  },
+  "repaired_joint_violation": {
+    "paired_seed_event_count": 3,
+    "scene_any_seed_count": 2
+  },
+  "repaired_zero": {
+    "paired_seed_event_count": 2,
+    "scene_any_seed_count": 1
+  },
+  "reward_scale": "native0-1; PDMS points and percent are explicitly multiplied100",
+  "safety": {
+    "drivable_area_compliance": {
+      "current_violation_rate": 0.0046875,
+      "new_paired_seed_event_count": 1,
+      "new_per_draw_rate": {
+        "CI95": [
+          0.0,
+          0.0025002615062761496
+        ],
+        "CI95_percentage_points": [
+          0.0,
+          0.25002615062761496
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "interpretation": "Finite-sample scene-weighted event rate",
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": 0.00078125,
+        "mean_percentage_points": 0.078125,
+        "observed_any_event": true,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "event_rate_or_rate_difference",
+        "rate": 0.00078125,
+        "rate_percent": 0.078125,
+        "scenes": 256,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "zero_observed_event_does_not_prove_zero_true_probability": false
+      },
+      "new_scene_any_seed_count": 1,
+      "recovered_paired_seed_event_count": 2,
+      "recovered_scene_any_seed_count": 1,
+      "reference_violation_rate": 0.00546875,
+      "violation_delta_log_cluster_bootstrap": {
+        "CI95": [
+          -0.002500261506276151,
+          0.0
+        ],
+        "CI95_percentage_points": [
+          -0.2500261506276151,
+          0.0
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": -0.00078125,
+        "mean_percentage_points": -0.078125,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "event_rate_or_rate_difference",
+        "scenes": 256,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "violation_delta_percentage_points": -0.078125
+    },
+    "no_at_fault_collisions": {
+      "current_violation_rate": 0.0078125,
+      "new_paired_seed_event_count": 0,
+      "new_per_draw_rate": {
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "CI95_percentage_points": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": 0.0,
+        "mean_percentage_points": 0.0,
+        "observed_any_event": false,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "event_rate_or_rate_difference",
+        "rate": 0.0,
+        "rate_percent": 0.0,
+        "scenes": 256,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "zero_observed_event_does_not_prove_zero_true_probability": true
+      },
+      "new_scene_any_seed_count": 0,
+      "recovered_paired_seed_event_count": 0,
+      "recovered_scene_any_seed_count": 0,
+      "reference_violation_rate": 0.0078125,
+      "violation_delta_log_cluster_bootstrap": {
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "CI95_percentage_points": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": 0.0,
+        "mean_percentage_points": 0.0,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "event_rate_or_rate_difference",
+        "scenes": 256,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "violation_delta_percentage_points": 0.0
+    },
+    "time_to_collision_within_bound": {
+      "current_violation_rate": 0.0171875,
+      "new_paired_seed_event_count": 1,
+      "new_per_draw_rate": {
+        "CI95": [
+          0.0,
+          0.002678571428571429
+        ],
+        "CI95_percentage_points": [
+          0.0,
+          0.2678571428571429
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "interpretation": "Finite-sample scene-weighted event rate",
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": 0.00078125,
+        "mean_percentage_points": 0.078125,
+        "observed_any_event": true,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "event_rate_or_rate_difference",
+        "rate": 0.00078125,
+        "rate_percent": 0.078125,
+        "scenes": 256,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "zero_observed_event_does_not_prove_zero_true_probability": false
+      },
+      "new_scene_any_seed_count": 1,
+      "recovered_paired_seed_event_count": 1,
+      "recovered_scene_any_seed_count": 1,
+      "reference_violation_rate": 0.0171875,
+      "violation_delta_log_cluster_bootstrap": {
+        "CI95": [
+          -0.0019175532739849246,
+          0.002343979779411763
+        ],
+        "CI95_percentage_points": [
+          -0.19175532739849246,
+          0.23439797794117628
+        ],
+        "bootstrap_repeats": 2000,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "logs": 8,
+        "mean": 0.0,
+        "mean_percentage_points": 0.0,
+        "one_log_interval_is_degenerate": false,
+        "quantity": "event_rate_or_rate_difference",
+        "scenes": 256,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "violation_delta_percentage_points": 0.0
+    }
+  },
+  "sampler_config_hash": "4183dc418e872669616c56689059288375f57c03b6b8f06c95b1695004524b0c",
+  "scene_seed_records": 1280,
+  "scenes": 256,
+  "schema": "three_routes_common_paired_deployment_v1",
+  "scorer_config_hash": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "source_analysis_sha256": "67bbf141c1b976a7f7c9b18d34283eb2842a10aef081d02b88e5ab75e3949932",
+  "status": "COMPLETE",
+  "training_seed_pair_mismatch": false,
+  "uncertainty": "Inference seeds first averaged within each scene; scene-weighted log resampling only; no training/inference seed uncertainty"
+}

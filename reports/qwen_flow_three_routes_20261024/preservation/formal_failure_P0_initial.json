@@ -1,0 +1,110 @@
+{
+  "schema": "preservation_formal_failure_classification_v1",
+  "status": "CLASSIFIED",
+  "arm": "P0",
+  "training_seed": 42,
+  "scientific_run_identity": "9923419e7e0eed40ae1ff1e5af40755cabff4b015f2fd51a3f6b3b289707c52c",
+  "common_protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "dispatch_result": {
+    "status": "FAILED",
+    "start_unix": 1792868331.13531,
+    "host": "training-vla-zt",
+    "spec_sha256": "d3ac9e8520131bd47f9d7114781fe2f014f10580c5583c703416b96041652b50",
+    "pid": 3612666,
+    "start_ticks": 1430694497,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-u",
+      "-m",
+      "scripts.analysis.qwen_flow_exploration.preservation_train",
+      "--protocol",
+      "/mnt/project/qwen-flow-three-routes-20261024/common_protocol.json",
+      "--registration",
+      "/mnt/project/qwen-flow-three-routes-20261024/BUDGET_LOCK.json",
+      "--arm",
+      "P0",
+      "--seed",
+      "42",
+      "--output",
+      "/mnt/project/qwen-flow-three-routes-20261024/runs/P0_seed42"
+    ],
+    "source": "/mnt/project/qwen-flow-three-routes-20261024/snapshots/public_screen_v1",
+    "gpus": [
+      0
+    ],
+    "gpu_uuids": [
+      "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c"
+    ],
+    "exit_code": 1,
+    "end_unix": 1792868521.5327141,
+    "wall_seconds": 190.39740467071533,
+    "GPU_time_semantics": "worker wall occupancy; possibly shared, not exclusive compute time"
+  },
+  "worker_log_sha256": "b5a430c8cd95f6b0a997d6b6581460c3ba83e536582ca754a6542b7856812293",
+  "primary_failure": {
+    "kind": "CUDA_OUT_OF_MEMORY_shared_resource_capacity",
+    "location": "first source-policy inner recomputation, before optimizer.step",
+    "requested_MiB": 20,
+    "free_MiB": 20.5,
+    "device_capacity_GiB": 79.25,
+    "observed_other_process_GiB": [
+      38.06,
+      14.27
+    ],
+    "observed_this_process_GiB": 26.88,
+    "not_evidence_of_algorithm_inefficacy": true
+  },
+  "secondary_failure": {
+    "kind": "failure_evidence_parent_missing",
+    "original_exception_obscured": true,
+    "minimum_patch": "mkdir failure_evidence at private trainer startup before model construction"
+  },
+  "last_legal_checkpoint": "/mnt/project/qwen-flow-three-routes-20261024/runs/P0_seed42/checkpoints/round0000_update000000_inner0_1316737c",
+  "last_legal_seal_sha256": "f9e8901bcfe5a97426a51019e7e4e0edbacdcb626efbf1fe965c4736e25582ca",
+  "last_legal_state": {
+    "phase": "ROLLOUT_COMMITTED",
+    "round": 0,
+    "updates": 0,
+    "next_inner": 0,
+    "arm": "P0",
+    "seed": 42,
+    "scene_cursor": 16,
+    "logical_scored_candidates": 256,
+    "logical_scene_exposures": 16
+  },
+  "CPU_verified": {
+    "payload_hash_and_protocol": true,
+    "run_identity": true,
+    "all16_G16_scored": true,
+    "chain_old_probability_reward_digest": true,
+    "Adam_state_empty": true
+  },
+  "physical_costs": [
+    {
+      "candidate_attempts": 256,
+      "scored_candidates": 256,
+      "scorer_batch_calls": 16,
+      "logical_scoring_cost": 256,
+      "cache_reused_candidates": 0,
+      "model_forward_calls": 832,
+      "qwen_prefills": 16,
+      "optimizer_updates": 0,
+      "scoring_wait_seconds": 7.999894432723522,
+      "condition_seconds": 9.347726505249739,
+      "generation_seconds": 113.22997078858316,
+      "update_seconds": 0.0,
+      "invocation_wall_seconds": 183.9345181491226,
+      "GPU_semantics": "Shared GPU worker wall occupancy, not exclusive GPU compute time"
+    }
+  ],
+  "effect_on_results": "No optimizer update completed;256 scored candidates remain legally committed and may be reused with unchanged old chain/advantages",
+  "recovery": "Original immutable snapshot plus pre-created failure_evidence directory can exact-resume the committed checkpoint on a sufficiently free authorized GPU; do not regenerate this pending collection",
+  "calibration_risk": "Same chunk4 actor requires roughly27GiB measured peak and adequate headroom; secondary private-trainer error is absent from calibrate.py. Parent owns live resource verification.",
+  "changed_actor_sampler_loss_optimizer": false,
+  "automatic_GPU_retry": false,
+  "patch_equivalence": {
+    "removing_single_directory_creation_line_equals_formal_snapshot_byte_for_byte": true,
+    "formal_script_sha256": "0281c262502c1f11c6af05d096b9d245bf88b6e63e96dbba1f1bf0e9eebad898",
+    "patched_script_sha256": "336ce2f8e72bcbb8c65fc7308cae9478649f5e89ec6d50b959cbe8a611f38c6d"
+  }
+}

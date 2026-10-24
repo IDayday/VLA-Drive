@@ -1,6 +1,6 @@
 # 路线三：固定成功存档与成本约束
 
-截至本记录，已实现P0—P5并通过实际原生模型资格；完整初筛和部署效果仍等待共同候选库、TRAIN校准及主agent的统一GPU排程。**当前没有本路线的正式PDMS增益或能力保留结论。** 单条DEV资格轨迹仅证明更新后的ODE能执行，不作为研究效果。
+截至本记录，已实现P0—P5并通过实际原生模型资格；共同候选库和固定存档已经真实完成，正式训练由主agent按统一GPU排程执行。**当前没有本路线已完成的正式PDMS增益或能力保留结论。** 单条DEV资格轨迹仅证明更新后的ODE能执行，不作为研究效果。
 
 ## 实现与共同合同
 
@@ -30,6 +30,11 @@
 - 实际更新后的独立DEV单候选ODE可运行，未调用archive或reference路径；该一条轨迹不构成部署收益、泛化或安全证据。
 - CPU v2/v3曾因新RNG构造少传`seed_for`第三个参数而在更新前失败；原始结果保留，修复后才发布资格。[失败记录](qualification_issues.json)。没有正式run受影响。
 - 真实资格后的归档准入补丁：同ID且同base/scorer/sampler/请求/编码/分项/奖励的重复候选合并频次和来源，重复次数不会提高该轨迹的回放概率；冲突仍拒绝。补丁未改actor/sampler/FM/dual/update。[18项CPU v6通过](qualification_CPU_v6_archive_dedup.json)，并用原GPU资格的8条真实记录与旧实现比较，入库与128次抽样目标逐值相同，[等价收据](archive_admission_equivalence_v1.json)。
+- [纯部署CPU验收](qualification_deployment_CPU_v5.json)：9项通过。使用真实tiny ActionDiT和非零LoRA，直接FP32 `B@A*2`合并与源wrapper/源merged_state_dict一致，完整十步ODE误差在已登记容差内；最终模型没有LoRA wrapper或reference实例。对P组以及S1/S2/S3各自真实checkpoint schema核验后，只导出adapter字典；删除合成训练父目录后仍可加载纯部署包，不读取teacher、archive或dual。
+- 同一CPU验收还只读检查已有真实L0场景的seed、canonical分项、请求与模拟后果关联，错误seed、reward或已评分请求均拒绝；没有新增模型推理/评分。[一次资格接口失败及修复](qualification_deployment_issue_v4.json)单独保留，未改变已有结果。
+- [薄分析封装算术验收](qualification_analysis_CPU_v1.json)：仅调用公共`common_analysis`完成seed先归scene、log bootstrap；已验证P5−P3−P4+P0的已知数值、缺臂显式标记和不同训练seed拒绝，不另写一套统计器。
+
+固定存档现覆盖512个TRAIN场景中的435个（84.96%），共1667条目标；1/2/3/4条目标的场景数分别为10/15/13/397。来源为每scene的32条IID候选及5条独立reference，共18944条已评分请求；77个场景没有合格目标，保持无标签。[实际存档摘要](fixed_archive_initial_summary.json)。P2/P3/P5的监督回放人口因准入而有偏，全部512场景仍进入PG人口。这不是新策略单轨成绩。
 
 资格的更新阶段31.05秒/7个物理inner，B2/G4；不能把它当B16/G16的每步时间或宣称免费加速。完整初筛仍需profile与实际账本确认成本，资格权重不能进入正式初始化。
 
@@ -68,6 +73,22 @@ $MODEL_PY -m scripts.analysis.qwen_flow_exploration.preservation_train \
 P0无需calibration，其他臂使用同一个锁定校准身份。P1最多两个LR影子试验；P5四步与P1两次四步共12个校准optimizer更新单列，权重丢弃。若漂移不匹配，报告`NOT_MATCHED`，不能排除“仅学得更慢”。
 
 训练保存完整pending batch、old链/概率/优势、next_inner、LoRA/Adam/scheduler、dual及三个replay RNG；复用公共合法phase原子checkpoint。`--resume <同run合法checkpoint>`恢复剩余inner。collection失败不推进latest，失败算力和回滚记录保留；SIGUSR1在合法inner边界保存退出。
+
+新增纯部署入口同样支持S1/S2/S3，统一使用`native_qwen_sourceflow_ODE`的CPU scene-bound标准高斯root，每个固定seed仅一条shift5十步ODE。默认DEV_SELECT固定256场景×5seed，B1推理；DEV_AUDIT仍由公共gate封存。旧反馈学生自动评价的不同RNG namespace仅保留辅助身份，不混入本入口的主配对比较。以下入口已执行`--help`及CPU验收，实际GPU评价由主agent在相应训练COMPLETE后派发：
+
+```bash
+$MODEL_PY -m scripts.analysis.qwen_flow_exploration.preservation_evaluate \
+  --protocol <common_protocol.json> --arm P5 --seed 42 \
+  --checkpoint <独立P5正式run或其COMPLETE checkpoint> --output <新的单轨部署评价目录>
+$MODEL_PY -m scripts.analysis.qwen_flow_exploration.preservation_analyze \
+  --protocol <common_protocol.json> --reference <统一L0_sample评价目录> \
+  --reference-strata <common_bank/reference_strata.json> \
+  --evaluation P0=<P0评价目录> --evaluation P3=<P3评价目录> \
+  --evaluation P4=<P4评价目录> --evaluation P5=<P5评价目录> \
+  --archive <固定archive.json> --calibration <TRAIN calibration.json> --output <新分析目录>
+```
+
+最终评价只依赖完整base和纯adapter包，加载训练checkpoint是一次独立离线提取。推理时不构建永久reference，不加载存档或teacher，不把dual作为actor输入。未更新权重的BASE与共同L0_sample可以复用，避免重复评分。分析入口拒绝qualification、不完整scene/seed人口和重复候选池；P3−P2、P5−P1及存档×约束对照会显式列出缺失实验。
 
 ## 当前研究判断
 

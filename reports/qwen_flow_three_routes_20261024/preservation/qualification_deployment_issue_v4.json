@@ -1,0 +1,10 @@
+{
+  "status": "RESOLVED_IN_QUALIFICATION",
+  "attempt": "deployment_CPU_v4",
+  "symptom": "9 tiny deployment tests passed; optional actual L0 record check then raised KeyError scorer_config_hash",
+  "cause": "Legacy L0 identity binds scorer/sampler through sealed common protocol rather than repeating those fields",
+  "fix": "Actual-record qualification derives expected scorer/sampler only from hash-verified common protocol; leaves original evaluation identity/records unchanged",
+  "evidence": "qualification_deployment_CPU_v5.json",
+  "formal_training_or_scores_changed": false,
+  "new_inference_or_scoring": false
+}

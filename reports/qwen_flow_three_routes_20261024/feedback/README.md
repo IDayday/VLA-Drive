@@ -1,6 +1,6 @@
 # 路线二：物理反馈搜索与源FM吸收
 
-本目录属于独立三路线研究，公共起点由主agent锁定为成熟CANONICAL50k完整合并模型；不是旧DDP策略提取实验的恢复。当前已完成CPU接口/算术资格，真实共同候选bank、评分门槛、GPU及场景预算由主agent统一调度。`qualification_cpu_v1.json`中的synthetic评分仅测试搜索逻辑，**不是驾驶研究结果**。
+本目录属于独立三路线研究，公共起点由主agent锁定为成熟CANONICAL50k完整合并模型；不是旧DDP策略提取实验的恢复。当前已完成CPU及真实模型资格、共同bank和F0–F4真实搜索；学生训练由主agent统一GPU调度。`qualification_cpu_v1.json`中的synthetic评分仅测试搜索逻辑，**不是驾驶研究结果**。
 
 ## 实际复用与边界
 
@@ -35,7 +35,7 @@ CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/pyt
 
 该资格覆盖零控制、4D平滑proposal、全部F0-F4的32次预算、F2信息隔离、未知反馈拒绝、事件时间语义、TRAIN-only teacher/尺度、非负FM权重、源FM loss/梯度对照与实际优化器步骤。
 
-真实发现能力、学生吸收、部署泛化和后续GRPO目前尚未完成，不可由本CPU资格判为支持。下一步使用主agent统一的真实K32bank做同预算CPU搜索，随后给S1/S2/S3分配同一LoRA/FM更新窗口并重新ODE采样。
+CPU资格本身不提供发现、吸收或部署效果证据。后续真实搜索结果已单列，学生必须在同一LoRA/FM更新窗口后重新ODE采样，不能由搜索最高分代替部署成绩。
 
 ## 真实资格v1发现并隔离的预筛问题
 
@@ -52,3 +52,9 @@ v1全部证据保留。正式搜索前做最小修正：旧请求曲线极值只
 该单个搜索场景完全安全，F2/F3/F4的K32安全oracle均约0.842633，F1约0.848656、F0约0.846046。它不支持物理反馈的额外价值判断，也不能拿搜索最高分当学生部署成绩。8TRAIN/4DEV的小型新root评测只用于接口与有限更新检查，未进入正式模型选择。v1误筛失败证据保留，所有资格权重均不用作正式学生初始化。
 
 最新CPU v4另通过实际tiny原生LoRA/source-FM的READY保存与恢复：后续参数和Adam moments逐位一致。正式入口有预算锁；SIGUSR1/SIGTERM只请求完整optimizer后保存READY退出，评估在下一原子scene边界退出并可复用已完成记录，不把中断写成COMPLETE。
+
+## F0–F4已完成的真实搜索
+
+immutable97上的CPU campaign已完成512 TRAIN、256 DEV_SELECT，各方法K32；没有失败、重试或额外GPU派发。TRAIN F1盲结构化proposal相对F0有限oracle提高0.47578点，DEV提高0.96639点；F3物理反馈相对F2仅标量则几乎相同，未多发现安全修复。F4的oracle增量很小，未达预登记实际价值量级。[完整分离发现/部署的报告](discovery_v1.md)、[聚合与paired CI](discovery_v1_summary.json)。
+
+S1/S2/S3的FM吸收与重新采样结论尚待正式训练和统一评价，不提前宣称路线成功。S1从immutable97启动时带的helper自动评价使用旧noise namespace与batch布局，保留为辅助读出；主配对统一使用plain merged adapter evaluator。[评价合同更正](evaluation_protocol_delta.md)、[有限CPU接口资格](evaluation_helper_cpu_v1.json)。该修正不热改运行快照，不改变训练、teacher门槛或官方评分。

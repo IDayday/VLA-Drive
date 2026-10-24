@@ -87,11 +87,20 @@ def teacher_normalized_target(row, codec):
 
 
 @torch.no_grad()
-def evaluate_student(env, tokens, split, *, seeds, namespace='three_route_ODE_eval', output=None, stop_requested=None):
+def evaluate_student(env, tokens, split, *, seeds, namespace='native_qwen_sourceflow_ODE', output=None,
+                     stop_requested=None, qualification=False):
     rows = []
     root = Path(output) if output is not None else None
-    identity = dict(common_protocol_sha256=env.protocol['sha256'],base_model_sha256=env.base['model_sha256'],
-                    behavior=env.behavior_identity,tokens_sha256=fingerprint(tokens),split=split,seeds=list(seeds),namespace=namespace)
+    identity = dict(common_protocol_sha256=env.protocol['sha256'],protocol_sha256=env.protocol['sha256'],
+                    base_model_sha256=env.base['model_sha256'],qualification=qualification,
+                    behavior=env.behavior_identity,tokens_sha256=fingerprint(tokens),split=split,seeds=list(seeds),namespace=namespace,
+                    scenes=len(tokens),evaluation_seeds=list(seeds),
+                    readout='single_candidate_source_shift5_ODE_K10',
+                    inference='single_candidate_source_shift5_ODE_K10',model_batch=1,
+                    scorer_config_hash=env.scorer_config_hash,sampler_config_hash=fingerprint(env.protocol['samplers']),
+                    precision=env.protocol['precision'],
+                    evaluation_role='primary_noise_compatible_helper' if namespace=='native_qwen_sourceflow_ODE' and not qualification else 'auxiliary',
+                    paired_compatible_with_primary=namespace=='native_qwen_sourceflow_ODE' and not qualification)
     identity['sha256'] = fingerprint(identity)
     if root is not None:
         root.mkdir(parents=True,exist_ok=True)
@@ -109,8 +118,11 @@ def evaluate_student(env, tokens, split, *, seeds, namespace='three_route_ODE_ev
                 raise ValueError('Invalid saved student evaluation scene')
             rows.extend(saved['records']);reused+=1;continue
         condition = env.condition(token, split)
-        roots = torch.stack([torch.randn((8, 3), generator=torch.Generator().manual_seed(seed_for(namespace, seed, token))) for seed in seeds])
-        actions = env.sample_ode(condition, roots)
+        actions = []
+        for seed in seeds:
+            root_noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(seed_for(namespace,seed,token)))
+            actions.append(env.sample_ode(condition,root_noise))
+        actions=torch.cat(actions)
         records=env.score_actions(token, actions, split, proposal_source='single_student_ODE', seed=list(seeds))
         rows.extend(records)
         if destination is not None:

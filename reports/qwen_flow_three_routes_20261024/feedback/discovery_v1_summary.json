@@ -1,0 +1,1198 @@
+{
+  "schema": "native_feedback_discovery_analysis_v1",
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "base_model_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+  "bank_index_sha256": "bb1339a7ccd049636e8fb3a86291ca6f99baa0746902978793f1f253c8e2d6da",
+  "discovery_only_not_policy_deployment": true,
+  "method_order": [
+    "F0_IID",
+    "F1_BLIND",
+    "F2_PDMS",
+    "F3_FEEDBACK",
+    "F4_NOVELTY"
+  ],
+  "splits": {
+    "TRAIN": {
+      "scenes": 512,
+      "logs": 344,
+      "methods": {
+        "F0_IID": {
+          "oracle_PDMS": 95.21831385748956,
+          "feasible_scenes": 509,
+          "useful_safe_vs_refmean_scenes": 282,
+          "useful_safe_vs_base0_scenes": 262,
+          "mean_feasible_candidate_fraction": 0.98504638671875,
+          "external_useful_over_shared8_scenes": 0,
+          "teacher_scenes": 195,
+          "teacher_candidates": 539,
+          "external_teacher_scenes": 0,
+          "external_teacher_candidates": 0,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 1,
+              "feasible": 1,
+              "useful_safe": 1
+            },
+            "other_or_unstable": {
+              "scenes": 120,
+              "feasible": 120,
+              "useful_safe": 108
+            },
+            "stable_high": {
+              "scenes": 388,
+              "feasible": 388,
+              "useful_safe": 173
+            },
+            "stable_zero": {
+              "scenes": 3,
+              "feasible": 0,
+              "useful_safe": 0
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 94.76046021501728,
+              "feasible_scenes": 507,
+              "useful_safe_vs_refmean_scenes": 208
+            },
+            "16": {
+              "oracle_PDMS": 95.07990097764704,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 256
+            },
+            "24": {
+              "oracle_PDMS": 95.1700487792855,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 276
+            },
+            "32": {
+              "oracle_PDMS": 95.21831385748956,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 282
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "994a3eba29bb2747432058fd8ac9a6ff48287a18612f54666303d2a74b197dd8",
+            "scenes": 512,
+            "split": "TRAIN",
+            "method": "F0_IID",
+            "logical_candidate_scores": 16384,
+            "actual_new_candidate_scores": 0,
+            "actual_new_scorer_batch_calls": 0,
+            "reused_scenes": 0,
+            "wall_seconds": 97.58633642829955,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F0_IID/TRAIN/invocations/rank000_6be6ea88f8ff4b369797df43a575174a.json",
+            "cumulative_physical_candidate_score_attempts": 0,
+            "cumulative_scoring_batch_call_attempts": 0,
+            "cumulative_scorer_child_CPU_seconds": 0.0,
+            "cumulative_CPU_controller_wall_seconds": 97.54356583580375
+          }
+        },
+        "F1_BLIND": {
+          "oracle_PDMS": 95.69408961290006,
+          "feasible_scenes": 509,
+          "useful_safe_vs_refmean_scenes": 294,
+          "useful_safe_vs_base0_scenes": 291,
+          "mean_feasible_candidate_fraction": 0.9403076171875,
+          "external_useful_over_shared8_scenes": 193,
+          "teacher_scenes": 238,
+          "teacher_candidates": 785,
+          "external_teacher_scenes": 226,
+          "external_teacher_candidates": 627,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 1,
+              "feasible": 0,
+              "useful_safe": 0
+            },
+            "other_or_unstable": {
+              "scenes": 120,
+              "feasible": 120,
+              "useful_safe": 109
+            },
+            "stable_high": {
+              "scenes": 388,
+              "feasible": 388,
+              "useful_safe": 184
+            },
+            "stable_zero": {
+              "scenes": 3,
+              "feasible": 1,
+              "useful_safe": 1
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 94.76046021501728,
+              "feasible_scenes": 507,
+              "useful_safe_vs_refmean_scenes": 208
+            },
+            "16": {
+              "oracle_PDMS": 95.51471755044798,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 291
+            },
+            "24": {
+              "oracle_PDMS": 95.62175930176,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 294
+            },
+            "32": {
+              "oracle_PDMS": 95.69408961290006,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 294
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "d28f32d62b645193b64076a850c8ebd8cd6300eeae67e66e33a83f7f789b5d26",
+            "scenes": 512,
+            "split": "TRAIN",
+            "method": "F1_BLIND",
+            "logical_candidate_scores": 16384,
+            "actual_new_candidate_scores": 12288,
+            "actual_new_scorer_batch_calls": 1536,
+            "reused_scenes": 0,
+            "wall_seconds": 123.28299031592906,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F1_BLIND/TRAIN/invocations/rank000_483a7002e1764ef98154830b86e73bb0.json",
+            "cumulative_physical_candidate_score_attempts": 12288,
+            "cumulative_scoring_batch_call_attempts": 1536,
+            "cumulative_scorer_child_CPU_seconds": 197.8317,
+            "cumulative_CPU_controller_wall_seconds": 123.25138121657073
+          }
+        },
+        "F2_PDMS": {
+          "oracle_PDMS": 95.64084983245257,
+          "feasible_scenes": 509,
+          "useful_safe_vs_refmean_scenes": 296,
+          "useful_safe_vs_base0_scenes": 292,
+          "mean_feasible_candidate_fraction": 0.9580078125,
+          "external_useful_over_shared8_scenes": 180,
+          "teacher_scenes": 237,
+          "teacher_candidates": 748,
+          "external_teacher_scenes": 220,
+          "external_teacher_candidates": 593,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 1,
+              "feasible": 0,
+              "useful_safe": 0
+            },
+            "other_or_unstable": {
+              "scenes": 120,
+              "feasible": 120,
+              "useful_safe": 110
+            },
+            "stable_high": {
+              "scenes": 388,
+              "feasible": 388,
+              "useful_safe": 185
+            },
+            "stable_zero": {
+              "scenes": 3,
+              "feasible": 1,
+              "useful_safe": 1
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 94.76046021501728,
+              "feasible_scenes": 507,
+              "useful_safe_vs_refmean_scenes": 208
+            },
+            "16": {
+              "oracle_PDMS": 95.51471755044798,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 291
+            },
+            "24": {
+              "oracle_PDMS": 95.60136803706828,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 292
+            },
+            "32": {
+              "oracle_PDMS": 95.64084983245257,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 296
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "9e3e8085597b4cf1cbdf2f73aaff78333c024caf317c896695a72c07f6d3dbdc",
+            "scenes": 512,
+            "split": "TRAIN",
+            "method": "F2_PDMS",
+            "logical_candidate_scores": 16384,
+            "actual_new_candidate_scores": 12288,
+            "actual_new_scorer_batch_calls": 1536,
+            "reused_scenes": 0,
+            "wall_seconds": 124.46367424726486,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F2_PDMS/TRAIN/invocations/rank000_ffa5fd4dd29845b3a4f1c51889d659c5.json",
+            "cumulative_physical_candidate_score_attempts": 12288,
+            "cumulative_scoring_batch_call_attempts": 1536,
+            "cumulative_scorer_child_CPU_seconds": 197.97345599999997,
+            "cumulative_CPU_controller_wall_seconds": 124.4275865778327
+          }
+        },
+        "F3_FEEDBACK": {
+          "oracle_PDMS": 95.6408386930215,
+          "feasible_scenes": 509,
+          "useful_safe_vs_refmean_scenes": 296,
+          "useful_safe_vs_base0_scenes": 292,
+          "mean_feasible_candidate_fraction": 0.958251953125,
+          "external_useful_over_shared8_scenes": 180,
+          "teacher_scenes": 237,
+          "teacher_candidates": 748,
+          "external_teacher_scenes": 220,
+          "external_teacher_candidates": 593,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 1,
+              "feasible": 0,
+              "useful_safe": 0
+            },
+            "other_or_unstable": {
+              "scenes": 120,
+              "feasible": 120,
+              "useful_safe": 110
+            },
+            "stable_high": {
+              "scenes": 388,
+              "feasible": 388,
+              "useful_safe": 185
+            },
+            "stable_zero": {
+              "scenes": 3,
+              "feasible": 1,
+              "useful_safe": 1
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 94.76046021501728,
+              "feasible_scenes": 507,
+              "useful_safe_vs_refmean_scenes": 208
+            },
+            "16": {
+              "oracle_PDMS": 95.51471755044798,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 291
+            },
+            "24": {
+              "oracle_PDMS": 95.6013776971303,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 292
+            },
+            "32": {
+              "oracle_PDMS": 95.6408386930215,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 296
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "9635cb438543bd72deb0486e2b9051492db5188a27b7eea263b94d6d90f51474",
+            "scenes": 512,
+            "split": "TRAIN",
+            "method": "F3_FEEDBACK",
+            "logical_candidate_scores": 16384,
+            "actual_new_candidate_scores": 12288,
+            "actual_new_scorer_batch_calls": 1536,
+            "reused_scenes": 0,
+            "wall_seconds": 127.44295939058065,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F3_FEEDBACK/TRAIN/invocations/rank000_33ed8ddb84334875a43b058e6d44bcec.json",
+            "cumulative_physical_candidate_score_attempts": 12288,
+            "cumulative_scoring_batch_call_attempts": 1536,
+            "cumulative_scorer_child_CPU_seconds": 198.60366899999997,
+            "cumulative_CPU_controller_wall_seconds": 127.37586467526853
+          }
+        },
+        "F4_NOVELTY": {
+          "oracle_PDMS": 95.66226835324574,
+          "feasible_scenes": 509,
+          "useful_safe_vs_refmean_scenes": 295,
+          "useful_safe_vs_base0_scenes": 290,
+          "mean_feasible_candidate_fraction": 0.95654296875,
+          "external_useful_over_shared8_scenes": 179,
+          "teacher_scenes": 235,
+          "teacher_candidates": 750,
+          "external_teacher_scenes": 218,
+          "external_teacher_candidates": 592,
+          "novelty_proposals": 1988,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 1,
+              "feasible": 0,
+              "useful_safe": 0
+            },
+            "other_or_unstable": {
+              "scenes": 120,
+              "feasible": 120,
+              "useful_safe": 110
+            },
+            "stable_high": {
+              "scenes": 388,
+              "feasible": 388,
+              "useful_safe": 184
+            },
+            "stable_zero": {
+              "scenes": 3,
+              "feasible": 1,
+              "useful_safe": 1
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 94.76046021501728,
+              "feasible_scenes": 507,
+              "useful_safe_vs_refmean_scenes": 208
+            },
+            "16": {
+              "oracle_PDMS": 95.51471755044798,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 291
+            },
+            "24": {
+              "oracle_PDMS": 95.61134209339353,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 292
+            },
+            "32": {
+              "oracle_PDMS": 95.66226835324574,
+              "feasible_scenes": 509,
+              "useful_safe_vs_refmean_scenes": 295
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "dd3279d8daf75f1f530defe8040f4f59bfb140ac6a25bb9ff55b1c9208854fe2",
+            "scenes": 512,
+            "split": "TRAIN",
+            "method": "F4_NOVELTY",
+            "logical_candidate_scores": 16384,
+            "actual_new_candidate_scores": 12288,
+            "actual_new_scorer_batch_calls": 1536,
+            "reused_scenes": 0,
+            "wall_seconds": 131.2683364097029,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F4_NOVELTY/TRAIN/invocations/rank000_fd2c1c3e5f6f4abc995432b438250b7c.json",
+            "cumulative_physical_candidate_score_attempts": 12288,
+            "cumulative_scoring_batch_call_attempts": 1536,
+            "cumulative_scorer_child_CPU_seconds": 203.891348,
+            "cumulative_CPU_controller_wall_seconds": 131.22936337813735
+          }
+        }
+      },
+      "paired": {
+        "F1_BLIND-F0_IID": {
+          "oracle_difference_raw": {
+            "mean": 0.0047577575541049265,
+            "CI95": [
+              0.0013058228050688613,
+              0.00976481880029139
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              -0.005780625795076662,
+              0.005870841487279843
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": 0.0234375,
+            "CI95": [
+              0.0019303163053163055,
+              0.04545670174228046
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 197,
+          "strictly_lower_oracle_scenes": 73,
+          "new_safe_scenes": 1,
+          "lost_safe_scenes": 1
+        },
+        "F2_PDMS-F1_BLIND": {
+          "oracle_difference_raw": {
+            "mean": -0.0005323978044748929,
+            "CI95": [
+              -0.0009720273598229737,
+              -0.00017058164778840858
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": 0.00390625,
+            "CI95": [
+              0.0,
+              0.00980392156862745
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 63,
+          "strictly_lower_oracle_scenes": 117,
+          "new_safe_scenes": 0,
+          "lost_safe_scenes": 0
+        },
+        "F3_FEEDBACK-F2_PDMS": {
+          "oracle_difference_raw": {
+            "mean": -1.1139431071310879e-07,
+            "CI95": [
+              -3.4706219321568985e-07,
+              0.0
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 0,
+          "strictly_lower_oracle_scenes": 1,
+          "new_safe_scenes": 0,
+          "lost_safe_scenes": 0
+        },
+        "F4_NOVELTY-F3_FEEDBACK": {
+          "oracle_difference_raw": {
+            "mean": 0.00021429660224234117,
+            "CI95": [
+              5.427036150393365e-05,
+              0.0003820515526374086
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": -0.001953125,
+            "CI95": [
+              -0.006134969325153374,
+              0.0
+            ],
+            "scenes": 512,
+            "logs": 344,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 60,
+          "strictly_lower_oracle_scenes": 51,
+          "new_safe_scenes": 0,
+          "lost_safe_scenes": 0
+        }
+      },
+      "teacher_common_support": {
+        "F1_BLIND-F0_IID": {
+          "scenes": 189,
+          "mean_best_teacher_difference_raw": 0.0040510448588470796
+        },
+        "F2_PDMS-F1_BLIND": {
+          "scenes": 234,
+          "mean_best_teacher_difference_raw": -0.0005635018978028795
+        },
+        "F3_FEEDBACK-F2_PDMS": {
+          "scenes": 237,
+          "mean_best_teacher_difference_raw": 0.0
+        },
+        "F4_NOVELTY-F3_FEEDBACK": {
+          "scenes": 234,
+          "mean_best_teacher_difference_raw": 7.604442575436927e-05
+        }
+      }
+    },
+    "DEV_SELECT": {
+      "scenes": 256,
+      "logs": 8,
+      "methods": {
+        "F0_IID": {
+          "oracle_PDMS": 93.87686245523756,
+          "feasible_scenes": 254,
+          "useful_safe_vs_refmean_scenes": 151,
+          "useful_safe_vs_base0_scenes": 139,
+          "mean_feasible_candidate_fraction": 0.979248046875,
+          "external_useful_over_shared8_scenes": 0,
+          "teacher_scenes": 0,
+          "teacher_candidates": 0,
+          "external_teacher_scenes": 0,
+          "external_teacher_candidates": 0,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 4,
+              "feasible": 4,
+              "useful_safe": 4
+            },
+            "other_or_unstable": {
+              "scenes": 81,
+              "feasible": 81,
+              "useful_safe": 74
+            },
+            "stable_high": {
+              "scenes": 169,
+              "feasible": 169,
+              "useful_safe": 73
+            },
+            "stable_zero": {
+              "scenes": 2,
+              "feasible": 0,
+              "useful_safe": 0
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 93.56682531531052,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 112
+            },
+            "16": {
+              "oracle_PDMS": 93.74786221822363,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 136
+            },
+            "24": {
+              "oracle_PDMS": 93.8252636888579,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 147
+            },
+            "32": {
+              "oracle_PDMS": 93.87686245523756,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 151
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "cb827579c1c4cf97ce36066b93a13a4ff8df67ed05a816c3e1cd3af2fa58f14c",
+            "scenes": 256,
+            "split": "DEV_SELECT",
+            "method": "F0_IID",
+            "logical_candidate_scores": 8192,
+            "actual_new_candidate_scores": 0,
+            "actual_new_scorer_batch_calls": 0,
+            "reused_scenes": 0,
+            "wall_seconds": 45.89727070555091,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F0_IID/DEV_SELECT/invocations/rank000_79043dcea6b34b8e8102b1dfa116e18c.json",
+            "cumulative_physical_candidate_score_attempts": 0,
+            "cumulative_scoring_batch_call_attempts": 0,
+            "cumulative_scorer_child_CPU_seconds": 0.0,
+            "cumulative_CPU_controller_wall_seconds": 45.87636844813824
+          }
+        },
+        "F1_BLIND": {
+          "oracle_PDMS": 94.8432531207827,
+          "feasible_scenes": 255,
+          "useful_safe_vs_refmean_scenes": 152,
+          "useful_safe_vs_base0_scenes": 159,
+          "mean_feasible_candidate_fraction": 0.9339599609375,
+          "external_useful_over_shared8_scenes": 98,
+          "teacher_scenes": 0,
+          "teacher_candidates": 0,
+          "external_teacher_scenes": 0,
+          "external_teacher_candidates": 0,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 4,
+              "feasible": 4,
+              "useful_safe": 4
+            },
+            "other_or_unstable": {
+              "scenes": 81,
+              "feasible": 81,
+              "useful_safe": 78
+            },
+            "stable_high": {
+              "scenes": 169,
+              "feasible": 169,
+              "useful_safe": 69
+            },
+            "stable_zero": {
+              "scenes": 2,
+              "feasible": 1,
+              "useful_safe": 1
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 93.56682531531052,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 112
+            },
+            "16": {
+              "oracle_PDMS": 94.07697535033763,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 149
+            },
+            "24": {
+              "oracle_PDMS": 94.79417970624041,
+              "feasible_scenes": 255,
+              "useful_safe_vs_refmean_scenes": 152
+            },
+            "32": {
+              "oracle_PDMS": 94.8432531207827,
+              "feasible_scenes": 255,
+              "useful_safe_vs_refmean_scenes": 152
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "b91063fa5c0be43d18e4b4e338a862e9e254ae8a8251efdc6ec0f732685e65ec",
+            "scenes": 256,
+            "split": "DEV_SELECT",
+            "method": "F1_BLIND",
+            "logical_candidate_scores": 8192,
+            "actual_new_candidate_scores": 6144,
+            "actual_new_scorer_batch_calls": 768,
+            "reused_scenes": 0,
+            "wall_seconds": 62.85823434405029,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F1_BLIND/DEV_SELECT/invocations/rank000_646c825b0ed349c79a22f1ad5f2aafd8.json",
+            "cumulative_physical_candidate_score_attempts": 6144,
+            "cumulative_scoring_batch_call_attempts": 768,
+            "cumulative_scorer_child_CPU_seconds": 110.340317,
+            "cumulative_CPU_controller_wall_seconds": 62.849657740443945
+          }
+        },
+        "F2_PDMS": {
+          "oracle_PDMS": 94.25631397293814,
+          "feasible_scenes": 254,
+          "useful_safe_vs_refmean_scenes": 153,
+          "useful_safe_vs_base0_scenes": 159,
+          "mean_feasible_candidate_fraction": 0.953857421875,
+          "external_useful_over_shared8_scenes": 94,
+          "teacher_scenes": 0,
+          "teacher_candidates": 0,
+          "external_teacher_scenes": 0,
+          "external_teacher_candidates": 0,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 4,
+              "feasible": 4,
+              "useful_safe": 4
+            },
+            "other_or_unstable": {
+              "scenes": 81,
+              "feasible": 81,
+              "useful_safe": 78
+            },
+            "stable_high": {
+              "scenes": 169,
+              "feasible": 169,
+              "useful_safe": 71
+            },
+            "stable_zero": {
+              "scenes": 2,
+              "feasible": 0,
+              "useful_safe": 0
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 93.56682531531052,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 112
+            },
+            "16": {
+              "oracle_PDMS": 94.07697535033763,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 149
+            },
+            "24": {
+              "oracle_PDMS": 94.194756784626,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 151
+            },
+            "32": {
+              "oracle_PDMS": 94.25631397293814,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 153
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "f1ee732a5d98b23e151a9fd2beccc12703c93adaccdaf614bdf229f8f80bc6b8",
+            "scenes": 256,
+            "split": "DEV_SELECT",
+            "method": "F2_PDMS",
+            "logical_candidate_scores": 8192,
+            "actual_new_candidate_scores": 6144,
+            "actual_new_scorer_batch_calls": 768,
+            "reused_scenes": 0,
+            "wall_seconds": 64.93643043935299,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F2_PDMS/DEV_SELECT/invocations/rank000_f66c801ae65a4cd38976ce61efd16224.json",
+            "cumulative_physical_candidate_score_attempts": 6144,
+            "cumulative_scoring_batch_call_attempts": 768,
+            "cumulative_scorer_child_CPU_seconds": 111.54983800000001,
+            "cumulative_CPU_controller_wall_seconds": 64.9128869343549
+          }
+        },
+        "F3_FEEDBACK": {
+          "oracle_PDMS": 94.25450107827784,
+          "feasible_scenes": 254,
+          "useful_safe_vs_refmean_scenes": 153,
+          "useful_safe_vs_base0_scenes": 159,
+          "mean_feasible_candidate_fraction": 0.953369140625,
+          "external_useful_over_shared8_scenes": 94,
+          "teacher_scenes": 0,
+          "teacher_candidates": 0,
+          "external_teacher_scenes": 0,
+          "external_teacher_candidates": 0,
+          "novelty_proposals": 0,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 4,
+              "feasible": 4,
+              "useful_safe": 4
+            },
+            "other_or_unstable": {
+              "scenes": 81,
+              "feasible": 81,
+              "useful_safe": 78
+            },
+            "stable_high": {
+              "scenes": 169,
+              "feasible": 169,
+              "useful_safe": 71
+            },
+            "stable_zero": {
+              "scenes": 2,
+              "feasible": 0,
+              "useful_safe": 0
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 93.56682531531052,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 112
+            },
+            "16": {
+              "oracle_PDMS": 94.07697535033763,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 149
+            },
+            "24": {
+              "oracle_PDMS": 94.19349083584285,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 151
+            },
+            "32": {
+              "oracle_PDMS": 94.25450107827784,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 153
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "8b9ad396f7e8fee9f55600c35dc2e240de598d43855e68be752ceff5fc05a9f5",
+            "scenes": 256,
+            "split": "DEV_SELECT",
+            "method": "F3_FEEDBACK",
+            "logical_candidate_scores": 8192,
+            "actual_new_candidate_scores": 6144,
+            "actual_new_scorer_batch_calls": 768,
+            "reused_scenes": 0,
+            "wall_seconds": 64.7220417149365,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F3_FEEDBACK/DEV_SELECT/invocations/rank000_692d7730d227474cb5c2a0ced7ca1e00.json",
+            "cumulative_physical_candidate_score_attempts": 6144,
+            "cumulative_scoring_batch_call_attempts": 768,
+            "cumulative_scorer_child_CPU_seconds": 110.40972000000001,
+            "cumulative_CPU_controller_wall_seconds": 64.6958251837641
+          }
+        },
+        "F4_NOVELTY": {
+          "oracle_PDMS": 94.28565439385747,
+          "feasible_scenes": 254,
+          "useful_safe_vs_refmean_scenes": 151,
+          "useful_safe_vs_base0_scenes": 159,
+          "mean_feasible_candidate_fraction": 0.951416015625,
+          "external_useful_over_shared8_scenes": 94,
+          "teacher_scenes": 0,
+          "teacher_candidates": 0,
+          "external_teacher_scenes": 0,
+          "external_teacher_candidates": 0,
+          "novelty_proposals": 990,
+          "invalid_attempts": 0,
+          "duplicate_attempts": 0,
+          "strata": {
+            "low_nonzero": {
+              "scenes": 4,
+              "feasible": 4,
+              "useful_safe": 4
+            },
+            "other_or_unstable": {
+              "scenes": 81,
+              "feasible": 81,
+              "useful_safe": 78
+            },
+            "stable_high": {
+              "scenes": 169,
+              "feasible": 169,
+              "useful_safe": 69
+            },
+            "stable_zero": {
+              "scenes": 2,
+              "feasible": 0,
+              "useful_safe": 0
+            }
+          },
+          "curves": {
+            "8": {
+              "oracle_PDMS": 93.56682531531052,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 112
+            },
+            "16": {
+              "oracle_PDMS": 94.07697535033763,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 149
+            },
+            "24": {
+              "oracle_PDMS": 94.21202669225472,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 151
+            },
+            "32": {
+              "oracle_PDMS": 94.28565439385747,
+              "feasible_scenes": 254,
+              "useful_safe_vs_refmean_scenes": 151
+            }
+          },
+          "costs": {
+            "status": "COMPLETE",
+            "identity": "5117a3d7ae46ce73feff767efb4d4c11c86bc3cbd4442952a41fe6e147cc6f3a",
+            "scenes": 256,
+            "split": "DEV_SELECT",
+            "method": "F4_NOVELTY",
+            "logical_candidate_scores": 8192,
+            "actual_new_candidate_scores": 6144,
+            "actual_new_scorer_batch_calls": 768,
+            "reused_scenes": 0,
+            "wall_seconds": 65.1212329864502,
+            "oracle_is_not_deployment": true,
+            "worker_threads": 4,
+            "invocation": "/mnt/project/qwen-flow-three-routes-20261024/feedback/search/F4_NOVELTY/DEV_SELECT/invocations/rank000_8771c1fd389e4a0aba7e8fa0df06f4f7.json",
+            "cumulative_physical_candidate_score_attempts": 6144,
+            "cumulative_scoring_batch_call_attempts": 768,
+            "cumulative_scorer_child_CPU_seconds": 108.89214799999999,
+            "cumulative_CPU_controller_wall_seconds": 65.09292707778513
+          }
+        }
+      },
+      "paired": {
+        "F1_BLIND-F0_IID": {
+          "oracle_difference_raw": {
+            "mean": 0.009663906655451377,
+            "CI95": [
+              0.0024865268208895215,
+              0.024225874241944754
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": 0.00390625,
+            "CI95": [
+              0.0,
+              0.013333333333333334
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": 0.00390625,
+            "CI95": [
+              -0.01384083044982699,
+              0.03404255319148936
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 108,
+          "strictly_lower_oracle_scenes": 44,
+          "new_safe_scenes": 1,
+          "lost_safe_scenes": 0
+        },
+        "F2_PDMS-F1_BLIND": {
+          "oracle_difference_raw": {
+            "mean": -0.005869391478445495,
+            "CI95": [
+              -0.019996677283385153,
+              0.0002672027311268935
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": -0.00390625,
+            "CI95": [
+              -0.013333333333333334,
+              0.0
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": 0.00390625,
+            "CI95": [
+              -0.008889880952380951,
+              0.018266934774412436
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 47,
+          "strictly_lower_oracle_scenes": 60,
+          "new_safe_scenes": 0,
+          "lost_safe_scenes": 1
+        },
+        "F3_FEEDBACK-F2_PDMS": {
+          "oracle_difference_raw": {
+            "mean": -1.812894660302043e-05,
+            "CI95": [
+              -6.188013773830973e-05,
+              0.0
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 0,
+          "strictly_lower_oracle_scenes": 1,
+          "new_safe_scenes": 0,
+          "lost_safe_scenes": 0
+        },
+        "F4_NOVELTY-F3_FEEDBACK": {
+          "oracle_difference_raw": {
+            "mean": 0.0003115331557962029,
+            "CI95": [
+              0.00011377221084658862,
+              0.0005228602823713174
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "feasible_discovery_rate_difference": {
+            "mean": 0.0,
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "safe_useful_discovery_rate_difference": {
+            "mean": -0.0078125,
+            "CI95": [
+              -0.020202020202020204,
+              0.0
+            ],
+            "scenes": 256,
+            "logs": 8,
+            "bootstrap_repeats": 5000,
+            "seed": 42,
+            "training_seed_uncertainty_included": false
+          },
+          "strictly_higher_oracle_scenes": 50,
+          "strictly_lower_oracle_scenes": 33,
+          "new_safe_scenes": 0,
+          "lost_safe_scenes": 0
+        }
+      },
+      "teacher_common_support": {
+        "F1_BLIND-F0_IID": {
+          "scenes": 0,
+          "mean_best_teacher_difference_raw": null
+        },
+        "F2_PDMS-F1_BLIND": {
+          "scenes": 0,
+          "mean_best_teacher_difference_raw": null
+        },
+        "F3_FEEDBACK-F2_PDMS": {
+          "scenes": 0,
+          "mean_best_teacher_difference_raw": null
+        },
+        "F4_NOVELTY-F3_FEEDBACK": {
+          "scenes": 0,
+          "mean_best_teacher_difference_raw": null
+        }
+      }
+    }
+  },
+  "search_scene_manifest_sha256": {
+    "TRAIN/F0_IID": "2c750552697ee3eda5f66dd47e4886f2e2b9db734621c05e6d1205c1cb6b0b96",
+    "TRAIN/F1_BLIND": "00af5d1bb41439123552bf7cb0bbca6ae257349ffa7cb12d038801f12df213b9",
+    "TRAIN/F2_PDMS": "6378acd19cd00f0b20d16d3ef1bbf100d949ea100e53d1e3c5767e0d930fbc8a",
+    "TRAIN/F3_FEEDBACK": "c0759c8cf24d78381745680ff2ecabc4a9ea343c2b09ecf9a4a1f9da21597a74",
+    "TRAIN/F4_NOVELTY": "cf2e64bb698291755d57ff270913132c6e98c73c6a12e13b416e7f704de8f172",
+    "DEV_SELECT/F0_IID": "460d06ce3f458edcb5909ba291b3b4e6b6a3dd57879588976d954b15733bb668",
+    "DEV_SELECT/F1_BLIND": "69edca76ff0ce044e2222c2d92d45b6ca4fdd9e7ad7326331c54d99eaea180f1",
+    "DEV_SELECT/F2_PDMS": "7958dbed224d509f12a55b2d4bb2f1d3effb027c326d49cf9703524270bd9490",
+    "DEV_SELECT/F3_FEEDBACK": "fc35cbf15abb03f92b8e51a6bfb3c57373a6fd7de7dd2ac77be6b7eafdad21e3",
+    "DEV_SELECT/F4_NOVELTY": "2a67c499d75bcad9353c7e3a78228c4b5fec772ca1ddb0826b16718856338cd5"
+  },
+  "statistical_scope": "Finite K32 discovery; natural diagnostic samples; scene-weighted log-cluster bootstrap; no training-seed uncertainty; no deployment claim",
+  "sha256": "ab8cb7d8062cabaf009ecb94fadc38252d968fb7ffeff302ebd1583f8006c420"
+}
