@@ -16,7 +16,7 @@ import time
 import math
 
 from starVLA.rl.qwen_world_postcot.contracts import ROOT, authorization, allowed_hosts, file_sha, fingerprint
-from starVLA.rl.qwen_world_postcot.resources import remote, probe, inventory, MODEL_PYTHON, OPERATOR_PYTHON
+from starVLA.rl.qwen_world_postcot.resources import remote, probe, inventory, gpu_activity_issue, MODEL_PYTHON, OPERATOR_PYTHON
 from starVLA.rl.qwen_world_postcot.checkpoint import atomic_json
 
 IL_MILESTONES = tuple(range(5000, 100001, 5000))
@@ -103,6 +103,7 @@ def choose_training_host(minimum, *, excluded_uuids=()):
             if min(g['free_MiB'] for g in before['gpus']+after['gpus']) < minimum: continue
             owners = before['owners']+after['owners']
             if any(not owner['visible'] for owner in owners): continue
+            if any(gpu_activity_issue(gpu,sample['owners'])for sample in (before,after)for gpu in sample['gpus']):continue
             permanent = host in grant['permanent_hosts']
             if owners and (not permanent or any(not str(owner.get('output', '')).startswith(
                     ('/mnt/project/qwen-sourceflow-', '/mnt/project/qwen-world-postcot-')) for owner in owners)):

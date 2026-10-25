@@ -118,50 +118,67 @@ class ResourceRefused(RuntimeError):
     """A positively identified pre-child capacity/owner/lease change only."""
 
 
+PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
+SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
+
+
 def _known_owners(rows,mapping,indices):
-    for pid,uuid in rows:
-        if uuid.strip()not in {mapping[i]for i in indices}:continue
-        try:args=(Path('/proc')/pid.strip()/'cmdline').read_bytes().decode().split('\0')
+    for row in rows:
+        if row['uuid']not in {mapping[i]for i in indices}:continue
+        try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
         if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
             raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
 
 
+def _admission_sample():
+    devices={}
+    for line in subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.total,memory.free,utilization.gpu',
+            '--format=csv,noheader,nounits'],text=True).splitlines():
+        index,uuid,total,free,util=line.split(',')
+        devices[int(index)]=dict(index=int(index),uuid=uuid.strip(),total_MiB=int(total),free_MiB=int(free),utilization=int(util))
+    owners=[]
+    for line in subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid,used_memory',
+            '--format=csv,noheader,nounits'],text=True).splitlines():
+        pid,uuid,memory=line.split(',')
+        owners.append(dict(pid=int(pid),uuid=uuid.strip(),used_MiB=int(memory)if memory.strip().isdigit()else None))
+    return devices,owners
+
+
 def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     if not indices:return
-    mapping.update({int(i):u.strip()for i,u in(l.split(',')for l in subprocess.check_output(
-        ['nvidia-smi','--query-gpu=index,uuid','--format=csv,noheader'],text=True).splitlines())})
-    if expected is not None and [mapping[i]for i in indices]!=expected:
-        raise ResourceRefused('Physical GPU mapping changed after scheduling')
-    rows=[l.split(',')for l in subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid','--format=csv,noheader'],text=True).splitlines()]
-    owners={u.strip()for _,u in rows}
-    if args.share_min_free_mib:
-        if host not in grant['permanent_hosts']or args.share_min_free_mib<8192:
-            raise ValueError('Sharing requires a permanent host and measured valid headroom')
-        _known_owners(rows,mapping,indices)
-    elif any(mapping[i]in owners for i in indices):
-        raise ResourceRefused('GPU acquired another owner before dispatch')
-    primary=Path('/mnt/project/runtime_gpu_leases');primary.mkdir(exist_ok=True)
-    shared=Path('/mnt/project/runtime_gpu_shared_workers');shared.mkdir(exist_ok=True)
+    from starVLA.rl.qwen_world_postcot.resources import gpu_activity_issue
+    def verify(devices,owners,*,locked):
+        physical=[devices[i]['uuid']for i in indices]
+        if expected is not None and physical!=expected:
+            raise ResourceRefused('Physical GPU mapping changed after scheduling')
+        if mapping and physical!=[mapping[i]for i in indices]:
+            raise ResourceRefused('Physical GPU mapping changed under admission lock')
+        mapping.update({i:devices[i]['uuid']for i in indices})
+        if args.share_min_free_mib:
+            if host not in grant['permanent_hosts']or args.share_min_free_mib<8192:
+                raise ValueError('Sharing requires a permanent host and measured valid headroom')
+            _known_owners(owners,mapping,indices)
+        elif any(row['uuid']in physical for row in owners):
+            raise ResourceRefused('GPU acquired another owner '+('under admission lock'if locked else'before dispatch'))
+        for index in indices:
+            issue=gpu_activity_issue(devices[index],owners)
+            if issue:raise ResourceRefused(issue+(' under admission lock'if locked else' before dispatch'))
+        required=args.share_min_free_mib or args.minimum_free_mib
+        if required and any(devices[i]['free_MiB']<required for i in indices):
+            raise ResourceRefused('Measured GPU headroom changed '+('under admission lock'if locked else'before dispatch'))
+    devices,owners=_admission_sample();verify(devices,owners,locked=False)
+    PRIMARY_LEASE_ROOT.mkdir(exist_ok=True);SHARED_LEASE_ROOT.mkdir(exist_ok=True)
     for index in indices:
-        lease=((shared if args.share_min_free_mib else primary)/(mapping[index]+'.lock')).open('a')
+        lease=((SHARED_LEASE_ROOT if args.share_min_free_mib else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
         try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError as error:
             lease.close();raise ResourceRefused('GPU admission lease became busy before child startup')from error
         locks.append(lease)
-    # Repeat NVML under the admission slot; no child or CUDA context exists yet.
-    latest=[line.split(',')for line in subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid','--format=csv,noheader'],text=True).splitlines()]
-    required_free=args.share_min_free_mib or args.minimum_free_mib
-    if required_free:
-        free={int(i):int(value)for i,value in(line.split(',')for line in subprocess.check_output(
-            ['nvidia-smi','--query-gpu=index,memory.free','--format=csv,noheader,nounits'],text=True).splitlines())}
-        if any(free[i]<required_free for i in indices):
-            raise ResourceRefused('Measured GPU headroom changed under admission lock')
-    if args.share_min_free_mib:
-        _known_owners(latest,mapping,indices)
-    elif any(uuid.strip()in {mapping[i]for i in indices}for _,uuid in latest):
-        raise ResourceRefused('GPU acquired another owner under admission lock')
+    # A second actual total/free/utilization+per-process-memory sample under
+    # the lock closes the invisible-container race before Popen or CUDA init.
+    devices,owners=_admission_sample();verify(devices,owners,locked=True)
 
 
 def main():

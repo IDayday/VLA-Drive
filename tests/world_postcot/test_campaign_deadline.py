@@ -39,7 +39,7 @@ def test_idle_permanent_precedes_idle_temporary_and_known_sharing(monkeypatch):
     monkeypatch.setattr(campaign,'allowed_hosts',lambda **kwargs:['temporary','shared','permanent'])
     monkeypatch.setattr(campaign.time,'sleep',lambda value:None)
     def sample(host):
-        return dict(worker_python_exists=True,gpus=[dict(index=i,uuid=f'{host}{i}',free_MiB=80000)for i in range(8)],
+        return dict(worker_python_exists=True,gpus=[dict(index=i,uuid=f'{host}{i}',total_MiB=81920,free_MiB=80000,utilization=0)for i in range(8)],
             owners=[dict(visible=True,output='/mnt/project/qwen-sourceflow-own/run')]if host=='shared'else[])
     monkeypatch.setattr(campaign,'probe',sample)
     assert campaign.choose_training_host(50000)['host']=='permanent'
@@ -130,7 +130,9 @@ def test_guard_signals_real_owned_synthetic_rank_handler_not_launcher(tmp_path):
         state=child_state(child,command)
         deadline_tick(state,child,tmp_path,tmp_path/'STOP',now=101.)
         for _ in range(100):
-            if marker.exists():break
+            # write_text creates the file before the handler writes its body;
+            # wait for the acknowledged content, not merely its directory entry.
+            if marker.exists() and marker.read_text()=='received':break
             time.sleep(.01)
         assert marker.read_text()=='received'
         assert state['native_usr1_signals'][0]['pid']==child.pid
@@ -256,3 +258,61 @@ def test_audited_summary_reuse_requires_unchanged_all_scene_versions_and_seal(tm
     value['PDMS']=60.;(root/'SUMMARY.json').write_text(json.dumps(value))
     with pytest.raises(ValueError,match='summary'):
         campaign._sealed_summary(root/'SUMMARY.json')
+
+
+def test_invisible_gpu_activity_and_unaccounted_memory_are_not_idle_or_safe_sharing():
+    from starVLA.rl.qwen_world_postcot.resources import gpu_activity_issue
+    idle=dict(uuid='physical',total_MiB=81920,free_MiB=81150,utilization=0)
+    assert gpu_activity_issue(idle,[])is None
+    assert gpu_activity_issue(dict(idle,utilization=100),[])=='GPU active without a reported owner'
+    assert 'unexplained'in gpu_activity_issue(dict(idle,free_MiB=62000),[])
+    assert 'Missing actual'in gpu_activity_issue(dict(uuid='physical',free_MiB=80000,utilization=0),[])
+    owner=[dict(uuid='physical',used_MiB=19000)]
+    assert gpu_activity_issue(dict(idle,free_MiB=62000,utilization=100),owner)is None
+    assert 'exceeds reported owners'in gpu_activity_issue(dict(idle,free_MiB=50000,utilization=100),owner)
+
+
+def test_inventory_and_full_training_host_skip_invisible_active_nodes(monkeypatch):
+    from starVLA.rl.qwen_world_postcot import resources
+    def sample(host):
+        return dict(worker_python_exists=True,owners=[],gpus=[dict(index=i,name='A800',uuid=f'{host}{i}',
+            total_MiB=81920,free_MiB=62000 if host=='unreported_allocation' else 81150,
+            utilization=100 if host=='invisible_active' else 0)for i in range(8)])
+    hosts=['invisible_active','unreported_allocation','idle']
+    monkeypatch.setattr(resources,'allowed_hosts',lambda:hosts)
+    monkeypatch.setattr(resources,'probe',sample);monkeypatch.setattr(resources.time,'sleep',lambda *_:None)
+    routes,_=resources.inventory(minimum_free_MiB=50000)
+    assert len(routes)==8 and {route['host']for route in routes}=={'idle'}
+    monkeypatch.setattr(campaign,'authorization',lambda:({'permanent_hosts':hosts},{}))
+    monkeypatch.setattr(campaign,'allowed_hosts',lambda **kwargs:hosts)
+    monkeypatch.setattr(campaign,'probe',sample)
+    assert campaign.choose_training_host(50000)['host']=='idle'
+
+
+def test_underlock_reprobe_catches_invisible_gpu_acquisition_and_keeps_known_sharing(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    from tools.qwen_world_postcot import job_worker as worker
+    idle=dict(index=0,uuid='physical',total_MiB=81920,free_MiB=81150,utilization=0)
+    busy=dict(idle,free_MiB=62000,utilization=100)
+    monkeypatch.setattr(worker,'PRIMARY_LEASE_ROOT',tmp_path/'exclusive')
+    monkeypatch.setattr(worker,'SHARED_LEASE_ROOT',tmp_path/'shared')
+    samples=iter([({0:idle},[]),({0:busy},[])])
+    monkeypatch.setattr(worker,'_admission_sample',lambda:next(samples))
+    args=SimpleNamespace(share_min_free_mib=None,minimum_free_mib=50000)
+    locks=[]
+    try:
+        with pytest.raises(worker.ResourceRefused,match='without a reported owner under admission lock'):
+            worker._gpu_admission(args,'permanent',{'permanent_hosts':['permanent']},[0],['physical'],{},locks)
+        assert len(locks)==1  # refusal happened after acquiring, not only scheduler sampling
+    finally:
+        for handle in locks:handle.close()
+    owner=dict(pid=100,uuid='physical',used_MiB=19000)
+    monkeypatch.setattr(worker,'_admission_sample',lambda:({0:busy},[owner]))
+    verified=[]
+    monkeypatch.setattr(worker,'_known_owners',lambda rows,*_:verified.append(rows))
+    args.share_min_free_mib=50000;locks=[]
+    try:
+        worker._gpu_admission(args,'permanent',{'permanent_hosts':['permanent']},[0],['physical'],{},locks)
+        assert len(verified)==2 and len(locks)==1
+    finally:
+        for handle in locks:handle.close()
