@@ -6,7 +6,9 @@
 
 分路线完整测试报告：[潜噪声策略](latent/NAVTEST_results_20261025.md)、[结构化探索与学生吸收](feedback/full_navtest_feedback_20261025.md)、[存档与成本约束](preservation/final_NAVTEST_preservation_v1.md)。
 
-**全16配置的完整测试和配对统计现已完成：** [三路线完整Navtest初筛结论](FULL_NAVTEST_SCREEN_20261025.md)、[统一机器汇总](FULL_NAVTEST_SCREEN_SUMMARY_20261025.json)、[存档与成本约束终点](preservation/final_NAVTEST_preservation_v1.md)。三条路线当前初筛均未建立相对共同成熟BASE的可信总分提升；已登记的终点SDE/ODE只读机制审计仍在运行。
+**全16配置的完整测试和配对统计现已完成：** [三路线完整Navtest初筛结论](FULL_NAVTEST_SCREEN_20261025.md)、[统一机器汇总](FULL_NAVTEST_SCREEN_SUMMARY_20261025.json)、[存档与成本约束终点](preservation/final_NAVTEST_preservation_v1.md)。三条路线当前初筛均未建立相对共同成熟BASE的可信总分提升。
+
+**最新执行状态：终点审计也已全部完成，GPU预留已释放。** [同root审计补充](preservation/terminal_sampler_transfer_addendum_v1.md)显示六P的SDE回报上升、ODE均值下降；这支持P的采样—部署迁移问题，不改变完整TEST结论。旧JSON的RUNNING字段是其创建时快照，最新状态见[完成收据](FINAL_EXECUTION_STATUS_20261025.json)。下一窗口对照尚未启动。
 
 # Qwen-Flow三条独立探索路线
 

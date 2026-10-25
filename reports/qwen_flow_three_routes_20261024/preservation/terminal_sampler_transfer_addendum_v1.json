@@ -1,0 +1,1062 @@
+{
+  "schema": "P_terminal_sampler_transfer_addendum_v1",
+  "status": "COMPLETE_MECHANISM_ADDENDUM",
+  "observed_utc": "2026-10-25T13:17:52.553427+00:00",
+  "collector_identity_sha256": "c07c30e08a1cf5facc23db0c8b7a73c15940d9513a4029a4e15a9960b25d9e7f",
+  "collector_file_sha256": "4cec11a0792d4bd8e9a379fe20c5a9ba3bff05eb24a413f1f8d5ffd930003baa",
+  "budget_sha256": "80ecb43e1184dbb02ff6d007c4d7aeedfe8532182fa4a0955e326eb4df66a676",
+  "actor_source_sha": "3452f9bced6232632596e8a5efe5b7f932a9bb90",
+  "public_parent_HEAD": "9fc734ad5b31786caeb1aa9b3e468e0e4fd6aa32",
+  "scope": {
+    "split": "TRAIN",
+    "scenes": 128,
+    "logs": 117,
+    "G": 16,
+    "steps": 10,
+    "time_grid": "source_shift5",
+    "candidate_chunk": 4,
+    "stochastic_steps": [
+      7,
+      8,
+      9
+    ],
+    "root_and_SDE_innovations": "Same actual saved x0 and same source CPU RNG stream as initial reference; SDE and ODE sharex0, only SDE uses fixed step innovations.",
+    "reference_seed": 42,
+    "reference_namespace": "preservation_same_kernel_reference_SDE",
+    "reference_population": "First128 registered TRAIN scenes, included in training contexts; not held-out TEST.",
+    "aggregation": "Mean16 candidates inside scene then equal scene mean; log-cluster bootstrap2000, seed42; no best-of, search, optimizer or new seed matrix.",
+    "precision": "Frozen unmerged NativeRecipeActor adapters; mechanism readout, distinct from pure-merged five-seed primary NAVTEST."
+  },
+  "evidence": {
+    "all6_SDE_changes_CI_positive": true,
+    "ODE_changes_CI_negative_count": 5,
+    "ODE_CI_includes_zero_arm": "P2",
+    "supports": "These P updates improve the actual source-SDE random policy on fixed TRAIN contexts/noise, while original ODE gain does not inherit that improvement. Not a failure to update at all.",
+    "not_identified": "Source score-corrected SDE and ODE differ in transition mean construction, per-step innovations, and visited state distributions. This audit cannot attribute the entire gap to the last innovation or prove shifting the window earlier will help; no unique cause or probability implementation bug is established.",
+    "cannot_explain_other_routes": "L learns root distributions through pure ODE; S uses offlineFM extraction. This P-specific SDE/ODE evidence cannot be generalized to their failures."
+  },
+  "methods": {
+    "BASE": {
+      "SDE_mean_PDMS": 70.84488815511504,
+      "ODE_mean_PDMS": 93.66497997889338,
+      "SDE_delta_vs_BASE": {
+        "mean": 0.0,
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          0.0,
+          0.0
+        ],
+        "mean_PDMS_points": 0.0,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_delta_vs_BASE": null,
+      "SDE_minus_ODE_score": {
+        "mean": -0.22820091823778343,
+        "CI95": [
+          -0.25866428069665054,
+          -0.1989494887068144
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -25.866428069665055,
+          -19.89494887068144
+        ],
+        "mean_PDMS_points": -22.820091823778345,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_native_mean_percent": {
+        "score": 70.84488815511504,
+        "no_at_fault_collisions": 96.3623046875,
+        "drivable_area_compliance": 86.81640625,
+        "time_to_collision_within_bound": 87.646484375,
+        "ego_progress": 72.05913628777876,
+        "comfort": 64.6484375,
+        "driving_direction_compliance": 96.0693359375
+      },
+      "ODE_native_mean_percent": {
+        "score": 93.66497997889338,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 99.21875,
+        "time_to_collision_within_bound": 99.12109375,
+        "ego_progress": 86.76860819934411,
+        "comfort": 100.0,
+        "driving_direction_compliance": 99.1455078125
+      },
+      "SDE_joint_safe_fraction": 0.7626953125,
+      "ODE_joint_safe_fraction": 0.9833984375,
+      "SDE_joint_safe_change_vs_BASE": {
+        "mean": 0.0,
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          0.0,
+          0.0
+        ],
+        "mean_percentage_points": 0.0,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_joint_safe_change_vs_BASE": null,
+      "SDE_expected_cost": {
+        "no_at_fault_collisions": 0.036376953125,
+        "drivable_area_compliance": 0.1318359375,
+        "time_to_collision_within_bound": 0.12353515625
+      },
+      "ODE_expected_cost": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 0.0078125,
+        "time_to_collision_within_bound": 0.0087890625
+      },
+      "SDE_nonzero_advantage_groups": 127,
+      "ODE_nonzero_advantage_groups": 83,
+      "SDE_progress_only_groups": 0,
+      "ODE_progress_only_groups": 80,
+      "physical_new_candidate_scores": 2048,
+      "shared_worker_wall_seconds": 856.513229817152,
+      "audit_result_file_sha256": "21a8993b3c624ebcb207bf11eb957bf104d9c43cc42a0b8c2b3346a1eb924e06",
+      "audit_identity_sha256": "dfaddcedef9ee1cc1ccc1351ab67fa5de82622717cbc646c74e8b832bcd0bcb5"
+    },
+    "P0": {
+      "SDE_mean_PDMS": 72.17519412358713,
+      "ODE_mean_PDMS": 93.17045004309034,
+      "SDE_delta_vs_BASE": {
+        "mean": 0.013303059684720875,
+        "CI95": [
+          0.008325382818548293,
+          0.018408628833138166
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          0.8325382818548293,
+          1.8408628833138165
+        ],
+        "mean_PDMS_points": 1.3303059684720875,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_delta_vs_BASE": {
+        "mean": -0.004945299358030411,
+        "CI95": [
+          -0.007357985602278974,
+          -0.0015187878131291985
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -0.7357985602278974,
+          -0.15187878131291985
+        ],
+        "mean_PDMS_points": -0.4945299358030411,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_minus_ODE_score": {
+        "mean": -0.20995255919503214,
+        "CI95": [
+          -0.2397572526114444,
+          -0.18199061488255303
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -23.97572526114444,
+          -18.199061488255303
+        ],
+        "mean_PDMS_points": -20.995255919503215,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_native_mean_percent": {
+        "score": 72.17519412358713,
+        "no_at_fault_collisions": 96.5087890625,
+        "drivable_area_compliance": 88.232421875,
+        "time_to_collision_within_bound": 89.013671875,
+        "ego_progress": 72.32056392890924,
+        "comfort": 65.185546875,
+        "driving_direction_compliance": 96.2646484375
+      },
+      "ODE_native_mean_percent": {
+        "score": 93.17045004309034,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 99.21875,
+        "time_to_collision_within_bound": 99.21875,
+        "ego_progress": 85.48408010341683,
+        "comfort": 100.0,
+        "driving_direction_compliance": 99.1455078125
+      },
+      "SDE_joint_safe_fraction": 0.78564453125,
+      "ODE_joint_safe_fraction": 0.984375,
+      "SDE_joint_safe_change_vs_BASE": {
+        "mean": 0.02294921875,
+        "CI95": [
+          0.016129032258064516,
+          0.029580152671755726
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          1.6129032258064515,
+          2.9580152671755724
+        ],
+        "mean_percentage_points": 2.294921875,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_joint_safe_change_vs_BASE": {
+        "mean": 0.0009765625,
+        "CI95": [
+          -0.0044291338582677165,
+          0.008709016393442622
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          -0.44291338582677164,
+          0.8709016393442622
+        ],
+        "mean_percentage_points": 0.09765625,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_expected_cost": {
+        "no_at_fault_collisions": 0.034912109375,
+        "drivable_area_compliance": 0.11767578125,
+        "time_to_collision_within_bound": 0.10986328125
+      },
+      "ODE_expected_cost": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 0.0078125,
+        "time_to_collision_within_bound": 0.0078125
+      },
+      "SDE_nonzero_advantage_groups": 127,
+      "ODE_nonzero_advantage_groups": 83,
+      "SDE_progress_only_groups": 0,
+      "ODE_progress_only_groups": 80,
+      "physical_new_candidate_scores": 4096,
+      "shared_worker_wall_seconds": 1786.9519791044295,
+      "audit_result_file_sha256": "ec7e969ec6955bfa3417cc3807626b60d23fe775b7e64b0f8112c0eb258c73ee",
+      "audit_identity_sha256": "fc32759244d17889819d1c937ba7083908c102a5eec6ec9630b4aec50933b688"
+    },
+    "P1": {
+      "SDE_mean_PDMS": 71.43703143681202,
+      "ODE_mean_PDMS": 93.41657986606094,
+      "SDE_delta_vs_BASE": {
+        "mean": 0.005921432816969842,
+        "CI95": [
+          0.002442278251491562,
+          0.009733435826009681
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          0.2442278251491562,
+          0.9733435826009681
+        ],
+        "mean_PDMS_points": 0.5921432816969843,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_delta_vs_BASE": {
+        "mean": -0.0024840011283244036,
+        "CI95": [
+          -0.0032786256511566766,
+          -0.001664267858189937
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -0.32786256511566764,
+          -0.1664267858189937
+        ],
+        "mean_PDMS_points": -0.24840011283244037,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_minus_ODE_score": {
+        "mean": -0.21979548429248918,
+        "CI95": [
+          -0.25000024991535147,
+          -0.1910996020635815
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -25.000024991535145,
+          -19.10996020635815
+        ],
+        "mean_PDMS_points": -21.97954842924892,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_native_mean_percent": {
+        "score": 71.43703143681202,
+        "no_at_fault_collisions": 96.4599609375,
+        "drivable_area_compliance": 87.548828125,
+        "time_to_collision_within_bound": 88.0859375,
+        "ego_progress": 72.267939110813,
+        "comfort": 64.74609375,
+        "driving_direction_compliance": 96.1181640625
+      },
+      "ODE_native_mean_percent": {
+        "score": 93.41657986606094,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 99.21875,
+        "time_to_collision_within_bound": 99.072265625,
+        "ego_progress": 86.22127605354628,
+        "comfort": 100.0,
+        "driving_direction_compliance": 99.1455078125
+      },
+      "SDE_joint_safe_fraction": 0.77197265625,
+      "ODE_joint_safe_fraction": 0.98291015625,
+      "SDE_joint_safe_change_vs_BASE": {
+        "mean": 0.00927734375,
+        "CI95": [
+          0.004662841020308294,
+          0.014050387596899225
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          0.46628410203082943,
+          1.4050387596899225
+        ],
+        "mean_percentage_points": 0.927734375,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_joint_safe_change_vs_BASE": {
+        "mean": -0.00048828125,
+        "CI95": [
+          -0.0020161290322580645,
+          0.0010080645161290322
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          -0.20161290322580644,
+          0.10080645161290322
+        ],
+        "mean_percentage_points": -0.048828125,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_expected_cost": {
+        "no_at_fault_collisions": 0.035400390625,
+        "drivable_area_compliance": 0.12451171875,
+        "time_to_collision_within_bound": 0.119140625
+      },
+      "ODE_expected_cost": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 0.0078125,
+        "time_to_collision_within_bound": 0.00927734375
+      },
+      "SDE_nonzero_advantage_groups": 127,
+      "ODE_nonzero_advantage_groups": 83,
+      "SDE_progress_only_groups": 0,
+      "ODE_progress_only_groups": 79,
+      "physical_new_candidate_scores": 4096,
+      "shared_worker_wall_seconds": 1819.6462519001216,
+      "audit_result_file_sha256": "278c8e898c7893dc262952d6cc789b0bc3192664bd8402c38b5ffcbdf509ccf3",
+      "audit_identity_sha256": "4b64c021390990ede5a996cfdb9d58f2d487030cf9d45b2624d4925410c5b800"
+    },
+    "P2": {
+      "SDE_mean_PDMS": 71.85469377830927,
+      "ODE_mean_PDMS": 93.50093620347344,
+      "SDE_delta_vs_BASE": {
+        "mean": 0.010098056231942206,
+        "CI95": [
+          0.006020343603894231,
+          0.014437464277232701
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          0.602034360389423,
+          1.44374642772327
+        ],
+        "mean_PDMS_points": 1.0098056231942205,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_delta_vs_BASE": {
+        "mean": -0.0016404377541993755,
+        "CI95": [
+          -0.003153789020361778,
+          0.00014506799312268036
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -0.3153789020361778,
+          0.014506799312268037
+        ],
+        "mean_PDMS_points": -0.16404377541993756,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_minus_ODE_score": {
+        "mean": -0.21646242425164183,
+        "CI95": [
+          -0.24687803385299065,
+          -0.18794423856525627
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -24.687803385299066,
+          -18.794423856525626
+        ],
+        "mean_PDMS_points": -21.646242425164182,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_native_mean_percent": {
+        "score": 71.85469377830927,
+        "no_at_fault_collisions": 96.4599609375,
+        "drivable_area_compliance": 87.79296875,
+        "time_to_collision_within_bound": 88.28125,
+        "ego_progress": 72.65498814262914,
+        "comfort": 64.6484375,
+        "driving_direction_compliance": 96.0205078125
+      },
+      "ODE_native_mean_percent": {
+        "score": 93.50093620347344,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 99.21875,
+        "time_to_collision_within_bound": 99.12109375,
+        "ego_progress": 86.39443438833626,
+        "comfort": 99.951171875,
+        "driving_direction_compliance": 99.1455078125
+      },
+      "SDE_joint_safe_fraction": 0.77734375,
+      "ODE_joint_safe_fraction": 0.9833984375,
+      "SDE_joint_safe_change_vs_BASE": {
+        "mean": 0.0146484375,
+        "CI95": [
+          0.008568548387096774,
+          0.0205078125
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          0.8568548387096774,
+          2.05078125
+        ],
+        "mean_percentage_points": 1.46484375,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_joint_safe_change_vs_BASE": {
+        "mean": 0.0,
+        "CI95": [
+          -0.00341796875,
+          0.004101634722051012
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          -0.341796875,
+          0.4101634722051012
+        ],
+        "mean_percentage_points": 0.0,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_expected_cost": {
+        "no_at_fault_collisions": 0.035400390625,
+        "drivable_area_compliance": 0.1220703125,
+        "time_to_collision_within_bound": 0.1171875
+      },
+      "ODE_expected_cost": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 0.0078125,
+        "time_to_collision_within_bound": 0.0087890625
+      },
+      "SDE_nonzero_advantage_groups": 127,
+      "ODE_nonzero_advantage_groups": 84,
+      "SDE_progress_only_groups": 0,
+      "ODE_progress_only_groups": 79,
+      "physical_new_candidate_scores": 4096,
+      "shared_worker_wall_seconds": 1801.6077359002084,
+      "audit_result_file_sha256": "d33162fac2863e90afd6e8e4ca9f443d4c3d1cb7a35657de53a84ce064f95581",
+      "audit_identity_sha256": "ec29eb25da3082b81955d5c748fc8b7571c00feedfb3c3b31a35e39c7dc7c847"
+    },
+    "P3": {
+      "SDE_mean_PDMS": 72.0411979246825,
+      "ODE_mean_PDMS": 93.37599191659865,
+      "SDE_delta_vs_BASE": {
+        "mean": 0.01196309769567469,
+        "CI95": [
+          0.0077234794417561856,
+          0.016206248525576495
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          0.7723479441756186,
+          1.6206248525576494
+        ],
+        "mean_PDMS_points": 1.1963097695674692,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_delta_vs_BASE": {
+        "mean": -0.0028898806229474055,
+        "CI95": [
+          -0.004803818659438601,
+          -0.0004971726778572815
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -0.48038186594386006,
+          -0.04971726778572815
+        ],
+        "mean_PDMS_points": -0.28898806229474056,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_minus_ODE_score": {
+        "mean": -0.21334793991916134,
+        "CI95": [
+          -0.24258875294469331,
+          -0.18490060225601018
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -24.25887529446933,
+          -18.490060225601017
+        ],
+        "mean_PDMS_points": -21.334793991916136,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_native_mean_percent": {
+        "score": 72.0411979246825,
+        "no_at_fault_collisions": 96.484375,
+        "drivable_area_compliance": 88.037109375,
+        "time_to_collision_within_bound": 88.57421875,
+        "ego_progress": 72.58089823697271,
+        "comfort": 64.892578125,
+        "driving_direction_compliance": 96.1181640625
+      },
+      "ODE_native_mean_percent": {
+        "score": 93.37599191659865,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 99.21875,
+        "time_to_collision_within_bound": 99.12109375,
+        "ego_progress": 86.09456809983675,
+        "comfort": 99.951171875,
+        "driving_direction_compliance": 99.169921875
+      },
+      "SDE_joint_safe_fraction": 0.78125,
+      "ODE_joint_safe_fraction": 0.9833984375,
+      "SDE_joint_safe_change_vs_BASE": {
+        "mean": 0.0185546875,
+        "CI95": [
+          0.0125,
+          0.024416210937499988
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          1.25,
+          2.441621093749999
+        ],
+        "mean_percentage_points": 1.85546875,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_joint_safe_change_vs_BASE": {
+        "mean": 0.0,
+        "CI95": [
+          -0.004,
+          0.0051358544927892795
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          -0.4,
+          0.5135854492789279
+        ],
+        "mean_percentage_points": 0.0,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_expected_cost": {
+        "no_at_fault_collisions": 0.03515625,
+        "drivable_area_compliance": 0.11962890625,
+        "time_to_collision_within_bound": 0.1142578125
+      },
+      "ODE_expected_cost": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 0.0078125,
+        "time_to_collision_within_bound": 0.0087890625
+      },
+      "SDE_nonzero_advantage_groups": 127,
+      "ODE_nonzero_advantage_groups": 84,
+      "SDE_progress_only_groups": 0,
+      "ODE_progress_only_groups": 79,
+      "physical_new_candidate_scores": 4096,
+      "shared_worker_wall_seconds": 1777.0333352331072,
+      "audit_result_file_sha256": "62a6e57b3729908b94240eec2e409b298799b5775b6a0e560744244526ca5410",
+      "audit_identity_sha256": "9b89243e66c280461bea97990179f5e68db6a2ce2eae059a23b9481986e58b06"
+    },
+    "P4": {
+      "SDE_mean_PDMS": 72.84338816909009,
+      "ODE_mean_PDMS": 92.20514511105397,
+      "SDE_delta_vs_BASE": {
+        "mean": 0.01998500013975035,
+        "CI95": [
+          0.012594021199527626,
+          0.028126530432295304
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          1.2594021199527625,
+          2.8126530432295302
+        ],
+        "mean_PDMS_points": 1.9985000139750349,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_delta_vs_BASE": {
+        "mean": -0.014598348678394199,
+        "CI95": [
+          -0.018523105617445353,
+          -0.010156797777753456
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -1.8523105617445352,
+          -1.0156797777753457
+        ],
+        "mean_PDMS_points": -1.45983486783942,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_minus_ODE_score": {
+        "mean": -0.19361756941963887,
+        "CI95": [
+          -0.22180033491650009,
+          -0.16718226850274012
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -22.180033491650008,
+          -16.71822685027401
+        ],
+        "mean_PDMS_points": -19.361756941963886,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_native_mean_percent": {
+        "score": 72.84338816909009,
+        "no_at_fault_collisions": 97.1923828125,
+        "drivable_area_compliance": 88.623046875,
+        "time_to_collision_within_bound": 91.015625,
+        "ego_progress": 71.31205530421045,
+        "comfort": 66.2109375,
+        "driving_direction_compliance": 96.533203125
+      },
+      "ODE_native_mean_percent": {
+        "score": 92.20514511105397,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 99.21875,
+        "time_to_collision_within_bound": 99.169921875,
+        "ego_progress": 83.21617639152952,
+        "comfort": 100.0,
+        "driving_direction_compliance": 98.974609375
+      },
+      "SDE_joint_safe_fraction": 0.8056640625,
+      "ODE_joint_safe_fraction": 0.98388671875,
+      "SDE_joint_safe_change_vs_BASE": {
+        "mean": 0.04296875,
+        "CI95": [
+          0.03193948412698412,
+          0.05462607538641003
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          3.193948412698412,
+          5.462607538641003
+        ],
+        "mean_percentage_points": 4.296875,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_joint_safe_change_vs_BASE": {
+        "mean": 0.00048828125,
+        "CI95": [
+          -0.006553082555178269,
+          0.008928571428571428
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          -0.6553082555178269,
+          0.8928571428571428
+        ],
+        "mean_percentage_points": 0.048828125,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_expected_cost": {
+        "no_at_fault_collisions": 0.028076171875,
+        "drivable_area_compliance": 0.11376953125,
+        "time_to_collision_within_bound": 0.08984375
+      },
+      "ODE_expected_cost": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 0.0078125,
+        "time_to_collision_within_bound": 0.00830078125
+      },
+      "SDE_nonzero_advantage_groups": 127,
+      "ODE_nonzero_advantage_groups": 84,
+      "SDE_progress_only_groups": 0,
+      "ODE_progress_only_groups": 82,
+      "physical_new_candidate_scores": 4096,
+      "shared_worker_wall_seconds": 1842.0800068546087,
+      "audit_result_file_sha256": "36525783a96165de60a82b51fe6a9561eb18ee0d90b792d21b855bb5b2f1b8f8",
+      "audit_identity_sha256": "d6d79321d41443505ae0ff1a9b021757a2b85582732df50b145edac701e2d1a0"
+    },
+    "P5": {
+      "SDE_mean_PDMS": 73.14444462703634,
+      "ODE_mean_PDMS": 92.4852265514887,
+      "SDE_delta_vs_BASE": {
+        "mean": 0.022995564719212953,
+        "CI95": [
+          0.015371843229738457,
+          0.03128734439165215
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          1.5371843229738458,
+          3.128734439165215
+        ],
+        "mean_PDMS_points": 2.2995564719212953,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_delta_vs_BASE": {
+        "mean": -0.011797534274046926,
+        "CI95": [
+          -0.015526361810794875,
+          -0.007438383503764063
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -1.5526361810794875,
+          -0.7438383503764063
+        ],
+        "mean_PDMS_points": -1.1797534274046926,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_minus_ODE_score": {
+        "mean": -0.19340781924452355,
+        "CI95": [
+          -0.22109395231036338,
+          -0.16676199231306219
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "raw_PDMS_score_difference",
+        "CI95_PDMS_points": [
+          -22.109395231036338,
+          -16.676199231306217
+        ],
+        "mean_PDMS_points": -19.340781924452354,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_native_mean_percent": {
+        "score": 73.14444462703634,
+        "no_at_fault_collisions": 96.9970703125,
+        "drivable_area_compliance": 88.916015625,
+        "time_to_collision_within_bound": 90.72265625,
+        "ego_progress": 72.05747660683612,
+        "comfort": 65.771484375,
+        "driving_direction_compliance": 96.2646484375
+      },
+      "ODE_native_mean_percent": {
+        "score": 92.4852265514887,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 99.21875,
+        "time_to_collision_within_bound": 99.072265625,
+        "ego_progress": 83.98602809857286,
+        "comfort": 100.0,
+        "driving_direction_compliance": 98.9990234375
+      },
+      "SDE_joint_safe_fraction": 0.806640625,
+      "ODE_joint_safe_fraction": 0.98291015625,
+      "SDE_joint_safe_change_vs_BASE": {
+        "mean": 0.0439453125,
+        "CI95": [
+          0.03248031496062992,
+          0.0556640625
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          3.2480314960629917,
+          5.56640625
+        ],
+        "mean_percentage_points": 4.39453125,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "ODE_joint_safe_change_vs_BASE": {
+        "mean": -0.00048828125,
+        "CI95": [
+          -0.007751937984496124,
+          0.00806723014888336
+        ],
+        "scenes": 128,
+        "logs": 117,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false,
+        "quantity": "event_rate_or_rate_difference",
+        "CI95_percentage_points": [
+          -0.7751937984496124,
+          0.8067230148883361
+        ],
+        "mean_percentage_points": -0.048828125,
+        "inference_seed_uncertainty_included": false,
+        "limited_log_resolution": false,
+        "one_log_interval_is_degenerate": false
+      },
+      "SDE_expected_cost": {
+        "no_at_fault_collisions": 0.030029296875,
+        "drivable_area_compliance": 0.11083984375,
+        "time_to_collision_within_bound": 0.0927734375
+      },
+      "ODE_expected_cost": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 0.0078125,
+        "time_to_collision_within_bound": 0.00927734375
+      },
+      "SDE_nonzero_advantage_groups": 127,
+      "ODE_nonzero_advantage_groups": 83,
+      "SDE_progress_only_groups": 0,
+      "ODE_progress_only_groups": 79,
+      "physical_new_candidate_scores": 4096,
+      "shared_worker_wall_seconds": 1777.0738923437893,
+      "audit_result_file_sha256": "f6b0c412bf090c9f0dbffce9f59e6073d1474b0dc4f44795a07252bcaa43266e",
+      "audit_identity_sha256": "90feca47062c260f5f2f55f985ae8ae438277cd220d7029a74a65316660c8e1a"
+    }
+  },
+  "cost": {
+    "physical_new_candidate_scores": 26624,
+    "initial_SDE2048_historical_scores_additional_once": 2048,
+    "BASE_new_ODE_scores": 2048,
+    "six_P_new_scores": 24576,
+    "shared_worker_wall_seconds": 11660.906431153417,
+    "shared_worker_hours": 3.2391406753203933,
+    "semantics": "Worker occupancy may share physical GPUs; not exclusive compute or end-to-end elapsed. BASE historic initial SDE cost is not multiplied by seven."
+  },
+  "original_TEST_report_files_unchanged": {
+    "final_NAVTEST_preservation_v1.md": "94c8e345a6782fce0c1d22987719793cf965d78c70cf3d113a66e0cdde987da9",
+    "final_NAVTEST_preservation_v1.json": "fc10c3e06346d2748f7dbd72919d5ef92c35ad0e3b3954167bc3157fb45628e7"
+  },
+  "TEST_judgment_unchanged": "No P endpoint improves the matureBASE fullNAVTEST total; none reaches92. TRAIN sampler gains do not overturn this.",
+  "limitations": [
+    "Single trainingseed42; fixed128TRAIN contexts and finite matched noise stream, no training/inference seed uncertainty.",
+    "Nominal log-bootstrap intervals; no multiple-comparison correction.",
+    "P1 update amplitude NOT_MATCHED49.1%; replay probe5.287% ofPG at cappedbeta1; dual values remain close toinit1."
+  ],
+  "next_direction": {
+    "proposed_minimal_control": "Random window[7,8,9] versus[6,7,8] with finalODE; same remaining settings and matched budget.",
+    "interpretation": "One explicitly named source-recipe modification, not original-source behavior. Window placement changes the active SDE transitions/means/state distributions, not only a single noise sample.",
+    "execution": "Not started. Requires independent run identity and fresh true behavior chains/logprobs; no relabeling/reuse of old-chain probabilities."
+  },
+  "new_model_scoring_or_training_calls_in_addendum": 0,
+  "audit_execution_status": {
+    "all_six_workers_exit0": true,
+    "ordinary_audit_queue": "COMPLETE",
+    "DEVICE_RESERVATION": "RELEASED",
+    "released_unix": 1792933657.796,
+    "new_window_training_started": false
+  },
+  "sha256": "bdeccbfd6211d821c252bb4268a632c192fb4a5f523a1c44726730d80501629f"
+}
