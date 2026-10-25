@@ -1,0 +1,100 @@
+{
+  "schema": "trajectory_repair_preparation_validation_v1",
+  "observed_utc": "2026-10-25T15:24:52.309800+00:00",
+  "base_commit": "e6428fb9f931a24d1b14710a15cce0477ae1dd57",
+  "unit_test_command": "CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m unittest discover -s tests/trajectory_repair -v",
+  "unit_tests_passed": 28,
+  "test_wall_seconds_reported_by_unittest": 0.039,
+  "scope": [
+    "canonical feedback label contract",
+    "TRAIN-only audit and hash-before-deserialization",
+    "absolute nine-hour resource time contract"
+  ],
+  "not_model_validation": true,
+  "real_TRAIN_audits": [
+    {
+      "scenes": 4,
+      "record": "/mnt/project/qwen-flow-trajectory-repair-20261025/feedback_coverage_smoke4_v1.json",
+      "sha256": "5da94e70f82cd7a6e836f0bda4d2bbead1eb2e91491ecb759ffa9b6919fd0ef6"
+    },
+    {
+      "scenes": 512,
+      "record": "/mnt/project/qwen-flow-trajectory-repair-20261025/feedback_coverage_TRAIN512_v1.json",
+      "sha256": "0553488a657abcbf52e3c8a2c1dd983d2de238657411acae6077c44324e4cdff"
+    },
+    {
+      "scenes": 512,
+      "record": "/mnt/project/qwen-flow-trajectory-repair-20261025/feedback_coverage_TRAIN512_v2.json",
+      "sha256": "d4d4757a7513d6d9298be8eae6561462f619a296170f6691e919b1799c800d6a"
+    },
+    {
+      "scenes": 512,
+      "record": "/mnt/project/qwen-flow-trajectory-repair-20261025/feedback_coverage_TRAIN512_v3.json",
+      "sha256": "048d274798c97102318c5cfc52ec74e15e1dbe4e17fad93be3155307f3032366"
+    }
+  ],
+  "development_failures": {
+    "audit_schema_adaptation_failed_attempts": 2,
+    "reason": "Initial handling of sealed index absolute .pt paths was corrected before accepted coverage results",
+    "actor_forward_calls": 0,
+    "scorer_calls": 0,
+    "output_publications": 0,
+    "failed_attempt_total_wall_seconds": "NOT_CAPTURED"
+  },
+  "new_source_files": {
+    "scripts/analysis/trajectory_repair/audit_feedback.py": "39afb7390f7dcf7901bae76cc015fd144caa6701f0f24970f5f16d956da80836",
+    "scripts/analysis/trajectory_repair/lease_status.py": "3999158c2bac1955405c3c46205c41be7a5dbf559aa4ba0c12aea196e0fd8a8c",
+    "starVLA/rl/trajectory_repair/__init__.py": "f939c890ba4979a7d9b878aba300b891f3be40fcfe1ff0c887859aa62c4e2938",
+    "starVLA/rl/trajectory_repair/feedback.py": "4fe5fca77b9ff1c90441e285b4cf7cf0fc34ce3455ffa38b2ebc42026ae39008",
+    "starVLA/rl/trajectory_repair/lease.py": "7158c6cce260166623499336d5eee33336dd1247c5eaa4b934b3891bd8ab6045",
+    "tests/trajectory_repair/test_audit.py": "ebd7e44355f4528889c60bd2718f980dcb5f1bd8deca8ef069e72f4a713bfe2c",
+    "tests/trajectory_repair/test_feedback.py": "f397f8e755977c04289a399e5c81e14453e56528192e90445494feea6b0ee13f",
+    "tests/trajectory_repair/test_lease.py": "069007e7f180773cbe656aa8dd5c6e4ab17dbf379428a2eb2406c636a19667c3"
+  },
+  "unchanged_parent_source_files": {
+    "starVLA/model/framework/qwen_sourceflow.py": {
+      "sha256": "2c0822603f57f6cb80bdc6ae26b4ada7927c2207480ae6d85007566dd974cbd3",
+      "unchanged_from_parent": true
+    },
+    "starVLA/model/modules/qwen_sourceflow/cached_action_runner.py": {
+      "sha256": "a1558c46a3e35d134a64dcfc570bd6b96dea1d154dafb74cf2e0bb989b15ae73",
+      "unchanged_from_parent": true
+    },
+    "starVLA/model/modules/qwen_sourceflow/condition_provider.py": {
+      "sha256": "eaca6e2682d7bd1bf06d7abe13e8b5e66e5cac295e6c7ac7b3b2c4592f034850",
+      "unchanged_from_parent": true
+    },
+    "starVLA/rl/qwen_sourceflow/actor.py": {
+      "sha256": "5179b9535816b94c5dff590aad10084245e42e974280d4c56d00ee1de79538f8",
+      "unchanged_from_parent": true
+    },
+    "starVLA/rl/qwen_sourceflow/rl_runtime.py": {
+      "sha256": "8ff42a5657aed3b5264b02bdb9b1013492d738d95337b90c65123002d7ef7e50",
+      "unchanged_from_parent": true
+    },
+    "starVLA/rl/simwam_recipe/source_advantages.py": {
+      "sha256": "29c450625f6ccd9025eb9ba1942f08f73ddec14c86e0e9be7f9cbdd19a46db4c",
+      "unchanged_from_parent": true
+    },
+    "starVLA/rl/simwam_recipe/trainer_adapter.py": {
+      "sha256": "7fad3760410d4e21fc82e06b0527f75ed6d60385fdd28bfd0745b2d54dbf6dbe",
+      "unchanged_from_parent": true
+    },
+    "starVLA/rl/safe_flow_improvement/v1_reward.py": {
+      "sha256": "33a8c9e4742a9b5158f9a7fc01a18bdca2c067f3fe410f8769147d8f65517fd1",
+      "unchanged_from_parent": true
+    },
+    "scripts/analysis/constrained_flow_noise/batched_canonical_score.py": {
+      "sha256": "5b368a4b23e8de6891e7f44c8f4a19b26484783224aa95bdcb7e52fe94868dca",
+      "unchanged_from_parent": true
+    }
+  },
+  "new_actor_updates": 0,
+  "new_scorer_calls": 0,
+  "new_GPU_tasks": 0,
+  "learned_diagnostic_or_repair_model": "NOT_IMPLEMENTED_NOT_TRAINED",
+  "real_model_native_resume_and_absolute_process_guard": "PENDING_BEFORE_GPU_TRAINING_ADMISSION",
+  "prior_three_routes": "PAUSED_BY_USER_NO_RESUME",
+  "final_coverage_record": "feedback_coverage_TRAIN512_v3.json",
+  "prior_coverage_counts_unchanged": true
+}

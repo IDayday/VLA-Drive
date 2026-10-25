@@ -1,0 +1,37 @@
+{
+  "schema": "trajectory_conditioned_repair_preparation_v1",
+  "status": "DATA_CONTRACT_REGISTERED_MODEL_NOT_TRAINED",
+  "mainline": "scene_and_current_numeric_trajectory_to_grounded_diagnosis_and_repair",
+  "stage_order": [
+    "explicit_diagnosis_plus_local_repair",
+    "conditional_internalization_into_pre_action_representation"
+  ],
+  "parent_checkpoint_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+  "parent": "mature_native_CANONICAL50k",
+  "parent_seed2101_full_navtest_PDMS_percent": 90.513164,
+  "training_seed": 42,
+  "primary_evaluation_seed": 2101,
+  "request": {
+    "poses": 8,
+    "dimensions": 3,
+    "interval_seconds": 0.5,
+    "coordinates": "current_ego_local_x_y_heading"
+  },
+  "feedback": {
+    "poses_including_t0": 41,
+    "interval_seconds": 0.1,
+    "scorer": "canonical_NAVSIM_v1.1",
+    "proposal_pool": [
+      "fixed_official_reference",
+      "one_requested_candidate"
+    ],
+    "unknown_labels": "MASKED_NOT_ZERO_FILLED"
+  },
+  "formal_efficacy_criterion": "complete_12146_scene_136_log_single_output_Navtest_canonical_PDMS_paired_gain",
+  "development_role": "engineering_and_learning_diagnostics_only_not_efficacy",
+  "deployment_privileged_feedback": false,
+  "oracle_output_selection": false,
+  "old_three_routes_paused": true,
+  "formal_training_budget": "NOT_YET_PROFILED_OR_LOCKED",
+  "new_models_trained": false
+}

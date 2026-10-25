@@ -1,0 +1,52 @@
+{
+  "schema": "trajectory_repair_existing_TRAIN_feedback_audit_v1",
+  "analysis_source_files_sha256": {
+    "audit": "39afb7390f7dcf7901bae76cc015fd144caa6701f0f24970f5f16d956da80836",
+    "feedback": "4fe5fca77b9ff1c90441e285b4cf7cf0fc34ce3455ffa38b2ebc42026ae39008"
+  },
+  "base_checkpoint_sha256": "cfc3a0c949237a7ff59c9b63132a0fc82ec7b7cd154160813007ac1d279fab20",
+  "source_protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "source_bank_index_sha256": "bb1339a7ccd049636e8fb3a86291ca6f99baa0746902978793f1f253c8e2d6da",
+  "consumed_payloads_sha256": "b5e56b84b34154826b44649ed8b94243ac955d0b553a07907f9d015ac951fdc2",
+  "split": "TRAIN",
+  "distinct_logs": 344,
+  "useful_gain_raw_score": 0.005,
+  "counts": {
+    "candidates": 18944,
+    "fully_safe_candidates": 18665,
+    "zero_score_candidates": 160,
+    "full_score_candidates": 7210,
+    "future_body_outside_frames": 1930,
+    "first_at_fault_collision_seconds_present_event": 9,
+    "first_ttc_rule_infraction_seconds_present_event": 128,
+    "scenes": 512,
+    "reference_candidate_records": 2560,
+    "independent_pool_candidate_records": 16384,
+    "with_safe_higher_scoring_alternative": 9605,
+    "with_safe_higher_scoring_higher_EP_alternative": 9493,
+    "scenes_with_safe_candidate": 509,
+    "scenes_with_first_at_fault_collision_seconds": 2,
+    "scenes_with_first_ttc_rule_infraction_seconds": 15
+  },
+  "label_availability_counts": {
+    "requested_local_poses": 18944,
+    "simulated_global_states": 18944,
+    "official_subscores": 18944,
+    "road_body_mask": 18944,
+    "first_at_fault_collision": 18944,
+    "first_ttc_rule_infraction": 18944,
+    "full_collision_mask": 0,
+    "full_ttc_rule_mask": 0,
+    "continuous_geometric_margins": 0,
+    "raw_progress_m": 18944,
+    "progress_time_profile": 0,
+    "verified_edit_direction": 0
+  },
+  "no_actor_updates": true,
+  "new_actor_forwards": 0,
+  "new_scorer_calls": 0,
+  "no_GPU_work": true,
+  "audit_wall_seconds": 18.180827997624874,
+  "interpretation": "Coverage only on the previous fixed diagnostic TRAIN population, not full TRAIN. Alternatives are finite-pool opportunities, not local repair labels, causal directions, oracle deployment gains or evidence that slowing down is wrong. Unavailable full masks, margins and edit directions remain unavailable; no zero filling.",
+  "sha256": "e3f07f9ed6b50c9907f4708f5e0447bc47dcbbf50dd1db9fc4700235d53e3ce3"
+}
