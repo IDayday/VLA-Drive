@@ -4,7 +4,9 @@
 
 [2026-10-25 09:08 UTC：首批完整测试、六组保持终点及全测试派发](STATUS_20261025_0908UTC.md)。
 
-已核查的完整测试报告：[潜噪声策略](latent/NAVTEST_results_20261025.md)、[结构化探索与学生吸收](feedback/full_navtest_feedback_20261025.md)。两条路线当前固定初筛设计均未建立可信Navtest净提升；六组保持实验的完整评分也已完成，配对统计随后发布。
+分路线完整测试报告：[潜噪声策略](latent/NAVTEST_results_20261025.md)、[结构化探索与学生吸收](feedback/full_navtest_feedback_20261025.md)、[存档与成本约束](preservation/final_NAVTEST_preservation_v1.md)。
+
+**全16配置的完整测试和配对统计现已完成：** [三路线完整Navtest初筛结论](FULL_NAVTEST_SCREEN_20261025.md)、[统一机器汇总](FULL_NAVTEST_SCREEN_SUMMARY_20261025.json)、[存档与成本约束终点](preservation/final_NAVTEST_preservation_v1.md)。三条路线当前初筛均未建立相对共同成熟BASE的可信总分提升；已登记的终点SDE/ODE只读机制审计仍在运行。
 
 # Qwen-Flow三条独立探索路线
 
