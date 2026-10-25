@@ -1,3 +1,5 @@
+> **2026-10-25用户更新：方法有效性与性能提升只依据完整Navtest。本文既有DEV/VAL与定向TRAIN数值仅作工程、拟合和机制诊断，旧阶段价值标签不再作为当前结论。测试结果未完整前，一律待确认。**
+
 # 路线一：冻结生成器的潜噪声策略
 
 共同起点为成熟CANONICAL50k完整Qwen-Flow（固定Navtest90.513164），不是换回较弱IL来制造增益。VLM、provider、30层ActionDiT及全部buffers冻结；策略只改变原生ODE输入的24维root随机变量。原部署本来就是scene绑定的标准高斯root＋10步shift5 ODE，ODE内部没有额外随机xi。

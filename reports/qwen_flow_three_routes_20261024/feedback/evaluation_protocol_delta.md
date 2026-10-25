@@ -1,5 +1,7 @@
 # 学生辅助读出与统一主评价的边界
 
+> **验收口径更新（2026-10-25）**：本页所有DEV/VAL、TRAIN、候选搜索或拟合结果仅作诊断，不作为方法有效性、性能提升或方法排名依据。方法效力状态统一为**待完整NAVTEST确认**。原实验日期、数值和历史记录保留；详见[当前验收口径](navtest_acceptance_20261025.md)。
+
 2026-10-24审阅发现，immutable `97a66c10743651767ab11c0ec8bc6cbd29619430` 内
 `feedback.student.evaluate_student` 使用 `three_route_ODE_eval` 的scene-bound
 noise namespace，并一次建立五个root，由公共runner以chunk4生成。此前统一的原生部署使用

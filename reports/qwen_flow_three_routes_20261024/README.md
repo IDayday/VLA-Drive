@@ -1,3 +1,5 @@
+> **2026-10-25用户更新：方法有效性与性能提升只依据完整Navtest。本文既有DEV/VAL与定向TRAIN数值仅作工程、拟合和机制诊断，旧阶段价值标签不再作为当前结论。测试结果未完整前，一律待确认。**
+
 # Qwen-Flow三条独立探索路线
 
 本轮由主agent统一协议与资源，恰好三个研究子agent：agent_latent_policy、agent_feedback_search、agent_preservation；均不得再委派。所有路线从同一成熟CANONICAL50k完整模型（原Navtest90.513164）独立开始，而非回退到较弱IL。部署输入为当前三视图、导航和合法ego状态，原生3维源ActionDiT，单候选10步shift5 ODE。潜策略只改变root分布；其他路线保持原ODE先验。
