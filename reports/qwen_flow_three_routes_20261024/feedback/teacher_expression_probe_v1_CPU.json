@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "qualification_only": true,
+  "synthetic_score_fixture_not_driving_evidence": true,
+  "registration_sha256": "626d669ac8142e7b555e9b378751067f5b9db337a76bcb08c1c65aba135ba394",
+  "tiny_action_architecture": {
+    "action_dim": 3,
+    "hidden_dim": 32,
+    "ffn_dim": 64,
+    "text_dim": 40,
+    "freq_dim": 16,
+    "num_heads": 2,
+    "attn_head_dim": 12,
+    "num_layers": 2,
+    "eps": 1e-06,
+    "use_gradient_checkpointing": false
+  },
+  "tiny_trainable_LoRA_tensors": 32,
+  "full_model480_validation_reused_from_native_S1_S2_S3_and_reasserted_at_probe_start": true,
+  "checks": [
+    "Same sealed TRAIN base; deterministic four distinct logs/categories; one existing scored target per scene; fixed512x4 updates/80 evaluations",
+    "Real qualified single teacher labels roundtrip source3D codec; no averaging or fabricated probabilities",
+    "True tiny native attention-LoRA positive sourceFM performs four optimizer steps; READY resume reproduces every adapter/Adam/scheduler bitwise; no GT called",
+    "Actual source10step shift5 tinyODE uses original CPU/B1 scene-bound roots; interrupted20-output evaluation reuses committed records, no extra draw/score and no global RNG change",
+    "FM epsilon/time namespace independent of generation roots; continuous source sigma and eight-update warmup with LR_used distinguished",
+    "Root-only budget/source/CPU-proof gate rejects unapproved template; CPU weights and synthetic scoring fixtures discarded"
+  ],
+  "source_sha256": "2592627b5c313c034f822b80409c7cb9c96af89b51afd61d3a1998511be537b4",
+  "sha256": "41e83fbb1fd108cfe7247bd398eb9981492c07349cc1345498b91d0f3af523ce"
+}

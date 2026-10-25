@@ -1,0 +1,54 @@
+{
+  "phase": "MECHANISM_PROBE_LOCKED",
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "registration_sha256": "626d669ac8142e7b555e9b378751067f5b9db337a76bcb08c1c65aba135ba394",
+  "contract": {
+    "kind": "TRAIN_teacher_expression_mechanism_only",
+    "seed": 42,
+    "updates": 512,
+    "scene_batch": 4,
+    "teacher_per_scene": 1,
+    "teacher_exposures": 2048,
+    "FM_repeat": 1,
+    "GT_coefficient": 0.0,
+    "anchor_coefficient": 0.0,
+    "teacher_coefficient": 1.0,
+    "LR": 5e-05,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0.01,
+    "warmup_updates": 8,
+    "scheduler": "linear8warmup_then_constant",
+    "effective_gradient_clip": 0.0,
+    "evaluation_updates": [
+      0,
+      128,
+      256,
+      512
+    ],
+    "evaluation_seeds": [
+      2101,
+      2102,
+      2103,
+      2104,
+      2105
+    ],
+    "logical_evaluation_outputs": 80,
+    "ODE_steps": 10,
+    "ODE_grid": "source_shift5",
+    "root_namespace": "native_qwen_sourceflow_ODE",
+    "model_batch_per_seed": 1,
+    "training_scope": "same original native attention LoRA480 tensors; everything else frozen",
+    "no_GRPO_no_formal_arm_no_generalization_claim": true
+  },
+  "execution_source_sha": "10de893a87c5daf85f985ce86785eb52ae97f846",
+  "qualification_file_sha256": "9abcb92979fc36d53b6e665a0931a2376f6a02b456d4eee68086e56d5682d9f8",
+  "parent_screen_budget_sha256": "5ddfbae3503486b379e8666f2119621f6f205e7385e8a457d0d2a69c74014047",
+  "root_registered_unix": 1792887485.1568618,
+  "not_formal_method_ranking": true,
+  "no_additional_GRPO": true,
+  "sha256": "1230233e9317d644c11ccda33d70579e7f2f04b9206927e4ee66ba535de598c3"
+}

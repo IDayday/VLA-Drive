@@ -1,0 +1,1082 @@
+{
+  "schema": "finiteK16_matched_root_safe_opportunities_v1",
+  "status": "CANDIDATE_OPPORTUNITY_ONLY",
+  "arm": "BASE",
+  "protocol_sha256": "4a82a484a321096272640a2f2644f5708265690a2d16a7e51778c7e70173a095",
+  "audit_identity": "dfaddcedef9ee1cc1ccc1351ab67fa5de82622717cbc646c74e8b832bcd0bcb5",
+  "base_audit_identity": "dfaddcedef9ee1cc1ccc1351ab67fa5de82622717cbc646c74e8b832bcd0bcb5",
+  "audit_result_sha256": "21a8993b3c624ebcb207bf11eb957bf104d9c43cc42a0b8c2b3346a1eb924e06",
+  "reference_pool_sha256": "50ad9a946790c40c017b5c1ddd8656b008f7c1eb841f364d904f2ceba7c09a28",
+  "strata_sha256": "bd791f42ff4d8269a478d7faf9ab11e61429072d77fe7a49c89d1a550f4dc652",
+  "analysis_source_sha256": "8ad96bb84651cd75b3a966b2d23d2afcaecb4e55c4189256fb29292e09ca0638",
+  "scenes": 128,
+  "logs": 117,
+  "K": 16,
+  "criterion": "Official NC==1 and DAC==1 and TTC==1; NC0.5 is not safe. Uses true canonical raw PDMS.",
+  "denominator": "All128 scenes retained. Missing safe-max is undefined;0 proxy is explicitly separate from a scored trajectory. Available-only mean is supplementary with its count.",
+  "baseline_semantics": {
+    "frozen_BASE_matched_root_ODE_mean_K16": "Frozen BASE empirical mean over16 identical stored initial roots; also own candidate pool for BASEODE, so not independent of its max.",
+    "independent5_reference_mean": "Frozen original common-bank five independent reference seeds11001..11005; also defines strata, never used to select new outputs."
+  },
+  "no_new_model_forward_or_score": true,
+  "reporting_scale": "All PDMS fields are raw0-1 multiplied100; gains .005 raw equal0.5PDMS points.",
+  "no_deployment_or_oracle_guarantee": true,
+  "by_stratum": {
+    "ALL": {
+      "SDE": {
+        "status": "COMPLETE",
+        "scenes": 128,
+        "candidates": 2048,
+        "feasible_scene_count": 127,
+        "feasible_at16": 0.9921875,
+        "safe_max_missing_scene_count": 1,
+        "mean_single_candidate_PDMS": 70.84488815511504,
+        "mean_overall_candidate_max_PDMS": 96.15916796546955,
+        "mean_safe_max_zero_proxy_PDMS": 96.15916796546955,
+        "safe_max_available_only_mean_PDMS": 96.91632676834723,
+        "safe_max_available_only_denominator": 127,
+        "fixed_denominator": 128,
+        "safe_candidate_fraction": 0.7626953125,
+        "zero_score_candidate_fraction": 0.16455078125,
+        "full_score_candidate_fraction": 0.19287109375,
+        "feasible_scenes_safe_max_equals_overall_max": 127,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 30.988228134113537,
+          "0.1": 41.318386557575806,
+          "0.5": 75.46432335832694,
+          "0.9": 91.97220180142153
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 83.33333333333334,
+          "0.9": 100.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 93.6649799788934,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 80,
+                "scene_fraction": 0.625,
+                "safe_improving_candidate_fraction": 0.15234375
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 78,
+                "scene_fraction": 0.609375,
+                "safe_improving_candidate_fraction": 0.14697265625
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 75,
+                "scene_fraction": 0.5859375,
+                "safe_improving_candidate_fraction": 0.1279296875
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 2.494187986576154,
+            "mean_safe_gain_available_only_PDMS_points": 2.5138272620610054,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 93.62160178337997,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 78,
+                "scene_fraction": 0.609375,
+                "safe_improving_candidate_fraction": 0.14990234375
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 78,
+                "scene_fraction": 0.609375,
+                "safe_improving_candidate_fraction": 0.1474609375
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 74,
+                "scene_fraction": 0.578125,
+                "safe_improving_candidate_fraction": 0.12255859375
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 2.5375661820895647,
+            "mean_safe_gain_available_only_PDMS_points": 2.5575470181690103,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "ODE": {
+        "status": "COMPLETE",
+        "scenes": 128,
+        "candidates": 2048,
+        "feasible_scene_count": 127,
+        "feasible_at16": 0.9921875,
+        "safe_max_missing_scene_count": 1,
+        "mean_single_candidate_PDMS": 93.6649799788934,
+        "mean_overall_candidate_max_PDMS": 94.64636599033224,
+        "mean_safe_max_zero_proxy_PDMS": 94.64636599033224,
+        "safe_max_available_only_mean_PDMS": 95.39161296663407,
+        "safe_max_available_only_denominator": 127,
+        "fixed_denominator": 128,
+        "safe_candidate_fraction": 0.9833984375,
+        "zero_score_candidate_fraction": 0.0078125,
+        "full_score_candidate_fraction": 0.38232421875,
+        "feasible_scenes_safe_max_equals_overall_max": 127,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 78.23570271026111,
+          "0.1": 84.59181981689981,
+          "0.5": 96.85796473441661,
+          "0.9": 100.0
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 78.17489751581098,
+          "0.1": 84.58131024131424,
+          "0.5": 96.96610905680099,
+          "0.9": 100.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 93.6649799788934,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 83,
+                "scene_fraction": 0.6484375,
+                "safe_improving_candidate_fraction": 0.33447265625
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 81,
+                "scene_fraction": 0.6328125,
+                "safe_improving_candidate_fraction": 0.26171875
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 68,
+                "scene_fraction": 0.53125,
+                "safe_improving_candidate_fraction": 0.0986328125
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 0.9813860114388537,
+            "mean_safe_gain_available_only_PDMS_points": 0.9891134603478211,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 93.62160178337997,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 81,
+                "scene_fraction": 0.6328125,
+                "safe_improving_candidate_fraction": 0.3359375
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 80,
+                "scene_fraction": 0.625,
+                "safe_improving_candidate_fraction": 0.28173828125
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 59,
+                "scene_fraction": 0.4609375,
+                "safe_improving_candidate_fraction": 0.11181640625
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 1.0247642069522653,
+            "mean_safe_gain_available_only_PDMS_points": 1.0328332164558265,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "paired_SDE_minus_ODE": {
+        "status": "COMPLETE",
+        "scenes": 128,
+        "both_feasible": 127,
+        "SDE_only_feasible": 0,
+        "ODE_only_feasible": 0,
+        "neither_feasible": 1,
+        "mean_SDE_minus_ODE_PDMS_points": -22.820091823778345,
+        "mean_overall_max_SDE_minus_ODE_PDMS_points": 1.5128019751372996,
+        "mean_safe_max_zero_proxy_SDE_minus_ODE_PDMS_points": 1.5128019751372996,
+        "safe_max_SDE_better_ge005_scene_count": 61,
+        "safe_max_ODE_better_ge005_scene_count": 3,
+        "safe_max_zero_proxy_paired_log_bootstrap": {
+          "mean": 0.015128019751372996,
+          "CI95": [
+            0.010951307097856218,
+            0.019548585631481718
+          ],
+          "scenes": 128,
+          "logs": 117,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "quantity": "raw_PDMS_score_difference",
+          "CI95_PDMS_points": [
+            1.0951307097856218,
+            1.9548585631481719
+          ],
+          "mean_PDMS_points": 1.5128019751372996,
+          "inference_seed_uncertainty_included": false,
+          "limited_log_resolution": false,
+          "one_log_interval_is_degenerate": false
+        },
+        "uncertainty": "Finite fixedK16 maxima, not theoretical oracle. Scene-level log resampling only; no new training/root/innovation sampling uncertainty."
+      }
+    },
+    "stable_high": {
+      "SDE": {
+        "status": "COMPLETE",
+        "scenes": 98,
+        "candidates": 1568,
+        "feasible_scene_count": 98,
+        "feasible_at16": 1.0,
+        "safe_max_missing_scene_count": 0,
+        "mean_single_candidate_PDMS": 73.89638034085691,
+        "mean_overall_candidate_max_PDMS": 98.89855791207808,
+        "mean_safe_max_zero_proxy_PDMS": 98.89855791207808,
+        "safe_max_available_only_mean_PDMS": 98.89855791207808,
+        "safe_max_available_only_denominator": 98,
+        "fixed_denominator": 98,
+        "safe_candidate_fraction": 0.7729591836734694,
+        "zero_score_candidate_fraction": 0.15625,
+        "full_score_candidate_fraction": 0.24872448979591838,
+        "feasible_scenes_safe_max_equals_overall_max": 98,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 34.394719313000564,
+          "0.1": 50.34537506389387,
+          "0.5": 81.09182128132274,
+          "0.9": 92.73920422884254
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 83.33333333333334,
+          "0.9": 100.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 97.38631420583033,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 52,
+                "scene_fraction": 0.5306122448979592,
+                "safe_improving_candidate_fraction": 0.12244897959183673
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 50,
+                "scene_fraction": 0.5102040816326531,
+                "safe_improving_candidate_fraction": 0.11734693877551021
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 47,
+                "scene_fraction": 0.47959183673469385,
+                "safe_improving_candidate_fraction": 0.10140306122448979
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 1.5122437062477674,
+            "mean_safe_gain_available_only_PDMS_points": 1.5122437062477674,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 97.56031786734948,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 50,
+                "scene_fraction": 0.5102040816326531,
+                "safe_improving_candidate_fraction": 0.11989795918367346
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 50,
+                "scene_fraction": 0.5102040816326531,
+                "safe_improving_candidate_fraction": 0.11798469387755102
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 46,
+                "scene_fraction": 0.46938775510204084,
+                "safe_improving_candidate_fraction": 0.09566326530612244
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 1.338240044728605,
+            "mean_safe_gain_available_only_PDMS_points": 1.338240044728605,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "ODE": {
+        "status": "COMPLETE",
+        "scenes": 98,
+        "candidates": 1568,
+        "feasible_scene_count": 98,
+        "feasible_at16": 1.0,
+        "safe_max_missing_scene_count": 0,
+        "mean_single_candidate_PDMS": 97.38631420583033,
+        "mean_overall_candidate_max_PDMS": 98.03690665294394,
+        "mean_safe_max_zero_proxy_PDMS": 98.03690665294394,
+        "safe_max_available_only_mean_PDMS": 98.03690665294394,
+        "safe_max_available_only_denominator": 98,
+        "fixed_denominator": 98,
+        "safe_candidate_fraction": 0.9955357142857143,
+        "zero_score_candidate_fraction": 0.0,
+        "full_score_candidate_fraction": 0.4961734693877551,
+        "feasible_scenes_safe_max_equals_overall_max": 98,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 91.18906752322948,
+          "0.1": 92.60053177668004,
+          "0.5": 99.18789677212129,
+          "0.9": 100.0
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 91.34225730040092,
+          "0.1": 92.51141489150099,
+          "0.5": 99.85554394612362,
+          "0.9": 100.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 97.38631420583033,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 54,
+                "scene_fraction": 0.5510204081632653,
+                "safe_improving_candidate_fraction": 0.2844387755102041
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 52,
+                "scene_fraction": 0.5306122448979592,
+                "safe_improving_candidate_fraction": 0.2149234693877551
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 44,
+                "scene_fraction": 0.4489795918367347,
+                "safe_improving_candidate_fraction": 0.07716836734693877
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 0.6505924471136283,
+            "mean_safe_gain_available_only_PDMS_points": 0.6505924471136283,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 97.56031786734948,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 52,
+                "scene_fraction": 0.5306122448979592,
+                "safe_improving_candidate_fraction": 0.28316326530612246
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 52,
+                "scene_fraction": 0.5306122448979592,
+                "safe_improving_candidate_fraction": 0.23469387755102042
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 36,
+                "scene_fraction": 0.3673469387755102,
+                "safe_improving_candidate_fraction": 0.07589285714285714
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 0.47658878559446616,
+            "mean_safe_gain_available_only_PDMS_points": 0.47658878559446616,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "paired_SDE_minus_ODE": {
+        "status": "COMPLETE",
+        "scenes": 98,
+        "both_feasible": 98,
+        "SDE_only_feasible": 0,
+        "ODE_only_feasible": 0,
+        "neither_feasible": 0,
+        "mean_SDE_minus_ODE_PDMS_points": -23.489933864973416,
+        "mean_overall_max_SDE_minus_ODE_PDMS_points": 0.8616512591341391,
+        "mean_safe_max_zero_proxy_SDE_minus_ODE_PDMS_points": 0.8616512591341391,
+        "safe_max_SDE_better_ge005_scene_count": 36,
+        "safe_max_ODE_better_ge005_scene_count": 2,
+        "safe_max_zero_proxy_paired_log_bootstrap": {
+          "mean": 0.00861651259134139,
+          "CI95": [
+            0.005609424555211031,
+            0.01169267932421157
+          ],
+          "scenes": 98,
+          "logs": 91,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "quantity": "raw_PDMS_score_difference",
+          "CI95_PDMS_points": [
+            0.5609424555211031,
+            1.169267932421157
+          ],
+          "mean_PDMS_points": 0.8616512591341391,
+          "inference_seed_uncertainty_included": false,
+          "limited_log_resolution": false,
+          "one_log_interval_is_degenerate": false
+        },
+        "uncertainty": "Finite fixedK16 maxima, not theoretical oracle. Scene-level log resampling only; no new training/root/innovation sampling uncertainty."
+      }
+    },
+    "stable_zero": {
+      "SDE": {
+        "status": "COMPLETE",
+        "scenes": 1,
+        "candidates": 16,
+        "feasible_scene_count": 0,
+        "feasible_at16": 0.0,
+        "safe_max_missing_scene_count": 1,
+        "mean_single_candidate_PDMS": 0.0,
+        "mean_overall_candidate_max_PDMS": 0.0,
+        "mean_safe_max_zero_proxy_PDMS": 0.0,
+        "safe_max_available_only_mean_PDMS": null,
+        "safe_max_available_only_denominator": 0,
+        "fixed_denominator": 1,
+        "safe_candidate_fraction": 0.0,
+        "zero_score_candidate_fraction": 1.0,
+        "full_score_candidate_fraction": 0.0,
+        "feasible_scenes_safe_max_equals_overall_max": 0,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 0.0,
+          "0.9": 0.0
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 0.0,
+          "0.9": 0.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 0.0,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 0.0,
+            "mean_safe_gain_available_only_PDMS_points": null,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 0.0,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 0.0,
+            "mean_safe_gain_available_only_PDMS_points": null,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "ODE": {
+        "status": "COMPLETE",
+        "scenes": 1,
+        "candidates": 16,
+        "feasible_scene_count": 0,
+        "feasible_at16": 0.0,
+        "safe_max_missing_scene_count": 1,
+        "mean_single_candidate_PDMS": 0.0,
+        "mean_overall_candidate_max_PDMS": 0.0,
+        "mean_safe_max_zero_proxy_PDMS": 0.0,
+        "safe_max_available_only_mean_PDMS": null,
+        "safe_max_available_only_denominator": 0,
+        "fixed_denominator": 1,
+        "safe_candidate_fraction": 0.0,
+        "zero_score_candidate_fraction": 1.0,
+        "full_score_candidate_fraction": 0.0,
+        "feasible_scenes_safe_max_equals_overall_max": 0,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 0.0,
+          "0.9": 0.0
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 0.0,
+          "0.9": 0.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 0.0,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 0.0,
+            "mean_safe_gain_available_only_PDMS_points": null,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 0.0,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 0,
+                "scene_fraction": 0.0,
+                "safe_improving_candidate_fraction": 0.0
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 0.0,
+            "mean_safe_gain_available_only_PDMS_points": null,
+            "missing_safe_gain_scenes": 1,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "paired_SDE_minus_ODE": {
+        "status": "COMPLETE",
+        "scenes": 1,
+        "both_feasible": 0,
+        "SDE_only_feasible": 0,
+        "ODE_only_feasible": 0,
+        "neither_feasible": 1,
+        "mean_SDE_minus_ODE_PDMS_points": 0.0,
+        "mean_overall_max_SDE_minus_ODE_PDMS_points": 0.0,
+        "mean_safe_max_zero_proxy_SDE_minus_ODE_PDMS_points": 0.0,
+        "safe_max_SDE_better_ge005_scene_count": 0,
+        "safe_max_ODE_better_ge005_scene_count": 0,
+        "safe_max_zero_proxy_paired_log_bootstrap": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1,
+          "logs": 1,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "quantity": "raw_PDMS_score_difference",
+          "CI95_PDMS_points": [
+            0.0,
+            0.0
+          ],
+          "mean_PDMS_points": 0.0,
+          "inference_seed_uncertainty_included": false,
+          "limited_log_resolution": true,
+          "one_log_interval_is_degenerate": true
+        },
+        "uncertainty": "Finite fixedK16 maxima, not theoretical oracle. Scene-level log resampling only; no new training/root/innovation sampling uncertainty."
+      }
+    },
+    "low_nonzero": {
+      "SDE": {
+        "status": "COMPLETE",
+        "scenes": 1,
+        "candidates": 16,
+        "feasible_scene_count": 1,
+        "feasible_at16": 1.0,
+        "safe_max_missing_scene_count": 0,
+        "mean_single_candidate_PDMS": 39.0625,
+        "mean_overall_candidate_max_PDMS": 100.0,
+        "mean_safe_max_zero_proxy_PDMS": 100.0,
+        "safe_max_available_only_mean_PDMS": 100.0,
+        "safe_max_available_only_denominator": 1,
+        "fixed_denominator": 1,
+        "safe_candidate_fraction": 0.25,
+        "zero_score_candidate_fraction": 0.4375,
+        "full_score_candidate_fraction": 0.1875,
+        "feasible_scenes_safe_max_equals_overall_max": 1,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 39.0625,
+          "0.1": 39.0625,
+          "0.5": 39.0625,
+          "0.9": 39.0625
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 41.66666666666667,
+          "0.9": 100.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 71.35416666666667,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.25
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.25
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.25
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 28.645833333333325,
+            "mean_safe_gain_available_only_PDMS_points": 28.645833333333325,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 58.333333333333336,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.25
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.25
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.25
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 41.666666666666664,
+            "mean_safe_gain_available_only_PDMS_points": 41.666666666666664,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "ODE": {
+        "status": "COMPLETE",
+        "scenes": 1,
+        "candidates": 16,
+        "feasible_scene_count": 1,
+        "feasible_at16": 1.0,
+        "safe_max_missing_scene_count": 0,
+        "mean_single_candidate_PDMS": 71.35416666666667,
+        "mean_overall_candidate_max_PDMS": 100.0,
+        "mean_safe_max_zero_proxy_PDMS": 100.0,
+        "safe_max_available_only_mean_PDMS": 100.0,
+        "safe_max_available_only_denominator": 1,
+        "fixed_denominator": 1,
+        "safe_candidate_fraction": 0.3125,
+        "zero_score_candidate_fraction": 0.0,
+        "full_score_candidate_fraction": 0.3125,
+        "feasible_scenes_safe_max_equals_overall_max": 1,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 71.35416666666667,
+          "0.1": 71.35416666666667,
+          "0.5": 71.35416666666667,
+          "0.9": 71.35416666666667
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 58.333333333333336,
+          "0.1": 58.333333333333336,
+          "0.5": 58.333333333333336,
+          "0.9": 100.0
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 71.35416666666667,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.3125
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.3125
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.3125
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 28.645833333333325,
+            "mean_safe_gain_available_only_PDMS_points": 28.645833333333325,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 58.333333333333336,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.3125
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.3125
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 1,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.3125
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 41.666666666666664,
+            "mean_safe_gain_available_only_PDMS_points": 41.666666666666664,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "paired_SDE_minus_ODE": {
+        "status": "COMPLETE",
+        "scenes": 1,
+        "both_feasible": 1,
+        "SDE_only_feasible": 0,
+        "ODE_only_feasible": 0,
+        "neither_feasible": 0,
+        "mean_SDE_minus_ODE_PDMS_points": -32.29166666666667,
+        "mean_overall_max_SDE_minus_ODE_PDMS_points": 0.0,
+        "mean_safe_max_zero_proxy_SDE_minus_ODE_PDMS_points": 0.0,
+        "safe_max_SDE_better_ge005_scene_count": 0,
+        "safe_max_ODE_better_ge005_scene_count": 0,
+        "safe_max_zero_proxy_paired_log_bootstrap": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1,
+          "logs": 1,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "quantity": "raw_PDMS_score_difference",
+          "CI95_PDMS_points": [
+            0.0,
+            0.0
+          ],
+          "mean_PDMS_points": 0.0,
+          "inference_seed_uncertainty_included": false,
+          "limited_log_resolution": true,
+          "one_log_interval_is_degenerate": true
+        },
+        "uncertainty": "Finite fixedK16 maxima, not theoretical oracle. Scene-level log resampling only; no new training/root/innovation sampling uncertainty."
+      }
+    },
+    "other_or_unstable": {
+      "SDE": {
+        "status": "COMPLETE",
+        "scenes": 28,
+        "candidates": 448,
+        "feasible_scene_count": 28,
+        "feasible_at16": 1.0,
+        "safe_max_missing_scene_count": 0,
+        "mean_single_candidate_PDMS": 63.82992537324104,
+        "mean_overall_candidate_max_PDMS": 89.86838657844461,
+        "mean_safe_max_zero_proxy_PDMS": 89.86838657844461,
+        "safe_max_available_only_mean_PDMS": 89.86838657844461,
+        "safe_max_available_only_denominator": 28,
+        "fixed_denominator": 28,
+        "safe_candidate_fraction": 0.7723214285714286,
+        "zero_score_candidate_fraction": 0.15401785714285715,
+        "full_score_candidate_fraction": 0.004464285714285714,
+        "feasible_scenes_safe_max_equals_overall_max": 28,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 37.52823625313135,
+          "0.1": 41.22565874616099,
+          "0.5": 66.62905425501921,
+          "0.9": 79.67050148283272
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 0.0,
+          "0.1": 0.0,
+          "0.5": 74.81966138510951,
+          "0.9": 90.21747731618625
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 84.78230280215413,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 27,
+                "scene_fraction": 0.9642857142857143,
+                "safe_improving_candidate_fraction": 0.25892857142857145
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 27,
+                "scene_fraction": 0.9642857142857143,
+                "safe_improving_candidate_fraction": 0.25223214285714285
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 27,
+                "scene_fraction": 0.9642857142857143,
+                "safe_improving_candidate_fraction": 0.22098214285714285
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 5.086083776290469,
+            "mean_safe_gain_available_only_PDMS_points": 5.086083776290469,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 84.44001942639481,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 27,
+                "scene_fraction": 0.9642857142857143,
+                "safe_improving_candidate_fraction": 0.25669642857142855
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 27,
+                "scene_fraction": 0.9642857142857143,
+                "safe_improving_candidate_fraction": 0.25223214285714285
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 27,
+                "scene_fraction": 0.9642857142857143,
+                "safe_improving_candidate_fraction": 0.21651785714285715
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 5.428367152049799,
+            "mean_safe_gain_available_only_PDMS_points": 5.428367152049799,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "ODE": {
+        "status": "COMPLETE",
+        "scenes": 28,
+        "candidates": 448,
+        "feasible_scene_count": 28,
+        "feasible_at16": 1.0,
+        "safe_max_missing_scene_count": 0,
+        "mean_single_candidate_PDMS": 84.78230280215413,
+        "mean_overall_candidate_max_PDMS": 85.9684998133579,
+        "mean_safe_max_zero_proxy_PDMS": 85.9684998133579,
+        "safe_max_available_only_mean_PDMS": 85.9684998133579,
+        "safe_max_available_only_denominator": 28,
+        "fixed_denominator": 28,
+        "safe_candidate_fraction": 1.0,
+        "zero_score_candidate_fraction": 0.0,
+        "full_score_candidate_fraction": 0.0,
+        "feasible_scenes_safe_max_equals_overall_max": 28,
+        "overall_max_exceeds_safe_max_proxy_scene_count": 0,
+        "scene_mean_PDMS_quantiles": {
+          "0.05": 77.01611568127696,
+          "0.1": 77.71505719421641,
+          "0.5": 85.9256489374824,
+          "0.9": 89.89174743343085
+        },
+        "candidate_PDMS_quantiles": {
+          "0.05": 76.26718664200426,
+          "0.1": 77.32088403902728,
+          "0.5": 86.03287551802813,
+          "0.9": 90.02650824195057
+        },
+        "opportunities": {
+          "frozen_BASE_matched_root_ODE_mean_K16": {
+            "baseline_mean_PDMS": 84.78230280215413,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 28,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.5223214285714286
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 28,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.4330357142857143
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 23,
+                "scene_fraction": 0.8214285714285714,
+                "safe_improving_candidate_fraction": 0.16964285714285715
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 1.1861970112037283,
+            "mean_safe_gain_available_only_PDMS_points": 1.1861970112037283,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          },
+          "independent5_reference_mean": {
+            "baseline_mean_PDMS": 84.44001942639481,
+            "thresholds": {
+              "strict_positive": {
+                "raw_score_threshold": 0.0,
+                "scene_count": 28,
+                "scene_fraction": 1.0,
+                "safe_improving_candidate_fraction": 0.5334821428571429
+              },
+              "ge_0.001": {
+                "raw_score_threshold": 0.001,
+                "scene_count": 27,
+                "scene_fraction": 0.9642857142857143,
+                "safe_improving_candidate_fraction": 0.45535714285714285
+              },
+              "ge_useful": {
+                "raw_score_threshold": 0.005,
+                "scene_count": 22,
+                "scene_fraction": 0.7857142857142857,
+                "safe_improving_candidate_fraction": 0.234375
+              }
+            },
+            "mean_safe_gain_zero_proxy_PDMS_points": 1.5284803869630577,
+            "mean_safe_gain_available_only_PDMS_points": 1.5284803869630577,
+            "missing_safe_gain_scenes": 0,
+            "semantics": "Raw safe gain is undefined without a feasible candidate. The fixed-population proxy sets only safe-max to0; it is not a scored trajectory or a successful repair."
+          }
+        }
+      },
+      "paired_SDE_minus_ODE": {
+        "status": "COMPLETE",
+        "scenes": 28,
+        "both_feasible": 28,
+        "SDE_only_feasible": 0,
+        "ODE_only_feasible": 0,
+        "neither_feasible": 0,
+        "mean_SDE_minus_ODE_PDMS_points": -20.952377428913096,
+        "mean_overall_max_SDE_minus_ODE_PDMS_points": 3.899886765086741,
+        "mean_safe_max_zero_proxy_SDE_minus_ODE_PDMS_points": 3.899886765086741,
+        "safe_max_SDE_better_ge005_scene_count": 25,
+        "safe_max_ODE_better_ge005_scene_count": 1,
+        "safe_max_zero_proxy_paired_log_bootstrap": {
+          "mean": 0.03899886765086741,
+          "CI95": [
+            0.026394238304680503,
+            0.053221182141658836
+          ],
+          "scenes": 28,
+          "logs": 27,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false,
+          "quantity": "raw_PDMS_score_difference",
+          "CI95_PDMS_points": [
+            2.63942383046805,
+            5.322118214165884
+          ],
+          "mean_PDMS_points": 3.899886765086741,
+          "inference_seed_uncertainty_included": false,
+          "limited_log_resolution": false,
+          "one_log_interval_is_degenerate": false
+        },
+        "uncertainty": "Finite fixedK16 maxima, not theoretical oracle. Scene-level log resampling only; no new training/root/innovation sampling uncertainty."
+      }
+    }
+  },
+  "sha256": "2779938107b4bdb3951399b5b99cfbd1c133fbb9c684532a7ca30e401d5516c7"
+}
