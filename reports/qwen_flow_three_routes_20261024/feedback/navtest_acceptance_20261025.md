@@ -11,3 +11,7 @@
 7. NAVTEST历史已多次被观察，完整规模确认不宣称是全新盲测。此更新只更正文档的效力判据，不改变运行Source、评分、训练算法、人口、预算或旧实验数据。
 
 与旧聚合JSON相配的机器可读用途覆盖声明见 [diagnostic_use_policy_20261025.json](diagnostic_use_policy_20261025.json)。旧JSON保持原seal，不能把其诊断字段直接解读为当前方法效力结论。
+
+## S1/S2/S3完成更新（2026-10-25）
+
+三组冻结终点的完整12146场景/136logs×五seed测试及三份新学生配对控制已完成。当前效力判断、五seed与2101分列、净收益和安全变化见[完整测试报告](full_navtest_feedback_20261025.md)，对应[新聚合](full_navtest_feedback_20261025_summary.json)。旧`diagnostic_use_policy_20261025.json`保留原seal，仍只限定其列出的历史TRAIN/DEV/拟合文件；不将新TEST聚合降格为诊断，也不反向将旧诊断升格为性能证据。

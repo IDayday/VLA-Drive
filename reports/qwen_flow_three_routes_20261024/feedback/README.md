@@ -1,8 +1,27 @@
 # 路线二：物理反馈搜索与源FM吸收
 
-> **验收口径更新（2026-10-25）**：本页所有DEV/VAL、TRAIN、候选搜索或拟合结果仅作诊断，不作为方法有效性、性能提升或方法排名依据。方法效力状态统一为**待完整NAVTEST确认**。原实验日期、数值和历史记录保留；详见[当前验收口径](navtest_acceptance_20261025.md)。
+> **验收口径更新（2026-10-25）**：本页所有DEV/VAL、TRAIN、候选搜索或拟合结果仅作诊断，不作为方法有效性、性能提升或方法排名依据。S1/S2/S3已完成完整NAVTEST，当前效力判断见[完整测试报告](full_navtest_feedback_20261025.md)；本页历史诊断不承担效力判断。原实验日期、数值和历史记录保留；详见[当前验收口径](navtest_acceptance_20261025.md)。
 
 本目录属于独立三路线研究，公共起点由主agent锁定为成熟CANONICAL50k完整合并模型；不是旧DDP策略提取实验的恢复。当前已完成CPU及真实模型资格、共同bank、F0–F4真实搜索、三组256更新及统一单候选评价。`qualification_cpu_v1.json`中的synthetic评分仅测试搜索逻辑，**不是驾驶研究结果**。
+
+## 2026-10-25：完整NAVTEST已完成
+
+**当前设计暂无支持。** 三个学生均以相同成熟BASE独立训练256更新，再完成全部12146场景/136logs、五个固定seed的单候选source shift5 ODE/canonical v1.1测试；没有用DEV挑赢家。
+
+| 模型 | 五seed PDMS | 相对BASE | 配对log95%区间 | seed2101 PDMS |
+|---|---:|---:|---:|---:|
+| BASE | 90.471774 | — | — | 90.513164 |
+| S1 GT-only | 90.485987 | +0.014212 | [-0.075586, +0.123824] | 90.602203 |
+| S2 标量搜索教师＋GT | 90.383101 | -0.088674 | [-0.202602, +0.014238] | 90.389624 |
+| S3 物理反馈教师＋GT | 90.389706 | -0.082068 | [-0.193829, +0.021634] | 90.396562 |
+
+S2/S3没有完整测试净正点估计，区间均包含零；没有达到92。S3−S2为+0.006605点，95%区间[-0.009927,+0.023152]，加上教师池511/512场景相同，未建立物理反馈的额外部署价值。不能沿用此前DEV中S3相对GT-only的正收益叙事。
+
+完整测试中S3的EP增加约0.4084点，NC/DAC/TTC均值下降；新增联合违规462次、恢复153次，新增零分248次、恢复103次（60730同seed配对输出）。G−0.5390超过G+0.4569。候选合格、训练几何接近以及四场景表达成功都未代替这次部署结果。
+
+该判断只针对固定教师提取配方及当前预算，不否定已有成熟BASE的IL→RL增益，也不把未追加的在线GRPO表述为已失败。仅一个训练seed，五推理seed不等于五次训练复现。
+
+[完整分项、G±、安全恢复/新增、三个学生控制与成本](full_navtest_feedback_20261025.md) · [已封存聚合](full_navtest_feedback_20261025_summary.json)。
 
 ## 实际复用与边界
 
@@ -57,7 +76,7 @@ v1全部证据保留。正式搜索前做最小修正：旧请求曲线极值只
 
 ## F0–F4已完成的真实搜索
 
-immutable97上的CPU campaign已完成512 TRAIN、256 DEV_SELECT，各方法K32；没有失败、重试或额外GPU派发。TRAIN F1盲结构化proposal相对F0有限oracle提高0.47578点，DEV提高0.96639点；F3物理反馈相对F2仅标量则几乎相同，未多发现安全修复。F4的有限候选数值也只作诊断；不据这些TRAIN/DEV差值判断方法有效性、研究价值或性能排名，均待完整NAVTEST确认。[完整分离发现/部署的报告](discovery_v1.md)、[聚合与paired CI](discovery_v1_summary.json)。
+immutable97上的CPU campaign已完成512 TRAIN、256 DEV_SELECT，各方法K32；没有失败、重试或额外GPU派发。TRAIN F1盲结构化proposal相对F0有限oracle提高0.47578点，DEV提高0.96639点；F3物理反馈相对F2仅标量则几乎相同，未多发现安全修复。F4的有限候选数值也只作诊断；不据这些TRAIN/DEV差值判断方法有效性、研究价值或性能排名，当前效力以[完整NAVTEST](full_navtest_feedback_20261025.md)另行判断。[完整分离发现/部署的报告](discovery_v1.md)、[聚合与paired CI](discovery_v1_summary.json)。
 
 S1从immutable97启动时带的helper自动评价使用旧noise namespace与batch布局，保留为辅助读出；主配对统一使用plain merged adapter evaluator。[评价合同更正](evaluation_protocol_delta.md)、[有限CPU接口资格](evaluation_helper_cpu_v1.json)。该修正不热改运行快照，不改变训练、teacher门槛或官方评分。
 
@@ -67,12 +86,12 @@ S1/S2/S3均完成256更新与4096 GT曝光，S2/S3各1896 teacher曝光；初始
 
 237个教师场景的COMMON-nearest teacher ADE从base0.34923m降到S3 0.28174m，显示几何部分吸收；但安全恢复teacher场景的真实后果仍未保住。固定stable-zero中唯一被搜索修复的scene已以4个score1.0目标进入训练，学生新五个ODE输出仍全部为零。[实际吸收聚合](target_absorption_v1_summary.json)。
 
-发现到准入也存在覆盖损耗，但不是所有问题都在准入：296个五ref口径安全改善场景有70个未准入（51质量gate、19 candidate0参考增益gate）；teacher抽样期望的全人口账面差约+1.067点，不能当作实际部署增益或保证。[准入审计](admission_v1.md)、[抽样目标质量](admission_expected_target_v2.md)。本轮未追加后续GRPO。方法是否有效、是否提升及方法排名均待冻结配置的完整NAVTEST配对结果；不据DEV选择赢家，也不据其结果改变阈值、β或追加矩阵。
+发现到准入也存在覆盖损耗，但不是所有问题都在准入：296个五ref口径安全改善场景有70个未准入（51质量gate、19 candidate0参考增益gate）；teacher抽样期望的全人口账面差约+1.067点，不能当作实际部署增益或保证。[准入审计](admission_v1.md)、[抽样目标质量](admission_expected_target_v2.md)。本轮未追加后续GRPO。方法效力与完整TEST结果现见[新报告](full_navtest_feedback_20261025.md)；不据DEV选择赢家，也不据其结果改变阈值、β或追加矩阵。
 
 ## 2026-10-25：关键修复的可表达性探针已完成
 
 同BASE、同480-LoRA的定向TRAIN4机制probe实际完成512更新及80次真实单ODE评价。唯一stable-zero场景从五个输出全部零分变为五个输出全部满分，模拟车身未来越界比例44.5%→0；其余结果没有隐藏：另一修复case仍有1/5 TTC不通过，安全进度case未达到teacher。四场景94.48738仅是训练拟合诊断，不能写成Navtest92或S3泛化成功。
 
-该probe同时移除了GT项、固定单teacher并把每场景曝光从8增至512，另有人口/B变化。它只排除当前480-LoRA完全无法表达这一关键修复，不能分别归因于GT冲突、多目标混合或曝光不足。S1/S2/S3原权重与数值保留，方法效力继续待完整NAVTEST。
+该probe同时移除了GT项、固定单teacher并把每场景曝光从8增至512，另有人口/B变化。它只排除当前480-LoRA完全无法表达这一关键修复，不能分别归因于GT冲突、多目标混合或曝光不足。S1/S2/S3原权重与数值保留，方法效力现按[完整NAVTEST](full_navtest_feedback_20261025.md)单独判断，不能由本probe推断。
 
 [真实拟合结果](expression_fit_v1.md)、[无原始场景/轨迹的聚合](expression_fit_v1_summary.json)、[额外费用的计时范围](execution_cost_addendum_v1.json)。

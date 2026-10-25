@@ -1,6 +1,6 @@
 # 四场景teacher可表达性probe：真实终点证据
 
-> **验收口径更新（2026-10-25）**：本页所有DEV/VAL、TRAIN、候选搜索或拟合结果仅作诊断，不作为方法有效性、性能提升或方法排名依据。方法效力状态统一为**待完整NAVTEST确认**。原实验日期、数值和历史记录保留；详见[当前验收口径](navtest_acceptance_20261025.md)。
+> **验收口径更新（2026-10-25）**：本页所有DEV/VAL、TRAIN、候选搜索或拟合结果仅作诊断，不作为方法有效性、性能提升或方法排名依据。S1/S2/S3已完成完整NAVTEST，当前效力判断见[完整测试报告](full_navtest_feedback_20261025.md)；本页历史诊断不承担效力判断。原实验日期、数值和历史记录保留；详见[当前验收口径](navtest_acceptance_20261025.md)。
 
 这是一项定向TRAIN机制拟合，不是新正式方法臂，也不是泛化或Navtest评测。
 同一成熟BASE、同一480张量attention LoRA，固定四个不同logs的TRAIN场景，每scene一条先前真实canonical评分合格teacher。
@@ -69,6 +69,6 @@ S3自然人口与DEV的原结果仍是正式对照；本probe权重不得替换�
 
 ## 2026-10-25验收与费用补充
 
-本报告仅提供TRAIN表达能力机制证据。DEV/VAL、定向TRAIN或任何拟合均分都不承担方法有效性或性能提升判断；正式效力统一待完整NAVTEST，不能用本probe替换S3正式终点。
+本报告仅提供TRAIN表达能力机制证据。DEV/VAL、定向TRAIN或任何拟合均分都不承担方法有效性或性能提升判断；正式效力现见[完整NAVTEST](full_navtest_feedback_20261025.md)，不能用本probe替换S3正式终点。
 
 新增外层operator计时为1332.998秒（exit0）。原报告保留的invocation1327.783秒、env1324.609秒及update1038.847秒属于不同嵌套计时范围，不能相加。见[费用范围补充](execution_cost_addendum_v1.json)。

@@ -1,0 +1,1879 @@
+{
+  "TEST_costs": {
+    "BASE": {
+      "completed_physical_inferences": 60727,
+      "completed_shards": 60,
+      "cumulative_worker_wall_seconds": 64057.75262571382,
+      "job_elapsed_span_seconds": 19097.66191792488,
+      "logical_single_output_evaluations": 60730,
+      "model_loading_and_initialization_worker_seconds": 3296.6746571790427,
+      "new_scored_rows_over_invocations": 60727,
+      "physical_inference_attempts_including_retries": 60727,
+      "reused_rows_over_invocations": 3
+    },
+    "L1": {
+      "completed_physical_inferences": 60730,
+      "completed_shards": 60,
+      "cumulative_worker_wall_seconds": 63952.59854426538,
+      "job_elapsed_span_seconds": 19536.809178352356,
+      "logical_single_output_evaluations": 60730,
+      "model_loading_and_initialization_worker_seconds": 3285.031493059825,
+      "new_scored_rows_over_invocations": 60730,
+      "physical_inference_attempts_including_retries": 60730,
+      "reused_rows_over_invocations": 0
+    },
+    "L1_CENTER_V1": {
+      "completed_physical_inferences": 60727,
+      "completed_shards": 60,
+      "cumulative_worker_wall_seconds": 64481.48442149279,
+      "job_elapsed_span_seconds": 19679.485900878906,
+      "logical_single_output_evaluations": 60730,
+      "model_loading_and_initialization_worker_seconds": 3307.909211554099,
+      "new_scored_rows_over_invocations": 60727,
+      "physical_inference_attempts_including_retries": 60727,
+      "reused_rows_over_invocations": 3
+    },
+    "L2": {
+      "completed_physical_inferences": 60730,
+      "completed_shards": 60,
+      "cumulative_worker_wall_seconds": 63215.63326328085,
+      "job_elapsed_span_seconds": 19350.478619337082,
+      "logical_single_output_evaluations": 60730,
+      "model_loading_and_initialization_worker_seconds": 3220.5967527367175,
+      "new_scored_rows_over_invocations": 60730,
+      "physical_inference_attempts_including_retries": 60730,
+      "reused_rows_over_invocations": 0
+    },
+    "L3": {
+      "completed_physical_inferences": 60730,
+      "completed_shards": 60,
+      "cumulative_worker_wall_seconds": 62854.193232806865,
+      "job_elapsed_span_seconds": 19273.698439836502,
+      "logical_single_output_evaluations": 60730,
+      "model_loading_and_initialization_worker_seconds": 3204.6851965307724,
+      "new_scored_rows_over_invocations": 60730,
+      "physical_inference_attempts_including_retries": 60730,
+      "reused_rows_over_invocations": 0
+    },
+    "SCALE07": {
+      "completed_physical_inferences": 60730,
+      "completed_shards": 60,
+      "cumulative_worker_wall_seconds": 64256.79263536562,
+      "job_elapsed_span_seconds": 19541.31839489937,
+      "logical_single_output_evaluations": 60730,
+      "model_loading_and_initialization_worker_seconds": 3295.1460929047316,
+      "new_scored_rows_over_invocations": 60730,
+      "physical_inference_attempts_including_retries": 60730,
+      "reused_rows_over_invocations": 0
+    },
+    "SCALE13": {
+      "completed_physical_inferences": 60725,
+      "completed_shards": 60,
+      "cumulative_worker_wall_seconds": 63862.25796975801,
+      "job_elapsed_span_seconds": 19535.993869543076,
+      "logical_single_output_evaluations": 60730,
+      "model_loading_and_initialization_worker_seconds": 3293.558765319409,
+      "new_scored_rows_over_invocations": 60725,
+      "physical_inference_attempts_including_retries": 60725,
+      "reused_rows_over_invocations": 5
+    }
+  },
+  "effect_basis": "Only full canonicalv1.1 NAVTEST12146scenes/136logs, fixed5 inference seeds; noDEV/TRAIN performance used",
+  "judgment_scope": "This completed learned-root implementation and fixed budget have no credible TEST mean gain over BASE; not a theoretical rejection of all latent policies",
+  "limits": [
+    "One training seed42 per learned method; five inference seeds are not training repetitions",
+    "Log-cluster intervals do not include training/inference-seed uncertainty",
+    "\u03c30.7 is a fixed inference-scale control with no new RL training; its improvement is not RL success",
+    "All methods/endpoints are retained; do not choose new controls or tuneP from these TEST results",
+    "HistoricalDEV diagnostic labels are superseded as effectiveness judgments; values are not rewritten"
+  ],
+  "methods": {
+    "BASE": {
+      "TEST_evidence": "\u5f53\u524d\u5b8c\u6574NAVTEST\u70b9\u4f30\u8ba1\u65e0\u51c0\u5dee\u5f02\uff1b\u4e0d\u80fd\u636e\u6b64\u8ba4\u5b9a\u4e24\u65b9\u6cd5\u7b49\u4ef7\u3002",
+      "five_seed": {
+        "G_minus_PDMS_points": -0.0,
+        "G_plus_PDMS_points": 0.0,
+        "current_PDMS": 90.47177426888774,
+        "current_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "delta_PDMS_points": 0.0,
+        "native_mean_delta_points": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": 0.0,
+          "no_at_fault_collisions": 0.0,
+          "score": 0.0,
+          "time_to_collision_within_bound": 0.0
+        },
+        "new_joint_violation": {
+          "paired_seed_event_count": 0,
+          "per_draw_rate": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_percentage_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.0,
+            "mean_percentage_points": 0.0,
+            "observed_any_event": false,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.0,
+            "rate_percent": 0.0,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": true
+          },
+          "scene_any_seed_count": 0
+        },
+        "new_zero": {
+          "paired_seed_event_count": 0,
+          "per_draw_rate": {
+            "CI95": [
+              0.0,
+              0.0
+            ],
+            "CI95_percentage_points": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "No event observed in these finite scenes/seeds; a zero-width ordinary bootstrap is not a safety guarantee",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.0,
+            "mean_percentage_points": 0.0,
+            "observed_any_event": false,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.0,
+            "rate_percent": 0.0,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": true
+          },
+          "scene_all_fixed_seeds_count": 0,
+          "scene_any_seed_count": 0
+        },
+        "reference_PDMS": 90.47177426888774,
+        "reference_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "repaired_joint_violation": {
+          "paired_seed_event_count": 0,
+          "scene_any_seed_count": 0
+        },
+        "repaired_zero": {
+          "paired_seed_event_count": 0,
+          "scene_any_seed_count": 0
+        }
+      },
+      "five_seed_CI95_PDMS_points": [
+        0.0,
+        0.0
+      ],
+      "five_seed_safety": {
+        "drivable_area_compliance": {
+          "current_violation_rate": 0.019611394697842913,
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0,
+          "reference_violation_rate": 0.019611394697842913
+        },
+        "no_at_fault_collisions": {
+          "current_violation_rate": 0.01310719578462045,
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0,
+          "reference_violation_rate": 0.01310719578462045
+        },
+        "time_to_collision_within_bound": {
+          "current_violation_rate": 0.03579779351226741,
+          "new_paired_seed_event_count": 0,
+          "recovered_paired_seed_event_count": 0,
+          "reference_violation_rate": 0.03579779351226741
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "seed2101": {
+        "G_minus_PDMS_points": -0.0,
+        "G_plus_PDMS_points": 0.0,
+        "current_PDMS": 90.513164102699,
+        "delta_PDMS_points": 0.0,
+        "new_zero_count": 0,
+        "reference_PDMS": 90.513164102699,
+        "safety": {
+          "drivable_area_compliance": {
+            "current_mean_percent": 98.04050716285197,
+            "new_violations": 0,
+            "recoveries": 0,
+            "reference_mean_percent": 98.04050716285197,
+            "violation_rate_difference": {
+              "CI95": [
+                0.0,
+                0.0
+              ],
+              "CI95_percentage_points": [
+                0.0,
+                0.0
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0,
+              "mean_percentage_points": 0.0,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "no_at_fault_collisions": {
+            "current_mean_percent": 98.76502552280586,
+            "new_violations": 0,
+            "recoveries": 0,
+            "reference_mean_percent": 98.76502552280586,
+            "violation_rate_difference": {
+              "CI95": [
+                0.0,
+                0.0
+              ],
+              "CI95_percentage_points": [
+                0.0,
+                0.0
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0,
+              "mean_percentage_points": 0.0,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "time_to_collision_within_bound": {
+            "current_mean_percent": 96.50913881113124,
+            "new_violations": 0,
+            "recoveries": 0,
+            "reference_mean_percent": 96.50913881113124,
+            "violation_rate_difference": {
+              "CI95": [
+                0.0,
+                0.0
+              ],
+              "CI95_percentage_points": [
+                0.0,
+                0.0
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0,
+              "mean_percentage_points": 0.0,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          }
+        },
+        "zero_recoveries": 0
+      },
+      "seed2101_CI95_PDMS_points": [
+        0.0,
+        0.0
+      ],
+      "summary_sha256": "e76d0cd66cda0090e068132d84cec80caca0fdf48085ddbb34a4d73ca7fb505b",
+      "training_repetitions": 0
+    },
+    "L1": {
+      "TEST_evidence": "\u6d4b\u8bd5\u70b9\u4f30\u8ba1\u4e3a\u8d1f\uff0c\u914d\u5bf9\u533a\u95f4\u5305\u542b\u96f6\uff1b\u5dee\u5f02\u65b9\u5411\u5c1a\u4e0d\u786e\u5b9a\u3002",
+      "five_seed": {
+        "G_minus_PDMS_points": 0.39512194871509765,
+        "G_plus_PDMS_points": 0.386876962718012,
+        "current_PDMS": 90.46352928289066,
+        "current_zero": {
+          "all_fixed_seeds_zero_scenes": 286,
+          "any_seed_zero_scenes": 535,
+          "scene_mean_exact_zero_scenes": 286,
+          "scene_mean_near_zero_le1e6_scenes": 286,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.033047917009715135
+        },
+        "delta_PDMS_points": -0.008244985997085686,
+        "native_mean_delta_points": {
+          "comfort": -0.02634612218014161,
+          "drivable_area_compliance": -0.054338876996542065,
+          "driving_direction_compliance": -0.0164663263625885,
+          "ego_progress": 0.4637521742313297,
+          "no_at_fault_collisions": -0.12267413140128437,
+          "score": -0.008244985997085686,
+          "time_to_collision_within_bound": -0.3721389757945002
+        },
+        "new_joint_violation": {
+          "paired_seed_event_count": 369,
+          "per_draw_rate": {
+            "CI95": [
+              0.0050531747997688056,
+              0.007196477407977092
+            ],
+            "CI95_percentage_points": [
+              0.5053174799768806,
+              0.7196477407977092
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.0060760744277951586,
+            "mean_percentage_points": 0.6076074427795158,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.0060760744277951586,
+            "rate_percent": 0.6076074427795158,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_any_seed_count": 280
+        },
+        "new_zero": {
+          "paired_seed_event_count": 172,
+          "per_draw_rate": {
+            "CI95": [
+              0.0021921851452701897,
+              0.003499388229585409
+            ],
+            "CI95_percentage_points": [
+              0.21921851452701896,
+              0.3499388229585409
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.002832208134365223,
+            "mean_percentage_points": 0.2832208134365223,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.002832208134365223,
+            "rate_percent": 0.2832208134365223,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_all_fixed_seeds_count": 0,
+          "scene_any_seed_count": 129
+        },
+        "reference_PDMS": 90.47177426888774,
+        "reference_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "repaired_joint_violation": {
+          "paired_seed_event_count": 125,
+          "scene_any_seed_count": 105
+        },
+        "repaired_zero": {
+          "paired_seed_event_count": 67,
+          "scene_any_seed_count": 57
+        }
+      },
+      "five_seed_CI95_PDMS_points": [
+        -0.08326463388741678,
+        0.06388038265637336
+      ],
+      "five_seed_safety": {
+        "drivable_area_compliance": {
+          "current_violation_rate": 0.020154783467808333,
+          "new_paired_seed_event_count": 76,
+          "recovered_paired_seed_event_count": 43,
+          "reference_violation_rate": 0.019611394697842913
+        },
+        "no_at_fault_collisions": {
+          "current_violation_rate": 0.014375102914539766,
+          "new_paired_seed_event_count": 101,
+          "recovered_paired_seed_event_count": 24,
+          "reference_violation_rate": 0.01310719578462045
+        },
+        "time_to_collision_within_bound": {
+          "current_violation_rate": 0.039519183270212414,
+          "new_paired_seed_event_count": 308,
+          "recovered_paired_seed_event_count": 82,
+          "reference_violation_rate": 0.03579779351226741
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "seed2101": {
+        "G_minus_PDMS_points": 0.4968173294013163,
+        "G_plus_PDMS_points": 0.4090623163255335,
+        "current_PDMS": 90.42540908962322,
+        "delta_PDMS_points": -0.08775501307578268,
+        "new_zero_count": 41,
+        "reference_PDMS": 90.513164102699,
+        "safety": {
+          "drivable_area_compliance": {
+            "current_mean_percent": 97.96640869422032,
+            "new_violations": 17,
+            "recoveries": 8,
+            "reference_mean_percent": 98.04050716285197,
+            "violation_rate_difference": {
+              "CI95": [
+                -9.168244345076131e-05,
+                0.0016239968982084605
+              ],
+              "CI95_percentage_points": [
+                -0.009168244345076132,
+                0.16239968982084604
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0007409846863164828,
+              "mean_percentage_points": 0.07409846863164828,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "no_at_fault_collisions": {
+            "current_mean_percent": 98.62094516713321,
+            "new_violations": 25,
+            "recoveries": 7,
+            "reference_mean_percent": 98.76502552280586,
+            "violation_rate_difference": {
+              "CI95": [
+                0.00047765378357448045,
+                0.002630581055248866
+              ],
+              "CI95_percentage_points": [
+                0.04776537835744805,
+                0.2630581055248866
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0014819693726329656,
+              "mean_percentage_points": 0.14819693726329655,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "time_to_collision_within_bound": {
+            "current_mean_percent": 95.99868269389098,
+            "new_violations": 72,
+            "recoveries": 10,
+            "reference_mean_percent": 96.50913881113124,
+            "violation_rate_difference": {
+              "CI95": [
+                0.0035776647933786834,
+                0.006899066876072778
+              ],
+              "CI95_percentage_points": [
+                0.3577664793378683,
+                0.6899066876072778
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.005104561172402437,
+              "mean_percentage_points": 0.5104561172402436,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          }
+        },
+        "zero_recoveries": 15
+      },
+      "seed2101_CI95_PDMS_points": [
+        -0.22127415590307425,
+        0.03226882498188208
+      ],
+      "summary_sha256": "514001afde5df0f0310de4a439de4015e8b79fd50971f7a439e194cb67ffef89",
+      "training_repetitions": 1
+    },
+    "L1_CENTER_V1": {
+      "TEST_evidence": "\u6d4b\u8bd5\u70b9\u4f30\u8ba1\u4e3a\u6b63\uff0c\u4f46\u914d\u5bf9\u533a\u95f4\u5305\u542b\u96f6\uff0c\u7a33\u5b9a\u6027\u4e0d\u8db3\uff1b\u4e0d\u80fd\u636e\u6b64\u8ba4\u5b9a\u65b9\u6cd5\u63d0\u5347\u6210\u7acb\u3002",
+      "five_seed": {
+        "G_minus_PDMS_points": 0.10629440143815744,
+        "G_plus_PDMS_points": 0.12815521075117822,
+        "current_PDMS": 90.49363507820077,
+        "current_zero": {
+          "all_fixed_seeds_zero_scenes": 273,
+          "any_seed_zero_scenes": 501,
+          "scene_mean_exact_zero_scenes": 273,
+          "scene_mean_near_zero_le1e6_scenes": 273,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03126955376255557
+        },
+        "delta_PDMS_points": 0.02186080931302077,
+        "native_mean_delta_points": {
+          "comfort": -0.011526428453811952,
+          "drivable_area_compliance": 0.01152642845381195,
+          "driving_direction_compliance": -0.0032932652725177047,
+          "ego_progress": 0.038982462071038136,
+          "no_at_fault_collisions": -0.0074098468631648255,
+          "score": 0.02186080931302077,
+          "time_to_collision_within_bound": 0.001646632636258857
+        },
+        "new_joint_violation": {
+          "paired_seed_event_count": 71,
+          "per_draw_rate": {
+            "CI95": [
+              0.0008319144841402042,
+              0.0015426665981293707
+            ],
+            "CI95_percentage_points": [
+              0.08319144841402042,
+              0.15426665981293708
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.0011691091717437841,
+            "mean_percentage_points": 0.11691091717437842,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.0011691091717437841,
+            "rate_percent": 0.11691091717437842,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_any_seed_count": 68
+        },
+        "new_zero": {
+          "paired_seed_event_count": 42,
+          "per_draw_rate": {
+            "CI95": [
+              0.00044894765905537234,
+              0.0009793470067512582
+            ],
+            "CI95_percentage_points": [
+              0.04489476590553723,
+              0.09793470067512582
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.0006915857072287174,
+            "mean_percentage_points": 0.06915857072287174,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.0006915857072287174,
+            "rate_percent": 0.06915857072287174,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_all_fixed_seeds_count": 0,
+          "scene_any_seed_count": 39
+        },
+        "reference_PDMS": 90.47177426888774,
+        "reference_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "repaired_joint_violation": {
+          "paired_seed_event_count": 81,
+          "scene_any_seed_count": 74
+        },
+        "repaired_zero": {
+          "paired_seed_event_count": 45,
+          "scene_any_seed_count": 40
+        }
+      },
+      "five_seed_CI95_PDMS_points": [
+        -0.013998195008602764,
+        0.05624903046723488
+      ],
+      "five_seed_safety": {
+        "drivable_area_compliance": {
+          "current_violation_rate": 0.01949613041330479,
+          "new_paired_seed_event_count": 23,
+          "recovered_paired_seed_event_count": 30,
+          "reference_violation_rate": 0.019611394697842913
+        },
+        "no_at_fault_collisions": {
+          "current_violation_rate": 0.013189527416433394,
+          "new_paired_seed_event_count": 21,
+          "recovered_paired_seed_event_count": 16,
+          "reference_violation_rate": 0.01310719578462045
+        },
+        "time_to_collision_within_bound": {
+          "current_violation_rate": 0.03578132718590483,
+          "new_paired_seed_event_count": 50,
+          "recovered_paired_seed_event_count": 51,
+          "reference_violation_rate": 0.03579779351226741
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "seed2101": {
+        "G_minus_PDMS_points": 0.16299301530863752,
+        "G_plus_PDMS_points": 0.1522353719736144,
+        "current_PDMS": 90.50240645936398,
+        "delta_PDMS_points": -0.010757643335023085,
+        "new_zero_count": 13,
+        "reference_PDMS": 90.513164102699,
+        "safety": {
+          "drivable_area_compliance": {
+            "current_mean_percent": 98.02404083648938,
+            "new_violations": 10,
+            "recoveries": 8,
+            "reference_mean_percent": 98.04050716285197,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.00046394173014269294,
+                0.0008660389405427504
+              ],
+              "CI95_percentage_points": [
+                -0.04639417301426929,
+                0.08660389405427504
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.00016466326362588507,
+              "mean_percentage_points": 0.016466326362588508,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "no_at_fault_collisions": {
+            "current_mean_percent": 98.76090894121522,
+            "new_violations": 4,
+            "recoveries": 3,
+            "reference_mean_percent": 98.76502552280586,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.0002534383583767959,
+                0.0004747318156227994
+              ],
+              "CI95_percentage_points": [
+                -0.025343835837679587,
+                0.04747318156227994
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 8.233163181294254e-05,
+              "mean_percentage_points": 0.008233163181294254,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "time_to_collision_within_bound": {
+            "current_mean_percent": 96.47620615840606,
+            "new_violations": 10,
+            "recoveries": 6,
+            "reference_mean_percent": 96.50913881113124,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.00034303609253740614,
+                0.0009905705445557784
+              ],
+              "CI95_percentage_points": [
+                -0.03430360925374061,
+                0.09905705445557783
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.00032932652725177014,
+              "mean_percentage_points": 0.032932652725177015,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          }
+        },
+        "zero_recoveries": 11
+      },
+      "seed2101_CI95_PDMS_points": [
+        -0.09012612278378665,
+        0.06346802788330329
+      ],
+      "summary_sha256": "9bc464d2e8cb8ac0aa7a29236c18c56fc301ae13dbc3698f72a76cd1b6c7fa3a",
+      "training_repetitions": 1
+    },
+    "L2": {
+      "TEST_evidence": "\u6d4b\u8bd5\u70b9\u4f30\u8ba1\u4e3a\u6b63\uff0c\u4f46\u914d\u5bf9\u533a\u95f4\u5305\u542b\u96f6\uff0c\u7a33\u5b9a\u6027\u4e0d\u8db3\uff1b\u4e0d\u80fd\u636e\u6b64\u8ba4\u5b9a\u65b9\u6cd5\u63d0\u5347\u6210\u7acb\u3002",
+      "five_seed": {
+        "G_minus_PDMS_points": 0.010251192441530532,
+        "G_plus_PDMS_points": 0.01178491545293608,
+        "current_PDMS": 90.47330799189915,
+        "current_zero": {
+          "all_fixed_seeds_zero_scenes": 275,
+          "any_seed_zero_scenes": 503,
+          "scene_mean_exact_zero_scenes": 275,
+          "scene_mean_near_zero_le1e6_scenes": 275,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03133541906800593
+        },
+        "delta_PDMS_points": 0.0015337230114055474,
+        "native_mean_delta_points": {
+          "comfort": -0.0016466326362588502,
+          "drivable_area_compliance": -0.0016466326362588512,
+          "driving_direction_compliance": -0.0008233163181294258,
+          "ego_progress": 0.011585475756310066,
+          "no_at_fault_collisions": -4.570323664684491e-19,
+          "score": 0.0015337230114055474,
+          "time_to_collision_within_bound": -0.011526428453811957
+        },
+        "new_joint_violation": {
+          "paired_seed_event_count": 8,
+          "per_draw_rate": {
+            "CI95": [
+              4.794496064790577e-05,
+              0.00022878075504124165
+            ],
+            "CI95_percentage_points": [
+              0.004794496064790577,
+              0.022878075504124164
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.00013173061090070807,
+            "mean_percentage_points": 0.013173061090070807,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.00013173061090070807,
+            "rate_percent": 0.013173061090070807,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_any_seed_count": 8
+        },
+        "new_zero": {
+          "paired_seed_event_count": 4,
+          "per_draw_rate": {
+            "CI95": [
+              0.0,
+              0.00015154664601095904
+            ],
+            "CI95_percentage_points": [
+              0.0,
+              0.015154664601095904
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 6.586530545035404e-05,
+            "mean_percentage_points": 0.006586530545035403,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 6.586530545035404e-05,
+            "rate_percent": 0.006586530545035403,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_all_fixed_seeds_count": 0,
+          "scene_any_seed_count": 3
+        },
+        "reference_PDMS": 90.47177426888774,
+        "reference_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "repaired_joint_violation": {
+          "paired_seed_event_count": 4,
+          "scene_any_seed_count": 4
+        },
+        "repaired_zero": {
+          "paired_seed_event_count": 3,
+          "scene_any_seed_count": 3
+        }
+      },
+      "five_seed_CI95_PDMS_points": [
+        -0.007214916268586245,
+        0.009306684941104553
+      ],
+      "five_seed_safety": {
+        "drivable_area_compliance": {
+          "current_violation_rate": 0.0196278610242055,
+          "new_paired_seed_event_count": 2,
+          "recovered_paired_seed_event_count": 1,
+          "reference_violation_rate": 0.019611394697842913
+        },
+        "no_at_fault_collisions": {
+          "current_violation_rate": 0.01310719578462045,
+          "new_paired_seed_event_count": 2,
+          "recovered_paired_seed_event_count": 2,
+          "reference_violation_rate": 0.01310719578462045
+        },
+        "time_to_collision_within_bound": {
+          "current_violation_rate": 0.03591305779680553,
+          "new_paired_seed_event_count": 9,
+          "recovered_paired_seed_event_count": 2,
+          "reference_violation_rate": 0.03579779351226741
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "seed2101": {
+        "G_minus_PDMS_points": 0.026765364578817473,
+        "G_plus_PDMS_points": 0.01553963473605324,
+        "current_PDMS": 90.50193837285624,
+        "delta_PDMS_points": -0.011225729842764234,
+        "new_zero_count": 3,
+        "reference_PDMS": 90.513164102699,
+        "safety": {
+          "drivable_area_compliance": {
+            "current_mean_percent": 98.03227399967068,
+            "new_violations": 2,
+            "recoveries": 1,
+            "reference_mean_percent": 98.04050716285197,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.00017431265534567593,
+                0.0003745403648638539
+              ],
+              "CI95_percentage_points": [
+                -0.017431265534567593,
+                0.037454036486385386
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 8.233163181294254e-05,
+              "mean_percentage_points": 0.008233163181294254,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "no_at_fault_collisions": {
+            "current_mean_percent": 98.75679235962457,
+            "new_violations": 1,
+            "recoveries": 0,
+            "reference_mean_percent": 98.76502552280586,
+            "violation_rate_difference": {
+              "CI95": [
+                0.0,
+                0.000265304773914989
+              ],
+              "CI95_percentage_points": [
+                0.0,
+                0.0265304773914989
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 8.233163181294254e-05,
+              "mean_percentage_points": 0.008233163181294254,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "time_to_collision_within_bound": {
+            "current_mean_percent": 96.47620615840606,
+            "new_violations": 4,
+            "recoveries": 0,
+            "reference_mean_percent": 96.50913881113124,
+            "violation_rate_difference": {
+              "CI95": [
+                7.093734294759724e-05,
+                0.0007087360773771377
+              ],
+              "CI95_percentage_points": [
+                0.007093734294759724,
+                0.07087360773771377
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.00032932652725177014,
+              "mean_percentage_points": 0.032932652725177015,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          }
+        },
+        "zero_recoveries": 1
+      },
+      "seed2101_CI95_PDMS_points": [
+        -0.03961345908363099,
+        0.016420619072262367
+      ],
+      "summary_sha256": "92af7e8663f1d2f3224a37dd093d59371401f192fc40f92126bb2b095dd412ce",
+      "training_repetitions": 1
+    },
+    "L3": {
+      "TEST_evidence": "\u6d4b\u8bd5\u70b9\u4f30\u8ba1\u4e3a\u8d1f\uff0c\u914d\u5bf9\u533a\u95f4\u5305\u542b\u96f6\uff1b\u5dee\u5f02\u65b9\u5411\u5c1a\u4e0d\u786e\u5b9a\u3002",
+      "five_seed": {
+        "G_minus_PDMS_points": 0.5472449470294664,
+        "G_plus_PDMS_points": 0.46366362033196157,
+        "current_PDMS": 90.38819294219024,
+        "current_zero": {
+          "all_fixed_seeds_zero_scenes": 288,
+          "any_seed_zero_scenes": 565,
+          "scene_mean_exact_zero_scenes": 288,
+          "scene_mean_near_zero_le1e6_scenes": 288,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.034233492507821504
+        },
+        "delta_PDMS_points": -0.08358132669750477,
+        "native_mean_delta_points": {
+          "comfort": -0.07080520335913057,
+          "drivable_area_compliance": -0.10538448872056645,
+          "driving_direction_compliance": -0.02058290795323563,
+          "ego_progress": 0.5428004074937611,
+          "no_at_fault_collisions": -0.19265601844228553,
+          "score": -0.08358132669750477,
+          "time_to_collision_within_bound": -0.53021570887535
+        },
+        "new_joint_violation": {
+          "paired_seed_event_count": 497,
+          "per_draw_rate": {
+            "CI95": [
+              0.006852674729563101,
+              0.00963309572624265
+            ],
+            "CI95_percentage_points": [
+              0.6852674729563102,
+              0.9633095726242651
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.008183764202206489,
+            "mean_percentage_points": 0.8183764202206489,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.008183764202206489,
+            "rate_percent": 0.8183764202206489,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_any_seed_count": 353
+        },
+        "new_zero": {
+          "paired_seed_event_count": 245,
+          "per_draw_rate": {
+            "CI95": [
+              0.0032343596571528144,
+              0.004900543320949032
+            ],
+            "CI95_percentage_points": [
+              0.32343596571528144,
+              0.49005433209490323
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.004034249958834184,
+            "mean_percentage_points": 0.4034249958834184,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.004034249958834184,
+            "rate_percent": 0.4034249958834184,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_all_fixed_seeds_count": 2,
+          "scene_any_seed_count": 171
+        },
+        "reference_PDMS": 90.47177426888774,
+        "reference_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "repaired_joint_violation": {
+          "paired_seed_event_count": 133,
+          "scene_any_seed_count": 109
+        },
+        "repaired_zero": {
+          "paired_seed_event_count": 68,
+          "scene_any_seed_count": 58
+        }
+      },
+      "five_seed_CI95_PDMS_points": [
+        -0.182402875436781,
+        0.007796786041103324
+      ],
+      "five_seed_safety": {
+        "drivable_area_compliance": {
+          "current_violation_rate": 0.020665239585048574,
+          "new_paired_seed_event_count": 109,
+          "recovered_paired_seed_event_count": 45,
+          "reference_violation_rate": 0.019611394697842913
+        },
+        "no_at_fault_collisions": {
+          "current_violation_rate": 0.015083154948131072,
+          "new_paired_seed_event_count": 143,
+          "recovered_paired_seed_event_count": 23,
+          "reference_violation_rate": 0.01310719578462045
+        },
+        "time_to_collision_within_bound": {
+          "current_violation_rate": 0.04109995060102091,
+          "new_paired_seed_event_count": 410,
+          "recovered_paired_seed_event_count": 88,
+          "reference_violation_rate": 0.03579779351226741
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "seed2101": {
+        "G_minus_PDMS_points": 0.6120430873982896,
+        "G_plus_PDMS_points": 0.48799470433039366,
+        "current_PDMS": 90.38911571963109,
+        "delta_PDMS_points": -0.12404838306789599,
+        "new_zero_count": 47,
+        "reference_PDMS": 90.513164102699,
+        "safety": {
+          "drivable_area_compliance": {
+            "current_mean_percent": 97.95817553103903,
+            "new_violations": 18,
+            "recoveries": 8,
+            "reference_mean_percent": 98.04050716285197,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.00015163876017638652,
+                0.001775275096915444
+              ],
+              "CI95_percentage_points": [
+                -0.015163876017638652,
+                0.1775275096915444
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0008233163181294253,
+              "mean_percentage_points": 0.08233163181294254,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "no_at_fault_collisions": {
+            "current_mean_percent": 98.5756627696361,
+            "new_violations": 31,
+            "recoveries": 7,
+            "reference_mean_percent": 98.76502552280586,
+            "violation_rate_difference": {
+              "CI95": [
+                0.0007571250207360703,
+                0.003394708395958625
+              ],
+              "CI95_percentage_points": [
+                0.07571250207360702,
+                0.3394708395958625
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0019759591635106206,
+              "mean_percentage_points": 0.19759591635106205,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "time_to_collision_within_bound": {
+            "current_mean_percent": 95.80108677753994,
+            "new_violations": 97,
+            "recoveries": 11,
+            "reference_mean_percent": 96.50913881113124,
+            "violation_rate_difference": {
+              "CI95": [
+                0.005150883131595622,
+                0.00933661668797868
+              ],
+              "CI95_percentage_points": [
+                0.5150883131595622,
+                0.933661668797868
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.007080520335913058,
+              "mean_percentage_points": 0.7080520335913058,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          }
+        },
+        "zero_recoveries": 15
+      },
+      "seed2101_CI95_PDMS_points": [
+        -0.2944540526609201,
+        0.03119885338362421
+      ],
+      "summary_sha256": "661fbd920f5bd87853073d5da302bce0f9ea34c3f64cfb26e65d9dea0ea8db5f",
+      "training_repetitions": 1
+    },
+    "SCALE07": {
+      "TEST_evidence": "\u5b8c\u6574NAVTEST\u7684\u6d4b\u8bd5\u5747\u503c\u63d0\u9ad8\uff0c\u56fa\u5b9a\u63a8\u7406\u79cd\u5b50\u4e0b\u914d\u5bf9log\u533a\u95f4\u4e3a\u6b63\uff1b\u4ec5\u4e00\u6b21\u8bad\u7ec3\uff0c\u8bad\u7ec3\u7a33\u5b9a\u6027\u5c1a\u672a\u9a8c\u8bc1\u3002",
+      "five_seed": {
+        "G_minus_PDMS_points": 0.20117850385791772,
+        "G_plus_PDMS_points": 0.2839518877264644,
+        "current_PDMS": 90.55454765275628,
+        "current_zero": {
+          "all_fixed_seeds_zero_scenes": 303,
+          "any_seed_zero_scenes": 443,
+          "scene_mean_exact_zero_scenes": 303,
+          "scene_mean_near_zero_le1e6_scenes": 303,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.030610900708052034
+        },
+        "delta_PDMS_points": 0.08277338386854663,
+        "native_mean_delta_points": {
+          "comfort": 0.01811295899884735,
+          "drivable_area_compliance": 0.04939897908776551,
+          "driving_direction_compliance": 0.012349744771941378,
+          "ego_progress": 0.007027176470236871,
+          "no_at_fault_collisions": 0.023052856907623903,
+          "score": 0.08277338386854663,
+          "time_to_collision_within_bound": 0.1070311213568253
+        },
+        "new_joint_violation": {
+          "paired_seed_event_count": 144,
+          "per_draw_rate": {
+            "CI95": [
+              0.0018848947564530625,
+              0.0028870712107132625
+            ],
+            "CI95_percentage_points": [
+              0.18848947564530624,
+              0.28870712107132623
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.002371150996212745,
+            "mean_percentage_points": 0.2371150996212745,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.002371150996212745,
+            "rate_percent": 0.2371150996212745,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_any_seed_count": 121
+        },
+        "new_zero": {
+          "paired_seed_event_count": 86,
+          "per_draw_rate": {
+            "CI95": [
+              0.0010835240217541195,
+              0.0017940511995794956
+            ],
+            "CI95_percentage_points": [
+              0.10835240217541195,
+              0.17940511995794955
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.0014161040671826115,
+            "mean_percentage_points": 0.14161040671826114,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.0014161040671826115,
+            "rate_percent": 0.14161040671826114,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_all_fixed_seeds_count": 0,
+          "scene_any_seed_count": 70
+        },
+        "reference_PDMS": 90.47177426888774,
+        "reference_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "repaired_joint_violation": {
+          "paired_seed_event_count": 239,
+          "scene_any_seed_count": 194
+        },
+        "repaired_zero": {
+          "paired_seed_event_count": 129,
+          "scene_any_seed_count": 112
+        }
+      },
+      "five_seed_CI95_PDMS_points": [
+        0.03038034426086029,
+        0.14111090813882893
+      ],
+      "five_seed_safety": {
+        "drivable_area_compliance": {
+          "current_violation_rate": 0.019117404906965257,
+          "new_paired_seed_event_count": 50,
+          "recovered_paired_seed_event_count": 80,
+          "reference_violation_rate": 0.019611394697842913
+        },
+        "no_at_fault_collisions": {
+          "current_violation_rate": 0.012876667215544212,
+          "new_paired_seed_event_count": 37,
+          "recovered_paired_seed_event_count": 51,
+          "reference_violation_rate": 0.01310719578462045
+        },
+        "time_to_collision_within_bound": {
+          "current_violation_rate": 0.03472748229869916,
+          "new_paired_seed_event_count": 100,
+          "recovered_paired_seed_event_count": 165,
+          "reference_violation_rate": 0.03579779351226741
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "seed2101": {
+        "G_minus_PDMS_points": 0.2622232659347303,
+        "G_plus_PDMS_points": 0.3572027574850803,
+        "current_PDMS": 90.60814359424936,
+        "delta_PDMS_points": 0.09497949155035008,
+        "new_zero_count": 16,
+        "reference_PDMS": 90.513164102699,
+        "safety": {
+          "drivable_area_compliance": {
+            "current_mean_percent": 98.06520665239586,
+            "new_violations": 10,
+            "recoveries": 13,
+            "reference_mean_percent": 98.04050716285197,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.0012038038193098982,
+                0.0006119836437201636
+              ],
+              "CI95_percentage_points": [
+                -0.12038038193098982,
+                0.06119836437201636
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": -0.0002469948954388276,
+              "mean_percentage_points": -0.024699489543882756,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "no_at_fault_collisions": {
+            "current_mean_percent": 98.81030792030298,
+            "new_violations": 7,
+            "recoveries": 12,
+            "reference_mean_percent": 98.76502552280586,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.001079900040659159,
+                0.00025453465115941626
+              ],
+              "CI95_percentage_points": [
+                -0.1079900040659159,
+                0.025453465115941626
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": -0.00041165815906471265,
+              "mean_percentage_points": -0.04116581590647127,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "time_to_collision_within_bound": {
+            "current_mean_percent": 96.63263625885065,
+            "new_violations": 21,
+            "recoveries": 36,
+            "reference_mean_percent": 96.50913881113124,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.0024530080073380716,
+                -8.019620197592362e-05
+              ],
+              "CI95_percentage_points": [
+                -0.24530080073380717,
+                -0.008019620197592362
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": -0.001234974477194138,
+              "mean_percentage_points": -0.12349744771941379,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          }
+        },
+        "zero_recoveries": 25
+      },
+      "seed2101_CI95_PDMS_points": [
+        -0.007429734876006457,
+        0.2055479578244382
+      ],
+      "summary_sha256": "696ed139077faf6c6bb5bea37775c34082661d5c30e92033b034b6f762cd6716",
+      "training_repetitions": 0
+    },
+    "SCALE13": {
+      "TEST_evidence": "\u5b8c\u6574NAVTEST\u7684\u6d4b\u8bd5\u5747\u503c\u4e0b\u964d\uff0c\u56fa\u5b9a\u63a8\u7406\u79cd\u5b50\u4e0b\u914d\u5bf9log\u533a\u95f4\u4e3a\u8d1f\u3002",
+      "five_seed": {
+        "G_minus_PDMS_points": 0.42478841132254413,
+        "G_plus_PDMS_points": 0.21395865312203569,
+        "current_PDMS": 90.26094451068724,
+        "current_zero": {
+          "all_fixed_seeds_zero_scenes": 243,
+          "any_seed_zero_scenes": 618,
+          "scene_mean_exact_zero_scenes": 243,
+          "scene_mean_near_zero_le1e6_scenes": 243,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.033064383336077724
+        },
+        "delta_PDMS_points": -0.21082975820050845,
+        "native_mean_delta_points": {
+          "comfort": -0.11197101926560182,
+          "drivable_area_compliance": -0.13337724353696687,
+          "driving_direction_compliance": -0.024699489543882753,
+          "ego_progress": -0.11102362591879164,
+          "no_at_fault_collisions": -0.052692244360283205,
+          "score": -0.21082975820050845,
+          "time_to_collision_within_bound": -0.18606948789725006
+        },
+        "new_joint_violation": {
+          "paired_seed_event_count": 325,
+          "per_draw_rate": {
+            "CI95": [
+              0.00446377723277045,
+              0.0062976508767458965
+            ],
+            "CI95_percentage_points": [
+              0.446377723277045,
+              0.6297650876745896
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.005351556067841264,
+            "mean_percentage_points": 0.5351556067841264,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.005351556067841264,
+            "rate_percent": 0.5351556067841264,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_any_seed_count": 294
+        },
+        "new_zero": {
+          "paired_seed_event_count": 193,
+          "per_draw_rate": {
+            "CI95": [
+              0.002471399071759577,
+              0.003899422238261185
+            ],
+            "CI95_percentage_points": [
+              0.2471399071759577,
+              0.38994222382611854
+            ],
+            "bootstrap_repeats": 2000,
+            "inference_seed_uncertainty_included": false,
+            "interpretation": "Finite-sample scene-weighted event rate",
+            "limited_log_resolution": false,
+            "logs": 136,
+            "mean": 0.0031780009879795817,
+            "mean_percentage_points": 0.3178000987979582,
+            "observed_any_event": true,
+            "one_log_interval_is_degenerate": false,
+            "quantity": "event_rate_or_rate_difference",
+            "rate": 0.0031780009879795817,
+            "rate_percent": 0.3178000987979582,
+            "scenes": 12146,
+            "seed": 42,
+            "training_seed_uncertainty_included": false,
+            "zero_observed_event_does_not_prove_zero_true_probability": false
+          },
+          "scene_all_fixed_seeds_count": 0,
+          "scene_any_seed_count": 172
+        },
+        "reference_PDMS": 90.47177426888774,
+        "reference_zero": {
+          "all_fixed_seeds_zero_scenes": 276,
+          "any_seed_zero_scenes": 504,
+          "scene_mean_exact_zero_scenes": 276,
+          "scene_mean_near_zero_le1e6_scenes": 276,
+          "semantics": "Different events explicitly named; equal counts do not make their definitions interchangeable",
+          "single_draw_zero_rate": 0.03131895274164334
+        },
+        "repaired_joint_violation": {
+          "paired_seed_event_count": 151,
+          "scene_any_seed_count": 132
+        },
+        "repaired_zero": {
+          "paired_seed_event_count": 87,
+          "scene_any_seed_count": 74
+        }
+      },
+      "five_seed_CI95_PDMS_points": [
+        -0.2833446821470037,
+        -0.14742886394838564
+      ],
+      "five_seed_safety": {
+        "drivable_area_compliance": {
+          "current_violation_rate": 0.02094516713321258,
+          "new_paired_seed_event_count": 135,
+          "recovered_paired_seed_event_count": 54,
+          "reference_violation_rate": 0.019611394697842913
+        },
+        "no_at_fault_collisions": {
+          "current_violation_rate": 0.01368351720731105,
+          "new_paired_seed_event_count": 72,
+          "recovered_paired_seed_event_count": 37,
+          "reference_violation_rate": 0.01310719578462045
+        },
+        "time_to_collision_within_bound": {
+          "current_violation_rate": 0.03765848839123991,
+          "new_paired_seed_event_count": 212,
+          "recovered_paired_seed_event_count": 99,
+          "reference_violation_rate": 0.03579779351226741
+        }
+      },
+      "inference_seeds": [
+        2101,
+        2102,
+        2103,
+        2104,
+        2105
+      ],
+      "seed2101": {
+        "G_minus_PDMS_points": 0.44808166639832697,
+        "G_plus_PDMS_points": 0.2781959207213187,
+        "current_PDMS": 90.34327835702199,
+        "delta_PDMS_points": -0.16988574567700826,
+        "new_zero_count": 28,
+        "reference_PDMS": 90.513164102699,
+        "safety": {
+          "drivable_area_compliance": {
+            "current_mean_percent": 97.92524287831384,
+            "new_violations": 24,
+            "recoveries": 10,
+            "reference_mean_percent": 98.04050716285197,
+            "violation_rate_difference": {
+              "CI95": [
+                0.00021665158528351677,
+                0.0022238448985865615
+              ],
+              "CI95_percentage_points": [
+                0.02166515852835168,
+                0.22238448985865614
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.0011526428453811955,
+              "mean_percentage_points": 0.11526428453811956,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "no_at_fault_collisions": {
+            "current_mean_percent": 98.79795817553104,
+            "new_violations": 7,
+            "recoveries": 11,
+            "reference_mean_percent": 98.76502552280586,
+            "violation_rate_difference": {
+              "CI95": [
+                -0.0010205850899311691,
+                0.00033671852320075194
+              ],
+              "CI95_percentage_points": [
+                -0.10205850899311691,
+                0.03367185232007519
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": -0.00032932652725177014,
+              "mean_percentage_points": -0.032932652725177015,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          },
+          "time_to_collision_within_bound": {
+            "current_mean_percent": 96.2621439156924,
+            "new_violations": 46,
+            "recoveries": 16,
+            "reference_mean_percent": 96.50913881113124,
+            "violation_rate_difference": {
+              "CI95": [
+                0.001163202827799828,
+                0.00391154797597923
+              ],
+              "CI95_percentage_points": [
+                0.1163202827799828,
+                0.39115479759792304
+              ],
+              "bootstrap_repeats": 2000,
+              "inference_seed_uncertainty_included": false,
+              "limited_log_resolution": false,
+              "logs": 136,
+              "mean": 0.002469948954388276,
+              "mean_percentage_points": 0.24699489543882758,
+              "one_log_interval_is_degenerate": false,
+              "quantity": "event_rate_or_rate_difference",
+              "scenes": 12146,
+              "seed": 42,
+              "training_seed_uncertainty_included": false
+            }
+          }
+        },
+        "zero_recoveries": 20
+      },
+      "seed2101_CI95_PDMS_points": [
+        -0.29601331363853056,
+        -0.057312298686725355
+      ],
+      "summary_sha256": "f8509d9db6378d448e7c06423bb66d4ad8740ed3b7d248430fea44d7a3e28cac",
+      "training_repetitions": 0
+    }
+  },
+  "new_GPU_or_scorer_calls": 0,
+  "paired_control_contrasts": {
+    "L1_CENTER_V1_minus_L1": {
+      "CI95_PDMS_points": [
+        -0.04164244086146464,
+        0.10109077695327848
+      ],
+      "G_minus_PDMS_points": 0.37378432729250843,
+      "G_plus_PDMS_points": 0.4038901226026149,
+      "delta_PDMS_points": 0.030105795310106463,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L1_CENTER_V1_minus_SCALE07": {
+      "CI95_PDMS_points": [
+        -0.1201119194471795,
+        -0.003742047049672545
+      ],
+      "G_minus_PDMS_points": 0.3009660943549006,
+      "G_plus_PDMS_points": 0.2400535197993747,
+      "delta_PDMS_points": -0.060912574555525865,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L1_CENTER_V1_minus_SCALE13": {
+      "CI95_PDMS_points": [
+        0.16426072220910054,
+        0.31807702789333886
+      ],
+      "G_minus_PDMS_points": 0.21459668805714815,
+      "G_plus_PDMS_points": 0.4472872555706774,
+      "delta_PDMS_points": 0.2326905675135292,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L1_minus_L2": {
+      "CI95_PDMS_points": [
+        -0.08239225583371175,
+        0.06373943517494343
+      ],
+      "G_minus_PDMS_points": 0.3898109264294019,
+      "G_plus_PDMS_points": 0.3800322174209107,
+      "delta_PDMS_points": -0.009778709008491239,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L1_minus_L3": {
+      "CI95_PDMS_points": [
+        0.03621128712739778,
+        0.1194928226887147
+      ],
+      "G_minus_PDMS_points": 0.14415208821822748,
+      "G_plus_PDMS_points": 0.21948842891864653,
+      "delta_PDMS_points": 0.07533634070041909,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L1_minus_SCALE07": {
+      "CI95_PDMS_points": [
+        -0.18838375550034872,
+        7.82217102024601e-05
+      ],
+      "G_minus_PDMS_points": 0.5189998809031207,
+      "G_plus_PDMS_points": 0.4279815110374884,
+      "delta_PDMS_points": -0.09101836986563232,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L1_minus_SCALE13": {
+      "CI95_PDMS_points": [
+        0.11996270859411776,
+        0.30816289386156
+      ],
+      "G_minus_PDMS_points": 0.37917275491597446,
+      "G_plus_PDMS_points": 0.5817575271193972,
+      "delta_PDMS_points": 0.20258477220342275,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L2_minus_SCALE07": {
+      "CI95_PDMS_points": [
+        -0.14077277915145156,
+        -0.030127221347834177
+      ],
+      "G_minus_PDMS_points": 0.2822454255631542,
+      "G_plus_PDMS_points": 0.20100576470601308,
+      "delta_PDMS_points": -0.0812396608571411,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L2_minus_SCALE13": {
+      "CI95_PDMS_points": [
+        0.1485185281998253,
+        0.2865722375163957
+      ],
+      "G_minus_PDMS_points": 0.21392118189517023,
+      "G_plus_PDMS_points": 0.4262846631070841,
+      "delta_PDMS_points": 0.21236348121191398,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L3_minus_SCALE07": {
+      "CI95_PDMS_points": [
+        -0.2945745335237529,
+        -0.05148204022430899
+      ],
+      "G_minus_PDMS_points": 0.6690627342563034,
+      "G_plus_PDMS_points": 0.5027080236902519,
+      "delta_PDMS_points": -0.1663547105660514,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    },
+    "L3_minus_SCALE13": {
+      "CI95_PDMS_points": [
+        0.02894340916438817,
+        0.23449480780771514
+      ],
+      "G_minus_PDMS_points": 0.4999849602790042,
+      "G_plus_PDMS_points": 0.6272333917820079,
+      "delta_PDMS_points": 0.1272484315030037,
+      "logs": 136,
+      "multiple_contrasts": "Nominal paired intervals; fixed registered endpoints, no new model/scorer calls",
+      "readout": "five fixed inference seeds averaged inside each scene",
+      "scenes": 12146
+    }
+  },
+  "process_audit": {
+    "healthy_when_checked": true,
+    "no_restart_or_duplicate_aggregation": true,
+    "owner_pid": 3707838,
+    "owner_start_ticks": 1433515963
+  },
+  "route_judgment": "\u5f53\u524d\u8bbe\u8ba1\u6682\u65e0\u652f\u6301",
+  "schema": "latent_full_NAVTEST_research_review_v1",
+  "sha256": "9bfc379ceca8962b087c2c9b8e99ba86c75e950fa4cbddcdfa9185ee3dc241d6",
+  "status": "COMPLETE"
+}
