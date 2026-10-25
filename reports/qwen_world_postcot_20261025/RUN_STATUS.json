@@ -1,0 +1,809 @@
+{
+  "schema": "world_postcot_run_status_v1",
+  "observed_UTC": "2026-10-25T18:20:23.992610+00:00",
+  "starting_commit": "425eb5420ce1b592786f455ceea9bd6d124d2c54",
+  "branch": "feature/qwen-flow-world-postcot-500m-20261025",
+  "uses_metric_supervision": true,
+  "IL_uses_rl": false,
+  "original_native_IL_and_RL_preserved": true,
+  "old_IQE_22k_identity_preserved": true,
+  "resource_authorization": {
+    "schema": "qwen_world_postcot_resource_v1",
+    "task": "qwen_world_postcot_20261025",
+    "user_instruction": "\u56fa\u5b9a\u767d\u540d\u5355\u4e4b\u5916\u7684\u5176\u4ed6zt\u5bb9\u5668\u672c\u8f6e9\u5c0f\u65f6\u53ef\u7528\uff1b\u5230\u671f\u524d\u4fdd\u5b58\u5e76\u8fc1\u79fb\u5230\u56fa\u5b9a\u767d\u540d\u5355\u5171\u4eab\u7eed\u8bad\uff0c\u4fdd\u7559\u5176\u4ed6\u4efb\u52a1\u3002",
+    "observed_utc": "2026-10-25T14:34:18+00:00",
+    "expires_utc": "2026-10-25T23:34:18+00:00",
+    "starts_unix": 1792938858.0,
+    "expires_unix": 1792971258.0,
+    "checkpoint_guard_seconds": 1200,
+    "permanent_hosts": [
+      "training-vla-zt",
+      "training-vlawm-tsinghua-zt",
+      "training-vlawm-tsinghua-zt3",
+      "training-vlawm-tsinghua-zt4",
+      "training-vlawm-tsinghua-zt5"
+    ],
+    "temporary_hosts": [
+      "training-rl-zt2",
+      "training-rl-zt3",
+      "training-rl-zt4",
+      "training-vla-zt-recovery",
+      "training-vla-zt2",
+      "training-vla-zt3",
+      "training-vlawm-tsinghua-zt2",
+      "training-vlawm-zt",
+      "training-vlawm-zt2",
+      "training-vlawm-zt3",
+      "training-vlawm-zt4",
+      "training-vlawm-zt5",
+      "zt-builder0",
+      "training-vlawm-tsinghua-zt6"
+    ],
+    "preserve_all_existing_jobs": true,
+    "unknown_jobs_not_evicted": true,
+    "scope": "new full Qwen Flow world post-action framework only; existing task permissions remain unchanged",
+    "root": "/mnt/project/qwen-world-postcot-20261025"
+  },
+  "REAL_CURRENT_IMAGE_INTEGRATION": {
+    "status": "PASS",
+    "real_current_images": true,
+    "tokens": [
+      "cf6df734e86157fa",
+      "5d76542a4bac5ffa"
+    ],
+    "parameters": {
+      "qwen": 2127532032,
+      "scene_provider": 37985280,
+      "predictive_provider": 9479680,
+      "policy": 467119107,
+      "dino_readout": 7374336,
+      "future_readout": 18153472,
+      "object_readout": 2385168,
+      "post_head": 8939521,
+      "action_trunk": 467119107,
+      "deployment_total": 2642116099,
+      "IL_trainable": 2678968596,
+      "qwen_visual": 406957056
+    },
+    "selected_layer_parity": {
+      "8": {
+        "equal": true,
+        "max_abs": 0.0
+      },
+      "16": {
+        "equal": true,
+        "max_abs": 0.0
+      },
+      "28": {
+        "equal": true,
+        "max_abs": 0.0
+      }
+    },
+    "single_current_qwen_calls": 1,
+    "deployment_head_removal_max_abs": 0.0,
+    "qwen_gradient_norm_sum": 0.13428691422254246,
+    "capture": {
+      "selected_layers": [
+        8,
+        16,
+        28
+      ],
+      "final_layer_after_norm": true,
+      "full_hidden_tuple_retained": false,
+      "hooks_removed": true,
+      "sequence_lengths": [
+        802,
+        802
+      ],
+      "visual_tokens": [
+        693,
+        693
+      ],
+      "merged_dtype": "torch.bfloat16"
+    },
+    "peak_allocated": 19344337920,
+    "peak_reserved": 22038970368,
+    "device": "NVIDIA A800-SXM4-80GB",
+    "seconds": 96.66572032868862
+  },
+  "REAL_ALL_LOSS_GRADIENTS": {
+    "status": "PASS",
+    "real_current_images": true,
+    "real_official_PDM_labels": true,
+    "real_DINO_and_WA_targets": true,
+    "diagnostic_not_formal_checkpoint": true,
+    "scenes": [
+      "09d161aae53c5e86"
+    ],
+    "objectives": {
+      "x": {
+        "gradients": {
+          "qwen_vision": 4.894766967162962,
+          "qwen_language": 3.559775602768002,
+          "memory": 14.706857319813027,
+          "actor_input": 7.39451029806441,
+          "actor_attention": 19.995305584775686,
+          "actor_ffn": 0.6502086835108524,
+          "actor_output": 18.37534991080394,
+          "post": 0.0,
+          "dino": 0.0,
+          "future": 0.0,
+          "objects": 0.0
+        },
+        "detached_inputs": {
+          "candidate_trajectory": false,
+          "candidate_labels": false,
+          "dino_target": false,
+          "future_target": false
+        },
+        "qwen_calls": 1,
+        "loss": 10.712796211242676
+      },
+      "dino": {
+        "gradients": {
+          "qwen_vision": 0.04477448097867807,
+          "qwen_language": 0.0316473878118021,
+          "memory": 0.12994707653259235,
+          "actor_input": 0.0,
+          "actor_attention": 0.0,
+          "actor_ffn": 0.0,
+          "actor_output": 0.0,
+          "post": 0.0,
+          "dino": 0.33255948687647485,
+          "future": 0.0,
+          "objects": 0.0
+        },
+        "detached_inputs": {
+          "candidate_trajectory": false,
+          "candidate_labels": false,
+          "dino_target": false,
+          "future_target": false
+        },
+        "qwen_calls": 1,
+        "loss": 0.397224098443985
+      },
+      "future": {
+        "gradients": {
+          "qwen_vision": 0.12811180927860652,
+          "qwen_language": 0.06582751686335703,
+          "memory": 0.34604685204935653,
+          "actor_input": 0.0,
+          "actor_attention": 0.0,
+          "actor_ffn": 0.0,
+          "actor_output": 0.0,
+          "post": 0.0,
+          "dino": 0.0,
+          "future": 0.6591809713109388,
+          "objects": 0.0
+        },
+        "detached_inputs": {
+          "candidate_trajectory": false,
+          "candidate_labels": false,
+          "dino_target": false,
+          "future_target": false
+        },
+        "qwen_calls": 1,
+        "loss": 0.5631315112113953
+      },
+      "object": {
+        "gradients": {
+          "qwen_vision": 6.0903091533364755,
+          "qwen_language": 5.803953443206026,
+          "memory": 20.53235240463167,
+          "actor_input": 0.0,
+          "actor_attention": 0.0,
+          "actor_ffn": 0.0,
+          "actor_output": 0.0,
+          "post": 0.0,
+          "dino": 0.0,
+          "future": 0.0,
+          "objects": 29.54317311087333
+        },
+        "detached_inputs": {
+          "candidate_trajectory": false,
+          "candidate_labels": false,
+          "dino_target": false,
+          "future_target": false
+        },
+        "qwen_calls": 1,
+        "loss": 2.6808128356933594
+      },
+      "post": {
+        "gradients": {
+          "qwen_vision": 0.4838355066297778,
+          "qwen_language": 0.3277764154223127,
+          "memory": 1.176609283163224,
+          "actor_input": 0.5494786055628683,
+          "actor_attention": 1.6698948662211854,
+          "actor_ffn": 0.057787560570634985,
+          "actor_output": 0.0,
+          "post": 6.8281263403448405,
+          "dino": 0.0,
+          "future": 0.0,
+          "objects": 0.0
+        },
+        "detached_inputs": {
+          "candidate_trajectory": false,
+          "candidate_labels": false,
+          "dino_target": false,
+          "future_target": false
+        },
+        "qwen_calls": 1,
+        "loss": 0.9520013332366943
+      }
+    },
+    "peak_allocated": 25214817792,
+    "peak_reserved": 26747076608
+  },
+  "ENGINEERING_ACCEPTANCE": {
+    "schema": "world_postcot_engineering_acceptance_v1",
+    "status": "PASS",
+    "source_commit": "d54617b3ff02d714c067ce809a50f50cd19bceb6",
+    "source_snapshot": "/mnt/project/qwen-world-postcot-20261025/snapshots/formal_main_v2",
+    "source_binding_sha256": "98be5c2e2048b456451d19fc54e194deefca2afc10a2b21d86173d526d8352a1",
+    "training_source_files": {
+      "configs/qwen_world_postcot/il.yaml": "d6520af985cfb5f96cf984151265661220946960c6252f1c70e61c4d4dfd23c8",
+      "configs/qwen_world_postcot/rl.yaml": "2db7b3666377435837812447a13fc55ab4f531b59674cec08adb88c1a5e0e769",
+      "starVLA/model/modules/qwen_world_postcot/__init__.py": "6f2774ad3b3ed04f903bf0ab987ecacebc2cfd2fe04a0a23ba1b48a07e1ef4df",
+      "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+      "starVLA/model/modules/qwen_world_postcot/candidate_bank.py": "d252021074b93cfbbaa5b5154ac6c36187da82ab563a997b3a34c82626f02493",
+      "starVLA/model/modules/qwen_world_postcot/flow.py": "4488c085019f1a886fde743838399a2e357c86aa83423f0121d62d53d9619a4f",
+      "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+      "starVLA/model/modules/qwen_world_postcot/model.py": "83e12e7d34646a928b5757788091288c96b0be7f3200fe3d256b4342d4be837e",
+      "starVLA/model/modules/qwen_world_postcot/post_action.py": "25f8e626d00ad954f0b629beac75da1ae097108d5d3b276cd70b8afac18e6e8a",
+      "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+      "starVLA/model/modules/qwen_world_postcot/readouts.py": "c3bec264542b399321c9d053bacb194556134a294aeb34902b56f764c70438ce",
+      "starVLA/model/modules/qwen_world_postcot/rgb_decoder.py": "898d93bc5267ff84580a9a8edfbeef96475a8d54775419c0d93907e1699a69a8",
+      "starVLA/model/modules/qwen_world_postcot/teacher_targets.py": "fa8ea84a171d8f64290fb10def7f9bed6408adace2c5e527391641f16d299207",
+      "starVLA/model/modules/qwen_world_postcot/teachers.py": "5d0dac3e07cb3fb62f40f30ee2793ea2b11b6b509091c06caf350efd45606f22",
+      "starVLA/rl/qwen_world_postcot/__init__.py": "ab3f6fc53c31e6a184d94a54549b330bda3fae26d330c6479213850498aa6161",
+      "starVLA/rl/qwen_world_postcot/bank_versions.py": "2af6595e7ba5730f8916bc0f87fad21ad96274090db1494fd94108e974601793",
+      "starVLA/rl/qwen_world_postcot/batching.py": "ad1b9a9e3cb5093aaf7be27496008c727db264fd67970f18ea72f554b093f2e7",
+      "starVLA/rl/qwen_world_postcot/checkpoint.py": "b85f1c39a9a8c08d12f2974fb7af8fcf81df274f68b2b91d11eec32d3f978dde",
+      "starVLA/rl/qwen_world_postcot/contracts.py": "a2b8507b015ad22a0f5dd67ea6e10ccfc76a3f9dd7818dfa1008bc1657f11e38",
+      "starVLA/rl/qwen_world_postcot/data.py": "e5f01fae628999ba0e0a6a257c1799217fb32702c939416d8b52bfcb5725e8f1",
+      "starVLA/rl/qwen_world_postcot/deployment.py": "703d3a75f0a16c1af804345a23a80137897811a720cc9e349e14dd2f6a978531",
+      "starVLA/rl/qwen_world_postcot/loading.py": "bb9dbdea2781907106b34c8ea79580b32ff24a2e86d019e8a81653e610bfa292",
+      "starVLA/rl/qwen_world_postcot/resources.py": "331b99ae9f21241ae9bc1ba8d2d14993fbe7f447fbe9c0dd37b1f0f46916dd8f",
+      "starVLA/rl/qwen_world_postcot/rl_actor.py": "de50a18504882b761700569784611596bfb4097ce7407c222ff8f3598c2132c8",
+      "starVLA/rl/qwen_world_postcot/rl_conditions.py": "44645a22890d0568d7c94105b08132a064cbee9ed497ba8d3f206a2e98cd71a4",
+      "starVLA/rl/qwen_world_postcot/rl_runtime.py": "ccaced7f42c8967cdaf23910653581eb342d9f8a086247f06c3fcdd301fb63eb",
+      "tools/qwen_world_postcot/__init__.py": "35df42c640001fec1b68fad1cd2e37698261f0f64220d71134fec2c838cbd8e0",
+      "tools/qwen_world_postcot/audit_candidate_labels.py": "b53375fac851c8c8b2d1c757bb61d4543369c3c994dd93d91e6c88f84b2de8e9",
+      "tools/qwen_world_postcot/audit_gpu.py": "7bf38c4ff1806eb1431ec04481b3257b1866ffb3cf5bf50c7dd40836465b7d7e",
+      "tools/qwen_world_postcot/audit_gradients.py": "780ae05421d7aa49f3c0234d8b6d91aca64daf01ddc03c9e40ba3129c23f49e9",
+      "tools/qwen_world_postcot/benchmark_deployment.py": "db71ce1535e4c07ff8db4b14c133d6dfe43a8bf10b2a49f6e5b86c665f5a0896",
+      "tools/qwen_world_postcot/build_candidate_bank.py": "ddb6151c7e098c56e170f4c27cd6f19befa112b6defe988f9a036dcff14d50ee",
+      "tools/qwen_world_postcot/campaign.py": "178cfeb6a12a8bb64c0fd88439205cb3a1e549437899584735962be3da6f23d2",
+      "tools/qwen_world_postcot/evaluate.py": "9b3885e46e193349baeaee4c3c078a53ecaa8e4769f532118304ae0d1588f3a9",
+      "tools/qwen_world_postcot/export.py": "b26d8fad095ad88324639c66e053b9abeaf721d245205a83ecd59edda52791e8",
+      "tools/qwen_world_postcot/extract_student_features.py": "e675d997a6bca7460e181471fe8621564a0247e7a4d5c9795b7f69eadfb17189",
+      "tools/qwen_world_postcot/job_worker.py": "b124ab0cb7a50545a7f52349d861b9bd9db6e7629617d24a138ea02c51c19db4",
+      "tools/qwen_world_postcot/legacy_baseline.py": "e2a40229fb33fd2fbfb3e7d7aa54c15cd74929bb315aaa0e75b9872f47e2eed8",
+      "tools/qwen_world_postcot/monitor.py": "79b0c7942838a4b64fafaf36dcd0f9db5029599f494df474ce53c6fa57bae93d",
+      "tools/qwen_world_postcot/prepare_training_data.py": "b545761623d2d039f66ea205094aa18a3db2d2d7e3f8c258b3cf0815e0a2ebcc",
+      "tools/qwen_world_postcot/profile_native.py": "5a4cd4b356ddd1dff2cb8e4b90bc89e9be0661254fda55a84ed803f0eca115d0",
+      "tools/qwen_world_postcot/refresh_candidates.py": "54f59a919f2412a05c5c574fdc8b2ba83b75f53faf6e4d42f2674350694c6054",
+      "tools/qwen_world_postcot/summarize.py": "2014cbb6d5f2f46b6f8056971aa68c859cbaa0364bc318f71dbae34c5efede4e",
+      "tools/qwen_world_postcot/teacher_assets.py": "dd6bae2035726398448e96a5878882ec1eec8568c1dc84aaf2f392a0785e691f",
+      "tools/qwen_world_postcot/teacher_cache.py": "7677781f3fed8e3a0c11e1f94f3c38606285810997d951169262683f42701505",
+      "tools/qwen_world_postcot/train_il.py": "9d0ff90e43911cf29e3d2efb21c7205893ba590171cf318a470bf5e1a80f0a81",
+      "tools/qwen_world_postcot/train_rgb_decoder.py": "897accd40655cd079dedbcb2c8e6e6916c6dcb1952a9f432d432a644eca8bb9c",
+      "tools/qwen_world_postcot/train_rl.py": "a64614919548b46fd4af9c9932b6f32bf35179ede3b7f5ee277c3521f5dffedd",
+      "tools/qwen_world_postcot/update_status.py": "569cb3933443b9679b3e2b85ec25e84751a5c55befa45ee1021b38e254e102df",
+      "tools/qwen_world_postcot/visualize_features.py": "b08b743febd0ce7c89e4d2d67ecf9395d93ba10f6ada6031bc4db9e0cbd9a1af"
+    },
+    "checks": {
+      "real_all_losses": "PASS",
+      "post_gradient_to_actor": "PASS",
+      "deployment_isolation": "PASS",
+      "zero2_multigpu": "PASS",
+      "native_resume": "PASS",
+      "profile_stable": "PASS"
+    },
+    "evidence": {
+      "REAL_QWEN_AND_DEPLOYMENT.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/REAL_QWEN_AND_DEPLOYMENT.json",
+        "sha256": "c78e8309971789e006b83714906d17edbd9adf1a6093f1d705239d22f7bd62b3",
+        "status": "PASS"
+      },
+      "REAL_GRADIENTS.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/REAL_GRADIENTS.json",
+        "sha256": "e8a9c6c13d2c1dd43430fe3191c418de8f80956f5cb8bcfce98bb17b1030eb3b",
+        "status": "PASS"
+      },
+      "ZERO2_EXACT_RESUME_COMPARISON.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/ZERO2_EXACT_RESUME_COMPARISON.json",
+        "sha256": "665b78dcff0bdcb38de9ff2da96b593a6283bd7bfb3e1c16dc3bd7158e9c0b98",
+        "status": "PASS"
+      },
+      "ZERO2_FP32LOSS_RESUME31_32.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/ZERO2_FP32LOSS_RESUME31_32.json",
+        "sha256": "7d8a3970b66fb173a18cd973a875d85cb8879313e4478589c5df4438ed1835f4",
+        "status": "PASS"
+      },
+      "BANK_METADATA_RESUME.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/BANK_METADATA_RESUME.json",
+        "sha256": "bb8ead433e3f29d0816cf5c72c2f24a4d1da98ecffe738a69da3138abf2faee1",
+        "status": "PASS"
+      },
+      "FINAL_V3_TRAINING_PROFILE.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_V3_TRAINING_PROFILE.json",
+        "sha256": "1f275a762694510e63caf8546b3838bc6e80b07cb189ea4cd6bcf71c68fe52b0",
+        "status": "COMPLETE_ENGINEERING_TIMING"
+      },
+      "FINAL_REGRESSION.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_REGRESSION.json",
+        "sha256": "66188d7ef3b06d202130dbfaa6acdbfb0f701f28f70245b3215232e29ec1a5c9",
+        "status": "PASS"
+      },
+      "independent_export": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/full_export_parity_stage02_attempt2/PARITY.json",
+        "sha256": "764f2ad2f198613843011cd2784bb568ac3763be7093dfd3db15bef2d669c2c0",
+        "status": "PASS"
+      },
+      "FINAL_REGRESSION_v2.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_REGRESSION_v2.json",
+        "sha256": "ded83dd7eec0ce1bd45c82fd441af89e26314d5acf54436801d35a2decc89985",
+        "status": "PASS"
+      },
+      "RESOURCE_VISIBILITY_ADMISSION.json": {
+        "path": "/mnt/project/qwen-world-postcot-20261025/audits/RESOURCE_VISIBILITY_ADMISSION.json",
+        "sha256": "ab4c38f7c60d0ffa7ed680dadb5d839c7a9518fb0f85346c91d24e118b98c02f",
+        "status": "PASS"
+      }
+    },
+    "micro_batch": 4,
+    "minimum_free_MiB": 40960,
+    "rl_minimum_free_MiB": 48000,
+    "evaluation_minimum_free_MiB": 32768,
+    "refresh_minimum_free_MiB": 32768,
+    "profile_scope": "32 real full joint updates; warmup4/steady28; longer-duration stability monitored in formal journal",
+    "scientific_gain": "UNTESTED",
+    "formal_IL_completed": false,
+    "formal_RL_completed": false,
+    "resource_grant_sha256": "925d86c03aca62fc1a38d3b46e8ca04b1f9bc5fa6d1b5f79d925fe67a95dced4",
+    "accepted_unix": 1792949394.6859207,
+    "qualified_training_math_20_files_unchanged": true,
+    "sha256": "e771758626071b09cfd150072e6c12a23571da4a9628d8ad477d25b292972f23"
+  },
+  "native_profile": {
+    "status": "COMPLETE",
+    "updates": 32,
+    "warmup": 4,
+    "timing_samples": 28,
+    "mean": 4.445998255695615,
+    "p50": 4.293744655326009,
+    "p95": 4.473554860521108,
+    "samples_per_second": 7.197483705488616,
+    "peak_allocated": 75023986176,
+    "peak_reserved": 77187776512,
+    "global_batch": 32,
+    "microbatch": 1,
+    "accumulation": 4,
+    "actual_parent_optimizer_step": 78000,
+    "checkpoint_seconds": null,
+    "checkpoint_amortization": "not_measured_in_this_bounded_profile",
+    "actual_native_weights_and_Adam": true
+  },
+  "full_model_profile": {
+    "status": "COMPLETE_ENGINEERING_TIMING",
+    "uses_real_images": true,
+    "uses_real_official_PDM_labels": true,
+    "correct_v3_teacher_identity": "b83c252eda6b3a4cdd3fb8ed8c249639f070955276ec445c8ade6fb0bde63b5b",
+    "uses_complete_formal_candidate_bank": true,
+    "all5_objectives": true,
+    "Qwen_joint_gradients": true,
+    "updates": 32,
+    "warmup": 4,
+    "timing_samples": 28,
+    "global_batch": 32,
+    "micro_batch": 4,
+    "accumulation": 1,
+    "mean": 1.9450196879250663,
+    "p50": 1.9330888986587524,
+    "p95": 2.0115021109580993,
+    "samples_per_second": 16.4522756240773,
+    "GPU_seconds_per_scene": 0.4862549219812666,
+    "peak_allocated": 22888364032,
+    "peak_reserved": 29234298880,
+    "slowest_rank_measurement": true,
+    "profiler_active": false,
+    "valid_supervision": {
+      "action_elements": 24507.0,
+      "dino_scenes": 1024.0,
+      "future_scenes": 1017.0,
+      "dino_valid_patches": 442368.0,
+      "future_sampled_valid_patches": 130176.0,
+      "post_valid_metric_labels": 6144.0,
+      "scenes_total": 1024,
+      "future_scenes_fraction": 0.9931640625,
+      "future_sampled_patches_fraction": 0.9931640625
+    },
+    "native_reference": {
+      "status": "COMPLETE",
+      "updates": 32,
+      "warmup": 4,
+      "timing_samples": 28,
+      "mean": 4.445998255695615,
+      "p50": 4.293744655326009,
+      "p95": 4.473554860521108,
+      "samples_per_second": 7.197483705488616,
+      "peak_allocated": 75023986176,
+      "peak_reserved": 77187776512,
+      "global_batch": 32,
+      "microbatch": 1,
+      "accumulation": 4,
+      "actual_parent_optimizer_step": 78000,
+      "checkpoint_seconds": null,
+      "checkpoint_amortization": "not_measured_in_this_bounded_profile",
+      "actual_native_weights_and_Adam": true
+    },
+    "speed_ratio_vs_native_mean": 2.2858371477147235,
+    "comparison_scope": "Different requested complete architecture and BF16 actor versus native FP32 actor, additionally micro4/accum1 versus native micro1/accum4; not a pure same-model execution speedup",
+    "dtype": {
+      "memory": {
+        "spatial": "torch.float32",
+        "global_memory": "torch.float32",
+        "predictive": "torch.bfloat16",
+        "actor_concatenation": "torch.float32"
+      },
+      "params": [
+        "torch.float32"
+      ],
+      "incoming_gradients": [
+        "torch.float32"
+      ],
+      "KV": [
+        "torch.bfloat16"
+      ],
+      "losses": {
+        "x": "torch.float32",
+        "dino": "torch.float32",
+        "future": "torch.float32",
+        "object": "torch.float32",
+        "post": "torch.float32",
+        "post_factor": "torch.float32",
+        "post_pair": "torch.float32",
+        "sigma_mean": "torch.float32"
+      },
+      "total_loss": "torch.float32",
+      "masters": [
+        "torch.float32"
+      ],
+      "Adam": {
+        "step": [
+          "torch.float32"
+        ],
+        "exp_avg": [
+          "torch.float32"
+        ],
+        "exp_avg_sq": [
+          "torch.float32"
+        ]
+      }
+    },
+    "checkpoint_policy": "Explicit disposable bounded performance invocation; no trained checkpoint retained; recovery proven separately",
+    "scientific_IL_training": false,
+    "scientific_result": "NOT_RUN",
+    "remaining": "Only32update engineering window; sustained full-budget convergence and PDMS not yet measured"
+  },
+  "deployment_latency": {
+    "status": "COMPLETE",
+    "host": "training-vlawm-tsinghua-zt6",
+    "device": "NVIDIA A800-SXM4-80GB",
+    "batch": 1,
+    "seed": 2101,
+    "paired_scenes": 48,
+    "baseline_checkpoint": "/mnt/project/qwen-world-postcot-20261025/assets/baseline_IL078000",
+    "baseline_model_sha256": "030546c6ef71fd01657d056be6296d34599814c0336175afadc76a03ed41af90",
+    "new_model_sha256": "8a75fb22c704e8bf939eb190dbd7f80304152968ef122d3cac1f316ce6730e72",
+    "new_model_qualification": true,
+    "summaries": {
+      "native": {
+        "end_to_end": {
+          "mean": 0.8741820094641298,
+          "p50": 0.874749188311398,
+          "p95": 0.8892294014804065,
+          "samples": 40
+        },
+        "current_decode_processor_H2D": {
+          "mean": 0.06705738380551338,
+          "p50": 0.06721622124314308,
+          "p95": 0.07437465768307447,
+          "samples": 40
+        },
+        "forward": {
+          "mean": 0.8071246256586164,
+          "p50": 0.8092098170891404,
+          "p95": 0.815651209373027,
+          "samples": 40
+        }
+      },
+      "complete_framework": {
+        "end_to_end": {
+          "mean": 0.567457122541964,
+          "p50": 0.5664449464529753,
+          "p95": 0.5785489219240845,
+          "samples": 40
+        },
+        "current_decode_processor_H2D": {
+          "mean": 0.06716231685131788,
+          "p50": 0.06649517174810171,
+          "p95": 0.07472463864833116,
+          "samples": 40
+        },
+        "forward": {
+          "mean": 0.5002948056906462,
+          "p50": 0.500861557200551,
+          "p95": 0.5044604749418795,
+          "samples": 40
+        }
+      }
+    },
+    "peak_allocated_both_models_resident": 24668919296,
+    "resident_parameters_and_buffers_bytes": 23997000704,
+    "single_model_peak_allocated": {
+      "native": 14099073536,
+      "complete_framework": 10757213184
+    },
+    "memory_scope": "Timing has both models resident; standalone peaks separately measured before loading the second model and after deleting the first.",
+    "numerical_scope": "Original native FP32 action ODE versus new clean-x BF16 actor/FP32 state; architecture and execution both differ."
+  },
+  "campaign": {
+    "schema": "world_postcot_campaign_v2",
+    "source": "/mnt/project/qwen-world-postcot-20261025/snapshots/formal_main_v2",
+    "jobs": {
+      "formal_IL_attempt001": {
+        "name": "formal_IL",
+        "role": "training",
+        "receipt": "/mnt/project/qwen-world-postcot-20261025/jobs/formal_IL_attempt001",
+        "host": "training-vlawm-tsinghua-zt5",
+        "uuids": [
+          "GPU-ba6629ed-35db-198b-d353-d6048cbdf36b",
+          "GPU-c976d64e-44ea-d8bd-a026-d1c1f14d4db6",
+          "GPU-e2a93cb8-47e2-0b2f-952e-bcfa5403ad24",
+          "GPU-28ad5baf-48e8-8ea7-2e0b-514cc7f2d690",
+          "GPU-a7b3b440-0f0e-d35e-508a-98b368e9a753",
+          "GPU-07454d91-a706-9214-2999-0ec63e16c489",
+          "GPU-69f7a391-b4e5-fefd-2b4e-721834060a20",
+          "GPU-a4a674df-d68f-fa69-13be-0f089a4cd6af"
+        ],
+        "gpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nproc-per-node=8",
+          "-m",
+          "tools.qwen_world_postcot.train_il",
+          "--config",
+          "configs/qwen_world_postcot/il.yaml",
+          "--output",
+          "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42",
+          "--micro-batch",
+          "4",
+          "--candidate-bank",
+          "/mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1",
+          "--teacher-cache",
+          "/mnt/project/qwen-world-postcot-20261025/teachers/TRAIN_resolved_v3"
+        ],
+        "status": "RUNNING",
+        "dispatch_unix": 1792949428.9735432
+      }
+    },
+    "monitors": {
+      "IL_full_seed42": {
+        "schema": "world_postcot_live_monitor_v1",
+        "observed_unix": 1792952334.4314373,
+        "run": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42",
+        "ranks": 8,
+        "status": "PROGRESS_OBSERVED",
+        "stages": {
+          "interface": {
+            "samples": 104,
+            "first_update": 897,
+            "last_update": 1000,
+            "mean_seconds": 1.6544745243512666,
+            "p50": 1.6484525203704834,
+            "p95": 1.7476514041423796,
+            "global_scenes_per_second": 19.341488508290855,
+            "peak_allocated": 20584029696,
+            "peak_reserved": 26948403200,
+            "timing_scope": "normal IL data+update excluding checkpoints"
+          },
+          "joint": {
+            "samples": 388,
+            "first_update": 1005,
+            "last_update": 1392,
+            "mean_seconds": 2.5973211729649415,
+            "p50": 2.4785773754119873,
+            "p95": 2.6245366096496583,
+            "global_scenes_per_second": 12.320386224500213,
+            "peak_allocated": 22860822528,
+            "peak_reserved": 28118614016,
+            "timing_scope": "normal IL data+update excluding checkpoints"
+          }
+        },
+        "live_process_verified": false,
+        "activity_scope": "Read-only journals; process liveness is verified separately by the job controller.",
+        "latest_update_by_rank": {
+          "metrics_rank0": 1392,
+          "metrics_rank1": 1392,
+          "metrics_rank2": 1392,
+          "metrics_rank3": 1392,
+          "metrics_rank4": 1392,
+          "metrics_rank5": 1392,
+          "metrics_rank6": 1392,
+          "metrics_rank7": 1392
+        },
+        "oldest_journal_age_seconds": 2.431654214859009,
+        "progress": {
+          "updates": 1000,
+          "cursor": 32000,
+          "phase": "interface",
+          "qwen_optimizer_initialized": false,
+          "status": "RUNNING",
+          "checkpoint": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42/checkpoints/update001000",
+          "save_seconds": 70.51950226398185
+        }
+      },
+      "RL_full_CANONICAL_seed42": {
+        "schema": "world_postcot_live_monitor_v1",
+        "observed_unix": 1792952334.5205555,
+        "run": "/mnt/project/qwen-world-postcot-20261025/runs/RL_full_CANONICAL_seed42",
+        "ranks": 0,
+        "status": "WAITING_START",
+        "stages": {},
+        "live_process_verified": false,
+        "activity_scope": "Read-only journals; process liveness is verified separately by the job controller."
+      }
+    },
+    "inputs_verified": {
+      "manifests": {
+        "data": "c7d51691f16dd7caf373d6ddc688d93661a5a22ce2c91b8def60ee723dc1a39f",
+        "teacher": "fc2d94f2ef70b4b195f1ee0a94377047c593fc651d94fab3b4e238d6586b367e",
+        "candidate": "76ab503f36d89bf6790394a501434e642fd3ba1ef32b1cebd319d3834399e5d3"
+      },
+      "count": 90890,
+      "complete_coverage": true,
+      "resolved_teacher_root": "/mnt/project/qwen-world-postcot-20261025/teachers/TRAIN_resolved_v3",
+      "valid_future_views_histogram": {
+        "3": 90052,
+        "0": 838
+      },
+      "clip_timing_valid_histogram": {
+        "true": 90052,
+        "false": 838
+      },
+      "validity_counts_verified": true
+    },
+    "dev_results": {
+      "IL": {}
+    },
+    "stage": "IL_AND_PERIODIC_FULL_DEV",
+    "last_tick_unix": 1792952335.9408407
+  },
+  "formal_IL": {
+    "updates": 1000,
+    "cursor": 32000,
+    "phase": "interface",
+    "qwen_optimizer_initialized": false,
+    "status": "RUNNING",
+    "checkpoint": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42/checkpoints/update001000",
+    "save_seconds": 70.51950226398185
+  },
+  "formal_RL": null,
+  "scientific_conclusion": "UNTESTED",
+  "new_method_IL_PDMS": null,
+  "new_method_RL_PDMS": null,
+  "note": "Only sealed complete evaluations establish scores; engineering PASS is not scientific gain.",
+  "targets": {
+    "TRAIN_resolved_v3": {
+      "status": "COMPLETE",
+      "manifest": "/mnt/project/qwen-world-postcot-20261025/teachers/TRAIN_resolved_v3/MANIFEST.json",
+      "committed_physical_records": 90890,
+      "payload_bytes": 303972516000,
+      "count_scope": "Committed blob sizes only while building; unique scene coverage is established only by the final sealed manifest.",
+      "coverage": {
+        "committed": 3342,
+        "priority_ready": 1024,
+        "first192_ready": true,
+        "priority_complete": true,
+        "priority_future3view": 1017
+      }
+    },
+    "DEV_resolved_v3": {
+      "status": "COMPLETE",
+      "manifest": "/mnt/project/qwen-world-postcot-20261025/teachers/DEV_resolved_v3/MANIFEST.json",
+      "committed_physical_records": 1696,
+      "payload_bytes": 5672102400,
+      "count_scope": "Committed blob sizes only while building; unique scene coverage is established only by the final sealed manifest.",
+      "coverage": null
+    }
+  },
+  "candidate_bank": {
+    "pilot32": {
+      "status": "COMPLETE",
+      "root": "/mnt/project/qwen-world-postcot-20261025/candidates/pilot32"
+    },
+    "performance1024": {
+      "status": "COMPLETE",
+      "root": "/mnt/project/qwen-world-postcot-20261025/candidates/performance1024"
+    },
+    "full_train_initial_v1": {
+      "status": "COMPLETE",
+      "root": "/mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1"
+    }
+  },
+  "formal_IL_live_journal": {
+    "schema": "world_postcot_live_monitor_v1",
+    "observed_unix": 1792952423.9784021,
+    "run": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42",
+    "ranks": 8,
+    "status": "PROGRESS_OBSERVED",
+    "stages": {
+      "interface": {
+        "samples": 68,
+        "first_update": 933,
+        "last_update": 1000,
+        "mean_seconds": 1.6616470375481773,
+        "p50": 1.6523928046226501,
+        "p95": 1.7548067808151244,
+        "global_scenes_per_second": 19.258000812986857,
+        "peak_allocated": 20584029696,
+        "peak_reserved": 26948403200,
+        "timing_scope": "normal IL data+update excluding checkpoints"
+      },
+      "joint": {
+        "samples": 424,
+        "first_update": 1005,
+        "last_update": 1428,
+        "mean_seconds": 2.5876528530750633,
+        "p50": 2.4795470237731934,
+        "p95": 2.6222994565963744,
+        "global_scenes_per_second": 12.366419228905638,
+        "peak_allocated": 22860822528,
+        "peak_reserved": 28118614016,
+        "timing_scope": "normal IL data+update excluding checkpoints"
+      }
+    },
+    "live_process_verified": false,
+    "activity_scope": "Read-only journals; process liveness is verified separately by the job controller.",
+    "latest_update_by_rank": {
+      "metrics_rank0": 1428,
+      "metrics_rank1": 1428,
+      "metrics_rank2": 1428,
+      "metrics_rank3": 1428,
+      "metrics_rank4": 1428,
+      "metrics_rank5": 1428,
+      "metrics_rank6": 1428,
+      "metrics_rank7": 1428
+    },
+    "oldest_journal_age_seconds": 1.978586196899414,
+    "progress": {
+      "updates": 1000,
+      "cursor": 32000,
+      "phase": "interface",
+      "qwen_optimizer_initialized": false,
+      "status": "RUNNING",
+      "checkpoint": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42/checkpoints/update001000",
+      "save_seconds": 70.51950226398185
+    }
+  },
+  "formal_IL_state_scope": "formal_IL is last sealed recovery checkpoint; live progress and phase are in formal_IL_live_journal. Journal freshness is distinct from direct process verification.",
+  "final_delivery_CPU_tests": 109,
+  "real_RGB_terminal_resume": "PASS",
+  "first_formal_stage_audit": "/mnt/project/qwen-world-postcot-20261025/audits/FORMAL_FIRST_STAGE_AUDIT.json",
+  "student_visualization": "/mnt/project/qwen-world-postcot-20261025/offline_student_visualization/IL001000_DEV_fixed1/FINAL_VALIDATION.json"
+}

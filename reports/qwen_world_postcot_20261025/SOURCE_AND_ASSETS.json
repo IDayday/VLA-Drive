@@ -1,0 +1,315 @@
+{
+  "schema": "world_postcot_evidence_index_v1",
+  "observed_UTC": "2026-10-25T18:21:40.784049+00:00",
+  "repository": "IDayday/VLA-Drive",
+  "requested_reference_commit": "6fbdd59ff4d33db89e2e9ec7c94792982920cacf",
+  "actual_starting_commit": "425eb5420ce1b592786f455ceea9bd6d124d2c54",
+  "training_source_commit": "d54617b3ff02d714c067ce809a50f50cd19bceb6",
+  "source_snapshot": "/mnt/project/qwen-world-postcot-20261025/snapshots/formal_main_v2",
+  "old_actual_IL_source": "d4d0012769540af8378e013c072d6d8053d9f275",
+  "old_actual_RL_source": "434cba8e47aef3e5ab8319f6b017ab5b0f860db1",
+  "Qwen_initialization": {
+    "repository": "Qwen/Qwen3-VL-2B-Instruct",
+    "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+    "path": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+    "files": {
+      "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+      "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+      "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+      "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+      "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+      "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+      "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+      "README.md": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+      "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+      "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+      "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+      ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+    },
+    "official_weight_sha_verified": true
+  },
+  "data": {
+    "TRAIN_scenes": 90890,
+    "TRAIN_physical_logs": 147,
+    "DEV_scenes": 1696,
+    "DEV_physical_logs": 15,
+    "NAVTEST_scenes": 12146,
+    "NAVTEST_physical_logs": 44,
+    "embargoed_TRAIN_scenes": 10702,
+    "actual_records_sha256": "c263e8901518337214ce7b4046427cc314ee196c06bc29f5f81f99f98250377b",
+    "partition_sha256": "7d6b156d25a98f44f8ea5fe08e3e22ad782479a7f150d5154a2e7bd727759f43",
+    "old_Base_or_public_WA_may_have_seen_DEV": true
+  },
+  "candidate_bank": {
+    "hash": "356d24a0e8e9e6095a9dd1f8d2d96fe39394ca51408124f6d51b62cd99f95b7f",
+    "score_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "scene_count": 90890,
+    "record_count": 1454240
+  },
+  "receipts": {
+    "RESOURCE_AUTHORIZATION.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/RESOURCE_AUTHORIZATION.json",
+      "status": "PRESENT",
+      "sha256": "925d86c03aca62fc1a38d3b46e8ca04b1f9bc5fa6d1b5f79d925fe67a95dced4"
+    },
+    "audits/ENGINEERING_ACCEPTANCE.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/ENGINEERING_ACCEPTANCE.json",
+      "status": "PRESENT",
+      "sha256": "5f6f3fd71528558648fa49d61febf10bbe0e305c99c1a6826b71be1a4d0d280e"
+    },
+    "audits/REAL_QWEN_AND_DEPLOYMENT.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/REAL_QWEN_AND_DEPLOYMENT.json",
+      "status": "PRESENT",
+      "sha256": "c78e8309971789e006b83714906d17edbd9adf1a6093f1d705239d22f7bd62b3"
+    },
+    "audits/REAL_GRADIENTS.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/REAL_GRADIENTS.json",
+      "status": "PRESENT",
+      "sha256": "e8a9c6c13d2c1dd43430fe3191c418de8f80956f5cb8bcfce98bb17b1030eb3b"
+    },
+    "audits/ZERO2_EXACT_RESUME_COMPARISON.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/ZERO2_EXACT_RESUME_COMPARISON.json",
+      "status": "PRESENT",
+      "sha256": "665b78dcff0bdcb38de9ff2da96b593a6283bd7bfb3e1c16dc3bd7158e9c0b98"
+    },
+    "audits/ZERO2_FP32LOSS_RESUME31_32.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/ZERO2_FP32LOSS_RESUME31_32.json",
+      "status": "PRESENT",
+      "sha256": "7d8a3970b66fb173a18cd973a875d85cb8879313e4478589c5df4438ed1835f4"
+    },
+    "audits/BANK_METADATA_RESUME.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/BANK_METADATA_RESUME.json",
+      "status": "PRESENT",
+      "sha256": "bb8ead433e3f29d0816cf5c72c2f24a4d1da98ecffe738a69da3138abf2faee1"
+    },
+    "audits/FINAL_REGRESSION.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_REGRESSION.json",
+      "status": "PRESENT",
+      "sha256": "66188d7ef3b06d202130dbfaa6acdbfb0f701f28f70245b3215232e29ec1a5c9"
+    },
+    "audits/FINAL_V3_TRAINING_PROFILE.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_V3_TRAINING_PROFILE.json",
+      "status": "PRESENT",
+      "sha256": "1f275a762694510e63caf8546b3838bc6e80b07cb189ea4cd6bcf71c68fe52b0"
+    },
+    "audits/V3_TRACE_RANK0_BREAKDOWN.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/V3_TRACE_RANK0_BREAKDOWN.json",
+      "status": "PRESENT",
+      "sha256": "61627ffcdc192d642ce1708232b71a4ccb6968343cf06e2beb2c504f3fe7f8cc"
+    },
+    "audits/DEPLOYMENT_LATENCY.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/DEPLOYMENT_LATENCY.json",
+      "status": "PRESENT",
+      "sha256": "b0a236b8bd33126e46a9aaa8ce73ba2384584e384d5b6b1b2d3cb21c30b10ad4"
+    },
+    "audits/full_export_parity_stage02_attempt2/PARITY.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/full_export_parity_stage02_attempt2/PARITY.json",
+      "status": "PRESENT",
+      "sha256": "764f2ad2f198613843011cd2784bb568ac3763be7093dfd3db15bef2d669c2c0"
+    },
+    "audits/refresh32/REFRESH_QUALIFICATION_AUDIT.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/refresh32/REFRESH_QUALIFICATION_AUDIT.json",
+      "status": "PRESENT",
+      "sha256": "728d959410b97028655d212951b49793fb885cfacc8af92f928019fc4a693c5f"
+    },
+    "data/TRAIN/manifest.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/data/TRAIN/manifest.json",
+      "status": "PRESENT",
+      "sha256": "c7d51691f16dd7caf373d6ddc688d93661a5a22ce2c91b8def60ee723dc1a39f"
+    },
+    "data/DEV/manifest.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/data/DEV/manifest.json",
+      "status": "PRESENT",
+      "sha256": "6bc3213964cfdc914fec02c3049e917be1bf990932010ab49b4fa1cc5c6061ef"
+    },
+    "data/RL_HARD.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/data/RL_HARD.json",
+      "status": "PRESENT",
+      "sha256": "22232092f624fa21e0822c80641137e09ef2980c627f7aed4751db2f5673e98e"
+    },
+    "data/DATA_PARTITION.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/data/DATA_PARTITION.json",
+      "status": "PRESENT",
+      "sha256": "7d6b156d25a98f44f8ea5fe08e3e22ad782479a7f150d5154a2e7bd727759f43"
+    },
+    "candidates/full_train_initial_v1/MANIFEST.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1/MANIFEST.json",
+      "status": "PRESENT",
+      "sha256": "76ab503f36d89bf6790394a501434e642fd3ba1ef32b1cebd319d3834399e5d3"
+    },
+    "candidates/full_train_initial_v1/COMPLETE.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1/COMPLETE.json",
+      "status": "PRESENT",
+      "sha256": "82929be6d9a58eec106da2de043d377758e3d20f96e7cbbcb2ed4693fe624227"
+    },
+    "candidates/full_train_initial_v1_LABEL_AUDIT.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1_LABEL_AUDIT.json",
+      "status": "PRESENT",
+      "sha256": "be91b83d815f2917d31f3817461347450816bab4be85fbb1de03f30351091df2"
+    },
+    "candidates/full_train_initial_v1_COVERAGE_AND_TIMING_PROVENANCE_v2.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1_COVERAGE_AND_TIMING_PROVENANCE_v2.json",
+      "status": "PRESENT",
+      "sha256": "644c76a09aede7b91d98bd8729a62284374be38d7f7a1e1f8a0e78e1e96ba199"
+    },
+    "campaign/BASELINE_BINDING.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/campaign/BASELINE_BINDING.json",
+      "status": "PRESENT",
+      "sha256": "f047a6852c742f05b7ea70e976775f470df77cfcfc29275fe94af690ec5b67e7"
+    },
+    "teachers/TRAIN_resolved_v3/IDENTITY.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/teachers/TRAIN_resolved_v3/IDENTITY.json",
+      "status": "PRESENT",
+      "sha256": "c6861f6471159ee71e97ac343680a570ba70e9c4a635d549f2c0aa681faeda47"
+    },
+    "teachers/TRAIN_resolved_v3/MANIFEST.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/teachers/TRAIN_resolved_v3/MANIFEST.json",
+      "status": "PRESENT",
+      "sha256": "fc2d94f2ef70b4b195f1ee0a94377047c593fc651d94fab3b4e238d6586b367e"
+    },
+    "teachers/DEV_resolved_v3/IDENTITY.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/teachers/DEV_resolved_v3/IDENTITY.json",
+      "status": "PRESENT",
+      "sha256": "88fcc004c0843e0e3ba19a6cdf77ede3fb890bbbf13a1ef29d0aa4443fe2327d"
+    },
+    "teachers/DEV_resolved_v3/MANIFEST.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/teachers/DEV_resolved_v3/MANIFEST.json",
+      "status": "PRESENT",
+      "sha256": "3ec622acfaf490510367c2693e93a3f2734cd04ed6ec0dcb091a8392c41a93c5"
+    },
+    "snapshots/formal_main_v2/SOURCE_BINDING.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/snapshots/formal_main_v2/SOURCE_BINDING.json",
+      "status": "PRESENT",
+      "sha256": "98be5c2e2048b456451d19fc54e194deefca2afc10a2b21d86173d526d8352a1"
+    },
+    "audits/FINAL_REGRESSION_v2.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_REGRESSION_v2.json",
+      "status": "PRESENT",
+      "sha256": "ded83dd7eec0ce1bd45c82fd441af89e26314d5acf54436801d35a2decc89985"
+    },
+    "audits/RESOURCE_VISIBILITY_ADMISSION.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/RESOURCE_VISIBILITY_ADMISSION.json",
+      "status": "PRESENT",
+      "sha256": "ab4c38f7c60d0ffa7ed680dadb5d839c7a9518fb0f85346c91d24e118b98c02f"
+    },
+    "runtime/FINAL_TEACHER_CACHE_SIGNOFF.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/runtime/FINAL_TEACHER_CACHE_SIGNOFF.json",
+      "status": "PRESENT",
+      "sha256": "36024c2b6f332c82cf9d63e9347a336c3abe582fda12346aecbdc7fabf52b213"
+    },
+    "audits/FORMAL_FIRST_STAGE_AUDIT.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FORMAL_FIRST_STAGE_AUDIT.json",
+      "status": "PRESENT",
+      "sha256": "0d6c5284e3694b902bc46c8ddf4baa0a51f0d8169677199ab7f0a2b7c29ea5e0"
+    },
+    "audits/FIRST_FORMAL_BOUNDARY_ARCHIVE.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FIRST_FORMAL_BOUNDARY_ARCHIVE.json",
+      "status": "PRESENT",
+      "sha256": "7992c782dd9890d7e81cb5d9b79450ab2bb5cfe9ede4245435208b591b70fbbb"
+    },
+    "audits/FINAL_SNAPSHOT_PDM_REPLAY.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_SNAPSHOT_PDM_REPLAY.json",
+      "status": "PRESENT",
+      "sha256": "d07069ae5dcaed2d14feabe4345d1475c3f4808a733180436f1c18e5635d89b1"
+    },
+    "audits/COMPUTE_COST_SNAPSHOT.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/COMPUTE_COST_SNAPSHOT.json",
+      "status": "PRESENT",
+      "sha256": "58bb5bd516cd96964b93c0eaab8f30eb7b4da7ac00c3be11289c2844f52182f3"
+    },
+    "runs/IL_full_seed42/IDENTITY.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42/IDENTITY.json",
+      "status": "PRESENT",
+      "sha256": "258858a6d16b9f2d7cca6f6e3a071a0cd281d09f3c9267fe972d0ebadc938e31"
+    },
+    "runs/IL_full_seed42/RESOLVED_CONFIG.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42/RESOLVED_CONFIG.json",
+      "status": "PRESENT",
+      "sha256": "0c93cf593dce236cd0762570ec4a5e3d318e8c224d852f4fa1a48717e1155583"
+    },
+    "rgb_decoder/train_main_seed42/step_002000.receipt.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/rgb_decoder/train_main_seed42/step_002000.receipt.json",
+      "status": "PRESENT",
+      "sha256": "3b8f8e4913a2ba2d29894f5110f2be59dc21dff38deace1485bff225f340bdf4"
+    },
+    "offline_student_visualization/IL001000_DEV_fixed1/VISUALIZATION_RECEIPT.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/offline_student_visualization/IL001000_DEV_fixed1/VISUALIZATION_RECEIPT.json",
+      "status": "PRESENT",
+      "sha256": "6223472bf45b742931ea9b43626eb55e4157e54f786a785b2fb20f1232a3c175"
+    },
+    "offline_student_visualization/IL001000_DEV_fixed1/FINAL_VALIDATION.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/offline_student_visualization/IL001000_DEV_fixed1/FINAL_VALIDATION.json",
+      "status": "PRESENT",
+      "sha256": "c14398759954a3e4253450fa69081d07638d9e28af3e32911ee455cdf556589d"
+    },
+    "audits/FINAL_DELIVERY_REGRESSION.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FINAL_DELIVERY_REGRESSION.json",
+      "status": "PRESENT",
+      "sha256": "b0fab5d5e6238a2f6ee026a135923954845ef5f8772b4f58afc1720de5998ff6"
+    },
+    "audits/REAL_RGB_TERMINAL_RESUME.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/REAL_RGB_TERMINAL_RESUME.json",
+      "status": "PRESENT",
+      "sha256": "450ccb6d3fa5a7101f63091c8dcb62d785830efc721147765f4b8a2aa68275b1"
+    },
+    "audits/FORMAL_CONTINUOUS_JOURNAL_TIMING.json": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/audits/FORMAL_CONTINUOUS_JOURNAL_TIMING.json",
+      "status": "PRESENT",
+      "sha256": "bc47fed64799a447f30f668c15c53d52fc385a6f0de83f473dca778ddc566a9c"
+    }
+  },
+  "scientific_result": "UNTESTED; formal main training/evaluation state is recorded separately",
+  "assets_in_Git": false,
+  "teacher_coverage": {
+    "roles": {
+      "DEV": {
+        "cache_identity": "b067384ea294f65920120920e61f9752cae20b1d6dd43a774e68b9f82c8f1bd5",
+        "data_bytes": 5672102400,
+        "duplicate_records": 0,
+        "future_valid_views_histogram": {
+          "0": 5,
+          "3": 1691
+        },
+        "manifest_body_sha256": "1d9bba465b950abd9776c6e72cac997496761dfb44aeb1887b21c4b5201a908e",
+        "manifest_file_sha256": "3ec622acfaf490510367c2693e93a3f2734cd04ed6ec0dcb091a8392c41a93c5",
+        "physical_records": 1696,
+        "shards": 14,
+        "status": "COMPLETE",
+        "timing_invalid_scenes": 5,
+        "unique_records": 1696,
+        "whole_shards_rehashed": true
+      },
+      "TRAIN": {
+        "cache_identity": "b83c252eda6b3a4cdd3fb8ed8c249639f070955276ec445c8ade6fb0bde63b5b",
+        "data_bytes": 303972516000,
+        "duplicate_records": 0,
+        "future_valid_views_histogram": {
+          "0": 838,
+          "3": 90052
+        },
+        "manifest_body_sha256": "24c59c5f9ec79d4921cacecf9b79f33272e2642c07dbf5f0aabb11874dea62e8",
+        "manifest_file_sha256": "fc2d94f2ef70b4b195f1ee0a94377047c593fc651d94fab3b4e238d6586b367e",
+        "physical_records": 90890,
+        "shards": 450,
+        "status": "COMPLETE",
+        "timing_invalid_scenes": 838,
+        "unique_records": 90890,
+        "whole_shards_rehashed": false
+      }
+    },
+    "snapshot": "teacher_resolved_v3_final_20261025T160330Z",
+    "status": "PASS",
+    "unix": 1792949600.3108227
+  },
+  "effective_canonical_evaluator": {
+    "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "official_v1_python_files": 95,
+    "maps_root": "/mnt/navsim/maps",
+    "cache_roots": [
+      "/mnt/project/flow-safe-improvement-20261013/metric_cache_v1",
+      "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1"
+    ],
+    "source_recipe_cache_field": "locked legacy identity-only field; not a relocation control"
+  },
+  "offline_RGB_lifecycle_helper_sha256": "e729df7298acfbdc68bf7cfdf20cac02317c7a4f6654b43a739a309a3529cf5a"
+}

@@ -260,6 +260,85 @@ def test_future_image_preprocessing_uses_official_cv2_without_unused_pil(tmp_pat
     assert decoder.dino_decodes==1 and decoder.hits==1
 
 
+def test_rgb_checkpoint_never_overwrites_weights_receipt_or_partial(tmp_path):
+    from tools.qwen_world_postcot.train_rgb_decoder import save_checkpoint
+    state=dict(step=1,identity='rgb-test',model={'weight':torch.tensor([1.])})
+    path=tmp_path/'step_000001.pt';receipt=path.with_suffix('.receipt.json')
+    save_checkpoint(path,state)
+    original=(path.read_bytes(),receipt.read_bytes())
+    with pytest.raises(FileExistsError):
+        save_checkpoint(path,dict(state,model={'weight':torch.tensor([99.])}))
+    assert (path.read_bytes(),receipt.read_bytes())==original
+    orphan=tmp_path/'step_000002.pt'
+    orphan.with_suffix('.receipt.json').write_text('diagnostic receipt')
+    with pytest.raises(FileExistsError):save_checkpoint(orphan,state)
+    assert not orphan.exists()
+    interrupted=tmp_path/'step_000003.pt'
+    partial=interrupted.with_name(interrupted.name+'.partial');partial.write_bytes(b'interrupted')
+    with pytest.raises(FileExistsError):save_checkpoint(interrupted,state)
+    assert partial.read_bytes()==b'interrupted' and not interrupted.exists()
+
+
+def test_rgb_output_lock_excludes_another_process_and_releases(tmp_path):
+    import subprocess
+    import sys
+    from tools.qwen_world_postcot.train_rgb_decoder import output_run_lock
+    child="""import fcntl,sys
+with open(sys.argv[1],'a') as stream:
+    try:fcntl.flock(stream,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    except BlockingIOError:raise SystemExit(75)
+"""
+    lock=tmp_path/'.train_rgb_decoder.lock'
+    with output_run_lock(tmp_path):
+        assert subprocess.run([sys.executable,'-c',child,str(lock)],check=False).returncode==75
+        with pytest.raises(RuntimeError,match='owns this output'):
+            with output_run_lock(tmp_path):pass
+    assert subprocess.run([sys.executable,'-c',child,str(lock)],check=False).returncode==0
+
+
+@pytest.mark.parametrize('saved_step',[1473,2000,2001])
+def test_rgb_terminal_resume_is_read_only_and_over_budget_rejected(tmp_path,monkeypatch,capsys,saved_step):
+    # A CPU-only lifecycle fixture: no teacher/model forward is claimed here.
+    import json
+    import sys
+    from tools.qwen_world_postcot import train_rgb_decoder as module
+    root=tmp_path/'run';root.mkdir()
+    population=tmp_path/'population.json';population.write_text('{}')
+    checkpoint=root/f'step_{saved_step:06d}.pt'
+    module.save_checkpoint(checkpoint,dict(step=saved_step,identity='bound-run'))
+    if saved_step==1473:
+        module.save_checkpoint(root/'step_002000.pt',dict(step=2000,identity='bound-run'))
+    (root/'TRAINING_TOKENS.json').write_text('["scene"]')
+    (root/'resolved.json').write_text('{"original_config":true}')
+    (root/'RUN_STATUS.json').write_text('{"status":"COMPLETE","last_l1":0.057}')
+    (root/'.train_rgb_decoder.lock').touch()
+    before={path.name:(path.read_bytes(),path.stat().st_mtime_ns) for path in root.iterdir()}
+    reader=SimpleNamespace(records={'scene':{}},identity={'sha256':'teacher'},closed=False)
+    def close():reader.closed=True
+    reader.close=close
+    monkeypatch.setattr(module,'load_population',lambda _:({'cohort':'TRAIN'},[{'token':'scene'}]))
+    monkeypatch.setattr(module,'TeacherCacheReader',lambda *args,**kwargs:reader)
+    monkeypatch.setattr(module,'identity_hash',lambda _:'bound-run')
+    def forbidden(*args,**kwargs):raise AssertionError('Terminal resume must not initialize/train a model or RNG')
+    monkeypatch.setattr(module,'DINORGBDecoder',forbidden)
+    monkeypatch.setattr(module.random,'seed',forbidden)
+    monkeypatch.setattr(sys,'argv',['train_rgb_decoder','--population',str(population),
+        '--teacher-cache',str(tmp_path/'cache'),'--output',str(root),'--device','cpu',
+        '--updates','2000','--resume',str(checkpoint)])
+    rng=torch.get_rng_state().clone()
+    if saved_step==2000:
+        module.main()
+        result=json.loads(capsys.readouterr().out)
+        assert result['already_complete'] and result['optimizer_updates_performed']==0
+        assert result['artifacts_rewritten'] is False
+    elif saved_step>2000:
+        with pytest.raises(ValueError,match='exceeds.*budget'):module.main()
+    else:
+        with pytest.raises(ValueError,match='Obsolete.*later sealed'):module.main()
+    assert reader.closed and torch.equal(torch.get_rng_state(),rng)
+    assert {path.name:(path.read_bytes(),path.stat().st_mtime_ns) for path in root.iterdir()}==before
+
+
 def test_frozen_teacher_outer_train_keeps_eval():
     teacher=FrozenTargetModule();teacher.child=torch.nn.Dropout(.9)
     teacher.train(True)
