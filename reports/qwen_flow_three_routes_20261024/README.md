@@ -2,6 +2,8 @@
 
 [2026-10-25 02:50 UTC三路线进展、问题与下一步](STATUS_20261025_0250UTC.md)。
 
+[2026-10-25 09:08 UTC：首批完整测试、六组保持终点及全测试派发](STATUS_20261025_0908UTC.md)。
+
 # Qwen-Flow三条独立探索路线
 
 本轮由主agent统一协议与资源，恰好三个研究子agent：agent_latent_policy、agent_feedback_search、agent_preservation；均不得再委派。所有路线从同一成熟CANONICAL50k完整模型（原Navtest90.513164）独立开始，而非回退到较弱IL。部署输入为当前三视图、导航和合法ego状态，原生3维源ActionDiT，单候选10步shift5 ODE。潜策略只改变root分布；其他路线保持原ODE先验。
