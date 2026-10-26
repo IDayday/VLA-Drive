@@ -13,6 +13,7 @@ Executed:
 python3 -m unittest tests.rl.test_finite_navtest_scan tests.rl.test_compare_rl_checkpoints -v
 python3 -m py_compile scripts/analysis/qwen_sourceflow/finalize_navtest_scan.py scripts/analysis/qwen_sourceflow/compare_rl_checkpoints.py
 python3 -m scripts.analysis.qwen_sourceflow.finalize_navtest_scan --help
+/usr/bin/python3 scripts/analysis/qwen_sourceflow/finalize_navtest_scan.py --help
 ```
 
 Seven targeted CPU tests passed. These check finite scope/seed, distinct IL53
@@ -56,3 +57,9 @@ They are not evidence that any new checkpoint improves planning; that requires
 the full evaluation results. Shared worker wall, job elapsed, model loading,
 forward and scoring-wait costs are kept separate. Four reused export/parity
 artifacts retain their original checkpoint/hash identities and historical costs.
+
+The first CPU-only completion invocation exposed a direct-script import-path
+error before any analysis or publication. Its failure/log receipts are retained
+under the registration root. The direct entry now adds only the repository
+module root and passes the actual system-Python help check; a separately named
+second finalization attempt is used. GPU evaluator jobs were unaffected.

@@ -10,8 +10,13 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 
+# Support the documented direct script entry as well as python -m. This imports
+# only the stdlib finite-plan contract, without loading a model on the operator.
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from scripts.analysis.qwen_sourceflow.finite_navtest_scan import read, seal, validate_plan
 
 
