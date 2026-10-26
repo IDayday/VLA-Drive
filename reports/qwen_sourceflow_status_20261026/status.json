@@ -1,0 +1,203 @@
+{
+  "schema": "native_Qwen_flow_latest_saved_vs_completed_NAVTEST_status_v1",
+  "observed_utc": "2026-10-26T01:39:17.323296+00:00",
+  "protocol": {
+    "metric": "canonical_NAVSIM_v1.1",
+    "scenes": 12146,
+    "logs": 136,
+    "inference": "single_candidate_source_shift5_ODE_K10",
+    "inference_seed": 2101,
+    "training_seed": 42
+  },
+  "IL53k_parent_PDMS": 87.01602541637695,
+  "rows": [
+    {
+      "key": "native_IL",
+      "label": "原生Qwen-Flow IL",
+      "run": "/mnt/project/qwen-sourceflow-native-20261018/runs/IL_seed42_v2",
+      "latest_saved_update": 84000,
+      "latest_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/IL_seed42_v2/checkpoints/update084000",
+      "latest_checkpoint_files_sha256": "004c388773023751958f4a99b12df8e10a13bef623dca0df4c94c776de894e69",
+      "last_full_Navtest_update": 77000,
+      "PDMS": 88.14494514531874,
+      "RL_parent_update": null,
+      "metrics_percent": {
+        "no_at_fault_collisions": 98.32043471101596,
+        "drivable_area_compliance": 96.30330973159889,
+        "ego_progress": 82.42789936121704,
+        "time_to_collision_within_bound": 94.6978429112465,
+        "comfort": 99.96706734727482,
+        "driving_direction_compliance": 98.49333113782315,
+        "score": 88.14494514531874
+      },
+      "summary": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261025T120536Z/analysis/IL_summary.json",
+      "summary_sha256": "21f0f3a0554ee6e4841ac9ac275d15846a8f5ac0fe9b544f093fe774c085187e",
+      "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_update077000_NAVTEST_user_20261025T120536Z",
+      "fully_evaluated_latest_checkpoint": false
+    },
+    {
+      "key": "canonical53",
+      "label": "CANONICAL RL（IL53k父模型）",
+      "run": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_seed42",
+      "latest_saved_update": 50000,
+      "latest_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_seed42/checkpoints/update050000_inner0",
+      "latest_checkpoint_files_sha256": "9df11a1ef4acc59cc5b252850c18674d6bc255ea10fd3d603e8d8623e289b0b0",
+      "last_full_Navtest_update": 50000,
+      "PDMS": 90.513164102699,
+      "RL_parent_update": 53000,
+      "metrics_percent": {
+        "no_at_fault_collisions": 98.76502552280586,
+        "drivable_area_compliance": 98.04050716285197,
+        "ego_progress": 83.90198473909186,
+        "time_to_collision_within_bound": 96.50913881113124,
+        "comfort": 99.94236785773094,
+        "driving_direction_compliance": 98.04050716285197,
+        "score": 90.513164102699
+      },
+      "summary": "/mnt/project/qwen-sourceflow-native-20261018/analysis/RL_canonical_update050000_NAVTEST.json",
+      "summary_sha256": "361e7c175b56a539fe9d965968441e791d9f7c4cf01563ef9b25fd8f57edbce9",
+      "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/RL_canonical_update050000_NAVTEST",
+      "fully_evaluated_latest_checkpoint": true,
+      "delta_vs_own_IL53k_points": 3.497138686322046,
+      "delta_vs_CANONICAL50k_points": 0.0,
+      "zero_transitions_vs_IL53k": {
+        "new_zero": 98,
+        "recovered": 504,
+        "fixed_IL_safe_new_joint_violation": 139
+      }
+    },
+    {
+      "key": "source53",
+      "label": "SOURCE RL（IL53k父模型）",
+      "run": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_SOURCE_seed42",
+      "latest_saved_update": 50000,
+      "latest_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_SOURCE_seed42/checkpoints/update050000_inner0",
+      "latest_checkpoint_files_sha256": "2eb947202cec997e5260293ac4d50bcd920c0a22e7950c1d2069ec4e2034c5ee",
+      "last_full_Navtest_update": 50000,
+      "PDMS": 90.36016998685224,
+      "RL_parent_update": 53000,
+      "metrics_percent": {
+        "no_at_fault_collisions": 98.38218343487569,
+        "drivable_area_compliance": 97.97464185740161,
+        "ego_progress": 84.82275281604645,
+        "time_to_collision_within_bound": 95.44706076074428,
+        "comfort": 99.95060102091223,
+        "driving_direction_compliance": 97.97464185740161,
+        "score": 90.36016998685224
+      },
+      "summary": "/mnt/project/qwen-sourceflow-native-20261018/analysis/RL_source_update050000_NAVTEST.json",
+      "summary_sha256": "ca16710f7c44560a9f7bb1559c010b81e8b7e8e925f8d2f85f0d4aa3fc05de23",
+      "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/RL_source_update050000_NAVTEST",
+      "fully_evaluated_latest_checkpoint": true,
+      "delta_vs_own_IL53k_points": 3.3441445704752937,
+      "delta_vs_CANONICAL50k_points": -0.15299411584675227,
+      "zero_transitions_vs_IL53k": {
+        "new_zero": 101,
+        "recovered": 453,
+        "fixed_IL_safe_new_joint_violation": 177
+      }
+    },
+    {
+      "key": "wla_adv",
+      "label": "WLA_ADV RL（IL53k父模型）",
+      "run": "/mnt/project/qwen-sourceflow-safe-rl-20261024/runs/RL_WLA_ADV_seed42",
+      "latest_saved_update": 50000,
+      "latest_checkpoint": "/mnt/project/qwen-sourceflow-safe-rl-20261024/runs/RL_WLA_ADV_seed42/checkpoints/update050000_inner0",
+      "latest_checkpoint_files_sha256": "4599c4b17e4ada4c7b35f939d92ceabbd83b5c01f2a1810c703dca7baede4aac",
+      "last_full_Navtest_update": 50000,
+      "PDMS": 89.61765984129099,
+      "RL_parent_update": 53000,
+      "metrics_percent": {
+        "no_at_fault_collisions": 97.7646961962786,
+        "drivable_area_compliance": 97.48065206652396,
+        "ego_progress": 85.99321289828362,
+        "time_to_collision_within_bound": 93.5534332290466,
+        "comfort": 99.34134694549645,
+        "driving_direction_compliance": 97.86761073604478,
+        "score": 89.61765984129099
+      },
+      "summary": "/mnt/project/qwen-sourceflow-safe-rl-20261024/analysis/RL_wla_adv_update050000_NAVTEST.json",
+      "summary_sha256": "86982405df635af9b88fc7162a87530d0fe281785b99351211272333d574f1c8",
+      "evaluation": "/mnt/project/qwen-sourceflow-safe-rl-20261024/evaluations/RL_wla_adv_update050000_NAVTEST",
+      "fully_evaluated_latest_checkpoint": true,
+      "delta_vs_own_IL53k_points": 2.601634424914039,
+      "delta_vs_CANONICAL50k_points": -0.8955042614080071,
+      "zero_transitions_vs_IL53k": {
+        "new_zero": 164,
+        "recovered": 386,
+        "fixed_IL_safe_new_joint_violation": 327
+      }
+    },
+    {
+      "key": "scadv3",
+      "label": "SCADV3 RL（IL53k父模型）",
+      "run": "/mnt/project/qwen-sourceflow-safe-rl-20261024/runs/RL_SCADV3_seed42",
+      "latest_saved_update": 50000,
+      "latest_checkpoint": "/mnt/project/qwen-sourceflow-safe-rl-20261024/runs/RL_SCADV3_seed42/checkpoints/update050000_inner0",
+      "latest_checkpoint_files_sha256": "e75bdb8970a7b5310eeb73893b4ef954c5802f568a62139a22516fb4f9a7caa7",
+      "last_full_Navtest_update": 50000,
+      "PDMS": 90.32419929979503,
+      "RL_parent_update": 53000,
+      "metrics_percent": {
+        "no_at_fault_collisions": 98.5509632800922,
+        "drivable_area_compliance": 97.59591635106207,
+        "ego_progress": 84.77083965721403,
+        "time_to_collision_within_bound": 95.81755310390253,
+        "comfort": 99.92590153136835,
+        "driving_direction_compliance": 97.91700971513255,
+        "score": 90.32419929979503
+      },
+      "summary": "/mnt/project/qwen-sourceflow-safe-rl-20261024/analysis/RL_scadv3_update050000_NAVTEST.json",
+      "summary_sha256": "2a759091e7eab9d3da2a81ddec669ca4dfe8954ac55bab680aeb0e02ad87ab54",
+      "evaluation": "/mnt/project/qwen-sourceflow-safe-rl-20261024/evaluations/RL_scadv3_update050000_NAVTEST",
+      "fully_evaluated_latest_checkpoint": true,
+      "delta_vs_own_IL53k_points": 3.3081738834180783,
+      "delta_vs_CANONICAL50k_points": -0.18896480290396767,
+      "zero_transitions_vs_IL53k": {
+        "new_zero": 107,
+        "recovered": 436,
+        "fixed_IL_safe_new_joint_violation": 170
+      }
+    },
+    {
+      "key": "canonical77",
+      "label": "CANONICAL RL（IL77k父模型）",
+      "run": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_IL077000_seed42",
+      "latest_saved_update": 19800,
+      "latest_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/runs/RL_CANONICAL_IL077000_seed42/checkpoints/update019800_inner0",
+      "latest_checkpoint_files_sha256": "ddb0e4558ddf57d76cfe50053a8f8dc53702edd99377ce445b2efd56c9b5d12d",
+      "last_full_Navtest_update": null,
+      "PDMS": null,
+      "RL_parent_update": 77000,
+      "fully_evaluated_latest_checkpoint": false
+    },
+    {
+      "key": "dino_fresh",
+      "label": "三帧＋当前DINO，从头IL",
+      "run": "/mnt/project/qwen-sourceflow-temporal-dino-20261024/runs/IL_temporal_DINO_fresh_seed42",
+      "latest_saved_update": 12000,
+      "latest_checkpoint": "/mnt/project/qwen-sourceflow-temporal-dino-20261024/runs/IL_temporal_DINO_fresh_seed42/checkpoints/update012000",
+      "latest_checkpoint_files_sha256": "f91d713781863232324c35b5e685d26110b57d90b9ca93a3b6788725b34fdde3",
+      "last_full_Navtest_update": 5000,
+      "PDMS": 74.28725273576158,
+      "RL_parent_update": null,
+      "metrics_percent": {
+        "no_at_fault_collisions": 95.92458422525935,
+        "drivable_area_compliance": 87.15626543718096,
+        "ego_progress": 69.1203982021529,
+        "time_to_collision_within_bound": 87.70788737032767,
+        "comfort": 97.36538778198583,
+        "driving_direction_compliance": 96.27037707887371,
+        "score": 74.28725273576158
+      },
+      "summary": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261025T120536Z/analysis/temporal_summary.json",
+      "summary_sha256": "460327b6363909076d6282b52ad2fc6d13635432d732c3380cd1fc6c4cca6f8a",
+      "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/DINO_FRESH_update005000_NAVTEST_user_20261025T120536Z",
+      "fully_evaluated_latest_checkpoint": false
+    }
+  ],
+  "no_new_inference_or_scoring": true,
+  "no_training_or_checkpoint_selection_changed": true,
+  "no_nonwhitelist_dispatch": true,
+  "sha256": "06dc85f081f53fdd8be5247b1e8bf49336ac2217c6002deaedca9e93fb8a492f"
+}
