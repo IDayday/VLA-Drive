@@ -1,0 +1,182 @@
+{
+  "schema": "native_IL_milestones_paired_v1",
+  "status": "COMPLETE",
+  "interpretation": "IL checkpoint learning only; not RL gain or IL parent selection",
+  "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_087000_NAVTEST_user_20261026T0755Z",
+  "reference": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_update077000_NAVTEST_user_20261025T120536Z",
+  "current_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/IL77_87_NAVTEST_20261026T0755Z/checkpoints/update087000",
+  "reference_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261025T120536Z/checkpoints/IL_update077000",
+  "current_model_sha256": "71cc99b618b01e096d073a409205ec5a48123ca0c5bc0b27147790b3a9c3ed41",
+  "reference_model_sha256": "79fa4bdc17fb6d8577f687e679fde8bb42caafe661918299427d7d589e41f14c",
+  "analysis_sha256": "33373ac3f00692f6eed0cd3d145d321540e2fbb7c00c4a36db575091c70294d4",
+  "scenes": 12146,
+  "integrity_analysis_sha256": "2f6b9c0daf7c47c21753e6b7b846c44f653034a9423129bf8a9cdfe2159ebde5",
+  "source_compatibility": {
+    "mode": "identical_source_files"
+  },
+  "logs": 136,
+  "seed": 2101,
+  "inference": "single_candidate_source_shift5_ODE_K10",
+  "metric": "canonical_NAVSIM_v1.1",
+  "training_seed_repeats": 1,
+  "inference_seeds": 1,
+  "uncertainty": "Scene-weighted log-cluster bootstrap; excludes training/inference seed uncertainty",
+  "current_mean_percent": {
+    "score": 87.93189914253756,
+    "no_at_fault_collisions": 98.30396838465339,
+    "drivable_area_compliance": 96.08924748888523,
+    "time_to_collision_within_bound": 94.59904495307097,
+    "ego_progress": 82.29491128034316,
+    "comfort": 99.93413469454964,
+    "driving_direction_compliance": 98.50979746418574
+  },
+  "reference_mean_percent": {
+    "score": 88.14494514531874,
+    "no_at_fault_collisions": 98.32043471101596,
+    "drivable_area_compliance": 96.30330973159889,
+    "time_to_collision_within_bound": 94.6978429112465,
+    "ego_progress": 82.42789936121704,
+    "comfort": 99.96706734727482,
+    "driving_direction_compliance": 98.49333113782315
+  },
+  "mean_delta_percentage_points": {
+    "score": -0.21304600278117522,
+    "no_at_fault_collisions": -0.016466326362588508,
+    "drivable_area_compliance": -0.2140622427136506,
+    "time_to_collision_within_bound": -0.09879795817553103,
+    "ego_progress": -0.1329880808738996,
+    "comfort": -0.032932652725177015,
+    "driving_direction_compliance": 0.016466326362588508
+  },
+  "PDMS_log_cluster_bootstrap": {
+    "mean": -0.0021304600278117523,
+    "CI95": [
+      -0.004482618387674662,
+      8.775290061855166e-05
+    ],
+    "scenes": 12146,
+    "logs": 136,
+    "bootstrap_repeats": 2000,
+    "seed": 42,
+    "training_seed_uncertainty_included": false,
+    "mean_PDMS_points": -0.21304600278117522,
+    "CI95_PDMS_points": [
+      -0.4482618387674662,
+      0.008775290061855165
+    ]
+  },
+  "G_plus_raw_score_sum": 119.07364937689648,
+  "G_minus_raw_score_sum": 144.95021687469801,
+  "G_plus_PDMS_points": 0.9803527859122055,
+  "G_minus_PDMS_points": 1.1933987886933808,
+  "any_improved": 4546,
+  "any_degraded": 3393,
+  "practical_improved_ge005": 1603,
+  "practical_degraded_le_minus005": 1325,
+  "reference_zero_scenes": 636,
+  "current_zero_scenes": 664,
+  "nonzero_to_zero": 111,
+  "zero_to_nonzero": 83,
+  "reference_joint_safe_scenes": 11088,
+  "current_joint_safe_scenes": 11053,
+  "reference_safe_new_joint_violation": 160,
+  "reference_unsafe_joint_recovery": 125,
+  "current_full_score_scenes": 3549,
+  "safety_transitions": {
+    "no_at_fault_collisions": {
+      "reference_violation": 214,
+      "current_violation": 214,
+      "new_violation": 25,
+      "recovery": 25
+    },
+    "drivable_area_compliance": {
+      "reference_violation": 449,
+      "current_violation": 475,
+      "new_violation": 90,
+      "recovery": 64
+    },
+    "time_to_collision_within_bound": {
+      "reference_violation": 644,
+      "current_violation": 656,
+      "new_violation": 83,
+      "recovery": 71
+    }
+  },
+  "current_motion": {
+    "request_final_forward_m": {
+      "mean": 19.21442046356166,
+      "defined_scenes": 12146
+    },
+    "request_final_lateral_m": {
+      "mean": 0.7851845623338594,
+      "defined_scenes": 12146
+    },
+    "request_mean_segment_speed_mps": {
+      "mean": 5.022008159687036,
+      "defined_scenes": 12146
+    },
+    "request_segment_jerk_RMS_mps3": {
+      "mean": 5.247097280712506,
+      "defined_scenes": 12146
+    },
+    "simulated_final_forward_m": {
+      "mean": 19.574812299925735,
+      "defined_scenes": 12146
+    },
+    "simulated_abs_final_lateral_m": {
+      "mean": 2.6080561270802436,
+      "defined_scenes": 12146
+    },
+    "simulated_mean_segment_speed_mps": {
+      "mean": 5.085647108030692,
+      "defined_scenes": 12146
+    },
+    "simulated_time_to_90percent_own_path_s": {
+      "mean": 3.545677589329821,
+      "defined_scenes": 12146
+    },
+    "raw_progress_meters": {
+      "mean": 20.257225831917943,
+      "defined_scenes": 12146
+    }
+  },
+  "reference_motion": {
+    "request_final_forward_m": {
+      "mean": 19.230902627333766,
+      "defined_scenes": 12146
+    },
+    "request_final_lateral_m": {
+      "mean": 0.7824961449352851,
+      "defined_scenes": 12146
+    },
+    "request_mean_segment_speed_mps": {
+      "mean": 5.00580510503343,
+      "defined_scenes": 12146
+    },
+    "request_segment_jerk_RMS_mps3": {
+      "mean": 3.5052958424268015,
+      "defined_scenes": 12146
+    },
+    "simulated_final_forward_m": {
+      "mean": 19.533999444375393,
+      "defined_scenes": 12146
+    },
+    "simulated_abs_final_lateral_m": {
+      "mean": 2.60236128582348,
+      "defined_scenes": 12146
+    },
+    "simulated_mean_segment_speed_mps": {
+      "mean": 5.074801444589708,
+      "defined_scenes": 12146
+    },
+    "simulated_time_to_90percent_own_path_s": {
+      "mean": 3.5477688127778695,
+      "defined_scenes": 12146
+    },
+    "raw_progress_meters": {
+      "mean": 20.216493477731966,
+      "defined_scenes": 12146
+    }
+  },
+  "sha256": "1de09dc925760456a226daa3b4c186411c895020fd7e5a3bb62ca29ce623053e"
+}

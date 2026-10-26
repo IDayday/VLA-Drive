@@ -1,56 +1,53 @@
 # SCADV3 intermediate and latest-checkpoint Navtest
 
-The finite scan is **running**, not complete. It preserves canonical NAVSIM v1.1,
-single-candidate source-shift5 ODE K10, inference seed2101, and the complete
-12,146-scene / 136-log Navtest population. Training is unchanged.
+Full12146 scenes/136 logs; canonical NAVSIM v1.1; single-candidate shift5 ODE K10; seed2101. All continuation workers exited and exact scene membership/seals passed. The former vla-zt3 admission is closed. No training, checkpoint choice or reward configuration was changed.
 
-Previously completed, sealed full-population results:
-
-| SCADV3 optimizer update | PDMS |
+| SCADV3 optimizer update | Full Navtest PDMS |
 |---:|---:|
 | 1,300 | 88.993109 |
+| 5,000 | 89.453491 |
+| 10,000 | 90.199255 |
 | 12,900 | 90.285245 |
-| 26,900 | **90.435625** |
+| 20,000 | 90.378165 |
+| 25,000 | 90.208996 |
+| 26,900 | 90.435625 |
+| 30,000 | 90.307258 |
 | 32,000 | 90.098149 |
-| 50,000 fixed endpoint | 90.324199 |
+| 35,000 | 90.320953 |
+| 40,000 | 90.379557 |
+| 45,000 | 90.474315 |
+| 50,000 | 90.324199 |
 
-26.9k exceeds SCADV3's fixed50k endpoint by **0.111426 points**, with paired
-log-bootstrap95% interval **[−0.086043, +0.329000]**. Its G+ contribution is
-1.218550 points and G− is1.107124;75 nonzero→zero and96 zero→nonzero scenes.
-NC new violations/recoveries are36/28, DAC42/72, TTC101/90. This supports a
-higher observed intermediate mean, not an established general improvement.
+Highest observed SCADV3: **45,000, 90.474315**. Fixed50k endpoint: **90.324199**. This is exploratory Test checkpoint scanning; a higher intermediate score is not an independent confirmation.
 
-Original CANONICAL50k is90.513164. SCADV3 26.9k is lower by0.077539 points,
-with95% interval[−0.343744,+0.165040]. Compared with CANONICAL, its NC/DAC/TTC
-new violations/recoveries are54/19,65/41,151/56. The intermediate peak does not
-establish that SCADV3 solved safety degradation.
+| Additional checkpoint | Updates | Full Navtest PDMS |
+|---|---:|---:|
+| IL_LATEST | 86,000 | 87.886957 |
+| RL77_LATEST | 24,600 | 90.689893 |
+| DINO_FRESH_LATEST | 14,000 | 82.899980 |
+| IL77_CONTROL | 77,000 | 88.144945 |
+| IL_080000 | 80,000 | 88.157880 |
+| IL_087000 | 87,000 | 87.931899 |
 
-The locked new checkpoints are SCADV3 5/10/20/25/30/35/40/45k, original IL86k,
-IL77k-parent canonical RL24.6k, and fresh three-frame/current-DINO IL14k.
-An exact-source IL77k control is also included, giving12 full evaluations and
-145,752 logical single-candidate inferences. Latest weights are pinned once;
-this campaign does not continually chase newer checkpoints.
+Paired analyses preserve strict source, protocol, population, precision and parent checks. IL77-parent RL is compared with its newly reevaluated exact-source IL77 control, not with IL53. DINO14k is compared with fresh DINO5k, not the paused warm-start experiment.
 
-Four SCADV3 merged exports and their sealed native/merged parity proofs are
-reused. Other RL exports require fresh parity before inference. DINO requires
-native-predict parity before admitting its remaining shards. IL77-parent RL
-uses its own permanent IL77 reference and evaluator source; it must not inherit
-IL53 scores as a matched control. No source-file equality assertions are removed.
+| Paired comparison | Net PDMS points | 95% log-bootstrap interval | G+ | G− | Nonzero→zero / zero→nonzero |
+|---|---:|---|---:|---:|---:|
+| best_SCADV3_vs_fixed50k | +0.150116 | [-0.081990, +0.379570] | 1.170795 | 1.020679 | 88 / 81 |
+| best_SCADV3_vs_CANONICAL50k | -0.038849 | [-0.344757, +0.251171] | 1.417838 | 1.456687 | 137 / 53 |
+| best_SCADV3_vs_own_IL53k | +3.458290 | [+2.841994, +4.055019] | 4.995584 | 1.537294 | 128 / 450 |
+| RL77_latest_vs_exact_IL77_control | +2.544948 | [+2.051573, +3.047949] | 4.164746 | 1.619798 | 78 / 392 |
+| IL86k_vs_IL77k | -0.257988 | [-0.495676, -0.037380] | 0.995481 | 1.253469 | 124 / 83 |
+| DINO14k_vs_DINO5k | +8.612728 | [+7.550240, +9.657886] | 12.880140 | 4.267413 | 418 / 1227 |
+| IL_080000_vs_IL77k | +0.012935 | [-0.208908, +0.234895] | 1.008714 | 0.995780 | 93 / 90 |
+| IL_087000_vs_IL77k | -0.213046 | [-0.448262, +0.008775] | 0.980353 | 1.193399 | 111 / 83 |
 
-The user newly authorized vla-zt3 for this finite Navtest only. Admission uses
-actual GPU UUIDs, visible ownership, headroom and loading reservations. Training
-is protected; temporary admission closes after all owned workers exit. Other
-expired temporary hosts remain excluded. At most two evaluators share an
-initially idle GPU and one shares an active-training GPU if measured capacity
-permits. Worker occupancy is not exclusive GPU compute time.
+NC/DAC/TTC new violations and recoveries are recorded separately in each linked paired JSON; net zero-score counts do not establish safety improvement. Uncertainty is paired log-cluster resampling only, with one training and one inference seed; it does not include seed or checkpoint-selection uncertainty.
 
-This is a user-requested **exploratory Test scan**. Any highest intermediate
-checkpoint is identified as Test-selected; the fixed50k endpoint remains in the
-report. Bootstrap intervals do not correct for selecting among checkpoints.
-No new training seed, inference-seed matrix, oracle or best-of-N is introduced.
+New logical single candidates: 170,044; physical including retries: 170,044. This owner elapsed: 1.566 h; summed shared worker occupancy: 68.532 h. Export/parity and historic reuse costs remain separate in native receipts.
 
-[registration.json](registration.json) fixes checkpoint/source identities and
-budgets. [historical_results.json](historical_results.json) contains the five
-full historical summaries. The two `historical_*.json` files contain paired
-comparisons and safety transitions. [validation.md](validation.md) documents
-the executed checks and completion/report commands.
+Machine-readable details: [results.json](results.json); frozen scope: [registration.json](registration.json). All scores use the same official metric; no oracle, best-of-N, seed selection or protocol switch.
+
+The previous vla-zt3 transport stopped with released actor/worker locks. Original invocation records remain unmodified and their exact process exits cannot be remotely confirmed. Only missing scenes were resumed on fixed hosts under the same rank locks/source/seed. Recorded physical costs are lower bounds because lost-host tail time is unknown; it is not filled with zero. The prior attempt is retained as COMPLETE_WITH_FAILURES, not relabeled as successful.
+
+Full elapsed campaign span, including original failed attempt, handoff and continuation: 4.664 h. This wall time includes idle/lost-host delay, and is not GPU compute time.
