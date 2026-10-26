@@ -133,6 +133,12 @@ def main():
     cost['physical_GPU_UUIDs'] = len({u for j in placements for u in j['spec']['gpu_uuids']})
     cost['job_invocations'] = len(placements)
     cost['export_and_parity_costs'] = 'Separate native job receipts in registration root; four historic SCADV exports/parity proofs reused, not free data.'
+    if plan.get('previous_control_root'):
+        previous = Path(plan['previous_control_root'])
+        start = read(previous / 'owner.json')['at']
+        cost['elapsed_campaign_span_seconds'] = done['at'] - start
+        cost['elapsed_prior_failed_owner_seconds'] = read(previous / 'COMPLETE.json')['at'] - start
+        cost['elapsed_owner_scope'] = 'Continuation only; campaign span includes the failed transport attempt and handoff.'
     result = dict(schema='finite_navtest_scan_report_v1', status='COMPLETE',
                   completed_utc=datetime.now(timezone.utc).isoformat(), registration_sha256=plan['sha256'],
                   summaries=summary, SCADV3_curve={str(k): v for k, v in sorted(curve.items())},
@@ -142,6 +148,7 @@ def main():
                   analyses=analyses, costs=cost, lease_closed=read(root / 'lease_closed.json'))
     result['sha256'] = seal(result)
     report.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(args.registration, report / 'registration.json')
     (report / 'results.json').write_text(json.dumps(result, indent=2) + '\n')
     for name, entry in analyses.items():
         shutil.copyfile(entry['path'], report / (name + '.json'))
@@ -172,7 +179,7 @@ def main():
               'net zero-score counts do not establish safety improvement. Uncertainty is paired log-cluster resampling only, '
               'with one training and one inference seed; it does not include seed or checkpoint-selection uncertainty.', '',
               f'New logical single candidates: {cost["logical_single_candidates"]:,}; physical including retries: '
-              f'{cost["physical_inference_including_retries"]:,}. Owner elapsed: {cost["elapsed_owner_seconds"]/3600:.3f} h; '
+              f'{cost["physical_inference_including_retries"]:,}. This owner elapsed: {cost["elapsed_owner_seconds"]/3600:.3f} h; '
               f'summed shared worker occupancy: {cost["worker_wall_seconds"]/3600:.3f} h. '
               'Export/parity and historic reuse costs remain separate in native receipts.', '',
               'Machine-readable details: [results.json](results.json); frozen scope: [registration.json](registration.json). '
@@ -183,6 +190,10 @@ def main():
                   'were resumed on fixed hosts under the same rank locks/source/seed. Recorded physical costs are '
                   'lower bounds because lost-host tail time is unknown; it is not filled with zero. The prior attempt '
                   'is retained as COMPLETE_WITH_FAILURES, not relabeled as successful.', '']
+    if 'elapsed_campaign_span_seconds' in cost:
+        lines += [f'Full elapsed campaign span, including original failed attempt, handoff and continuation: '
+                  f'{cost["elapsed_campaign_span_seconds"]/3600:.3f} h. This wall time includes idle/lost-host delay, '
+                  'and is not GPU compute time.', '']
     (report / 'README.md').write_text('\n'.join(lines))
     print(json.dumps(dict(status='COMPLETE', report=str(report), best_SCADV3_update=best_step, PDMS=best['PDMS'])))
 
