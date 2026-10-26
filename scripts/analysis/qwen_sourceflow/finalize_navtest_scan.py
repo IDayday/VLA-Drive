@@ -110,6 +110,10 @@ def main():
     ]
     if best_step != 50000:
         jobs.insert(0, ('best_SCADV3_vs_fixed50k', compare, best['evaluation'], historical[50000]['evaluation']))
+    for label in ['IL_080000', 'IL_087000']:
+        if label in summary:
+            jobs.append((label + '_vs_IL77k', il, summary[label]['evaluation'],
+                         NATIVE / 'evaluations/IL_update077000_NAVTEST_user_20261025T120536Z'))
     for name, module, current, reference in jobs:
         path, row = run_analysis(root, name, module, current, reference)
         analyses[name] = dict(path=str(path), sha256=row['sha256'])
@@ -120,6 +124,8 @@ def main():
                 forward_worker_seconds=sum(r['forward_worker_seconds'] for r in summary.values()),
                 scoring_wait_worker_seconds=sum(r['scoring_wait_worker_seconds'] for r in summary.values()),
                 elapsed_owner_seconds=done['at'] - read(root / 'owner.json')['at'],
+                physical_cost_is_lower_bound=any(r.get('physical_cost_is_lower_bound', False) for r in summary.values()),
+                transport_lost_invocations=[x for r in summary.values() for x in r.get('transport_lost_invocations', [])],
                 semantics='Shared worker occupancy; neither exclusive GPU compute nor sum of workers equals job wall.')
     if cost['logical_single_candidates'] != plan['total_new_single_candidate_inferences']:
         raise ValueError('Changed logical evaluation budget')
@@ -141,7 +147,7 @@ def main():
         shutil.copyfile(entry['path'], report / (name + '.json'))
     lines = ['# SCADV3 intermediate and latest-checkpoint Navtest', '',
              'Full12146 scenes/136 logs; canonical NAVSIM v1.1; single-candidate shift5 ODE K10; seed2101. '
-             'All registered native workers exited, exact scene membership/seals passed, and the temporary vla-zt3 lease closed. '
+             'All continuation workers exited and exact scene membership/seals passed. The former vla-zt3 admission is closed. '
              'No training, checkpoint choice or reward configuration was changed.', '',
              '| SCADV3 optimizer update | Full Navtest PDMS |', '|---:|---:|']
     lines += [f'| {step:,} | {row["PDMS"]:.6f} |' for step, row in sorted(curve.items())]
@@ -171,6 +177,12 @@ def main():
               'Export/parity and historic reuse costs remain separate in native receipts.', '',
               'Machine-readable details: [results.json](results.json); frozen scope: [registration.json](registration.json). '
               'All scores use the same official metric; no oracle, best-of-N, seed selection or protocol switch.', '']
+    if cost['physical_cost_is_lower_bound']:
+        lines += ['The previous vla-zt3 transport stopped with released actor/worker locks. Original invocation records '
+                  'remain unmodified and their exact process exits cannot be remotely confirmed. Only missing scenes '
+                  'were resumed on fixed hosts under the same rank locks/source/seed. Recorded physical costs are '
+                  'lower bounds because lost-host tail time is unknown; it is not filled with zero. The prior attempt '
+                  'is retained as COMPLETE_WITH_FAILURES, not relabeled as successful.', '']
     (report / 'README.md').write_text('\n'.join(lines))
     print(json.dumps(dict(status='COMPLETE', report=str(report), best_SCADV3_update=best_step, PDMS=best['PDMS'])))
 

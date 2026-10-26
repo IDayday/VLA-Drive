@@ -34,8 +34,14 @@ def validate_plan(plan):
         plan['inference'] != 'single_candidate_source_shift5_ODE_K10' or
         plan['temporary_eval_host'] != 'training-vla-zt3'):
         raise ValueError('Unregistered population/sampling/host scope')
-    if len(plan['models']) != 12 or plan['total_new_single_candidate_inferences'] != 12 * 12146:
-        raise ValueError('This request has twelve fixed models/controls, not a moving checkpoint stream')
+    extended = plan.get('schema') == 'finite_SCADV3_latest_and_IL_intermediates_full_NAVTEST_v2'
+    expected = 14 if extended else 12
+    if len(plan['models']) != expected or plan['total_new_single_candidate_inferences'] != expected * 12146:
+        raise ValueError('This request has a fixed model list, not a moving checkpoint stream')
+    if extended and (not plan.get('original_registration_sha256') or
+            {k: plan['models'][k]['updates'] for k in ['IL_080000', 'IL_087000']} !=
+            {'IL_080000': 80000, 'IL_087000': 87000}):
+        raise ValueError('The explicit extension is IL80k/87k only')
     for label, model in plan['models'].items():
         if Path(label).name != label or model['kind'] not in ('rl', 'il_interim', 'temporal', 'il_parent_control'):
             raise ValueError('Unknown model role')
