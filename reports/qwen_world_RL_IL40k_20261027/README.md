@@ -61,6 +61,14 @@ python -m tools.qwen_world_postcot.start_parent40_rl \
 owner现显式在导入torch之前设置已有数值合同要求的 `:4096:8`；不关闭deterministic检查，
 不改actor数学。第二次验收使用新的attempt/qualification目录，禁止覆盖首轮失败证据。
 
+第二次验收已真实生成并独立评分64条候选，八rank的随机步骤7/8/9实际采样mean/std与重算
+精确一致。提交前，通用恢复验证器只识别旧native3D schema、将World默认判为旧DDP4D，
+故拒绝chain，仍未发生optimizer更新。已新增严格World schema分支，校验8×3、clean-x架构、
+冻结condition的token/identity/repeats，并把condition加入链摘要；旧native3D和DDP4D检查保留。
+真实八rank已保存链的boundary/global-advantage/mean-std验证PASS；新增恢复回归后共46测试PASS。
+这是恢复接口适配，不改轨迹、reward、优势或actor梯度。第二轮64次实际评分计入失败成本，
+不计作正式有效数据；第三轮采用新目录重新真实采样。旧失败和未发布rollout全部保留。
+
 训练milestone保持0/5k/10k/20k/35k/50k；Navtest只有固定seed2101、全12146、同源单候选ODE。
 后续与自身IL40k作逐场景配对，报告NC/DAC/TTC、G+/G−和零分转移。
 不因训练reward或DEV上升宣称成功；未完成阶段不填造分数。

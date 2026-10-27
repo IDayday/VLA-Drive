@@ -30,7 +30,8 @@ def tensor_digest(value):
 
 def rollout_digest(rollout):
     keys = ['chain', 'old_logp', 'advantages', 'adv_mask', 'behavior_version']
-    if rollout.get('cond_bg', {}).get('schema') == 'native_frozen_observation_v1':
+    if rollout.get('cond_bg', {}).get('schema') in (
+            'native_frozen_observation_v1','world_postcot_frozen_observation_v1'):
         keys.append('cond_bg')
     return {k: tensor_digest(rollout[k]) for k in keys}
 
@@ -74,12 +75,19 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
         missing = set(required) - set(rollout)
         if missing: raise ValueError('Unfinalized rollout: ' + repr(sorted(missing)))
         action_dim = 4
-        if identity.get('schema') == 'native_qwen_sourceflow_RL_v1':
+        native = identity.get('schema') == 'native_qwen_sourceflow_RL_v1'
+        world_cleanx = identity.get('schema') == 'world_postcot_cleanx_canonical_RL_v1'
+        if native or world_cleanx:
             if cfg['action_shape'] != [8, 3]:
                 raise ValueError('Changed native 3D action contract')
+            if world_cleanx and (cfg.get('model_family')!='QwenWorldPostCoT'
+                                or cfg.get('prediction_type')!='x0'):
+                raise ValueError('Changed World clean-x recovery contract')
             descriptor = rollout['cond_bg']
+            condition_schema=('world_postcot_frozen_observation_v1' if world_cleanx
+                              else 'native_frozen_observation_v1')
             if (set(descriptor) != {'schema', 'token', 'identity', 'repeats'} or
-                    descriptor['schema'] != 'native_frozen_observation_v1' or
+                    descriptor['schema'] != condition_schema or
                     descriptor['token'] != rollout['token'] or descriptor['repeats'] != 8 or
                     descriptor['identity'] != identity['projected_condition_identity']):
                 raise ValueError('Native frozen condition ancestry mismatch')
