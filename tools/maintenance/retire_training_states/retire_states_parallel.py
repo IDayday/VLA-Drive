@@ -6,10 +6,12 @@ import gc
 import hashlib
 import json
 import os
+import struct
 from pathlib import Path
 import time
 
 import torch
+import numpy as np
 
 ROOT = Path(__file__).resolve().parent
 
@@ -34,7 +36,13 @@ def sha(path):
 
 def same_tree(a, b):
     if isinstance(a, torch.Tensor):
-        return isinstance(b, torch.Tensor) and a.dtype == b.dtype and a.shape == b.shape and torch.equal(a, b)
+        return isinstance(b, torch.Tensor) and a.dtype == b.dtype and a.shape == b.shape and torch.equal(
+            a.reshape(-1).contiguous().view(torch.uint8), b.reshape(-1).contiguous().view(torch.uint8))
+    if isinstance(a, np.ndarray):
+        return isinstance(b, np.ndarray) and a.dtype == b.dtype and a.shape == b.shape and a.tobytes()==b.tobytes()
+    if isinstance(a, np.generic):
+        return isinstance(b, np.generic) and a.dtype==b.dtype and a.tobytes()==b.tobytes()
+    if isinstance(a,float):return isinstance(b,float) and struct.pack('!d',a)==struct.pack('!d',b)
     if isinstance(a, dict): return isinstance(b, dict) and a.keys() == b.keys() and all(same_tree(a[k], b[k]) for k in a)
     if isinstance(a, (list, tuple)): return type(a) == type(b) and len(a) == len(b) and all(same_tree(x, y) for x, y in zip(a, b))
     return a == b

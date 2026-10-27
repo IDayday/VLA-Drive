@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import patch
 
 import torch
+import numpy as np
 
 spec = importlib.util.spec_from_file_location('retire', Path(__file__).with_name('retire_states_parallel.py'))
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
@@ -57,6 +58,15 @@ class RetirementTest(unittest.TestCase):
     def test_unknown_master_weights_are_not_discarded(self):
         with self.assertRaises(ValueError):module.split_optimizer(dict(fp32_master=torch.ones(5),optimizer={}))
         with self.assertRaises(ValueError):module.split_optimizer(dict(optimizer=dict(fp32_flat_groups=[torch.ones(5)])))
+
+    def test_numpy_rollout_diagnostics_and_nan_payloads_are_bitwise_preserved(self):
+        a=dict(rollout=dict(rows=[{'array':np.array([1.,np.nan],dtype=np.float64)}],
+            tensor=torch.tensor([0.,float('nan')],dtype=torch.float32)), value=float('nan'))
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)/'diagnostic.pt';torch.save(a,p);b=torch.load(p,weights_only=False)
+            self.assertTrue(module.same_tree(a,b))
+            b['rollout']['rows'][0]['array'][0]=2.
+            self.assertFalse(module.same_tree(a,b))
 
     def test_handoff_reuses_exact_capsule_with_one_source_alias_already_removed(self):
         with tempfile.TemporaryDirectory() as directory:
