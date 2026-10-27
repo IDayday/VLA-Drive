@@ -1,0 +1,26 @@
+{
+  "schema": "qwen_world_postcot_resource_v1",
+  "task": "qwen_world_postcot_20261025",
+  "user_instruction": "临时许可的服务器资源不再使用，任务迁移到许可的服务器上",
+  "observed_utc": "2026-10-27T23:02:22.957037+00:00",
+  "expires_utc": "2026-10-27T23:02:22.957037+00:00",
+  "starts_unix": 1793142142.9570374,
+  "expires_unix": 1793142142.9570374,
+  "checkpoint_guard_seconds": 1200,
+  "permanent_hosts": [
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt",
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt4",
+    "training-vlawm-tsinghua-zt5"
+  ],
+  "temporary_hosts": [],
+  "preserve_all_existing_jobs": true,
+  "unknown_jobs_not_evicted": true,
+  "scope": "Only fixed five hosts; cooperative native checkpoint-and-exit on withdrawn temporary hosts, then exact-state migration. No new deployment/retry/evaluation/monitor/pressure on withdrawn hosts. Existing three RL and World IL science unchanged; unrelated projects untouched.",
+  "root": "/mnt/project/qwen-world-postcot-20261025",
+  "unbounded_temporary_hosts": [],
+  "host_classification_note": "Existing admission API uses permanent_hosts for hosts without a specified deadline. The added zt2 hosts are revocable temporary task grants with no deadline supplied; not global fixed-whitelist additions. No expired nine-hour lease or paused experiment is reopened.",
+  "previous_record": "/mnt/project/qwen-world-postcot-20261025/il_resume_user20261027T1507Z/RESOURCE_AUTHORIZATION.json",
+  "previous_record_sha256": "06db272ad97140fffd40cf278a546379f6dff11c154bcb7b956b4f7e80317fc2"
+}
