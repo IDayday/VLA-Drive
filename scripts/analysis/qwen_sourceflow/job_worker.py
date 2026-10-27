@@ -13,7 +13,8 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 MODULES={'scripts.analysis.qwen_sourceflow.train_il','scripts.analysis.qwen_sourceflow.train_rl',
     'scripts.analysis.qwen_sourceflow.evaluate_policy','scripts.analysis.qwen_sourceflow.validate_deployment',
-    'scripts.analysis.qwen_sourceflow.export_policy','scripts.analysis.qwen_sourceflow.validate_rl_deployment'}
+    'scripts.analysis.qwen_sourceflow.export_policy','scripts.analysis.qwen_sourceflow.validate_rl_deployment',
+    'tools.qwen_world_postcot.export','tools.qwen_world_postcot.evaluate'}
 
 
 def request_native_stop(child, module):
@@ -40,7 +41,7 @@ def main():
     spec=json.loads(Path(a.spec).read_text());root=Path(spec['receipt_dir']);root.mkdir(parents=True,exist_ok=True)
     lock=(root/'worker.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     if (root/'process.json').exists():raise FileExistsError('Never duplicate or silently retry an invocation')
-    host=require_dispatch();source=Path(spec['source']);started=time.time();record=dict(status='PREPARING',start_unix=started,host=host,spec_sha256=fingerprint(spec))
+    host=require_dispatch();source=Path(spec['source']);started=time.time();record=dict(status='PREPARING',start_unix=started,host=host,spec_sha256=fingerprint(spec));shared_leases=[]
     try:
         if host!=spec['host']:raise ValueError('Wrong worker host')
         if subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip()!=spec['source_sha']:
@@ -53,6 +54,10 @@ def main():
             gpus=[(u.strip(),int(f)) for u,f in (line.split(',') for line in rows.splitlines())]
             if [gpus[i][0] for i in spec['gpus']]!=spec['gpu_uuids']:raise ValueError('Physical GPU identity changed')
             if min(gpus[i][1] for i in spec['gpus'])<spec['min_free_MiB']:raise ValueError('Insufficient measured headroom')
+            if spec.get('world_shared_lease'):
+                lease_root=Path('/mnt/project/runtime_gpu_shared_workers');lease_root.mkdir(exist_ok=True)
+                for uuid in spec['gpu_uuids']:
+                    lease=(lease_root/(uuid+'.lock')).open('a');fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB);shared_leases.append(lease)
         env=dict(os.environ,CUDA_VISIBLE_DEVICES=','.join(map(str,spec['gpus'])),OMP_NUM_THREADS='4',MKL_NUM_THREADS='4',
             OPENBLAS_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8',TOKENIZERS_PARALLELISM='false',NO_ALBUMENTATIONS_UPDATE='1')
         with (root/'worker.log').open('x') as log:
@@ -78,7 +83,9 @@ def main():
     except BaseException:
         record.update(status='FAILED',error=traceback.format_exc(),end_unix=time.time(),wall_seconds=time.time()-started)
         raise
-    finally:atomic_json(root/'result.json',record)
+    finally:
+        for lease in shared_leases:lease.close()
+        atomic_json(root/'result.json',record)
 
 
 if __name__=='__main__':main()

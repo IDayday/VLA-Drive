@@ -99,12 +99,20 @@ def main():
     parser.add_argument('--checkpoint'); parser.add_argument('--export'); parser.add_argument('--output', required=True)
     parser.add_argument('--cohort', choices=['DEV', 'NAVTEST'], required=True); parser.add_argument('--data', required=True)
     parser.add_argument('--parent-selection'); parser.add_argument('--dev-evaluation')
+    parser.add_argument('--user-interim-registration', help='Exact user-requested IL37k Navtest; grants no parent selection')
+    parser.add_argument('--native-parity-output', help='Interim rank0 compares the actual export prediction with the native checkpoint')
     parser.add_argument('--rank', type=int, default=0)
     parser.add_argument('--world', type=int, default=1); parser.add_argument('--seed', type=int, default=2101)
     parser.add_argument('--qualification', action='store_true'); parser.add_argument('--limit', type=int)
     parser.add_argument('--post-selection-seed-variation',action='store_true',
                         help='Locked model only: additional NAVTEST sampling seed2102/2103; DEV selection stays2101')
     args = parser.parse_args()
+    if args.user_interim_registration and (args.cohort != 'NAVTEST' or args.qualification or args.limit
+            or args.seed != 2101 or args.post_selection_seed_variation or args.parent_selection
+            or args.dev_evaluation or not args.export):
+        raise ValueError('User interim role requires full seed2101 IL-export Navtest, without selection/qualification')
+    if args.native_parity_output and (not args.user_interim_registration or args.rank != 0):
+        raise ValueError('Native parity output is only for interim rank0')
     if bool(args.checkpoint) == bool(args.export):
         raise ValueError('Choose exactly one complete IL checkpoint or sealed deployment export')
     role=sampling_role(args.cohort,args.seed,args.post_selection_seed_variation,args.qualification)
@@ -126,9 +134,12 @@ def main():
     if not args.qualification and (parent['identity']['qualification'] or info.get('qualification')):
         raise ValueError('Diagnostic checkpoint cannot become a formal result')
     if args.cohort == 'NAVTEST':
-        if not args.parent_selection:
-            raise ValueError('Navtest waits for frozen DEV-only model selection')
-        validate_rl_parent_selection(args.parent_selection, parent)
+        if args.user_interim_registration:
+            if info.get('RL_parent') is not None: raise ValueError('This interim grant is IL-only')
+        else:
+            if not args.parent_selection:
+                raise ValueError('Navtest waits for frozen DEV-only model selection')
+            validate_rl_parent_selection(args.parent_selection, parent)
     processor = QwenObservationProcessor(str(Path(args.export)/'processor') if args.export
         else '/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct')
     service = RewardService(Path.cwd(), workers=1, cache_roots=roots)
@@ -139,6 +150,8 @@ def main():
         'starVLA/rl/qwen_world_postcot/loading.py', 'tools/qwen_world_postcot/evaluate.py',
         'starVLA/rl/safe_flow_improvement/v1_reward.py',
         'scripts/analysis/constrained_flow_noise/batched_canonical_score.py')]
+    if args.user_interim_registration:
+        source_paths.append(Path('starVLA/rl/qwen_world_postcot/interim_navtest.py'))
     identity = dict(schema='world_postcot_evaluation_v1', model_sha256=info['model_sha256'],
         parent_model_sha256=parent['model_sha256'], cohort=args.cohort, tokens=tokens,
         token_sha256=fingerprint(tokens), count=len(tokens), data_sha256=data.sha,
@@ -155,7 +168,13 @@ def main():
         precision='FP32 storage/master; BF16 Qwen and action forward; FP32 clean-x states/ODE',
         prediction_type='x0',action_config=parent['identity']['model_config']['action'],
         training_population='90890 physical-log-disjoint TRAIN; teacher pretraining exposure is separately disclosed')
-    if args.cohort == 'NAVTEST' and not args.qualification:
+    if args.user_interim_registration:
+        from starVLA.rl.qwen_world_postcot.interim_navtest import validate_interim
+        identity['user_requested_interim_navtest'] = validate_interim(args.user_interim_registration,
+            parent=parent, model_sha256=info['model_sha256'], data_sha256=data.sha, tokens=tokens,
+            population_sha256=file_sha(POPULATION), protocol_sha256=service.protocol['sha256'],
+            output=output, seed=args.seed)
+    elif args.cohort == 'NAVTEST' and not args.qualification:
         if not args.dev_evaluation:
             raise ValueError('Formal Navtest requires --dev-evaluation for this exact IL/RL policy, not only its IL parent')
         identity['DEV_binding'] = validate_dev_binding(args.dev_evaluation,
@@ -187,7 +206,20 @@ def main():
             noise = torch.randn(1, 8, 3, generator=torch.Generator().manual_seed(
                 seed_for('native_qwen_sourceflow_ODE', args.seed, token))).cuda()
             tick = time.monotonic(); prediction = model.predict(inputs, ego, noise); torch.cuda.synchronize()
+            if args.native_parity_output and record['new'] == 0:
+                import gc
+                native, native_info = load_deployment_checkpoint(parent['path'], 'cuda')
+                reference = native.predict(inputs, ego, noise); torch.cuda.synchronize()
+                for key in ['normalized_action', 'requested_trajectory']:
+                    if not torch.equal(prediction[key], reference[key]):
+                        raise ValueError('Native/export actual prediction differs: ' + key)
+                atomic_json(args.native_parity_output, dict(status='PASS', checkpoint=parent['path'],
+                    native_model_sha256=native_info['model_sha256'], model_sha256=info['model_sha256'],
+                    normalized_max_abs=0., requested_max_abs=0., extra_validation_predictions=1,
+                    current_images_only=True, teacher_or_search_at_inference=False))
+                del reference, native; gc.collect(); torch.cuda.empty_cache()
             record['forward_seconds'] += time.monotonic()-tick
+            record['cuda_peak_allocated_bytes'] = torch.cuda.max_memory_allocated()
             requested = prediction['requested_trajectory'].cpu().numpy()
             tick = time.monotonic(); feedback = service.score((token, log, requested))
             record['scoring_seconds'] += time.monotonic()-tick
