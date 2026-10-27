@@ -35,6 +35,16 @@ class InterimWorldTest(unittest.TestCase):
             kwargs['parent']['seal']['updates']=35000
             with self.assertRaises(ValueError):validate_interim(p,**kwargs)
 
+    def test_exact_user_selected_40k_requires_matching_parent_and_registration(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);row,kwargs=self.case(root)
+            row['updates']=40000;kwargs['parent']['seal']['updates']=40000
+            row['sha256']=fingerprint(row);p=root/'reg.json';p.write_text(json.dumps(row))
+            validate_interim(p,**kwargs)
+            kwargs['parent']['seal']['updates']=41000
+            row.pop('sha256');row['updates']=41000;row['sha256']=fingerprint(row);p.write_text(json.dumps(row))
+            with self.assertRaises(ValueError):validate_interim(p,**kwargs)
+
     def test_full_population_has_distinct_fragment_and_recording_counts(self):
         tokens=[str(i) for i in range(12146)]
         pop=dict(navtest_tokens=tokens,token_logs={t:f'recording{int(t)%136%44}_{int(t)%136*100}_{int(t)%136*100+99}' for t in tokens})

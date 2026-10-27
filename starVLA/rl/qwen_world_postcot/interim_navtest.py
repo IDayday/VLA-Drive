@@ -18,7 +18,7 @@ def validate_interim(path, *, parent, model_sha256, data_sha256, tokens,
         inference='single_candidate_cleanx_K10_shift5',
         used_for_parent_selection=False, used_for_training_or_tuning=False)
     if (seed != 2101 or len(tokens) != 12146 or len(set(tokens)) != 12146 or
-            parent['identity']['qualification'] or parent['seal']['updates'] != 37000 or
+            parent['identity']['qualification'] or parent['seal']['updates'] not in (37000, 40000) or
             any(record.get(k) != value for k, value in expected.items())):
-        raise ValueError('Interim Navtest differs from the exact user-pinned full IL37k policy')
+        raise ValueError('Interim Navtest differs from the exact user-pinned full IL37k/40k policy')
     return record

@@ -1,4 +1,4 @@
-"""Finite IL37k Navtest request; reuses native export/predict/scoring and workers."""
+"""Finite explicitly pinned IL37k/40k Navtest using unchanged native computation."""
 import argparse
 import fcntl
 import hashlib
@@ -47,6 +47,9 @@ class Request:
         self.source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=self.source,text=True).strip()
         self.pin=read(root/'PINNED.json');self.export=root/'export';self.output=root/'evaluation';self.jobs={}
         self.reg=root/'registration.json';self.proof=root/'native_export_parity.json'
+        self.world=int(self.pin.get('evaluation_workers',8))
+        if self.world not in (8,16):raise ValueError('Unregistered evaluation sharding')
+        if self.pin['updates'] not in (37000,40000):raise ValueError('Only explicitly authorized interim updates')
 
     def done(self,name):
         path=self.root/'jobs'/name/'result.json'
@@ -70,7 +73,7 @@ class Request:
 
     def register(self):
         meta=read(self.export/'export.json');seal=read(self.export/'COMPLETE')
-        if seal['export_sha256']!=sha(self.export/'export.json') or meta['IL_parent']['seal']['updates']!=37000:
+        if seal['export_sha256']!=sha(self.export/'export.json') or meta['IL_parent']['seal']['updates']!=self.pin['updates']:
             raise ValueError('Unsealed/mismatched export')
         data=Path('/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST')
         manifest=read(data/'manifest.json');complete=read(data/'COMPLETE')
@@ -81,7 +84,7 @@ class Request:
         protocol=read('/mnt/project/qwen-world-postcot-20261025/evaluations/DEV_IL_update035000/identity.json')['protocol']
         registration=dict(schema='world_postcot_user_interim_NAVTEST_v1',checkpoint=self.pin['checkpoint'],
             checkpoint_files_sha256=self.pin['files_sha256'],native_model_sha256=self.pin['native_model_sha256'],
-            model_sha256=meta['model_sha256'],updates=37000,output=str(self.output),seed=2101,count=12146,
+            model_sha256=meta['model_sha256'],updates=self.pin['updates'],output=str(self.output),seed=2101,count=12146,
             data_sha256=complete['manifest_sha256'],token_sha256=fingerprint(manifest['tokens']),
             population_sha256=sha(population),protocol_sha256=protocol['sha256'],prediction_type='x0',
             inference='single_candidate_cleanx_K10_shift5',used_for_parent_selection=False,
@@ -92,6 +95,7 @@ class Request:
     def route(self,routes,inventory,*,parity=False):
         active=self.active();used={u for j in active for u in j['gpu_uuids']}
         for r in sorted(routes,key=lambda x:-x['free_MiB']):
+            if self.pin.get('evaluation_hosts') and r['host'] not in self.pin['evaluation_hosts']:continue
             if r['uuid'] in used or r['free_MiB']<(49152 if parity else 32768):continue
             host=inventory['second'][r['host']]
             if host['available_memory_bytes']<128*1024**3:continue
@@ -128,14 +132,14 @@ print(json.dumps(rows))'''.replace('__UUID__',repr(r['uuid']))
 
     def run(self):
         self.submit('export','tools.qwen_world_postcot.export',['--checkpoint',self.pin['checkpoint'],'--output',str(self.export)])
-        while not all(self.done('rank'+str(i)) is True for i in range(8)):
+        while not all(self.done('rank'+str(i)) is True for i in range(self.world)):
             if any(self.done(name) is False for name in self.jobs):
                 while self.active(): time.sleep(15)
                 raise RuntimeError('Native worker failed; other owned workers drained; no automatic retry')
             if self.done('export') is True:
                 if not self.reg.exists():self.register()
                 parity_ready=self.proof.exists() and read(self.proof)['status']=='PASS'
-                ranks=range(8) if parity_ready else [0]
+                ranks=range(self.world) if parity_ready else [0]
                 for rank in ranks:
                     name='rank'+str(rank)
                     if name in self.jobs:continue
@@ -145,7 +149,7 @@ print(json.dumps(rows))'''.replace('__UUID__',repr(r['uuid']))
                     if route is None:break
                     args=['--export',str(self.export),'--output',str(self.output),'--cohort','NAVTEST',
                           '--data','/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST',
-                          '--seed','2101','--rank',str(rank),'--world','8','--user-interim-registration',str(self.reg)]
+                          '--seed','2101','--rank',str(rank),'--world',str(self.world),'--user-interim-registration',str(self.reg)]
                     if rank==0:args+=['--native-parity-output',str(self.proof)]
                     self.submit(name,'tools.qwen_world_postcot.evaluate',args,route)
             time.sleep(15)  # Necessary compute admission/completion orchestration.
@@ -163,12 +167,12 @@ print(json.dumps(rows))'''.replace('__UUID__',repr(r['uuid']))
         self.publish(s)
 
     def publish(self,s):
-        report=self.source/'reports/qwen_world_IL37_navtest_20261027';report.mkdir(exist_ok=True,parents=True)
+        report=self.source/f"reports/qwen_world_IL{self.pin['updates']//1000}_navtest_20261027";report.mkdir(exist_ok=True,parents=True)
         counts=validate_complete_summary(s,read(self.output/'identity.json'),
             read('/mnt/project/flow-safe-improvement-20261013/population/manifest.json'))
         write(report/'summary.json',s);write(report/'registration.json',read(self.reg));write(report/'native_parity.json',read(self.proof))
         components='\n'.join(f'| {name} | {100*value:.6f} |'for name,value in s['means'].items())
-        (report/'README.md').write_text('# Qwen-World/PostCoT IL37k Navtest\n\n'
+        (report/'README.md').write_text(f"# Qwen-World/PostCoT IL{self.pin['updates']//1000}k Navtest\n\n"
             f'Full12146 scenes/{counts["manifest_logs"]} manifest log fragments/{counts["physical_logs"]} physical recordings, '
             f'canonicalv1.1, single clean-x K10 shift5, seed2101. **PDMS {s["PDMS"]:.6f}**.\n\n'
             'This is user-requested interim Test observation, not completed100k IL, RL gain, DEV selection or RL-parent promotion. '
@@ -177,17 +181,16 @@ print(json.dumps(rows))'''.replace('__UUID__',repr(r['uuid']))
             'Exact protocol, component means and complete-scene checks are in summary.json; registration binds native/export and data/source hashes. '
             'Owned worker timing, loading, forward, scoring and native-parity costs are retained under the asset-root job/rank receipts.\n\n'
             '| Metric | Percent scale |\n|---|---:|\n'+components+'\n\n'
-            'The initial report guard conflated136 manifest log fragments with44 physical recordings. '
-            'All12146 scene hashes, membership, official feedback joins and means were revalidated unchanged. '
-            'The report-only correction and original failure are retained in [log_count_correction.md](log_count_correction.md); '
-            'no model inference, trajectory or official scoring was rerun.\n')
+            'Manifest fragments and physical recordings are validated separately. '
+            'This new request reuses the qualified export, actual native/export parity, '
+            'current-only inference and canonical scorer without changing their computation.\n')
         def git(*args):return subprocess.check_output(['git',*args],cwd=self.source,text=True)
         if git('rev-parse','HEAD').strip()!=self.source_sha:raise ValueError('Source changed before publication')
         prefix=str(report.relative_to(self.source))
         for entry in git('status','--porcelain=v1','-z','--untracked-files=all').split('\0'):
             if entry and not entry[3:].startswith(prefix+'/'):raise ValueError('Unrelated report change')
         subprocess.run(['git','add','--',prefix],cwd=self.source,check=True)
-        subprocess.run(['git','commit','-m','Record full user-requested World PostCoT IL37k Navtest'],cwd=self.source,check=True)
+        subprocess.run(['git','commit','-m',f"Record full user-requested World PostCoT IL{self.pin['updates']//1000}k Navtest"],cwd=self.source,check=True)
         branch=git('branch','--show-current').strip();commit=git('rev-parse','HEAD').strip()
         subprocess.run(['git','push','origin','HEAD:refs/heads/'+branch],cwd=self.source,check=True)
         remote=git('ls-remote','origin','refs/heads/'+branch).split()[0]
