@@ -123,14 +123,19 @@ PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
 SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
 
 
-def _known_owners(rows,mapping,indices):
+def _known_owners(rows,mapping,indices,*,registered_occupants=None,host=None):
     for row in rows:
         if row['uuid']not in {mapping[i]for i in indices}:continue
         try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
         if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
-            raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
+            if not registered_occupants:
+                raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
+            from starVLA.rl.qwen_world_postcot.registered_occupants import check_registered_occupant
+            try:check_registered_occupant(row,args,registered_occupants,host)
+            except (OSError,ValueError,KeyError) as error:
+                raise ResourceRefused('Registered co-location identity changed: '+str(error)) from error
 
 
 def _admission_sample():
@@ -160,7 +165,10 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
         if args.share_min_free_mib:
             if host not in grant['permanent_hosts']or args.share_min_free_mib<8192:
                 raise ValueError('Sharing requires a permanent host and measured valid headroom')
-            _known_owners(owners,mapping,indices)
+            if getattr(args,'registered_occupants',None):
+                _known_owners(owners,mapping,indices,registered_occupants=args.registered_occupants,host=host)
+            else:
+                _known_owners(owners,mapping,indices)
         elif any(row['uuid']in physical for row in owners):
             raise ResourceRefused('GPU acquired another owner '+('under admission lock'if locked else'before dispatch'))
         for index in indices:
@@ -187,7 +195,10 @@ def main():
     parser.add_argument('--receipt-root',required=True);parser.add_argument('--gpus',default='')
     parser.add_argument('--expected-gpu-uuids-json');parser.add_argument('--command-json',required=True);parser.add_argument('--cwd',required=True)
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
+    parser.add_argument('--registered-occupants',help='Sealed exact PID/start/argv/cwd/UUID receipt for user-authorized co-location')
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
+    if args.registered_occupants and not args.share_min_free_mib:
+        raise ValueError('Registered occupants only apply to explicit shared admission')
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
