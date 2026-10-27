@@ -90,6 +90,8 @@ def main():
     c.poll_jobs(state)
     if c.active(state, name='formal_IL'):
         raise ValueError('Another IL invocation still owns its training processes')
+    reviewed_previous_failures = {name for name, job in state['jobs'].items()
+                                  if job['status'] == 'FAILED'}
     before = c.probe(cfg['host']); time.sleep(2); after = c.probe(cfg['host'])
     expected = cfg['gpu_uuids']
     if any([gpu['uuid'] for gpu in sample['gpus']] != expected or sample['owners']
@@ -119,8 +121,17 @@ def main():
             return
         # These are the original asynchronous data and diagnostics routines.
         # In particular do not silently freeze the30k candidate bank to100k.
-        for name, function in [('candidate_refresh', c.advance_refreshes),
-                               ('DEV_diagnostics', lambda st, src, rec: c.advance_dev_window(st, src, rec, 'IL'))]:
+        unexpected = [name for name, job in state['jobs'].items()
+                      if job['status'] == 'FAILED' and name not in reviewed_previous_failures
+                      and not job['role'].startswith('candidate_refresh')]
+        exhausted = [name for name, count in state.get('resource_refusals', {}).items() if count >= 8]
+        if unexpected or exhausted:
+            state['auxiliary_dispatch_paused_review_required'] = dict(failed_jobs=unexpected,
+                                                                     admission_budget_exhausted=exhausted)
+        routines = [] if 'auxiliary_dispatch_paused_review_required' in state else [
+                               ('candidate_refresh', c.advance_refreshes),
+                               ('DEV_diagnostics', lambda st, src, rec: c.advance_dev_window(st, src, rec, 'IL'))]
+        for name, function in routines:
             try:
                 function(state, str(source), receipt)
                 state.pop(name + '_controller_error', None)
