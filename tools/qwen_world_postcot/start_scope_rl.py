@@ -96,6 +96,8 @@ def main():
         worker=[OPERATOR_PYTHON,'-m','tools.qwen_world_postcot.job_worker','--receipt-root',str(receipt),
             '--gpus','0,1,2,3,4,5,6,7','--expected-gpu-uuids-json',json.dumps(physical),
             '--minimum-free-mib',str(cfg['minimum_free_MiB']),'--command-json',json.dumps(command),'--cwd',str(source)]
+        if cfg.get('share_min_free_mib'):
+            worker+=['--share-min-free-mib',str(cfg['share_min_free_mib'])]
         invocation=['env','PYTHONPATH='+str(source),'CUBLAS_WORKSPACE_CONFIG=:4096:8',*worker]
         if host!=socket.gethostname().removesuffix('-worker-0'):
             invocation=['ssh','-T','-o','BatchMode=yes','-o','ConnectTimeout=10',host,shlex.join(invocation)]
@@ -110,10 +112,22 @@ def main():
         '--config',cfg['config'],'--manifest',cfg['manifest'],'--data',cfg['data'],'--il-checkpoint',selected['checkpoint']]
     qual=Path(cfg['qualification_run'])
     try:
-        run_stage('QUAL6',base+['--output',str(qual),'--qualification','--stop-after-update','6','--save-every','6'])
-        archived={str(rank):json.loads((qual/f'result_rank{rank}.json').read_text()) for rank in range(8)}
-        atomic_json(root/'QUAL6_RESULTS.json',archived)
-        mid=qual/'checkpoints/update000006_inner2';seal=json.loads((mid/'COMPLETE').read_text())
+        mid=qual/'checkpoints/update000006_inner2'
+        if cfg.get('qualification_resume_checkpoint'):
+            previous=Path(cfg['prior_resource_refusal']);refused=json.loads(previous.read_text())
+            if (Path(cfg['qualification_resume_checkpoint']).resolve()!=mid.resolve()
+                    or refused.get('status')!='REFUSED_RESOURCE' or refused.get('child_not_started') is not True
+                    or cfg['qualification_resume_files_sha256']!=file_sha(mid/'files.json')):
+                raise ValueError('Continuation requires exact legal checkpoint and positive pre-child refusal evidence')
+            atomic_json(root/'CONTINUATION_RECEIPT.json',dict(status='RESOURCE_ONLY_CONTINUATION',
+                previous_refusal=str(previous),previous_refusal_sha256=file_sha(previous),checkpoint=str(mid),
+                checkpoint_files_sha256=file_sha(mid/'files.json'),training_source_unchanged=str(source),
+                optimizer_RNG_old_chain_and_advantages_retained=True))
+        else:
+            run_stage('QUAL6',base+['--output',str(qual),'--qualification','--stop-after-update','6','--save-every','6'])
+            archived={str(rank):json.loads((qual/f'result_rank{rank}.json').read_text()) for rank in range(8)}
+            atomic_json(root/'QUAL6_RESULTS.json',archived)
+        seal=json.loads((mid/'COMPLETE').read_text())
         if seal['updates']!=6 or seal['next_inner']!=2 or seal['phase']!='INNER_COMMITTED':raise ValueError('No legal mid-inner checkpoint')
         run_stage('QUAL16_RESUME',base+['--output',str(qual),'--qualification','--stop-after-update','16','--save-every','8','--resume',str(mid)])
         acceptance=verify_qualification(qual,cfg);atomic_json(root/'RL_ENGINEERING_ACCEPTANCE.json',acceptance)
