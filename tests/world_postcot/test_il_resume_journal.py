@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from tools.qwen_world_postcot.resume_il_owner import reconcile_journal
+from tools.qwen_world_postcot.resume_il_owner import reconcile_journal, validate_adoption
 
 
 def row(update):
@@ -52,3 +52,18 @@ def test_corruption_within_aborted_suffix_is_preserved(tmp_path):
     repeated = reconcile_journal(journal, 1, archive)
     assert repeated['previous_reconciliation_reused']
     assert repeated['original_sha256'] == receipt['original_sha256']
+
+
+@pytest.mark.parametrize('change', [None, 'host', 'cwd', 'command', 'gpu_uuids'])
+def test_live_worker_adoption_binds_source_command_and_devices(change):
+    cfg = dict(host='authorized', source='/source', command=['train_il'], gpu_uuids=['gpu'] * 8)
+    job = dict(status='RUNNING', role='training', name='formal_IL', host=cfg['host'],
+               command=cfg['command'], uuids=cfg['gpu_uuids'])
+    worker = dict(status='RUNNING', host=cfg['host'], cwd=cfg['source'], command=cfg['command'],
+                  gpu_uuids=cfg['gpu_uuids'], gpus=list(range(8)), child_pid=123)
+    if change:
+        worker[change] = ['changed'] if change in ('command', 'gpu_uuids') else 'changed'
+        with pytest.raises(ValueError):
+            validate_adoption(cfg, job, worker)
+    else:
+        validate_adoption(cfg, job, worker)

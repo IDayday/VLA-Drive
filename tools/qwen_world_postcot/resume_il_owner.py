@@ -58,6 +58,19 @@ def reconcile_journal(path, boundary, archive):
                 physical_attempt_evidence_preserved=True)
 
 
+def validate_adoption(cfg, job, worker):
+    """An operator restart may adopt this exact live worker, never resample IL."""
+    if (job['status'] != 'RUNNING' or job['role'] != 'training'
+            or job['name'] != 'formal_IL' or worker['status'] != 'RUNNING'
+            or worker['host'] != cfg['host'] or job['host'] != cfg['host']
+            or worker['cwd'] != cfg['source']
+            or worker['command'] != cfg['command'] or job['command'] != cfg['command']
+            or worker['gpus'] != list(range(8))
+            or worker['gpu_uuids'] != cfg['gpu_uuids'] or job['uuids'] != cfg['gpu_uuids']
+            or not worker.get('child_pid')):
+        raise ValueError('Existing training adoption does not match the registered worker')
+
+
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--registration', required=True)
@@ -88,25 +101,36 @@ def main():
     state = json.loads((root / 'PREVIOUS_CAMPAIGN_STATE.json').read_text())
     c._same_source(str(source), state)
     c.poll_jobs(state)
-    if c.active(state, name='formal_IL'):
+    adopt = cfg.get('adopt_existing_training_invocation')
+    active = c.active(state, name='formal_IL')
+    if active and not adopt:
         raise ValueError('Another IL invocation still owns its training processes')
     reviewed_previous_failures = {name for name, job in state['jobs'].items()
                                   if job['status'] == 'FAILED'}
-    before = c.probe(cfg['host']); time.sleep(2); after = c.probe(cfg['host'])
-    expected = cfg['gpu_uuids']
-    if any([gpu['uuid'] for gpu in sample['gpus']] != expected or sample['owners']
-           or min(gpu['free_MiB'] for gpu in sample['gpus']) < cfg['minimum_free_MiB']
-           or any(c.gpu_activity_issue(gpu, sample['owners']) for gpu in sample['gpus'])
-           for sample in (before, after)):
-        raise ValueError('Idle eight-GPU admission changed; no occupant is evicted')
-    route = dict(host=cfg['host'], gpus=list(range(8)), uuids=expected,
-                 share=None, minimum_free_MiB=cfg['minimum_free_MiB'])
-    invocation = c.dispatch(state, str(source), 'formal_IL', cfg['command'], route, role='training')
+    if adopt:
+        job = state['jobs'][adopt]
+        directory = Path(job['receipt'])
+        if len(active) != 1 or active[0] != job or (directory / 'RESULT.json').exists():
+            raise ValueError('Adoption requires one still-live original training invocation')
+        validate_adoption(cfg, job, json.loads((directory / 'RUNNING.json').read_text()))
+        invocation = adopt
+    else:
+        before = c.probe(cfg['host']); time.sleep(2); after = c.probe(cfg['host'])
+        expected = cfg['gpu_uuids']
+        if any([gpu['uuid'] for gpu in sample['gpus']] != expected or sample['owners']
+               or min(gpu['free_MiB'] for gpu in sample['gpus']) < cfg['minimum_free_MiB']
+               or any(c.gpu_activity_issue(gpu, sample['owners']) for gpu in sample['gpus'])
+               for sample in (before, after)):
+            raise ValueError('Idle eight-GPU admission changed; no occupant is evicted')
+        route = dict(host=cfg['host'], gpus=list(range(8)), uuids=expected,
+                     share=None, minimum_free_MiB=cfg['minimum_free_MiB'])
+        invocation = c.dispatch(state, str(source), 'formal_IL', cfg['command'], route, role='training')
     owner = dict(pid=os.getpid(), host=c.socket.gethostname(),
                  start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19]),
                  root=str(root), source=str(source), at=time.time(), invocation=invocation,
                  state_file=str(root / 'STATE.json'), terminal_file=str(root / 'OWNER_RESULT.json'),
-                 original_campaign_not_restarted=True, automatic_RL=False, evaluation_seed=2101)
+                 original_campaign_not_restarted=True, automatic_RL=False, evaluation_seed=2101,
+                 existing_training_adopted=bool(adopt))
     c.atomic_json(root / 'OWNER_LAUNCH.json', owner)
     c.atomic_json(c.ROOT / 'ACTIVE_IL_OWNER.json', owner)
     state.update(resume_owner=owner, controller_scope='IL_only_through100k_no_automatic_RL')
