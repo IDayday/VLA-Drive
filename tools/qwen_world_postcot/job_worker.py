@@ -44,7 +44,8 @@ def task_ranks(state):
             if not descendant and not previous:continue
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
-            if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl'):continue
+            if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
+                             'tools.qwen_world_postcot.train_scope_rl'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),

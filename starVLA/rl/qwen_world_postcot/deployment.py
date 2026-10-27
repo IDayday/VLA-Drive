@@ -85,6 +85,30 @@ def load_export(path, device='cpu'):
     return model.eval().requires_grad_(False).to(device), meta
 
 
+def load_scope_trainable_state(model,adapters,adaptation):
+    """Strict native optimizer payload -> inference-only policy, including memory.
+
+    The inherited checkpoint calls this field `adapters`; for the memory arm it
+    deliberately also stores every fully trained provider parameter.
+    """
+    from .scope_contracts import MEMORY,TIME
+    if adaptation not in (MEMORY,TIME):raise ValueError('Unknown deployment scope')
+    action={n:v for n,v in adapters.items() if n.startswith('action_expert.')}
+    expected_memory={}
+    if adaptation==MEMORY:
+        for prefix in ('scene_provider','predictive_provider'):
+            expected_memory.update({prefix+'.'+n:p for n,p in getattr(model,prefix).named_parameters()})
+    if set(adapters)!=set(action)|set(expected_memory):raise ValueError('Incomplete/unexpected trainable memory payload')
+    load_lora_adapter_state(model.actor,action)
+    with torch.no_grad():
+        for name,target in expected_memory.items():
+            value=adapters[name]
+            if (not isinstance(value,torch.Tensor) or value.shape!=target.shape or value.dtype!=torch.float32
+                    or target.dtype!=value.dtype or not torch.isfinite(value).all()):
+                raise ValueError('Memory deployment tensor contract changed: '+name)
+            target.copy_(value)
+
+
 def export_checkpoint(checkpoint, output, rl_checkpoint=None):
     out = Path(output)
     if out.exists():
@@ -107,7 +131,7 @@ def export_checkpoint(checkpoint, output, rl_checkpoint=None):
         body = dict(rlmeta); saved = body.pop('sha256', None)
         if (fingerprint(body) != saved or seal.get('schema') != 2
                 or seal['files_sha256'] != file_sha(root/'files.json')
-                or rlmeta.get('schema') != 'world_postcot_cleanx_canonical_RL_v1'
+                or rlmeta.get('schema') not in ('world_postcot_cleanx_canonical_RL_v1','world_postcot_cleanx_scope_RL_v1')
                 or rlmeta.get('prediction_type') != 'x0'
                 or seal['world'] != rlmeta['world']):
             raise ValueError('Wrong or changed clean-x native RL checkpoint schema')
@@ -124,7 +148,9 @@ def export_checkpoint(checkpoint, output, rl_checkpoint=None):
         rlcfg = rlmeta['recipe']['grpo']
         install_deployment_lora(model.actor, rlcfg)
         adapters = torch.load(root/'optimizer.pt', map_location='cpu', weights_only=False)['adapters']
-        load_lora_adapter_state(model.actor, adapters)
+        if rlmeta.get('schema')=='world_postcot_cleanx_scope_RL_v1':
+            load_scope_trainable_state(model,adapters,rlmeta['recipe']['adaptation'])
+        else:load_lora_adapter_state(model.actor, adapters)
     staging = out.with_name(out.name+'.building')
     staging.mkdir(parents=True, exist_ok=False)
     torch.save(model.state_dict(), staging/'model.pt')

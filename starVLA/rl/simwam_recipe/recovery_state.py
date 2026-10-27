@@ -31,7 +31,8 @@ def tensor_digest(value):
 def rollout_digest(rollout):
     keys = ['chain', 'old_logp', 'advantages', 'adv_mask', 'behavior_version']
     if rollout.get('cond_bg', {}).get('schema') in (
-            'native_frozen_observation_v1','world_postcot_frozen_observation_v1'):
+            'native_frozen_observation_v1','world_postcot_frozen_observation_v1',
+            'world_postcot_trainable_memory_observation_v1'):
         keys.append('cond_bg')
     return {k: tensor_digest(rollout[k]) for k in keys}
 
@@ -76,7 +77,7 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
         if missing: raise ValueError('Unfinalized rollout: ' + repr(sorted(missing)))
         action_dim = 4
         native = identity.get('schema') == 'native_qwen_sourceflow_RL_v1'
-        world_cleanx = identity.get('schema') == 'world_postcot_cleanx_canonical_RL_v1'
+        world_cleanx = identity.get('schema') in ('world_postcot_cleanx_canonical_RL_v1','world_postcot_cleanx_scope_RL_v1')
         if native or world_cleanx:
             if cfg['action_shape'] != [8, 3]:
                 raise ValueError('Changed native 3D action contract')
@@ -86,6 +87,10 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
             descriptor = rollout['cond_bg']
             condition_schema=('world_postcot_frozen_observation_v1' if world_cleanx
                               else 'native_frozen_observation_v1')
+            if identity.get('schema')=='world_postcot_cleanx_scope_RL_v1':
+                scope=cfg.get('adaptation')
+                if scope not in ('ATTN_LORA_MEMORY','TIME_MOD_LORA'):raise ValueError('Unregistered World scope')
+                if scope=='ATTN_LORA_MEMORY':condition_schema='world_postcot_trainable_memory_observation_v1'
             if (set(descriptor) != {'schema', 'token', 'identity', 'repeats'} or
                     descriptor['schema'] != condition_schema or
                     descriptor['token'] != rollout['token'] or descriptor['repeats'] != 8 or

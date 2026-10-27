@@ -102,7 +102,10 @@ def main(runtime=None):
                 ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert))
     service=RewardService(Path.cwd(),workers=1)
     trainable=[p for p in actor.parameters() if p.requires_grad]
-    optimizer=torch.optim.AdamW(trainable,lr=cfg['learning_rate'],betas=tuple(cfg['optimizer_betas']),eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'])
+    optimizer=(runtime.make_optimizer(actor,cfg) if runtime is not None and hasattr(runtime,'make_optimizer') else
+        torch.optim.AdamW(trainable,lr=cfg['learning_rate'],betas=tuple(cfg['optimizer_betas']),eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay']))
+    explicit_optimizer_groups=([dict(name=g['name'],lr=g['lr'],tensors=len(g['params']),numel=sum(p.numel() for p in g['params']))
+        for g in optimizer.param_groups] if runtime is not None and hasattr(runtime,'make_optimizer') else None)
     actor._loss.optimizer=optimizer;actor._loss.learning_rate=cfg['learning_rate']
     warmup=min(int(cfg['max_steps']*.05),cfg['lr_warmup_steps'])
     scheduler=actor._loss._build_scheduler(cfg['lr_scheduler_type'],cfg['max_steps'],warmup)
@@ -117,6 +120,7 @@ def main(runtime=None):
                                           eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'],warmup_updates=warmup,
                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
     if hasattr(stream,'identity'):identity['data_stream_identity']=stream.identity
+    if explicit_optimizer_groups is not None:identity['actual_optimizer']['parameter_groups']=explicit_optimizer_groups
     identity['scientific_identity']=scientific_identity(identity)
     identity['execution_identity']=execution_identity(identity['source_files'])
     identity['sha256']=fingerprint(identity)
@@ -269,6 +273,8 @@ def main(runtime=None):
                      gradient_norm=grad_norm,ratio_max_abs_from_one=fresh_error,
                      source_clamp_hit_rate=current['source_clamp_hit_rate'],seconds_update=elapsed,
                      metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
+            if explicit_optimizer_groups is not None:
+                row['optimizer_group_lrs']={g['name']:g['lr'] for g in optimizer.param_groups}
             journal.write(json.dumps(row,allow_nan=False)+'\n')
             if state['next_inner']==4:rollout=None;state['next_inner']=0
             state['phase']=boundary_phase(state,cfg['max_steps'])

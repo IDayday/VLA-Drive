@@ -27,9 +27,13 @@ def install_deployment_lora(head, grpo_cfg):
     measured numerical execution change, not an exact algebraic export.
     """
     lora = grpo_cfg['lora']
-    if not lora['enabled'] or list(lora['target_modules']) != ['q', 'k', 'v', 'o']:
-        raise ValueError('Deployment LoRA must match the trained attention projection scope')
-    paths = attention_paths(head)
+    if not lora['enabled']:raise ValueError('Deployment LoRA must be explicitly enabled')
+    if list(lora['target_modules'])==['q','k','v','o']:
+        paths=attention_paths(head)
+    elif list(lora['target_modules'])==['time_modulation_exact_paths']:
+        from .scope_contracts import time_paths
+        paths=time_paths(head)
+    else:raise ValueError('Deployment LoRA must match an exact registered projection scope')
     count = apply_lora_to_module(head, target_names=paths, r=int(lora['r']),
                                 alpha=float(lora['alpha']), dropout=float(lora['dropout']))
     if count != len(paths):
