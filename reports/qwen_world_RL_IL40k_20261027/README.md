@@ -42,7 +42,7 @@ actual sampling/recompute mean/std与独立评分通过；正式训练重新加�
 
 ```bash
 python -m tools.qwen_world_postcot.start_parent40_rl \
-  --registration /mnt/project/qwen-world-postcot-20261025/parent40k_user20261027/REGISTRATION.json
+  --registration /mnt/project/qwen-world-postcot-20261025/parent40k_user20261027/launch_attempt003/REGISTRATION.json
 ```
 
 只启动一次；`owner.lock`、阶段INTENT、原生worker的GPU UUID锁与结果防重复。
@@ -72,3 +72,26 @@ owner现显式在导入torch之前设置已有数值合同要求的 `:4096:8`；
 训练milestone保持0/5k/10k/20k/35k/50k；Navtest只有固定seed2101、全12146、同源单候选ODE。
 后续与自身IL40k作逐场景配对，报告NC/DAC/TTC、G+/G−和零分转移。
 不因训练reward或DEV上升宣称成功；未完成阶段不填造分数。
+
+## 正式启动收据（2026-10-27 12:52 UTC）
+
+真实16次更新/8rank验收已全部通过：[qualification_summary.json](qualification_summary.json)。
+每个rank的320个LoRA张量均实际改变；永久reference、冻结actor base、Qwen与memory参数hash未变。
+每份fresh rollout首次inner ratio误差为0；后续inner最大偏移0.008553属于真实更新，不放宽PPO clip。
+BC始终为0；每rank4次Qwen prefill对应4份fresh场景，没有按候选/生成步重复执行Qwen。
+峰值13.795GiB/卡；16-update训练循环29.60秒。仅按此短窗外推50k约25.7小时，
+不包含初始化/最终评价，也不保证后续共享和评分负载不变。
+
+正式训练已运行在 **training-vlawm-tsinghua-zt，GPU0–7，8×A800**。
+运行源码固定为 `29733649c80bc7e93973dbdbca83ff5d9ab70c16` 的独立快照，后续报告提交不热改它。
+owner666255，实际状态见总根 `ACTIVE_OWNER.json` 指向的 `launch_attempt003/OWNER_STATE.json`。
+12:52:31跨八rank共同完成 **76次优化更新、19份fresh全局rollout、1216条新评分候选**，
+全部更新梯度为正且有限，fresh第一inner ratio误差仍为0。
+[formal_start.json](formal_start.json) 绑定完整run/source/parent身份。
+
+已逐张量比较正式初始checkpoint与资格初始checkpoint：320个adapter完全相同、B全零、
+Adam初始状态为空；证明正式训练重新从原IL40k与全新LoRA开始，未继承资格16步权重/Adam。
+保存间隔100优化更新，内层/数据/链/RNG事务由原trainer负责。
+
+**没有新的RL Navtest分数，尚不能判断提升。** 后续以同源单候选ODE的canonical v1.1结果
+与自身IL40k的87.972382配对；当前小步训练/验收结果不替代完整测试集规划效果。
