@@ -113,7 +113,18 @@ def main():
     qual=Path(cfg['qualification_run'])
     try:
         mid=qual/'checkpoints/update000006_inner2'
-        if cfg.get('qualification_resume_checkpoint'):
+        already_passed=cfg.get('passed_qualification_receipt')
+        if already_passed:
+            receipt=Path(already_passed);passed=json.loads(receipt.read_text())
+            refused=json.loads(Path(cfg['prior_resource_refusal']).read_text())
+            if (file_sha(receipt)!=cfg['passed_qualification_receipt_sha256']
+                    or passed.get('status')!='PASS' or passed.get('adaptation')!=scope or passed.get('updates')!=16
+                    or refused.get('child_not_started') is not True or refused.get('status')!='REFUSED_RESOURCE'
+                    or Path(cfg['formal_run'],'identity.json').exists()):
+                raise ValueError('Formal continuation requires passed qualification and a positively unstarted formal worker')
+            atomic_json(root/'CONTINUATION_RECEIPT.json',dict(status='PASSED_QUALIFICATION_FORMAL_RELOCATION',
+                acceptance=str(receipt),acceptance_sha256=file_sha(receipt),training_source_unchanged=str(source)))
+        elif cfg.get('qualification_resume_checkpoint'):
             previous=Path(cfg['prior_resource_refusal']);refused=json.loads(previous.read_text())
             if (Path(cfg['qualification_resume_checkpoint']).resolve()!=mid.resolve()
                     or refused.get('status')!='REFUSED_RESOURCE' or refused.get('child_not_started') is not True
@@ -127,9 +138,10 @@ def main():
             run_stage('QUAL6',base+['--output',str(qual),'--qualification','--stop-after-update','6','--save-every','6'])
             archived={str(rank):json.loads((qual/f'result_rank{rank}.json').read_text()) for rank in range(8)}
             atomic_json(root/'QUAL6_RESULTS.json',archived)
-        seal=json.loads((mid/'COMPLETE').read_text())
-        if seal['updates']!=6 or seal['next_inner']!=2 or seal['phase']!='INNER_COMMITTED':raise ValueError('No legal mid-inner checkpoint')
-        run_stage('QUAL16_RESUME',base+['--output',str(qual),'--qualification','--stop-after-update','16','--save-every','8','--resume',str(mid)])
+        if not already_passed:
+            seal=json.loads((mid/'COMPLETE').read_text())
+            if seal['updates']!=6 or seal['next_inner']!=2 or seal['phase']!='INNER_COMMITTED':raise ValueError('No legal mid-inner checkpoint')
+            run_stage('QUAL16_RESUME',base+['--output',str(qual),'--qualification','--stop-after-update','16','--save-every','8','--resume',str(mid)])
         acceptance=verify_qualification(qual,cfg);atomic_json(root/'RL_ENGINEERING_ACCEPTANCE.json',acceptance)
         run_stage('FORMAL50000',base+['--output',cfg['formal_run'],'--parent-selection',cfg['parent_selection']])
         results=[json.loads((Path(cfg['formal_run'])/f'result_rank{rank}.json').read_text()) for rank in range(8)]
