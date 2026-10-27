@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from tools.qwen_world_postcot.resume_il_owner import reconcile_journal, validate_adoption
+from tools.qwen_world_postcot.resume_il_owner import reconcile_journal, validate_adoption, validate_resume_command
 
 
 def row(update):
@@ -67,3 +67,14 @@ def test_live_worker_adoption_binds_source_command_and_devices(change):
             validate_adoption(cfg, job, worker)
     else:
         validate_adoption(cfg, job, worker)
+
+
+def test_planned_clean_exit_continuation_replaces_only_prior_resume():
+    previous = dict(cwd='/frozen', returncode=0,
+                    command=['python', '-m', 'tools.qwen_world_postcot.train_il', '--output', 'same', '--resume', 'old'])
+    command = previous['command'][:-2] + ['--resume', 'new']
+    with pytest.raises(ValueError):
+        validate_resume_command(previous, command, 'new', '/frozen')
+    validate_resume_command(previous, command, 'new', '/frozen', planned=True)
+    with pytest.raises(ValueError):
+        validate_resume_command(previous, command + ['--qualification'], 'new', '/frozen', planned=True)

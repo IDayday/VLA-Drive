@@ -71,6 +71,17 @@ def validate_adoption(cfg, job, worker):
         raise ValueError('Existing training adoption does not match the registered worker')
 
 
+def validate_resume_command(previous, command, checkpoint, source, *, planned=False):
+    original = list(previous['command'])
+    if '--resume' in original:
+        index = original.index('--resume')
+        del original[index:index + 2]
+    if (previous['cwd'] != source or 'tools.qwen_world_postcot.train_il' not in original
+            or command != original + ['--resume', checkpoint]
+            or (previous['returncode'] == 0 and not planned)):
+        raise ValueError('Continuation must bind the original command and an explicit planned clean exit')
+
+
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--registration', required=True)
@@ -88,10 +99,17 @@ def main():
     if c.file_sha(Path(cfg['checkpoint']) / 'files.json') != cfg['checkpoint_files_sha256']:
         raise ValueError('Registered recovery inventory changed')
     previous = json.loads((root / 'PREVIOUS_TRAINING_RESULT.json').read_text())
-    if (previous['returncode'] == 0 or previous['cwd'] != str(source)
-            or cfg['command'] != previous['command'] + ['--resume', cfg['checkpoint']]
-            or 'tools.qwen_world_postcot.train_il' not in cfg['command']):
-        raise ValueError('Continuation must be the original IL command plus exact native resume')
+    planned = False
+    if cfg.get('planned_migration_receipt'):
+        receipt = Path(cfg['planned_migration_receipt'])
+        value = json.loads(receipt.read_text())
+        if (c.file_sha(receipt) != cfg['planned_migration_receipt_sha256']
+                or value['status'] != 'PASS' or value['plans']['IL']['checkpoint'] != cfg['checkpoint']
+                or value['plans']['IL']['files_sha256'] != cfg['checkpoint_files_sha256']
+                or value['plans']['IL']['lost_unsealed_updates'] != 0):
+            raise ValueError('Planned migration lacks a verified complete native exit boundary')
+        planned = True
+    validate_resume_command(previous, cfg['command'], cfg['checkpoint'], str(source), planned=planned)
     if (c.file_sha(root / 'PREFLIGHT.json') != cfg['preflight_sha256']
             or json.loads((root / 'PREFLIGHT.json').read_text())['status'] != 'PASS'):
         raise ValueError('Missing sealed preflight qualification')
