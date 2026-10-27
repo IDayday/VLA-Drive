@@ -86,7 +86,9 @@ def main():
             '--expected-gpu-uuids-json',json.dumps(physical),
             '--minimum-free-mib',str(cfg['minimum_free_MiB']),
             '--command-json',json.dumps(command),'--cwd',str(source)]
-        remote=['env','PYTHONPATH='+str(source),*worker]
+        # Must exist before torch/CUDA is imported in either torchrun or ranks.
+        # configure_numerics() intentionally keeps deterministic algorithms on.
+        remote=['env','PYTHONPATH='+str(source),'CUBLAS_WORKSPACE_CONFIG=:4096:8',*worker]
         transport=['ssh','-T','-o','BatchMode=yes','-o','ConnectTimeout=10',host,shlex.join(remote)]
         with (receipt/'transport.log').open('ab',buffering=0) as log:
             child=subprocess.Popen(transport,stdout=log,stderr=subprocess.STDOUT)

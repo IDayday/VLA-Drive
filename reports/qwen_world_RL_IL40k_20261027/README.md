@@ -56,6 +56,11 @@ python -m tools.qwen_world_postcot.start_parent40_rl \
 38项定向测试已通过（新父模型合同、原100k选择合同、clean-x真实源算术/LoRA/采样与重算/上下文生命周期）。
 这不代表规划成绩提高；真实16-update验收、正式训练及后续Navtest状态以运行收据为准。
 
+首轮8卡验收在第一次Qwen前向时因启动环境缺少 `CUBLAS_WORKSPACE_CONFIG` 被确定性检查拒绝，
+未完成采样、评分或任何optimizer更新。原失败目录完整保留，不能算成功验收。
+owner现显式在导入torch之前设置已有数值合同要求的 `:4096:8`；不关闭deterministic检查，
+不改actor数学。第二次验收使用新的attempt/qualification目录，禁止覆盖首轮失败证据。
+
 训练milestone保持0/5k/10k/20k/35k/50k；Navtest只有固定seed2101、全12146、同源单候选ODE。
 后续与自身IL40k作逐场景配对，报告NC/DAC/TTC、G+/G−和零分转移。
 不因训练reward或DEV上升宣称成功；未完成阶段不填造分数。
