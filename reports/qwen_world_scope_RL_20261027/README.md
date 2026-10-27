@@ -44,10 +44,18 @@ target、rank与缩放存在差别，且其对照没有FFN LoRA，不能宣称�
 - 冻结Qwen只prefill一次，memory每inner重算；CPU中断inner2后恢复与连续执行的全部参数及Adam逐值一致。
 - 非零memory/LoRA部署载荷完整加载；旧attention-only部署与训练合同回归通过。
 
-正式启动前，每组还必须通过真实八卡：6次更新 → 保存inner2 → 原checkpoint恢复至16次更新。
-检查32个scene/256新候选、相同链继续inner3/4、全部冻结hash、真实Adam任务动量、
-每步采样mean/std、原IL初始完整ODE，以及source第一inner ratio。
-验收权重不能初始化正式组，正式组重新从IL40k和新LoRA启动。
+两组已实际通过真实八卡：6次更新 → 保存inner2 → 原checkpoint恢复至16次更新。
+每组32个scene/256新候选；相同链继续inner3/4，初始完整ODE与IL逐值相同，
+7/8/9步实际采样mean/std与重算逐值相同，Qwen和永久reference的冻结hash不变。
+Memory组全部320个动作LoRA张量和138个memory张量、Time组全部46个LoRA张量
+都有非零Adam任务一阶动量。峰值每卡分别14.816和14.531 GiB。
+Memory资格从zt4的inner2保存点移到zt6继续，保持原链、old概率、优势、Adam及RNG。
+正式两组均重新从原IL40k和相同新LoRA初始化；逐张量核对初始载荷，B全零、Adam为空，
+未使用资格验收结束权重。证据见 [formal_start.json](formal_start.json)。
+
+2026-10-27 14:46 UTC启动审计：Memory八rank共同完成192次正式更新、合法恢复点100；
+Time共同完成596次更新、合法恢复点500。两组第一inner ratio误差均为0，已记录更新梯度有限。
+这些是启动快照，不代表后续实时状态，也不能据此判断PDMS收益。
 
 启动入口：
 
@@ -56,8 +64,24 @@ python -m tools.qwen_world_postcot.start_scope_rl --registration /absolute/scope
 ```
 
 登记根：`/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027`，
-各组独立owner/资格/正式run/原子checkpoint与失败证据；只用固定白名单空闲卡，不停止原对照。
-所有CLI都已实际执行help smoke；真实启动状态与资格结果由后续运行收据记录，不能用本段代替已运行证据。
+各组独立owner/资格/正式run/原子checkpoint与失败证据，不停止原attention-only对照。
+原zt4与本地的下一阶段曾被新出现的其它任务占用拦截，原生门禁明确记录
+`REFUSED_RESOURCE/child_not_started=true`；未抢占、未丢弃合法评分、未把它解释为算法失败。
+两组随后在用户新授权的zt6八卡共享启动，任务启动成功后用户又临时授权tsinghua-zt2与rl-zt2，
+因此安排Memory保存到合法inner边界再迁至空闲tsinghua-zt2，Time继续zt6，消除两组之间的GPU争用。
+rl-zt2留作后续已登记评价容量，不为填满资源新增方法或seed。
+
+实际训练源码始终为不可变`367bffd27aff5785fce6352481b89e2a433a9ee1`。
+CPU调度器后续`057452d`/`7c4d29f`只允许凭已封存收据继续资源拒绝后的资格/正式启动；
+actor、采样、概率、loss、optimizer与数据未改变，运行中的源码快照没有热修改。
+资源授权为任务级可撤销临时授权，未扩大其它项目的权限，也未重开旧九小时租约或暂停的实验。
+
+14:56 UTC资源重新分配已完成：Memory在391/inner3保存后于tsinghua-zt2完成同一旧链的392/inner4，
+随后393/inner1进入新behavior，八rank日志无缺口/重复，新的第一inner ratio误差仍为0。
+此时Memory共同完成419更新/105份fresh rollout/6720新候选，Time完成1287更新/
+322份fresh rollout/20608新候选；两组各用独立八卡。
+详细恢复边界、实际命令和owner路径见 [resource_reassignment.md](resource_reassignment.md)，
+机器可读快照见 [resource_assignment.json](resource_assignment.json)。
 
 固定保存0/5k/10k/20k/35k/50k，恢复点每100更新；主评价单候选10步shift5 ODE、seed2101、
 canonical v1.1全Navtest，报告相对IL和原LoRA对照的PDMS、NC/DAC/TTC、G+/G−与零分转移。

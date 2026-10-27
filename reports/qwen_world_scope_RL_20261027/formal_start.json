@@ -1,0 +1,179 @@
+{
+  "ATTN_LORA_MEMORY": {
+    "status": "RUNNING",
+    "asof_utc": "2026-10-27T14:46:26.824417+00:00",
+    "host": "training-vlawm-tsinghua-zt6",
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "GPU_sharing": "two separately locked World scope workers on8physical A800; no exclusive GPU-hour claim",
+    "owner_pid": 718575,
+    "owner_root": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/continuation_zt6_attempt003",
+    "formal_run": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/runs/RL_ATTN_LORA_MEMORY_IL040000_seed42",
+    "run_identity_sha256": "8aab6f14d5758f9b20e2a65901e2ad85dd63ae2e82b0a7d093820b4be944069c",
+    "training_source_snapshot": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/snapshots/367bffd",
+    "controller_source": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/snapshots/admin7c4d29f",
+    "parent_updates": 40000,
+    "parent_model_sha256": "f0c41d5ebb29ab3db59841fd96ea8d8ec4a804120ff4e474763e01ffe46027f4",
+    "completed_optimizer_updates_all8ranks": 192,
+    "logical_fresh_rollouts_in_common_prefix": 48,
+    "new_scored_candidates_in_common_prefix": 3072,
+    "latest_atomic_checkpoint_updates": 100,
+    "latest_atomic_checkpoint": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/runs/RL_ATTN_LORA_MEMORY_IL040000_seed42/checkpoints/update000100_inner0",
+    "first_inner_ratio_max_abs": 0.0,
+    "finite_gradient_all_updates": true,
+    "initial_parameters_equal_to_qualification_initial_not_final": true,
+    "initial_B_zero": true,
+    "initial_Adam_empty": true,
+    "qualification_weights_used": false,
+    "qualification": {
+      "status": "PASS",
+      "adaptation": "ATTN_LORA_MEMORY",
+      "updates": 16,
+      "fresh_global_rollouts": 4,
+      "new_candidates": 256,
+      "mid_inner_resume": "update6 inner2 -> update7/8 same chain and old probability; complete16",
+      "initial_IL_full_ODE_parity": "exact on all8ranks",
+      "sampling_recompute_mean_std": "exact7/8/9",
+      "frozen_Qwen_and_permanent_reference": "unchanged on all8ranks",
+      "task_moment_nonzero_tensors_by_group": {
+        "action_lora": 320,
+        "scene_predictive_memory": 138
+      },
+      "changed_tensors_by_rank": [
+        458,
+        458,
+        458,
+        458,
+        458,
+        458,
+        458,
+        458
+      ],
+      "trainable_numel": 52707840,
+      "trainable_tensors": 458,
+      "peak_GPU_GiB": 14.815614700317383,
+      "qualification_weights_used_for_formal_initialization": false
+    },
+    "actual_optimizer": {
+      "name": "torch.optim.AdamW",
+      "lr": 5e-05,
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.01,
+      "warmup_updates": 100,
+      "max_grad_norm_effective": 1.0,
+      "FP32_master_and_moments": true,
+      "parameter_groups": [
+        {
+          "name": "action_lora",
+          "lr": 5e-05,
+          "tensors": 320,
+          "numel": 5242880
+        },
+        {
+          "name": "scene_predictive_memory",
+          "lr": 5e-06,
+          "tensors": 138,
+          "numel": 47464960
+        }
+      ]
+    },
+    "evaluation": "No new RL Navtest score; canonical IL40k reference87.972382"
+  },
+  "TIME_MOD_LORA": {
+    "status": "RUNNING",
+    "asof_utc": "2026-10-27T14:46:27.219417+00:00",
+    "host": "training-vlawm-tsinghua-zt6",
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "GPU_sharing": "two separately locked World scope workers on8physical A800; no exclusive GPU-hour claim",
+    "owner_pid": 718013,
+    "owner_root": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/TIME_MOD_LORA/formal_relocation_zt6_attempt002",
+    "formal_run": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/TIME_MOD_LORA/runs/RL_TIME_MOD_LORA_IL040000_seed42",
+    "run_identity_sha256": "79e6c4af1bea36d9aedcb9748002e12ef68209f0961e05dec06bbc0f64dc8454",
+    "training_source_snapshot": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/snapshots/367bffd",
+    "controller_source": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/snapshots/admin7c4d29f",
+    "parent_updates": 40000,
+    "parent_model_sha256": "f0c41d5ebb29ab3db59841fd96ea8d8ec4a804120ff4e474763e01ffe46027f4",
+    "completed_optimizer_updates_all8ranks": 596,
+    "logical_fresh_rollouts_in_common_prefix": 149,
+    "new_scored_candidates_in_common_prefix": 9536,
+    "latest_atomic_checkpoint_updates": 500,
+    "latest_atomic_checkpoint": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/TIME_MOD_LORA/runs/RL_TIME_MOD_LORA_IL040000_seed42/checkpoints/update000500_inner0",
+    "first_inner_ratio_max_abs": 0.0,
+    "finite_gradient_all_updates": true,
+    "initial_parameters_equal_to_qualification_initial_not_final": true,
+    "initial_B_zero": true,
+    "initial_Adam_empty": true,
+    "qualification_weights_used": false,
+    "qualification": {
+      "status": "PASS",
+      "adaptation": "TIME_MOD_LORA",
+      "updates": 16,
+      "fresh_global_rollouts": 4,
+      "new_candidates": 256,
+      "mid_inner_resume": "update6 inner2 -> update7/8 same chain and old probability; complete16",
+      "initial_IL_full_ODE_parity": "exact on all8ranks",
+      "sampling_recompute_mean_std": "exact7/8/9",
+      "frozen_Qwen_and_permanent_reference": "unchanged on all8ranks",
+      "task_moment_nonzero_tensors_by_group": {
+        "action_lora": 46
+      },
+      "changed_tensors_by_rank": [
+        46,
+        46,
+        46,
+        46,
+        46,
+        46,
+        46,
+        46
+      ],
+      "trainable_numel": 4816896,
+      "trainable_tensors": 46,
+      "peak_GPU_GiB": 14.530786514282227,
+      "qualification_weights_used_for_formal_initialization": false
+    },
+    "actual_optimizer": {
+      "name": "torch.optim.AdamW",
+      "lr": 5e-05,
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.01,
+      "warmup_updates": 100,
+      "max_grad_norm_effective": 1.0,
+      "FP32_master_and_moments": true,
+      "parameter_groups": [
+        {
+          "name": "action_lora",
+          "lr": 5e-05,
+          "tensors": 46,
+          "numel": 4816896
+        }
+      ]
+    },
+    "evaluation": "No new RL Navtest score; canonical IL40k reference87.972382"
+  }
+}
