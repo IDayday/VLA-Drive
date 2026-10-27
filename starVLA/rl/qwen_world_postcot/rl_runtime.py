@@ -70,7 +70,7 @@ class CleanXRuntime:
     def add_arguments(parser):
         parser.add_argument('--il-checkpoint', required=True,
                             help='Complete full-framework clean-x IL deployment checkpoint')
-        parser.add_argument('--parent-selection', help='Sealed full100k IL and complete DEV selection; required formally')
+        parser.add_argument('--parent-selection', help='Sealed complete-DEV selection or separately authorized explicit IL40k parent; required formally')
         parser.add_argument('--data', default=str(ROOT/'data/TRAIN'))
 
     def load_recipe(self, args):
@@ -87,12 +87,10 @@ class CleanXRuntime:
             if not args.parent_selection:
                 raise ValueError('Formal RL waits for full100k IL and its locked DEV-selected checkpoint')
             self.selection = validate_rl_parent_selection(args.parent_selection, self.parent)
-            if (self.selection['schema'] != 'world_postcot_DEV_selection_v1'
-                    or self.selection['completed_IL_updates'] != 100000
-                    or self.selection['Navtest_used'] is not False
-                    or self.selection['selected']['model_sha256'] != self.parent['model_sha256']
-                    or Path(self.selection['selected']['checkpoint']).resolve() != Path(args.il_checkpoint).resolve()):
-                raise ValueError('Formal RL cannot precede complete IL/DEV selection or use Navtest selection')
+            if self.selection['schema']=='world_postcot_explicit_IL40000_parent_v1':
+                if (self.selection['training_recipe_sha256']!=file_sha(args.config)
+                        or self.selection['hard_manifest_sha256']!=file_sha(args.manifest)):
+                    raise ValueError('Explicit40k recipe/data binding changed')
         return cfg
 
     def make_scene_stream(self, cfg, args, world):
