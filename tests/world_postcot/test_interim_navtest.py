@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from starVLA.rl.qwen_world_postcot.contracts import fingerprint
 from starVLA.rl.qwen_world_postcot.interim_navtest import validate_interim
+from tools.qwen_world_postcot.user_interim_owner import validate_complete_summary
 
 
 class InterimWorldTest(unittest.TestCase):
@@ -33,6 +34,19 @@ class InterimWorldTest(unittest.TestCase):
             with self.assertRaises(ValueError):validate_interim(p,**dict(kwargs,tokens=kwargs['tokens'][:16]))
             kwargs['parent']['seal']['updates']=35000
             with self.assertRaises(ValueError):validate_interim(p,**kwargs)
+
+    def test_full_population_has_distinct_fragment_and_recording_counts(self):
+        tokens=[str(i) for i in range(12146)]
+        pop=dict(navtest_tokens=tokens,token_logs={t:f'recording{int(t)%136%44}_{int(t)%136*100}_{int(t)%136*100+99}' for t in tokens})
+        identity=dict(tokens=tokens,token_sha256=fingerprint(tokens),cohort='NAVTEST',qualification=False)
+        identity['sha256']=fingerprint(identity)
+        summary=dict(status='COMPLETE',scenes=12146,scene_denominator=12146,invalid_scenes=0,
+                     physical_logs=44,evaluation_identity_sha256=identity['sha256'])
+        summary['sha256']=fingerprint(summary)
+        self.assertEqual(validate_complete_summary(summary,identity,pop),dict(manifest_logs=136,physical_logs=44))
+        for key,value in [('scenes',12145),('physical_logs',136),('invalid_scenes',1)]:
+            bad=dict(summary);bad.pop('sha256');bad[key]=value;bad['sha256']=fingerprint(bad)
+            with self.assertRaises(ValueError):validate_complete_summary(bad,identity,pop)
 
 
 if __name__=='__main__':unittest.main()

@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import subprocess
 import time
@@ -17,6 +18,26 @@ def fingerprint(value): return hashlib.sha256(json.dumps(value,sort_keys=True,se
 def write(path,value):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True);tmp=path.with_suffix(path.suffix+'.tmp')
     tmp.write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n');os.replace(tmp,path)
+
+
+def validate_complete_summary(summary, identity, population):
+    """Keep scene completeness separate from fragment versus recording counts."""
+    body=dict(summary)
+    if body.pop('sha256',None)!=fingerprint(body):raise ValueError('Changed summary seal')
+    body=dict(identity)
+    if body.pop('sha256',None)!=fingerprint(body):raise ValueError('Changed evaluation identity')
+    tokens=population['navtest_tokens']
+    if (len(tokens)!=12146 or len(set(tokens))!=12146 or identity['tokens']!=tokens
+            or identity['token_sha256']!=fingerprint(tokens) or identity['cohort']!='NAVTEST'
+            or identity['qualification'] or summary['status']!='COMPLETE'
+            or summary['scenes']!=len(tokens) or summary['scene_denominator']!=len(tokens)
+            or summary['invalid_scenes']!=0 or summary['evaluation_identity_sha256']!=identity['sha256']):
+        raise ValueError('Not a complete valid Navtest population')
+    fragments={population['token_logs'][token] for token in tokens}
+    recordings={re.sub(r'_\d+_\d+$','',log) for log in fragments}
+    if summary['physical_logs']!=len(recordings):
+        raise ValueError('Physical recording count differs from the locked population')
+    return dict(manifest_logs=len(fragments),physical_logs=len(recordings))
 
 
 class Request:
@@ -134,22 +155,32 @@ print(json.dumps(rows))'''.replace('__UUID__',repr(r['uuid']))
                 '--evaluation',str(self.output),'--output',str(summary)],cwd=self.source,
                 stdout=log,stderr=subprocess.STDOUT,check=True)
         s=read(summary)
-        if s['status']!='COMPLETE' or s['scenes']!=12146 or s['physical_logs']!=136:
-            raise ValueError('Not a complete valid Navtest population')
-        write(self.root/'COMPLETE.json',dict(status='COMPLETE',PDMS=s['PDMS'],scenes=12146,logs=136,
+        counts=validate_complete_summary(s,read(self.output/'identity.json'),
+            read('/mnt/project/flow-safe-improvement-20261013/population/manifest.json'))
+        write(self.root/'COMPLETE.json',dict(status='COMPLETE',PDMS=s['PDMS'],scenes=12146,
+            logs=counts['manifest_logs'],physical_logs=counts['physical_logs'],
             all_owned_workers_exited=True,registration_sha256=read(self.reg)['sha256'],at=time.time()))
         self.publish(s)
 
     def publish(self,s):
         report=self.source/'reports/qwen_world_IL37_navtest_20261027';report.mkdir(exist_ok=True,parents=True)
+        counts=validate_complete_summary(s,read(self.output/'identity.json'),
+            read('/mnt/project/flow-safe-improvement-20261013/population/manifest.json'))
         write(report/'summary.json',s);write(report/'registration.json',read(self.reg));write(report/'native_parity.json',read(self.proof))
+        components='\n'.join(f'| {name} | {100*value:.6f} |'for name,value in s['means'].items())
         (report/'README.md').write_text('# Qwen-World/PostCoT IL37k Navtest\n\n'
-            f'Full12146 scenes/136 logs, canonicalv1.1, single clean-x K10 shift5, seed2101. **PDMS {s["PDMS"]:.6f}**.\n\n'
+            f'Full12146 scenes/{counts["manifest_logs"]} manifest log fragments/{counts["physical_logs"]} physical recordings, '
+            f'canonicalv1.1, single clean-x K10 shift5, seed2101. **PDMS {s["PDMS"]:.6f}**.\n\n'
             'This is user-requested interim Test observation, not completed100k IL, RL gain, DEV selection or RL-parent promotion. '
             'The current-only native predict and independent official scorer are unchanged. Native/export actual prediction parity passed. '
             'Original training/controller and all other real workloads continue unchanged. No auxiliary teacher, candidate bank, scorer or GT selects the deployed output.\n\n'
             'Exact protocol, component means and complete-scene checks are in summary.json; registration binds native/export and data/source hashes. '
-            'Owned worker timing, loading, forward, scoring and native-parity costs are retained under the asset-root job/rank receipts.\n')
+            'Owned worker timing, loading, forward, scoring and native-parity costs are retained under the asset-root job/rank receipts.\n\n'
+            '| Metric | Percent scale |\n|---|---:|\n'+components+'\n\n'
+            'The initial report guard conflated136 manifest log fragments with44 physical recordings. '
+            'All12146 scene hashes, membership, official feedback joins and means were revalidated unchanged. '
+            'The report-only correction and original failure are retained in [log_count_correction.md](log_count_correction.md); '
+            'no model inference, trajectory or official scoring was rerun.\n')
         def git(*args):return subprocess.check_output(['git',*args],cwd=self.source,text=True)
         if git('rev-parse','HEAD').strip()!=self.source_sha:raise ValueError('Source changed before publication')
         prefix=str(report.relative_to(self.source))
