@@ -1,0 +1,160 @@
+{
+  "asof_utc": "2026-10-27T15:00:44.184990+00:00",
+  "RL": [
+    {
+      "scope": "parent40k_user20261027",
+      "run": "/mnt/project/qwen-world-postcot-20261025/parent40k_user20261027/runs/RL_CANONICAL_IL040000_seed42",
+      "host": "training-vlawm-tsinghua-zt",
+      "owner_pid": 666255,
+      "owner_kind": "local_controller",
+      "owner_state": "FORMAL50000",
+      "owner_result": null,
+      "completed_updates_all8ranks": 5510,
+      "budget_optimizer_updates": 50000,
+      "progress_percent": 11.02,
+      "rank_update_range": [
+        5510,
+        5510
+      ],
+      "collections": 1378,
+      "scene_exposures": 11024,
+      "new_candidates": 88192,
+      "latest_checkpoint": {
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/parent40k_user20261027/runs/RL_CANONICAL_IL040000_seed42/checkpoints/update005500_inner0",
+        "updates": 5500,
+        "files_sha256": "135f21d15f4cd520a88834f0377f2303d575984b9156f8763cc589ddaf427319"
+      },
+      "last_common_gradient_norm_range": [
+        0.020136157050728798,
+        0.020136157050728798
+      ],
+      "journal_modified_utc": "2026-10-27T15:00:43+00:00",
+      "latest_invocation": {
+        "invocation": "202b2373791148a0a462138fe41ba0cb",
+        "start_unix": 1793105447.2842,
+        "start_update": 0,
+        "status": "RUNNING",
+        "heartbeat_unix": 1793113241.3135302,
+        "last_event": "scored",
+        "observed_worker_wall_seconds": 7794.038116334006,
+        "resume_checkpoint": null
+      }
+    },
+    {
+      "scope": "ATTN_LORA_MEMORY",
+      "run": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/runs/RL_ATTN_LORA_MEMORY_IL040000_seed42",
+      "host": "training-vlawm-tsinghua-zt2",
+      "owner_pid": 2256828,
+      "owner_kind": "native_job_worker",
+      "owner_state": "RUNNING",
+      "owner_result": null,
+      "completed_updates_all8ranks": 572,
+      "budget_optimizer_updates": 50000,
+      "progress_percent": 1.144,
+      "rank_update_range": [
+        572,
+        572
+      ],
+      "collections": 143,
+      "scene_exposures": 1144,
+      "new_candidates": 9152,
+      "latest_checkpoint": {
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/runs/RL_ATTN_LORA_MEMORY_IL040000_seed42/checkpoints/update000500_inner0",
+        "updates": 500,
+        "files_sha256": "25696b9a3c0f247acd81a3522d64a6eac34720add837d416f4136ac6ec425cca"
+      },
+      "last_common_gradient_norm_range": [
+        0.015391280874609947,
+        0.015391280874609947
+      ],
+      "journal_modified_utc": "2026-10-27T15:00:43+00:00",
+      "latest_invocation": {
+        "invocation": "44ab7121151449249b2a37dc5fea1118",
+        "start_unix": 1793112934.168913,
+        "start_update": 391,
+        "status": "RUNNING",
+        "heartbeat_unix": 1793113243.2970648,
+        "last_event": "collection_start",
+        "observed_worker_wall_seconds": 309.17244981229305,
+        "resume_checkpoint": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/runs/RL_ATTN_LORA_MEMORY_IL040000_seed42/checkpoints/update000391_inner3"
+      }
+    },
+    {
+      "scope": "TIME_MOD_LORA",
+      "run": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/TIME_MOD_LORA/runs/RL_TIME_MOD_LORA_IL040000_seed42",
+      "host": "training-vlawm-tsinghua-zt6",
+      "owner_pid": 718013,
+      "owner_kind": "local_controller",
+      "owner_state": "FORMAL50000",
+      "owner_result": null,
+      "completed_updates_all8ranks": 1588,
+      "budget_optimizer_updates": 50000,
+      "progress_percent": 3.176,
+      "rank_update_range": [
+        1588,
+        1588
+      ],
+      "collections": 397,
+      "scene_exposures": 3176,
+      "new_candidates": 25408,
+      "latest_checkpoint": {
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/TIME_MOD_LORA/runs/RL_TIME_MOD_LORA_IL040000_seed42/checkpoints/update001500_inner0",
+        "updates": 1500,
+        "files_sha256": "953df699283ff646f2c0b7f3c50b9cec407348ae04dbe90b5d7ec7dc52a22516"
+      },
+      "last_common_gradient_norm_range": [
+        0.01271903607994318,
+        0.01271903607994318
+      ],
+      "journal_modified_utc": "2026-10-27T15:00:43+00:00",
+      "latest_invocation": {
+        "invocation": "766b21bddb9a4e8699ad47b4db498f79",
+        "start_unix": 1793111836.9315314,
+        "start_update": 0,
+        "status": "RUNNING",
+        "heartbeat_unix": 1793113243.943027,
+        "last_event": "collection_start",
+        "observed_worker_wall_seconds": 1407.0596640426666,
+        "resume_checkpoint": null
+      }
+    }
+  ],
+  "IL": [
+    {
+      "model": "Qwen-World/PostCoT",
+      "target_updates": 100000,
+      "latest_valid_checkpoint_updates": 40000,
+      "status": "INTERRUPTED_QUOTA_NOT_RUNNING",
+      "last_formal_job_result": "/mnt/project/qwen-world-postcot-20261025/jobs/formal_IL_attempt001/RESULT.json",
+      "failure": "OSError errno122 Disk quota exceeded",
+      "stale_progress_json_says_running": true,
+      "actual_old_controller_exited": true,
+      "old_host_current_world_IL_GPU_workers": 0,
+      "newer_checkpoint_than40000_exists": false,
+      "latest_Navtest_checkpoint_updates": 40000,
+      "latest_canonical_v11_PDMS": 87.97238223922025,
+      "new_Navtest_required_for_this_weight": false,
+      "not_a100k_endpoint": true
+    },
+    {
+      "model": "Original Qwen-Flow",
+      "status": "STOPPED_BY_USER",
+      "latest_saved_updates": 98486,
+      "latest_tested_updates": 98000,
+      "latest_tested_PDMS": 88.00439321531101,
+      "terminal98486_has_no_new_Navtest": true,
+      "inference_weights_preserved_recovery_retired": true
+    },
+    {
+      "model": "Three-frame/current-DINO fresh IL",
+      "status": "PAUSED_BY_USER",
+      "latest_saved_updates": 27548,
+      "latest_tested_updates": 24000,
+      "latest_tested_PDMS": 79.26845342168855,
+      "terminal27548_has_no_new_Navtest": true,
+      "inference_weights_preserved_recovery_retired": true
+    }
+  ],
+  "evaluation_note": "No World IL checkpoint newer than already evaluated40k exists. No duplicate40k evaluation or old paused training was launched during this progress audit. OriginalIL98486/DINO27548 are older stopped-run terminal weights, separately identified; no score is assigned from their preceding tested checkpoints.",
+  "performance_note": "No completed Navtest of the three new World IL40k-parent RL variants exists in this snapshot; training reward/gradient/DEV are not substituted for Test."
+}
