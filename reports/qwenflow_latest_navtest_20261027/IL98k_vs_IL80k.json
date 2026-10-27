@@ -1,0 +1,182 @@
+{
+  "schema": "native_IL_milestones_paired_v1",
+  "status": "COMPLETE",
+  "interpretation": "IL checkpoint learning only; not RL gain or IL parent selection",
+  "evaluation": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL098000_NAVTEST_user_20261027T0100Z",
+  "reference": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL_080000_NAVTEST_user_20261026T0755Z",
+  "current_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261027T0100Z/checkpoints/IL098000",
+  "reference_checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/IL77_87_NAVTEST_20261026T0755Z/checkpoints/update080000",
+  "current_model_sha256": "e132d4cc4032233815e89e4b787236fd9644408b3aa49e5b756445163dbd392f",
+  "reference_model_sha256": "3c38e0255cea3e9ee70eac6af7144e66e9ef8ae00e2e158e4316e18ea9da9c8a",
+  "analysis_sha256": "33373ac3f00692f6eed0cd3d145d321540e2fbb7c00c4a36db575091c70294d4",
+  "scenes": 12146,
+  "integrity_analysis_sha256": "2f6b9c0daf7c47c21753e6b7b846c44f653034a9423129bf8a9cdfe2159ebde5",
+  "source_compatibility": {
+    "mode": "identical_source_files"
+  },
+  "logs": 136,
+  "seed": 2101,
+  "inference": "single_candidate_source_shift5_ODE_K10",
+  "metric": "canonical_NAVSIM_v1.1",
+  "training_seed_repeats": 1,
+  "inference_seeds": 1,
+  "uncertainty": "Scene-weighted log-cluster bootstrap; excludes training/inference seed uncertainty",
+  "current_mean_percent": {
+    "score": 88.00439321531101,
+    "no_at_fault_collisions": 98.22986991602174,
+    "drivable_area_compliance": 96.22921126296723,
+    "time_to_collision_within_bound": 94.46731434217025,
+    "ego_progress": 82.47733599406308,
+    "comfort": 99.94236785773094,
+    "driving_direction_compliance": 98.48509797464186
+  },
+  "reference_mean_percent": {
+    "score": 88.15787988091323,
+    "no_at_fault_collisions": 98.2092870080685,
+    "drivable_area_compliance": 96.39387452659311,
+    "time_to_collision_within_bound": 94.50024699489545,
+    "ego_progress": 82.57300118196062,
+    "comfort": 99.95060102091223,
+    "driving_direction_compliance": 98.48098139305121
+  },
+  "mean_delta_percentage_points": {
+    "score": -0.15348666560221416,
+    "no_at_fault_collisions": 0.020582907953235634,
+    "drivable_area_compliance": -0.16466326362588507,
+    "time_to_collision_within_bound": -0.032932652725177015,
+    "ego_progress": -0.09566518789753578,
+    "comfort": -0.008233163181294254,
+    "driving_direction_compliance": 0.004116581590647127
+  },
+  "PDMS_log_cluster_bootstrap": {
+    "mean": -0.0015348666560221417,
+    "CI95": [
+      -0.0038558902763309315,
+      0.0008416453849327884
+    ],
+    "scenes": 12146,
+    "logs": 136,
+    "bootstrap_repeats": 2000,
+    "seed": 42,
+    "training_seed_uncertainty_included": false,
+    "mean_PDMS_points": -0.15348666560221416,
+    "CI95_PDMS_points": [
+      -0.38558902763309316,
+      0.08416453849327883
+    ]
+  },
+  "G_plus_raw_score_sum": 95.94770503717788,
+  "G_minus_raw_score_sum": 114.59019544122282,
+  "G_plus_PDMS_points": 0.789953112441774,
+  "G_minus_PDMS_points": 0.9434397780439884,
+  "any_improved": 3929,
+  "any_degraded": 3896,
+  "practical_improved_ge005": 928,
+  "practical_degraded_le_minus005": 830,
+  "reference_zero_scenes": 639,
+  "current_zero_scenes": 657,
+  "nonzero_to_zero": 91,
+  "zero_to_nonzero": 73,
+  "reference_joint_safe_scenes": 11075,
+  "current_joint_safe_scenes": 11049,
+  "reference_safe_new_joint_violation": 127,
+  "reference_unsafe_joint_recovery": 101,
+  "current_full_score_scenes": 3570,
+  "safety_transitions": {
+    "no_at_fault_collisions": {
+      "reference_violation": 227,
+      "current_violation": 223,
+      "new_violation": 22,
+      "recovery": 26
+    },
+    "drivable_area_compliance": {
+      "reference_violation": 438,
+      "current_violation": 458,
+      "new_violation": 73,
+      "recovery": 53
+    },
+    "time_to_collision_within_bound": {
+      "reference_violation": 668,
+      "current_violation": 672,
+      "new_violation": 63,
+      "recovery": 59
+    }
+  },
+  "current_motion": {
+    "request_final_forward_m": {
+      "mean": 19.22629663994005,
+      "defined_scenes": 12146
+    },
+    "request_final_lateral_m": {
+      "mean": 0.778961841659257,
+      "defined_scenes": 12146
+    },
+    "request_mean_segment_speed_mps": {
+      "mean": 5.024318380441633,
+      "defined_scenes": 12146
+    },
+    "request_segment_jerk_RMS_mps3": {
+      "mean": 5.0630712081168285,
+      "defined_scenes": 12146
+    },
+    "simulated_final_forward_m": {
+      "mean": 19.6153949649689,
+      "defined_scenes": 12146
+    },
+    "simulated_abs_final_lateral_m": {
+      "mean": 2.607600728861135,
+      "defined_scenes": 12146
+    },
+    "simulated_mean_segment_speed_mps": {
+      "mean": 5.096154734977707,
+      "defined_scenes": 12146
+    },
+    "simulated_time_to_90percent_own_path_s": {
+      "mean": 3.550493989790878,
+      "defined_scenes": 12146
+    },
+    "raw_progress_meters": {
+      "mean": 20.29980893691384,
+      "defined_scenes": 12146
+    }
+  },
+  "reference_motion": {
+    "request_final_forward_m": {
+      "mean": 19.280533286682292,
+      "defined_scenes": 12146
+    },
+    "request_final_lateral_m": {
+      "mean": 0.7906825796454267,
+      "defined_scenes": 12146
+    },
+    "request_mean_segment_speed_mps": {
+      "mean": 5.025474236099861,
+      "defined_scenes": 12146
+    },
+    "request_segment_jerk_RMS_mps3": {
+      "mean": 4.2584020049713684,
+      "defined_scenes": 12146
+    },
+    "simulated_final_forward_m": {
+      "mean": 19.62671509689891,
+      "defined_scenes": 12146
+    },
+    "simulated_abs_final_lateral_m": {
+      "mean": 2.5988941466107085,
+      "defined_scenes": 12146
+    },
+    "simulated_mean_segment_speed_mps": {
+      "mean": 5.09717545793753,
+      "defined_scenes": 12146
+    },
+    "simulated_time_to_90percent_own_path_s": {
+      "mean": 3.5408858883583076,
+      "defined_scenes": 12146
+    },
+    "raw_progress_meters": {
+      "mean": 20.305983801787107,
+      "defined_scenes": 12146
+    }
+  },
+  "sha256": "d5b637d4105497b2cc1d83ffef81183e873073c339d3ed2b7580175e0fd05904"
+}

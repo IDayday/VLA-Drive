@@ -1,64 +1,22 @@
-# Latest Qwen-Flow training and Navtest request — 2026-10-27
+# Latest Qwen-Flow Navtest — 2026-10-27
 
-The three newly registered full Navtest evaluations are pending. No new scores
-are claimed. Existing completed scores are IL80k88.157880, IL77-parent RL24.6k
-90.689893, and fresh three-frame/current-DINO IL14k82.899980.
+All three full12146-scene/136-log evaluations completed. Canonical NAVSIM v1.1; single-candidate source shift5 ODE K10; inference seed2101. No best-of-N or training change.
 
-Current checkpoint/progress receipts, read at this request:
+| Checkpoint | Updates | Full Navtest PDMS |
+|---|---:|---:|
+| IL098000 | 98,000 | 88.004393 |
+| RL77_FINAL050000 | 50,000 | 90.613716 |
+| DINO_FRESH024000 | 24,000 | 79.268453 |
 
-| Training | Saved updates | Fixed budget | State |
-|---|---:|---:|---|
-| Original current-frame IL | 98,000 | 100,000 | RUNNING |
-| IL77-parent CANONICAL RL | 50,000 | 50,000 | COMPLETE |
-| Fresh three-frame/current-DINO IL | 24,000 | 100,000 | RUNNING |
-| Separate Qwen-World/PostCoT IL | 35,000 | 100,000 | RUNNING; its independent workflow is preserved |
+| Matched paired comparison | Net PDMS points | 95% log-bootstrap interval | New zero / recovered zero |
+|---|---:|---|---:|
+| RL50k_vs_own_IL77 | +2.468771 | [+1.960880, +2.948727] | 102 / 372 |
+| RL50k_vs_RL24_6k | -0.076177 | [-0.298173, +0.128694] | 92 / 48 |
+| IL98k_vs_IL80k | -0.153487 | [-0.385589, +0.084165] | 91 / 73 |
+| DINO24k_vs_DINO14k | -3.631527 | [-5.592950, -1.552585] | 1114 / 569 |
 
-The completed RL receipt records12500 fresh rollouts,100000 raw scene exposures,
-800000 new candidates and50000 optimizer updates, including108 anchor-only
-updates. Four inner updates are not counted as four fresh rollouts.
+NC/DAC/TTC new violations/recoveries, G+/G− and components are in the paired JSON. Intervals exclude seed and Test checkpoint-selection uncertainty. The completed50k RL endpoint is compared with its exact IL77 parent and its own24.6k intermediate; old IL53-parent models are not treated as matched controls. DINO is fresh three-frame IL, distinct from the paused warm-start model.
 
-This request pins IL98k, RL77-parent50k and DINO24k before rolling retirement.
-Hardlinks preserve native COMPLETE/manifests/optimizer/RNG assets without
-modifying original training. RL has native LoRA state rather than a standalone
-model.pt; its native files manifest binds the state, and merged export/native
-ODE parity is required before full evaluation. Temporal rank0 must pass native
-model.predict parity before its other shards start.
+Logical single candidates: 36,438; physical including retries: 36,438. Compute owner wall: 2.185 h; summed shared worker occupancy: 18.665 h. Export/native parity and historical calibration costs are separate job receipts; they are not free data.
 
-Protocol: canonical NAVSIM v1.1; full12146 scenes/136 logs; single candidate;
-source shift5 ODE K10; seed2101; no teacher/scorer selection at inference.
-Unchanged qualified model/evaluator sources are434cba8(original IL),5a6bb6e
-(IL77-parent RL),22abe52(fresh temporal). No training/seed/method change.
-Eight native shards per model were selected from16 currently eligible physical
-GPUs on fixed tsinghua-zt3/zt4, with qualified two-process sharing on initially
-idle GPUs,32GiB admission guard and CPU-loading reservations. Actual dispatch
-is refreshed against ownership/headroom. Other real/unknown jobs are preserved;
-withdrawn temporary servers, including vla-zt3, are excluded. No filler is killed.
-
-The finite budget is36438 new logical single-candidate inferences, plus separate
-export/parity qualification costs. Completed values are reported only after
-exact membership, scene seals, official metrics and worker exits pass. Paired
-analyses compare RL50k with its exact IL77 parent and RL24.6k; IL98k with IL80k;
-fresh DINO24k with fresh DINO14k. Historical IL53-parent RL is not a matched
-control. Test observations are disclosed and do not change training or parents.
-
-Six targeted CPU tests and the real sealed registration check passed. The new
-report-publication guard preserves porcelain leading whitespace, with an explicit
-regression test for the prior conservative publication refusal. Native inference,
-reward, action encoding, sampling and optimizer files are unchanged.
-
-Executed entry forms:
-
-```bash
-python3 -m unittest tests.rl.test_latest_navtest_request tests.rl.test_finite_navtest_scan -v
-/usr/bin/python3 -u -m scripts.analysis.qwen_sourceflow.latest_navtest_request \
-  --registration /mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261027T0100Z/registration.json \
-  --report-dir /mnt/project/VLA-Drive-qwenflow-latest-navtest-20261027/reports/qwenflow_latest_navtest_20261027
-```
-
-Do not duplicate an existing owner. Queue scheduling advances compute as needed;
-the analyzer runs directly once the compute owner finishes, with no separate
-result-polling process. Historical measured worker costs, eight shards/model,
-cohosting/loading and tail buffers determine the next reading window recorded
-under ETA_BASIS.json/NEXT_READ.json in the asset root. No repeated assistant
-log/status checks before that window unless the user asks or a failure/completion
-event occurs. Scoped report commit/push verifies the remote SHA after completion.
+Frozen registration: [registration.json](registration.json). Full data: [results.json](results.json).
