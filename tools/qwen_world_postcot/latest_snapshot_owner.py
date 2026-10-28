@@ -1,4 +1,4 @@
-"""Four user-pinned World snapshots, qualified native workers, one publisher."""
+"""Finite user-pinned World observations, qualified native workers, one publisher."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import fcntl
@@ -76,7 +76,8 @@ class SnapshotRequest(Request):
             protocol_sha256=protocol['sha256'], output=str(self.output.resolve()), seed=2101, count=12146,
             prediction_type='x0', inference='single_candidate_cleanx_K10_shift5',
             used_for_parent_selection=False, used_for_actor_update=False,
-            user_instruction='统计目前的训练进度，新的ckpts可以用于评测', Test_observed=True)
+            user_instruction=self.pin.get('user_instruction', '统计目前的训练进度，新的ckpts可以用于评测'),
+            Test_observed=True)
         row['sha256'] = fingerprint(row); write(self.reg, row)
 
     def publish(self, summary):
@@ -86,6 +87,8 @@ class SnapshotRequest(Request):
 
 
 def finalize(root, requests, report):
+    if read(root/'PINNED.json').get('schema') == 'world_checkpoint_sweep_NAVTEST_v1':
+        return finalize_sweep(root, requests, report)
     from tools.qwen_world_postcot.summarize import summarize
     reference = '/mnt/project/qwen-sourceflow-native-20261018/selected_WORLD40_RL77_NAVTEST_20261027T0940Z/WORLD_IL040000/evaluation'
     results = {}; report.mkdir(parents=True, exist_ok=True)
@@ -111,6 +114,48 @@ def finalize(root, requests, report):
     return results
 
 
+def finalize_sweep(root, requests, report):
+    """Derived comparisons only; all native prediction/scoring paths are reused."""
+    from tools.qwen_world_postcot.summarize import summarize
+    pinned = read(root/'PINNED.json')
+    reference = pinned['reference_evaluation']
+    results = {}; report.mkdir(parents=True, exist_ok=True)
+    lines = ['# Qwen-World IL checkpoints and later RL observations', '',
+        'Full12146 scenes, canonical NAVSIM v1.1, seed2101, single clean-x K10 shift5 ODE. '
+        'IL observations do not change the fixed IL40k RL parent. Test is historically observed.', '',
+        '| Snapshot | Updates | PDMS | Change vs IL40k (points) | Change vs previous same RL (points) |',
+        '|---|---:|---:|---:|---:|']
+    for label, request in requests.items():
+        done = read(request.root/'COMPLETE.json')
+        if done['status'] != 'COMPLETE' or not done['all_owned_workers_exited']:
+            raise ValueError('Incomplete native workers cannot become a Test result')
+        result = summarize(request.output, reference)
+        previous = request.pin.get('previous_evaluation')
+        earlier_delta = None
+        if previous:
+            earlier = summarize(request.output, previous)
+            result['paired_previous_same_RL'] = dict(reference_evaluation=previous, **earlier['paired'])
+            earlier_delta = 100 * earlier['paired']['mean_delta']
+        # Additional derived fields require a new seal, not the original summary seal.
+        result.pop('sha256')
+        result['sha256'] = fingerprint(result)
+        results[label] = result
+        write(report/(label+'.json'), result)
+        write(report/(label+'_native_parity.json'), read(request.proof))
+        earlier_text = '—' if earlier_delta is None else f'{earlier_delta:+.6f}'
+        lines.append(f'| {label} | {request.pin["updates"]} | {result["PDMS"]:.6f} | '
+                     f'{100 * result["paired"]["mean_delta"]:+.6f} | {earlier_text} |')
+    lines += ['', 'The previous-same-RL comparisons use full paired scenes/logs under the same protocol. '
+              'A lower point estimate is an observed rollback; interpret its physical-log bootstrap interval '
+              'separately. This is not multiple training-seed evidence. Different RL update budgets do not '
+              'establish method superiority.', '',
+              'All metric components, zero-score and safety transfers, and paired95% intervals are in the '
+              'per-model JSON. Raw worker costs and scene records are retained at '+str(root)+'. '
+              'No teacher/search/scorer chooses a deployed output; every observation is one candidate.', '']
+    (report/'README.md').write_text('\n'.join(lines))
+    return results
+
+
 def main():
     p = argparse.ArgumentParser(__doc__); p.add_argument('--root', required=True); p.add_argument('--report-dir', required=True)
     args = p.parse_args(); root = Path(args.root); lock = (root/'owner.lock').open('a')
@@ -127,7 +172,10 @@ def main():
                    'training-vlawm-tsinghua-zt3','training-vlawm-tsinghua-zt4','training-vlawm-tsinghua-zt5'])
         requests[label] = SnapshotRequest(directory, pin)
     failures = {}
-    with ThreadPoolExecutor(max_workers=4) as pool:
+    concurrency = int(pinned.get('max_concurrent_models', 4))
+    if concurrency < 1 or concurrency > 8:
+        raise ValueError('Unregistered model concurrency')
+    with ThreadPoolExecutor(max_workers=concurrency) as pool:
         futures = {pool.submit(request.run): label for label, request in requests.items()}
         for future in as_completed(futures):
             label = futures[future]
@@ -144,7 +192,7 @@ def main():
     for row in git('status','--porcelain=v1','-z','--untracked-files=all').split('\0'):
         if row and not row[3:].startswith(prefix+'/'): raise ValueError('Unrelated publication change')
     subprocess.run(['git','add','--',prefix],cwd=source,check=True)
-    subprocess.run(['git','commit','-m','Record four complete World IL and RL Test snapshots'],cwd=source,check=True)
+    subprocess.run(['git','commit','-m','Record complete pinned World Test observations'],cwd=source,check=True)
     branch = git('branch','--show-current').strip(); commit = git('rev-parse','HEAD').strip()
     subprocess.run(['git','push','origin','HEAD:refs/heads/'+branch],cwd=source,check=True)
     if git('ls-remote','origin','refs/heads/'+branch).split()[0] != commit: raise ValueError('Remote SHA mismatch')
