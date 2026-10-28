@@ -1,0 +1,20 @@
+{
+  "status": "COMPLETE",
+  "asof_utc": "2026-10-28T04:01:02.720623+00:00",
+  "new_model_forwards": 0,
+  "new_scorer_calls": 0,
+  "arithmetic_fixtures_passed": [
+    "inverse_correlation",
+    "direct_correlation",
+    "constant_undefined",
+    "insufficient_undefined"
+  ],
+  "source_files_sha256": {
+    "tools/qwen_world_postcot/analyze_il_loss_pdms.py": "75db2e7730944598f327ec501c9af3cb22e100b66c67f1a5744edf1b50c72574",
+    "tools/qwen_world_postcot/plot_il_loss_pdms.py": "ee19ba980156bb2b8e19f08f8ab4b4a2c58a021e590177c1bc5b784bb05e0b42"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m tools.qwen_world_postcot.analyze_il_loss_pdms --run /mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42 --scores /mnt/project/qwen-world-postcot-20261025/IL_loss_PDMS_20261028/SCORES.json --output /mnt/project/qwen-world-postcot-20261025/IL_loss_PDMS_20261028/analysis",
+  "plotting_executed": true,
+  "figure_visually_reviewed": true,
+  "active_training_sources_unchanged": true
+}
