@@ -1,0 +1,37 @@
+{
+  "root": "/mnt/project/qwen-world-postcot-20261025/latest_IL_RL_NAVTEST_20261028T075617Z",
+  "created_utc": "2026-10-28T07:57:12.975679+00:00",
+  "user_instructions": [
+    "\u7ee7\u7eed\u8bc4\u6d4b\u65b0\u7684ckpts",
+    "\u5206\u6790\u52a8\u4f5c\u540ePDMS\u5206\u9879\u9884\u6d4bloss\u53ca\u51c6\u786e\u6027"
+  ],
+  "models": {
+    "WORLD_IL_060000": {
+      "updates": 60000,
+      "kind": "IL",
+      "original_checkpoint": "/mnt/project/qwen-world-postcot-20261025/runs/IL_full_seed42/checkpoints/update060000"
+    },
+    "ATTENTION_RL_046100": {
+      "updates": 46100,
+      "kind": "RL",
+      "original_checkpoint": "/mnt/project/qwen-world-postcot-20261025/parent40k_user20261027/runs/RL_CANONICAL_IL040000_seed42/checkpoints/update046100_inner0"
+    },
+    "MEMORY_RL_033300": {
+      "updates": 33300,
+      "kind": "RL",
+      "original_checkpoint": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/runs/RL_ATTN_LORA_MEMORY_IL040000_seed42/checkpoints/update033300_inner0"
+    },
+    "TIME_RL_050000": {
+      "updates": 50000,
+      "kind": "RL",
+      "original_checkpoint": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/TIME_MOD_LORA/runs/RL_TIME_MOD_LORA_IL040000_seed42/checkpoints/update050000_inner0"
+    }
+  },
+  "canonical_protocol": "NAVSIM_v1.1_independent_reference_candidate",
+  "evaluation_seed": 2101,
+  "logical_new_single_candidate_evaluations": 48584,
+  "additional_native_parity_predictions": 4,
+  "training_unchanged": true,
+  "automatic_new_checkpoints": false,
+  "temporary_hosts": []
+}
