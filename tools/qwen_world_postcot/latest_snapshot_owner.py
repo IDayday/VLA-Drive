@@ -123,7 +123,7 @@ def finalize_sweep(root, requests, report):
     lines = ['# Qwen-World IL checkpoints and later RL observations', '',
         'Full12146 scenes, canonical NAVSIM v1.1, seed2101, single clean-x K10 shift5 ODE. '
         'IL observations do not change the fixed IL40k RL parent. Test is historically observed.', '',
-        '| Snapshot | Updates | PDMS | Change vs IL40k (points) | Change vs previous same RL (points) |',
+        '| Snapshot | Updates | PDMS | Change vs IL40k (points) | Change vs previous same experiment (points) |',
         '|---|---:|---:|---:|---:|']
     for label, request in requests.items():
         done = read(request.root/'COMPLETE.json')
@@ -134,7 +134,7 @@ def finalize_sweep(root, requests, report):
         earlier_delta = None
         if previous:
             earlier = summarize(request.output, previous)
-            result['paired_previous_same_RL'] = dict(reference_evaluation=previous, **earlier['paired'])
+            result['paired_previous_same_experiment'] = dict(reference_evaluation=previous, **earlier['paired'])
             earlier_delta = 100 * earlier['paired']['mean_delta']
         # Additional derived fields require a new seal, not the original summary seal.
         result.pop('sha256')
@@ -145,7 +145,13 @@ def finalize_sweep(root, requests, report):
         earlier_text = '—' if earlier_delta is None else f'{earlier_delta:+.6f}'
         lines.append(f'| {label} | {request.pin["updates"]} | {result["PDMS"]:.6f} | '
                      f'{100 * result["paired"]["mean_delta"]:+.6f} | {earlier_text} |')
-    lines += ['', 'The previous-same-RL comparisons use full paired scenes/logs under the same protocol. '
+    if pinned.get('experiment_progress_request'):
+        reused=pinned['already_completed_TIME_RL_050000']
+        lines += ['', f"Previously completed Time-LoRA50k PDMS={reused['PDMS']:.6f}; reused without new inference.",
+                  'Optimized-label IL10k is a fresh model trained from generic initialization. Its absolute score is an early learning observation; '
+                  'a comparison with old IL40k/77k at different training budgets does not isolate label quality. '
+                  'Both new50k RL endpoints share the original IL40k parent; new IL checkpoints do not replace that parent.']
+    lines += ['', 'The previous-same-experiment comparisons use full paired scenes/logs under the same protocol. '
               'A lower point estimate is an observed rollback; interpret its physical-log bootstrap interval '
               'separately. This is not multiple training-seed evidence. Different RL update budgets do not '
               'establish method superiority.', '',
