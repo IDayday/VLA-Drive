@@ -14,7 +14,8 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 MODULES={'scripts.analysis.qwen_sourceflow.train_il','scripts.analysis.qwen_sourceflow.train_rl',
     'scripts.analysis.qwen_sourceflow.evaluate_policy','scripts.analysis.qwen_sourceflow.validate_deployment',
     'scripts.analysis.qwen_sourceflow.export_policy','scripts.analysis.qwen_sourceflow.validate_rl_deployment',
-    'tools.qwen_world_postcot.export','tools.qwen_world_postcot.evaluate'}
+    'tools.qwen_world_postcot.export','tools.qwen_world_postcot.evaluate',
+    'tools.qwen_world_postcot.diagnose_post_head'}
 
 
 def request_native_stop(child, module):
