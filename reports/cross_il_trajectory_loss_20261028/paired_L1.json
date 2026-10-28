@@ -1,0 +1,49 @@
+{
+  "scenes": 12146,
+  "physical_logs": 44,
+  "resamples": 2000,
+  "bootstrap_seed": 20261028,
+  "uncertainty": "fixed-checkpoint/fixed-output paired physical-log resampling; no training/inference-seed uncertainty; S0 historicseed42 vs2101",
+  "pairs": [
+    {
+      "current": "WORLD_IL_053000",
+      "reference": "QWEN_FLOW_IL_098000",
+      "delta_position_L1_m": -0.049177800099209426,
+      "paired_log_bootstrap_95CI": [
+        -0.06051221824955548,
+        -0.03873328921370285
+      ],
+      "relative_L1_reduction_percent": 11.889429227254444
+    },
+    {
+      "current": "WORLD_IL_053000",
+      "reference": "DDP_F_SFT_100000",
+      "delta_position_L1_m": -0.148977644167253,
+      "paired_log_bootstrap_95CI": [
+        -0.16857401367635505,
+        -0.1317663778096794
+      ],
+      "relative_L1_reduction_percent": 29.016375731327116
+    },
+    {
+      "current": "WORLD_IL_053000",
+      "reference": "DDP_DINO_S0_100000",
+      "delta_position_L1_m": -0.1274822094294321,
+      "paired_log_bootstrap_95CI": [
+        -0.14739197198297851,
+        -0.11025894634407055
+      ],
+      "relative_L1_reduction_percent": 25.914670565867727
+    },
+    {
+      "current": "WORLD_IL_053000",
+      "reference": "WORLD_IL_040000",
+      "delta_position_L1_m": 0.002881966501079024,
+      "paired_log_bootstrap_95CI": [
+        -0.0010092942828503662,
+        0.006949819139492781
+      ],
+      "relative_L1_reduction_percent": -0.7970778941398748
+    }
+  ]
+}

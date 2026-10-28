@@ -1,0 +1,53 @@
+{
+  "raw_gt": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST",
+  "old_processed_gt": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest25k_20260930/offline_ego_labels_v1",
+  "models": [
+    {
+      "name": "WORLD_IL_053000",
+      "kind": "single_scene_json",
+      "root": "/mnt/project/qwen-world-postcot-20261025/additional_IL_RL_NAVTEST_20261028T013728Z/WORLD_IL_053000/evaluation",
+      "summary": "/mnt/project/qwen-world-postcot-20261025/additional_IL_RL_NAVTEST_20261028T013728Z/WORLD_IL_053000/SUMMARY.json",
+      "checkpoint": "Qwen-World IL53000",
+      "seed": 2101,
+      "grid": "clean-x shift5 10-step ODE"
+    },
+    {
+      "name": "WORLD_IL_040000",
+      "kind": "single_scene_json",
+      "root": "/mnt/project/qwen-sourceflow-native-20261018/selected_WORLD40_RL77_NAVTEST_20261027T0940Z/WORLD_IL040000/evaluation",
+      "summary": "/mnt/project/qwen-sourceflow-native-20261018/selected_WORLD40_RL77_NAVTEST_20261027T0940Z/WORLD_IL040000/SUMMARY.json",
+      "checkpoint": "Qwen-World IL40000",
+      "seed": 2101,
+      "grid": "clean-x shift5 10-step ODE"
+    },
+    {
+      "name": "QWEN_FLOW_IL_098000",
+      "kind": "single_scene_json",
+      "root": "/mnt/project/qwen-sourceflow-native-20261018/evaluations/IL098000_NAVTEST_user_20261027T0100Z",
+      "summary": "/mnt/project/qwen-sourceflow-native-20261018/latest_NAVTEST_20261027T0100Z/analysis/IL098000_summary.json",
+      "checkpoint": "Original native Qwen-Flow IL98000",
+      "seed": 2101,
+      "grid": "velocity shift5 10-step ODE"
+    },
+    {
+      "name": "DDP_F_SFT_100000",
+      "kind": "dual_grid_pt",
+      "root": "/mnt/project/simwam-recipe-20261015/evaluations/SFT_final_matched_NAVTEST",
+      "summary": "/mnt/project/simwam-recipe-20261015/evaluations/SFT_final_matched_NAVTEST/summary.json",
+      "mode": "E_NATIVE",
+      "checkpoint": "F-SFT frozen_visual100000 weight9a26685",
+      "seed": 2101,
+      "grid": "DDP uniform 10-step ODE"
+    },
+    {
+      "name": "DDP_DINO_S0_100000",
+      "kind": "foresight_npz",
+      "root": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S0_100000/predictions",
+      "summary": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S0_100000/scores/summary.json",
+      "ego_summary": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S0_100000/ego/summary.json",
+      "checkpoint": "S0 DDP+DINO100000 weight78f8706",
+      "seed": 42,
+      "grid": "DDP uniform 10-step ODE"
+    }
+  ]
+}
