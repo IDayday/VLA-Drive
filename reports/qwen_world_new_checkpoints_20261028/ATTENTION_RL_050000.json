@@ -1,0 +1,109 @@
+{
+  "status": "COMPLETE",
+  "cohort": "NAVTEST",
+  "scenes": 12146,
+  "physical_logs": 44,
+  "seed": 2101,
+  "qualification": false,
+  "evaluation_identity_sha256": "22e87cd3a4f02614db32724d4095e2f5082434b61be61bdcc3d3e1940284744a",
+  "model_sha256": "74b738729c802626ce908a8d16a843158f751fcc31a052d9d03a77b4eff03adc",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "means": {
+    "score": 0.8990561195793497,
+    "no_at_fault_collisions": 0.984192326691915,
+    "drivable_area_compliance": 0.9846863164827927,
+    "time_to_collision_within_bound": 0.9578462045117734,
+    "ego_progress": 0.8268182748444324,
+    "comfort": 0.9996706734727482,
+    "driving_direction_compliance": 0.9763296558537791
+  },
+  "evaluation": "/mnt/project/qwen-world-postcot-20261025/new_checkpoints_NAVTEST_20261028T2240Z/ATTENTION_RL_050000/evaluation",
+  "invalid_scenes": 0,
+  "scene_denominator": 12146,
+  "PDMS": 89.90561195793497,
+  "paired": {
+    "mean_delta": 0.019332297187147063,
+    "CI95": [
+      0.01258487864188852,
+      0.0255325996690165
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 467,
+    "new_zero": 161,
+    "high_to_zero": 146,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 673,
+    "baseline_nonzero_denominator": 11473,
+    "baseline_high_denominator": 10967,
+    "repaired_zero_rate": 0.6939078751857355,
+    "new_zero_rate": 0.014032946918852958,
+    "high_to_zero_rate": 0.01331266526853287,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 78,
+        "repaired_failure": 127,
+        "baseline_pass": 11900,
+        "baseline_failure": 246
+      },
+      "drivable_area_compliance": {
+        "new_failure": 85,
+        "repaired_failure": 358,
+        "baseline_pass": 11687,
+        "baseline_failure": 459
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 193,
+        "repaired_failure": 321,
+        "baseline_pass": 11506,
+        "baseline_failure": 640
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "paired_previous_same_experiment": {
+    "reference_evaluation": "/mnt/project/qwen-world-postcot-20261025/latest_IL_RL_NAVTEST_20261028T075617Z/ATTENTION_RL_046100/evaluation",
+    "mean_delta": -0.0050866226195563176,
+    "CI95": [
+      -0.008209298160363395,
+      -0.0023238393708181503
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 82,
+    "new_zero": 112,
+    "high_to_zero": 82,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 337,
+    "baseline_nonzero_denominator": 11809,
+    "baseline_high_denominator": 11285,
+    "repaired_zero_rate": 0.2433234421364985,
+    "new_zero_rate": 0.00948429164196799,
+    "high_to_zero_rate": 0.0072662826761187415,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 49,
+        "repaired_failure": 29,
+        "baseline_pass": 11969,
+        "baseline_failure": 177
+      },
+      "drivable_area_compliance": {
+        "new_failure": 63,
+        "repaired_failure": 56,
+        "baseline_pass": 11967,
+        "baseline_failure": 179
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 115,
+        "repaired_failure": 87,
+        "baseline_pass": 11662,
+        "baseline_failure": 484
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "sha256": "96ed4bb6fb4b1749cac8f28e9387ced2f65fd7caa85a2b49165dbe9d7707f056"
+}

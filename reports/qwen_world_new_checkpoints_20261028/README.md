@@ -1,15 +1,17 @@
-# New Qwen-World checkpoints: full Navtest request
+# Qwen-World IL checkpoints and later RL observations
 
-Four explicitly pinned complete native checkpoints: original World IL77k; fresh V12 optimized-label IL10k; attention-LoRA RL50k; attention-LoRA+scene/predictive-memory RL50k. The already complete Time-LoRA50k Test score89.508000 is reused without inference.
+Full12146 scenes, canonical NAVSIM v1.1, seed2101, single clean-x K10 shift5 ODE. IL observations do not change the fixed IL40k RL parent. Test is historically observed.
 
-Protocol unchanged: all12146 Navtest scenes, canonical NAVSIM v1.1, single clean-x10-step shift5 ODE, fixedseed2101. No oracle, new seeds or output selection. Each policy runs strict native restoration, immutable FP32 export and original-observation native/export trajectory parity before full inference/scoring. Paired comparisons retain physical-log clustering and per-scene weights.
+| Snapshot | Updates | PDMS | Change vs IL40k (points) | Change vs previous same experiment (points) |
+|---|---:|---:|---:|---:|
+| WORLD_IL_077000 | 77000 | 88.594568 | +0.622186 | +0.490685 |
+| OPTIMIZED_IL_010000 | 10000 | 79.904274 | -8.068108 | — |
+| ATTENTION_RL_050000 | 50000 | 89.905612 | +1.933230 | -0.508662 |
+| MEMORY_RL_050000 | 50000 | 90.628892 | +2.656510 | -0.112418 |
 
-All file inventories are sealed and checkpoints hardlinked before rolling cleanup. The four evaluations have one detached owner and independent identities. Only fixed authorized hosts are used; actual GPU UUIDs, visible owners and memory headroom are rechecked by the qualified workers. No temporary host is used by this evaluation, and no existing training is stopped.
+Previously completed Time-LoRA50k PDMS=89.508000; reused without new inference.
+Optimized-label IL10k is a fresh model trained from generic initialization. Its absolute score is an early learning observation; a comparison with old IL40k/77k at different training budgets does not isolate label quality. Both new50k RL endpoints share the original IL40k parent; new IL checkpoints do not replace that parent.
 
-The new optimized-label10k absolute score is an early training observation. Comparing it with a longer-trained old IL checkpoint does not isolate label quality. Both50k RL endpoints retain the original IL40k parent. The two65k coordinate-loss results already completed and are not repeated.
+The previous-same-experiment comparisons use full paired scenes/logs under the same protocol. A lower point estimate is an observed rollback; interpret its physical-log bootstrap interval separately. This is not multiple training-seed evidence. Different RL update budgets do not establish method superiority.
 
-```bash
-python -m tools.qwen_world_postcot.latest_snapshot_owner --root /mnt/project/qwen-world-postcot-20261025/new_checkpoints_NAVTEST_20261028T2240Z --report-dir reports/qwen_world_new_checkpoints_20261028
-```
-
-This command is launched once through a stable detached process. Do not duplicate a live owner. Source changes for this request affect report wording only; actor, restoration, sampler and official scoring computations are reused without changes. Completion requires exact scene coverage, valid scores, parity evidence and all owned workers exited. No partial mean is reported as a Test score.
+All metric components, zero-score and safety transfers, and paired95% intervals are in the per-model JSON. Raw worker costs and scene records are retained at /mnt/project/qwen-world-postcot-20261025/new_checkpoints_NAVTEST_20261028T2240Z. No teacher/search/scorer chooses a deployed output; every observation is one candidate.
