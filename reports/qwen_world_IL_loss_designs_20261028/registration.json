@@ -1,0 +1,50 @@
+{
+  "schema": "world_IL_loss_designs_v1",
+  "parent_checkpoint": "/mnt/project/qwen-world-postcot-20261025/coordinate_loss_20261028/parent63000",
+  "parent_updates": 63000,
+  "added_updates": 2000,
+  "parent_model_sha256": "46ef8b24df2feca88b34eebb3137c233bd53c08f1495d58a309b4ab0cad20048",
+  "parent_identity_sha256": "d14f1f4de212452ac479e65eb85602a6a0ea4b7f195371f2d0a77a9107f0a805",
+  "seed": 42,
+  "evaluation_seed": 2101,
+  "freeze_parent_candidate_bank": true,
+  "candidate_bank_hash": "133ed12f9dd46315e2f7886b94f5a296827488d5876e7ab48b333eaf7441bc6f",
+  "arms": {
+    "CONTROL": {
+      "kind": "CONTROL",
+      "scale": 1.0
+    },
+    "TIME_RESIDUAL": {
+      "kind": "TIME_RESIDUAL",
+      "scale": 0.8380804061889648,
+      "horizon_weights": [
+        1.397528598828269,
+        1.397528598828269,
+        1.397528598828269,
+        1.0123570058586555,
+        0.6987642994141345,
+        0.6987642994141345,
+        0.6987642994141345,
+        0.6987642994141345
+      ]
+    },
+    "DELTA": {
+      "kind": "DELTA",
+      "scale": 0.9128245115280151,
+      "delta_coefficient": 0.10473885387182236
+    },
+    "HUBER": {
+      "kind": "HUBER",
+      "scale": 3.473036289215088
+    }
+  },
+  "calibration_sha256": "663b6744fb3df9659e27896f8acc13eace7e16b93ea8a7ad28888f52966f6652",
+  "shared_control": "/mnt/project/qwen-world-postcot-20261025/coordinate_loss_20261028/runs/CONTROL",
+  "loading_adapter_review": {
+    "reference": "/mnt/project/qwen-world-postcot-20261025/snapshots/formal_main_v2/starVLA/rl/qwen_world_postcot/loading.py",
+    "reference_sha256": "bb9dbdea2781907106b34c8ea79580b32ff24a2e86d019e8a81653e610bfa292",
+    "current_sha256": "6c200cbee792e44459adcac7237a9c97d172dea1469a1fa19e6e5e9fb447a34b",
+    "all_non_RL_selection_AST_equal": true
+  },
+  "sha256": "6d64fe931cc22e82d6f8f1797f588bcc3201ca2fb9d91f2113de5cdfcecd7ca4"
+}

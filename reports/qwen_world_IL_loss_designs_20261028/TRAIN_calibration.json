@@ -1,0 +1,123 @@
+{
+  "status": "PASS",
+  "schema": "world_IL_loss_designs_TRAIN_calibration_v1",
+  "arms": {
+    "CONTROL": {
+      "kind": "CONTROL",
+      "scale": 1.0
+    },
+    "TIME_RESIDUAL": {
+      "kind": "TIME_RESIDUAL",
+      "scale": 0.8380804061889648,
+      "horizon_weights": [
+        1.397528598828269,
+        1.397528598828269,
+        1.397528598828269,
+        1.0123570058586555,
+        0.6987642994141345,
+        0.6987642994141345,
+        0.6987642994141345,
+        0.6987642994141345
+      ]
+    },
+    "DELTA": {
+      "kind": "DELTA",
+      "scale": 0.9128245115280151,
+      "delta_coefficient": 0.10473885387182236
+    },
+    "HUBER": {
+      "kind": "HUBER",
+      "scale": 3.473036289215088
+    }
+  },
+  "time_statistics": {
+    "weights": [
+      1.397528598828269,
+      1.397528598828269,
+      1.397528598828269,
+      1.0123570058586555,
+      0.6987642994141345,
+      0.6987642994141345,
+      0.6987642994141345,
+      0.6987642994141345
+    ],
+    "CA_residual_scaled_MAD_xy_m": [
+      [
+        0.06719408935904503,
+        0.04037492283387109
+      ],
+      [
+        0.1733372713409364,
+        0.10739036555833881
+      ],
+      [
+        0.3551585539863445,
+        0.21439128287377535
+      ],
+      [
+        0.6395412751722614,
+        0.36872612989143816
+      ],
+      [
+        1.0473973405793309,
+        0.5776854190641548
+      ],
+      [
+        1.58939388782233,
+        0.8506724978461861
+      ],
+      [
+        2.290465752135962,
+        1.1893390548029914
+      ],
+      [
+        3.1372037758827207,
+        1.595088559467718
+      ]
+    ],
+    "scenes": 90890,
+    "physical_floor_xy_m": [
+      0.5,
+      0.25
+    ],
+    "pre_normalization_bounds": [
+      0.5,
+      2.0
+    ],
+    "data_sha256": "c7d51691f16dd7caf373d6ddc688d93661a5a22ce2c91b8def60ee723dc1a39f",
+    "interpretation": "Robust TRAIN current-CA residual proxy; not irreducible conditional uncertainty; no GT/noise normalization change."
+  },
+  "parent_model_sha256": "46ef8b24df2feca88b34eebb3137c233bd53c08f1495d58a309b4ab0cad20048",
+  "parent_identity_sha256": "d14f1f4de212452ac479e65eb85602a6a0ea4b7f195371f2d0a77a9107f0a805",
+  "split": "TRAIN",
+  "scenes": 32,
+  "token_sha256": "1bec4bbf9b59fa45ee00e33a34ac440f4733b44fc080596dfa7424b6a1820c86",
+  "gradient_scope": [
+    "action_output.weight",
+    "action_output.bias",
+    "output_norm.weight",
+    "output_norm.bias"
+  ],
+  "baseline_output_gradient_norm": 2.4861083030700684,
+  "delta_unit_output_gradient_norm": 2.3736257553100586,
+  "delta_target_fraction": 0.1,
+  "gradient_cosines": {
+    "TIME_RESIDUAL": 0.9982229471206665,
+    "DELTA": 0.9995990991592407,
+    "HUBER": 0.9420996308326721
+  },
+  "raw_loss_values": {
+    "CONTROL": 0.0034162962110713124,
+    "TIME_RESIDUAL": 0.0030822643821011297,
+    "DELTA_UNIT": 0.007141229085391387,
+    "HUBER": 0.0009407663837919245
+  },
+  "new_model_forwards": 16,
+  "optimizer_updates": 0,
+  "scorer_calls": 0,
+  "warning": "Output-layer gradient calibration only, not full-model gradient matching; no DEV/Test calibration.",
+  "wall_seconds": 62.155849412083626,
+  "peak_allocated": 12679767040,
+  "code_sha256": "d741f4906d9edd2612f10f96b6c74bbd4e2245f692c1ed7edd2b623cf65c3899",
+  "sha256": "663b6744fb3df9659e27896f8acc13eace7e16b93ea8a7ad28888f52966f6652"
+}

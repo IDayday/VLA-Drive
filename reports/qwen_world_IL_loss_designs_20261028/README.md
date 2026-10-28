@@ -15,3 +15,9 @@ WORLD_POSTCOT_ROOT=/mnt/project/qwen-world-postcot-20261025/loss_designs_2026102
 ```
 
 Launch one durable owner only. The temporary rl-zt2/vla-zt3 window ends2026-10-28 23:35:48UTC, save/migration guard23:15:48UTC. Finite workers preserve native boundaries before exit; fixed hosts permit verified sharing, never eviction of unknown work. No unfinished checkpoint or qualification weights enter formal initialization. Unexpected scientific failures stop for review.
+
+## Executed calibration and real CONTROL check
+
+TRAIN calibration completed on rl-zt2 in62.156seconds,16 forwards and zero optimizer/scorer updates. The three fixed output-layer scales are0.8380804 (time),0.9128245 (delta),3.4730363 (Huber); the delta coefficient is0.10473885. Horizon weights are[1.3975286,1.3975286,1.3975286,1.0123570,0.6987643,0.6987643,0.6987643,0.6987643]. These are fixed before any new Test observation.
+
+A real three-update8-card CONTROL execution on the replicated qualified runtime matched the earlier qualification on every rank: identical scene IDs, learning rates, candidate-bank identity and every global loss value (maximum absolute loss difference0). Actual gradient norms agreed within the recorded numerical tolerance. This is not a claim of cross-host bitwise full-parameter equality. See CONTROL_equivalence.json. The new objective qualifications and formal runs are controlled by the existing sole owner; no new planning score exists yet.
