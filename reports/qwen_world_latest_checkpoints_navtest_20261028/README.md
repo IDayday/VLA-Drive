@@ -1,16 +1,14 @@
-# 新检查点Navtest登记
+# Qwen-World IL checkpoints and later RL observations
 
-状态：已锁定检查点，待实际推理/评分；没有新分数。
+Full12146 scenes, canonical NAVSIM v1.1, seed2101, single clean-x K10 shift5 ODE. IL observations do not change the fixed IL40k RL parent. Test is historically observed.
 
-| 模型 | optimizer updates |
-|---|---:|
-| World IL | 60000 |
-| Attention LoRA RL | 46100 |
-| Attention＋Memory RL | 33300 |
-| Time modulation LoRA RL | 50000，固定终点 |
+| Snapshot | Updates | PDMS | Change vs IL40k (points) | Change vs previous same RL (points) |
+|---|---:|---:|---:|---:|
+| WORLD_IL_060000 | 60000 | 88.416776 | +0.444394 | -0.125490 |
+| ATTENTION_RL_046100 | 46100 | 90.414274 | +2.441892 | -0.051903 |
+| MEMORY_RL_033300 | 33300 | 90.741310 | +2.768928 | +0.266728 |
+| TIME_RL_050000 | 50000 | 89.508000 | +1.535618 | -0.192919 |
 
-每组全Navtest12146场景，seed2101，原单候选clean-x十步shift5 ODE，canonical NAVSIMv1.1；每条候选独立固定官方参考评分。三RL父模型保持原IL40k，不重新选父模型，不改变训练。每组先做native恢复/导出真实轨迹一致性，再扩展分片。
+The previous-same-RL comparisons use full paired scenes/logs under the same protocol. A lower point estimate is an observed rollback; interpret its physical-log bootstrap interval separately. This is not multiple training-seed evidence. Different RL update budgets do not establish method superiority.
 
-仅使用当前固定五台授权主机；每次派发检查实际GPU UUID、可见进程归属与显存，共享但不停止其它任务。上一轮八组已全部COMPLETE/发布，本轮不重复推理。临时撤回主机不用于评测或重试。
-
-每组额外与上一已评测同路线权重配对；完成后由唯一owner汇总和推送实际结果。本登记不声称任何性能提升。动作后分项预测准确性另在隔离分析分支检查，不改变本轮部署输出或评分。
+All metric components, zero-score and safety transfers, and paired95% intervals are in the per-model JSON. Raw worker costs and scene records are retained at /mnt/project/qwen-world-postcot-20261025/latest_IL_RL_NAVTEST_20261028T075617Z. No teacher/search/scorer chooses a deployed output; every observation is one candidate.
