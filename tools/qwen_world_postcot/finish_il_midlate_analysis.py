@@ -115,4 +115,3 @@ def finish(root,report):
         '入口：tools.qwen_world_postcot.freeze_il_loss_journals、analyze_il_loss_pdms及latest_snapshot_owner；'
         'request.json登记真实路径与恢复身份，loss_analysis.log和各GPU invocation完整记录保留在资产根。', '']
     (report/'README.md').write_text('\n'.join(lines))
-                           
