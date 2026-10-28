@@ -116,7 +116,10 @@ class QwenWorldPostCoT(nn.Module):
         metrics = {key: value.detach() for key, value in losses.items()}
         metrics.update(post_factor=post['factor'].detach(), post_pair=post['pair'].detach(),
                        sigma_mean=x_terms['sigma'].mean().detach())
-        return dict(loss=total, losses=metrics)
+        result = dict(loss=total, losses=metrics)
+        if 'coordinate_diagnostics' in x_terms:
+            result['trajectory_diagnostics'] = x_terms['coordinate_diagnostics']
+        return result
 
     @torch.no_grad()
     def predict(self, current_inputs, ego, initial_noise):

@@ -8,7 +8,7 @@ import time
 import os
 
 ROOT = Path('/mnt/project/qwen-world-postcot-20261025')
-TASK = 'qwen_world_postcot_20261025'
+TASK = os.environ.get('WORLD_POSTCOT_TASK', 'qwen_world_postcot_20261025')
 POLICY = Path('/mnt/project/server_dispatch_policy.json')
 
 
@@ -33,6 +33,8 @@ def authorization():
     for key in ['permanent_hosts', 'temporary_hosts', 'starts_unix', 'expires_unix']:
         if grant[key] != original[key]:
             raise PermissionError('Task host lease and immutable grant disagree: '+key)
+    if grant.get('unbounded_temporary_hosts', []) != original.get('unbounded_temporary_hosts', []):
+        raise PermissionError('Unbounded temporary task authorization differs from its immutable record')
     return grant, policy
 
 
@@ -44,6 +46,7 @@ def allowed_hosts(*, at=None, admit_long_job=False):
     result = []
     cutoff = grant['expires_unix'] - (grant['checkpoint_guard_seconds'] if admit_long_job else 0)
     candidates = list(grant['permanent_hosts'])
+    candidates += grant.get('unbounded_temporary_hosts', [])
     if grant['starts_unix'] <= now < cutoff:
         candidates += grant['temporary_hosts']
     for host in candidates:
@@ -72,7 +75,7 @@ def boundary_stop_due(host=None, *, now=None):
         return True
     host = host or socket.gethostname().removesuffix('-worker-0')
     grant, _ = authorization()
-    if host in grant['permanent_hosts']:
+    if host in grant['permanent_hosts'] or host in grant.get('unbounded_temporary_hosts', []):
         return host not in allowed_hosts(at=now)
     now = time.time() if now is None else now
     return now >= grant['expires_unix'] - grant['checkpoint_guard_seconds'] or host not in allowed_hosts(at=now)

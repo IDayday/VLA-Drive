@@ -1,0 +1,48 @@
+{
+  "schema": "world_coordinate_loss_preregistration_v1",
+  "parent_checkpoint": "/mnt/project/qwen-world-postcot-20261025/coordinate_loss_20261028/parent63000",
+  "parent_updates": 63000,
+  "parent_cursor": 2016000,
+  "parent_files_sha256": "b2a52eaf2937ffb01d447ddf46e6a10f00b29689d70c175c2d8a491ead3cf174",
+  "parent_identity_sha256": "d14f1f4de212452ac479e65eb85602a6a0ea4b7f195371f2d0a77a9107f0a805",
+  "parent_model_sha256": "46ef8b24df2feca88b34eebb3137c233bd53c08f1495d58a309b4ab0cad20048",
+  "arms": [
+    "CONTROL",
+    "PHYSICAL"
+  ],
+  "physical_tolerances": [
+    0.5,
+    0.25,
+    0.03490658503988659
+  ],
+  "horizon_weights": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "planned_added_updates": 2000,
+  "global_scene_batch": 32,
+  "scene_exposures_per_arm": 64000,
+  "training_seed": 42,
+  "evaluation_seed": 2101,
+  "same_optimizer_and_scheduler": true,
+  "calibration": "First32 TRAIN scenes following registered parent cursor; no DEV/Test; output-layer gradient norm matching once.",
+  "auxiliary_bank": "Both forks freeze exactly the parent bank and sampler; no asynchronous new bank adoption.",
+  "evaluation": "Fixed2000-update endpoint each, full12146 Navtest canonicalv1.1 single clean-x K10 shift5 ODE; parent score reused; no Test checkpoint selection.",
+  "axes_only": true,
+  "changes_deferred": [
+    "time weighting",
+    "Huber",
+    "wrapped-heading loss",
+    "kinematic losses",
+    "sigma weighting",
+    "RL changes"
+  ],
+  "elapsed_cost_includes_qualification": true,
+  "reason": "Single-factor physical coordinate tolerance weighting; 2000 updates is finite first window, not a conclusive negative if inconclusive."
+}

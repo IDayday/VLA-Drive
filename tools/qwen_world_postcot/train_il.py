@@ -138,6 +138,7 @@ def source_identity():
         'tools/qwen_world_postcot/train_il.py','starVLA/rl/qwen_world_postcot/batching.py',
         'starVLA/rl/qwen_world_postcot/checkpoint.py','starVLA/rl/qwen_world_postcot/loading.py',
         'starVLA/rl/qwen_world_postcot/bank_versions.py',
+        'starVLA/rl/qwen_world_postcot/coordinate_objective.py',
         'starVLA/rl/qwen_world_postcot/data.py','starVLA/rl/qwen_world_postcot/contracts.py',
         'starVLA/model/modules/qwen_sourceflow/action_codec.py',
         'starVLA/model/modules/qwen_sourceflow/qwen_encoder.py',
@@ -226,6 +227,9 @@ class RuntimeDtypeAudit:
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--config',default='configs/qwen_world_postcot/il.yaml')
     p.add_argument('--output',required=True);p.add_argument('--resume');p.add_argument('--qualification',action='store_true')
+    p.add_argument('--coordinate-registration');p.add_argument('--coordinate-arm',choices=('CONTROL','PHYSICAL'))
+    p.add_argument('--coordinate-qualification-updates',type=int,default=0)
+    p.add_argument('--coordinate-pause-after',type=int,default=0)
     p.add_argument('--qualification-joint',action='store_true',help='Bounded engineering profile with all joint gradients; never formal IL')
     p.add_argument('--qualification-interface-updates',type=int,help='Bounded stage-transition diagnostic only; formal interface remains1000')
     p.add_argument('--qualification-save-at',nargs='+',type=int,default=[],help='Extra boundary checkpoints in bounded engineering qualification only')
@@ -233,6 +237,16 @@ def main():
     p.add_argument('--profile-start',type=int,default=0);p.add_argument('--profile-steps',type=int,default=0)
     p.add_argument('--profile-no-final-checkpoint',action='store_true',help='Explicit disposable bounded performance/trace only; reports no recoverable training checkpoint')
     a=p.parse_args();host=require_dispatch(admit_long_job=True);cfg=validate(yaml.safe_load(Path(a.config).read_text()))
+    study=None
+    if a.coordinate_registration:
+        from starVLA.rl.qwen_world_postcot.coordinate_objective import read_registration,CoordinateObjective,restore_fork
+        study=read_registration(a.coordinate_registration,a.coordinate_arm)
+        if (a.qualification or a.stop_after or a.micro_batch or a.teacher_cache or a.candidate_bank
+                or not 0<=a.coordinate_qualification_updates<=16):raise ValueError('Study may not override the common parent recipe')
+        if a.coordinate_pause_after and not 0<a.coordinate_pause_after<a.coordinate_qualification_updates:
+            raise ValueError('Artificial pause is qualification-only and must precede its endpoint')
+    elif a.coordinate_arm or a.coordinate_qualification_updates or a.coordinate_pause_after:
+        raise ValueError('Coordinate options require the sealed study registration')
     if a.qualification_joint and not a.qualification:raise ValueError('Joint-stage override is qualification-only')
     if a.qualification_interface_updates is not None and (not a.qualification or a.qualification_joint or not 1<=a.qualification_interface_updates<=250):raise ValueError('Short interface override is only for an explicit bounded qualification transition')
     if a.qualification_save_at and (not a.qualification or any(not 1<=step<=250 for step in a.qualification_save_at)):raise ValueError('Extra save boundaries are bounded qualification-only execution settings')
@@ -275,6 +289,8 @@ def main():
     builder=BatchBuilder(data,processor,teachers,bank,cfg['seed']+rank,require_full_bank=not a.qualification,
         max_candidates=cfg['candidate_refresh']['max_candidates'])
     model=QwenWorldPostCoT(QWEN,config=cfg['model']).to(device)
+    if study is not None:
+        model.policy.coordinate_objective=CoordinateObjective(**study['arms'][a.coordinate_arm])
     if cfg['distributed']['qwen_activation_checkpointing']:model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     parameter_groups=groups(model,cfg);group_contract=optimizer_group_contract(model,parameter_groups)
     optcfg=cfg['optimizer'];optimizer=torch.optim.AdamW(parameter_groups,betas=tuple(optcfg['betas']),eps=optcfg['eps'],
@@ -300,6 +316,11 @@ def main():
             qwen_joint_optimizer='explicit new Qwen Adam step/moments initialization after interface; actor/scheduler history preserved'),
         numerics=dict(deterministic=torch.are_deterministic_algorithms_enabled(),tf32=False,bf16_reduced_precision_reduction=False,cublas_workspace=os.environ['CUBLAS_WORKSPACE_CONFIG']),
         torch=torch.__version__,deepspeed=deepspeed.__version__,world=world,train_heads=True)
+    if study is not None:
+        identity['coordinate_experiment']=dict(registration_sha256=study['sha256'],arm=a.coordinate_arm,
+            objective=study['arms'][a.coordinate_arm],freeze_parent_candidate_bank=True,
+            qualification_updates=a.coordinate_qualification_updates)
+        identity['qualification']=bool(a.coordinate_qualification_updates)
     identity=cp.canonical_identity(identity)
     def publish_identity():
         existing=out/'IDENTITY.json'
@@ -312,8 +333,12 @@ def main():
     random.seed(cfg['seed']+rank);np.random.seed(cfg['seed']+rank);torch.manual_seed(cfg['seed']+rank)
     state=dict(updates=0,cursor=0,phase='interface',qwen_optimizer_initialized=a.qualification_joint);last=None
     if a.resume:state=cp.restore(a.resume,engine,identity,builder);last=a.resume
-    versions.adopt(builder,state['updates'])
+    elif study is not None:
+        state=restore_fork(study['parent_checkpoint'],engine,identity,builder,study,out)
+    if study is None:versions.adopt(builder,state['updates'])
     start=state['updates'];limit=min(a.stop_after or 100000,100000)
+    if study is not None:
+        limit=study['parent_updates']+(a.coordinate_qualification_updates or study['added_updates'])
     profiler=None
     try:
         with (out/f'metrics_rank{rank}.jsonl').open('a',buffering=1) as log:
@@ -334,7 +359,7 @@ def main():
                 denoms=update_denominators(batches,device);weights=dict(cfg['loss_weights']);ramp=min(1.,(state['updates']+1)/cfg['aux_warmup_updates'])
                 for key in weights:
                     if key!='x':weights[key]*=ramp
-                sums={};engine.zero_grad();torch.cuda.reset_peak_memory_stats()
+                sums={};coordinate_sums=None;engine.zero_grad();torch.cuda.reset_peak_memory_stats()
                 dtype_audit=RuntimeDtypeAudit(model) if state['updates']==start or state['phase']!=phase else None
                 lr_used=[g['lr'] for g in engine.optimizer.param_groups]
                 before_steps=int(engine.global_steps);before_skipped=int(getattr(engine,'skipped_steps',0))
@@ -347,6 +372,10 @@ def main():
                         dtype_audit.result['loss_scalar_dtypes']={key:str(value.dtype) for key,value in result['losses'].items()}
                     with torch.profiler.record_function('world/backward'):engine.backward(result['loss'],scale_wrt_gas=False)
                     for key,value in result['losses'].items():sums[key]=sums.get(key,0.)+float(value)/(accum if key=='sigma_mean' else 1)
+                    if study is not None:
+                        diag=result['trajectory_diagnostics']
+                        value=torch.stack((diag['normalized_sum'],diag['valid_count']))
+                        coordinate_sums=value if coordinate_sums is None else coordinate_sums+value
                     with torch.profiler.record_function('world/optimizer'):engine.step()
                 update_health=completed_update_guard(engine,before_steps,before_skipped,device)
                 state.update(updates=state['updates']+1,cursor=state['cursor']+32,phase=phase)
@@ -360,7 +389,15 @@ def main():
                     slowest_rank_seconds=float(maxwall),data_seconds=data_seconds,peak_allocated=torch.cuda.max_memory_allocated(),
                     peak_reserved=torch.cuda.max_memory_reserved(),sample_ids=batch_tokens,lr_used=lr_used,lr=[g['lr'] for g in engine.optimizer.param_groups])
                 row.update(update_health,candidate_bank_hash_used=bank_used)
-                adopt_tick=time.monotonic();binding=versions.adopt(builder,state['updates'])
+                if coordinate_sums is not None:
+                    dist.all_reduce(coordinate_sums)
+                    count=coordinate_sums[1];norm=coordinate_sums[0]/count.clamp_min(1)
+                    physical=norm*norm.new_tensor((33.37*100,21*100,1.765*180/math.pi))
+                    row['trajectory_geometry']=dict(normalized_MAE_by_time_channel=norm.cpu().tolist(),
+                        physical_MAE_by_time_channel=physical.cpu().tolist(),units=['cm','cm','degree_unwrapped'],
+                        valid_counts=count.cpu().tolist(),kind='TRAIN_noisy_clean_x_reconstruction_not_ODE')
+                    row.update(invocation_start_update=start,study_new_updates=state['updates']-study['parent_updates'])
+                adopt_tick=time.monotonic();binding=versions.adopt(builder,state['updates']) if study is None else None
                 if binding is not None:row.update(bank_boundary_seconds=time.monotonic()-adopt_tick,candidate_bank_hash_next=builder.bank.bank_hash)
                 row['valid_supervision_counts']=dict(action_elements=float(denoms['action_elements']),
                     dino_scenes=float(denoms['dino']),future_scenes=float(denoms['future']),
@@ -372,11 +409,13 @@ def main():
                 if profiler is not None and state['updates']==a.profile_start+a.profile_steps:
                     profiler.__exit__(None,None,None);profiler.export_chrome_trace(str(out/f'trace_rank{rank}.json'));profiler=None
                 requested=torch.tensor(int(STOP or boundary_stop_due(host)),device=device);dist.all_reduce(requested,op=dist.ReduceOp.MAX)
-                terminal=state['updates']==limit or bool(requested)
+                terminal=state['updates']==limit or bool(requested) or (study is not None and a.coordinate_pause_after>0 and state['updates']==study['parent_updates']+a.coordinate_pause_after)
                 if (terminal or state['updates']%cfg['save_every']==0 or state['updates'] in a.qualification_save_at) and not a.profile_no_final_checkpoint:
                     save_start=time.monotonic();last=cp.save(out,engine,state,identity,builder)
                     if rank==0:
-                        cp.atomic_json(out/'progress.json',dict(state,status='COMPLETE' if state['updates']==100000 else 'STOPPED' if terminal else 'RUNNING',checkpoint=last,save_seconds=time.monotonic()-save_start))
+                        status=('STUDY_COMPLETE' if study is not None and state['updates']==limit else
+                            'COMPLETE' if state['updates']==100000 else 'STOPPED' if terminal else 'RUNNING')
+                        cp.atomic_json(out/'progress.json',dict(state,status=status,checkpoint=last,save_seconds=time.monotonic()-save_start))
                         cp.retain_rolling(out,cfg['rolling_checkpoints'])
                 elif terminal and rank==0:
                     cp.atomic_json(out/'progress.json',dict(state,status='DIAGNOSTIC_COMPLETE',checkpoint=None,

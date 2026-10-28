@@ -216,7 +216,7 @@ def main():
     env=dict(os.environ,WORLD_POSTCOT_STOP_FILE=str(stop),OMP_NUM_THREADS='4',OPENBLAS_NUM_THREADS='1',TOKENIZERS_PARALLELISM='false',
         PYTHONPATH=str(Path(args.cwd).resolve())+(os.pathsep+os.environ['PYTHONPATH']if os.environ.get('PYTHONPATH')else''))
     if indices:env['CUDA_VISIBLE_DEVICES']=','.join(map(str,indices))
-    state.update(status='RUNNING',gpu_uuids=[mapping[i]for i in indices],temporary=host not in grant['permanent_hosts'],
+    state.update(status='RUNNING',gpu_uuids=[mapping[i]for i in indices],temporary=host not in grant['permanent_hosts'] and host not in grant.get('unbounded_temporary_hosts', []),
         guard_unix=grant['expires_unix']-grant['checkpoint_guard_seconds'],deadline_unix=grant['expires_unix'])
     def request(*_):
         stop.touch();state['stop_requested_unix']=time.time();write(root/'RUNNING.json',state)

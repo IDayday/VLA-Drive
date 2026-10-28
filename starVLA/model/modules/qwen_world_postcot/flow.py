@@ -96,7 +96,11 @@ class CleanXFlowPolicy(nn.Module):
             raise ValueError('Fixed noise/sigma are misaligned with this training microbatch')
         noisy = (1 - sigma[:, None, None]) * target + sigma[:, None, None] * noise
         prediction = self.actor(noisy, sigma, prepared_context)
-        loss, statistics = clean_x_l1(prediction, target, valid, return_statistics=True)
+        objective = getattr(self, 'coordinate_objective', None)
+        if objective is None:
+            loss, statistics = clean_x_l1(prediction, target, valid, return_statistics=True)
+        else:
+            loss, statistics = objective(prediction, target, valid)
         return loss, dict(statistics, sigma=sigma.detach(), prediction_x0=prediction, noisy_action=noisy)
 
     def forward(self, prepared_context, normalized_action, **randomness):
