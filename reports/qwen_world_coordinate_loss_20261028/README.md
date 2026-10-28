@@ -1,15 +1,19 @@
-# Qwen-World 坐标损失匹配实验
+# Qwen-World：坐标损失权重匹配续训
 
-状态：32个TRAIN真实图像、完整63k模型的物理误差和梯度校准已完成；即将八卡恢复资格验证，尚无新训练终点或Navtest结果。
+两组从相同IL63k原生模型、Adam、scheduler、数据游标、全部RNG开始；分别完整续训2000步/global32，共64000次scene曝光。训练seed42，完整Navtest12146，评价seed2101，单候选clean-x十步shift5 ODE，canonical v1.1。无best-of-N，无DEV/Test拟合权重或候选回流。Test历史多次被观察，不能声称完全盲测。
 
-两组从IL63000的同一模型/Adam/scheduler/cursor/RNG分叉，每组2000步/global32，终点65000；原100k IL及既有RL不受影响。CONTROL为原归一化clean-x L1，PHYSICAL仅改变三个坐标的固定权重。8点时间权重、L1形式、原3维编码、噪声/shift5、全参数训练及四辅助损失保持。两组共同冻结父模型已有辅助候选库，避免异步刷新引入不同人口；不将其称为原100k生产任务的exact resume。
+CONTROL保留原归一化L1；PHYSICAL只改变三个坐标的固定权重。工程容差为0.5m/0.25m/2度，提前登记，非论文最优值；输出层梯度量级仅在32个TRAIN场景校准一次。两组均保持原8点时间等权、三维动作编码、噪声日程、全模型训练、四个辅助任务及其系数；原父候选库对两组共同固定，避免异步刷新改变数据。未加入Huber、角度环绕损失、运动学或RL修改。
 
-工程容差预登记为纵向0.5米、横向0.25米、航向2度；不是论文最优值、不按Test选择。物理容差换成归一化坐标权重后取均值1；用首32个TRAIN场景的动作输出层/末层norm梯度量级一次性校准总系数，固定为0.86074298620224。这是局部梯度量级匹配，不是全模型梯度等价。没有改变角度环绕、Huber、时间权重、动力学损失、生成时间权重或RL。
+| 组 | Navtest PDMS | 纵向MAE cm | 横向MAE cm | 航向MAE ° | ADE cm |
+|---|---:|---:|---:|---:|---:|
+| CONTROL | 88.381806 | 51.913 | 19.287 | 1.3358 | 60.382 |
+| PHYSICAL | 88.336938 | 52.104 | 19.225 | 1.3482 | 60.509 |
 
-主判断：固定终点两组全Navtest12146、canonical v1.1、单候选K10 shift5、seed2101，报告PHYSICAL−CONTROL及相对IL63k的配对log bootstrap、安全/零分转移和G+/G−，不用TRAIN/DEV损失宣布成功。一个seed，2000步阴性不足以否定整类方法。
+PHYSICAL−CONTROL：-0.044867 PDMS点，44物理log配对95%区间[-0.273579, +0.196037]；G+=+0.805399，G−=-0.850266点。
+本窗口判断：**证据不足：未证明稳定净提升**。只有一个训练/推理seed；2000步是有限续训窗口，不据一次阴性结果否定整类加权损失。
 
-已有9项CPU资格PASS；下一步连续3更新与中断1+恢复2更新的真实八卡模型、全部Adam/scheduler/RNG/builder对照。资格权重不用于正式初始化。资格和失败成本保留。首个临时主机尝试缺少解释器，未启动模型；随后探针缺少CuBLAS确定性环境变量，在更新前停止，修复显式环境后校准PASS。未影响旧训练或已有Test结果。
+新失败、恢复、原高分→零分及NC/DAC/TTC转移见PHYSICAL_minus_CONTROL.json；相对原IL63k见每组JSON。几何误差为最终请求与原始GT的差，非控制器模拟结果。TRAIN物理误差逐时刻/通道及费用另表，不用加权训练loss自身下降充当成功。
 
-实际CLI：`python -m tools.qwen_world_postcot.coordinate_study_owner --root /mnt/project/qwen-world-postcot-20261025/coordinate_loss_20261028`。单owner启动后禁止重复派发。正式组使用`tools.qwen_world_postcot.train_il --coordinate-registration <REGISTRATION.json> --coordinate-arm CONTROL/PHYSICAL`；恢复追加本组原生`--resume <checkpoint>`。所有命令均须从本分支运行，设置`WORLD_POSTCOT_TASK=qwen_world_coordinate_loss_20261028`，原生产源码不热改。
+资格验证包含原L1值/梯度对照、物理尺度与mask、多micro归约、资源撤回合同，以及真实八卡连续3步对中断1步再恢复2步的模型/Adam/scheduler/RNG/builder逐值检查。资格权重未进入正式训练。源码、登记、命令和失败证据保留；旧IL/RL没有被热修改或停止。
 
-补充资格证据：首次八卡任务在任何optimizer更新之前，被源码合同拒绝，因为当前loading.py包含历史“用户明确指定IL40k作为RL父模型”的入口。已核对旧完整文件hash与63k父身份一致；排除两个只用于RL父选择的函数后，其余所有AST（包括IL检查点读取）完全相同。此次显式迁移记录该差异，不删除原身份检查。两组失败资格任务、日志及旧owner全部已退出并归档，资格权重没有进入训练；由修复后的新source重新验收。
+恢复：原运行目录使用相同REGISTRATION和arm，追加`--resume <本组最近合法checkpoint>`；不可用qualification目录初始化正式实验。启动入口`python -m tools.qwen_world_postcot.coordinate_study_owner --root <登记根>`只有一个owner，已启动后不可重复执行。

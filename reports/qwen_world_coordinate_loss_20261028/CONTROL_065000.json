@@ -1,0 +1,67 @@
+{
+  "status": "COMPLETE",
+  "cohort": "NAVTEST",
+  "scenes": 12146,
+  "physical_logs": 44,
+  "seed": 2101,
+  "qualification": false,
+  "evaluation_identity_sha256": "f90f395c43741b825a3757b88121d68f99db7a209175266b2bb24b28fe3902b0",
+  "model_sha256": "62256f6e1919dc72b60ca725b3650cb6dbf2d14058366f9a6a6a11e9c70cd78f",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "means": {
+    "score": 0.8838180582683389,
+    "no_at_fault_collisions": 0.9823810307920303,
+    "drivable_area_compliance": 0.9657500411658159,
+    "time_to_collision_within_bound": 0.9495307096986663,
+    "ego_progress": 0.823097822141574,
+    "comfort": 0.9998353367363741,
+    "driving_direction_compliance": 0.9856331302486415
+  },
+  "evaluation": "/mnt/project/qwen-world-postcot-20261025/coordinate_loss_20261028/NAVTEST/CONTROL_065000/evaluation",
+  "invalid_scenes": 0,
+  "scene_denominator": 12146,
+  "PDMS": 88.3818058268339,
+  "paired": {
+    "mean_delta": 0.002779224106890756,
+    "CI95": [
+      -0.0001664578301809739,
+      0.006199940300601744
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 132,
+    "new_zero": 88,
+    "high_to_zero": 76,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 656,
+    "baseline_nonzero_denominator": 11490,
+    "baseline_high_denominator": 10960,
+    "repaired_zero_rate": 0.20121951219512196,
+    "new_zero_rate": 0.007658833768494343,
+    "high_to_zero_rate": 0.006934306569343066,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 8,
+        "repaired_failure": 53,
+        "baseline_pass": 11877,
+        "baseline_failure": 269
+      },
+      "drivable_area_compliance": {
+        "new_failure": 82,
+        "repaired_failure": 84,
+        "baseline_pass": 11728,
+        "baseline_failure": 418
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 30,
+        "repaired_failure": 141,
+        "baseline_pass": 11422,
+        "baseline_failure": 724
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "sha256": "f5d4deccb06abb319ffe204d54c83591b35a0692e9635a7a36139e683773b957"
+}
