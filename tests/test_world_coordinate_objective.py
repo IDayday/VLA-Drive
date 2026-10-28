@@ -65,3 +65,13 @@ def test_no_unbounded_field_retains_expired_lease_semantics(tmp_path,monkeypatch
     record.write_text(json.dumps(grant));policy.write_text(json.dumps(dict(task_authorizations={'study':grant})))
     monkeypatch.setattr(c,'POLICY',policy);monkeypatch.setattr(c,'TASK','study')
     assert c.allowed_hosts(at=2000)==['fixed']
+
+
+def test_loading_review_rejects_changed_IL_function(tmp_path):
+    from starVLA.rl.qwen_world_postcot.coordinate_objective import review_loading_adapter
+    a,b=tmp_path/'a.py',tmp_path/'b.py'
+    a.write_text('def inspect_checkpoint(x):\n return x\n')
+    b.write_text(a.read_text()+'def _validate_explicit_40k_parent(x):\n return x\n')
+    assert review_loading_adapter(a,b)['all_non_RL_selection_AST_equal']
+    b.write_text('def inspect_checkpoint(x):\n return None\n')
+    with pytest.raises(ValueError):review_loading_adapter(a,b)

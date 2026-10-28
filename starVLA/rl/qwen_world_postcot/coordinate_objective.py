@@ -5,6 +5,7 @@ Physical diagnostics use the existing affine codec; angular training semantics
 are deliberately unchanged in this first single-factor comparison.
 """
 import json
+import ast
 import math
 from pathlib import Path
 
@@ -13,6 +14,23 @@ import torch
 from .contracts import file_sha, fingerprint
 
 SLOPES = (33.37, 21., 1.765)
+
+
+def review_loading_adapter(reference, current):
+    """Only historical explicit-RL-parent selection additions may differ.
+
+    All IL inspection/loading functions and imports must retain the same AST.
+    The old file's full hash is separately bound to the actual parent identity.
+    """
+    def core(path):
+        tree=ast.parse(Path(path).read_text())
+        tree.body=[node for node in tree.body if not isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))
+                   or node.name not in ('validate_rl_parent_selection','_validate_explicit_40k_parent')]
+        return ast.dump(tree,include_attributes=False)
+    if core(reference)!=core(current):
+        raise ValueError('IL checkpoint loader has an unreviewed computation change')
+    return dict(reference=str(Path(reference).resolve()),reference_sha256=file_sha(reference),
+        current_sha256=file_sha(current),all_non_RL_selection_AST_equal=True)
 
 
 def tolerance_weights(tolerances=(.5, .25, math.radians(2))):
@@ -61,6 +79,10 @@ def read_registration(path, arm):
     expected = tolerance_weights(row['physical_tolerances'])
     if row['arms']['PHYSICAL']['weights'] != expected:
         raise ValueError('Tolerance/weight mapping changed')
+    review=row['loading_adapter_review']
+    current=Path(__file__).resolve().parent/'loading.py'
+    if review_loading_adapter(review['reference'],current)!=review:
+        raise ValueError('Reviewed loading adapter source identity changed')
     return row
 
 
@@ -90,6 +112,12 @@ def restore_fork(parent, engine, identity, builder, registration, output):
                'starVLA/model/modules/qwen_world_postcot/model.py',
                'starVLA/model/modules/qwen_world_postcot/flow.py',
                'starVLA/rl/qwen_world_postcot/contracts.py'}
+    loading='starVLA/rl/qwen_world_postcot/loading.py'
+    review=registration['loading_adapter_review']
+    if (review['reference_sha256']!=old['source_files'][loading]
+            or review['current_sha256']!=identity['source_files'][loading]):
+        raise ValueError('Loading adapter audit does not bind parent and current source')
+    allowed.add(loading)
     changed = {k for k in old['source_files'] if identity['source_files'].get(k) != old['source_files'][k]}
     if not changed <= allowed or set(old['source_files']) - set(identity['source_files']):
         raise ValueError('Unexpected imported source changed: ' + repr(changed))

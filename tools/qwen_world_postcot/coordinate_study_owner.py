@@ -15,7 +15,7 @@ import traceback
 from starVLA.rl.qwen_world_postcot.checkpoint import atomic_json
 from starVLA.rl.qwen_world_postcot.contracts import file_sha, fingerprint
 from starVLA.rl.qwen_world_postcot.resources import remote, probe, MODEL_PYTHON
-from starVLA.rl.qwen_world_postcot.coordinate_objective import tolerance_weights
+from starVLA.rl.qwen_world_postcot.coordinate_objective import tolerance_weights,review_loading_adapter
 
 SOURCE=Path(__file__).resolve().parents[2]
 TASK='qwen_world_coordinate_loss_20261028'
@@ -139,6 +139,9 @@ def register(root):
         arms=dict(CONTROL=dict(weights=[1.,1.,1.],scale=1.),
             PHYSICAL=dict(weights=tolerance_weights(pre['physical_tolerances']),scale=cal['fixed_scale'])),
         calibration_sha256=seal,source_revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=SOURCE,text=True).strip())
+    row['loading_adapter_review']=review_loading_adapter(
+        '/mnt/project/qwen-world-postcot-20261025/snapshots/formal_main_v2/starVLA/rl/qwen_world_postcot/loading.py',
+        SOURCE/'starVLA/rl/qwen_world_postcot/loading.py')
     row['sha256']=fingerprint(row);atomic_json(root/'REGISTRATION.json',row)
 
 
