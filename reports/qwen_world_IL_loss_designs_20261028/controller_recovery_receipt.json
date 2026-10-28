@@ -1,0 +1,51 @@
+{
+  "schema": "world_loss_owner_UTF8_recovery_v1",
+  "previous_owner": {
+    "pid": 1277490,
+    "start_ticks": 1464225277,
+    "source": "/mnt/project/VLA-Drive-qwen-world-il-loss-designs-20261028",
+    "at": 1793203643.8541546
+  },
+  "previous_failure": "/mnt/project/qwen-world-postcot-20261025/loss_designs_20261028/controller_recovery_20261028T2250Z/previous_FAILURE.json",
+  "previous_failure_sha256": "0b3d8f7f7baa9771cc3b32dde1729b05bbab74572ca7c125d9c5dd592c73a94d",
+  "scientific_source_files": {
+    "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+    "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+    "starVLA/model/modules/qwen_world_postcot/__init__.py": "6f2774ad3b3ed04f903bf0ab987ecacebc2cfd2fe04a0a23ba1b48a07e1ef4df",
+    "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+    "starVLA/model/modules/qwen_world_postcot/candidate_bank.py": "d252021074b93cfbbaa5b5154ac6c36187da82ab563a997b3a34c82626f02493",
+    "starVLA/model/modules/qwen_world_postcot/flow.py": "e044c3c0883f5298c53e9a9762c6fdd5004888fe3deb7f784d150a1f9ab01ef2",
+    "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+    "starVLA/model/modules/qwen_world_postcot/model.py": "bfdc21f7d38b375e0c1f187ebbe0f50b03063078cefbc6e19fd8683aaaa51bd7",
+    "starVLA/model/modules/qwen_world_postcot/post_action.py": "25f8e626d00ad954f0b629beac75da1ae097108d5d3b276cd70b8afac18e6e8a",
+    "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+    "starVLA/model/modules/qwen_world_postcot/readouts.py": "c3bec264542b399321c9d053bacb194556134a294aeb34902b56f764c70438ce",
+    "starVLA/model/modules/qwen_world_postcot/rgb_decoder.py": "898d93bc5267ff84580a9a8edfbeef96475a8d54775419c0d93907e1699a69a8",
+    "starVLA/model/modules/qwen_world_postcot/teacher_targets.py": "fa8ea84a171d8f64290fb10def7f9bed6408adace2c5e527391641f16d299207",
+    "starVLA/model/modules/qwen_world_postcot/teachers.py": "5d0dac3e07cb3fb62f40f30ee2793ea2b11b6b509091c06caf350efd45606f22",
+    "starVLA/rl/flow_grpo/reproducibility.py": "92fb9a1e8c4552894b578ed54938af3ad781ec66a649ab994007e7ba9607634c",
+    "starVLA/rl/qwen_world_postcot/bank_versions.py": "2af6595e7ba5730f8916bc0f87fad21ad96274090db1494fd94108e974601793",
+    "starVLA/rl/qwen_world_postcot/batching.py": "ad1b9a9e3cb5093aaf7be27496008c727db264fd67970f18ea72f554b093f2e7",
+    "starVLA/rl/qwen_world_postcot/checkpoint.py": "b85f1c39a9a8c08d12f2974fb7af8fcf81df274f68b2b91d11eec32d3f978dde",
+    "starVLA/rl/qwen_world_postcot/contracts.py": "b865e09a4dcef378e1ca8637686309f54f09225f52a4e20721fb04c9190b2f3d",
+    "starVLA/rl/qwen_world_postcot/coordinate_objective.py": "cf0d7e8a12bdca00d4beed8d1b595acb40aa026f90ee9a234e8db8d940b43f1c",
+    "starVLA/rl/qwen_world_postcot/data.py": "e5f01fae628999ba0e0a6a257c1799217fb32702c939416d8b52bfcb5725e8f1",
+    "starVLA/rl/qwen_world_postcot/loading.py": "6c200cbee792e44459adcac7237a9c97d172dea1469a1fa19e6e5e9fb447a34b",
+    "starVLA/rl/qwen_world_postcot/loss_designs.py": "ed50fe46b4e180bcd56a9156f55022cc75e3093048c8fe8cf5a831f5d505ec30",
+    "tools/qwen_world_postcot/train_il.py": "9df1b18ed0e579bb3c1ec9f8b2c9e9ce91deec96e1035b00b9079d95b1e9c2c0"
+  },
+  "formal_updates_before_recovery": 0,
+  "successful_qualifications_reused": [
+    "CONTROL",
+    "TIME_RESIDUAL",
+    "HUBER"
+  ],
+  "failed_attempt": "DELTA_qualification_attempt001",
+  "failed_reason": "Runtime locale switched preferred encoding to ASCII; Unicode dispatch policy read failed after one disposable update. No formal arm had started.",
+  "fix": "PYTHONUTF8=1 explicitly propagated to remote worker and child; no actor, loss, optimizer, data, calibration or source_files change.",
+  "restart_policy": "Failed DELTA qualification replays from original63k into a distinct evidence directory. All formal arms still initialize from registered63k, never qualification weights.",
+  "fixed_hosts_only": true,
+  "previous_source_commit": "15d4fbfb5efdba5be5fb33c3efd2888ac4331b31",
+  "at": 1793227536.8029075,
+  "sha256": "3fb10e7c92819c6486ed4e24eba8166460284a409ffa5b8d92aabc8611b2051e"
+}

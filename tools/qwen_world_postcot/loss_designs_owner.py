@@ -26,7 +26,7 @@ def preferred_route(state,*,calibration=False):
     claimed=c.claimed_uuids(state)
     # The finite hosts were explicitly granted for this work. Use idle cards
     # there first, leaving the fixed hosts available for the fresh100k IL.
-    for host in ['training-rl-zt2','training-vla-zt3']:
+    for host in ([] if state.get('fixed_hosts_only') else ['training-rl-zt2','training-vla-zt3']):
         if host not in allowed_hosts(admit_long_job=True):continue
         try:
             sample=probe(host);gpus=sample['gpus'][:1] if calibration else sample['gpus']
@@ -38,7 +38,38 @@ def preferred_route(state,*,calibration=False):
     if calibration:
         routes=c.choose_eval_routes(49152,claimed,maximum=1)
         return routes[0] if routes else None
-    return c.choose_training_host(49152,excluded_uuids=claimed)
+    route=c.choose_training_host(49152,excluded_uuids=claimed)
+    if route and state.get('fixed_hosts_only') and route['host'] not in authorization()[0]['permanent_hosts']:return None
+    return route
+
+
+def recover_owner(receipt_path):
+    """Explicit controller-only recovery; never changes training identity/state."""
+    receipt=read(receipt_path);body=dict(receipt)
+    if body.pop('sha256',None)!=fingerprint(body)or receipt['schema']!='world_loss_owner_UTF8_recovery_v1':
+        raise ValueError('Unsealed controller recovery')
+    if os.environ.get('PYTHONUTF8')!='1' or receipt['formal_updates_before_recovery']!=0:
+        raise ValueError('Recovery requires explicit UTF8 environment and no partially trained formal arm')
+    for rel,digest in receipt['scientific_source_files'].items():
+        if file_sha(SOURCE/rel)!=digest:raise ValueError('Scientific source changed during controller-only recovery: '+rel)
+    previous=read(ROOT/'OWNER.json')
+    if previous!=receipt['previous_owner']:raise ValueError('Controller ancestry differs')
+    proc=Path('/proc')/str(previous['pid'])/'stat'
+    if proc.exists() and int(proc.read_text().rsplit(')',1)[1].split()[19])==previous['start_ticks']:
+        raise RuntimeError('Original owner still alive; refusing duplicate')
+    failure=Path(receipt['previous_failure'])
+    if file_sha(failure)!=receipt['previous_failure_sha256']:raise ValueError('Failure evidence changed')
+    state=read(failure)['state'];c.poll_jobs(state)
+    for name,job in state['jobs'].items():
+        if job['status'] in ('RUNNING','WAITING_OWNED_EXIT'):raise RuntimeError('Owned worker is not yet confirmed exited: '+name)
+        if job['status']=='FAILED':
+            if name!='DELTA_qualification_attempt001':raise ValueError('Unexpected failure needs separate review')
+            log=(Path(job['receipt'])/'stdout.log').read_text(encoding='utf-8',errors='replace')
+            if 'UnicodeDecodeError'not in log or "'ascii' codec"not in log:raise ValueError('Failed job is not the diagnosed locale error')
+            job.update(status='ABORTED_ENVIRONMENT',recovery_receipt=str(Path(receipt_path).resolve()))
+    state.update(stage='LEARNING',fixed_hosts_only=True,recovery_receipt=str(Path(receipt_path).resolve()),
+        qualification_outputs=dict(DELTA=str(ROOT/'qualification/DELTA_UTF8_attempt002')))
+    return state
 
 
 def register():
@@ -66,13 +97,20 @@ def command(arm,output,*,qualification=False,resume=None):
 
 
 def main():
-    argparse.ArgumentParser(__doc__).parse_args()
+    parser=argparse.ArgumentParser(__doc__);parser.add_argument('--recover-owner');args=parser.parse_args()
     if ROOT.name!='loss_designs_20261028':raise ValueError('Independent WORLD_POSTCOT_ROOT required')
     lock=(ROOT/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    if (ROOT/'OWNER.json').exists():raise FileExistsError('Do not duplicate this finite study owner')
+    if args.recover_owner:state=recover_owner(args.recover_owner)
+    else:
+        if (ROOT/'OWNER.json').exists():raise FileExistsError('Do not duplicate this finite study owner')
+        state=dict(source=str(SOURCE),jobs={},stage='CALIBRATION',arms={name:'QUALIFICATION'for name in ('CONTROL',)+ARMS})
     atomic_json(ROOT/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]),
         source=str(SOURCE),at=time.time()))
-    state=dict(source=str(SOURCE),jobs={},stage='CALIBRATION',arms={name:'QUALIFICATION'for name in ('CONTROL',)+ARMS})
+    if args.recover_owner:
+        old=ROOT/'FAILURE.json'
+        if old.exists():os.replace(old,Path(args.recover_owner).parent/'ROOT_FAILURE_before_recovery.json')
+        atomic_json(ROOT/'RECOVERY_ACTIVE.json',dict(receipt=str(Path(args.recover_owner).resolve()),owner_pid=os.getpid(),
+            algorithm_or_optimizer_changed=False,at=time.time()))
     try:
         while True:
             c.poll_jobs(state)
@@ -91,7 +129,8 @@ def main():
                     stage=state['arms'][arm]
                     if stage=='COMPLETE':continue
                     name=arm+'_qualification'if stage=='QUALIFICATION'else arm+'_formal'
-                    output=ROOT/('qualification'if stage=='QUALIFICATION'else'runs')/arm
+                    output=(Path(state.get('qualification_outputs',{}).get(arm,ROOT/'qualification'/arm))
+                        if stage=='QUALIFICATION'else ROOT/'runs'/arm)
                     finished=[j for j in state['jobs'].values()if j['name']==name and j['status']=='COMPLETE']
                     if finished:
                         boundary=read(output/'progress.json');endpoint=63003 if stage=='QUALIFICATION' else 65000

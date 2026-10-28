@@ -137,7 +137,7 @@ def launch(host, source, command, invocation, gpus='', share=None,expected_uuids
     if minimum:args+=['--minimum-free-mib',str(minimum)]
     # Namespace explicit new runs on remote containers as well as locally.
     # Do not rely on SSH propagating environment variables.
-    runtime_env={key:os.environ[key] for key in ('WORLD_POSTCOT_ROOT','WORLD_POSTCOT_TASK') if key in os.environ}
+    runtime_env={key:os.environ[key] for key in ('WORLD_POSTCOT_ROOT','WORLD_POSTCOT_TASK','PYTHONUTF8') if key in os.environ}
     runtime_env['PYTHONPATH']=source
     code = ('import subprocess,json,os;from pathlib import Path;'
         'p=subprocess.Popen('+repr(args)+',cwd='+repr(source)+',stdout=open('
