@@ -8,6 +8,7 @@ import argparse
 from collections import Counter
 import fcntl
 import json
+import os
 from pathlib import Path
 import shlex
 import socket
@@ -134,9 +135,13 @@ def launch(host, source, command, invocation, gpus='', share=None,expected_uuids
     if share: args += ['--share-min-free-mib', str(share)]
     if expected_uuids is not None:args+=['--expected-gpu-uuids-json',json.dumps(expected_uuids)]
     if minimum:args+=['--minimum-free-mib',str(minimum)]
-    code = ('import subprocess,json;from pathlib import Path;'
+    # Namespace explicit new runs on remote containers as well as locally.
+    # Do not rely on SSH propagating environment variables.
+    runtime_env={key:os.environ[key] for key in ('WORLD_POSTCOT_ROOT','WORLD_POSTCOT_TASK') if key in os.environ}
+    runtime_env['PYTHONPATH']=source
+    code = ('import subprocess,json,os;from pathlib import Path;'
         'p=subprocess.Popen('+repr(args)+',cwd='+repr(source)+',stdout=open('
-        +repr(str(ROOT/'jobs'/f'{invocation}.launcher.log'))+',"ab"),stderr=subprocess.STDOUT,start_new_session=True);'
+        +repr(str(ROOT/'jobs'/f'{invocation}.launcher.log'))+',"ab"),stderr=subprocess.STDOUT,start_new_session=True,env=dict(os.environ,**'+repr(runtime_env)+'));'
         'print(json.dumps(dict(worker_pid=p.pid,worker_start_ticks=int(Path(f"/proc/{p.pid}/stat").read_text().split()[21]))))')
     started = json.loads(remote(host, [MODEL_PYTHON, '-c', code]))
     atomic_json(directory/'DISPATCH.json', dict(host=host, source=source, command=command,

@@ -69,6 +69,9 @@ def read_registration(path, arm):
     row = json.loads(Path(path).read_text()); body = dict(row)
     if body.pop('sha256', None) != fingerprint(body):
         raise ValueError('Changed coordinate study registration')
+    if row.get('schema')=='world_IL_loss_designs_v1':
+        from .loss_designs import read_loss_registration
+        return read_loss_registration(row,arm)
     if (row['schema'] != 'world_coordinate_loss_study_v1' or arm not in ('CONTROL', 'PHYSICAL')
             or row['parent_updates'] != 63000 or row['added_updates'] != 2000
             or row['seed'] != 42 or row['evaluation_seed'] != 2101

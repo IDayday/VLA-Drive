@@ -1,0 +1,28 @@
+{
+  "parent_checkpoint": "/mnt/project/qwen-world-postcot-20261025/coordinate_loss_20261028/parent63000",
+  "parent_updates": 63000,
+  "parent_cursor": 2016000,
+  "parent_files_sha256": "b2a52eaf2937ffb01d447ddf46e6a10f00b29689d70c175c2d8a491ead3cf174",
+  "parent_identity_sha256": "d14f1f4de212452ac479e65eb85602a6a0ea4b7f195371f2d0a77a9107f0a805",
+  "parent_model_sha256": "46ef8b24df2feca88b34eebb3137c233bd53c08f1495d58a309b4ab0cad20048",
+  "schema": "world_IL_loss_designs_preregistration_v1",
+  "arms": [
+    "TIME_RESIDUAL",
+    "DELTA",
+    "HUBER"
+  ],
+  "added_updates_per_arm": 2000,
+  "shared_control": "/mnt/project/qwen-world-postcot-20261025/coordinate_loss_20261028/runs/CONTROL",
+  "global_batch": 32,
+  "seed": 42,
+  "evaluation_seed": 2101,
+  "original_auxiliary_bank_frozen": true,
+  "only_TRAIN_calibration": true,
+  "no_combinations": true,
+  "TIME_RESIDUAL": "CA XY residual1.4826MAD/tolerances(.5,.25)m; combinedRMS floor1; inverse clipped[.5,2], then horizon mean1. Not conditional uncertainty.",
+  "DELTA": "Original L1 plus nonnegative GT XY increment error at.5s, t0 error0; masks require adjacentvalid; output-layer auxgradient10% reference.",
+  "HUBER": "Original normalized large-error gradient; normalizedbreakpoints(.5/33.37,.25/21,2deg/1.765); no headingwrap change.",
+  "scale_calibration": "Same first32TRAIN after63k cursor/noDEVorTest; fixed output-layer norm matching[.25,4], no per-batch whitening.",
+  "evaluation": "Fixed65k endpoints and sharedCONTROL, full12146canonicalv1.1 seed2101singleK10shift5ODE; no newseeds/DEVchoice.",
+  "cost": "All qualification/calibration/model loading/native saves/aborted attempts/evaluation retained; no claimed matched full-model gradient norm."
+}

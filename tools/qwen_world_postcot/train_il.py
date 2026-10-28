@@ -139,6 +139,7 @@ def source_identity():
         'starVLA/rl/qwen_world_postcot/checkpoint.py','starVLA/rl/qwen_world_postcot/loading.py',
         'starVLA/rl/qwen_world_postcot/bank_versions.py',
         'starVLA/rl/qwen_world_postcot/coordinate_objective.py',
+        'starVLA/rl/qwen_world_postcot/loss_designs.py',
         'starVLA/rl/qwen_world_postcot/data.py','starVLA/rl/qwen_world_postcot/contracts.py',
         'starVLA/model/modules/qwen_sourceflow/action_codec.py',
         'starVLA/model/modules/qwen_sourceflow/qwen_encoder.py',
@@ -227,7 +228,7 @@ class RuntimeDtypeAudit:
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--config',default='configs/qwen_world_postcot/il.yaml')
     p.add_argument('--output',required=True);p.add_argument('--resume');p.add_argument('--qualification',action='store_true')
-    p.add_argument('--coordinate-registration');p.add_argument('--coordinate-arm',choices=('CONTROL','PHYSICAL'))
+    p.add_argument('--coordinate-registration');p.add_argument('--coordinate-arm',choices=('CONTROL','PHYSICAL','TIME_RESIDUAL','DELTA','HUBER'))
     p.add_argument('--coordinate-qualification-updates',type=int,default=0)
     p.add_argument('--coordinate-pause-after',type=int,default=0)
     p.add_argument('--qualification-joint',action='store_true',help='Bounded engineering profile with all joint gradients; never formal IL')
@@ -290,7 +291,10 @@ def main():
         max_candidates=cfg['candidate_refresh']['max_candidates'])
     model=QwenWorldPostCoT(QWEN,config=cfg['model']).to(device)
     if study is not None:
-        model.policy.coordinate_objective=CoordinateObjective(**study['arms'][a.coordinate_arm])
+        if study['schema']=='world_IL_loss_designs_v1':
+            from starVLA.rl.qwen_world_postcot.loss_designs import LossDesign
+            model.policy.coordinate_objective=LossDesign(**study['arms'][a.coordinate_arm])
+        else:model.policy.coordinate_objective=CoordinateObjective(**study['arms'][a.coordinate_arm])
     if cfg['distributed']['qwen_activation_checkpointing']:model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     parameter_groups=groups(model,cfg);group_contract=optimizer_group_contract(model,parameter_groups)
     optcfg=cfg['optimizer'];optimizer=torch.optim.AdamW(parameter_groups,betas=tuple(optcfg['betas']),eps=optcfg['eps'],

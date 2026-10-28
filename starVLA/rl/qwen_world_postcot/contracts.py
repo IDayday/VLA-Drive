@@ -7,7 +7,7 @@ import socket
 import time
 import os
 
-ROOT = Path('/mnt/project/qwen-world-postcot-20261025')
+ROOT = Path(os.environ.get('WORLD_POSTCOT_ROOT', '/mnt/project/qwen-world-postcot-20261025'))
 TASK = os.environ.get('WORLD_POSTCOT_TASK', 'qwen_world_postcot_20261025')
 POLICY = Path('/mnt/project/server_dispatch_policy.json')
 

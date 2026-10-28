@@ -120,11 +120,19 @@ def finalize_sweep(root, requests, report):
     pinned = read(root/'PINNED.json')
     reference = pinned['reference_evaluation']
     results = {}; report.mkdir(parents=True, exist_ok=True)
+    loss_study=pinned.get('loss_designs_study')
     lines = ['# Qwen-World IL checkpoints and later RL observations', '',
         'Full12146 scenes, canonical NAVSIM v1.1, seed2101, single clean-x K10 shift5 ODE. '
         'IL observations do not change the fixed IL40k RL parent. Test is historically observed.', '',
         '| Snapshot | Updates | PDMS | Change vs IL40k (points) | Change vs previous same RL (points) |',
         '|---|---:|---:|---:|---:|']
+    if loss_study:
+        lines=['# Qwen-World independent IL loss designs', '',
+            'Full12146 canonical v1.1 Test scenes, seed2101, single clean-x K10 shift5 ODE. '
+            'All forks use the same63k native model/Adam/RNG/data boundary and2000 added updates. '
+            'The shared CONTROL is original mean L1, not a new weak IL baseline. Test has been observed.', '',
+            '| Fixed endpoint | Updates | PDMS | Change vs matched CONTROL65k (points) | Previous RL comparison |',
+            '|---|---:|---:|---:|---|']
     for label, request in requests.items():
         done = read(request.root/'COMPLETE.json')
         if done['status'] != 'COMPLETE' or not done['all_owned_workers_exited']:
@@ -145,7 +153,19 @@ def finalize_sweep(root, requests, report):
         earlier_text = '—' if earlier_delta is None else f'{earlier_delta:+.6f}'
         lines.append(f'| {label} | {request.pin["updates"]} | {result["PDMS"]:.6f} | '
                      f'{100 * result["paired"]["mean_delta"]:+.6f} | {earlier_text} |')
-    lines += ['', 'The previous-same-RL comparisons use full paired scenes/logs under the same protocol. '
+    if loss_study:
+        study_root=Path(loss_study['root'])
+        for original,destination in [('REGISTRATION.json','registration.json'),('calibration/CALIBRATION.json','TRAIN_calibration.json')]:
+            write(report/destination,read(study_root/original))
+        lines+=['', 'Only one loss factor changes per arm: bounded TRAIN residual-based horizon weights; '
+            'GT-increment matching; or physical-tolerance Huber. Original clean-x codec, sigma distribution, '
+            'four auxiliary losses, data ordering and frozen parent auxiliary bank are retained. '
+            'Calibration matches only output-layer gradient magnitude, not full-model gradients. '
+            'The shared control was separately qualified for exact loss/gradient and real eight-card execution.', '',
+            'The JSON paired fields contain physical-log bootstrap, native submetrics, G+/G− and failure transfers. '
+            'A2000-update window is an initial controlled test, not proof that an entire loss family is ineffective. '
+            'Qualification, failed attempts, model loading, checkpoint saving and evaluation costs remain in private owned-worker receipts.']
+    else:lines += ['', 'The previous-same-RL comparisons use full paired scenes/logs under the same protocol. '
               'A lower point estimate is an observed rollback; interpret its physical-log bootstrap interval '
               'separately. This is not multiple training-seed evidence. Different RL update budgets do not '
               'establish method superiority.', '',
