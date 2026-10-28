@@ -26,6 +26,14 @@ post=factor+0.25×pair，再在总IL loss中乘0.2。5k→60k post下降78.56%�
 
 factor对六个0–1标签都使用BCE；EP及NC=0.5等为soft target。完美预测p=y仍有H(y)的BCE下界，而非必须接近0；analysis列出了下界及excess BCE。Pair只约束同scene NC/DAC logits的差，对公共logit平移不敏感，因此排序正确不等于绝对值校准正确。
 
+## 用原loss函数重算固定探针
+
+CPU直接调用原`post_action_loss`，不另造loss：自然Test两候选的factor BCE为0.188601，高于TRAIN60k窗口0.120393。自然Test只有62个scene有合格NC/DAC边界对；将这些scene合并计算时pair为0.980367，总post为0.433692。
+
+若把自然2048scene按每块16个辅助scene组织（对应32个IL scene约半数post监督），128块中81块没有合格pair；按块平均post为0.277485、pair为0.355538。分组与边界覆盖会改变pair均值，不能把合并后的条件均值与训练逐更新均值直接当严格配对。定向250scene的factor BCE为0.901265、合并post为1.119084。
+
+这些补充说明训练外误差较大，也说明单个post标量会受配对覆盖影响。主要判断仍依据下面的逐分项误差、失败检出和固定候选排序；此处没有新增参数拟合。原始计算见`fixed_probe_losses.json`。
+
 ## NC/DAC/TTC：表面通过率高，实际违规检出很弱
 
 固定阈值：在硬0/1标签上，以预测通过分项<0.5判为违规；这个阈值没有根据本次Test调整。NC=0.5保留在连续误差中，硬分类单列剔除。

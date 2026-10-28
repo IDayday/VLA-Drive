@@ -1,0 +1,38 @@
+{
+  "natural": {
+    "scenes": 2048,
+    "pooled": {
+      "loss": 0.43369245529174805,
+      "factor": 0.18860077857971191,
+      "pair": 0.9803667664527893,
+      "factor_scene_count": 2048.0,
+      "pair_scene_count": 62.0
+    },
+    "fixed_16_aux_scene_block_mean": {
+      "loss": 0.27748537770821713,
+      "factor": 0.18860078798024915,
+      "pair": 0.3555383636485203
+    },
+    "blocks": 128,
+    "zero_pair_blocks": 81,
+    "note": "Exact original post_action_loss. Pooled pair is conditional on eligible scenes;16-aux-scene blocks approximate one32-scene IL update with half auxiliary scenes, not a matched TRAIN population."
+  },
+  "targeted": {
+    "scenes": 250,
+    "pooled": {
+      "loss": 1.1190840005874634,
+      "factor": 0.9012646675109863,
+      "pair": 0.8712772130966187,
+      "factor_scene_count": 250.0,
+      "pair_scene_count": 162.0
+    },
+    "fixed_16_aux_scene_block_mean": {
+      "loss": 1.1157161556184292,
+      "factor": 0.8988050296902657,
+      "pair": 0.8676445167511702
+    },
+    "blocks": 16,
+    "zero_pair_blocks": 0,
+    "note": "Exact original post_action_loss. Pooled pair is conditional on eligible scenes;16-aux-scene blocks approximate one32-scene IL update with half auxiliary scenes, not a matched TRAIN population."
+  }
+}
