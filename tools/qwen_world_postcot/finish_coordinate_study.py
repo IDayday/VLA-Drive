@@ -21,6 +21,7 @@ def finish(evaluation,report):
     delta=np.array([physical_rows[t]['feedback']['metrics']['score']-control_rows[t]['feedback']['metrics']['score'] for t in control_rows])
     result['G_plus_PDMS']=100*float(np.maximum(delta,0).mean())
     result['G_minus_PDMS']=100*float(np.minimum(delta,0).mean())
+    result.pop('sha256',None);result['sha256']=fingerprint(result)
     atomic_json(report/'PHYSICAL_minus_CONTROL.json',result)
     raw=Path('/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST')
     manifest=json.loads((raw/'manifest.json').read_text());seal=json.loads((raw/'COMPLETE').read_text())
