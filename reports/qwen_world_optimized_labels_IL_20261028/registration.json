@@ -1,0 +1,26 @@
+{
+  "schema": "world_optimized_labels_full_IL_registration_v1",
+  "user_budget": "完整IL训练，100k预算",
+  "updates": 100000,
+  "seed": 42,
+  "initialization": "official generic Qwen3-VL-2B-Instruct; new World scene/predictive memory and20-layer clean-x actor; no driving checkpoint",
+  "parent_driving_checkpoint": null,
+  "interface_updates": 1000,
+  "global_batch": 32,
+  "original_coordinate_L1": true,
+  "four_auxiliary_tasks_unchanged": true,
+  "observation_data": "/mnt/project/qwen-world-postcot-20261025/data/TRAIN",
+  "optimized_targets": "/mnt/project/qwen-world-postcot-20261025/optimized_labels_IL_20261028/targets",
+  "target_manifest_sha256": "fe04829424b9c3b47a5afbabd89bdab133e7b7dfa5959d6de3b9498a5411cab0",
+  "candidate_refresh": "Original current-policy asynchronous10k..90k refresh with this run own registry and run identity; never original run registry",
+  "checkpoint_observation": [
+    20000,
+    40000,
+    60000,
+    80000,
+    100000
+  ],
+  "evaluation": "Full12146 canonicalv1.1 single K10shift5 ODE seed2101; no best-of-N; no automaticRL; Test historically observed",
+  "no_gt_future_actor_input": true,
+  "full_current_TRAIN_scene_count": 90890
+}

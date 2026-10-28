@@ -139,6 +139,7 @@ def source_identity():
         'starVLA/rl/qwen_world_postcot/checkpoint.py','starVLA/rl/qwen_world_postcot/loading.py',
         'starVLA/rl/qwen_world_postcot/bank_versions.py',
         'starVLA/rl/qwen_world_postcot/coordinate_objective.py',
+        'starVLA/rl/qwen_world_postcot/optimized_targets.py',
         'starVLA/rl/qwen_world_postcot/data.py','starVLA/rl/qwen_world_postcot/contracts.py',
         'starVLA/model/modules/qwen_sourceflow/action_codec.py',
         'starVLA/model/modules/qwen_sourceflow/qwen_encoder.py',
@@ -227,6 +228,7 @@ class RuntimeDtypeAudit:
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--config',default='configs/qwen_world_postcot/il.yaml')
     p.add_argument('--output',required=True);p.add_argument('--resume');p.add_argument('--qualification',action='store_true')
+    p.add_argument('--optimized-targets',help='Explicit sealed TRAIN planning-label overlay; original observation/teacher records unchanged')
     p.add_argument('--coordinate-registration');p.add_argument('--coordinate-arm',choices=('CONTROL','PHYSICAL'))
     p.add_argument('--coordinate-qualification-updates',type=int,default=0)
     p.add_argument('--coordinate-pause-after',type=int,default=0)
@@ -237,6 +239,11 @@ def main():
     p.add_argument('--profile-start',type=int,default=0);p.add_argument('--profile-steps',type=int,default=0)
     p.add_argument('--profile-no-final-checkpoint',action='store_true',help='Explicit disposable bounded performance/trace only; reports no recoverable training checkpoint')
     a=p.parse_args();host=require_dispatch(admit_long_job=True);cfg=validate(yaml.safe_load(Path(a.config).read_text()))
+    if a.optimized_targets and a.coordinate_registration:raise ValueError('Optimized-label experiment must not also change coordinate loss')
+    if a.optimized_targets and (ROOT.name!='optimized_labels_IL_20261028'
+            or Path(a.optimized_targets).resolve().parent!=ROOT.resolve()
+            or not Path(a.output).resolve().is_relative_to(ROOT.resolve())):
+        raise ValueError('Optimized-label training requires its independent WORLD_POSTCOT_ROOT namespace')
     study=None
     if a.coordinate_registration:
         from starVLA.rl.qwen_world_postcot.coordinate_objective import read_registration,CoordinateObjective,restore_fork
@@ -275,7 +282,11 @@ def main():
     lk=(out/f'rank{rank}.lock').open('a');fcntl.flock(lk,fcntl.LOCK_EX|fcntl.LOCK_NB)
     for sig in (signal.SIGTERM,signal.SIGUSR1):signal.signal(sig,stop)
     random.seed(cfg['seed']);np.random.seed(cfg['seed']);torch.manual_seed(cfg['seed'])
-    data=WorldSceneData(cfg['training_data']);processor=QwenObservationProcessor(QWEN)
+    if a.optimized_targets:
+        from starVLA.rl.qwen_world_postcot.optimized_targets import OptimizedWorldSceneData
+        data=OptimizedWorldSceneData(cfg['training_data'],a.optimized_targets)
+    else:data=WorldSceneData(cfg['training_data'])
+    processor=QwenObservationProcessor(QWEN)
     # A bounded qualification may consume committed immutable records while the
     # full builder is running. It never treats that growing index as COMPLETE.
     teachers=TeacherCacheReader(cfg['teacher_cache'],expected_cohort='TRAIN',allow_building=a.qualification)
@@ -321,6 +332,11 @@ def main():
             objective=study['arms'][a.coordinate_arm],freeze_parent_candidate_bank=True,
             qualification_updates=a.coordinate_qualification_updates)
         identity['qualification']=bool(a.coordinate_qualification_updates)
+    if a.optimized_targets:
+        identity['optimized_planning_supervision']=dict(root=data.planning_targets.root,
+            identity_sha256=data.planning_targets.identity['sha256'],
+            manifest_sha256=file_sha(Path(data.planning_targets.root)/'MANIFEST.json'),
+            original_observations_and_video_targets_unchanged=True)
     identity=cp.canonical_identity(identity)
     def publish_identity():
         existing=out/'IDENTITY.json'
@@ -389,6 +405,7 @@ def main():
                     slowest_rank_seconds=float(maxwall),data_seconds=data_seconds,peak_allocated=torch.cuda.max_memory_allocated(),
                     peak_reserved=torch.cuda.max_memory_reserved(),sample_ids=batch_tokens,lr_used=lr_used,lr=[g['lr'] for g in engine.optimizer.param_groups])
                 row.update(update_health,candidate_bank_hash_used=bank_used)
+                if a.optimized_targets:row['planning_supervision_identity']=data.planning_targets.identity['sha256']
                 if coordinate_sums is not None:
                     dist.all_reduce(coordinate_sums)
                     count=coordinate_sums[1];norm=coordinate_sums[0]/count.clamp_min(1)
