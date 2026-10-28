@@ -28,3 +28,7 @@ WORLD_POSTCOT_ROOT=/mnt/project/qwen-world-postcot-20261025/optimized_labels_IL_
 Launch once through a detached process and preserve OWNER/STATE/job-worker receipts. Do not duplicate a live owner. The trainer's existing --resume accepts only a sealed exact native boundary; full Adam/scheduler/RNG/cursor and label identity are checked. Unexpected training failure is preserved and stops automatic retry for review. Finite-host workers checkpoint before the authorization guard and migrate only after owned-process exit verification. The100k run is preferentially placed on a fixed authorized host.
 
 No weights, images, trajectory payloads or caches are committed. Status at this source commit: labels and CPU contract checks complete; real qualification/formal training is recorded separately after actual execution.
+
+## Actual execution receipt
+
+The real three-update eight-card joint-stage qualification passed; full fresh formal IL then started on training-vla-zt (eight unique GPUs). At the receipt snapshot all eight ranks had completed122 consecutive formal optimizer updates with zero skipped updates and the sealed planning-label identity. It remains in the original interface phase. The qualification checkpoint is not a formal parent. See actual_start.json for exact source identity, hardware, measured qualification times/memory and native checkpoint size. No new model Navtest score is claimed.
