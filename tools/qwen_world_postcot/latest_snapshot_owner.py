@@ -165,6 +165,9 @@ def finalize_sweep(root, requests, report):
     if pinned.get('coordinate_loss_study'):
         from tools.qwen_world_postcot.finish_coordinate_study import finish
         finish(root, report)
+    if pinned.get('RL_intermediate_curve'):
+        from tools.qwen_world_postcot.finish_rl_midpoint_curves import finish
+        finish(root,report)
     return results
 
 
