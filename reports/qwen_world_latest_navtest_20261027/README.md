@@ -1,12 +1,57 @@
-# World latest IL/RL Navtest snapshots
+# Qwen-World：四组新权重Navtest完整结果
 
-Canonical NAVSIM v1.1; full12146 scenes; single clean-x K10 shift5 ODE; seed2101. All three RL policies share IL40k as parent. IL52k is a separate IL continuation, not a replacement RL control.
+四组均完成全部 **12,146场景**，无无效/缺失场景，136个manifest片段对应44个物理日志。统一canonical NAVSIM v1.1、seed2101、单候选clean-x十步shift5 ODE；无候选筛选、teacher或scorer参与部署输出。所有评测worker已退出。
 
-| Snapshot | Updates | Full Navtest PDMS |
+| 模型 | 更新数 | PDMS（百分制） | 相对IL40k | 增益95%配对区间（点） |
+|---|---:|---:|---:|---|
+| 共同IL父模型 | 40,000 | 87.9724 | — | — |
+| WORLD_IL_052000 | 52,000 | 87.6566 | -0.3158 | [-0.7806, +0.0906] |
+| ATTENTION_RL_026600 | 26,600 | 90.5672 | +2.5949 | [+2.0445, +3.1261] |
+| MEMORY_RL_018400 | 18,400 | 90.6617 | +2.6893 | [+2.1118, +3.2596] |
+| TIME_RL_035600 | 35,600 | 89.3697 | +1.3973 | [+0.9956, +1.7816] |
+
+IL52k是IL续训观察；三组RL均从固定IL40k开始，不能把IL52k替换为它们的匹配父模型。
+
+三组RL相对自身IL父模型均有测试集正向净增益，配对区间均在0以上；当前最高分90.6617，未达到92。Memory比attention-only高0.0944点，但更新预算不同，也没有据这两个中间点证明其方法优势。Time组当前分数和净增益较小，不据此否定整条时间模块路线。IL52k比IL40k低0.3158点，其区间跨0；此观察不证明继续IL一定有害。
+
+配对区间采用44个物理日志的2000次cluster bootstrap，先保留场景权重；仅训练seed42/推理seed2101，不包含训练seed与推理seed不确定性。Test已有多轮观察，不能宣称完全盲测。
+
+## 安全与零分转移
+
+| 模型 | NC | DAC | TTC | EP | 原零分恢复 | 原非零→零分 |
+|---|---:|---:|---:|---:|---:|---:|
+| WORLD_IL_052000 | 98.2340 | 95.8340 | 94.7225 | 81.7531 | 189 | 216 |
+| ATTENTION_RL_026600 | 98.4069 | 98.7897 | 95.4965 | 84.0364 | 423 | 77 |
+| MEMORY_RL_018400 | 98.6209 | 98.5921 | 96.5585 | 83.4174 | 417 | 68 |
+| TIME_RL_035600 | 98.1928 | 97.4066 | 95.3071 | 83.2901 | 230 | 72 |
+
+共同IL40k的NC/DAC/TTC/EP分别为98.0611/96.2210/94.7308/82.1412。三组RL的这些平均分均高于自身IL，但仍有新增失败。
+
+| RL方法 | NC新增/恢复 | DAC新增/恢复 | TTC新增/恢复 |
+|---|---:|---:|---:|
+| ATTENTION_RL_026600 | 48/93 | 32/344 | 146/239 |
+| MEMORY_RL_018400 | 34/106 | 36/324 | 77/299 |
+| TIME_RL_035600 | 26/42 | 51/195 | 71/141 |
+
+安全通过判定为官方子项完全通过，NC=0.5不算通过。零分使用score≤1e-8；高分→零分诊断阈值为原score≥0.8。Memory当前相对attention-only有更少新增NC/TTC违规、更高NC/TTC均分，但DAC与EP稍低；不能将其描述为所有分项都占优。三个RL的DDC分别97.7235/98.2422/98.4974，前两者低于IL40k的98.4686。
+
+## 计算成本与归属
+
+四组共48,584次逻辑单候选评测，48,584次新场景推理、0复用，另有4次原生恢复一致性预测；实际使用16个物理GPU，主机为training-vla-zt, training-vlawm-tsinghua-zt。没有使用已撤回的临时主机。
+
+| 模型 | 累计worker wall（小时） | 推理job跨度（分钟） |
 |---|---:|---:|
-| WORLD_IL_052000 | 52000 | 87.656609 |
-| ATTENTION_RL_026600 | 26600 | 90.567244 |
-| MEMORY_RL_018400 | 18400 | 90.661658 |
-| TIME_RL_035600 | 35600 | 89.369663 |
+| WORLD_IL_052000 | 3.080 | 58.98 |
+| ATTENTION_RL_026600 | 4.374 | 66.79 |
+| MEMORY_RL_018400 | 4.573 | 74.50 |
+| TIME_RL_035600 | 3.058 | 51.82 |
 
-Paired IL40k comparison, native submetrics, new/recovered failures, G+/G−, log-cluster bootstrap and recorded worker costs are in the JSON files. This is one training/inference seed and different intermediate update budgets; it does not establish a matched endpoint ranking of methods. No candidate oracle, teacher or scorer selects the deployed trajectory. Test has been observed historically and these observations are not claimed blind.
+从启动到四组结果完成发布的墙钟时间81.92分钟，包含CPU导出、排队、native一致性、评分、最终配对汇总和push。多组并行跨度相互重叠，不可相加成端到端时间。worker时间是共享GPU占用wall，不是独占GPU计算小时。独立模型加载计时未单列，无法事后精确拆分，明确记为缺失。详细forward/scoring/worker计数在result_analysis.json；原始rank和job账本在资产根。
+
+## 源码与证据
+
+实际评测源码1efcfe9cfa8c32b7355a743c59d308c8fa68ae9c；原始四组完整结果发布00ef8df3cdca4c482f29e3b2426dc78e7bb6e87d。此次仅补充已有结果的派生解释和成本账本，没有重跑模型、改变轨迹、评分或训练配方。
+
+四组*_native_parity.json证明独立原生恢复与导出完整ODE动作/请求轨迹差为0。各组JSON保留全分项、配对区间、新增违规/恢复及身份hash。原始逐场景记录和已锁定权重资产根：`/mnt/project/qwen-world-postcot-20261025/latest_NAVTEST_20261027T2300Z`。
+
+当前证据支持继续完成原有三组50k终点，再在匹配预算下比较；不据中间点追加新算法或自动改变学习率、anchor、奖励、训练人口。
