@@ -1,5 +1,7 @@
 # Qwen-World IL训练loss与Navtest PDMS
 
+用户随后明确更关注轨迹loss和模型设计：[轨迹L1专表及当前动作前/动作后架构](architecture_and_trajectory_loss.md)。轨迹项的Pearson=-0.661543、Spearman=-0.571429；相邻7段仍只有3段在轨迹loss下降时PDMS提高。以下总loss分析与轨迹项分开保留，不用总loss替代轨迹loss。
+
 **八个已测检查点呈总体负相关，但loss下降不能可靠预测相邻权重的PDMS提高。** 若“正相关”指“loss越低、性能越高”，整体有这个倾向；数学上应称loss数值与PDMS负相关。
 
 主统计取每个检查点之前500个已提交optimizer更新（包含该步）的在线TRAIN全局均值。加权总loss与全量Navtest PDMS：Pearson **-0.680212**，Spearman **-0.571429**。轨迹clean-x L1的Pearson为-0.661543。
