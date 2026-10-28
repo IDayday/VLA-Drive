@@ -153,6 +153,9 @@ def finalize_sweep(root, requests, report):
               'per-model JSON. Raw worker costs and scene records are retained at '+str(root)+'. '
               'No teacher/search/scorer chooses a deployed output; every observation is one candidate.', '']
     (report/'README.md').write_text('\n'.join(lines))
+    if pinned.get('trajectory_loss_analysis'):
+        from tools.qwen_world_postcot.finish_il_midlate_analysis import finish
+        finish(root, report)
     return results
 
 
