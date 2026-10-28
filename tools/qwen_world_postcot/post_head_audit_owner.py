@@ -23,12 +23,14 @@ def occupied_main(root):
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--root',required=True)
     p.add_argument('--main-wave',required=True);p.add_argument('--report-dir',required=True)
+    p.add_argument('--controller-root');p.add_argument('--qualified-training-cohosts',action='store_true')
     a=p.parse_args();root=Path(a.root);source=Path(__file__).resolve().parents[2]
+    controller=Path(a.controller_root) if a.controller_root else root;controller.mkdir(parents=True,exist_ok=True)
     lock=(root/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    if (root/'owner.json').exists():raise FileExistsError('Never duplicate this finite audit')
+    if (controller/'owner.json').exists():raise FileExistsError('Never duplicate this finite audit')
     head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip()
     reg=read(root/'registration.json')
-    write(root/'owner.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]),source=str(source),source_sha=head))
+    write(controller/'owner.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]),source=str(source),source_sha=head))
     pin=dict(kind='IL',checkpoint=reg['checkpoint'],updates=reg['updates'],evaluation_hosts=[
         'training-vla-zt','training-vlawm-tsinghua-zt','training-vlawm-tsinghua-zt3',
         'training-vlawm-tsinghua-zt4','training-vlawm-tsinghua-zt5'])
@@ -48,13 +50,32 @@ def main():
         reserved,count=occupied_main(main_wave)
         # Avoid races with the main owner's pre-CUDA reservations. All32 native
         # evaluator jobs must be dispatched (or the wave finished) first.
-        if count>=32 or (main_wave/'COMPLETE.json').exists():
+        if count>=32 or (main_wave/'COMPLETE.json').exists() or a.qualified_training_cohosts:
             routes,inventory=request.resources.available(exclude=reserved,min_free_MiB=32768)
             write(root/'inventory_latest.json',inventory)
             for rank in range(reg['world']):
                 name='rank'+str(rank)
                 if name in jobs:continue
-                route=request.route(routes,inventory)
+                cohost=None
+                if a.qualified_training_cohosts:
+                    from starVLA.rl.qwen_world_postcot.post_head_sharing import NAMESPACE,LEASE_ROOT,validate
+                    route=None
+                    occupied={u for s in jobs.values() for u in s['gpu_uuids']}
+                    for candidate in sorted(routes,key=lambda r:-r['free_MiB']):
+                        if candidate['uuid'] in occupied:continue
+                        code='from starVLA.rl.qwen_world_postcot.post_head_sharing import snapshot;import json;print(json.dumps(snapshot('+repr(candidate['uuid'])+')))'
+                        try:
+                            owners=json.loads(request.resources.remote(candidate['host'],
+                                ['env','PYTHONPATH='+str(source),request.resources.MODEL_PYTHON,'-c',code]))
+                            receipt=dict(namespace=NAMESPACE,uuid=candidate['uuid'],owners=owners,at=time.time(),no_eviction=True,training_unchanged=True)
+                            validate(dict(module='tools.qwen_world_postcot.diagnose_post_head',shared_lease_namespace=NAMESPACE,
+                                gpu_uuids=[candidate['uuid']],diagnostic_training_cohost=receipt),owners)
+                            LEASE_ROOT.mkdir(exist_ok=True)
+                            with (LEASE_ROOT/(candidate['uuid']+'.lock')).open('a') as lease:
+                                fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                            route=candidate;cohost=receipt;break
+                        except Exception:continue
+                else:route=request.route(routes,inventory)
                 if route is None:break
                 directory=root/'jobs'/name;directory.mkdir(parents=True,exist_ok=False)
                 module='tools.qwen_world_postcot.diagnose_post_head'
@@ -62,12 +83,14 @@ def main():
                     gpu_uuids=[route['uuid']],min_free_MiB=32768,world_shared_lease=True,module=module,
                     command=[request.resources.MODEL_PYTHON,'-u','-m',module,'--root',str(root),'--rank',str(rank)],
                     receipt_dir=str(directory))
+                if cohost:
+                    spec.update(shared_lease_namespace=NAMESPACE,diagnostic_training_cohost=cohost)
                 write(directory/'spec.json',spec);request.jobs[name]=spec;jobs[name]=spec
                 write(directory/'operator.json',request.resources.launch(directory/'spec.json',str(source)))
                 # Reservation belongs to the actual source request and exact
                 # worker receipt; route() also masks this request's active GPUs.
                 routes=[r for r in routes if r['uuid']!=route['uuid']]
-        write(root/'status.json',dict(at=time.time(),stage='RUNNING' if jobs else 'WAITING_MAIN_ADMISSION',
+        write(controller/'status.json',dict(at=time.time(),stage='RUNNING' if jobs else 'WAITING_MAIN_ADMISSION',
             launched=list(jobs),main_launched=count,main_reserved_physical_gpus=len(reserved)))
         time.sleep(30)
     from tools.qwen_world_postcot.diagnose_post_head import summarize

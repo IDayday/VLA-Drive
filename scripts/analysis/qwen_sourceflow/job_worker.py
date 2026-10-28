@@ -56,7 +56,12 @@ def main():
             if [gpus[i][0] for i in spec['gpus']]!=spec['gpu_uuids']:raise ValueError('Physical GPU identity changed')
             if min(gpus[i][1] for i in spec['gpus'])<spec['min_free_MiB']:raise ValueError('Insufficient measured headroom')
             if spec.get('world_shared_lease'):
-                lease_root=Path('/mnt/project/runtime_gpu_shared_workers');lease_root.mkdir(exist_ok=True)
+                if spec.get('shared_lease_namespace'):
+                    from starVLA.rl.qwen_world_postcot.post_head_sharing import snapshot,validate
+                    lease_root=validate(spec,snapshot(spec['gpu_uuids'][0]))
+                else:
+                    lease_root=Path('/mnt/project/runtime_gpu_shared_workers')
+                lease_root.mkdir(exist_ok=True)
                 for uuid in spec['gpu_uuids']:
                     lease=(lease_root/(uuid+'.lock')).open('a');fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB);shared_leases.append(lease)
         env=dict(os.environ,CUDA_VISIBLE_DEVICES=','.join(map(str,spec['gpus'])),OMP_NUM_THREADS='4',MKL_NUM_THREADS='4',
