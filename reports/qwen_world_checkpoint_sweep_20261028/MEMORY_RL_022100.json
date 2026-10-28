@@ -1,0 +1,109 @@
+{
+  "status": "COMPLETE",
+  "cohort": "NAVTEST",
+  "scenes": 12146,
+  "physical_logs": 44,
+  "seed": 2101,
+  "qualification": false,
+  "evaluation_identity_sha256": "f9d49094b95e1845a3ee2be207b6e285c41282b69eed90a0fb2414e48c7929f2",
+  "model_sha256": "8555697e8aad91496c70d2a3e3e254d799b804da9f47fc550b80feeaa94ba26c",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "means": {
+    "score": 0.9047458215658962,
+    "no_at_fault_collisions": 0.987073933805368,
+    "drivable_area_compliance": 0.9852626379054833,
+    "time_to_collision_within_bound": 0.9644327350568088,
+    "ego_progress": 0.8312942611794737,
+    "comfort": 0.9997530051045612,
+    "driving_direction_compliance": 0.979828750205829
+  },
+  "evaluation": "/mnt/project/qwen-world-postcot-20261025/additional_IL_RL_NAVTEST_20261028T013728Z/MEMORY_RL_022100/evaluation",
+  "invalid_scenes": 0,
+  "scene_denominator": 12146,
+  "PDMS": 90.47458215658962,
+  "paired": {
+    "mean_delta": 0.025021999173693677,
+    "CI95": [
+      0.018532079235269797,
+      0.030768339425940466
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 428,
+    "new_zero": 78,
+    "high_to_zero": 69,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 673,
+    "baseline_nonzero_denominator": 11473,
+    "baseline_high_denominator": 10967,
+    "repaired_zero_rate": 0.6359583952451708,
+    "new_zero_rate": 0.006798570556959819,
+    "high_to_zero_rate": 0.006291602078964165,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 36,
+        "repaired_failure": 120,
+        "baseline_pass": 11900,
+        "baseline_failure": 246
+      },
+      "drivable_area_compliance": {
+        "new_failure": 45,
+        "repaired_failure": 325,
+        "baseline_pass": 11687,
+        "baseline_failure": 459
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 128,
+        "repaired_failure": 336,
+        "baseline_pass": 11506,
+        "baseline_failure": 640
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "paired_previous_same_RL": {
+    "reference_evaluation": "/mnt/project/qwen-world-postcot-20261025/latest_NAVTEST_20261027T2300Z/MEMORY_RL_018400/evaluation",
+    "mean_delta": -0.0018707562751771943,
+    "CI95": [
+      -0.0053668880133704334,
+      0.0008869202274527441
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 75,
+    "new_zero": 74,
+    "high_to_zero": 61,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 324,
+    "baseline_nonzero_denominator": 11822,
+    "baseline_high_denominator": 11354,
+    "repaired_zero_rate": 0.23148148148148148,
+    "new_zero_rate": 0.006259516156318728,
+    "high_to_zero_rate": 0.005372555927426458,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 17,
+        "repaired_failure": 29,
+        "baseline_pass": 11972,
+        "baseline_failure": 174
+      },
+      "drivable_area_compliance": {
+        "new_failure": 58,
+        "repaired_failure": 50,
+        "baseline_pass": 11975,
+        "baseline_failure": 171
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 87,
+        "repaired_failure": 73,
+        "baseline_pass": 11728,
+        "baseline_failure": 418
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "sha256": "be198e44f4a93e925c47571fdb5e78900f474a1012c8b08ba29777e1096d549e"
+}
