@@ -18,11 +18,69 @@ from starVLA.rl.qwen_world_postcot.fresh_loss import ARMS, read_registration, se
 from tools.qwen_world_postcot import campaign as c
 
 SOURCE = Path(__file__).resolve().parents[2]
+CONTROLLER_SOURCE = SOURCE
+RECOVER = False
 BASE = Path('/mnt/project/qwen-world-postcot-20261025')
 CONTROL = BASE/'original_vs_optimized_labels_NAVTEST_20261029T0500Z/ORIGINAL_GT_IL_010000/evaluation'
 
 
 def read(path): return json.loads(Path(path).read_text())
+
+
+def held_shared_uuids(root='/mnt/project/runtime_gpu_shared_workers'):
+    """Only inspect advisory leases; never evict/overwrite a live owner."""
+    held = set()
+    for path in Path(root).glob('*.lock'):
+        with path.open('a') as stream:
+            try: fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError: held.add(path.stem)
+    return held
+
+
+def training_route(state):
+    return c.choose_training_host(49152, excluded_uuids=c.claimed_uuids(state) | held_shared_uuids())
+
+
+def recover_state():
+    if not RECOVER: return None
+    old = read(ROOT/'OWNER.json'); proc = Path('/proc')/str(old['pid'])/'stat'
+    if proc.exists():
+        fields = proc.read_text().split()
+        if int(fields[21]) == old['start_ticks'] and fields[2] != 'Z':
+            raise RuntimeError('Previous CPU owner is still alive; no duplicate handoff')
+    if Path(old['source']).resolve() != SOURCE.resolve():
+        raise ValueError('CPU handoff must preserve the immutable scientific worker source')
+    from tools.qwen_world_postcot.train_il import source_identity
+    hashes = source_identity()
+    for rel, digest in hashes.items():
+        if file_sha(SOURCE/rel) != digest:
+            raise ValueError('CPU repair changes a scientific source dependency: '+rel)
+    state = read(ROOT/'STATE.json')
+    if state['source'] != str(SOURCE): raise ValueError('Changed native worker source in state')
+    folder = ROOT/'owner_migrations'; folder.mkdir(exist_ok=True)
+    receipt = dict(at=time.time(), previous_owner=old, previous_owner_sha256=file_sha(ROOT/'OWNER.json'),
+        previous_state_sha256=file_sha(ROOT/'STATE.json'), runtime_source=str(SOURCE),
+        controller_source=str(CONTROLLER_SOURCE), controller_sha256=file_sha(__file__),
+        scientific_source_files=hashes, scientific_workers_signalled=False,
+        reason='CPU-only shared-lease-aware admission repair; preserve every existing worker invocation')
+    atomic_json(folder/(str(old['pid'])+'.json'), receipt)
+    return state
+
+
+def spawn_arm(arm, *, recover=False):
+    path = ROOT/arm; env = dict(os.environ, WORLD_POSTCOT_ROOT=str(path))
+    log = (path/('owner_admission_recovery.log' if recover else 'owner.log')).open('ab' if recover else 'xb')
+    argv = [c.MODEL_PYTHON, '-u', '-m', 'tools.qwen_world_postcot.fresh_loss_owner', '--arm', arm,
+            '--runtime-source', str(SOURCE)]
+    if recover: argv += ['--recover-owner']
+    process = subprocess.Popen(argv, cwd=CONTROLLER_SOURCE, env=env, stdin=subprocess.DEVNULL,
+        stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    log.close(); previous = path/'LAUNCH.json'
+    if previous.exists():
+        old = read(previous); atomic_json(path/('LAUNCH_ancestor_'+str(old['pid'])+'.json'), old)
+    atomic_json(previous, dict(pid=process.pid, start_ticks=int(Path(f'/proc/{process.pid}/stat').read_text().split()[21]),
+        source=str(CONTROLLER_SOURCE), runtime_source=str(SOURCE)))
+    return process
 
 
 def command(config, arm, *, qualification=False, resume=None, full=False):
@@ -76,12 +134,15 @@ def launch_test(step, arm):
 def arm_owner(arm):
     if ROOT.name != arm: raise ValueError('Explicit independent arm ROOT required')
     lock = (ROOT/'owner.lock').open('a'); fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    if (ROOT/'OWNER.json').exists(): raise ValueError('Owner already registered; no duplicate')
+    if (ROOT/'OWNER.json').exists() and not RECOVER: raise ValueError('Owner already registered; no duplicate')
+    recovered = recover_state()
     config = SOURCE/f'configs/qwen_world_postcot/fresh_loss_{arm.lower()}.yaml'
     registration = read_registration(ROOT.parent/'REGISTRATION.json', arm, config)
     atomic_json(ROOT/'OWNER.json', dict(pid=os.getpid(), start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
         source=str(SOURCE), registration_sha256=registration['sha256'], arm=arm))
-    state = dict(source=str(SOURCE), stage='QUALIFICATION', jobs={}, tests_done=[]); test = None
+    state = recovered or dict(source=str(SOURCE), stage='QUALIFICATION', jobs={}, tests_done=[]); test = None
+    if recovered and state.get('active_Test') is not None:
+        raise ValueError('Active Test CPU owner needs explicit separate adoption; do not duplicate')
     try:
         while True:
             c.poll_jobs(state)
@@ -94,7 +155,7 @@ def arm_owner(arm):
                 if complete:
                     atomic_json(ROOT/'QUALIFICATION.json', qualified()); state['stage'] = 'PILOT'
                 elif not c.active(state, name='qualification') and time.time() >= state.get('resource_retry_after', {}).get('qualification', 0):
-                    route = c.choose_training_host(49152, excluded_uuids=c.claimed_uuids(state))
+                    route = training_route(state)
                     if route: c.dispatch(state, str(SOURCE), 'qualification', command(config, arm, qualification=True), route, role='qualification')
             if state['stage'] in ('PILOT', 'FULL'):
                 full = state['stage'] == 'FULL'; limit = 100000 if full else 10000
@@ -102,7 +163,7 @@ def arm_owner(arm):
                 if not c.active(state, role='training') and (not p or p['updates'] < limit):
                     name = 'full_IL' if full else 'pilot_IL'
                     if time.time() >= state.get('resource_retry_after', {}).get(name, 0):
-                        route = c.choose_training_host(49152, excluded_uuids=c.claimed_uuids(state))
+                        route = training_route(state)
                         if route: c.dispatch(state, str(SOURCE), name, command(config, arm, resume=p['checkpoint'] if p else None, full=full), route, role='training')
                 if full: c.advance_refreshes(state, str(SOURCE), dict(refresh_minimum_free_MiB=32768))
                 if test is not None and test.poll() is not None:
@@ -134,9 +195,13 @@ def main_owner():
         raise ValueError('Explicit fresh-study root and task required')
     ROOT.mkdir(parents=True, exist_ok=True); lock = (ROOT/'owner.lock').open('a')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    if (ROOT/'OWNER.json').exists(): raise ValueError('No duplicate screen owner')
+    if (ROOT/'OWNER.json').exists() and not RECOVER: raise ValueError('No duplicate screen owner')
+    recovered = recover_state()
     atomic_json(ROOT/'OWNER.json', dict(pid=os.getpid(), start_ticks=int(Path('/proc/self/stat').read_text().split()[21]), source=str(SOURCE)))
-    state = dict(source=str(SOURCE), stage='CALIBRATION', jobs={}); children = {}
+    state = recovered or dict(source=str(SOURCE), stage='CALIBRATION', jobs={}); children = {}
+    if recovered and state['stage'] in ('FOUR_INDEPENDENT_SCREENS','SELECTED_FULL_CONTINUATIONS'):
+        for arm in ARMS:
+            if not (ROOT/arm/'COMPLETE.json').exists(): children[arm] = spawn_arm(arm, recover=True)
     try:
         while True:
             c.poll_jobs(state)
@@ -165,12 +230,7 @@ def main_owner():
                         path = ROOT/arm; path.mkdir(exist_ok=False)
                         for name in ('data', 'assets', 'teachers'):
                             (path/name).symlink_to(BASE/name, target_is_directory=True)
-                        env = dict(os.environ, WORLD_POSTCOT_ROOT=str(path))
-                        log = (path/'owner.log').open('xb')
-                        children[arm] = subprocess.Popen([c.MODEL_PYTHON, '-u', '-m', 'tools.qwen_world_postcot.fresh_loss_owner', '--arm', arm],
-                            cwd=SOURCE, env=env, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-                        log.close(); atomic_json(path/'LAUNCH.json', dict(pid=children[arm].pid,
-                            start_ticks=int(Path(f'/proc/{children[arm].pid}/stat').read_text().split()[21])))
+                        children[arm] = spawn_arm(arm)
                     state['stage'] = 'FOUR_INDEPENDENT_SCREENS'
                 elif not c.active(state, name='calibration') and time.time() >= state.get('resource_retry_after', {}).get('calibration', 0):
                     routes = c.choose_eval_routes(32768, maximum=48)
@@ -207,7 +267,11 @@ def main_owner():
 
 
 def main():
-    p = argparse.ArgumentParser(__doc__); p.add_argument('--arm', choices=ARMS); a = p.parse_args()
+    global SOURCE, RECOVER
+    p = argparse.ArgumentParser(__doc__); p.add_argument('--arm', choices=ARMS)
+    p.add_argument('--recover-owner',action='store_true');p.add_argument('--runtime-source');a = p.parse_args()
+    if a.runtime_source: SOURCE = Path(a.runtime_source).resolve()
+    RECOVER = a.recover_owner
     arm_owner(a.arm) if a.arm else main_owner()
 
 

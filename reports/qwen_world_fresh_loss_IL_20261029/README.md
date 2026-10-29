@@ -42,3 +42,9 @@ WORLD_POSTCOT_ROOT=/mnt/project/qwen-world-postcot-20261025/fresh_loss_IL_202610
 ```
 
 10k后的完整续训必须额外带`--fresh-loss-stage full --fresh-selection /ABSOLUTE/SELECTION.json`，且该臂被选中。不能用资格权重或合并推理权重恢复训练。异常和回滚物理开销单列，失败不伪造0分、不静默重试。当前CPU owner不实现盲目自动故障恢复，失败需检查记录后明确恢复。
+
+## CPU调度修复收据
+
+真实启动发现c.choose_training_host按显存/进程选择整机，却没有提前排除已持有shared lease的评测卡；三组启动前被拒绝，尚未产生任何资格/正式链。修复只在CPU owner挑路由前只读检查shared lease，跳过繁忙UUID；不夺锁、不停评测、不改actor/数据/优化器/科学源文件。
+
+修复控制器运行在独立`fix/qwen-world-fresh-loss-admission-20261029`工作区；`--runtime-source`固定所有GPU worker仍从原9aa888c不可变工作区加载。`--recover-owner`必须确认旧CPU PID/start已退出，验证全部训练source_files字节一致，保留前owner/state收据，poll已有CAMPAIGN_INTENT，不重启已运行GPU任务。若已有active Test，拒绝盲恢复。
