@@ -51,9 +51,13 @@ A只actorattention LoRA；B共享attention；C actor＋在线world attention＋w
 
 ## 实际验证与下一执行边界
 
-目前CPU针对性测试已覆盖四结构、full-vs-cached输出/梯度、原生D/Qwen tiny、scope、实际sampler mean/std、fresh ratio、四inner、损失分母、all-invalid、strict load/export、DEV选择、恢复事务和调度。最新一次统一执行207项通过；后续补充的集成/控制器检查单列，不能将重跑计成独立证据。FP32 full-vs-micro梯度相对L2约7e-8—2e-7；BF16布局差异约.2%—.67%、cos>.99998，不能宣称跨布局bitwise；RL fresh-ratio门槛仍1e-4未放宽。
+目前CPU针对性测试已覆盖四结构、full-vs-cached输出/梯度、原生D/Qwen tiny、scope、实际sampler mean/std、fresh ratio、四inner、损失分母、all-invalid、strict load/export、DEV选择、恢复事务和调度。最新一次统一执行244项通过；immutable operations快照的57项针对性测试另列，不能将重跑计成独立证据。FP32 full-vs-micro梯度相对L2约7e-8—2e-7；BF16布局差异约.2%—.67%、cos>.99998，不能宣称跨布局bitwise；RL fresh-ratio门槛仍1e-4未放宽。
 
-全尺寸meta总参数（含训练readout）A2710801843、B2661686323、C2713958855、D2220489267。meta计数不是实际CUDA峰值或吞吐。实际八卡qualification、原生连续4 vs2+resume2、DDP/ZeRO2性能与最终训练结果由下阶段资产填写。
+全尺寸meta总参数（含训练readout）A2710801843、B2661686323、C2713958855、D2220489267。meta计数不是实际CUDA峰值或吞吐。
+
+2026-10-29 23:14 UTC，四组真实八卡qualification全部PASS：每组连续4次有效joint更新及update2原生恢复至4，模型、全部8rank Adam/scheduler/RNG/builder/cursor精确相同，七项共同损失、Qwen与新模块实际梯度均已核对。初次比较器误按Python对象身份比较LossScaler，失败证据保留；修复仅严格比较其类和全部字段，CPU重核通过，未重训或改变任何科学计算。完整证据见[真实GPU资格](REAL_GPU_QUALIFICATION.md)及[机器可读摘要](REAL_GPU_QUALIFICATION.json)。
+
+科学训练源码固定fdaff809652370328e45c0d996ad706e1af2fc0c；operations快照fcd43eb76f60f1954a420267ca431dd3e0f6ad7a只修控制器、资格和profile统计，以显式双source migration绑定。下一步进行有限完整模型DDP/ZeRO2 profile及正式IL100k；自身IL父模型选定后，另过真实RL四inner/inner2恢复与采样概率资格门槛，才启动50k。当前无本轮完整IL/RL或Navtest分数。
 
 ## 真正存在的入口
 

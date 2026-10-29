@@ -1,0 +1,801 @@
+{
+  "schema": "qwen_world_compare_real_GPU_qualification_summary_v1",
+  "as_of_unix": 1793315711.0910432,
+  "status": "PASS",
+  "architectures": {
+    "A": {
+      "status": "PASS",
+      "architecture_id": "A",
+      "checks": {
+        "real_all_seven_losses": true,
+        "real_full_model_gradients": true,
+        "native_resume": true
+      },
+      "backend": "zero2",
+      "micro_batch": 2,
+      "formal_initialized_from_qualification": false,
+      "native_resume_check": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/A/NATIVE_RESUME_CHECK_fcd43eb7_attempt002.json",
+      "native_resume_check_sha256": "907c3a494729943d7ad2165f637b8445bdd63bff223fcbff9d3c0333cbf11430",
+      "execution_migration_sha256": "190628abb4b86cd24116cb7caef79b40dc3cea09828526fa6b22126e8b9d023a",
+      "acceptance_path": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/A/ENGINEERING_ACCEPTANCE.json",
+      "acceptance_file_sha256": "a68a166bfc4f3de26f461c4a6db5fe673d6d37d54ed2b2f2692145fa95b46979",
+      "scientific_source": "/mnt/project/qwen-world-four-frameworks-20261029/runtime/formal_fdaff80",
+      "rank_gradient_roles": {
+        "0": {
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "1": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "2": {
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 154
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        },
+        "3": {
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        },
+        "4": {
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "5": {
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        },
+        "6": {
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          }
+        },
+        "7": {
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_modules": {
+            "seen": 1200,
+            "nonzero": 1200
+          }
+        }
+      },
+      "baseline_updates": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "resume_updates": [
+        3,
+        4
+      ],
+      "baseline_rank0_seconds": [
+        14.738050101324916,
+        8.208377717062831,
+        4.221277786418796,
+        3.9502228125929832
+      ],
+      "peak_rank0_allocated_bytes": 23520651776
+    },
+    "B": {
+      "status": "PASS",
+      "architecture_id": "B",
+      "checks": {
+        "real_all_seven_losses": true,
+        "real_full_model_gradients": true,
+        "native_resume": true
+      },
+      "backend": "zero2",
+      "micro_batch": 2,
+      "formal_initialized_from_qualification": false,
+      "native_resume_check": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/B/NATIVE_RESUME_CHECK_fcd43eb7_attempt002.json",
+      "native_resume_check_sha256": "b7d3bd36317fc93be6b159a2c6cf2af746c40ca224f2de6f06de67e22e8d3c4f",
+      "execution_migration_sha256": "190628abb4b86cd24116cb7caef79b40dc3cea09828526fa6b22126e8b9d023a",
+      "acceptance_path": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/B/ENGINEERING_ACCEPTANCE.json",
+      "acceptance_file_sha256": "836ee23ae6e056203c7c7ce62bb94a7fbdc846fd052b34e7c918b56cb2214a6b",
+      "scientific_source": "/mnt/project/qwen-world-four-frameworks-20261029/runtime/formal_fdaff80",
+      "rank_gradient_roles": {
+        "0": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "1": {
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        },
+        "2": {
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 154
+          },
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        },
+        "3": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          }
+        },
+        "4": {
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          }
+        },
+        "5": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "6": {
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "7": {
+          "new_modules": {
+            "seen": 614,
+            "nonzero": 614
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        }
+      },
+      "baseline_updates": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "resume_updates": [
+        3,
+        4
+      ],
+      "baseline_rank0_seconds": [
+        4.762329811230302,
+        14.926143324002624,
+        4.476547731086612,
+        3.933110911399126
+      ],
+      "peak_rank0_allocated_bytes": 23106779648
+    },
+    "C": {
+      "status": "PASS",
+      "architecture_id": "C",
+      "checks": {
+        "real_all_seven_losses": true,
+        "real_full_model_gradients": true,
+        "native_resume": true
+      },
+      "backend": "zero2",
+      "micro_batch": 2,
+      "formal_initialized_from_qualification": false,
+      "native_resume_check": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/C/NATIVE_RESUME_CHECK_fcd43eb7_attempt002.json",
+      "native_resume_check_sha256": "4a576f527e9f0fa64cd32b30ce6ed702c122b450eb87164cfd9f68345a4e6ed6",
+      "execution_migration_sha256": "190628abb4b86cd24116cb7caef79b40dc3cea09828526fa6b22126e8b9d023a",
+      "acceptance_path": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/C/ENGINEERING_ACCEPTANCE.json",
+      "acceptance_file_sha256": "4fa86ce55d38ea80e5e2dba65b4d619bc70d00c0de1d20b1d9b529c7b38f2e5e",
+      "scientific_source": "/mnt/project/qwen-world-four-frameworks-20261029/runtime/formal_fdaff80",
+      "rank_gradient_roles": {
+        "0": {
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          }
+        },
+        "1": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "2": {
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 154
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          }
+        },
+        "3": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "4": {
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        },
+        "5": {
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          }
+        },
+        "6": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          }
+        },
+        "7": {
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_modules": {
+            "seen": 1225,
+            "nonzero": 1225
+          }
+        }
+      },
+      "baseline_updates": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "resume_updates": [
+        3,
+        4
+      ],
+      "baseline_rank0_seconds": [
+        11.015058662742376,
+        10.890420520678163,
+        6.021475614979863,
+        4.963291132822633
+      ],
+      "peak_rank0_allocated_bytes": 23565863424
+    },
+    "D": {
+      "status": "PASS",
+      "architecture_id": "D",
+      "checks": {
+        "real_all_seven_losses": true,
+        "real_full_model_gradients": true,
+        "native_resume": true
+      },
+      "backend": "zero2",
+      "micro_batch": 1,
+      "formal_initialized_from_qualification": false,
+      "native_resume_check": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/D/NATIVE_RESUME_CHECK_fcd43eb7_attempt002.json",
+      "native_resume_check_sha256": "56537231dd0dbcf5fefe8f905aaf526e7d5a86364fe3d642c25327cb2d7ac9da",
+      "execution_migration_sha256": "190628abb4b86cd24116cb7caef79b40dc3cea09828526fa6b22126e8b9d023a",
+      "acceptance_path": "/mnt/project/qwen-world-four-frameworks-20261029/qualification/D/ENGINEERING_ACCEPTANCE.json",
+      "acceptance_file_sha256": "23100088769b50d146215791f9ae0acc7414b60add479fd37c0bfa7a342a0187",
+      "scientific_source": "/mnt/project/qwen-world-four-frameworks-20261029/runtime/formal_fdaff80",
+      "rank_gradient_roles": {
+        "0": {
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          }
+        },
+        "1": {
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          }
+        },
+        "2": {
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          },
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 154
+          }
+        },
+        "3": {
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          },
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          }
+        },
+        "4": {
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          },
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          }
+        },
+        "5": {
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          },
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          }
+        },
+        "6": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          },
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          },
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          }
+        },
+        "7": {
+          "pretrained_vision": {
+            "seen": 291,
+            "nonzero": 291
+          },
+          "new_reasoning_tokens": {
+            "seen": 3,
+            "nonzero": 3
+          },
+          "new_action_interface": {
+            "seen": 9,
+            "nonzero": 9
+          },
+          "pretrained_language_merger": {
+            "seen": 334,
+            "nonzero": 334
+          },
+          "train_only_readouts": {
+            "seen": 164,
+            "nonzero": 164
+          },
+          "new_time_modulation": {
+            "seen": 116,
+            "nonzero": 116
+          }
+        }
+      },
+      "baseline_updates": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "resume_updates": [
+        3,
+        4
+      ],
+      "baseline_rank0_seconds": [
+        14.142330128699541,
+        15.042601896449924,
+        7.186733955517411,
+        6.613297274336219
+      ],
+      "peak_rank0_allocated_bytes": 23869672448
+    }
+  },
+  "training_scientific_commit": "fdaff809652370328e45c0d996ad706e1af2fc0c",
+  "operations_commit": "fcd43eb76f60f1954a420267ca431dd3e0f6ad7a",
+  "updates_are_disposable_qualification": true,
+  "formal_training_started": false,
+  "complete_IL_or_RL": false,
+  "Navtest_results": null
+}
