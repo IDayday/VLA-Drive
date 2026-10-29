@@ -125,6 +125,13 @@ def finalize_sweep(root, requests, report):
         'IL observations do not change the fixed IL40k RL parent. Test is historically observed.', '',
         '| Snapshot | Updates | PDMS | Change vs IL40k (points) | Change vs previous same experiment (points) |',
         '|---|---:|---:|---:|---:|']
+    if pinned.get('IL_late_checkpoint_sweep'):
+        lines = ['# Qwen-World IL：65k—83k 补充 Navtest', '',
+            '原始联合IL的65k/70k/75k/80k/83k，在新增评分前固定；已测77k直接复用。'
+            '完整12146场景，canonical v1.1，单候选clean-x十步shift5 ODE，seed2101。'
+            'Test已被反复观察，不称独立盲测；不变更既有RL的IL40k父模型。', '',
+            '| Checkpoint | Updates | PDMS | Change vs IL40k (points) | Change vs measured IL77k (points) |',
+            '|---|---:|---:|---:|---:|']
     for label, request in requests.items():
         done = read(request.root/'COMPLETE.json')
         if done['status'] != 'COMPLETE' or not done['all_owned_workers_exited']:
