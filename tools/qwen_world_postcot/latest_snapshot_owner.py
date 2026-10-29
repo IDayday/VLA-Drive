@@ -201,6 +201,7 @@ def finalize_sweep(root, requests, report):
 
 def main():
     p = argparse.ArgumentParser(__doc__); p.add_argument('--root', required=True); p.add_argument('--report-dir', required=True)
+    p.add_argument('--asset-only',action='store_true',help='Write sealed results outside Git; never mutate a live shared training checkout')
     args = p.parse_args(); root = Path(args.root); lock = (root/'owner.lock').open('a')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     if (root/'owner.json').exists(): raise FileExistsError('Do not duplicate this request')
@@ -211,8 +212,8 @@ def main():
     requests = {}
     for label, pin in pinned['models'].items():
         directory = root/label; directory.mkdir(exist_ok=False)
-        pin = dict(pin, evaluation_hosts=['training-vla-zt','training-vlawm-tsinghua-zt',
-                   'training-vlawm-tsinghua-zt3','training-vlawm-tsinghua-zt4','training-vlawm-tsinghua-zt5'])
+        from starVLA.rl.qwen_sourceflow.resources import allowed_hosts
+        pin = dict(pin, evaluation_hosts=[h for h in allowed_hosts() if h in pinned.get('evaluation_hosts',allowed_hosts())])
         requests[label] = SnapshotRequest(directory, pin)
     failures = {}
     concurrency = int(pinned.get('max_concurrent_models', 4))
@@ -228,9 +229,16 @@ def main():
                 completed=[k for k,r in requests.items() if (r.root/'COMPLETE.json').exists()]))
     if failures:
         write(root/'failure.json', dict(failures=failures, automatic_retry=False)); return
-    report = Path(args.report_dir); finalize(root, requests, report)
+    report = Path(args.report_dir)
+    if args.asset_only and report.resolve().is_relative_to(source.resolve()):
+        raise ValueError('Asset-only reports must live outside the immutable training checkout')
+    finalize(root, requests, report)
     def git(*argv): return subprocess.check_output(['git',*argv],cwd=source,text=True)
     if git('rev-parse','HEAD').strip() != head: raise ValueError('Changed source before publication')
+    if args.asset_only:
+        write(root/'PUBLICATION.json',dict(status='ASSET_ONLY_COMPLETE',source_sha=head,report=str(report),at=time.time()))
+        write(root/'COMPLETE.json',dict(status='COMPLETE',models=list(requests),at=time.time(),all_owned_workers_exited=True))
+        return
     prefix = str(report.relative_to(source))
     for row in git('status','--porcelain=v1','-z','--untracked-files=all').split('\0'):
         if row and not row[3:].startswith(prefix+'/'): raise ValueError('Unrelated publication change')

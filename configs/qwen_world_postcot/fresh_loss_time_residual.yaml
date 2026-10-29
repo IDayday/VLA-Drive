@@ -1,0 +1,102 @@
+schema: qwen_world_postcot_full_IL_v1
+seed: 42
+uses_metric_supervision: true
+uses_rl: false
+global_batch: 32
+micro_batch: 4
+gradient_accumulation: 1
+FM_repeat: 1
+max_updates: 100000
+interface_updates: 1000
+aux_warmup_updates: 1000
+save_every: 1000
+dev_every: 5000
+rolling_checkpoints: 2
+optimizer:
+  name: AdamW
+  betas:
+  - 0.9
+  - 0.95
+  eps: 1.0e-08
+  weight_decay: 0.01
+  gradient_clip: 1.0
+  fused: true
+learning_rates:
+  qwen_language_merger: 1.0e-05
+  qwen_vision: 1.0e-06
+  action_memory_aux_heads: 0.0001
+scheduler:
+  type: cosine
+  warmup_fraction: 0.03
+loss_weights:
+  x: 10.0
+  dino: 1.0
+  future: 0.5
+  object: 0.1
+  post: 0.2
+precision:
+  forward: bfloat16
+  parameters: float32
+  optimizer_master_states: float32
+  action_state_sigma_losses: float32
+distributed:
+  backend: zero2
+  offload: false
+  overlap_comm: true
+  reduce_bucket_size: 50000000
+  allgather_bucket_size: 50000000
+  qwen_activation_checkpointing: true
+model:
+  memory:
+    input_dim: 2048
+    hidden_dim: 1024
+    num_layers: 2
+    num_heads: 16
+    selected_layers:
+    - 8
+    - 16
+    - 28
+    camera_count: 3
+    spatial_grid:
+    - 6
+    - 8
+    global_tokens: 16
+    ego_dim: 8
+    use_merged_visual: true
+  predictive:
+    input_dim: 1024
+    hidden_dim: 512
+    num_layers: 2
+    num_heads: 8
+    intervals: 4
+    tokens_per_interval: 8
+  action:
+    hidden_dim: 1024
+    num_layers: 20
+    num_heads: 16
+    ffn_dim: 4096
+    action_tokens: 8
+    action_dim: 3
+    ego_dim: 8
+    dropout: 0.0
+    activation_checkpointing: false
+  dino_readout: {}
+  future_readout: {}
+  object_readout: {}
+  post_head: {}
+flow:
+  prediction_type: x0
+  training_loss: valid_mean_L1_FP32
+  sigma_formula: 5*u/(1+4*u), u~Uniform(0,1)
+  inference_steps: 10
+  shift: 5
+teacher_cache: /mnt/project/qwen-world-postcot-20261025/teachers/TRAIN_resolved_v3
+candidate_bank: /mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1
+candidate_refresh:
+  enabled: true
+  produce_every_updates: 10000
+  adopt_every_updates: 5000
+  new_candidates_per_scene: 2
+  max_candidates: 16
+  registry: /mnt/project/qwen-world-postcot-20261025/fresh_loss_IL_20261029/TIME_RESIDUAL/candidate_refresh/REGISTRY.json
+training_data: /mnt/project/qwen-world-postcot-20261025/data/TRAIN

@@ -140,6 +140,7 @@ def source_identity():
         'starVLA/rl/qwen_world_postcot/bank_versions.py',
         'starVLA/rl/qwen_world_postcot/coordinate_objective.py',
         'starVLA/rl/qwen_world_postcot/loss_designs.py',
+        'starVLA/rl/qwen_world_postcot/fresh_loss.py',
         'starVLA/rl/qwen_world_postcot/data.py','starVLA/rl/qwen_world_postcot/contracts.py',
         'starVLA/model/modules/qwen_sourceflow/action_codec.py',
         'starVLA/model/modules/qwen_sourceflow/qwen_encoder.py',
@@ -231,6 +232,8 @@ def main():
     p.add_argument('--coordinate-registration');p.add_argument('--coordinate-arm',choices=('CONTROL','PHYSICAL','TIME_RESIDUAL','DELTA','HUBER'))
     p.add_argument('--coordinate-qualification-updates',type=int,default=0)
     p.add_argument('--coordinate-pause-after',type=int,default=0)
+    p.add_argument('--fresh-loss-registration');p.add_argument('--fresh-loss-arm',choices=('PHYSICAL','TIME_RESIDUAL','DELTA','HUBER'))
+    p.add_argument('--fresh-loss-stage',choices=('pilot','full'),default='pilot');p.add_argument('--fresh-selection')
     p.add_argument('--qualification-joint',action='store_true',help='Bounded engineering profile with all joint gradients; never formal IL')
     p.add_argument('--qualification-interface-updates',type=int,help='Bounded stage-transition diagnostic only; formal interface remains1000')
     p.add_argument('--qualification-save-at',nargs='+',type=int,default=[],help='Extra boundary checkpoints in bounded engineering qualification only')
@@ -238,7 +241,18 @@ def main():
     p.add_argument('--profile-start',type=int,default=0);p.add_argument('--profile-steps',type=int,default=0)
     p.add_argument('--profile-no-final-checkpoint',action='store_true',help='Explicit disposable bounded performance/trace only; reports no recoverable training checkpoint')
     a=p.parse_args();host=require_dispatch(admit_long_job=True);cfg=validate(yaml.safe_load(Path(a.config).read_text()))
-    study=None
+    study=None;fresh=None
+    if a.fresh_loss_registration:
+        from starVLA.rl.qwen_world_postcot.fresh_loss import read_registration as read_fresh,objective as fresh_objective,student_initialization_digest,verify_selection
+        fresh=read_fresh(a.fresh_loss_registration,a.fresh_loss_arm,a.config)
+        if a.coordinate_registration or a.micro_batch or a.teacher_cache or a.candidate_bank or (a.stop_after and not a.qualification):
+            raise ValueError('Fresh screen preserves the complete common recipe and100k schedule')
+        if a.fresh_loss_stage=='full':
+            if a.qualification:raise ValueError('Full continuation cannot use qualification weights')
+            verify_selection(a.fresh_selection,fresh,a.fresh_loss_arm,a.resume)
+        elif a.fresh_selection:raise ValueError('Pilot does not accept a continuation selection')
+    elif a.fresh_loss_arm or a.fresh_selection or a.fresh_loss_stage!='pilot':
+        raise ValueError('Fresh options require a sealed registration')
     if a.coordinate_registration:
         from starVLA.rl.qwen_world_postcot.coordinate_objective import read_registration,CoordinateObjective,restore_fork
         study=read_registration(a.coordinate_registration,a.coordinate_arm)
@@ -290,6 +304,11 @@ def main():
     builder=BatchBuilder(data,processor,teachers,bank,cfg['seed']+rank,require_full_bank=not a.qualification,
         max_candidates=cfg['candidate_refresh']['max_candidates'])
     model=QwenWorldPostCoT(QWEN,config=cfg['model']).to(device)
+    if fresh is not None:
+        initialization_digest=cp._rank_zero_call(lambda:student_initialization_digest(model))
+        if initialization_digest!=fresh['initialization_student_sha256']:
+            raise ValueError('Fresh student differs from the common generic initialization')
+        model.policy.coordinate_objective=fresh_objective(fresh['arms'][a.fresh_loss_arm])
     if study is not None:
         if study['schema']=='world_IL_loss_designs_v1':
             from starVLA.rl.qwen_world_postcot.loss_designs import LossDesign
@@ -325,6 +344,10 @@ def main():
             objective=study['arms'][a.coordinate_arm],freeze_parent_candidate_bank=True,
             qualification_updates=a.coordinate_qualification_updates)
         identity['qualification']=bool(a.coordinate_qualification_updates)
+    if fresh is not None:
+        identity['fresh_loss_experiment']=dict(registration_sha256=fresh['sha256'],arm=a.fresh_loss_arm,
+            objective=fresh['arms'][a.fresh_loss_arm],initialization_student_sha256=initialization_digest,
+            initial_driving_checkpoint=None,total_schedule_updates=100000,pilot_updates=10000)
     identity=cp.canonical_identity(identity)
     def publish_identity():
         existing=out/'IDENTITY.json'
@@ -341,6 +364,8 @@ def main():
         state=restore_fork(study['parent_checkpoint'],engine,identity,builder,study,out)
     if study is None:versions.adopt(builder,state['updates'])
     start=state['updates'];limit=min(a.stop_after or 100000,100000)
+    if fresh is not None and not a.qualification and a.fresh_loss_stage=='pilot':
+        limit=fresh['pilot_updates']
     if study is not None:
         limit=study['parent_updates']+(a.coordinate_qualification_updates or study['added_updates'])
     profiler=None
@@ -376,7 +401,7 @@ def main():
                         dtype_audit.result['loss_scalar_dtypes']={key:str(value.dtype) for key,value in result['losses'].items()}
                     with torch.profiler.record_function('world/backward'):engine.backward(result['loss'],scale_wrt_gas=False)
                     for key,value in result['losses'].items():sums[key]=sums.get(key,0.)+float(value)/(accum if key=='sigma_mean' else 1)
-                    if study is not None:
+                    if study is not None or fresh is not None:
                         diag=result['trajectory_diagnostics']
                         value=torch.stack((diag['normalized_sum'],diag['valid_count']))
                         coordinate_sums=value if coordinate_sums is None else coordinate_sums+value
@@ -400,7 +425,10 @@ def main():
                     row['trajectory_geometry']=dict(normalized_MAE_by_time_channel=norm.cpu().tolist(),
                         physical_MAE_by_time_channel=physical.cpu().tolist(),units=['cm','cm','degree_unwrapped'],
                         valid_counts=count.cpu().tolist(),kind='TRAIN_noisy_clean_x_reconstruction_not_ODE')
-                    row.update(invocation_start_update=start,study_new_updates=state['updates']-study['parent_updates'])
+                    row.update(invocation_start_update=start)
+                    if study is not None:row['study_new_updates']=state['updates']-study['parent_updates']
+                    if fresh is not None:row.update(fresh_loss_arm=a.fresh_loss_arm,fresh_loss_stage=a.fresh_loss_stage,
+                        fresh_registration_sha256=fresh['sha256'])
                 adopt_tick=time.monotonic();binding=versions.adopt(builder,state['updates']) if study is None else None
                 if binding is not None:row.update(bank_boundary_seconds=time.monotonic()-adopt_tick,candidate_bank_hash_next=builder.bank.bank_hash)
                 row['valid_supervision_counts']=dict(action_elements=float(denoms['action_elements']),
@@ -417,7 +445,8 @@ def main():
                 if (terminal or state['updates']%cfg['save_every']==0 or state['updates'] in a.qualification_save_at) and not a.profile_no_final_checkpoint:
                     save_start=time.monotonic();last=cp.save(out,engine,state,identity,builder)
                     if rank==0:
-                        status=('STUDY_COMPLETE' if study is not None and state['updates']==limit else
+                        status=('PILOT_COMPLETE' if fresh is not None and a.fresh_loss_stage=='pilot' and not a.qualification and state['updates']==limit else
+                            'STUDY_COMPLETE' if study is not None and state['updates']==limit else
                             'COMPLETE' if state['updates']==100000 else 'STOPPED' if terminal else 'RUNNING')
                         cp.atomic_json(out/'progress.json',dict(state,status=status,checkpoint=last,save_seconds=time.monotonic()-save_start))
                         cp.retain_rolling(out,cfg['rolling_checkpoints'])
