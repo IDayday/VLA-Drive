@@ -121,6 +121,7 @@ def prepare_role(source, role, raw, destination, workers, limit):
              else max(row['audit'][key] for row in shards.values()) for key in audit_keys}
     audit.update(status='PASS', logs=len(shards), selected_scenes=len(tokens),
         official_source=official_coordinate_source(),
+        ego_yaw_definition='exact native pyquaternion yaw_pitch_roll[0]; matrix atan2 alternative prohibited',
         official_planar_rule='ego-local annotation xy/yaw -> global using rear-axle SE2; future -> fixed current rear-axle SE2',
         lidar_identity_tolerance=LIDAR_IDENTITY_TOLERANCE,
         current_object_source='tools.qwen_world_postcot.prepare_training_data.current_objects',

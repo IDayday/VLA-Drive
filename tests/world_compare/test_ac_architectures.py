@@ -155,6 +155,21 @@ def test_deployment_pruning_keeps_exact_action(kind):
 
 
 @pytest.mark.parametrize('kind', [ArchitectureA, ArchitectureC])
+def test_filtered_deployment_state_loads_strict_into_pruned_topology(kind):
+    trained = model(kind).eval()
+    deployed = model(kind).eval()
+    state = trained.deployment_state_dict()
+    deployed.prune_training_components()
+    deployed.load_state_dict(state, strict=True)
+    scene, valid, ego, action, sigma = inputs()
+    actual = deployed.denoise_x0(action, sigma, deployed.prepare_prefix(
+        scene, valid, ego, need_auxiliary=False))
+    expected = trained.denoise_x0(action, sigma, trained.prepare_prefix(
+        scene, valid, ego, need_auxiliary=False))
+    assert torch.equal(actual, expected)
+
+
+@pytest.mark.parametrize('kind', [ArchitectureA, ArchitectureC])
 def test_checkpoint_eval_grad_matches_eager(kind):
     eager = model(kind).eval()
     checked = model(kind, checkpointing=True).eval()

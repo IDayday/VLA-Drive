@@ -13,15 +13,17 @@ import pickle
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from pyquaternion import Quaternion
 
 from tools.qwen_world_postcot.prepare_training_data import current_objects, CAMERAS, CLASSES
 
 
-SCHEMA = 'qwen_world_compare_current_linked_future_tracks_v1'
+SCHEMA = 'qwen_world_compare_current_linked_future_tracks_v2_native_yaw'
 FUTURE_TIMES_S = (1., 2., 3., 4.)
 TIMESTAMP_TOLERANCE_US = 60000
 LIDAR_IDENTITY_TOLERANCE = 1e-8
 OFFICIAL_GT_SOURCE_SHA256 = '28f0ee850c35157ab5a9600a3aa68f0f5b0a848b278e7b322b10a000916723f9'
+OFFICIAL_EGO_SOURCE_SHA256 = '17d96f48101982d4a0842bb4cc1de441672207ad9fed3e460bbbdcf74440a32b'
 
 
 def file_sha(path):
@@ -37,17 +39,25 @@ def official_coordinate_source():
     actual = file_sha(path)
     if actual != OFFICIAL_GT_SOURCE_SHA256:
         raise ValueError('NAVSIM current object oracle differs from locked 3e8291 source')
+    ego_path=Path(__file__).parents[3] / 'navsim_v1.1/navsim/navsim/common/dataclasses.py'
+    ego_sha=file_sha(ego_path)
+    if ego_sha!=OFFICIAL_EGO_SOURCE_SHA256:
+        raise ValueError('NAVSIM ego-pose construction differs from locked 3e8291 source')
     return dict(commit='3e8291bfa89ff247231e0227778840cd0a036896',
                 path=str(path), sha256=actual,
-                function='gt_boxes_oriented_box', downloaded_fixed_commit_byte_equal=True)
+                function='gt_boxes_oriented_box', downloaded_fixed_commit_byte_equal=True,
+                ego_pose_path=str(ego_path),ego_pose_sha256=ego_sha,
+                ego_pose_function='Scene._build_ego_status',
+                yaw_definition='pyquaternion.Quaternion(*ego2global_rotation).yaw_pitch_roll[0]')
 
 
 def ego_planar_pose(frame):
     quaternion = np.asarray(frame['ego2global_rotation'], dtype=np.float64)
     if quaternion.shape != (4,) or not np.isfinite(quaternion).all():
         raise ValueError('Missing/non-finite ego quaternion')
-    rotation = Rotation.from_quat(quaternion[[1, 2, 3, 0]]).as_matrix()
-    yaw = np.arctan2(rotation[1, 0], rotation[0, 0])
+    # Match Scene._build_ego_status verbatim. Matrix atan2(R10,R00) is a
+    # different Euler convention when ego roll/pitch are nonzero.
+    yaw = Quaternion(*quaternion).yaw_pitch_roll[0]
     translation = np.asarray(frame['ego2global_translation'], dtype=np.float64)
     if translation.shape != (3,) or not np.isfinite(translation).all():
         raise ValueError('Missing/non-finite ego translation')

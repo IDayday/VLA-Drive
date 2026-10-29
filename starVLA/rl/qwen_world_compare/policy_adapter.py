@@ -20,11 +20,12 @@ from .rl_scope import scope_targets, install_lora, trainable_manifest
 
 
 CONDITION_SCHEMA = 'qwen_world_four_frameworks_frozen_current_v1'
+DESCRIPTOR_SCHEMA = 'qwen_world_compare_current_descriptor_v1'
 
 
 class FourFrameworkRecipeActor(NativeRecipeActor):
     """Canonical native source policy math with no fixed memory shape/parent."""
-    def __init__(self, model, cfg):
+    def __init__(self, model, cfg, conditions=None):
         nn.Module.__init__(self)
         if model.architecture_id not in ('A', 'B', 'C', 'D'):
             raise ValueError('Unknown four-framework policy')
@@ -49,6 +50,7 @@ class FourFrameworkRecipeActor(NativeRecipeActor):
             torch.manual_seed(int(cfg['seed']))
             self.configure_grpo(cfg['grpo'])
         object.__setattr__(self, '_prepared_scope', None)
+        object.__setattr__(self, 'conditions', conditions)
         self.prepared_context_builds = dict(current=0, reference=0)
         self._policy_version = 'initial_IL_plus_zero_LoRA'
         self.eval()
@@ -80,6 +82,10 @@ class FourFrameworkRecipeActor(NativeRecipeActor):
         self._policy_version = str(version)
 
     def materialize(self, condition):
+        if condition.get('schema') == DESCRIPTOR_SCHEMA:
+            if self.conditions is None:
+                raise ValueError('No frozen current-only observation provider is bound')
+            condition = self.conditions.materialize(condition, self.device)
         allowed = {'schema', 'context', 'current', 'ref_current', 'candidate_to_scene'}
         if set(condition)-allowed or condition.get('schema') != CONDITION_SCHEMA:
             raise ValueError('Only current deployment inputs may enter the policy condition')

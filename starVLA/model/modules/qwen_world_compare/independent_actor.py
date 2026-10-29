@@ -148,6 +148,17 @@ class WorldConnectedActor(LayerwiseCleanXActor):
 
 
 class _IndependentArchitecture(nn.Module):
+    def deployment_state_dict(self):
+        """Match a freshly built instance after prune_training_components()."""
+        if self.architecture_id == 'A':
+            return {name: value for name, value in self.state_dict().items()
+                    if not name.startswith('world_stream.')}
+        if self.architecture_id == 'C':
+            return {name: value for name, value in self.state_dict().items()
+                    if name != 'world_stream.post_queries'
+                    and not name.startswith('world_stream.post_action_bridges.')}
+        raise ValueError('Unexpected independent architecture id')
+
     def _validate_scene(self, scene, scene_valid, ego):
         if (not isinstance(scene, torch.Tensor) or scene.ndim != 3
                 or scene.shape[1:] != (160, self.actor.hidden_dim)):

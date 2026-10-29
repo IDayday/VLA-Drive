@@ -1,0 +1,18 @@
+schema: qwen_world_four_frameworks_v1
+root: /mnt/project/qwen-world-four-frameworks-20261029
+architectures:
+  A: configs/qwen_world_compare/arch_a.yaml
+  B: configs/qwen_world_compare/arch_b.yaml
+  C: configs/qwen_world_compare/arch_c.yaml
+  D: configs/qwen_world_compare/arch_d.yaml
+stages:
+- il
+- rl
+- evaluate
+no_short_training_elimination: true
+IL_parent_rule: full DEV at every5k through100k; maximum canonical PDMS; tie earliest
+RL_selection: full DEV at registered milestones; maximum canonical PDMS; tie earliest
+training_seed: 42
+evaluation_seed: 2101
+minimum_disk_free_GiB: 750
+navtest_data_root: /mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST

@@ -1,0 +1,72 @@
+schema: qwen_world_four_frameworks_v1
+seed: 42
+evaluation_seed: 2101
+architectures:
+- A
+- B
+- C
+- D
+root: /mnt/project/qwen-world-four-frameworks-20261029
+qwen_path: /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct
+qwen_identity: /mnt/project/qwen-sourceflow-native-20261018/assets/qwen_identity.json
+data_root: /mnt/project/qwen-world-postcot-20261025/data
+teacher_cache: /mnt/project/qwen-world-postcot-20261025/teachers/TRAIN_resolved_v3
+candidate_bank: /mnt/project/qwen-world-postcot-20261025/candidates/full_train_initial_v1
+evidence_root: /mnt/project/qwen-world-four-frameworks-20261029/evidence
+target_root: /mnt/project/qwen-world-four-frameworks-20261029/targets_v2_native_yaw
+candidate_refresh: false
+il:
+  max_updates: 100000
+  interface_updates: 1000
+  aux_warmup_updates: 1000
+  global_batch: 32
+  fm_repeat: 1
+  optimizer:
+    name: AdamW
+    betas:
+    - 0.9
+    - 0.95
+    eps: 1.0e-08
+    weight_decay: 0.01
+    gradient_clip: 1.0
+    fused: true
+  learning_rates:
+    pretrained_language_merger: 1.0e-05
+    pretrained_vision: 1.0e-06
+    new_modules: 0.0001
+  scheduler:
+    type: cosine
+    warmup_fraction: 0.03
+  save_every: 1000
+  dev_every: 5000
+  loss_weights:
+    x: 10.0
+    dino: 1.0
+    wa_pre: 0.5
+    object: 0.1
+    future_track: 0.2
+    wa_post: 0.25
+    evaluation: 0.2
+  post_scenes_per_update: 8
+  wa_queries: 128
+deployment:
+  prediction_type: x0
+  action_shape:
+  - 8
+  - 3
+  sampling: single_candidate_cleanx_ODE
+  steps: 10
+  shift: 5.0
+  scorer: NAVSIM_v1.1_canonical_independent_reference_pair
+  seed: 2101
+precision:
+  parameters: float32
+  optimizer: float32
+  forward: bfloat16
+  state_sigma_loss: float32
+execution:
+  backend: zero2
+  micro_batch: 2
+  activation_checkpointing: true
+  offload: false
+  minimum_free_MiB: 65000

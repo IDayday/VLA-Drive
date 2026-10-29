@@ -11,7 +11,7 @@ import pytest
 
 from starVLA.rl.qwen_world_compare.track_targets import (
     SCHEMA, FutureTrackStore, audit_annotation_frame, build_scene_tracks,
-    future_box_in_current_ego, nearest_future_frames, file_sha)
+    future_box_in_current_ego, nearest_future_frames, file_sha,ego_planar_pose)
 
 
 def frame(timestamp, tokens=('one',), centers=((10., 0.),), ego=(0., 0., 0.)):
@@ -125,6 +125,28 @@ def test_original_official_oriented_box_function_agrees_in_global():
     global_output = future_box_in_current_ego(box, f, origin)
     np.testing.assert_allclose(global_output[:2], [native.x, native.y], atol=1e-5)
     np.testing.assert_allclose(global_output[4:], [np.sin(native.heading), np.cos(native.heading)], atol=1e-7)
+
+
+def test_exact_native_ego_builder_with_nonzero_roll_pitch():
+    from pyquaternion import Quaternion
+    from scipy.spatial.transform import Rotation
+    import copy
+    path=Path(__file__).parents[2]/'navsim_v1.1/navsim/navsim/common/dataclasses.py'
+    tree=ast.parse(path.read_text())
+    scene=next(node for node in tree.body if isinstance(node,ast.ClassDef)and node.name=='Scene')
+    function=copy.deepcopy(next(node for node in scene.body if isinstance(node,ast.FunctionDef)and node.name=='_build_ego_status'))
+    function.decorator_list=[]
+    namespace=dict(np=np,Quaternion=Quaternion,Dict=dict,EgoStatus=SimpleNamespace)
+    exec(compile(ast.Module(body=[function],type_ignores=[]),str(path),'exec'),namespace)
+    value=frame(0,ego=(100.,200.,0.))
+    quaternion=Rotation.from_euler('xyz',[.3,.2,1.]).as_quat()
+    value['ego2global_rotation']=quaternion[[3,0,1,2]].tolist()
+    value['ego_dynamic_state']=[0.,0.,0.,0.];value['driving_command']=[0,1,0]
+    native=namespace['_build_ego_status'](None,value).ego_pose
+    actual=ego_planar_pose(value)
+    np.testing.assert_allclose(actual,native,rtol=0,atol=1e-14)
+    matrix=Rotation.from_quat(quaternion).as_matrix()
+    assert abs(actual[2]-np.arctan2(matrix[1,0],matrix[0,0]))>.001
 
 
 def test_shard_reader_hash_population_and_lru(tmp_path):
