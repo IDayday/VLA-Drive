@@ -19,7 +19,7 @@
 | WORLD_RL_MEMORY | training_complete_50k | `367bffd27aff5785fce6352481b89e2a433a9ee1` | [代码](https://github.com/IDayday/VLA-Drive/blob/367bffd27aff5785fce6352481b89e2a433a9ee1/starVLA/rl/qwen_world_postcot/scope_actor.py)；`feature/qwen-world-rl-memory-time-20261027` |
 | WORLD_RL_TIME | training_complete_50k | `367bffd27aff5785fce6352481b89e2a433a9ee1` | [代码](https://github.com/IDayday/VLA-Drive/blob/367bffd27aff5785fce6352481b89e2a433a9ee1/starVLA/rl/qwen_world_postcot/scope_contracts.py)；`feature/qwen-world-rl-memory-time-20261027` |
 | WORLD_LOSS_PHYSICAL | training_complete_2k | `b3f7fc7cc54d6ecd588a531c642e06bca72f656e` | [代码](https://github.com/IDayday/VLA-Drive/blob/b3f7fc7cc54d6ecd588a531c642e06bca72f656e/starVLA/rl/qwen_world_postcot/coordinate_objective.py)；`experiment/qwen-world-coordinate-loss-20261028` |
-| WORLD_LOSS_FAMILY | training_complete_2k_evaluation_partial | `3e344dff880a7cc3fcfc3638102e604749648aed` | [代码](https://github.com/IDayday/VLA-Drive/blob/3e344dff880a7cc3fcfc3638102e604749648aed/starVLA/rl/qwen_world_postcot/loss_designs.py)；`experiment/qwen-world-il-loss-designs-20261028` |
+| WORLD_LOSS_FAMILY | training_and_evaluation_complete_2k | `3e344dff880a7cc3fcfc3638102e604749648aed` | [代码](https://github.com/IDayday/VLA-Drive/blob/3e344dff880a7cc3fcfc3638102e604749648aed/starVLA/rl/qwen_world_postcot/loss_designs.py)；`experiment/qwen-world-il-loss-designs-20261028` |
 | WORLD_IL_V12 | training_100k | `8315c9a25c872c690e739132e900deaf9f8d3f65` | [代码](https://github.com/IDayday/VLA-Drive/blob/8315c9a25c872c690e739132e900deaf9f8d3f65/tools/qwen_world_postcot/optimized_il_owner.py)；`experiment/qwen-world-optimized-labels-il-20261028` |
 | WORLD_LABEL_MATCH | evaluation_complete | `1724e456d3ea4cffa57ea178d5f226d2eb845bb4` | [代码](https://github.com/IDayday/VLA-Drive/blob/1724e456d3ea4cffa57ea178d5f226d2eb845bb4/tools/qwen_world_postcot/finish_label_source_match.py)；`eval/qwen-world-original-vs-optimized-labels-20261029` |
 
@@ -38,7 +38,7 @@
 - **WORLD_RL_MEMORY**：动作LoRA+完整scene/predictive memory，458张量/52707840参数；Qwen冻结。
 - **WORLD_RL_TIME**：Time MLP/20block与末端AdaLN LoRA，r32/alpha32，46张量/4816896参数。
 - **WORLD_LOSS_PHYSICAL**：同63k模型/Adam续训2k；物理容差固定坐标权重。
-- **WORLD_LOSS_FAMILY**：TIME_RESIDUAL/DELTA/HUBER三个独立63k+2k臂。Huber准入故障未完成全量评分。
+- **WORLD_LOSS_FAMILY**：TIME_RESIDUAL/DELTA/HUBER三个独立63k+2k臂。Huber原协议补测已完成全量评分。
 - **WORLD_IL_V12**：通用初始化完整100k；原L1/四aux不变，只替换规划轨迹标签。执行恢复源码905c5ef另列。
 - **WORLD_LABEL_MATCH**：新增原GT10k/15k全Navtest，复用V12同更新点；不拿70k对15k。
 

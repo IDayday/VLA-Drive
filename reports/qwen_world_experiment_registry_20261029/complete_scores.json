@@ -1,6 +1,6 @@
 {
   "schema": "world_IL_RL_complete_Test_scoreboard_v1",
-  "as_of_utc": "2026-10-29T06:22:34.658450+00:00",
+  "as_of_utc": "2026-10-29T07:39:24.760235+00:00",
   "protocol": "canonical NAVSIM v1.1; single clean-x K10 shift5 ODE; seed2101;12146scenes;invalid0",
   "training_seed": 42,
   "actual_RL_parent_PDMS": 87.97238223922025,
@@ -926,24 +926,62 @@
       "evaluation": "/mnt/project/qwen-world-postcot-20261025/original_vs_optimized_labels_NAVTEST_20261029T0500Z/ORIGINAL_GT_IL_015000/evaluation",
       "summary_sha256": "1cada9dc23dadfe9206a23339120b941151b63e8380e73ad772f9701cf034d57",
       "result_file_sha256": "abf28f0e920dba5d611bc8f7fe8b6a43b296fb909cbe8eb3503f8ac270f3f590"
+    },
+    {
+      "group": "LOSS_SCREEN",
+      "label": "HUBER_065000",
+      "route": null,
+      "updates": 65000,
+      "PDMS": 88.34487825836652,
+      "NC": 98.16400461057138,
+      "DAC": 96.59970360612547,
+      "TTC": 94.73900872715298,
+      "EP": 82.45502572137455,
+      "Comfort": 99.99176683681871,
+      "DDC": 98.52214720895768,
+      "delta_vs_actual_IL40_parent_PDMS": null,
+      "evaluation": "/mnt/project/qwen-world-postcot-20261025/loss_designs_20261028/NAVTEST/HUBER_065000/evaluation",
+      "summary_sha256": "b555da3102049807d2baff789936508e3403bc0e81d62ca5b72f64ce14c8c8f3",
+      "result_file_sha256": "1b2125228bf5776a84160f69866be6e320ee8678adf5fabd0da827c7e66bac4b"
+    },
+    {
+      "group": "OPTIMIZED_IL",
+      "label": "OPTIMIZED_IL_020000",
+      "route": null,
+      "updates": 20000,
+      "PDMS": 84.12627395485266,
+      "NC": 94.12563807014655,
+      "DAC": 96.16334595751688,
+      "TTC": 84.76864811460563,
+      "EP": 84.32390231443617,
+      "Comfort": 100.0,
+      "DDC": 97.57533344310885,
+      "delta_vs_actual_IL40_parent_PDMS": null,
+      "evaluation": "/mnt/project/qwen-world-postcot-20261025/optimized_labels_IL_20261028/NAVTEST/update020000/OPTIMIZED_IL_020000/evaluation",
+      "summary_sha256": "d1f24a65cbdec2262fe4f4b2062462d92e87dda6bb32be15628c35bdcfbc6409",
+      "result_file_sha256": "090775c711ec33b81349805840bfdcc0b305dc5bfed7cd2fbe4f1ba84ca405d4"
     }
   ],
   "training_status": {
     "ORIGINAL_IL": {
-      "updates": 87303,
+      "updates": 88883,
       "target": 100000,
-      "optimizer_skipped_steps": 0
+      "optimizer_skipped_steps": 0,
+      "observed_utc": "2026-10-29T07:40:42.278088+00:00"
     },
     "OPTIMIZED_IL": {
-      "updates": 19514,
+      "updates": 21278,
       "target": 100000,
-      "optimizer_skipped_steps": 0
+      "optimizer_skipped_steps": 0,
+      "observed_utc": "2026-10-29T07:40:42.278088+00:00"
     }
   },
   "pending": {
-    "HUBER_scene_receipts": 7592,
-    "total": 12146,
-    "score": null
+    "ORIGINAL_GT_IL020000": {
+      "root": "/mnt/project/qwen-world-postcot-20261025/original_vs_optimized20k_NAVTEST_20261029T0740Z",
+      "score": null,
+      "matched_optimized_PDMS": 84.12627395485266
+    }
   },
   "limitations": [
     "Test repeatedly observed; checkpoint maxima are observed maxima, not unobserved-run optima.",

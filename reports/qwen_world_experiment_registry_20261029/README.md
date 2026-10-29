@@ -7,8 +7,8 @@
 - 当前Qwen-World原GT IL已测最高是**70k／88.792910 PDMS**；最新已测83k为88.500809。
 - 当前World RL已测最高是**动作attention LoRA＋scene/predictive memory，33.3k／90.741310**。其真实父模型是IL40k／87.972382，净增**2.768928点**。
 - 50k固定终点：attention89.905612、memory90.628892、time89.508000，分别高于同一IL父模型1.933230、2.656510、1.535618点。三条曲线均不单调，当前仍未达到92。
-- 损失初筛中，PHYSICAL88.336938、TIME_RESIDUAL88.146292、DELTA88.131260，均未超过匹配CONTROL88.381806的点估计。Huber训练已完成，评分尚未完整；不能填入部分均值。
-- 优化V12标签IL已测10k79.904274、13k66.369502、15k81.359718。13k有明显暂时回退；native/export一致性通过不等于其原因已查明。完整100k仍在训练，不能拿原GT70k与优化标签15k相减归因标签优劣。
+- 损失初筛中，PHYSICAL88.336938、TIME_RESIDUAL88.146292、DELTA88.131260，均未超过匹配CONTROL88.381806的点估计。Huber已完整评分88.344878，同样没有超过CONTROL；全部四种损失均已完成本轮初筛。
+- 优化V12标签IL已测10k79.904274、13k66.369502、15k81.359718、20k84.126274。13k有明显暂时回退；native/export一致性通过不等于其原因已查明。完整100k仍在训练，不能拿原GT70k与优化标签15k相减归因标签优劣。
 - 原GT10k/15k配对Navtest已完成：原GT80.531938/84.337362，对应优化标签79.904274/81.359718，净差−0.627663/−2.977643点。15k配对区间[−5.821223,−0.146684]；10k区间跨零。两组前15k八rank的数据顺序、LR、更新计数、辅助曝光和实际bank完全匹配，sigma_mean差0，见[匹配核验](label_match_audit.json)。这不冒充逐元素噪声验收，也不外推完整100k的异步bank一致性。
 
 以上当前分数全部来自**完整12146 Navtest、invalid0、canonical NAVSIM v1.1、单候选clean-x十步shift5 ODE、seed2101**。训练seed42。ODE是生成方式，PDMS是评价指标。没有候选oracle或scorer部署选轨。Test历史已反复观察，最高点只是已测最高点。
@@ -25,7 +25,7 @@
 | LOSS_PHYSICAL | 固定物理容差构造坐标权重 | 同63k恢复、同2k | 完整Navtest88.336938 |
 | LOSS_TIME_RESIDUAL | TRAIN恒加速残差尺度构造未来时刻权重 | 同63k恢复、同2k | 完整Navtest88.146292 |
 | LOSS_DELTA | 原L1＋匹配GT的XY增量项 | 同63k恢复、同2k | 完整Navtest88.131260 |
-| LOSS_HUBER | 物理容差定义分段Huber | 同63k恢复、同2k | 训练完成；评测分片准入冲突后继续补齐 |
+| LOSS_HUBER | 物理容差定义分段Huber | 同63k恢复、同2k | 完整Navtest88.344878，原协议补测已发布 |
 | WORLD_IL_V12 | 仅规划轨迹监督替换为V12优化标签／合法fallback | 通用初始化；全TRAIN；完整100k | 训练继续；10k/13k/15k已测 |
 | WORLD_LABEL_MATCH | 补原GT10k/15k；不新增训练 | 每模型12146场景；同seed/协议 | 全部完成；优化标签两个点估计较低，15k区间低于0 |
 
@@ -37,7 +37,7 @@ RL三组的共同50k预算是12500份fresh全局rollout、100000次scene曝光�
 
 | 文件 | 内容 |
 |---|---|
-| [SCORES.md](SCORES.md) | 47个完整模型读出、近期IL、RL共同步数曲线和历史参考 |
+| [SCORES.md](SCORES.md) | 49个完整模型读出、近期IL、RL共同步数曲线和历史参考 |
 | [all_completed_scores.csv](all_completed_scores.csv) | 每点更新数、PDMS、NC/DAC/TTC/EP/Comfort/DDC、来源路径与hash |
 | [complete_scores.json](complete_scores.json) | 已验证结果身份、实际RL父模型、端点、峰值和快照状态 |
 | [ARCHITECTURE_AND_PROTOCOL.md](ARCHITECTURE_AND_PROTOCOL.md) | 实际20层clean-x模型、输入、四辅助任务、IL/RL与部署区别 |
@@ -59,9 +59,9 @@ RL三组的共同50k预算是12500份fresh全局rollout、100000次scene曝光�
 | PHYSICAL | −0.044867 | [−0.273579, +0.196037] | 未证明提升，也未证明等价 |
 | TIME_RESIDUAL | −0.235514 | [−0.474440, +0.009149] | 本窗口没有提升证据 |
 | DELTA | −0.250546 | [−0.460934, −0.018016] | 支持此窗口回退，不能否定整类从头设计 |
-| HUBER | 未完成 | — | 不作提前判断 |
+| HUBER | −0.036928 | [−0.288389, +0.250471] | 未证明提升；与物理加权尚不能排序 |
 
-按用户要求，先完成预实验，再筛选少量方法做完整100k确认。Huber分数未齐，当前尚未锁定赢家或启动新损失100k。完整确认应从相同通用Qwen和相同随机World初始化开始，保持数据、teacher、bank日程、训练范围和预算匹配；新初始化下的尺度需要TRAIN校准，不能机械搬用63k尺度。若复用现有原L1控制，必须核对这些身份；不能把63k续训改名为从头训练。已有结果不足时，短程通用初始化预实验的预算须先profile并登记。
+按用户要求，先完成预实验，再筛选少量方法做完整100k确认。四组分数现已齐，当前未证明赢家，也尚未启动新损失100k。Huber与物理加权在本窗口副作用较小，可保留为下一阶段候选；0.008点差不支持稳定排序。完整确认应从相同通用Qwen和相同随机World初始化开始，保持数据、teacher、bank日程、训练范围和预算匹配；新初始化下的尺度需要TRAIN校准，不能机械搬用63k尺度。若复用现有原L1控制，必须核对这些身份；不能把63k续训改名为从头训练。已有结果不足时，短程通用初始化预实验的预算须先profile并登记。
 
 ## 已知限制与仍未完成的问题
 
@@ -90,3 +90,12 @@ RL三组的共同50k预算是12500份fresh全局rollout、100000次scene曝光�
 历史DDP＋DINO IL100k89.527868高于当前World IL已测峰值；由于架构、输入、训练与推理协议不同，保留作端点参考，不据此归因某一辅助任务。当前World RL相对自己的IL40k有净收益，这是与此前局部迁移阶段不同的已验证事实。
 
 - [原GT与V12标签同预算完整结果](https://github.com/IDayday/VLA-Drive/blob/7ca648d4a5feb0aa6f4d4bd0a7a8dcaaa1e83172/reports/qwen_world_original_vs_optimized_labels_20261029/README.md)
+
+
+## 2026-10-29完整损失初筛更新
+
+Huber评测已补齐全部12146场景，invalid0、native/export PASS、worker全部退出。G+/G−及完整区间见HUBER_minus_CONTROL.json。其新增零分94、恢复87；NC新增违规21/恢复12，TTC新增58/恢复32，DAC新增74/恢复77。不能把略高的EP或接近CONTROL的均分解释为安全全面改善。
+
+优化标签20k84.126274已完整；原GT20k同预算补测另行登记。15001起两组采用各自刷新得到的post-head辅助候选bank，内容不同，因此后续对比包含该下游差异，不能永久称为纯主标签单因素。
+
+[完整loss报告](https://github.com/IDayday/VLA-Drive/blob/663e08af3f09972673cb28180f97bc4d472b4a52/reports/qwen_world_IL_loss_designs_20261028/README.md)

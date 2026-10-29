@@ -1,6 +1,6 @@
 {
   "schema": "VLA_Drive_experiment_registry_20261029_v1",
-  "as_of_utc": "2026-10-29T06:22:34.658450+00:00",
+  "as_of_utc": "2026-10-29T07:39:24.760235+00:00",
   "index_base_commit": "1724e456d3ea4cffa57ea178d5f226d2eb845bb4",
   "protocol": {
     "main_score": "canonical NAVSIM v1.1 PDMS",
@@ -164,14 +164,15 @@
     },
     {
       "id": "WORLD_LOSS_FAMILY",
-      "status": "training_complete_2k_evaluation_partial",
+      "status": "training_and_evaluation_complete_2k",
       "code": {
         "commit": "3e344dff880a7cc3fcfc3638102e604749648aed",
         "path": "starVLA/rl/qwen_world_postcot/loss_designs.py",
         "url": "https://github.com/IDayday/VLA-Drive/blob/3e344dff880a7cc3fcfc3638102e604749648aed/starVLA/rl/qwen_world_postcot/loss_designs.py"
       },
       "branch": "experiment/qwen-world-il-loss-designs-20261028",
-      "description": "TIME_RESIDUAL/DELTA/HUBER三个独立63k+2k臂。Huber准入故障未完成全量评分。"
+      "description": "TIME_RESIDUAL/DELTA/HUBER三个独立63k+2k臂。Huber准入故障未完成全量评分。",
+      "report_commit": "663e08af3f09972673cb28180f97bc4d472b4a52"
     },
     {
       "id": "WORLD_IL_V12",
@@ -221,18 +222,30 @@
     "RL_HARD_scenes": 15171
   },
   "note": "Cross-branch source registry. No experimental branches merged, no checkpoint tensors/cache/raw scenes uploaded. Branch HEAD and scientific source SHA are separate concepts.",
-  "completed_score_rows": 47,
+  "completed_score_rows": 49,
   "training_status": {
     "ORIGINAL_IL": {
-      "updates": 87303,
+      "updates": 88883,
       "target": 100000,
-      "optimizer_skipped_steps": 0
+      "optimizer_skipped_steps": 0,
+      "observed_utc": "2026-10-29T07:40:42.278088+00:00"
     },
     "OPTIMIZED_IL": {
-      "updates": 19514,
+      "updates": 21278,
       "target": 100000,
-      "optimizer_skipped_steps": 0
+      "optimizer_skipped_steps": 0,
+      "observed_utc": "2026-10-29T07:40:42.278088+00:00"
     }
   },
-  "sha256": "d74eef4811b94b934f80ccacc8cc11ed85421830636a9a05f8654fd02b336a8d"
+  "evaluation_extensions": {
+    "original_vs_optimized20k": {
+      "branch": "eval/qwen-world-label-source20k-20261029",
+      "source_commit": "fd2a137b53fbefa56a772ac2467844d15819c33c",
+      "root": "/mnt/project/qwen-world-postcot-20261025/original_vs_optimized20k_NAVTEST_20261029T0740Z",
+      "original_score": null,
+      "optimized_score": 84.12627395485266,
+      "bank_mismatch_after15000": true
+    }
+  },
+  "sha256": "ab1e85193d55857a512cc41916b860ce839c1b1be882daaed721cd91dfc0ddaa"
 }
