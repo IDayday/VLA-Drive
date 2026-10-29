@@ -1,15 +1,10 @@
-# 优化轨迹标签IL：13k/15k Navtest登记
+# 优化轨迹标签 Qwen-World IL：中间权重 Navtest
 
-已锁定同一个完整100k预算优化标签IL的13k、15k原生检查点，全部18个payload库存以硬链接保留；导出器仍验证完整内容hash。10k已有完整Navtest79.90427443202655，直接复用。原controller登记的20k/40k/60k/80k/100k评测保留，本次不重复。
+同一通用初始化、100k预算的优化标签IL；13k/15k在新增评分前固定，10k结果直接复用。完整12146场景、canonical v1.1、单候选clean-x十步shift5 ODE、seed2101。不重复原controller已登记的20k及后续里程碑，不根据Test重选训练起点。Test历史已被观察。
 
-协议：完整12146场景、canonical NAVSIM v1.1、seed2101、单候选clean-x K10 shift5 ODE。新点分别与同一优化标签IL10k及前一观察点配对。不与旧Qwen-World40k混作同预算标签对照；不使用历史训练标签98分作为部署成绩。Test历史已反复观察。
+| Checkpoint | Updates | PDMS | Change vs optimized IL10k (points) | Change vs previous optimized IL checkpoint (points) |
+|---|---:|---:|---:|---:|
+| OPTIMIZED_IL_013000 | 13000 | 66.369502 | -13.534773 | -13.534773 |
+| OPTIMIZED_IL_015000 | 15000 | 81.359718 | +1.455444 | +14.990216 |
 
-最多2个模型并行；仅固定五主机，按实时UUID/显存/已识别进程/共享lease准入。用户已撤回的临时主机禁止派发。源码只修改CPU评测恢复和派生分析，不改模型/采样/评分。逻辑新增24192场景和2次native/export一致性检查；实际共享GPU worker费用保留在资产根。
-
-实际启动入口：
-
-```bash
-/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m tools.qwen_world_postcot.latest_snapshot_owner --root /mnt/project/qwen-world-postcot-20261025/optimized_labels_intermediate_NAVTEST_20261029T0330Z --report-dir reports/qwen_world_optimized_IL_intermediate_20261029
-```
-
-本页为结果前登记；完整评测且worker退出后，owner自动替换为正式结果并推送同分支。
+同一优化标签IL的10k历史完整结果作为共同参考，13k/15k逐点比较另列。模型还在完整100k训练的早期，不能用这些中间点判断优化标签的最终价值。区间按物理log聚类，保留场景权重；不含训练或推理seed不确定性。逻辑新增24192条场景评测，额外2次native/export一致性；共享worker费用见资产根的逐调用收据。
