@@ -110,9 +110,12 @@ class PhaseProfiler:
                 device_self_ms=float(getattr(event, 'self_device_time_total', 0.)) / 1000.
                     if self.use_cuda else None)
             (phases if event.key.startswith('compare/') else communication)[event.key] = record
+        actual_active=max(0,min(self.active,len(self.rows)-self.wait-self.warmup))
         self.windows.append(dict(trace=str(trace), phases=phases,
                                  communication_operations=communication,
-                                 active_updates=self.active))
+                                 active_updates=actual_active,
+                                 scheduled_active_updates=self.active,
+                                 schedule_complete=actual_active==self.active))
 
     def __exit__(self, kind, error, traceback):
         profile_error = None
@@ -123,10 +126,17 @@ class PhaseProfiler:
             profile_error = failure
         wall = time.monotonic() - self.started
         step_wall = sum(row['wall_seconds'] for row in self.rows)
+        actual_active=max(0,min(self.active,len(self.rows)-self.wait-self.warmup))
+        schedule_complete=(len(self.rows)>=self.wait+self.warmup+self.active and
+                           bool(self.windows) and actual_active==self.active)if self.enabled else None
+        status=('FAILED' if kind is not None or profile_error is not None else
+                'INCOMPLETE' if self.enabled and not schedule_complete else 'COMPLETE')
         result = dict(schema='qwen_world_compare_phase_profile_v1',
-            status='FAILED' if kind is not None or profile_error is not None else 'COMPLETE',
+            status=status,
             rank=self.rank, metadata=self.metadata, CUDA_profiled=self.use_cuda and self.enabled,
             enabled=self.enabled, schedule=dict(wait=self.wait,warmup=self.warmup,active=self.active,repeat=1),
+            schedule_complete=schedule_complete,actual_active_updates=actual_active,
+            expected_schedule_updates=self.wait+self.warmup+self.active,
             observed_effective_updates=len(self.rows), updates=self.rows, windows=self.windows,
             interval_wall_seconds=wall, measured_update_wall_seconds=step_wall,
             global_scene_exposures=sum(row['global_scenes'] for row in self.rows),
@@ -179,6 +189,134 @@ def aggregate_profiles(root, world_size=8, *, output=None):
                                  if step['peak_reserved_bytes']is not None),default=None),
         rank_profiles=[str(path)for path in paths],
         timing_semantics=first['timing_semantics'])
+    if output is not None:_atomic(output,result)
+    return result
+
+
+def validate_profile_run(root,*,architecture_id,backend,expected_updates=4,world_size=8):
+    """Read-only acceptance of an actual bounded full-GPU profile invocation.
+
+    This is stronger than merely finding a COMPLETE JSON: all eight actual
+    traces, four effective optimizer updates, common objective/source identity
+    and actual global scene/post budgets must be present. No model is loaded.
+    """
+    from starVLA.rl.qwen_world_postcot.contracts import fingerprint,file_sha
+    from starVLA.model.modules.qwen_world_compare.contracts import LOSS_WEIGHTS
+    from .batching import post_positions
+    root=Path(root)
+    if architecture_id not in tuple('ABCD')or backend not in('zero2','ddp'):
+        raise ValueError('An explicit architecture and actual backend are required')
+    if world_size!=8 or expected_updates!=4:
+        raise ValueError('This bounded comparison locks eight ranks and four updates')
+    run=root/'run';phase_root=root/'phases'
+    if any(run.glob('FAILURE_rank*.json')):
+        raise ValueError('A failed training invocation is not a qualified profile')
+    identity=json.loads((run/'IDENTITY.json').read_text())
+    finish=json.loads((run/'INVOCATION_COMPLETE.json').read_text())
+    if (identity.get('architecture_id')!=architecture_id or identity.get('world')!=8
+            or identity.get('qualification')is not True or identity.get('joint_override')is not True
+            or identity['execution']['backend']!=backend or identity.get('uses_rl')is not False
+            or identity.get('uses_metric_supervision')is not True
+            or finish.get('updates')!=4 or finish.get('invocation_start_update')!=0
+            or finish.get('qualification')is not True or finish.get('profile_no_save')is not True
+            or finish.get('checkpoint')is not None):
+        raise ValueError('Profile identity/effective update budget differs from disposable joint4')
+    cfg=identity['config'];execution=identity['execution']
+    if (cfg['il']['global_batch']!=32 or cfg['il']['loss_weights']!=LOSS_WEIGHTS
+            or cfg['il']['fm_repeat']!=1 or execution['micro']*execution['accum']*8!=32
+            or cfg.get('candidate_refresh')is not False):
+        raise ValueError('Profile changed common global32/seven-objective mathematics')
+    aggregate=aggregate_profiles(phase_root,8)
+    rank_reports=[json.loads(Path(path).read_text())for path in aggregate['rank_profiles']]
+    metrics=[];trace_records=[]
+    required_phases={'compare/current_Qwen','compare/P_W_prefix','compare/main_action',
+                     'compare/pre_readouts','compare/clean_candidate_replay',
+                     'compare/backward','compare/optimizer_communication'}
+    if architecture_id!='D':required_phases.add('compare/scene_C160')
+    for rank,report in enumerate(rank_reports):
+        if (not report['enabled']or report['CUDA_profiled']is not True
+                or report['observed_effective_updates']!=4
+                or [row['update']for row in report['updates']]!=[1,2,3,4]
+                or any(row['global_scenes']!=32 for row in report['updates'])
+                or report['schedule']!=dict(wait=1,warmup=1,active=2,repeat=1)
+                or len(report['windows'])!=1):
+            raise ValueError('All eight ranks need four actual updates and a complete CUDA trace')
+        meta=report['metadata']
+        if (meta.get('architecture_id')!=architecture_id or meta.get('backend')!=backend
+                or meta.get('config_sha256')!=fingerprint(cfg)or meta.get('world')!=8
+                or meta.get('global_batch')!=32 or meta.get('micro')!=execution['micro']
+                or meta.get('accum')!=execution['accum']):
+            raise ValueError('Phase profile metadata differs from the actual training identity')
+        window=report['windows'][0]
+        if window['active_updates']!=2 or not required_phases<=set(window['phases']):
+            raise ValueError('Missing measured common phase or partial active trace window')
+        trace=Path(window['trace']).resolve()
+        if not trace.is_relative_to(phase_root.resolve())or not trace.is_file():
+            raise ValueError('Profile trace is missing or belongs to another invocation')
+        with trace.open()as stream:trace_body=json.load(stream)
+        kernels=sum(event.get('cat')=='kernel'for event in trace_body.get('traceEvents',[]))
+        if not trace_body.get('deviceProperties')or kernels<1:
+            raise ValueError('A CPU-only/empty trace cannot prove an actual CUDA profile')
+        trace_records.append(dict(rank=rank,path=str(trace),sha256=file_sha(trace),kernel_events=kernels))
+        del trace_body
+        rows=[json.loads(line)for line in(run/f'metrics_rank{rank}.jsonl').read_text().splitlines()]
+        if ([row['updates']for row in rows]!=[1,2,3,4]or
+                any(row['optimizer_global_steps']!=row['updates']or row['optimizer_skipped_steps']!=0 for row in rows)):
+            raise ValueError('Not four actual unskipped optimizer updates on every rank')
+        for row in rows:
+            if set(row['losses'])!=set(LOSS_WEIGHTS)or any(not math.isfinite(v)or v<0 for v in row['losses'].values()):
+                raise ValueError('Common seven objective terms were omitted or nonfinite')
+            if len([token for micro in row['sample_ids']for token in micro])!=4:
+                raise ValueError('Each rank must expose four scenes per global update')
+        metrics.append(rows)
+    totals={key:sum(row['losses'][key]for rank in metrics for row in rank)for key in LOSS_WEIGHTS}
+    if any(value<=0 for value in totals.values()):
+        raise ValueError('The profile did not exercise every one of the seven supervised objectives')
+    sample_sequences=[]
+    for index in range(4):
+        post=[int(position)for rank in metrics for position in rank[index]['post_positions']]
+        if sorted(post)!=sorted(post_positions(index))or len(post)!=8:
+            raise ValueError('Post supervision is not eight scenes per global update')
+        sample_sequences.append([token for rank in metrics for micro in rank[index]['sample_ids']for token in micro])
+    return dict(schema='qwen_world_compare_bounded_profile_acceptance_v1',status='PASS',
+        architecture_id=architecture_id,backend=backend,root=str(root.resolve()),
+        identity_sha256=fingerprint(identity),identity=identity,
+        profile=aggregate,traces=trace_records,actual_optimizer_updates=4,
+        actual_global_scene_exposures=128,sample_sequences=sample_sequences,
+        seven_objective_totals=totals,
+        auxiliary_weight_ramp='registered initial-joint qualifier updates1..4 use1/1000..4/1000; not steady-state full-weight timing',
+        denominator_match_basis='same immutable source, scene/target identities and deterministic sampler; '
+            'unit-qualified whole-update denominator reduction; actual denominator values were not separately persisted',
+        independently_persisted_denominators=False,
+        native_DDP_resume_qualified=False,formal_initialization_reused=False)
+
+
+def validate_profile_pair(zero2_root,ddp_root,*,architecture_id,output=None):
+    """Pair completion/recipe evidence; never grants formal DDP recovery."""
+    zero=validate_profile_run(zero2_root,architecture_id=architecture_id,backend='zero2')
+    ddp=validate_profile_run(ddp_root,architecture_id=architecture_id,backend='ddp')
+    a,b=zero['identity'],ddp['identity']
+    for key in('config','model_config','qwen_config','source_files','initialization','parameter_roles',
+               'optimizer_ordered_parameter_groups','data_sha256','teacher_identity_sha256',
+               'candidate_bank_hash','evidence_identity','evidence_manifest_sha256','target_manifest_sha256'):
+        if a.get(key)!=b.get(key):raise ValueError('The backend pair changed a common identity: '+key)
+    if zero['sample_sequences']!=ddp['sample_sequences']:
+        raise ValueError('The backend pair saw different effective scenes/order')
+    z=zero['profile'];d=ddp['profile']
+    micro_matched=a['execution']['micro']==b['execution']['micro']
+    result=dict(schema='qwen_world_compare_backend_profile_pair_v1',status='PASS',
+        architecture_id=architecture_id,zero2=zero,ddp=ddp,
+        same_source_objective_data_and_scene_order=True,
+        independently_persisted_denominators=False,
+        denominator_match_basis=zero['denominator_match_basis'],micro_batch_matched=micro_matched,
+        measured_DDP_over_zero2_scene_throughput=(d['global_scenes_per_second']/z['global_scenes_per_second'])
+            if z['global_scenes_per_second']else None,
+        actual_profile_optimizer_updates=8,actual_profile_global_scene_exposures=256,
+        native_DDP_resume_qualified=False,formal_backend='zero2',
+        interpretation='Finite initial-joint profile, including profiler overhead. DDP currently synchronizes '
+            'every microbatch and has no no_sync accumulation optimization. Different microbatches, when present, '
+            'confound a pure backend speed attribution; no claim of parameter-update numerical identity.',
+        at=time.time())
     if output is not None:_atomic(output,result)
     return result
 

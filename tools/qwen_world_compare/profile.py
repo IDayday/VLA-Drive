@@ -28,11 +28,23 @@ def main():
     parser=argparse.ArgumentParser(__doc__)
     mode=parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--config');mode.add_argument('--export')
+    mode.add_argument('--validate-pair',nargs=2,metavar=('ZERO2_ROOT','DDP_ROOT'))
+    parser.add_argument('--architecture-id',choices=list('ABCD'))
     parser.add_argument('--output',required=True);parser.add_argument('--backend',choices=['zero2','ddp'],default='zero2')
     parser.add_argument('--micro-batch',type=int);parser.add_argument('--updates',type=int,default=4)
     parser.add_argument('--evidence-override');parser.add_argument('--emit-command',action='store_true')
     parser.add_argument('--data');parser.add_argument('--scene-token');parser.add_argument('--repeats',type=int,default=3)
     args=parser.parse_args();out=Path(args.output)
+    if args.validate_pair:
+        if not args.architecture_id:raise ValueError('Pair verification needs its explicit architecture')
+        from starVLA.rl.qwen_world_compare.profiling import validate_profile_pair
+        result=validate_profile_pair(*args.validate_pair,architecture_id=args.architecture_id,output=out)
+        print(json.dumps(dict(status=result['status'],architecture_id=result['architecture_id'],
+            actual_profile_optimizer_updates=result['actual_profile_optimizer_updates'],
+            actual_profile_global_scene_exposures=result['actual_profile_global_scene_exposures'],
+            measured_DDP_over_zero2_scene_throughput=result['measured_DDP_over_zero2_scene_throughput'],
+            independently_persisted_denominators=False,native_DDP_resume_qualified=False,formal_backend='zero2')))
+        return
     if args.config:
         from starVLA.model.modules.qwen_world_compare.factory import load_config
         load_config(args.config)

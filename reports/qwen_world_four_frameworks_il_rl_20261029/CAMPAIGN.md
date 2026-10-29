@@ -28,8 +28,9 @@ have completed. It never selects the parent model.
 
 ## Source and qualification gates
 
-`run` requires a clean, committed worktree, executed from the exact `--source`
-worktree. `expected_source_files(source)` fingerprints the new modules/tools
+`run` requires clean, committed source worktrees. Normally it executes from the
+exact `--source` worktree. The explicit controller-only exception is described
+below; it does not migrate training code. `expected_source_files(source)` fingerprints the new modules/tools
 and the imported historical scientific dependencies. `RUNS.json` freezes that
 union, source path, architecture configs, shared recipe and data paths. Resuming
 with a different plan or source manifest is rejected rather than silently
@@ -47,6 +48,120 @@ The separate finite real-model qualification driver publishes this receipt
 after its real gradients, seven losses and native resume comparison pass. The
 campaign cannot publish it. Formal IL starts without `--qualification`,
 `--joint`, `--stop-after`, or any qualification checkpoint.
+
+### Real RL gate after selecting each own IL parent
+
+IL acceptance alone does not qualify the new RL actor/cache lifecycle. Before
+the controller can launch formal RL50k it schedules this finite sequence under
+`qualification/<architecture>/RL/`:
+
+1. `train_rl --qualification --save-every 1 --stop-after-update 4` on eight
+   GPUs, from that architecture's own selected full-IL checkpoint. The original
+   50k recipe and scheduler remain unchanged; the qualification is disposable.
+2. The CPU `qualify_rl prepare-resume` helper copies the original run identity,
+   effective journal through update 2, and original behavior evidence into a
+   separate disposable output. It preserves the original baseline and binds
+   the sealed `update000002_inner2` inventory. The native trainer requires this
+   existing identity/history for exact resume.
+3. The same eight-rank native trainer resumes the original saved chain and old
+   probabilities from inner 2, performing only inner 3/4 in that independent
+   output. It does not generate replacement trajectories.
+4. The CPU `qualify_rl verify` helper reads both complete native outputs. It
+   requires every rank's original actual-sampler mean/std records, compares
+   the saved means/stds exactly, independently recomputes raw Gaussian and
+   source-relative-clamped probability, and checks first-inner ratio error
+   `<=1e-4`. The independent CPU FP32 density readout permits `5e-6` absolute
+   transcendental/reduction error; it does not alter the real GPU fresh-ratio
+   threshold or any sampling/logprob calculation.
+5. All four effective optimizer rows must belong to one collection, with the
+   same chain/old probability/advantage identity. Native adapters, Adam,
+   scheduler, all-rank RNG, and continuation loss/gradient/ratio metrics must
+   match continuous execution exactly. Recorded wall-clock timing fields are
+   intentionally excluded from the numerical identity comparison.
+6. Frozen observation/base/permanent-reference hashes must agree before and
+   after both invocations. The gate also requires some real PG and adapter
+   update signal; an entirely tied finite batch is insufficient evidence and
+   does not become an algorithm-failure claim.
+
+Only then can the helper publish
+`RL_ENGINEERING_ACCEPTANCE.json`. Its immutable receipt binds the original IL
+engineering acceptance file without rewriting it, exact selected IL model and
+selection receipt, original scientific source, controller source, full RL
+recipe, native checkpoint inventories, and all eight rank checks. A missing or
+wrong-parent receipt cannot unlock formal RL. The formal run still starts
+from its selected IL with zero-initialized LoRA, never qualification adapters.
+
+This adds **4 logical / 6 physically executed qualification updates and 64 new
+candidate scores per architecture**, recorded separately from the formal50k
+budget. No real RL qualification has been claimed complete by the CPU tests.
+
+### Explicit controller-only execution lineage
+
+The original immutable `fdaff80` snapshot is already running the real IL
+qualifications. New controller gating must not silently invalidate their
+source identity. The supported arrangement keeps:
+
+- `--source` as the original immutable **scientific training snapshot**;
+- all IL/RL/export/evaluation/profile children executing that original source;
+- the new immutable **controller snapshot** only for orchestration and CPU
+  qualification-evidence helpers.
+
+Using different snapshots requires `--execution-migration <receipt>`. The
+`qualify_rl migrate` helper publishes this explicit receipt only after supplied
+actual passed tests bind the new full source union. It stores both complete
+source manifests, Git SHAs, exact changed file hashes, unified patches, and
+test-evidence hashes. Only these reviewed operational paths may differ:
+
+```text
+tools/qwen_world_compare/campaign.py
+tools/qwen_world_compare/qualify_rl.py
+tools/qwen_world_compare/qualify.py
+tools/qwen_world_compare/profile.py
+starVLA/rl/qwen_world_compare/profiling.py
+```
+
+The last path is the explicitly approved profile-completion/statistics boundary
+repair. Actor, data, runtime, sampler, probability, loss, optimizer, checkpoint
+and trainer dependencies must remain byte-identical. The receipt does not
+rewrite IL acceptance or approve a scientific-code migration. Every poll
+rechecks both source trees and the evidence receipt. Every job records separate
+`scientific_source`, `execution_source`, and migration SHA fields.
+
+The IL qualification owner supports the same explicit dual-source arrangement.
+Its native GPU baseline/resume commands continue to execute `--source`;
+`--compare` CPU helpers execute the repaired controller snapshot. An explicitly
+requested `--retry-compare A B` may retry only previously failed CPU comparisons
+when the sealed migration includes the qualifier repair. Existing failed job
+receipts and errors remain intact. A new controller-SHA/attempt identity and a
+separate native-check filename prevent evidence overwrites. The same owner lock
+prevents a second controller from racing a still-running qualification owner.
+The original baseline/resume weights, optimizer and run identities are retained.
+
+```bash
+# Once the previous qualifier owner has released its lock; GPU workers may
+# continue and will be reattached through their existing receipts.
+$PY -m tools.qwen_world_compare.qualify \
+  --source <original-immutable-training-source> \
+  --execution-migration <root>/qualification/CONTROLLER_MIGRATION.json \
+  --retry-compare A B
+```
+
+Example after freezing the new controller source and generating a test receipt
+whose `source_files` is `expected_source_files(new_controller)`:
+
+```bash
+cd <new-immutable-controller>
+$PY -m tools.qwen_world_compare.qualify_rl migrate \
+  --training-source <original-immutable-training-source> \
+  --controller-source "$PWD" --evidence <actual-passed-source-bound-tests.json> \
+  --output <root>/qualification/CONTROLLER_MIGRATION.json
+
+$PY -m tools.qwen_world_compare.campaign run \
+  --config <original-immutable-training-source>/configs/qwen_world_compare/campaign.yaml \
+  --source <original-immutable-training-source> \
+  --execution-migration <root>/qualification/CONTROLLER_MIGRATION.json \
+  --architectures A B C D --stages il rl evaluate --resume
+```
 
 ## Data preparation
 
@@ -108,7 +223,7 @@ four-stage scientific campaign complete.
 
 ## Actual checks executed
 
-`tests/world_compare/test_campaign.py`: **18 passed**. CPU/mock coverage includes
+Initial `tests/world_compare/test_campaign.py`: **18 passed**. CPU/mock coverage includes
 exact qualification binding, qualification-weight exclusion, pre-dispatch
 durability, disjoint GPU assignment, advancing-checkpoint resume races, finite
 pre-child retry, scientific failure refusal, dispatch gaps, source migration
@@ -117,6 +232,21 @@ Navtest, per-arm failure isolation, and evaluation-worker exit gates.
 
 These tests do not replace the real eight-GPU engineering acceptance. That
 driver and the subsequent formal runs remain separate jobs.
+
+After adding the RL gate and narrow CPU-comparison retry, the combined
+campaign/RL-qualification/qualifier-retry suite reported **43 passed**. New tests cover actual-sampling/density mismatch,
+missing qualification records, explicit clipped-tail behavior, the independent
+inner2-history fork, all eight rank evidence readers, full Adam/RNG equality,
+wrong IL-parent refusal, immutable original acceptance, narrow operations-only
+migration, stale test evidence rejection, no formal RL before real acceptance,
+finite four-stage qualification scheduling, and separation of scientific and
+controller execution paths. The eight-rank evidence-reader fixture is synthetic
+CPU data and is explicitly not a real GPU qualification receipt.
+The tests also exercise the actual `load_recipe` for all four architectures:
+the saved `resolved_recipe.yaml` is an exact byte copy of the source common
+configuration (`architecture_id: null`), while the runtime identity contains
+the exact architecture-resolved recipe. Both facts are checked separately;
+alternative saved representations are rejected under the existing contract.
 
 The four inspection CLI modes were executed from the development tree. Direct
 script `--help`, `plan`, `prepare`, `verify`, and `report` completed with

@@ -220,3 +220,52 @@ def test_completed_scene_files_are_not_summarized_before_resumed_worker_exits(in
     instance.state['jobs'][resume]['status']='COMPLETE'
     assert instance._evaluation(arch,stage,step,'/native')['summary']['scenes']==1696
     assert len(calls)==1
+
+
+def test_own_IL_selection_cannot_start_formal_RL_before_real_RL_acceptance(instance,plan,monkeypatch):
+    gate(plan,'A');il,_=selections();calls=[]
+    monkeypatch.setattr(instance,'_training',lambda arch,stage:calls.append(stage)or dict(path='/native100k'))
+    monkeypatch.setattr(instance,'_dev_window',lambda *a,**k:[{}]*20)
+    import starVLA.rl.qwen_world_compare.parent_selection as selection
+    monkeypatch.setattr(selection,'select_il_parent',lambda *a,**k:il)
+    def qualification(arch,parent):
+        assert parent is il
+        instance.state['architectures'][arch]['status']='WAITING_RL_QUALIFICATION'
+        return False
+    monkeypatch.setattr(instance,'_qualify_rl',qualification)
+    instance._advance_architecture('A',('il','rl','evaluate'))
+    assert calls==['IL']and instance.state['architectures']['A']['status']=='WAITING_RL_QUALIFICATION'
+
+
+def test_real_RL_qualification_is_finite_and_separate_from_formal_output(instance,plan,monkeypatch):
+    il,_=selections();monkeypatch.setattr(instance,'_cpu_host',lambda:'host1')
+    instance._qualify_rl('A',il)
+    first=instance.driver.calls[-1]['command']
+    assert '--qualification'in first and first[first.index('--stop-after-update')+1]=='4'
+    assert first[first.index('--save-every')+1]=='1'
+    assert first[first.index('--output')+1]!=plan['architectures']['A']['RL']
+    assert first[first.index('--il-checkpoint')+1]==il['selected']['checkpoint']
+    assert not any('resume'==p for p in first)
+    stages=['baseline','prepare_resume','resume','verify']
+    for previous,expected in zip(stages,stages[1:]):
+        instance._last('A_RL_qualification_'+previous)['status']='COMPLETE'
+        instance._qualify_rl('A',il)
+        assert instance._last('A_RL_qualification_'+expected)['status']=='RUNNING'
+    assert len(instance.driver.calls)==4
+    resumed=instance.driver.calls[2]['command']
+    assert resumed[resumed.index('--resume')+1].endswith('update000002_inner2')
+    assert instance.state['architectures']['A']['RL_qualification']['formal_initialized_from_qualification']is False
+
+
+def test_scientific_jobs_keep_old_snapshot_and_only_CPU_qualifier_uses_ops_snapshot(instance,monkeypatch):
+    instance.controller_source=Path('/frozen/controller')
+    captures=[]
+    old=instance.driver.launch
+    def launch(host,source,command,name,**kwargs):
+        captures.append(str(source));return old(host,source,command,name,**kwargs)
+    instance.driver.launch=launch
+    instance._launch('A','A_train',['old train'],'host1',kind='training')
+    instance._launch('A','A_RL_qualhelper',['new helper'],'host1',kind='rl_qualification_helper')
+    assert captures==[instance.plan['source'],'/frozen/controller']
+    entries=list(instance.state['jobs'].values())
+    assert entries[0]['scientific_source']==entries[1]['scientific_source']==instance.plan['source']

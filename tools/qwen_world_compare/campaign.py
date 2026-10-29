@@ -62,7 +62,7 @@ def _read(path):
     return json.loads(Path(path).read_text())
 
 
-def make_plan(config, source):
+def make_plan(config, source, *, execution_migration=None):
     from starVLA.model.modules.qwen_world_compare.factory import load_config
     source = Path(source).resolve();cfg = yaml.safe_load(Path(config).read_text())
     if (cfg.get('schema') != 'qwen_world_four_frameworks_v1'
@@ -90,7 +90,11 @@ def make_plan(config, source):
     if (rl['max_steps'] != 50000 or rl['grpo']['sample']['group_size'] != 8
             or rl['grpo']['train']['num_inner_epochs'] != 4):
         raise ValueError('The common RL budget/group/inner reuse changed')
-    value = dict(schema=SCHEMA, root=str(root), source=str(source), architectures=arms, common=common,
+    value = dict(schema=SCHEMA, root=str(root), source=str(source),
+        controller_source=str(Path(__file__).resolve().parents[2]),
+        execution_migration=str(Path(execution_migration).resolve()) if execution_migration else None,
+        execution_migration_sha256=file_sha(execution_migration) if execution_migration else None,
+        architectures=arms, common=common,
         data_paths=dict(TRAIN=str(Path(common['data_root'])/'TRAIN'),DEV=str(Path(common['data_root'])/'DEV'),
                         NAVTEST=str(Path(cfg.get('navtest_data_root',Path(common['data_root'])/'NAVTEST')).resolve())),
         rl_config=str(rl_path), rl_config_sha256=file_sha(rl_path), stages=['il','rl','evaluate'],
@@ -180,6 +184,8 @@ class Campaign:
     def __init__(self,plan,source_files,*,driver=None):
         from tools.qwen_world_compare import dispatch
         self.plan,self.sources=plan,source_files;self.source=Path(plan['source']);self.root=Path(plan['root'])
+        self.controller_source=Path(plan.get('controller_source',plan['source']))
+        self.controller_sources=expected_source_files(self.controller_source) if self.controller_source!=self.source else source_files
         self.driver=driver or dispatch;self.directory=self.root/'campaign';self.directory.mkdir(parents=True,exist_ok=True)
         self.path=self.directory/'STATE.json'
         if self.path.exists():
@@ -239,11 +245,14 @@ class Campaign:
         attempt=len(self._history(logical))+1;name=f'four_{self.plan["sha256"][:10]}_{logical}_attempt{attempt:03d}'
         # Intent is durable before any SSH/Popen. A gap is blocked for review,
         # rather than presumed harmless and automatically duplicated.
+        execution_source=self.controller_source if kind=='rl_qualification_helper' else self.source
         entry=dict(architecture=arch,logical=logical,attempt=attempt,command=command,host=host,
+            scientific_source=str(self.source),execution_source=str(execution_source),
+            execution_migration_sha256=self.plan.get('execution_migration_sha256'),
             family=family or logical,kind=kind,stage=stage,
             uuids=list(uuids),gpus=list(gpus),receipt=str(self.root/'jobs'/name),status='LAUNCH_INTENT',at=time.time())
         self.state['jobs'][name]=entry;self.persist()
-        directory=self.driver.launch(host,self.source,command,name,gpus=','.join(map(str,gpus)),
+        directory=self.driver.launch(host,execution_source,command,name,gpus=','.join(map(str,gpus)),
             expected_uuids=list(uuids)if gpus else None,minimum=minimum if gpus else None)
         entry['receipt']=str(directory);entry['status']='RUNNING';self.persist();return entry
 
@@ -283,6 +292,60 @@ class Campaign:
         if latest:command+=['--resume',latest['path']]
         self._launch(arch,logical,command,host,gpus=range(8),uuids=[v['uuid']for v in probe['gpus']],family=family,kind='training',stage=stage)
         self.state['architectures'][arch]['status']=stage+'_RUNNING';return None
+
+    def _qualify_rl(self,arch,parent):
+        """Finite disposable real-RL chain/inner2 resume gate before formal RL."""
+        from tools.qwen_world_compare.qualify_rl import validate_acceptance
+        arm=self.plan['architectures'][arch];record=self.state['architectures'][arch]
+        base=self.root/'qualification'/arch/'RL';baseline=base/'baseline4';resumed=base/'resume_inner2_to4'
+        acceptance=base/'RL_ENGINEERING_ACCEPTANCE.json'
+        if acceptance.exists():
+            value=validate_acceptance(acceptance,arch,parent,arm['selection_IL'],self.sources,
+                                      self.controller_sources,self.plan['rl_config'],arm['qualification'])
+            record['RL_qualification']=dict(status='PASS',receipt=str(acceptance),sha256=value['sha256'],
+                formal_initialized_from_qualification=False)
+            return True
+        record['status']='WAITING_RL_QUALIFICATION'
+        prefix=f'{arch}_RL_qualification'
+        def completed(step):
+            last=self._last(prefix+'_'+step)
+            return bool(last and last['status']=='COMPLETE')
+        def launch_step(step,command,*,gpu):
+            logical=prefix+'_'+step
+            if not self._can_launch(logical):return
+            if gpu:
+                route=self.driver.choose_host(excluded_uuids=self.reserved_uuids(),minimum=65000)
+                if route is None:return
+                host,probe=route
+                self._launch(arch,logical,command,host,gpus=range(8),uuids=[g['uuid']for g in probe['gpus']],
+                    kind='rl_qualification',stage='RL')
+            else:
+                host=self._cpu_host()
+                if host:self._launch(arch,logical,command,host,kind='rl_qualification_helper',stage='RL')
+        train=[MODEL_PYTHON,'-u','-m','torch.distributed.run','--standalone','--nproc-per-node=8',
+            '-m','tools.qwen_world_compare.train_rl','--architecture',arch,'--config',self.plan['rl_config'],
+            '--manifest',str(Path(self.plan['common']['data_root'])/'RL_HARD.json'),
+            '--data',self.plan['data_paths']['TRAIN'],'--il-checkpoint',parent['selected']['checkpoint'],
+            '--parent-selection',arm['selection_IL'],'--qualification','--stop-after-update','4','--save-every','1']
+        helper=[MODEL_PYTHON,'-u','-m','tools.qwen_world_compare.qualify_rl']
+        if not completed('baseline'):
+            launch_step('baseline',train+['--output',str(baseline)],gpu=True)
+        elif not completed('prepare_resume'):
+            launch_step('prepare_resume',helper+['prepare-resume','--baseline',str(baseline),'--output',str(resumed)],gpu=False)
+        elif not completed('resume'):
+            launch_step('resume',train+['--output',str(resumed),'--resume',str(baseline/'checkpoints/update000002_inner2')],gpu=True)
+        elif not completed('verify'):
+            launch_step('verify',helper+['verify','--architecture',arch,'--baseline',str(baseline),'--resumed',str(resumed),
+                '--parent-checkpoint',parent['selected']['checkpoint'],'--selection-path',arm['selection_IL'],
+                '--training-source',str(self.source),'--controller-source',str(self.controller_source),
+                '--config',self.plan['rl_config'],'--il-acceptance',arm['qualification'],
+                '--output',str(acceptance)],gpu=False)
+        else:
+            raise ValueError('Real RL qualification verifier exited without a sealed acceptance')
+        record['RL_qualification']=dict(status='PENDING',receipt=str(acceptance),
+            budget=dict(logical_updates=4,physical_updates=6,new_candidates=64),
+            formal_initialized_from_qualification=False)
+        return False
 
     def _cpu_host(self):
         from starVLA.rl.qwen_world_compare.resources import probe
@@ -439,6 +502,7 @@ class Campaign:
         record['IL_parent_update']=parent['selected']['updates']
         if 'rl'not in stages and'evaluate'not in stages:record['status']='IL_COMPLETE';return
         if 'rl'not in stages and not Path(arm['selection_RL']).exists():record['status']='WAITING_RL_STAGE';return
+        if not self._qualify_rl(arch,parent):return
         rl_end=self._training(arch,'RL')if'rl'in stages else _checkpoint(arm['RL'],'RL',50000)
         rl_rows=self._dev_window(arch,'RL',RL_MILESTONES,il_parent=parent['selected']['checkpoint'])
         if rl_end is None:return
@@ -505,15 +569,27 @@ def selected_stages_complete(state,architectures,stages):
 def run(plan,source_files,args):
     require_dispatch();root=Path(plan['root'])
     if root!=ROOT.resolve():raise ValueError('Campaign ROOT differs from the current task grant namespace')
-    if Path(__file__).resolve().parents[2]!=Path(plan['source']).resolve():
-        raise ValueError('Run the campaign module from --source itself, not a mutable external controller')
-    _source_clean(plan['source']);_freeze_runs(plan,source_files)
+    controller=Path(__file__).resolve().parents[2];training=Path(plan['source']).resolve()
+    if controller!=Path(plan.get('controller_source',training)).resolve():raise ValueError('Controller source path changed')
+    controller_files=expected_source_files(controller)
+    def check_execution_sources():
+        if expected_source_files(training)!=source_files or expected_source_files(controller)!=controller_files:
+            raise ValueError('Immutable scientific/controller source files changed')
+        if controller!=training:
+            from tools.qwen_world_compare.qualify_rl import validate_execution_migration
+            path=plan.get('execution_migration')
+            if not path or file_sha(path)!=plan.get('execution_migration_sha256'):
+                raise ValueError('External controller requires an explicit sealed operations-only migration')
+            validate_execution_migration(path,training,controller,source_files,controller_files)
+    _source_clean(training);_source_clean(controller);check_execution_sources();_freeze_runs(plan,source_files)
     directory=root/'campaign';directory.mkdir(parents=True,exist_ok=True)
     with (directory/'owner.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         if(directory/'STATE.json').exists()and not args.resume:raise ValueError('Existing campaign requires --resume')
         owner=dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
-            started_unix=time.time(),source=plan['source'],source_sha=_source_clean(plan['source']))
+            started_unix=time.time(),source=plan['source'],source_sha=_source_clean(plan['source']),
+            controller_source=str(controller),controller_sha=_source_clean(controller),
+            execution_migration_sha256=plan.get('execution_migration_sha256'))
         atomic_json(directory/'OWNER.json',owner)
         instance=Campaign(plan,source_files)
         def stop(*_):
@@ -522,7 +598,7 @@ def run(plan,source_files,args):
         for sig in(signal.SIGTERM,signal.SIGINT):signal.signal(sig,stop)
         try:
             while not STOP:
-                if expected_source_files(plan['source'])!=source_files:raise ValueError('Immutable campaign source files changed')
+                check_execution_sources()
                 ready=preparation(plan);atomic_json(directory/'PREPARATION.json',ready)
                 if ready['status']=='READY':instance.tick(args.architectures,args.stages)
                 else:
@@ -582,12 +658,13 @@ def main():
     for mode in('plan','prepare','verify','run','report'):
         p=sub.add_parser(mode);p.add_argument('--config',required=True)
         p.add_argument('--source',default=str(Path(__file__).resolve().parents[2]))
+        p.add_argument('--execution-migration',help='Explicit controller-only lineage when --source remains the original scientific snapshot')
         if mode=='run':
             p.add_argument('--architectures',nargs='+',choices=ARCHITECTURES,default=list(ARCHITECTURES))
             p.add_argument('--stages',nargs='+',choices=['il','rl','evaluate'],default=['il','rl','evaluate'])
             p.add_argument('--resume',action='store_true');p.add_argument('--once',action='store_true')
             p.add_argument('--poll-seconds',type=float,default=60)
-    args=parser.parse_args();plan=make_plan(args.config,args.source);sources=expected_source_files(args.source)
+    args=parser.parse_args();plan=make_plan(args.config,args.source,execution_migration=args.execution_migration);sources=expected_source_files(args.source)
     if args.mode=='plan':result=plan
     elif args.mode=='prepare':result=preparation(plan)
     elif args.mode=='verify':result=dict(preparation=preparation(plan),gates={a:qualification_gate(a,plan,sources)for a in ARCHITECTURES},source_files=sources)

@@ -4,11 +4,13 @@
 
 ## 实际依赖与迁移边界
 
-使用安装的 Transformers **4.57.6** 原生 Qwen3-VL 类，未升级环境。实际模块：
+正式`MODEL_PYTHON`与本报告CPU测试使用Python **3.10**、Transformers **4.57.0** 原生Qwen3-VL类，未升级环境。实际模块：
 
-`/root/miniconda3/envs/navsim/lib/python3.9/site-packages/transformers/models/qwen3_vl/modeling_qwen3_vl.py`
+`/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/models/qwen3_vl/modeling_qwen3_vl.py`
 
 该模块 SHA256：`dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da`。
+
+早期环境发现使用过默认`navsim` Python3.9/Transformers4.57.6，模块源码hash恰与正式环境相同；它不是本轮实际训练解释器。此前本文件将早期发现快照误写为实际执行环境，此处纠正，不代表运行中更换或升级依赖。
 
 - 原生 `Qwen3VLTextAttention`、`Qwen3VLTextRMSNorm`、MLP、rotary embedding、视觉 tower、merger、DeepStack 均直接调用已安装实现。
 - `_layer()` 的两个 residual sublayer 组织对应安装文件中的 `Qwen3VLTextDecoderLayer.forward`，保留原版权与 Apache-2.0 注释；唯一新增运算是 A 行 norm 后近恒等 time FiLM。
@@ -114,7 +116,7 @@ runtime独立7项CPU测试PASS：四组同scene的sampling+old/current调用只�
 
 仅新增 `tests/world_compare/test_il_integration.py`，未直接修改主训练器或主模型。最新源码下实际20项CPU测试PASS（21.01s）：16项模型/精度/归约检查，加4项无`PYTHONPATH`直接脚本入口检查。
 
-- 完整默认 A/B/C/D 工厂均可在meta device按真实Qwen配置构造；所有参数FP32。总参数含公共readouts：A 2,710,812,616，B 2,661,697,096，C 2,713,969,628，D 2,220,500,040。四组预训练 language/merger 1,821,289,472、vision306,242,560完全相同。
+- 完整默认 A/B/C/D 工厂均可在meta device按真实Qwen配置构造；所有参数FP32。此次早期meta统计总参数含当时公共readouts：A 2,710,812,616，B 2,661,697,096，C 2,713,969,628，D 2,220,500,040。该统计已被event head缩减后的正式值替代：**A 2,710,801,843，B 2,661,686,323，C 2,713,958,855，D 2,220,489,267**，与主README一致。四组预训练 language/merger 1,821,289,472、vision306,242,560完全相同；前述D独立主干表不含readouts，不受此head变动影响。
 - 实际主 `FourFrameworkVLA.forward` 通过tiny encoder注入，执行七项共同损失及backward；FP32/BF16 loss输出均FP32。FP32 full batch与相同global denominator的micro累计梯度相对L2为7e-8—2e-7，未发现重复除accum或场景重复权重。
 - BF16跨micro布局的整梯度相对L2约0.20%—0.67%，cosine>0.99998；这是CPU AMP归约布局的实测差异，不宣称bitwise相同，也不用于放宽RL fresh-ratio门槛。
 - 全invalid监督（含NaN无效标记）下七损失均精确0，无NaN；post选择仍按完整global32决定8个场景，micro1/2/4不改变该集合。
@@ -126,3 +128,27 @@ runtime独立7项CPU测试PASS：四组同scene的sampling+old/current调用只�
 新增`profile.py`后，又复现直接脚本目录遮蔽标准库`profile`的问题：`torchvision → torch._dynamo → cProfile`导入本地profile文件，导致`AutoProcessor`的延迟导入失败。直接入口统一先从`sys.path`去掉脚本目录，再加入仓库根目录；本子任务修改所辖export/evaluate入口，负责人修改train/profile/campaign。四个直接入口现在均在删除环境`PYTHONPATH`时实际执行`--help`成功。
 
 BF16布局验收保留FP32逐参数严格比较，并用BF16整梯度相对L2与cosine检验，避免因接近0的抵消坐标而扩大逐坐标容差。这是CPU AMP不同归约树的已量化结果，不改变RL实际采样/重算`1e-4`资格阈值。真实BF16 GPU仍需独立资格。此处只修工程/数值合同，不改变四组损失权重、预算或结构。复核修复后未发现阻止GPU资格的其他硬错误。
+
+## D RL采样/重算定点复核（immutable fdaff80资格期间）
+
+本次只新增测试与本说明，未修改actor、runtime、sampler、loss、train_rl或immutable运行目录。原记录已经在qualification模式保存三步实际`qualification_sample_terms`，以及独立重算得到的`old_probability`与`old_logp`。实际采样使用FP32 latent和mean/std；D模型仍为FP32参数、BF16算子，x0转velocity在autocast外只进行一次。保存链的state先转FP32 contiguous再前向，实际采样和重算均采用同一单scene G8 packing布局。
+
+新增四个CPU测试覆盖：原生tiny Qwen的真实三图vision/merger/DeepStack输入，padding有/无，LoRA B全零/非零；同时让IL父模型的FiLM为非零，避免仅验证通用初始化特例。采样及old重算使用真实`no_grad`，第一inner重算使用autograd与显式checkpoint，均为BF16计算。
+
+- 7/8/9三步的实际mean/std，与old重算逐值相同。
+- 从实际采样mean/std和对应原始`x_next`重建FP32 Gaussian逐维密度，与已存`old_probability.raw_gaussian_logprob`逐值相同。
+- 按Python-double std计算peak，再逐维relative clamp，得到与已存source-clamped字段及H/D mean old概率逐值相同的结果。
+- 首次有梯度重算与无梯度old的mean逐值相同，ratio误差小于既定`1e-4`，LoRA获得实际梯度。
+- 打开/关闭采样诊断不改变完整链、时间、随机步骤或CPU采样generator状态；current prefix在各次调用重新建立，调用结束无旧prefix缓存。
+
+实际命令与结果：
+
+```bash
+PYTHONPATH=. /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q \
+  tests/world_compare/test_rl_adapter.py tests/world_compare/test_runtime.py
+# 25 passed, 14.91s（随后新增非零FiLM条件的四项定点复核再次4 passed, 5.93s）
+```
+
+未发现确定的D前向/缓存/概率公式错误，但资格工具必须补齐的记录校验已交由独立资格负责人实现，避免改变锁定科学源码：现`runtime.validate_collection`对缺失`qualification_sampling_check`不会主动拒绝，因此外部own-parent gate必须明确要求check、三份actual sample terms和[7,8,9]索引，并独立重建raw/clamped density。不能仅根据old/current ratio自洽判定采样合同通过。
+
+尚未取得的证据：完整28×2048模型、真实own-IL父权重、真实图像长度下CUDA SDPA的no-grad/grad/checkpoint数值一致性；八rank四次inner与mid-inner exact resume。这些由主campaign资格流程验证，本CPU复核不替代。`finish_qualification`已有冻结参数hash、current/reference prefix重建次数和冻结输入dtype；first-inner ratio与其后真实更新clipping应分别读取journal。参数hash不能单独证明所有非持久运行buffer从未变化，实际部署/恢复等价还需完整资格比较。

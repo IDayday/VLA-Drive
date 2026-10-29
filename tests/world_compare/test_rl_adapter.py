@@ -1,5 +1,6 @@
 """Actual A/B/C/D modules on the inherited source math; tiny CPU qualification."""
 import copy
+import math
 
 import pytest
 import torch
@@ -188,3 +189,82 @@ def test_reject_old_condition_graph_and_privileged_labels():
     cond['current'].scene.requires_grad_(True)
     with pytest.raises(ValueError, match='old graph'):
         actor.materialize(cond)
+
+
+@pytest.mark.parametrize('nonzero_lora', [False, True])
+@pytest.mark.parametrize('padded', [False, True])
+def test_D_native_three_view_sample_terms_match_no_grad_old_and_grad_first_inner(nonzero_lora, padded):
+    """Actual rollout mode differs from first-inner grad/checkpoint execution.
+
+    Native tiny vision/merger/DeepStack run on three camera images. This checks
+    CPU BF16 arithmetic only; the full own-parent CUDA gate is still required.
+    """
+    model = TinyDeployment('D')
+    # An own IL parent has also learned the new time interfaces. Avoid relying
+    # on the unrelated generic-init all-zero FiLM special case in this gate.
+    with torch.no_grad():
+        for pair in model.decision.time_films:
+            for film in pair:
+                film.weight.normal_(mean=0., std=.001)
+                film.bias.normal_(mean=0., std=.001)
+    actor = FourFrameworkRecipeActor(model, expected_cleanx_recipe())
+    if nonzero_lora:
+        # Represent an already adapted checkpoint, without making a new method
+        # or relying only on the zero-B initialization special case.
+        with torch.no_grad():
+            for module in actor.action_expert.modules():
+                if isinstance(module, LoRALinear):
+                    module.lora_B.normal_(mean=0., std=.001)
+    image = [62, 60, 60, 60, 60, 63]
+    ids = torch.tensor([[3]+image+image+image+[7, 0]])
+    valid = torch.ones_like(ids)
+    if padded:valid[:, -1] = 0
+    raw = dict(input_ids=ids, attention_mask=valid,
+        image_grid_thw=torch.tensor([[1, 4, 4]]*3), pixel_values=torch.randn(48, 1536),
+        scene_identity=('native_three_view',))
+    ego = torch.randn(1, 8)
+    with torch.no_grad(), torch.autocast('cpu', dtype=torch.bfloat16):
+        encoded = actor.action_expert.decision.encode_current(raw, ego).detached()
+    assert encoded.visual_mask.sum() == 12 and len(encoded.deepstack) == 2
+    assert encoded.inputs_embeds.dtype == torch.float32
+    assert all(value.dtype == torch.bfloat16 for value in encoded.deepstack)
+    current = CurrentContext(None, None, ego, encoded, ('native_three_view',),
+                             'current', 'CPU_BF16_native_vision', 'native')
+    cond = dict(schema=CONDITION_SCHEMA, context=torch.zeros(8, 1, 1), current=current)
+    generator = torch.Generator().manual_seed(2142)
+    actor.record_sampling_terms = True
+    with torch.no_grad():
+        chain, times, deltas, steps = actor.sample_action_chain(cond, 8, generator=generator)
+        actual_terms = copy.deepcopy(actor.sampling_terms)
+        old = actor.action_chain_logprobs(cond, chain, times, deltas, stoch_idx=steps)
+        old_audit = copy.deepcopy(actor._probability_audit['current'])
+    assert steps.tolist() == [7, 8, 9] and len(actual_terms) == 3
+    # Reconstruct probabilities from the terms that actually produced x_next,
+    # not from a second model pass or from old/current self-consistency alone.
+    for i, (mean, std) in enumerate(actual_terms):
+        torch.testing.assert_close(mean, old_audit['mean'][:, i], atol=0, rtol=0)
+        torch.testing.assert_close(torch.tensor(std), old_audit['std'][i], atol=0, rtol=0)
+        raw_logp = torch.distributions.Normal(mean.float(),
+            torch.tensor(std, dtype=torch.float32)).log_prob(chain[:, int(steps[i])+1].float())
+        # Source uses the Python-double std for relative clamp bounds.
+        peak = -math.log(std)-.5*math.log(2*math.pi)
+        clipped_logp = raw_logp.clamp(min=peak-7., max=peak)
+        torch.testing.assert_close(raw_logp, old_audit['raw_gaussian_logprob'][:, i], atol=0, rtol=0)
+        torch.testing.assert_close(clipped_logp, old_audit['source_clamped_logprob'][:, i], atol=0, rtol=0)
+        torch.testing.assert_close(clipped_logp.mean((-1, -2)), old[:, i], atol=0, rtol=0)
+    # Optional diagnostic recording consumes no RNG and changes no sample.
+    actor.record_sampling_terms = False
+    unrecorded_generator = torch.Generator().manual_seed(2142)
+    with torch.no_grad():
+        unrecorded = actor.sample_action_chain(cond, 8, generator=unrecorded_generator)
+    for left, right in zip((chain, times, deltas, steps), unrecorded):
+        torch.testing.assert_close(left, right, atol=0, rtol=0)
+    assert torch.equal(generator.get_state(), unrecorded_generator.get_state())
+    first_inner = actor.action_chain_logprobs(cond, chain, times, deltas, stoch_idx=steps)
+    assert (torch.exp(first_inner-old)-1).abs().max() < 1e-4
+    torch.testing.assert_close(actor._probability_audit['current']['mean'], old_audit['mean'], atol=0, rtol=0)
+    first_inner.mean().backward()
+    assert any(p.grad is not None and p.grad.abs().sum() > 0
+               for p in actor.parameters() if p.requires_grad)
+    assert actor.prepared_context_builds['current'] == 4
+    assert actor._prepared_scope is None
