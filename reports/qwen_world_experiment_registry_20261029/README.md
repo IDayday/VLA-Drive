@@ -99,3 +99,6 @@ Huber评测已补齐全部12146场景，invalid0、native/export PASS、worker�
 优化标签20k84.126274已完整；原GT20k同预算补测另行登记。15001起两组采用各自刷新得到的post-head辅助候选bank，内容不同，因此后续对比包含该下游差异，不能永久称为纯主标签单因素。
 
 [完整loss报告](https://github.com/IDayday/VLA-Drive/blob/663e08af3f09972673cb28180f97bc4d472b4a52/reports/qwen_world_IL_loss_designs_20261028/README.md)
+
+
+[2026-10-29 16:25 UTC最新完整分数与时间加权IL迁移](latest_20261029T1625Z/README.md)
