@@ -147,6 +147,17 @@ def _admission_sample():
     return devices,owners
 
 
+def shared_training_host(host,grant):
+    """Unbounded temporary sharing requires an explicit immutable task grant."""
+    if host in grant['permanent_hosts']:return True
+    explicit=grant.get('shared_training_hosts',[])
+    if host not in explicit or host not in grant.get('unbounded_temporary_hosts',[]):return False
+    original=json.loads(Path(grant['record']).read_text())
+    if original.get('shared_training_hosts',[])!=explicit:
+        raise PermissionError('Shared training host list differs from immutable task grant')
+    return True
+
+
 def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     if not indices:return
     from starVLA.rl.qwen_world_postcot.resources import gpu_activity_issue
@@ -158,8 +169,8 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             raise ResourceRefused('Physical GPU mapping changed under admission lock')
         mapping.update({i:devices[i]['uuid']for i in indices})
         if args.share_min_free_mib:
-            if host not in grant['permanent_hosts']or args.share_min_free_mib<8192:
-                raise ValueError('Sharing requires a permanent host and measured valid headroom')
+            if not shared_training_host(host,grant)or args.share_min_free_mib<8192:
+                raise ValueError('Sharing requires an explicitly authorized host and measured valid headroom')
             _known_owners(owners,mapping,indices)
         elif any(row['uuid']in physical for row in owners):
             raise ResourceRefused('GPU acquired another owner '+('under admission lock'if locked else'before dispatch'))

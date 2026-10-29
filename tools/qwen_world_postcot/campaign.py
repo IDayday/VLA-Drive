@@ -92,10 +92,11 @@ def find_milestones(run, kind):
     return found
 
 
-def choose_training_host(minimum, *, excluded_uuids=()):
+def choose_training_host(minimum, *, excluded_uuids=(),eligible_hosts=None):
     """Permanent idle 8-GPU host, temporary idle host, then verified sharing."""
     grant, _ = authorization(); samples = []
     for host in allowed_hosts(admit_long_job=True):
+        if eligible_hosts is not None and host not in eligible_hosts:continue
         try:
             before = probe(host); time.sleep(.2); after = probe(host)
             if len(after['gpus']) != 8 or not after['worker_python_exists']: continue
@@ -106,7 +107,8 @@ def choose_training_host(minimum, *, excluded_uuids=()):
             if any(not owner['visible'] for owner in owners): continue
             if any(gpu_activity_issue(gpu,sample['owners'])for sample in (before,after)for gpu in sample['gpus']):continue
             permanent = host in grant['permanent_hosts']
-            if owners and (not permanent or any(not str(owner.get('output', '')).startswith(
+            from tools.qwen_world_postcot.job_worker import shared_training_host
+            if owners and (not shared_training_host(host,grant) or any(not str(owner.get('output', '')).startswith(
                     ('/mnt/project/qwen-sourceflow-', '/mnt/project/qwen-world-postcot-')) for owner in owners)):
                 continue
             samples.append((bool(owners), not permanent, host, after))

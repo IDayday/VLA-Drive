@@ -56,3 +56,13 @@ WORLD_POSTCOT_ROOT=/mnt/project/qwen-world-postcot-20261025/fresh_loss_IL_202610
 本修复区分两个概念：是否共享CUDA容量（仍必须显式share-min-free、已知可见项目PID、两次实际显存/UUID检查），以及占用哪一个空闲租约槽。新任务可以以共享方式持有空闲primary槽，不动现有shared锁；两槽都占用时继续拒绝，未增加第三槽。全八卡必须能使用同一空闲槽。准入仍要求至少49152MiB空闲，而实测同模型joint资格峰值约22.9GB（十进制）；无减batch/少训层/改损失。
 
 CPU控制器和lease executor来自独立fix/qwen-world-explicit-shared-training-20261029；executor路径/hash/槽位写入DISPATCH/RUNNING。所有模型进程继续从不可变9aa888c加载；训练source_files逐字节验证相同。CPU owner交接不向任何GPU训练/评测进程发信号，不刷新优化器或数据。
+
+## TIME IL原生迁移到vla-zt3（2026-10-29）
+
+用户要求迁移时间分布加权IL以加速。原zt3与V12 IL共享，最近160更新均值4.7591秒/步；目标vla-zt3当前八卡各约70GiB可用，与已有Navtest共享。rl-zt2当前是Huber6k和原IL96k各四个评测worker，非仍在训练物理组。
+
+执行适配仅限CPU controller和lease executor：对临时不限时vla-zt3增加明确shared_training_hosts授权，并核对其不可变收据，不能把临时节点伪装成permanent。保留原PID归属、两次显存/UUID和49152MiB准入、两槽锁；训练源码仍不可变9aa。TIME独立EXECUTION_ROUTING只限定目标主机，不进入actor/科学identity。
+
+CPU父owner交接时接管另外三条仍活跃的owner以及TIME已有5k评测：核对PID/start、arm、源码、请求根；等待真实owner退出与完整结果，不伪造Popen退出码、不重复启动评测。仅替换main和TIME的CPU owner，其余GPU训练与评测不停止。
+
+旧TIME在完整optimizer边界响应STOP_REQUESTED，原子保存完整原生模型/Adam/scheduler/八rank RNG/builder/cursor，确认全部rank退出后在目标主机恢复同一run至10k。数据、LR、初始化、损失、world8/global32与注册筛选规则均不变。迁移后要求八rank从保存点下一步续接、无跳步，测恢复后第6..35步均值与原160步对比；加载/保存时间另列，不称未来所有浮点运算bitwise等价。

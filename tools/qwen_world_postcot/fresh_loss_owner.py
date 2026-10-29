@@ -40,16 +40,73 @@ def held_shared_uuids(root='/mnt/project/runtime_gpu_shared_workers'):
 def training_route(state):
     shared=held_shared_uuids();primary=held_shared_uuids('/mnt/project/runtime_gpu_leases')
     excluded=c.claimed_uuids(state)|(shared&primary)
+    routing=ROOT/'EXECUTION_ROUTING.json'
+    eligible=None
+    if routing.exists():
+        directive=read(routing)
+        if (directive.get('schema')!='world_IL_execution_routing_v1' or directive.get('arm')!=ROOT.name
+                or directive.get('world')!=8 or not isinstance(directive.get('training_hosts'),list)):
+            raise ValueError('Invalid explicit training migration route')
+        eligible=directive['training_hosts']
     # Entire eight-GPU placement must use one vacant slot. Mixed busy patterns
     # are skipped, never repaired by taking another task's lease.
     for _ in range(len(allowed_hosts())):
-        route=c.choose_training_host(49152,excluded_uuids=excluded)
+        route=c.choose_training_host(49152,excluded_uuids=excluded,eligible_hosts=eligible)
         if route is None:return None
         uuids=set(route['uuids'])
         if route.get('share') and not uuids&shared:route['lease_slot']='shared';return route
         if not uuids&primary:route['lease_slot']='primary';return route
         excluded|=uuids
     return None
+
+
+def process_alive(receipt):
+    path=Path('/proc')/str(receipt['pid'])/'stat'
+    try:
+        fields=path.read_text().rsplit(')',1)[1].split()
+        return fields[0]!='Z'and int(fields[19])==receipt['start_ticks']
+    except FileNotFoundError:return False
+
+
+class AdoptedProcess:
+    """Observe a verified existing owner; never invent its process exit code."""
+    def __init__(self,receipt,completion,success_states,*,require_workers_exited=False):
+        self.receipt,self.completion,self.success_states=receipt,Path(completion),success_states
+        self.require_workers_exited=require_workers_exited
+    def poll(self):
+        if process_alive(self.receipt):return None
+        if self.completion.exists():
+            done=read(self.completion)
+            if done.get('status')in self.success_states and(not self.require_workers_exited or done.get('all_owned_workers_exited')is True):return 0
+        return 1
+
+
+def existing_arm(arm):
+    path=ROOT/arm;receipt=read(path/'OWNER.json')
+    if not process_alive(receipt):return None
+    cmd=(Path('/proc')/str(receipt['pid'])/'cmdline').read_bytes().decode().split('\0')
+    if (receipt.get('source')!=str(SOURCE)or receipt.get('arm')!=arm
+            or 'tools.qwen_world_postcot.fresh_loss_owner'not in cmd
+            or '--arm'not in cmd or cmd[cmd.index('--arm')+1]!=arm):
+        raise ValueError('Cannot adopt an unrelated arm CPU owner')
+    return AdoptedProcess(receipt,path/'COMPLETE.json',('STOPPED_AFTER_COMMON10K_SCREEN','FULL100K_AND_NAVTEST_COMPLETE'))
+
+
+def existing_test(step):
+    root=ROOT/'NAVTEST'/f'update{step:06d}';receipt=read(root/'LAUNCH.json');owner=read(root/'owner.json')
+    if any(receipt[key]!=owner[key]for key in('pid','start_ticks'))or owner.get('source')!=str(SOURCE):
+        raise ValueError('Active Test owner ancestry/source mismatch')
+    pins=read(root/'PINNED.json')['models']
+    if len(pins)!=1 or next(iter(pins.values()))['updates']!=step:raise ValueError('Changed active Test checkpoint')
+    if process_alive(receipt):
+        cmd=(Path('/proc')/str(receipt['pid'])/'cmdline').read_bytes().decode().split('\0')
+        if ('tools.qwen_world_postcot.latest_snapshot_owner'not in cmd or '--root'not in cmd
+                or Path(cmd[cmd.index('--root')+1]).resolve()!=root.resolve()):
+            raise ValueError('Active Test PID no longer owns this request')
+    elif not(root/'COMPLETE.json').exists():raise RuntimeError('Old Test owner exited without a complete request')
+    atomic_json(root/'CPU_PARENT_ADOPTION.json',dict(at=time.time(),new_parent_pid=os.getpid(),
+        owner=owner,previous_parent_replaced=True,no_evaluation_worker_restarted=True))
+    return AdoptedProcess(receipt,root/'COMPLETE.json',('COMPLETE',),require_workers_exited=True)
 
 
 def recover_state():
@@ -153,7 +210,7 @@ def arm_owner(arm):
         source=str(SOURCE), registration_sha256=registration['sha256'], arm=arm))
     state = recovered or dict(source=str(SOURCE), stage='QUALIFICATION', jobs={}, tests_done=[]); test = None
     if recovered and state.get('active_Test') is not None:
-        raise ValueError('Active Test CPU owner needs explicit separate adoption; do not duplicate')
+        test=existing_test(state['active_Test'])
     try:
         while True:
             c.poll_jobs(state)
@@ -212,7 +269,8 @@ def main_owner():
     state = recovered or dict(source=str(SOURCE), stage='CALIBRATION', jobs={}); children = {}
     if recovered and state['stage'] in ('FOUR_INDEPENDENT_SCREENS','SELECTED_FULL_CONTINUATIONS'):
         for arm in ARMS:
-            if not (ROOT/arm/'COMPLETE.json').exists(): children[arm] = spawn_arm(arm, recover=True)
+            if not (ROOT/arm/'COMPLETE.json').exists():
+                children[arm]=existing_arm(arm)or spawn_arm(arm,recover=True)
     try:
         while True:
             c.poll_jobs(state)
