@@ -22,6 +22,35 @@ SOURCE=Path(__file__).resolve().parents[2]
 def read(path):return json.loads(Path(path).read_text())
 
 
+def recover_owner(path):
+    """Reviewed authorization-only recovery; native scientific identity stays exact."""
+    receipt=read(path);body=dict(receipt)
+    if body.pop('sha256',None)!=fingerprint(body)or receipt['schema']!='world_optimized_IL_authorization_recovery_v1':
+        raise ValueError('Unsealed authorization recovery')
+    previous=read(ROOT/'OWNER.json')
+    if previous!=receipt['previous_owner']:raise ValueError('Recovery owner ancestry changed')
+    proc=Path('/proc')/str(previous['pid'])/'stat'
+    if proc.exists()and int(proc.read_text().rsplit(')',1)[1].split()[19])==previous['start_ticks']:
+        raise RuntimeError('Original owner still alive; no duplicate recovery')
+    for rel,digest in receipt['scientific_source_files'].items():
+        if file_sha(SOURCE/rel)!=digest:raise ValueError('Scientific source changed: '+rel)
+    if file_sha(Path(receipt['checkpoint'])/'files.json')!=receipt['checkpoint_files_sha256']:
+        raise ValueError('Recovery inventory changed')
+    failure=Path(receipt['previous_failure'])
+    if file_sha(failure)!=receipt['previous_failure_sha256']:raise ValueError('Failure ancestry changed')
+    state=read(failure)['state'];c.poll_jobs(state)
+    for name,job in state['jobs'].items():
+        if job['status']in('RUNNING','WAITING_OWNED_EXIT'):raise RuntimeError('Previous worker has not exited: '+name)
+        if job['status']=='FAILED':
+            if name!='formal_IL_attempt001':raise ValueError('Unexpected failure requires separate review')
+            error=(Path(job['receipt'])/'stdout.log').read_text(encoding='utf-8',errors='replace')
+            if 'Task host lease and immutable grant disagree: temporary_hosts'not in error:
+                raise ValueError('Failure differs from the reviewed authorization incident')
+            job.update(status='ABORTED_AUTHORIZATION',recovery_receipt=str(Path(path).resolve()))
+    state.update(stage='FULL_IL',recovery_receipt=str(Path(path).resolve()))
+    return state
+
+
 def command(output,config,targets,*,qualification=False,resume=None):
     args=[c.MODEL_PYTHON,'-u','-m','torch.distributed.run','--standalone','--nproc-per-node=8',
           '-m','tools.qwen_world_postcot.train_il','--config',str(config),'--output',str(output),
@@ -32,17 +61,21 @@ def command(output,config,targets,*,qualification=False,resume=None):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--config',required=True);a=p.parse_args()
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--config',required=True);p.add_argument('--recover-owner');a=p.parse_args()
     if ROOT.name!='optimized_labels_IL_20261028':raise ValueError('Explicit independent WORLD_POSTCOT_ROOT required')
     ROOT.mkdir(parents=True,exist_ok=True);lock=(ROOT/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    if (ROOT/'OWNER.json').exists():raise FileExistsError('Do not duplicate the optimized IL owner')
+    if (ROOT/'OWNER.json').exists()and not a.recover_owner:raise FileExistsError('Do not duplicate the optimized IL owner')
     targets=ROOT/'targets';target_id=read(targets/'MANIFEST.json');config=Path(a.config).resolve()
-    state=dict(source=str(SOURCE),jobs={},resource_refusals={},stage='QUALIFICATION',
-        budget_updates=100000,target_identity_sha256=target_id['sha256'],automatic_RL=False)
+    state=(recover_owner(a.recover_owner)if a.recover_owner else dict(source=str(SOURCE),jobs={},resource_refusals={},stage='QUALIFICATION',
+        budget_updates=100000,target_identity_sha256=target_id['sha256'],automatic_RL=False))
     atomic_json(ROOT/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]),
         source=str(SOURCE),source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=SOURCE,text=True).strip(),at=time.time()))
     receipt=dict(minimum_free_MiB=49152,micro_batch=4,evaluation_minimum_free_MiB=32768,refresh_minimum_free_MiB=32768)
-    test_process=None;tests_done=[]
+    test_process=None;tests_done=list(state.get('tests_done',[]))
+    if a.recover_owner:
+        old=ROOT/'FAILURE.json'
+        if old.exists():os.replace(old,Path(a.recover_owner).parent/'ROOT_FAILURE_before_recovery.json')
+        atomic_json(ROOT/'RECOVERY_ACTIVE.json',dict(receipt=str(Path(a.recover_owner).resolve()),owner_pid=os.getpid(),at=time.time()))
     try:
         while True:
             c.poll_jobs(state)
