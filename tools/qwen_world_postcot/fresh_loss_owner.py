@@ -79,6 +79,11 @@ class AdoptedProcess:
             done=read(self.completion)
             if done.get('status')in self.success_states and(not self.require_workers_exited or done.get('all_owned_workers_exited')is True):return 0
         return 1
+    @property
+    def returncode(self):
+        # Existing owner code uses Popen.poll() followed by .returncode.
+        # This value is explicitly completion-derived, not an observed OS code.
+        return self.poll()
 
 
 def existing_arm(arm):
@@ -104,7 +109,12 @@ def existing_test(step):
                 or Path(cmd[cmd.index('--root')+1]).resolve()!=root.resolve()):
             raise ValueError('Active Test PID no longer owns this request')
     elif not(root/'COMPLETE.json').exists():raise RuntimeError('Old Test owner exited without a complete request')
-    atomic_json(root/'CPU_PARENT_ADOPTION.json',dict(at=time.time(),new_parent_pid=os.getpid(),
+    previous=root/'CPU_PARENT_ADOPTION.json'
+    if previous.exists():
+        prior=read(previous);ancestor=root/f'CPU_PARENT_ADOPTION_ancestor_{prior["new_parent_pid"]}.json'
+        if not ancestor.exists():atomic_json(ancestor,prior)
+        elif read(ancestor)!=prior:raise ValueError('Changed previous Test adoption receipt')
+    atomic_json(previous,dict(at=time.time(),new_parent_pid=os.getpid(),
         owner=owner,previous_parent_replaced=True,no_evaluation_worker_restarted=True))
     return AdoptedProcess(receipt,root/'COMPLETE.json',('COMPLETE',),require_workers_exited=True)
 

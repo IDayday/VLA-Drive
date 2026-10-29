@@ -26,14 +26,19 @@ def test_adopted_test_waits_for_real_owner_exit(monkeypatch,tmp_path):
     monkeypatch.setattr(owner,'process_alive',lambda receipt:True)
     handle=owner.AdoptedProcess({},done,('COMPLETE',),require_workers_exited=True)
     assert handle.poll()is None
+    assert handle.returncode is None
     monkeypatch.setattr(owner,'process_alive',lambda receipt:False)
     assert handle.poll()==0
+    # Exercise the actual legacy caller, not only the adapter in isolation.
+    if handle.poll()is not None:
+        assert not handle.returncode and done.exists()
 
 
 def test_adopted_test_rejects_missing_worker_exit_proof(monkeypatch,tmp_path):
     done=tmp_path/'COMPLETE.json';done.write_text(json.dumps(dict(status='COMPLETE')))
     monkeypatch.setattr(owner,'process_alive',lambda receipt:False)
     assert owner.AdoptedProcess({},done,('COMPLETE',),require_workers_exited=True).poll()==1
+    assert owner.AdoptedProcess({},done,('COMPLETE',),require_workers_exited=True).returncode==1
 
 
 def test_adopted_arm_rejects_unrelated_live_process(monkeypatch,tmp_path):

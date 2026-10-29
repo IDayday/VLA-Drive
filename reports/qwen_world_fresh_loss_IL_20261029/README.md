@@ -66,3 +66,5 @@ CPU控制器和lease executor来自独立fix/qwen-world-explicit-shared-training
 CPU父owner交接时接管另外三条仍活跃的owner以及TIME已有5k评测：核对PID/start、arm、源码、请求根；等待真实owner退出与完整结果，不伪造Popen退出码、不重复启动评测。仅替换main和TIME的CPU owner，其余GPU训练与评测不停止。
 
 旧TIME在完整optimizer边界响应STOP_REQUESTED，原子保存完整原生模型/Adam/scheduler/八rank RNG/builder/cursor，确认全部rank退出后在目标主机恢复同一run至10k。数据、LR、初始化、损失、world8/global32与注册筛选规则均不变。迁移后要求八rank从保存点下一步续接、无跳步，测恢复后第6..35步均值与原160步对比；加载/保存时间另列，不称未来所有浮点运算bitwise等价。
+
+迁移中发现并保留一个CPU接管错误：AdoptedProcess实现了poll却遗漏旧调用方访问的returncode属性。新TIME GPU任务已按5390原生保存点恢复；错误发生在随后处理已完成5k评测时，导致TIME与main CPU owner退出，未停止GPU或修改权重。独立修复分支补齐completion-derived returncode并用真实调用形式测试；原控制器failure、报告验证失败与调用栈保留在迁移审计目录，重新接管已有GPU任务，绝不重新初始化或重复派发。
