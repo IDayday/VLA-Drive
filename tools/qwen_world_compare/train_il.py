@@ -125,6 +125,9 @@ def main():
     model=build_model(cfg).to(device)
     if cfg['architecture_id']!='D'and cfg['execution']['activation_checkpointing']:model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     groups=parameter_groups(model,cfg);opt=cfg['il']['optimizer']
+    # ZeRO2 replaces param_groups entries with flattened master tensors. Bind
+    # logical model names/shapes before handing those same groups to the engine.
+    group_contract=optimizer_group_contract(model,groups)
     optimizer=torch.optim.AdamW(groups,betas=tuple(opt['betas']),eps=opt['eps'],weight_decay=opt['weight_decay'],fused=opt['fused'])
     scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lr_scales(cfg,groups,joint=a.joint))
     ds=dict(train_batch_size=32,train_micro_batch_size_per_gpu=micro,gradient_accumulation_steps=accum,gradient_clipping=1.,bf16=dict(enabled=False),fp16=dict(enabled=False),zero_optimization=dict(stage=2,overlap_comm=True,contiguous_gradients=True,reduce_bucket_size=50000000,allgather_bucket_size=50000000,ignore_unused_parameters=True),steps_per_print=1000000)
@@ -133,7 +136,7 @@ def main():
         engine,_,_,_=deepspeed.initialize(model=model,optimizer=optimizer,lr_scheduler=scheduler,config=ds,dist_init_required=False)
     else:engine=ProfileDDPEngine(model,optimizer,scheduler,accum)
     qcfg=model.decision.qwen_model.config.to_dict()if cfg['architecture_id']=='D'else model.qwen.model.config.to_dict()
-    identity=cp.canonical_identity(dict(schema='qwen_world_compare_IL_v1',architecture_id=cfg['architecture_id'],config=cfg,model_config=cfg['model'],qwen_config=qcfg,world=world,qualification=a.qualification,uses_rl=False,uses_metric_supervision=True,train_heads=True,source_files=source_files(),initialization=qwen_identity,parameter_roles=model.parameter_roles(),optimizer_ordered_parameter_groups=optimizer_group_contract(model,groups),data_sha256=data.sha,teacher_identity_sha256=file_sha(Path(cfg['teacher_cache'])/'IDENTITY.json'),candidate_bank_hash=bank.bank_hash,evidence_identity=evidence.manifest['identity'],evidence_manifest_sha256=file_sha(evidence.root/'MANIFEST.json'),target_manifest_sha256=file_sha(tracks.root/'manifest.json'),execution=dict(backend=backend,micro=micro,accum=accum,ds=ds),joint_override=a.joint))
+    identity=cp.canonical_identity(dict(schema='qwen_world_compare_IL_v1',architecture_id=cfg['architecture_id'],config=cfg,model_config=cfg['model'],qwen_config=qcfg,world=world,qualification=a.qualification,uses_rl=False,uses_metric_supervision=True,train_heads=True,source_files=source_files(),initialization=qwen_identity,parameter_roles=model.parameter_roles(),optimizer_ordered_parameter_groups=group_contract,data_sha256=data.sha,teacher_identity_sha256=file_sha(Path(cfg['teacher_cache'])/'IDENTITY.json'),candidate_bank_hash=bank.bank_hash,evidence_identity=evidence.manifest['identity'],evidence_manifest_sha256=file_sha(evidence.root/'MANIFEST.json'),target_manifest_sha256=file_sha(tracks.root/'manifest.json'),execution=dict(backend=backend,micro=micro,accum=accum,ds=ds),joint_override=a.joint))
     def publish():
         p=out/'IDENTITY.json'
         if p.exists()and json.loads(p.read_text())!=identity:raise ValueError('Existing run identity mismatch')

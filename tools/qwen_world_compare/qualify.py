@@ -60,6 +60,7 @@ def main():
     a=p.parse_args()
     if a.compare:compare_native(*a.compare,a.output);return
     source=Path(a.source).resolve();q=ROOT/'qualification';q.mkdir(exist_ok=True);lk=(q/'owner.lock').open('a');fcntl.flock(lk,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    source_tag=subprocess.check_output(['git','rev-parse','--short=8','HEAD'],cwd=source,text=True).strip()
     if subprocess.check_output(['git','status','--porcelain'],cwd=source,text=True).strip():raise ValueError('Qualification runs from an immutable clean worktree')
     state_path=q/'STATE.json';state=json.loads(state_path.read_text())if state_path.exists()else dict(source=str(source),arms={x:dict(stage='BASELINE_PENDING')for x in a.architectures},jobs={})
     if state['source']!=str(source):raise ValueError('Another qualification source owns this root')
@@ -119,7 +120,7 @@ def main():
                 if kind=='BASELINE':command+=['--qualification-save-at','2']
                 else:command+=['--resume',str(base/'IL_joint/checkpoints/update000002')]
                 attempt=1+sum(x['architecture']==arch and x['stage']==kind for x in state['jobs'].values())
-                name=f'qualify_{arch}_{kind.lower()}_attempt{attempt:03d}'
+                name=f'qualify_{source_tag}_{arch}_{kind.lower()}_attempt{attempt:03d}'
                 state['jobs'][name]=dict(receipt=str(ROOT/'jobs'/name),architecture=arch,stage=kind,host=host,uuids=uuids,intent_unix=time.time())
                 arm['stage']=kind+'_RUNNING';atomic_json(state_path,state)
                 receipt=launch(host,str(source),command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=uuids,minimum=65000)
@@ -129,7 +130,7 @@ def main():
                 # not the lower-memory front-end container.
                 prior=[j for j in state['jobs'].values()if j['architecture']==arch and j['stage']=='RESUME'][-1]
                 command=[PYTHON,'-u','-m','tools.qwen_world_compare.qualify','--compare',str(base/'IL_joint/checkpoints/update000004'),str(base/'IL_resume_from2/checkpoints/update000004'),'--output',str(base/'NATIVE_RESUME_CHECK.json')]
-                name=f'qualify_{arch}_native_compare_attempt001'
+                name=f'qualify_{source_tag}_{arch}_native_compare_attempt001'
                 state['jobs'][name]=dict(receipt=str(ROOT/'jobs'/name),architecture=arch,stage='COMPARE',host=prior['host'],uuids=[],intent_unix=time.time())
                 arm['stage']='COMPARE_RUNNING';atomic_json(state_path,state)
                 receipt=launch(prior['host'],str(source),command,name)
