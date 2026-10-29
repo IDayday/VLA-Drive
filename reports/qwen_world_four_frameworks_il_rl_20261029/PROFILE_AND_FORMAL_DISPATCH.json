@@ -1,0 +1,153 @@
+{
+  "as_of_unix": 1793318389.3567002,
+  "profiles": {
+    "A": {
+      "status": "PASS",
+      "evidence": "/mnt/project/qwen-world-four-frameworks-20261029/profiles/fcd43eb/A_BACKEND_COMPARISON.json",
+      "full4_DDP_over_zero2_throughput": 1.5279458396980805,
+      "native_DDP_resume_qualified": false,
+      "zero2": {
+        "slowest_rank_update_wall_seconds": [
+          8.953914051875472,
+          11.563306700438261,
+          5.290171984583139,
+          5.337750349193811
+        ],
+        "global_scenes_per_second": 4.109790076937048,
+        "peak_allocated_bytes": 23519641600,
+        "peak_reserved_bytes": 29179772928
+      },
+      "ddp": {
+        "slowest_rank_update_wall_seconds": [
+          5.207829130813479,
+          4.680044092237949,
+          5.227977279573679,
+          5.267819046974182
+        ],
+        "global_scenes_per_second": 6.279536650088417,
+        "peak_allocated_bytes": 60777494528,
+        "peak_reserved_bytes": 62696456192
+      }
+    },
+    "B": {
+      "status": "PASS",
+      "evidence": "/mnt/project/qwen-world-four-frameworks-20261029/profiles/fcd43eb/B_BACKEND_COMPARISON.json",
+      "full4_DDP_over_zero2_throughput": 1.579735536605771,
+      "native_DDP_resume_qualified": false,
+      "zero2": {
+        "slowest_rank_update_wall_seconds": [
+          13.633536474779248,
+          15.061433590948582,
+          7.28508485481143,
+          6.582019474357367
+        ],
+        "global_scenes_per_second": 3.0073722162223313,
+        "peak_allocated_bytes": 23106061312,
+        "peak_reserved_bytes": 30377246720
+      },
+      "ddp": {
+        "slowest_rank_update_wall_seconds": [
+          6.922923510894179,
+          5.799517096951604,
+          6.999119373038411,
+          7.22097148001194
+        ],
+        "global_scenes_per_second": 4.750852761767272,
+        "peak_allocated_bytes": 59679618560,
+        "peak_reserved_bytes": 61649977344
+      }
+    },
+    "C": {
+      "status": "PASS",
+      "evidence": "/mnt/project/qwen-world-four-frameworks-20261029/profiles/fcd43eb/C_BACKEND_COMPARISON.json",
+      "full4_DDP_over_zero2_throughput": 1.363975336994508,
+      "native_DDP_resume_qualified": false,
+      "zero2": {
+        "slowest_rank_update_wall_seconds": [
+          9.065462967380881,
+          9.220841923728585,
+          5.4727394580841064,
+          5.429870523512363
+        ],
+        "global_scenes_per_second": 4.385226397014527,
+        "peak_allocated_bytes": 23564840448,
+        "peak_reserved_bytes": 29047652352
+      },
+      "ddp": {
+        "slowest_rank_update_wall_seconds": [
+          5.416828161105514,
+          4.750337643548846,
+          5.547810975462198,
+          5.684907866641879
+        ],
+        "global_scenes_per_second": 5.981340652665102,
+        "peak_allocated_bytes": 60882989568,
+        "peak_reserved_bytes": 62815993856
+      }
+    },
+    "D": {
+      "status": "PASS",
+      "evidence": "/mnt/project/qwen-world-four-frameworks-20261029/profiles/fcd43eb/D_BACKEND_COMPARISON.json",
+      "full4_DDP_over_zero2_throughput": 1.0700189821626584,
+      "native_DDP_resume_qualified": false,
+      "zero2": {
+        "slowest_rank_update_wall_seconds": [
+          18.12144062295556,
+          23.621965054422617,
+          12.717490453273058,
+          13.476959146559238
+        ],
+        "global_scenes_per_second": 1.8840747838994143,
+        "peak_allocated_bytes": 23869202432,
+        "peak_reserved_bytes": 28131196928
+      },
+      "ddp": {
+        "slowest_rank_update_wall_seconds": [
+          9.776895901188254,
+          10.720836078748107,
+          12.830527052283287,
+          30.163937283679843
+        ],
+        "global_scenes_per_second": 2.015995782586382,
+        "peak_allocated_bytes": 52398991360,
+        "peak_reserved_bytes": 54259613696
+      }
+    }
+  },
+  "formal_progress": {
+    "A": {
+      "status": "IL_RUNNING",
+      "formal_IL_updates": 101,
+      "formal_IL_budget": 100000,
+      "formal_RL_budget": 50000,
+      "RL_started": false
+    },
+    "B": {
+      "status": "IL_RUNNING",
+      "formal_IL_updates": 81,
+      "formal_IL_budget": 100000,
+      "formal_RL_budget": 50000,
+      "RL_started": false
+    },
+    "C": {
+      "status": "WAITING_TRAINING_RESOURCES",
+      "formal_IL_updates": 0,
+      "formal_IL_budget": 100000,
+      "formal_RL_budget": 50000,
+      "RL_started": false
+    },
+    "D": {
+      "status": "WAITING_TRAINING_RESOURCES",
+      "formal_IL_updates": 0,
+      "formal_IL_budget": 100000,
+      "formal_RL_budget": 50000,
+      "RL_started": false
+    }
+  },
+  "scientific_source": "fdaff809652370328e45c0d996ad706e1af2fc0c",
+  "operations_source": "fcd43eb76f60f1954a420267ca431dd3e0f6ad7a",
+  "current_deployment_scores": null,
+  "formal_backend": "zero2",
+  "complete": false,
+  "interpretation": "Each backend has four real full-model global32 updates and8rank CUDA traces. Includes warmup/tracing; first4 ratios do not establish long-run speedup or numerical parameter-update equivalence. Full IL/RL/Navtest remain unfinished."
+}

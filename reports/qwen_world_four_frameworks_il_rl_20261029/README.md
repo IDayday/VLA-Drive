@@ -1,6 +1,6 @@
 # Qwen-World四架构：完整IL100k与Flow-GRPO RL50k
 
-本轮是四组完整主实验；当前仍处于实现、数据完成与真实GPU资格阶段，不能记为100k/50k已完成。所有四组都保留完整预算，不按早期性能淘汰。训练seed42，推理seed2101。当前实际日期2026-10-29，因此隔离分支与目录使用20261029；未修改旧实验工作树。
+本轮是四组完整主实验；实现、共同数据及四组真实八卡资格已通过，正式IL已开始，不能记为100k/50k已完成。所有四组都保留完整预算，不按早期性能淘汰。训练seed42，推理seed2101。当前实际日期2026-10-29，因此隔离分支与目录使用20261029；未修改旧实验工作树。
 
 ## 结构与共同输入
 
@@ -57,7 +57,11 @@ A只actorattention LoRA；B共享attention；C actor＋在线world attention＋w
 
 2026-10-29 23:14 UTC，四组真实八卡qualification全部PASS：每组连续4次有效joint更新及update2原生恢复至4，模型、全部8rank Adam/scheduler/RNG/builder/cursor精确相同，七项共同损失、Qwen与新模块实际梯度均已核对。初次比较器误按Python对象身份比较LossScaler，失败证据保留；修复仅严格比较其类和全部字段，CPU重核通过，未重训或改变任何科学计算。完整证据见[真实GPU资格](REAL_GPU_QUALIFICATION.md)及[机器可读摘要](REAL_GPU_QUALIFICATION.json)。
 
-科学训练源码固定fdaff809652370328e45c0d996ad706e1af2fc0c；operations快照fcd43eb76f60f1954a420267ca431dd3e0f6ad7a只修控制器、资格和profile统计，以显式双source migration绑定。下一步进行有限完整模型DDP/ZeRO2 profile及正式IL100k；自身IL父模型选定后，另过真实RL四inner/inner2恢复与采样概率资格门槛，才启动50k。当前无本轮完整IL/RL或Navtest分数。
+科学训练源码固定fdaff809652370328e45c0d996ad706e1af2fc0c；operations快照fcd43eb76f60f1954a420267ca431dd3e0f6ad7a只修控制器、资格和profile统计，以显式双source migration绑定。四组完整模型DDP/ZeRO2有限profile全部完成：每backend4个有效更新、八rank CUDA trace；DDP可容纳但初始化/trace影响较大，且尚未验证DDP原生恢复，正式统一保留ZeRO2。
+
+2026-10-29 23:49 UTC起，唯一正式campaign owner1812063实际启动A/B，分别位于rl-zt2/tsinghua-zt，当前八rank更新连续、skip0；C/D等整机资源，仍保留完整预算。全部从通用初始化重新开始，未使用qualification权重。实际profile与启动快照见[机器可读记录](PROFILE_AND_FORMAL_DISPATCH.json)。自身IL100k完成并选出父模型后，另过真实RL四inner/inner2恢复与采样概率资格门槛，才启动RL50k。当前无本轮完整IL/RL或Navtest分数。
+
+只读`runtime_watch.py --root <artifact-root> --once`已实际执行，后台每1800秒生成一次运行快照。仅在有100个joint更新的完整窗口后估计训练部分ETA；不把interface短窗口、累计更新或共享worker wall伪写为全流程精确耗时。当前资源撤销、恢复和旧TIME无损迁移见[资源变更](RESOURCE_CHANGE.md)。
 
 ## 真正存在的入口
 
