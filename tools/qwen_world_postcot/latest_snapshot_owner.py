@@ -118,6 +118,9 @@ def finalize_sweep(root, requests, report):
     """Derived comparisons only; all native prediction/scoring paths are reused."""
     from tools.qwen_world_postcot.summarize import summarize
     pinned = read(root/'PINNED.json')
+    if pinned.get('fresh_loss_progress_sweep'):
+        from tools.qwen_world_postcot.loss_progress_analysis import finish
+        return finish(root,requests,report)
     if pinned.get('label_source_matched_sweep'):
         from tools.qwen_world_postcot.finish_label_source_match import finish
         return finish(root, requests, report)
