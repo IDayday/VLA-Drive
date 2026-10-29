@@ -1,13 +1,17 @@
-# 原GT／优化标签20k：同预算Navtest补测登记
+# 原轨迹与优化轨迹标签：同预算 Qwen-World IL
 
-优化标签20k已完整12146场景，canonical v1.1单候选clean-x K10 shift5 ODE、seed2101，PDMS84.12627395485266，invalid0且native/export PASS。本次只补原GT20k，原生完整checkpoint已硬链接锁定；不重复优化标签推理或评分。
+两组都是通用Qwen＋新建memory/actor的完整100k预算IL，使用同一架构、seed42、global32、原L1和四个辅助任务。此处比较相同20000更新的完整Navtest。两组前15k八rank的场景顺序、LR、辅助曝光与实际候选bank已核对。配置仅独立bank registry路径不同。从15001到20000两组各自刷新了post-head辅助候选bank，内容不同；场景顺序/LR/optimizer计数仍匹配。因此此点比较完整标签训练方案，不能只归因主轨迹标签。
 
-两组初始化、模型与主配置、前20k场景顺序/LR/optimizer计数一致。前15k实际候选bank相同；15001起原GT使用自身10k刷新bank，优化标签使用自身10k刷新bank，八rank每个有5000次不同bank曝光。因此20k比较包含此下游辅助监督差异，不能说成纯主轨迹标签梯度的单因素对照。完整核验见matching_audit.json。
+canonical NAVSIM v1.1、完整12146场景、单候选clean-x十步shift5 ODE、seed2101。Test历史已被观察；不称盲测。优化标签已有结果直接复用，不增加其推理或评分。
 
-逻辑新增12146场景评价、1次native/export一致性。固定五主机，仅当前授权显存和共享lease准入；无新训练、seed或候选筛选。完整结束后按44个物理log配对bootstrap，报告优化−原GT及NC/DAC/TTC/EP等分项。
+| 更新数 | 原轨迹IL | 优化轨迹IL | 优化−原轨迹（点） | 配对95%区间（点） |
+|---|---:|---:|---:|---|
+| 20000 | 86.631877 | 84.126274 | -2.505603 | [-4.316024, -0.969194] |
 
-```bash
-/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m tools.qwen_world_postcot.latest_snapshot_owner --root /mnt/project/qwen-world-postcot-20261025/original_vs_optimized20k_NAVTEST_20261029T0740Z --report-dir reports/qwen_world_label_source20k_20261029
-```
+区间按完整物理log聚类bootstrap，保留场景权重。paired字段方向统一为优化标签减原轨迹；包含新增失败、恢复、G+/G−及全部原生分项。一个训练/推理seed不提供训练seed复现证据。
 
-这是结果前登记，owner完成全部worker并验证后会自动替换结果并推送。Test历史已反复观察。原100k训练不修改、不重启。
+这些点只判断早期同预算学习；完整100k终点尚未完成，不能将早期阴性结果当作优化标签最终无效。原轨迹13k原生payload不在保留列表，本次不拿其他更新数替代它。优化标签历史98分是标签评分，不是模型部署分数。
+
+初始化/模型/优化器/teacher合同一致；源码有可选标签overlay、资源/身份、诊断接口等适配，未宣称源码逐字节相同。前15k实际bank相同，后续各自异步刷新仍需按实际记录核对，不能预先宣称整个100k只有标签差异。
+
+本次新增12146条逻辑场景评测、1次native/export一致性；复用的优化标签评测也有历史费用。逐调用共享GPU worker时间在资产根保留，不当作独占GPU计算时间。没有重新训练或新增seed。
