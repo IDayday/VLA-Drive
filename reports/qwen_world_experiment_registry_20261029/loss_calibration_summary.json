@@ -1,0 +1,46 @@
+{
+  "schema": "world_IL_loss_designs_TRAIN_calibration_v1",
+  "status": "PASS",
+  "arms": {
+    "CONTROL": {
+      "kind": "CONTROL",
+      "scale": 1.0
+    },
+    "TIME_RESIDUAL": {
+      "kind": "TIME_RESIDUAL",
+      "scale": 0.8380804061889648,
+      "horizon_weights": [
+        1.397528598828269,
+        1.397528598828269,
+        1.397528598828269,
+        1.0123570058586555,
+        0.6987642994141345,
+        0.6987642994141345,
+        0.6987642994141345,
+        0.6987642994141345
+      ]
+    },
+    "DELTA": {
+      "kind": "DELTA",
+      "scale": 0.9128245115280151,
+      "delta_coefficient": 0.10473885387182236
+    },
+    "HUBER": {
+      "kind": "HUBER",
+      "scale": 3.473036289215088
+    }
+  },
+  "gradient_cosines": {
+    "TIME_RESIDUAL": 0.9982229471206665,
+    "DELTA": 0.9995990991592407,
+    "HUBER": 0.9420996308326721
+  },
+  "gradient_scope": [
+    "action_output.weight",
+    "action_output.bias",
+    "output_norm.weight",
+    "output_norm.bias"
+  ],
+  "warning": "Output-layer gradient calibration only, not full-model gradient matching; no DEV/Test calibration.",
+  "sha256": "663b6744fb3df9659e27896f8acc13eace7e16b93ea8a7ad28888f52966f6652"
+}

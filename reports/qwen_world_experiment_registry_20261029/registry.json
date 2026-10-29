@@ -1,0 +1,238 @@
+{
+  "schema": "VLA_Drive_experiment_registry_20261029_v1",
+  "as_of_utc": "2026-10-29T06:22:34.658450+00:00",
+  "index_base_commit": "1724e456d3ea4cffa57ea178d5f226d2eb845bb4",
+  "protocol": {
+    "main_score": "canonical NAVSIM v1.1 PDMS",
+    "internal_scale": "0..1",
+    "reported_scale": "0..100",
+    "inference": "one trajectory, clean-x K10 shift5 ODE",
+    "training_seed": 42,
+    "evaluation_seed": 2101,
+    "scene_count": 12146,
+    "fragment_logs": 136,
+    "physical_logs": 44,
+    "invalid_allowed": 0,
+    "scorer_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "RL_actual_parent": "WORLD_IL040000",
+    "RL_actual_parent_PDMS": 87.97238223922025,
+    "Test_previously_observed": true
+  },
+  "versions": [
+    {
+      "id": "DDP_FLOW_GRPO",
+      "status": "legacy_stopped",
+      "code": {
+        "commit": "25f9148eb75ddf171313720e758a280b82c24f7f",
+        "path": "starVLA/rl/flow_grpo",
+        "url": "https://github.com/IDayday/VLA-Drive/tree/25f9148eb75ddf171313720e758a280b82c24f7f/starVLA/rl/flow_grpo"
+      },
+      "branch": "fix/ddp-action-transition-batch",
+      "description": "旧DDP完整动作头GRPO，历史PDMS+0.1722/EPDMS+0.2126；安全恢复并不全面。"
+    },
+    {
+      "id": "DDP_CONSTRAINED_NOISE",
+      "status": "legacy_stopped",
+      "code": {
+        "commit": "90782b6b5a10a77541c22b29f90b83d7309d7081",
+        "path": "starVLA/rl/constrained_flow_noise",
+        "url": "https://github.com/IDayday/VLA-Drive/tree/90782b6b5a10a77541c22b29f90b83d7309d7081/starVLA/rl/constrained_flow_noise"
+      },
+      "branch": "feature/ddp-learned-noise-constrained-grpo-20261014",
+      "description": "固定C_SDE与learnednoise两线，旧DDP研究；未混入当前World。"
+    },
+    {
+      "id": "DDP_SIMWAM_RECIPE",
+      "status": "legacy_stopped",
+      "code": {
+        "commit": "12b8e0d75691d7bed04ab02072020e130f711a3b",
+        "path": "starVLA/rl/simwam_recipe",
+        "url": "https://github.com/IDayday/VLA-Drive/tree/12b8e0d75691d7bed04ab02072020e130f711a3b/starVLA/rl/simwam_recipe"
+      },
+      "branch": "feature/ddp-simwam-recipe-transfer-20261015",
+      "description": "源配方R_SOURCE/R_CANONICAL，旧DDP8x4与LoRA适配。"
+    },
+    {
+      "id": "DDP_SIMWAM_FM",
+      "status": "legacy_stopped",
+      "code": {
+        "commit": "b7162de9ad33440e80c2431525daf80daa9ba391",
+        "path": "starVLA/rl/fm_transfer",
+        "url": "https://github.com/IDayday/VLA-Drive/tree/b7162de9ad33440e80c2431525daf80daa9ba391/starVLA/rl/fm_transfer"
+      },
+      "branch": "feature/ddp-simwam-fm-transfer-20261016",
+      "description": "动作FM迁移B路线；不是当前20层clean-x World。"
+    },
+    {
+      "id": "DDP_SOURCE_PROCESS",
+      "status": "legacy_stopped",
+      "code": {
+        "commit": "901e3b41b3123c6f45280cbc800febcdf5e4b226",
+        "path": "reports/ddp_simwam_source_process_20261018",
+        "url": "https://github.com/IDayday/VLA-Drive/tree/901e3b41b3123c6f45280cbc800febcdf5e4b226/reports/ddp_simwam_source_process_20261018"
+      },
+      "branch": "feature/ddp-simwam-source-process-20261018",
+      "description": "公开困难人口和源过程对照，历史保留。"
+    },
+    {
+      "id": "NATIVE_QWEN_FLOW",
+      "status": "stopped_by_user",
+      "code": {
+        "commit": "7ff501ba86e9a6e8fa6965c3644495583129f9d0",
+        "path": "starVLA/model/modules/qwen_sourceflow",
+        "url": "https://github.com/IDayday/VLA-Drive/tree/7ff501ba86e9a6e8fa6965c3644495583129f9d0/starVLA/model/modules/qwen_sourceflow"
+      },
+      "branch": "feature/qwen-sourceflow-native-vla-20261018",
+      "description": "此前Qwen+30层源ActionDiT、velocity FM；IL98k88.004393历史参考。"
+    },
+    {
+      "id": "TEMPORAL_DINO",
+      "status": "paused_by_user",
+      "code": {
+        "commit": "69a9958746dc9addb70776f5d8fcafe6c3915e18",
+        "path": "scripts/analysis/qwen_sourceflow/train_temporal_il.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/69a9958746dc9addb70776f5d8fcafe6c3915e18/scripts/analysis/qwen_sourceflow/train_temporal_il.py"
+      },
+      "branch": "source-lock/qwen-flow-temporal-dino-formal-v4-20261029",
+      "description": "历史两帧+当前三视图与DINO；独立旧模型，不能当World预测memory。"
+    },
+    {
+      "id": "NATIVE_SAFE_GRPO",
+      "status": "legacy_training_complete",
+      "code": {
+        "commit": "ee200bc11f03b026ee54c02e1997eb7db8a57861",
+        "path": "starVLA/rl/qwen_sourceflow/safe_runtime.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/ee200bc11f03b026ee54c02e1997eb7db8a57861/starVLA/rl/qwen_sourceflow/safe_runtime.py"
+      },
+      "branch": "source-lock/qwen-flow-safe-grpo-formal-v3-20261029",
+      "description": "旧Qwen-Flow的WLA_ADV/SCADV3；当前World三组均不含此dual目标。"
+    },
+    {
+      "id": "WORLD_IL_RAW",
+      "status": "training_100k",
+      "code": {
+        "commit": "d54617b3ff02d714c067ce809a50f50cd19bceb6",
+        "path": "starVLA/model/modules/qwen_world_postcot",
+        "url": "https://github.com/IDayday/VLA-Drive/tree/d54617b3ff02d714c067ce809a50f50cd19bceb6/starVLA/model/modules/qwen_world_postcot"
+      },
+      "branch": null,
+      "description": "当前Qwen+160scene/32predictive memory+20层clean-x actor；原GT、完整IL。"
+    },
+    {
+      "id": "WORLD_RL_ATTENTION",
+      "status": "training_complete_50k",
+      "code": {
+        "commit": "9a57b54d46b6f84b2000b0d4d43b5adfbd2995d2",
+        "path": "starVLA/rl/qwen_world_postcot/rl_actor.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/9a57b54d46b6f84b2000b0d4d43b5adfbd2995d2/starVLA/rl/qwen_world_postcot/rl_actor.py"
+      },
+      "branch": "feature/qwen-world-rl-il40k-20261027",
+      "description": "只训练160个动作注意力投影的LoRA，320张量/5242880参数，r16/alpha32。"
+    },
+    {
+      "id": "WORLD_RL_MEMORY",
+      "status": "training_complete_50k",
+      "code": {
+        "commit": "367bffd27aff5785fce6352481b89e2a433a9ee1",
+        "path": "starVLA/rl/qwen_world_postcot/scope_actor.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/367bffd27aff5785fce6352481b89e2a433a9ee1/starVLA/rl/qwen_world_postcot/scope_actor.py"
+      },
+      "branch": "feature/qwen-world-rl-memory-time-20261027",
+      "description": "动作LoRA+完整scene/predictive memory，458张量/52707840参数；Qwen冻结。"
+    },
+    {
+      "id": "WORLD_RL_TIME",
+      "status": "training_complete_50k",
+      "code": {
+        "commit": "367bffd27aff5785fce6352481b89e2a433a9ee1",
+        "path": "starVLA/rl/qwen_world_postcot/scope_contracts.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/367bffd27aff5785fce6352481b89e2a433a9ee1/starVLA/rl/qwen_world_postcot/scope_contracts.py"
+      },
+      "branch": "feature/qwen-world-rl-memory-time-20261027",
+      "description": "Time MLP/20block与末端AdaLN LoRA，r32/alpha32，46张量/4816896参数。"
+    },
+    {
+      "id": "WORLD_LOSS_PHYSICAL",
+      "status": "training_complete_2k",
+      "code": {
+        "commit": "b3f7fc7cc54d6ecd588a531c642e06bca72f656e",
+        "path": "starVLA/rl/qwen_world_postcot/coordinate_objective.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/b3f7fc7cc54d6ecd588a531c642e06bca72f656e/starVLA/rl/qwen_world_postcot/coordinate_objective.py"
+      },
+      "branch": "experiment/qwen-world-coordinate-loss-20261028",
+      "description": "同63k模型/Adam续训2k；物理容差固定坐标权重。"
+    },
+    {
+      "id": "WORLD_LOSS_FAMILY",
+      "status": "training_complete_2k_evaluation_partial",
+      "code": {
+        "commit": "3e344dff880a7cc3fcfc3638102e604749648aed",
+        "path": "starVLA/rl/qwen_world_postcot/loss_designs.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/3e344dff880a7cc3fcfc3638102e604749648aed/starVLA/rl/qwen_world_postcot/loss_designs.py"
+      },
+      "branch": "experiment/qwen-world-il-loss-designs-20261028",
+      "description": "TIME_RESIDUAL/DELTA/HUBER三个独立63k+2k臂。Huber准入故障未完成全量评分。"
+    },
+    {
+      "id": "WORLD_IL_V12",
+      "status": "training_100k",
+      "code": {
+        "commit": "8315c9a25c872c690e739132e900deaf9f8d3f65",
+        "path": "tools/qwen_world_postcot/optimized_il_owner.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/8315c9a25c872c690e739132e900deaf9f8d3f65/tools/qwen_world_postcot/optimized_il_owner.py"
+      },
+      "branch": "experiment/qwen-world-optimized-labels-il-20261028",
+      "description": "通用初始化完整100k；原L1/四aux不变，只替换规划轨迹标签。执行恢复源码905c5ef另列。"
+    },
+    {
+      "id": "WORLD_LABEL_MATCH",
+      "status": "evaluation_complete",
+      "code": {
+        "commit": "1724e456d3ea4cffa57ea178d5f226d2eb845bb4",
+        "path": "tools/qwen_world_postcot/finish_label_source_match.py",
+        "url": "https://github.com/IDayday/VLA-Drive/blob/1724e456d3ea4cffa57ea178d5f226d2eb845bb4/tools/qwen_world_postcot/finish_label_source_match.py"
+      },
+      "branch": "eval/qwen-world-original-vs-optimized-labels-20261029",
+      "description": "新增原GT10k/15k全Navtest，复用V12同更新点；不拿70k对15k。",
+      "report_commit": "7ca648d4a5feb0aa6f4d4bd0a7a8dcaaa1e83172"
+    }
+  ],
+  "data": {
+    "TRAIN": {
+      "scenes": 90890,
+      "fragments": 1041,
+      "physical_logs": 147
+    },
+    "DEV": {
+      "scenes": 1696,
+      "fragments": 16,
+      "physical_logs": 15
+    },
+    "NAVTEST": {
+      "scenes": 12146,
+      "fragments": 136,
+      "physical_logs": 44
+    },
+    "physical_log_overlap_counts": {
+      "TRAIN_DEV": 0,
+      "TRAIN_NAVTEST": 0,
+      "DEV_NAVTEST": 0
+    },
+    "RL_HARD_scenes": 15171
+  },
+  "note": "Cross-branch source registry. No experimental branches merged, no checkpoint tensors/cache/raw scenes uploaded. Branch HEAD and scientific source SHA are separate concepts.",
+  "completed_score_rows": 47,
+  "training_status": {
+    "ORIGINAL_IL": {
+      "updates": 87303,
+      "target": 100000,
+      "optimizer_skipped_steps": 0
+    },
+    "OPTIMIZED_IL": {
+      "updates": 19514,
+      "target": 100000,
+      "optimizer_skipped_steps": 0
+    }
+  },
+  "sha256": "d74eef4811b94b934f80ccacc8cc11ed85421830636a9a05f8654fd02b336a8d"
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "world_loss_screen_to_full_IL_gate_v1",
+  "user_instruction": "几种不同损失函数的实验，可以先做预实验，看看哪个可能效果更好，然后再跑全量100k实验",
+  "current_screen": {
+    "parent": "same original IL63k",
+    "new_updates": 2000,
+    "scene_exposures": 64000,
+    "arms": [
+      "CONTROL",
+      "PHYSICAL",
+      "TIME_RESIDUAL",
+      "DELTA",
+      "HUBER"
+    ]
+  },
+  "selection_status": "WAITING_COMPLETE_HUBER_TEST_AND_PROTOCOL_LOCK",
+  "selected_method": null,
+  "full_run_started": false,
+  "full_confirmation": {
+    "total_updates": 100000,
+    "initialization": "official generic Qwen plus same newly initialized World memory/actor; not a63k continuation",
+    "main_metric": "canonical NAVSIM v1.1 PDMS",
+    "main_selection_evaluation": "full Navtest, user requested; repeated Test use disclosed",
+    "training_seed": 42,
+    "evaluation_seed": 2101,
+    "requirements": [
+      "Complete all pre-screen Test scores before claiming a ranking.",
+      "2k late-switch negatives do not rule out loss-from-initialization value.",
+      "If insufficient, separately register a short common-generic-init pilot with a profiled budget.",
+      "Verify any reused original-L1 control matches init/data/teacher/bank/scheduler exposure.",
+      "Calibrate loss scales once on TRAIN at new initialization; do not blindly reuse63k head-gradient scales.",
+      "Choose a small number of candidates; do not automatically run every arm100k."
+    ]
+  }
+}
