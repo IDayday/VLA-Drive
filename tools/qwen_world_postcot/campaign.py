@@ -126,15 +126,19 @@ def choose_eval_routes(minimum, excluded_uuids=(), maximum=8):
     return [dict(host=r['host'], gpus=[r['gpu']], uuids=[r['uuid']], share=None,minimum_free_MiB=minimum) for r in routes[:maximum]]
 
 
-def launch(host, source, command, invocation, gpus='', share=None,expected_uuids=None,minimum=None):
+def launch(host, source, command, invocation, gpus='', share=None,expected_uuids=None,minimum=None,lease_slot=None):
     directory = ROOT/'jobs'/invocation; directory.mkdir(parents=True, exist_ok=True)
     if (directory/'DISPATCH.json').exists():
         raise ValueError('Invocation identity already dispatched')
-    args = [MODEL_PYTHON, '-m', 'tools.qwen_world_postcot.job_worker', '--receipt-root', str(directory),
+    # Operational executor is pinned independently; actor imports/cwd remain
+    # the immutable scientific source supplied by the caller.
+    executor=str(Path(__file__).resolve().with_name('job_worker.py'))
+    args = [MODEL_PYTHON, executor, '--receipt-root', str(directory),
             '--gpus', gpus, '--command-json', json.dumps(command), '--cwd', source]
     if share: args += ['--share-min-free-mib', str(share)]
     if expected_uuids is not None:args+=['--expected-gpu-uuids-json',json.dumps(expected_uuids)]
     if minimum:args+=['--minimum-free-mib',str(minimum)]
+    if lease_slot:args+=['--lease-slot',lease_slot]
     # Namespace explicit new runs on remote containers as well as locally.
     # Do not rely on SSH propagating environment variables.
     runtime_env={key:os.environ[key] for key in ('WORLD_POSTCOT_ROOT','WORLD_POSTCOT_TASK','PYTHONUTF8') if key in os.environ}
@@ -145,7 +149,8 @@ def launch(host, source, command, invocation, gpus='', share=None,expected_uuids
         'print(json.dumps(dict(worker_pid=p.pid,worker_start_ticks=int(Path(f"/proc/{p.pid}/stat").read_text().split()[21]))))')
     started = json.loads(remote(host, [MODEL_PYTHON, '-c', code]))
     atomic_json(directory/'DISPATCH.json', dict(host=host, source=source, command=command,
-                invocation=invocation, dispatched_unix=time.time(), **started))
+                invocation=invocation, dispatched_unix=time.time(),executor=executor,
+                executor_sha256=file_sha(executor),lease_slot=lease_slot,**started))
     return str(directory)
 
 
@@ -211,14 +216,15 @@ def dispatch(state, source, name, command, route, *, role):
     invocation = name+f'_attempt{attempts:03d}'
     receipt = ROOT/'jobs'/invocation; receipt.mkdir(parents=True, exist_ok=True)
     job = dict(name=name, role=role, receipt=str(receipt), host=route['host'],
-        uuids=route['uuids'], gpus=route['gpus'], command=command, status='RUNNING', dispatch_unix=time.time())
+        uuids=route['uuids'], gpus=route['gpus'], command=command, status='RUNNING', dispatch_unix=time.time(),
+        lease_slot=route.get('lease_slot'))
     # Persist intent before the remote fork. A controller crash cannot erase
     # ownership and silently create a second long-running lineage.
     atomic_json(receipt/'CAMPAIGN_INTENT.json', dict(source=source, invocation=invocation, job=job))
     state['jobs'][invocation] = job
     launch(route['host'], source, command, invocation,
         gpus=','.join(map(str, route['gpus'])), share=route.get('share'),
-        expected_uuids=route['uuids'],minimum=route.get('minimum_free_MiB'))
+        expected_uuids=route['uuids'],minimum=route.get('minimum_free_MiB'),lease_slot=route.get('lease_slot'))
     return invocation
 
 

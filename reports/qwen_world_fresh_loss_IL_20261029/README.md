@@ -48,3 +48,11 @@ WORLD_POSTCOT_ROOT=/mnt/project/qwen-world-postcot-20261025/fresh_loss_IL_202610
 真实启动发现c.choose_training_host按显存/进程选择整机，却没有提前排除已持有shared lease的评测卡；三组启动前被拒绝，尚未产生任何资格/正式链。修复只在CPU owner挑路由前只读检查shared lease，跳过繁忙UUID；不夺锁、不停评测、不改actor/数据/优化器/科学源文件。
 
 修复控制器运行在独立`fix/qwen-world-fresh-loss-admission-20261029`工作区；`--runtime-source`固定所有GPU worker仍从原9aa888c不可变工作区加载。`--recover-owner`必须确认旧CPU PID/start已退出，验证全部训练source_files字节一致，保留前owner/state收据，poll已有CAMPAIGN_INTENT，不重启已运行GPU任务。若已有active Test，拒绝盲恢复。
+
+## 用户明确要求立即共享启动：空闲primary槽可共享（2026-10-29）
+
+实测DELTA和HUBER已在vla-zt/Tsinghua-zt共享正式IL；TIME仍等待。Tsinghua-zt3/zt5各八卡仍有约50GiB空余，既有原IL/V12 IL仅占原shared槽，primary槽空闲。此前调度把“shared槽被占”误作不能共享。
+
+本修复区分两个概念：是否共享CUDA容量（仍必须显式share-min-free、已知可见项目PID、两次实际显存/UUID检查），以及占用哪一个空闲租约槽。新任务可以以共享方式持有空闲primary槽，不动现有shared锁；两槽都占用时继续拒绝，未增加第三槽。全八卡必须能使用同一空闲槽。准入仍要求至少49152MiB空闲，而实测同模型joint资格峰值约22.9GB（十进制）；无减batch/少训层/改损失。
+
+CPU控制器和lease executor来自独立fix/qwen-world-explicit-shared-training-20261029；executor路径/hash/槽位写入DISPATCH/RUNNING。所有模型进程继续从不可变9aa888c加载；训练source_files逐字节验证相同。CPU owner交接不向任何GPU训练/评测进程发信号，不刷新优化器或数据。

@@ -171,8 +171,15 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             raise ResourceRefused('Measured GPU headroom changed '+('under admission lock'if locked else'before dispatch'))
     devices,owners=_admission_sample();verify(devices,owners,locked=False)
     PRIMARY_LEASE_ROOT.mkdir(exist_ok=True);SHARED_LEASE_ROOT.mkdir(exist_ok=True)
+    # Slot ownership and whether this process shares CUDA capacity are distinct.
+    # A previous learner can still hold the shared slot after its original
+    # cohost exits. Reuse the vacant primary slot with the SAME owner/headroom
+    # checks; never steal the shared lock or silently start a third slot.
+    slot=getattr(args,'lease_slot',None) or ('shared' if args.share_min_free_mib else 'primary')
+    if slot=='shared' and not args.share_min_free_mib:
+        raise ValueError('The shared slot requires explicit measured sharing admission')
     for index in indices:
-        lease=((SHARED_LEASE_ROOT if args.share_min_free_mib else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
+        lease=((SHARED_LEASE_ROOT if slot=='shared' else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
         try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError as error:
             lease.close();raise ResourceRefused('GPU admission lease became busy before child startup')from error
@@ -187,6 +194,7 @@ def main():
     parser.add_argument('--receipt-root',required=True);parser.add_argument('--gpus',default='')
     parser.add_argument('--expected-gpu-uuids-json');parser.add_argument('--command-json',required=True);parser.add_argument('--cwd',required=True)
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
+    parser.add_argument('--lease-slot',choices=('primary','shared'))
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
@@ -202,6 +210,8 @@ def main():
     state=dict(status='ADMISSION',host=host,worker_pid=os.getpid(),worker_start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
         start_unix=time.time(),gpus=indices,requested_gpu_uuids=expected,
         command=command,cwd=str(Path(args.cwd).resolve()),shared_headroom_MiB=args.share_min_free_mib)
+    state.update(lease_slot=args.lease_slot or ('shared' if args.share_min_free_mib else 'primary'),
+        execution_worker=str(Path(__file__).resolve()),execution_worker_sha256=file_sha(__file__))
     try:
         try:require_dispatch(admit_long_job=True)
         except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error

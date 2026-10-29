@@ -38,7 +38,18 @@ def held_shared_uuids(root='/mnt/project/runtime_gpu_shared_workers'):
 
 
 def training_route(state):
-    return c.choose_training_host(49152, excluded_uuids=c.claimed_uuids(state) | held_shared_uuids())
+    shared=held_shared_uuids();primary=held_shared_uuids('/mnt/project/runtime_gpu_leases')
+    excluded=c.claimed_uuids(state)|(shared&primary)
+    # Entire eight-GPU placement must use one vacant slot. Mixed busy patterns
+    # are skipped, never repaired by taking another task's lease.
+    for _ in range(len(allowed_hosts())):
+        route=c.choose_training_host(49152,excluded_uuids=excluded)
+        if route is None:return None
+        uuids=set(route['uuids'])
+        if route.get('share') and not uuids&shared:route['lease_slot']='shared';return route
+        if not uuids&primary:route['lease_slot']='primary';return route
+        excluded|=uuids
+    return None
 
 
 def recover_state():
