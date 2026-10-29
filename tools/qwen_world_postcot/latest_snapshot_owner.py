@@ -212,7 +212,7 @@ def main():
     for label, pin in pinned['models'].items():
         directory = root/label; directory.mkdir(exist_ok=False)
         from starVLA.rl.qwen_sourceflow.resources import allowed_hosts
-        pin = dict(pin, evaluation_hosts=allowed_hosts())
+        pin = dict(pin, evaluation_hosts=[h for h in allowed_hosts() if h in pinned.get('evaluation_hosts', allowed_hosts())])
         requests[label] = SnapshotRequest(directory, pin)
     failures = {}
     concurrency = int(pinned.get('max_concurrent_models', 4))
