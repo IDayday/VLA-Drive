@@ -172,7 +172,7 @@ try:
  for uuid in json.loads(sys.argv[2]):
   path=Path(sys.argv[1])/(uuid+'.lock')
   if not path.exists():continue
-  lock=path.open('r');locks.append(lock)
+  lock=path.open('r+');locks.append(lock)
   try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
   except BlockingIOError:free=False;break
  print(json.dumps(dict(available=free)))
