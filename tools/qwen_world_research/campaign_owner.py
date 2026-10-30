@@ -20,7 +20,7 @@ import time
 import traceback
 
 DEFAULT_ROOT = Path('/mnt/project/qwen-world-rl-optimization-20261030')
-FIRST_ARMS = ('PPO_HARD', 'PPO_FULL', 'PPO_ADAPTIVE', 'CISPO_FULL', 'NFT_FULL')
+FIRST_ARMS = ('PPO_HARD', 'PPO_FULL', 'PPO_ADAPTIVE', 'CISPO_FULL', 'NFT_FULL', 'PPO_BATCHSTD')
 GATES = (1000, 5000, 10000, 20000, 35000, 50000)
 FIRST_PRIORITY_GATE = 5000
 SAFETY = ('no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collision_within_bound')

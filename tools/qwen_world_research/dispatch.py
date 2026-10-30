@@ -65,7 +65,11 @@ def start_worker(root,job,*,host,source,command,gpus,uuids=None,lease='research'
     if host not in allowed_hosts(admit_long_job=True):
         raise PermissionError('Host withdrawn before dispatch: '+host)
     job.mkdir(parents=True,exist_ok=False)
-    argv=['/usr/bin/python3','-m','tools.qwen_world_research.job_worker',
+    operator_record=root/'SOURCE_OPERATOR.json'
+    worker_source=Path(json.loads(operator_record.read_text())['source']) if operator_record.exists() else source
+    worker_entry=(['/usr/bin/python3',str(worker_source/'tools/qwen_world_research/job_worker.py')]
+                  if operator_record.exists() else ['/usr/bin/python3','-m','tools.qwen_world_research.job_worker'])
+    argv=[*worker_entry,
           '--receipt-root',str(job),'--gpus',','.join(map(str,gpus)),
           '--share-min-free-mib',str(minimum_free),'--command-json',json.dumps(command),'--cwd',str(source)]
     if uuids is not None:argv+=['--expected-gpu-uuids-json',json.dumps(uuids)]
@@ -80,7 +84,7 @@ def start_worker(root,job,*,host,source,command,gpus,uuids=None,lease='research'
     log=(job/'transport.log').open('ab',buffering=0)
     process=subprocess.Popen(invocation,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
     log.close();PROCESSES[str(job)]=process
-    write(job/'LAUNCH.json',dict(host=host,source=str(source),command=command,gpus=gpus,
+    write(job/'LAUNCH.json',dict(host=host,source=str(source),worker_source=str(worker_source),command=command,gpus=gpus,
           gpu_uuids=uuids,lease=lease,transport_pid=process.pid,
           transport_start_ticks=int(Path(f'/proc/{process.pid}/stat').read_text().split()[21]),
           dispatched_unix=time.time(),receipt=str(job)))
