@@ -1,8 +1,8 @@
 """Qualified selected-parent RL50k, followed by its full native Navtest."""
+import argparse
 import json
 from pathlib import Path
 import subprocess
-import sys
 
 from starVLA.rl.qwen_world_postcot.checkpoint import atomic_json
 from starVLA.rl.qwen_world_postcot.contracts import file_sha, fingerprint
@@ -10,7 +10,9 @@ from tools.qwen_world_postcot.start_scope_rl import main as train
 
 
 def main():
-    registration = Path(sys.argv[sys.argv.index('--registration')+1])
+    parser = argparse.ArgumentParser(__doc__)
+    parser.add_argument('--registration', required=True)
+    registration = Path(parser.parse_args().registration)
     cfg = json.loads(registration.read_text()); root = Path(cfg['root'])
     train()  # Existing real16-update acceptance, mid-inner resume, then fresh50k.
     checkpoint = Path(cfg['formal_run'])/'checkpoints/update050000_inner0'

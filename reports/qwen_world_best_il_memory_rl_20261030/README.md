@@ -11,7 +11,7 @@
 部署仍单候选clean-x十步shift5 ODE、seed2101、canonicalv1.1。50k完整提交后自动使用同一qualified exporter/evaluator做12146场景Navtest，配对IL70k。
 
 ```bash
-/usr/bin/python3 -u -m tools.qwen_world_postcot.selected_parent_owner --registration /mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030/REGISTRATION.json
+/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m tools.qwen_world_postcot.selected_parent_owner --registration /mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030/REGISTRATION.json
 ```
 
 唯一owner和UUID lease防重复。vla-zt3八卡共享已知评测worker，实测每卡至少49GiB空闲；保留其他训练。故障不无记录重试；以原子合法边界恢复。正式状态和后续结果写资产根，完成后自动推送结果。训练启动不记为完成。
