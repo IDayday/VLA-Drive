@@ -45,7 +45,8 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl'):continue
+                             'tools.qwen_world_postcot.train_scope_rl',
+                             'tools.qwen_world_postcot.train_selected_parent_rl'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -158,7 +159,10 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             raise ResourceRefused('Physical GPU mapping changed under admission lock')
         mapping.update({i:devices[i]['uuid']for i in indices})
         if args.share_min_free_mib:
-            if host not in grant['permanent_hosts']or args.share_min_free_mib<8192:
+            permitted = list(grant['permanent_hosts'])
+            if getattr(args,'primary_shared_training',False):
+                permitted += grant.get('unbounded_temporary_hosts',[])
+            if host not in permitted or args.share_min_free_mib<8192:
                 raise ValueError('Sharing requires a permanent host and measured valid headroom')
             _known_owners(owners,mapping,indices)
         elif any(row['uuid']in physical for row in owners):
@@ -172,7 +176,8 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     devices,owners=_admission_sample();verify(devices,owners,locked=False)
     PRIMARY_LEASE_ROOT.mkdir(exist_ok=True);SHARED_LEASE_ROOT.mkdir(exist_ok=True)
     for index in indices:
-        lease=((SHARED_LEASE_ROOT if args.share_min_free_mib else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
+        shared_worker=args.share_min_free_mib and not getattr(args,'primary_shared_training',False)
+        lease=((SHARED_LEASE_ROOT if shared_worker else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
         try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError as error:
             lease.close();raise ResourceRefused('GPU admission lease became busy before child startup')from error
@@ -187,9 +192,14 @@ def main():
     parser.add_argument('--receipt-root',required=True);parser.add_argument('--gpus',default='')
     parser.add_argument('--expected-gpu-uuids-json');parser.add_argument('--command-json',required=True);parser.add_argument('--cwd',required=True)
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
+    parser.add_argument('--primary-shared-training',action='store_true',
+        help='Own the primary training lease while cohosting known inference with measured headroom')
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
+    if args.primary_shared_training and (not args.share_min_free_mib or
+            'tools.qwen_world_postcot.train_selected_parent_rl' not in command):
+        raise ValueError('Primary sharing is restricted to the explicitly registered selected-parent trainer')
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')

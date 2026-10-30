@@ -98,6 +98,8 @@ def main():
             '--minimum-free-mib',str(cfg['minimum_free_MiB']),'--command-json',json.dumps(command),'--cwd',str(source)]
         if cfg.get('share_min_free_mib'):
             worker+=['--share-min-free-mib',str(cfg['share_min_free_mib'])]
+        if cfg.get('primary_shared_training'):
+            worker+=['--primary-shared-training']
         invocation=['env','PYTHONPATH='+str(source),'CUBLAS_WORKSPACE_CONFIG=:4096:8',*worker]
         if host!=socket.gethostname().removesuffix('-worker-0'):
             invocation=['ssh','-T','-o','BatchMode=yes','-o','ConnectTimeout=10',host,shlex.join(invocation)]
@@ -108,8 +110,13 @@ def main():
         row.update(returncode=code,result=result,end_unix=time.time(),status='EXITED' if code==0 and result and result['returncode']==0 else 'FAILED')
         publish()
         if row['status']!='EXITED':raise RuntimeError('Native stage failed; sealed boundary/failure evidence retained: '+name)
-    base=[MODEL_PYTHON,'-m','torch.distributed.run','--standalone','--nproc-per-node=8','-m','tools.qwen_world_postcot.train_scope_rl',
+    training_module=cfg.get('training_module','tools.qwen_world_postcot.train_scope_rl')
+    if training_module not in ('tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_postcot.train_selected_parent_rl'):
+        raise ValueError('Unregistered scope training entry')
+    base=[MODEL_PYTHON,'-m','torch.distributed.run','--standalone','--nproc-per-node=8','-m',training_module,
         '--config',cfg['config'],'--manifest',cfg['manifest'],'--data',cfg['data'],'--il-checkpoint',selected['checkpoint']]
+    if training_module=='tools.qwen_world_postcot.train_selected_parent_rl':
+        base+=['--parent-selection',cfg['parent_selection']]
     qual=Path(cfg['qualification_run'])
     try:
         mid=qual/'checkpoints/update000006_inner2'

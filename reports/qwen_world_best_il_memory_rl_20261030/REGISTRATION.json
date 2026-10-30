@@ -1,0 +1,38 @@
+{
+  "root": "/mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030",
+  "source": "/mnt/project/VLA-Drive-qwen-world-best-il-memory-rl-20261030",
+  "host": "training-vla-zt3",
+  "adaptation": "ATTN_LORA_MEMORY",
+  "config": "configs/qwen_world_postcot/rl_best_il_memory.yaml",
+  "recipe_sha256": "922cb826c0a5054d1485e7de8a93978aef541fd6e352e7ef69531aaba468c155",
+  "parent_selection": "/mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030/PARENT_SELECTION.json",
+  "parent_selection_file_sha256": "94a90c3f96f4908389f8156a2c830cfca58b054513eae8700364e12a556515db",
+  "manifest": "/mnt/project/qwen-world-postcot-20261025/data/RL_HARD.json",
+  "data": "/mnt/project/qwen-world-postcot-20261025/data/TRAIN",
+  "formal_run": "/mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030/runs/RL_ATTN_LORA_MEMORY_IL070000_seed42",
+  "qualification_run": "/mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030/qualification",
+  "gpu_uuids": [
+    "GPU-12938c11-0c31-8107-84f7-af3cf3ae8bac",
+    "GPU-d73dd5b9-bc56-5c9b-39d7-e5e1ede93daf",
+    "GPU-5e1befe6-f3d0-21b8-dd30-824d052bcda8",
+    "GPU-d7523ec1-534d-6946-fd71-feb28cf494ae",
+    "GPU-39870a11-a216-3acb-9d6e-6779932c2af0",
+    "GPU-77bc4cc1-49b5-f723-0dac-e9fdd4f124bc",
+    "GPU-e8ee0d23-02c1-613e-5015-33beced422db",
+    "GPU-6bf9e4eb-72ec-4c9e-382b-908a6679dfc7"
+  ],
+  "minimum_free_MiB": 49152,
+  "share_min_free_mib": 49152,
+  "primary_shared_training": true,
+  "training_module": "tools.qwen_world_postcot.train_selected_parent_rl",
+  "parent_evaluation": "/mnt/project/qwen-world-postcot-20261025/IL_late_checkpoints_NAVTEST_20261029T0310Z/WORLD_IL_070000/evaluation",
+  "evaluation_report": "reports/qwen_world_best_il_memory_rl_20261030/results",
+  "budget": {
+    "optimizer_updates": 50000,
+    "fresh_global_rollouts": 12500,
+    "scene_exposures": 100000,
+    "new_candidates": 800000
+  },
+  "initialization": "fresh LoRA at IL70k, fresh Adam, training42; qualification weights discarded",
+  "method_selection": "best matched complete World RL50k endpoint: attention+memory90.6288919341; old IL40k parent87.9723822392"
+}
