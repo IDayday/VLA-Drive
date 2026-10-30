@@ -266,6 +266,16 @@ class CampaignOwner:
             self.capacity_epoch += 1
             self.capacity_changed.notify_all()
 
+    def wait_capacity(self, node, *, status, label, arm=None, since=None):
+        """Resource refusal is a wait state, independent of scientific failure."""
+        with self.capacity_changed:
+            epoch=self.capacity_epoch if since is None else since
+            node['status']=status
+            if arm:self.state['runs'][arm]['status']=status
+            self.event('resource_capacity_wait',label=label,status=status)
+            released=self.capacity_changed.wait_for(lambda:self.capacity_epoch!=epoch,timeout=1800)
+        if not released:self.event('capacity_wait_heartbeat',label=label,status=status)
+
     def update_run_registry(self, arm, **values):
         # dispatch.py uses the same cross-thread/process lock; preserve every
         # unrelated row/field rather than rewriting the registration snapshot.
@@ -289,42 +299,52 @@ class CampaignOwner:
                          manifest=self.panel if cohort=='TRAIN_DIAGNOSTIC' else self.navtest_manifest,
                          data=self.data if cohort=='TRAIN_DIAGNOSTIC' else self.navtest_data,
                          baseline=baseline)
-        for attempt in range(self.resource_retries+1):
+        attempts=int(node.get('resource75_requeues',0))
+        resource_epoch=None
+        while True:
             spec = node.get('spec')
             while spec is None:
-                with self.capacity_changed:epoch=self.capacity_epoch
+                if node.get('resource_capacity_wait'):
+                    if resource_epoch is not None:
+                        self.wait_capacity(node,status='WAITING_EVAL_CAPACITY',label=label,since=resource_epoch)
+                    with self.mutex:node.pop('resource_capacity_wait',None);self.flush()
+                with self.capacity_changed:dispatch_epoch=self.capacity_epoch
                 try:
                     spec = self.dispatcher.dispatch_evaluation(**arguments)
                 except BlockingIOError as error:
                     with self.mutex:
-                        node.update(status='WAITING_CAPACITY',capacity_reason=str(error))
+                        node.update(status='WAITING_EVAL_CAPACITY',capacity_reason=str(error))
                         self.flush()
                     self.event('evaluation_waiting_capacity',label=label,reason=str(error))
-                    # Capacity waiting is independent of scientific/resource75
-                    # retry accounting. Actual worker exits wake it immediately;
-                    # unrelated jobs can also release capacity between the
-                    # sparse1800-second administrative heartbeats.
-                    with self.capacity_changed:
-                        released=self.capacity_changed.wait_for(lambda:self.capacity_epoch!=epoch,timeout=1800)
-                    if not released:self.event('capacity_wait_heartbeat',label=label)
+                    self.wait_capacity(node,status='WAITING_EVAL_CAPACITY',label=label,since=dispatch_epoch)
                     continue
                 with self.mutex:
                     node['spec']=spec;node['status']='DISPATCHED';self.flush()
             results=[]
+            with self.capacity_changed:resource_epoch=self.capacity_epoch
             for job in spec['jobs']:
-                results.append(self.dispatcher.wait_job(job_path(job)))
-                self.capacity_released()
+                result=self.dispatcher.wait_job(job_path(job));results.append(result)
+                if not (result_code(result)==75 and result.get('child_not_started') is True):
+                    with self.mutex:
+                        reported=node.setdefault('capacity_release_reported_jobs',[])
+                        if job_path(job) not in reported:
+                            reported.append(job_path(job));self.flush()
+                            self.capacity_released()
             bad = [r for r in results if result_code(r)!=0]
             if bad:
                 resource_only = all(result_code(r)==75 and r.get('child_not_started') is True for r in bad)
                 with self.mutex:
                     node.setdefault('failed_attempts',[]).append(dict(at=now(),spec=spec,results=bad))
                     self.flush()
-                if resource_only and attempt<self.resource_retries:
+                if resource_only:
                     # Same semantic label/output. Dispatcher must reuse good
                     # shards and create new receipts only for refused children.
-                    with self.mutex:node.pop('spec',None)
-                    self.event('evaluation_resource75_requeue',label=label,attempt=attempt+1)
+                    with self.mutex:
+                        attempts+=1;node['resource75_requeues']=attempts
+                        node.pop('spec',None)
+                        node['resource_capacity_wait']=attempts>self.resource_retries
+                        self.flush()
+                    self.event('evaluation_resource75_requeue',label=label,attempt=attempts)
                     continue
                 raise RuntimeError('Evaluation child failed; no scientific retry: '+json.dumps(bad,default=str)[:2500])
             summary = self.dispatcher.finish_evaluation(spec)
@@ -340,7 +360,6 @@ class CampaignOwner:
                 self.flush()
             self.event('evaluation_complete',label=label,cohort=cohort,PDMS=summary.get('PDMS'))
             return summary
-        raise RuntimeError('Unreachable evaluation retry state')
 
     def baseline(self):
         with self.mutex:
@@ -396,10 +415,15 @@ class CampaignOwner:
                 node['adopted_initial_dispatch']=True
                 self.flush()
         attempts=int(node.get('resource75_requeues',0))
+        resource_epoch=None
         while True:
             if not node.get('train_job'):
+                if (node.get('resource_requeue_pending') and attempts>self.resource_retries
+                        and resource_epoch is not None):
+                    self.wait_capacity(node,status='WAITING_TRAIN_CAPACITY',label=arm,arm=arm,since=resource_epoch)
                 current=next(r for r in read_json(self.root/'RUNS.json')['runs'] if r['id']==arm)
-                if current.get('stage_budget_updates')==target and current.get('job'):
+                if (current.get('stage_budget_updates')==target and current.get('job')
+                        and not node.get('resource_requeue_pending')):
                     new_job=current['job']
                     with self.mutex:node['adopted_published_dispatch']=True
                 else:
@@ -407,23 +431,22 @@ class CampaignOwner:
                         resume=resume,source=self.runs[arm].get('source')))
                 with self.mutex:
                     node['train_job']=new_job
+                    node.pop('resource_requeue_pending',None)
                     self.flush()
             job=str(node['train_job'])
             self.update_arm(arm,status='TRAINING',stage_target_updates=target,job=job)
+            with self.capacity_changed:resource_epoch=self.capacity_epoch
             result=self.dispatcher.wait_job(job)
-            self.capacity_released()
+            if not (result_code(result)==75 and result.get('child_not_started') is True):
+                self.capacity_released()
             with self.mutex:
                 node['train_result']=result;self.flush()
             code=result_code(result)
-            if code==75 and result.get('child_not_started') is True and attempts<self.resource_retries:
+            if code==75 and result.get('child_not_started') is True:
                 with self.mutex:
                     node.setdefault('previous_train_jobs',[]).append(dict(job=job,result=result))
                     attempts+=1;node['resource75_requeues']=attempts;node.pop('train_job',None)
-                # Do not adopt the same refused receipt when selecting a new
-                # bounded attempt at the top of the loop.
-                fresh_job=str(self.dispatcher.dispatch_training(self.root,arm,target,
-                    resume=resume,source=self.runs[arm].get('source')))
-                with self.mutex:node['train_job']=fresh_job;self.flush()
+                    node['resource_requeue_pending']=True;self.flush()
                 self.event('training_resource75_requeue',arm=arm,target=target,attempt=attempts)
                 continue
             if code!=0:

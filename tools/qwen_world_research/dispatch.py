@@ -133,6 +133,8 @@ def wait_job(job):
                        at_unix=time.time(),scientific_result_unknown=True)
             write(job/'TRANSPORT_FAILURE.json',value);return value
     value=json.loads((job/'RESULT.json').read_text());value['receipt']=str(job)
+    if value.get('returncode')==75 and value.get('child_not_started') is True:
+        wait_transport_exit(job)
     return value
 
 
@@ -143,7 +145,6 @@ def dispatch_training(root,arm,target_updates,resume=None,source=None):
         raise PermissionError('Training host is no longer authorized: '+str(host))
     jobs=root/'jobs'/arm;attempt=1
     while (jobs/f'formal_to{target_updates:06}_attempt{attempt:03}').exists():attempt+=1
-    if attempt>3:raise RuntimeError('Bounded resource attempts exhausted for '+arm)
     command=[MODEL,'-m','torch.distributed.run','--standalone','--nproc-per-node=8','-m',r['module'],
              '--config',r['config'],'--manifest',r['manifest'],'--output',r['root'],
              '--il-checkpoint',str(root/'IL_PARENT'),'--parent-selection',str(root/'PARENT_SELECTION.json'),
@@ -163,6 +164,18 @@ def _process_alive(launch):
         row=p.read_text().split()
         return row[2] not in ('Z','X') and int(row[21])==launch['transport_start_ticks']
     except (OSError,KeyError,ValueError):return False
+
+
+def wait_transport_exit(job):
+    """A refused RESULT can precede transport teardown; never race its retry."""
+    job=Path(job);process=PROCESSES.get(str(job))
+    if process is not None:
+        while True:
+            try:process.wait(timeout=1800);return
+            except subprocess.TimeoutExpired:continue
+    launch=json.loads((job/'LAUNCH.json').read_text())
+    while _process_alive(launch):
+        if not _pid_wait(launch):time.sleep(2)  # exact-process fallback only
 
 
 def _eval_routes(root,*,maximum,rank0_extra=True):
@@ -219,6 +232,7 @@ def _dispatch_evaluation(root,label,parent_checkpoint,rl_checkpoint,cohort,manif
             if result.exists():
                 row=json.loads(result.read_text())
                 if row.get('returncode')==75 and row.get('child_not_started') is True:
+                    wait_transport_exit(job)
                     refused.append((rank,Path(job)))
         if not refused:return value
         with locked(root/'resources/EVALUATION_DISPATCH.lock'):
@@ -228,7 +242,6 @@ def _dispatch_evaluation(root,label,parent_checkpoint,rl_checkpoint,cohort,manif
             for (rank,old),route in zip(refused,routes):
                 launch=json.loads((old/'LAUNCH.json').read_text());attempt=2
                 while (old.parent/f'rank{rank:03}_attempt{attempt:03}').exists():attempt+=1
-                if attempt>3:raise RuntimeError('Bounded pre-child evaluation retries exhausted')
                 job=old.parent/f'rank{rank:03}_attempt{attempt:03}'
                 receipt=start_worker(root,job,host=route['host'],source=Path(value['source']),command=launch['command'],
                     gpus=[route['gpu']],uuids=[route['uuid']],lease='evaluation',minimum_free=route['minimum_free'])
