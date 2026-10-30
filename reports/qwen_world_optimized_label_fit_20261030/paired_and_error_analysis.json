@@ -1,0 +1,450 @@
+{
+  "curves": {
+    "matched": [
+      {
+        "update": 10000,
+        "original_L1": 0.016497816503047942,
+        "optimized_L1": 0.019600771324709058,
+        "relative_L1_increase_percent": 18.80827575629691,
+        "original_PDMS": 80.53193766049922,
+        "optimized_PDMS": 79.90427443202655
+      },
+      {
+        "update": 15000,
+        "original_L1": 0.013168119832873344,
+        "optimized_L1": 0.016244849832728506,
+        "relative_L1_increase_percent": 23.3649908939491,
+        "original_PDMS": 84.33736163428327,
+        "optimized_PDMS": 81.35971823699984
+      },
+      {
+        "update": 20000,
+        "original_L1": 0.011246597710996866,
+        "optimized_L1": 0.014512760022655129,
+        "relative_L1_increase_percent": 29.04133672768099,
+        "original_PDMS": 86.63187690409336,
+        "optimized_PDMS": 84.12627395485266
+      },
+      {
+        "update": 30000,
+        "original_L1": 0.008562919135205448,
+        "optimized_L1": 0.011379331458359957,
+        "relative_L1_increase_percent": 32.89079668608754,
+        "original_PDMS": 87.1468972905601,
+        "optimized_PDMS": 85.68254542142691
+      },
+      {
+        "update": 35000,
+        "original_L1": 0.007361490340903401,
+        "optimized_L1": 0.010167595563456417,
+        "relative_L1_increase_percent": 38.118710921362855,
+        "original_PDMS": 87.01655172710034,
+        "optimized_PDMS": 86.70477331480943
+      },
+      {
+        "update": 40000,
+        "original_L1": 0.006731799337081611,
+        "optimized_L1": 0.009452622829005122,
+        "relative_L1_increase_percent": 40.41747764132035,
+        "original_PDMS": 87.97238223922025,
+        "optimized_PDMS": 84.82873797454583
+      }
+    ],
+    "correlations": {
+      "original": {
+        "10000": {
+          "n": 26,
+          "pearson": -0.9189066062265002,
+          "spearman": -0.9131623931623931
+        },
+        "20000": {
+          "n": 24,
+          "pearson": -0.9031725202204509,
+          "spearman": -0.8895652173913042
+        },
+        "30000": {
+          "n": 23,
+          "pearson": -0.8788837453622339,
+          "spearman": -0.874505928853755
+        }
+      },
+      "optimized": {
+        "10000": {
+          "n": 9,
+          "pearson": -0.7356520440468975,
+          "spearman": -0.8666666666666667
+        },
+        "20000": {
+          "n": 6,
+          "pearson": -0.6874385134952106,
+          "spearman": -0.6
+        },
+        "30000": {
+          "n": 3,
+          "pearson": 0.3183994812561254,
+          "spearman": 0.5
+        }
+      }
+    },
+    "definition": "Trailing500 online TRAIN normalized clean-x L1, before coefficient10; not fixed-checkpoint ODE error",
+    "all8_rank_global_loss_replicas_checked_by_upstream_analysis": true,
+    "independent_training_seeds": 1,
+    "levels_not_independent_checkpoint_replicates": true
+  },
+  "paired_Navtest": {
+    "30000": {
+      "paired": {
+        "mean_delta": -0.01464351869133189,
+        "CI95": [
+          -0.026727842398618435,
+          -0.003726868113141762
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 330,
+        "new_zero": 627,
+        "high_to_zero": 466,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 702,
+        "baseline_nonzero_denominator": 11444,
+        "baseline_high_denominator": 10800,
+        "repaired_zero_rate": 0.4700854700854701,
+        "new_zero_rate": 0.05478853547710591,
+        "high_to_zero_rate": 0.04314814814814815,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 396,
+            "repaired_failure": 57,
+            "baseline_pass": 11896,
+            "baseline_failure": 250
+          },
+          "drivable_area_compliance": {
+            "new_failure": 250,
+            "repaired_failure": 297,
+            "baseline_pass": 11657,
+            "baseline_failure": 489
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 1075,
+            "repaired_failure": 138,
+            "baseline_pass": 11422,
+            "baseline_failure": 724
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "metrics_percent": {
+        "original": {
+          "score": 87.1468972905601,
+          "no_at_fault_collisions": 98.04050716285197,
+          "drivable_area_compliance": 95.9739832043471,
+          "time_to_collision_within_bound": 94.03918985674295,
+          "ego_progress": 81.13935715794007,
+          "comfort": 99.99176683681871,
+          "driving_direction_compliance": 98.53038037213896
+        },
+        "optimized": {
+          "score": 85.68254542142691,
+          "no_at_fault_collisions": 95.22476535484932,
+          "drivable_area_compliance": 96.36094187386794,
+          "time_to_collision_within_bound": 86.32471595587025,
+          "ego_progress": 85.88441348985164,
+          "comfort": 100.0,
+          "driving_direction_compliance": 97.83879466491025
+        }
+      },
+      "mean_executed_raw_progress_m": {
+        "original": 19.968133507087902,
+        "optimized": 22.361555784300645
+      },
+      "delta_PDMS_points": -1.4643518691331892,
+      "CI95_PDMS_points": [
+        -2.6727842398618433,
+        -0.3726868113141762
+      ],
+      "G_plus_points": 5.541373752142576,
+      "G_minus_points": -7.005725621275766
+    },
+    "35000": {
+      "paired": {
+        "mean_delta": -0.003117784122909106,
+        "CI95": [
+          -0.01965860619343337,
+          0.01216906858165223
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 445,
+        "new_zero": 540,
+        "high_to_zero": 365,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 785,
+        "baseline_nonzero_denominator": 11361,
+        "baseline_high_denominator": 10809,
+        "repaired_zero_rate": 0.5668789808917197,
+        "new_zero_rate": 0.04753102719831001,
+        "high_to_zero_rate": 0.03376815616615783,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 384,
+            "repaired_failure": 62,
+            "baseline_pass": 11879,
+            "baseline_failure": 267
+          },
+          "drivable_area_compliance": {
+            "new_failure": 162,
+            "repaired_failure": 407,
+            "baseline_pass": 11588,
+            "baseline_failure": 558
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 1051,
+            "repaired_failure": 158,
+            "baseline_pass": 11398,
+            "baseline_failure": 748
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "metrics_percent": {
+        "original": {
+          "score": 87.01655172710034,
+          "no_at_fault_collisions": 97.90054338876996,
+          "drivable_area_compliance": 95.40589494483781,
+          "time_to_collision_within_bound": 93.8415939403919,
+          "ego_progress": 81.75691700383877,
+          "comfort": 99.99176683681871,
+          "driving_direction_compliance": 98.59212909599869
+        },
+        "optimized": {
+          "score": 86.70477331480943,
+          "no_at_fault_collisions": 95.20829902848675,
+          "drivable_area_compliance": 97.42301992425489,
+          "time_to_collision_within_bound": 86.48937921949613,
+          "ego_progress": 86.81402590962001,
+          "comfort": 100.0,
+          "driving_direction_compliance": 97.91289313354191
+        }
+      },
+      "mean_executed_raw_progress_m": {
+        "original": 20.34086912887832,
+        "optimized": 22.338601933443382
+      },
+      "delta_PDMS_points": -0.3117784122909106,
+      "CI95_PDMS_points": [
+        -1.9658606193433368,
+        1.216906858165223
+      ],
+      "G_plus_points": 6.020837272478944,
+      "G_minus_points": -6.332615684769853
+    },
+    "40000": {
+      "paired": {
+        "mean_delta": -0.0314364426467442,
+        "CI95": [
+          -0.04677972455773054,
+          -0.018126617241914424
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 352,
+        "new_zero": 772,
+        "high_to_zero": 602,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 673,
+        "baseline_nonzero_denominator": 11473,
+        "baseline_high_denominator": 10967,
+        "repaired_zero_rate": 0.5230312035661219,
+        "new_zero_rate": 0.06728841628170487,
+        "high_to_zero_rate": 0.054891948572991706,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 536,
+            "repaired_failure": 54,
+            "baseline_pass": 11900,
+            "baseline_failure": 246
+          },
+          "drivable_area_compliance": {
+            "new_failure": 246,
+            "repaired_failure": 310,
+            "baseline_pass": 11687,
+            "baseline_failure": 459
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 1296,
+            "repaired_failure": 110,
+            "baseline_pass": 11506,
+            "baseline_failure": 640
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "metrics_percent": {
+        "original": {
+          "score": 87.97238223922025,
+          "no_at_fault_collisions": 98.06109007080521,
+          "drivable_area_compliance": 96.22097809978594,
+          "time_to_collision_within_bound": 94.73077556397168,
+          "ego_progress": 82.14115221198513,
+          "comfort": 99.99176683681871,
+          "driving_direction_compliance": 98.46863164827927
+        },
+        "optimized": {
+          "score": 84.82873797454583,
+          "no_at_fault_collisions": 94.09682199901202,
+          "drivable_area_compliance": 96.74790054338877,
+          "time_to_collision_within_bound": 84.96624403095669,
+          "ego_progress": 85.34504705285012,
+          "comfort": 100.0,
+          "driving_direction_compliance": 97.91289313354191
+        }
+      },
+      "mean_executed_raw_progress_m": {
+        "original": 20.222523253465866,
+        "optimized": 22.424289681692322
+      },
+      "delta_PDMS_points": -3.1436442646744203,
+      "CI95_PDMS_points": [
+        -4.6779724557730535,
+        -1.8126617241914424
+      ],
+      "G_plus_points": 5.29216598555242,
+      "G_minus_points": -8.43581025022684
+    }
+  },
+  "TRAIN_probe": {
+    "labels": {
+      "scenes": 90890,
+      "valid_points": 724271,
+      "per_horizon_mean_optimized_minus_GT": [
+        [
+          0.06223163167234083,
+          -0.0119734071319745,
+          -0.0029281380416332856
+        ],
+        [
+          0.14931447647427987,
+          -0.011007807912505486,
+          0.0013621840574848294
+        ],
+        [
+          0.2815960038084382,
+          -0.002610729087861241,
+          0.003372870363040183
+        ],
+        [
+          0.46986780532940103,
+          0.009450478328835889,
+          0.0033140335386446012
+        ],
+        [
+          0.7142933370834876,
+          0.022074221593115225,
+          0.002301991287592332
+        ],
+        [
+          1.0114450036895608,
+          0.03761565526941509,
+          0.0024983059649550656
+        ],
+        [
+          1.3588175574114336,
+          0.05889277833590764,
+          0.003140712726770704
+        ],
+        [
+          1.7549616919561872,
+          0.08739376716291299,
+          0.0032891474467684457
+        ]
+      ],
+      "mean_absolute_xy_change_m": [
+        0.8236902441813816,
+        0.2346739715133271
+      ],
+      "mean_absolute_heading_change_degrees": 1.8128926628666417,
+      "fraction_final_x_increased": 0.7753946712457763,
+      "source": "Full TRAIN labels; geometry changes, not model prediction errors or new scoring"
+    },
+    "saved_30k_TRAIN_ODE": {
+      "original": {
+        "source_updates": 30000,
+        "source_model_sha256": "909a12ee5638ac5e01c37a1376beeb2fdc8a2b35cbdd9ee3019847ab73ef3bb3",
+        "bank_hash": "2630428a8ddc8da9e26d5de90f0971c2d3b41a3c9c86f1aac86c40f75a1d2fb2",
+        "TRAIN_scenes_requested": 512,
+        "scene_fresh_candidate_count_histogram": {
+          "2": 512
+        },
+        "missing_fresh_scenes": 0,
+        "candidates": 1024,
+        "valid_points": 8168,
+        "mean_abs_error_xy_m_heading_degrees": [
+          0.415820236299342,
+          0.13711662851115866,
+          0.8691459948454955
+        ],
+        "point_abs_error_p50_xy_m_heading_degrees": [
+          0.27139812707901,
+          0.057890087366104126,
+          0.37505227739073216
+        ],
+        "point_abs_error_p95_xy_m_heading_degrees": [
+          1.3071114301681517,
+          0.5559616923332213,
+          3.367243133454909
+        ],
+        "candidate_all_valid_points_within_coordinate_envelope_fraction": 0.060546875,
+        "sampled_TRAIN_candidate_PDMS": 92.79930632535901,
+        "sampled_TRAIN_official_NC_DAC_TTC_all_pass": 0.9716796875,
+        "interpretation": "Saved independent ODE outputs vs each arm own label, NOT online noisy-input TRAIN L1; two roots per scene, not two training seeds"
+      },
+      "optimized": {
+        "source_updates": 30000,
+        "source_model_sha256": "18bfaacad4c6710057182753b2dc0c9b3c19df2117ba9229b2da505c8ed70914",
+        "bank_hash": "f055d0ade8af30d5e2996604e13ec3d51159ccb76086f2ddba46e6a91f3f69c3",
+        "TRAIN_scenes_requested": 512,
+        "scene_fresh_candidate_count_histogram": {
+          "2": 512
+        },
+        "missing_fresh_scenes": 0,
+        "candidates": 1024,
+        "valid_points": 8168,
+        "mean_abs_error_xy_m_heading_degrees": [
+          0.4320174202653164,
+          0.14449020082699252,
+          1.3346899076135987
+        ],
+        "point_abs_error_p50_xy_m_heading_degrees": [
+          0.3207089900970459,
+          0.07160868309438229,
+          0.7779207669806057
+        ],
+        "point_abs_error_p95_xy_m_heading_degrees": [
+          1.243518781661987,
+          0.5020792096853255,
+          4.190468758643621
+        ],
+        "candidate_all_valid_points_within_coordinate_envelope_fraction": 0.00390625,
+        "sampled_TRAIN_candidate_PDMS": 93.32583913951473,
+        "sampled_TRAIN_official_NC_DAC_TTC_all_pass": 0.9033203125,
+        "interpretation": "Saved independent ODE outputs vs each arm own label, NOT online noisy-input TRAIN L1; two roots per scene, not two training seeds"
+      }
+    },
+    "coordinate_envelope": {
+      "x_m": 0.3,
+      "y_m": 0.2,
+      "heading_degrees": 0.5,
+      "timing_seconds": 0.1,
+      "warning": "Historical original_config only; heterogeneous V12 evidence. This simple coordinate check does not validate timing, dynamics, family membership or safety."
+    }
+  },
+  "cost": {
+    "new_model_forwards": 0,
+    "new_scorer_calls": 0,
+    "new_optimizer_updates": 0,
+    "CPU_analysis_wall_seconds": 371.63125517591834
+  }
+}
