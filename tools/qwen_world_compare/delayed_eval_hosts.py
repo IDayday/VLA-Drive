@@ -72,6 +72,13 @@ def permit(policy, host, request, directory, now):
         grant.setdefault(field, [])
         if host not in grant[field]:
             grant[field].append(host)
+        if task != TASKS[0]:
+            # These evaluators intentionally use the measured sharing slot
+            # even on an otherwise idle card. Temporary permission alone is
+            # insufficient for the worker's separate sharing contract.
+            grant.setdefault('shared_training_hosts', [])
+            if host not in grant['shared_training_hosts']:
+                grant['shared_training_hosts'].append(host)
         grant.update(previous_authorization_record=previous,
                      latest_evaluation_host_addition=str(directory/'REQUEST.json'),
                      old_training_and_run_retirement_unchanged=True)

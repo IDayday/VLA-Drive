@@ -42,6 +42,8 @@ class DelayedHostTests(unittest.TestCase):
             self.assertFalse(grant['training_run_overrides']['stopped']['training_allowed'])
             field = 'allowed_hosts' if task == operator.TASKS[0] else 'unbounded_temporary_hosts'
             self.assertIn(self.host, grant[field])
+            if task != operator.TASKS[0]:
+                self.assertIn(self.host, grant['shared_training_hosts'])
             self.assertEqual(grant['starts_unix'], 1)
             self.assertEqual(grant['permanent_hosts'], ['training-vla-zt'])
             self.assertEqual(changed['task_authorizations'][task], grant)
