@@ -526,6 +526,7 @@ def load_snapshot(root: Path) -> dict:
             (stopped_receipts if path.name.endswith('.STOPPED.json') else decisions)[value['arm']]=value
     adaptive_process=read_json(root/'analysis'/'ADAPTIVE_TRAIN_PROCESS_20261030.json',warnings,inputs) or {}
     train4096_diagnosis=read_json(root/'analysis'/'TRAIN4096_DIAGNOSIS.json',warnings,inputs) or {}
+    matched12=read_json(root/'analysis'/'MATCHED_12K_PPO_CONTRASTS.json',warnings,inputs) or {}
     allocation_policy=read_json(root/'RESEARCH_ALLOCATION_POLICY_20261030.json',warnings,inputs) or {}
     portfolio_recommendations=read_json(root/'analysis'/'PORTFOLIO_10K_RECOMMENDATIONS.json',warnings,inputs) or {}
     process10=read_json(root/'analysis'/'PROCESS_DIAGNOSTIC_10K.json',warnings,inputs) or {}
@@ -635,6 +636,7 @@ def load_snapshot(root: Path) -> dict:
                     nft_comparisons={key:value for key,value in portfolio.get('contrasts',{}).items() if value.get('target','').startswith('NFT_FULL')},
                     allocation_policy=allocation_policy,nft_futility=futility,train4096=train4096_state,
                     train4096_diagnosis=train4096_diagnosis),
+                matched_12k_analysis=matched12,
                 portfolio_recommendations=portfolio_recommendations,process_diagnostic_10k=process10,
                 advantage_clamp_near10k=clamp10,anchor40_registration=anchor40_registration,
                 additional_navtest_probes=additional_probes,

@@ -237,6 +237,21 @@ def render_research_report(root,snapshot,history,h):
                 fmt(100*result['means']['no_at_fault_collisions'],6) if result else '—',
                 link(result.get('evidence'),'完整SUMMARY') if result else link(probe.get('checkpoint'),'已封存12k checkpoint')])
         body+='<h3>同12k安全复查已登记，与20k训练并行</h3><p>利用已释放评测槽提前复查Full与BatchStd的收益／NC风险是否持续，不空等20k。导出与异步派发由独立调度推进；不改变learner20k目标、不新增seed，probe失败不停止主线训练。</p>'+table(['路线','精确预算','完整PDMS','NC：0–100','证据'],probe_rows)+'<p>'+link(root/'ADDITIONAL_NAVTEST_PROBES.json','两份12,000更新完整Navtest注册')+'</p>'
+    matched12=snapshot.get('matched_12k_analysis',{})
+    if matched12.get('status')=='COMPLETE' and matched12.get('matching_evidence',{}).get('scenes')==12146:
+        def component_ci(values,metric):
+            item=values.get('safety_metrics',{}).get(metric,{})
+            interval=item.get('CI95_delta_percentage_points',[])
+            return signed(item.get('delta_percentage_points'),5)+('<small>['+', '.join(signed(v,5)for v in interval)+']</small>' if len(interval)==2 else '<small>区间待记录</small>')
+        paired12_rows=[]
+        for key,value in matched12.get('contrasts',{}).items():
+            label=key.replace('_minus_',' − ').replace('_u012000_NAVTEST',' 12k').replace('_u010000_NAVTEST',' 10k')
+            paired12_rows.append([esc(label),signed(value.get('delta_PDMS'),5)+'<small>'+ci_text(value)+'</small>',
+                component_ci(value,'no_at_fault_collisions'),component_ci(value,'time_to_collision_within_bound'),component_ci(value,'ego_progress')])
+        conclusions=matched12.get('conclusions',{})
+        body+='<h3>后续匹配复查：12k完整配对与NC风险</h3><p>同12k BATCH−FULL，同时看各自12k−10k的持续性；固定seed、44物理log簇bootstrap2,000次，未作多重比较校正。下表括号为95%区间；分量单位为百分点。</p>'+table(['精确对照','ΔPDMS［区间］','ΔNC pp［区间］','ΔTTC pp［区间］','ΔEP pp［区间］'],paired12_rows)+'<p class="note">'+esc(conclusions.get('persistence_zh',''))+' '+esc(conclusions.get('NC_risk_zh',''))+'</p><p>'+link(root/'analysis'/'MATCHED_12K_PPO_CONTRASTS.json','完整12k配对、安全分量区间与来源')+'。诊断本身不自动改训练目标，研究调整另留决策收据。</p>'
+    elif matched12:
+        body+='<p class="muted">12k有限后处理状态：'+esc(matched12.get('status','待完整结果'))+'；未生成的差值与区间不填入结论，主线训练独立继续。</p>'
     body+='<p>PPO_FULL 1k修复原零分 '+number(paired.get('repaired_zero'))+' 个，新增零分 '+number(paired.get('new_zero'))+' 个。改善场景数量少于小幅下降场景，均值仍明显上升；只数“涨了多少场景”会漏掉严重失败修复的权重。</p>'
     scale=snapshot.get('advantage_normalization',{}).get('arms',{}).get('PPO_FULL',{}).get('raw_to_centered_scale',{}).get('mean')
     body+='<div class="review-grid"><article><h3>BatchStd：主线继续匹配20k</h3><p>基线本来已做组内中心＋全8rank原始reward std。新臂只改中心化优势的全局std分母；首1k TRAIN平均尺度倍率 '+fmt(scale,3)+'。10k配对区间支持收益，下一门槛检验是否持续。</p></article><article><h3>SafeComfort：保留到下一门槛</h3><p>10k相对Full的小增益区间跨零，EP提高同时伴随安全与Comfort小降。训练塑形分不等于PDMS；不因为点分稍高就叠加到BatchStd。</p></article><article><h3>固定hard-only：停止后保留早期checkpoint</h3><p>Full−Hard在10k为+0.283893，区间[+0.011398,+0.520610]，NC/DAC/TTC均更高。该固定困难日程的机会成本已足够支持停止；不否定困难样本作为混合数据组件。</p></article></div>'
