@@ -1,0 +1,51 @@
+{
+  "schema": "world_rl_research_additional_arm_v1",
+  "registered_unix": 1793332921.1700451,
+  "arm": {
+    "algorithm": "ppo_centered_batchstd",
+    "data_policy": "uniform_full",
+    "target_updates": 50000,
+    "data_scenes": 103288,
+    "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+    "parent_updates": 70000,
+    "parent_PDMS": 88.79290990699972,
+    "old_DEV_role": "TRAIN_DIAGNOSTIC; not held-out for full population arms",
+    "id": "PPO_BATCHSTD",
+    "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_BATCHSTD",
+    "status": "REGISTERED",
+    "stage_budget_updates": 1000,
+    "priority": 2,
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_BATCHSTD.yaml",
+    "config_sha256": "bcd35dd7df8ad961e8fa2a54feeb850ce4131918bef19d428b87b95cdaeb3ff4",
+    "host": "training-vla-zt3",
+    "lease": "secondary",
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v4_04a6798fb49d",
+    "module": "starVLA.rl.qwen_world_research_algorithms.batchstd_entry",
+    "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_BATCHSTD/STATE.json",
+    "hypothesis": "normalization-only: global population std after group centering, vs PPO_FULL raw-reward global std; identical optimizer/anchor/data/seed",
+    "qualification_root": null
+  },
+  "matched_control": "PPO_FULL",
+  "changed_scientific_factor": "denominator population_std(global group-centered rewards), not population_std(global RAW rewards)",
+  "unchanged": [
+    "IL70 parent",
+    "FULL103288 manifest/order",
+    "seed42",
+    "8ranks",
+    "G8",
+    "4inner",
+    "optimizer/LR/warmup",
+    "PPOclip.005",
+    "beta50 mean anchor",
+    "ODE10shift5seed2101 deployment"
+  ],
+  "training_seeds": [
+    42
+  ],
+  "inference_seeds": [
+    2101
+  ],
+  "same_identity_resume_required": true,
+  "normalization_diagnostic": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/advantage_normalization_u001000.json",
+  "sha256": "4a451a5b43c4c8c4fba1e615c1e70995cfde3b009fdd904d796e92bb4439a195"
+}

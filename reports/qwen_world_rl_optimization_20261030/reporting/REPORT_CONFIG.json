@@ -1,0 +1,24 @@
+{
+  "schema": "world_rl_report_config_v1",
+  "user_preference": "HTML 常规30分钟；完整阶段结果可立即更新",
+  "regular_interval_seconds": 1800,
+  "event_backend": "linux_inotify",
+  "immediate_event_types": [
+    "evaluation_complete",
+    "training_stage_complete",
+    "important_exception",
+    "stage_selection_complete",
+    "performance_selection_complete",
+    "campaign_complete",
+    "stage_policy_amended"
+  ],
+  "debounce_seconds": 1.0,
+  "journal_polling": false,
+  "event_updates_reset_regular_deadline": false,
+  "administrative_event_validation_is_scientific_result": false,
+  "research_continuation_preference": "1k/5k诊断不硬淘汰；健康臂继续原预算；单臂故障不终止整体；TRAIN反馈不等Test",
+  "training_seed": 42,
+  "inference_seed": 2101,
+  "multiple_training_seeds_requested": false,
+  "resource_preference": "高效并行使用授权资源，修正运营规划错误后继续研究"
+}

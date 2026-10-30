@@ -1,0 +1,56 @@
+{
+  "schema": "world_rl_research_additional_arm_v1",
+  "registered_unix": 1793334381.4973028,
+  "arm": {
+    "data_policy": "uniform_full",
+    "target_updates": 50000,
+    "data_scenes": 103288,
+    "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+    "parent_updates": 70000,
+    "parent_PDMS": 88.79290990699972,
+    "old_DEV_role": "TRAIN_DIAGNOSTIC; not held-out for full population arms",
+    "id": "PPO_SAFE_COMFORT",
+    "algorithm": "ppo_safe_comfort_train_reward",
+    "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFE_COMFORT",
+    "status": "REGISTERED",
+    "stage_budget_updates": 1000,
+    "priority": 2,
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFE_COMFORT.yaml",
+    "config_sha256": "f1494effb2a9265c9e65b3991bf419ad198b6d0238f23a2bb40583f4315d79fb",
+    "host": "training-vla-zt",
+    "lease": "primary",
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v5_15de3ab27de3",
+    "module": "starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry",
+    "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_SAFE_COMFORT/STATE.json",
+    "hypothesis": "SDE-only reward mismatch: ignore stochastic Comfort penalty only for NC=DAC=TTC=1; unchanged raw-batchstd and official ODE canonical evaluation",
+    "qualification_root": null
+  },
+  "matched_control": "PPO_FULL",
+  "changed_scientific_factor": "training-only Comfort=1 for exact NC=DAC=TTC=1; all other candidate rewards bit-identical canonical",
+  "unchanged": [
+    "IL70 parent",
+    "FULL103288 manifest/order",
+    "seed42",
+    "8ranks",
+    "G8",
+    "4inner",
+    "optimizer/LR/warmup",
+    "PPOclip.005",
+    "beta50 mean anchor",
+    "RAW reward global std",
+    "official scorer and feedback records",
+    "ODE10shift5seed2101 deployment"
+  ],
+  "counterfactual_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safe_comfort_counterfactual_u001000.json",
+  "training_seeds": [
+    42
+  ],
+  "inference_seeds": [
+    2101
+  ],
+  "canonical_metrics_remain_separate": true,
+  "deployment_comfort_risk_requires_canonical_evaluation": true,
+  "Test_informed_research_hypothesis": true,
+  "NAVTEST_tokens_used_for_training_selection": false,
+  "sha256": "9bc73b0d514793a65a0a1a6e090fb756422eaa122b07553eb55ef0113314e307"
+}

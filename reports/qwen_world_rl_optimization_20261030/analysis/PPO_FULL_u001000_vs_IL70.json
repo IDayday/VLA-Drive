@@ -1,0 +1,1839 @@
+{
+  "schema": "world_PPO_FULL_1000_vs_pinned_IL70_paired_diagnostic_v1",
+  "status": "COMPLETE",
+  "utc": "2026-10-30T04:00:02.540344+00:00",
+  "RL_updates": 1000,
+  "IL_updates": 70000,
+  "reference_PDMS": 88.79290990699972,
+  "RL_PDMS": 90.43253691024785,
+  "delta_PDMS": 1.6396270032478004,
+  "CI95_PDMS": [
+    1.2144086125154643,
+    2.039286980150314
+  ],
+  "G_plus_PDMS": 2.7032077953596247,
+  "G_minus_PDMS": -1.0635807921118245,
+  "paired": {
+    "mean_delta": 0.016396270032478004,
+    "CI95": [
+      0.012144086125154642,
+      0.02039286980150314
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 280,
+    "new_zero": 31,
+    "high_to_zero": 24,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 565,
+    "baseline_nonzero_denominator": 11581,
+    "baseline_high_denominator": 11081,
+    "repaired_zero_rate": 0.49557522123893805,
+    "new_zero_rate": 0.0026767982039547535,
+    "high_to_zero_rate": 0.0021658695063622416,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 13,
+        "repaired_failure": 88,
+        "baseline_pass": 11915,
+        "baseline_failure": 231
+      },
+      "drivable_area_compliance": {
+        "new_failure": 20,
+        "repaired_failure": 202,
+        "baseline_pass": 11784,
+        "baseline_failure": 362
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 42,
+        "repaired_failure": 236,
+        "baseline_pass": 11531,
+        "baseline_failure": 615
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "safety_metrics": {
+    "score": {
+      "IL_mean_percent": 88.79290990699972,
+      "PPO_FULL_mean_percent": 90.43253691024752,
+      "delta_percentage_points": 1.63962700324779
+    },
+    "no_at_fault_collisions": {
+      "IL_mean_percent": 98.18458751852461,
+      "PPO_FULL_mean_percent": 98.77325868598716,
+      "delta_percentage_points": 0.58867116746254,
+      "new_failure": 13,
+      "repaired_failure": 88,
+      "baseline_pass": 11915,
+      "baseline_failure": 231
+    },
+    "drivable_area_compliance": {
+      "IL_mean_percent": 97.01959492837148,
+      "PPO_FULL_mean_percent": 98.51803062736704,
+      "delta_percentage_points": 1.4984356989955594,
+      "new_failure": 20,
+      "repaired_failure": 202,
+      "baseline_pass": 11784,
+      "baseline_failure": 362
+    },
+    "time_to_collision_within_bound": {
+      "IL_mean_percent": 94.93660464350403,
+      "PPO_FULL_mean_percent": 96.53383830067513,
+      "delta_percentage_points": 1.5972336571710932,
+      "new_failure": 42,
+      "repaired_failure": 236,
+      "baseline_pass": 11531,
+      "baseline_failure": 615
+    },
+    "ego_progress": {
+      "IL_mean_percent": 82.77131997518626,
+      "PPO_FULL_mean_percent": 82.96749756523755,
+      "delta_percentage_points": 0.196177590051283
+    },
+    "comfort": {
+      "IL_mean_percent": 100.0,
+      "PPO_FULL_mean_percent": 99.98353367363741,
+      "delta_percentage_points": -0.01646632636258527
+    },
+    "driving_direction_compliance": {
+      "IL_mean_percent": 98.45628190350733,
+      "PPO_FULL_mean_percent": 98.47274822986991,
+      "delta_percentage_points": 0.01646632636258527
+    }
+  },
+  "scene_categories": {
+    "score_down_EP_down_safety_unchanged": {
+      "scenes": 7023,
+      "G_minus_PDMS": -0.7073534998512434,
+      "G_plus_PDMS": 0.0
+    },
+    "score_down_with_new_NC_DAC_TTC_violation": {
+      "scenes": 68,
+      "G_minus_PDMS": -0.35348290453348225,
+      "G_plus_PDMS": 0.0
+    },
+    "other_score_decrease": {
+      "scenes": 2,
+      "G_minus_PDMS": -0.002744387727098084,
+      "G_plus_PDMS": 0.0
+    }
+  },
+  "changed_scores": {
+    "improved": 1284,
+    "degraded": 7093,
+    "exactly_unchanged": 3769,
+    "improved_at_least_5_scene_PDMS": 477,
+    "degraded_at_least_5_scene_PDMS": 315
+  },
+  "trajectories": {
+    "exact_requested_trajectory_unchanged": 0,
+    "exact_requested_trajectory_unchanged_fraction": 0.0,
+    "all_metric_components_unchanged": 3746
+  },
+  "log_concentration": {
+    "physical_logs": 44,
+    "logs_with_any_degraded_scene": 44,
+    "top1_share_of_G_minus": 0.06852376547778502,
+    "top3_share_of_G_minus": 0.19826852748970883,
+    "top5_share_of_G_minus": 0.3085354171225387,
+    "all_logs_sorted_by_G_minus": [
+      {
+        "scenes": 985,
+        "degraded": 736,
+        "improved": 147,
+        "new_zero": 4,
+        "repaired_zero": 37,
+        "negative_sum": 8.852072910559105,
+        "positive_sum": 34.513770151246355,
+        "delta_sum": 25.66169724068727,
+        "physical_log": "2021.10.06.07.26.10_veh-52",
+        "negative_contribution_PDMS": -0.07288056076534749,
+        "positive_contribution_PDMS": 0.2841575016568941,
+        "net_contribution_PDMS": 0.21127694089154678,
+        "local_mean_delta_PDMS": 2.605248450831195
+      },
+      {
+        "scenes": 625,
+        "degraded": 376,
+        "improved": 87,
+        "new_zero": 1,
+        "repaired_zero": 8,
+        "negative_sum": 8.588615163028251,
+        "positive_sum": 10.977484662727424,
+        "delta_sum": 2.388869499699162,
+        "physical_log": "2021.09.16.19.27.01_veh-45",
+        "negative_contribution_PDMS": -0.07071147013854974,
+        "positive_contribution_PDMS": 0.09037942254838979,
+        "net_contribution_PDMS": 0.019667952409839966,
+        "local_mean_delta_PDMS": 0.38221911995186597
+      },
+      {
+        "scenes": 648,
+        "degraded": 398,
+        "improved": 62,
+        "new_zero": 1,
+        "repaired_zero": 29,
+        "negative_sum": 8.172140540991379,
+        "positive_sum": 28.639801510749315,
+        "delta_sum": 20.467660969757937,
+        "physical_log": "2021.09.29.19.02.14_veh-28",
+        "negative_contribution_PDMS": -0.06728256661445232,
+        "positive_contribution_PDMS": 0.2357961593178768,
+        "net_contribution_PDMS": 0.16851359270342448,
+        "local_mean_delta_PDMS": 3.1585896558268423
+      },
+      {
+        "scenes": 438,
+        "degraded": 249,
+        "improved": 36,
+        "new_zero": 1,
+        "repaired_zero": 10,
+        "negative_sum": 7.552288353297569,
+        "positive_sum": 11.738421709935588,
+        "delta_sum": 4.186133356638021,
+        "physical_log": "2021.09.29.18.19.40_veh-28",
+        "negative_contribution_PDMS": -0.06217922240488695,
+        "positive_contribution_PDMS": 0.09664434142874681,
+        "net_contribution_PDMS": 0.03446511902385988,
+        "local_mean_delta_PDMS": 0.955738209278087
+      },
+      {
+        "scenes": 929,
+        "degraded": 715,
+        "improved": 148,
+        "new_zero": 3,
+        "repaired_zero": 27,
+        "negative_sum": 6.692266653925818,
+        "positive_sum": 28.638159032272426,
+        "delta_sum": 21.94589237834662,
+        "physical_log": "2021.10.06.08.16.17_veh-52",
+        "negative_contribution_PDMS": -0.055098523414505336,
+        "positive_contribution_PDMS": 0.23578263652455478,
+        "net_contribution_PDMS": 0.18068411311004956,
+        "local_mean_delta_PDMS": 2.362313496054534
+      },
+      {
+        "scenes": 352,
+        "degraded": 236,
+        "improved": 36,
+        "new_zero": 5,
+        "repaired_zero": 7,
+        "negative_sum": 6.640187416773992,
+        "positive_sum": 7.954313457089071,
+        "delta_sum": 1.3141260403150747,
+        "physical_log": "2021.09.16.13.53.10_veh-42",
+        "negative_contribution_PDMS": -0.054669746556677036,
+        "positive_contribution_PDMS": 0.06548916068737914,
+        "net_contribution_PDMS": 0.01081941413070208,
+        "local_mean_delta_PDMS": 0.3733312614531462
+      },
+      {
+        "scenes": 453,
+        "degraded": 257,
+        "improved": 49,
+        "new_zero": 3,
+        "repaired_zero": 11,
+        "negative_sum": 6.284160507525162,
+        "positive_sum": 14.897168227825707,
+        "delta_sum": 8.613007720300553,
+        "physical_log": "2021.09.29.14.44.26_veh-28",
+        "negative_contribution_PDMS": -0.05173851891589957,
+        "positive_contribution_PDMS": 0.12265081695888118,
+        "net_contribution_PDMS": 0.07091229804298167,
+        "local_mean_delta_PDMS": 1.901326207571866
+      },
+      {
+        "scenes": 191,
+        "degraded": 141,
+        "improved": 15,
+        "new_zero": 5,
+        "repaired_zero": 3,
+        "negative_sum": 5.878883067777837,
+        "positive_sum": 3.4521222402223004,
+        "delta_sum": -2.426760827555543,
+        "physical_log": "2021.09.16.19.12.04_veh-42",
+        "negative_contribution_PDMS": -0.04840180362076269,
+        "positive_contribution_PDMS": 0.02842188572552528,
+        "net_contribution_PDMS": -0.019979917895237467,
+        "local_mean_delta_PDMS": -1.270555407097143
+      },
+      {
+        "scenes": 641,
+        "degraded": 355,
+        "improved": 37,
+        "new_zero": 0,
+        "repaired_zero": 10,
+        "negative_sum": 5.815797295361088,
+        "positive_sum": 12.826976942171392,
+        "delta_sum": 7.011179646810305,
+        "physical_log": "2021.06.28.20.24.43_veh-38",
+        "negative_contribution_PDMS": -0.047882408162037614,
+        "positive_contribution_PDMS": 0.10560659428759585,
+        "net_contribution_PDMS": 0.057724186125558255,
+        "local_mean_delta_PDMS": 1.0937877764134643
+      },
+      {
+        "scenes": 427,
+        "degraded": 272,
+        "improved": 31,
+        "new_zero": 0,
+        "repaired_zero": 8,
+        "negative_sum": 5.387734527195611,
+        "positive_sum": 11.417023270321016,
+        "delta_sum": 6.029288743125407,
+        "physical_log": "2021.09.09.14.18.22_veh-48",
+        "negative_contribution_PDMS": -0.044358097539894704,
+        "positive_contribution_PDMS": 0.09399821562918668,
+        "net_contribution_PDMS": 0.049640118089292,
+        "local_mean_delta_PDMS": 1.4120114152518517
+      },
+      {
+        "scenes": 404,
+        "degraded": 242,
+        "improved": 34,
+        "new_zero": 0,
+        "repaired_zero": 9,
+        "negative_sum": 5.134774909191888,
+        "positive_sum": 9.485476755802587,
+        "delta_sum": 4.350701846610698,
+        "physical_log": "2021.09.09.17.18.51_veh-48",
+        "negative_contribution_PDMS": -0.042275439726592194,
+        "positive_contribution_PDMS": 0.07809547798289632,
+        "net_contribution_PDMS": 0.035820038256304115,
+        "local_mean_delta_PDMS": 1.0769063976759152
+      },
+      {
+        "scenes": 423,
+        "degraded": 203,
+        "improved": 17,
+        "new_zero": 0,
+        "repaired_zero": 6,
+        "negative_sum": 4.1581459374282765,
+        "positive_sum": 6.422486820253302,
+        "delta_sum": 2.264340882825025,
+        "physical_log": "2021.06.28.16.29.11_veh-38",
+        "negative_contribution_PDMS": -0.03423469403448276,
+        "positive_contribution_PDMS": 0.05287738202085708,
+        "net_contribution_PDMS": 0.01864268798637432,
+        "local_mean_delta_PDMS": 0.5353051732446867
+      },
+      {
+        "scenes": 516,
+        "degraded": 360,
+        "improved": 43,
+        "new_zero": 1,
+        "repaired_zero": 5,
+        "negative_sum": 4.135430073838262,
+        "positive_sum": 8.144060291016558,
+        "delta_sum": 4.008630217178291,
+        "physical_log": "2021.09.16.14.39.34_veh-42",
+        "negative_contribution_PDMS": -0.03404767062274215,
+        "positive_contribution_PDMS": 0.06705137733423809,
+        "net_contribution_PDMS": 0.033003706711495884,
+        "local_mean_delta_PDMS": 0.7768663211585835
+      },
+      {
+        "scenes": 340,
+        "degraded": 202,
+        "improved": 43,
+        "new_zero": 0,
+        "repaired_zero": 15,
+        "negative_sum": 3.8010751027362075,
+        "positive_sum": 15.139002048184125,
+        "delta_sum": 11.337926945447911,
+        "physical_log": "2021.08.30.16.16.44_veh-40",
+        "negative_contribution_PDMS": -0.031294871585182016,
+        "positive_contribution_PDMS": 0.12464187426464783,
+        "net_contribution_PDMS": 0.09334700267946576,
+        "local_mean_delta_PDMS": 3.334684395719974
+      },
+      {
+        "scenes": 510,
+        "degraded": 212,
+        "improved": 30,
+        "new_zero": 0,
+        "repaired_zero": 9,
+        "negative_sum": 3.3247928829576896,
+        "positive_sum": 10.544724028144435,
+        "delta_sum": 7.219931145186739,
+        "physical_log": "2021.05.25.14.16.10_veh-35",
+        "negative_contribution_PDMS": -0.027373562349396426,
+        "positive_contribution_PDMS": 0.0868164336254276,
+        "net_contribution_PDMS": 0.059442871276031116,
+        "local_mean_delta_PDMS": 1.4156727735660273
+      },
+      {
+        "scenes": 215,
+        "degraded": 115,
+        "improved": 22,
+        "new_zero": 1,
+        "repaired_zero": 1,
+        "negative_sum": 3.1756949342332783,
+        "positive_sum": 3.5672812553314004,
+        "delta_sum": 0.3915863210981235,
+        "physical_log": "2021.09.09.18.29.25_veh-39",
+        "negative_contribution_PDMS": -0.026146014607552105,
+        "positive_contribution_PDMS": 0.02937000868871563,
+        "net_contribution_PDMS": 0.0032239940811635394,
+        "local_mean_delta_PDMS": 0.18213317260377837
+      },
+      {
+        "scenes": 284,
+        "degraded": 135,
+        "improved": 62,
+        "new_zero": 1,
+        "repaired_zero": 2,
+        "negative_sum": 2.800298455920674,
+        "positive_sum": 4.445535990309654,
+        "delta_sum": 1.6452375343889813,
+        "physical_log": "2021.09.16.19.49.00_veh-42",
+        "negative_contribution_PDMS": -0.02305531414392124,
+        "positive_contribution_PDMS": 0.03660082323653593,
+        "net_contribution_PDMS": 0.013545509092614698,
+        "local_mean_delta_PDMS": 0.5793089909820357
+      },
+      {
+        "scenes": 106,
+        "degraded": 52,
+        "improved": 37,
+        "new_zero": 2,
+        "repaired_zero": 5,
+        "negative_sum": 2.7527942003744315,
+        "positive_sum": 7.274371995203104,
+        "delta_sum": 4.521577794828668,
+        "physical_log": "2021.09.16.17.40.09_veh-45",
+        "negative_contribution_PDMS": -0.022664203856203127,
+        "positive_contribution_PDMS": 0.059891091677944215,
+        "net_contribution_PDMS": 0.03722688782174105,
+        "local_mean_delta_PDMS": 4.26563942908365
+      },
+      {
+        "scenes": 175,
+        "degraded": 106,
+        "improved": 18,
+        "new_zero": 0,
+        "repaired_zero": 7,
+        "negative_sum": 2.6201747193492277,
+        "positive_sum": 6.931925673525639,
+        "delta_sum": 4.3117509541764125,
+        "physical_log": "2021.09.09.18.04.06_veh-40",
+        "negative_contribution_PDMS": -0.021572326027904064,
+        "positive_contribution_PDMS": 0.057071675230739666,
+        "net_contribution_PDMS": 0.03549934920283561,
+        "local_mean_delta_PDMS": 2.4638576881008074
+      },
+      {
+        "scenes": 190,
+        "degraded": 96,
+        "improved": 22,
+        "new_zero": 2,
+        "repaired_zero": 2,
+        "negative_sum": 2.37093125643163,
+        "positive_sum": 3.7951611319871006,
+        "delta_sum": 1.4242298755554708,
+        "physical_log": "2021.08.30.14.54.34_veh-40",
+        "negative_contribution_PDMS": -0.01952026392583262,
+        "positive_contribution_PDMS": 0.031246180898955218,
+        "net_contribution_PDMS": 0.0117259169731226,
+        "local_mean_delta_PDMS": 0.7495946713449846
+      },
+      {
+        "scenes": 379,
+        "degraded": 174,
+        "improved": 38,
+        "new_zero": 0,
+        "repaired_zero": 10,
+        "negative_sum": 2.306934764791071,
+        "positive_sum": 13.155375312522363,
+        "delta_sum": 10.848440547731292,
+        "physical_log": "2021.06.03.13.55.17_veh-35",
+        "negative_contribution_PDMS": -0.01899337036712556,
+        "positive_contribution_PDMS": 0.1083103516591665,
+        "net_contribution_PDMS": 0.08931698129204092,
+        "local_mean_delta_PDMS": 2.862385368794536
+      },
+      {
+        "scenes": 271,
+        "degraded": 180,
+        "improved": 17,
+        "new_zero": 0,
+        "repaired_zero": 2,
+        "negative_sum": 2.197021897078155,
+        "positive_sum": 2.4046395577640185,
+        "delta_sum": 0.2076176606858623,
+        "physical_log": "2021.05.25.17.54.41_veh-35",
+        "negative_contribution_PDMS": -0.01808843979152112,
+        "positive_contribution_PDMS": 0.019797789871266413,
+        "net_contribution_PDMS": 0.001709350079745285,
+        "local_mean_delta_PDMS": 0.07661168290991228
+      },
+      {
+        "scenes": 215,
+        "degraded": 111,
+        "improved": 7,
+        "new_zero": 0,
+        "repaired_zero": 4,
+        "negative_sum": 2.011198199286521,
+        "positive_sum": 4.494355050617864,
+        "delta_sum": 2.4831568513313433,
+        "physical_log": "2021.06.03.18.47.39_veh-35",
+        "negative_contribution_PDMS": -0.016558522964651084,
+        "positive_contribution_PDMS": 0.03700275852641087,
+        "net_contribution_PDMS": 0.020444235561759783,
+        "local_mean_delta_PDMS": 1.1549566750378342
+      },
+      {
+        "scenes": 189,
+        "degraded": 82,
+        "improved": 10,
+        "new_zero": 0,
+        "repaired_zero": 3,
+        "negative_sum": 1.8521051423002501,
+        "positive_sum": 3.008300174967468,
+        "delta_sum": 1.1561950326672177,
+        "physical_log": "2021.06.03.17.06.58_veh-35",
+        "negative_contribution_PDMS": -0.015248683865472172,
+        "positive_contribution_PDMS": 0.024767826238823218,
+        "net_contribution_PDMS": 0.009519142373351042,
+        "local_mean_delta_PDMS": 0.6117434035276283
+      },
+      {
+        "scenes": 182,
+        "degraded": 112,
+        "improved": 8,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 1.75198761208817,
+        "positive_sum": 1.6619600954581628,
+        "delta_sum": -0.09002751663000763,
+        "physical_log": "2021.09.29.15.23.04_veh-28",
+        "negative_contribution_PDMS": -0.014424399901927962,
+        "positive_contribution_PDMS": 0.013683188666706429,
+        "net_contribution_PDMS": -0.0007412112352215349,
+        "local_mean_delta_PDMS": -0.04946566847802617
+      },
+      {
+        "scenes": 259,
+        "degraded": 142,
+        "improved": 33,
+        "new_zero": 1,
+        "repaired_zero": 8,
+        "negative_sum": 1.750775682949035,
+        "positive_sum": 8.516332917727082,
+        "delta_sum": 6.765557234778045,
+        "physical_log": "2021.08.30.13.45.25_veh-40",
+        "negative_contribution_PDMS": -0.014414421891561295,
+        "positive_contribution_PDMS": 0.07011635861787487,
+        "net_contribution_PDMS": 0.055701936726313565,
+        "local_mean_delta_PDMS": 2.612184260532064
+      },
+      {
+        "scenes": 257,
+        "degraded": 94,
+        "improved": 32,
+        "new_zero": 0,
+        "repaired_zero": 6,
+        "negative_sum": 1.6776809714784275,
+        "positive_sum": 9.368179511546764,
+        "delta_sum": 7.690498540068336,
+        "physical_log": "2021.05.25.15.59.03_veh-30",
+        "negative_contribution_PDMS": -0.013812621204334163,
+        "positive_contribution_PDMS": 0.077129750630222,
+        "net_contribution_PDMS": 0.06331712942588782,
+        "local_mean_delta_PDMS": 2.9924118832950724
+      },
+      {
+        "scenes": 164,
+        "degraded": 103,
+        "improved": 11,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 1.6573477447263545,
+        "positive_sum": 0.03949207721381032,
+        "delta_sum": -1.6178556675125444,
+        "physical_log": "2021.05.25.14.24.08_veh-25",
+        "negative_contribution_PDMS": -0.013645214430482088,
+        "positive_contribution_PDMS": 0.00032514471606957286,
+        "net_contribution_PDMS": -0.013320069714412517,
+        "local_mean_delta_PDMS": -0.9864973582393564
+      },
+      {
+        "scenes": 162,
+        "degraded": 58,
+        "improved": 20,
+        "new_zero": 0,
+        "repaired_zero": 4,
+        "negative_sum": 1.6434205692526422,
+        "positive_sum": 5.365499136753062,
+        "delta_sum": 3.7220785675004215,
+        "physical_log": "2021.06.28.18.03.27_veh-14",
+        "negative_contribution_PDMS": -0.013530549722152497,
+        "positive_contribution_PDMS": 0.044175029941981414,
+        "net_contribution_PDMS": 0.030644480219828928,
+        "local_mean_delta_PDMS": 2.2975793626545813
+      },
+      {
+        "scenes": 165,
+        "degraded": 104,
+        "improved": 15,
+        "new_zero": 0,
+        "repaired_zero": 1,
+        "negative_sum": 1.56435197843419,
+        "positive_sum": 3.47800109447482,
+        "delta_sum": 1.91364911604063,
+        "physical_log": "2021.06.03.12.02.06_veh-35",
+        "negative_contribution_PDMS": -0.012879565111429195,
+        "positive_contribution_PDMS": 0.028634950555531204,
+        "net_contribution_PDMS": 0.01575538544410201,
+        "local_mean_delta_PDMS": 1.1597873430549273
+      },
+      {
+        "scenes": 144,
+        "degraded": 68,
+        "improved": 14,
+        "new_zero": 0,
+        "repaired_zero": 3,
+        "negative_sum": 1.0339745110279397,
+        "positive_sum": 3.0268772192310034,
+        "delta_sum": 1.9929027082030615,
+        "physical_log": "2021.09.16.15.12.03_veh-42",
+        "negative_contribution_PDMS": -0.008512880874591962,
+        "positive_contribution_PDMS": 0.02492077407567103,
+        "net_contribution_PDMS": 0.01640789320107905,
+        "local_mean_delta_PDMS": 1.3839602140299039
+      },
+      {
+        "scenes": 156,
+        "degraded": 60,
+        "improved": 6,
+        "new_zero": 0,
+        "repaired_zero": 3,
+        "negative_sum": 0.8690795551744172,
+        "positive_sum": 2.9559209965573405,
+        "delta_sum": 2.086841441382922,
+        "physical_log": "2021.06.28.15.02.02_veh-38",
+        "negative_contribution_PDMS": -0.007155273795277599,
+        "positive_contribution_PDMS": 0.024336579915670512,
+        "net_contribution_PDMS": 0.017181306120392904,
+        "local_mean_delta_PDMS": 1.3377188726813602
+      },
+      {
+        "scenes": 156,
+        "degraded": 68,
+        "improved": 12,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.8375195672799336,
+        "positive_sum": 2.17710513675365,
+        "delta_sum": 1.3395855694737164,
+        "physical_log": "2021.06.28.16.57.59_veh-26",
+        "negative_contribution_PDMS": -0.006895435264942644,
+        "positive_contribution_PDMS": 0.01792446185372674,
+        "net_contribution_PDMS": 0.011029026588784097,
+        "local_mean_delta_PDMS": 0.8587086983805875
+      },
+      {
+        "scenes": 87,
+        "degraded": 36,
+        "improved": 25,
+        "new_zero": 0,
+        "repaired_zero": 7,
+        "negative_sum": 0.7134175134421868,
+        "positive_sum": 7.983736577014838,
+        "delta_sum": 7.270319063572652,
+        "physical_log": "2021.09.16.15.47.30_veh-45",
+        "negative_contribution_PDMS": -0.005873682804562711,
+        "positive_contribution_PDMS": 0.06573140603503078,
+        "net_contribution_PDMS": 0.05985772323046807,
+        "local_mean_delta_PDMS": 8.35668857881914
+      },
+      {
+        "scenes": 74,
+        "degraded": 33,
+        "improved": 11,
+        "new_zero": 0,
+        "repaired_zero": 2,
+        "negative_sum": 0.5671201406872698,
+        "positive_sum": 2.128245634604447,
+        "delta_sum": 1.561125493917177,
+        "physical_log": "2021.06.28.21.16.05_veh-14",
+        "negative_contribution_PDMS": -0.004669192661676847,
+        "positive_contribution_PDMS": 0.017522193599575554,
+        "net_contribution_PDMS": 0.012853000937898706,
+        "local_mean_delta_PDMS": 2.1096290458340228
+      },
+      {
+        "scenes": 70,
+        "degraded": 27,
+        "improved": 7,
+        "new_zero": 0,
+        "repaired_zero": 2,
+        "negative_sum": 0.4617765088674506,
+        "positive_sum": 2.790923195978926,
+        "delta_sum": 2.329146687111475,
+        "physical_log": "2021.06.28.21.47.53_veh-35",
+        "negative_contribution_PDMS": -0.003801881350794093,
+        "positive_contribution_PDMS": 0.022978126098953777,
+        "net_contribution_PDMS": 0.019176244748159682,
+        "local_mean_delta_PDMS": 3.32735241015925
+      },
+      {
+        "scenes": 58,
+        "degraded": 27,
+        "improved": 8,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.44882966192947604,
+        "positive_sum": 0.07296564158836605,
+        "delta_sum": -0.37586402034111,
+        "physical_log": "2021.05.25.16.37.23_veh-25",
+        "negative_contribution_PDMS": -0.003695287847270509,
+        "positive_contribution_PDMS": 0.000600738033824848,
+        "net_contribution_PDMS": -0.003094549813445661,
+        "local_mean_delta_PDMS": -0.6480414143812241
+      },
+      {
+        "scenes": 34,
+        "degraded": 25,
+        "improved": 2,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.34573811939527466,
+        "positive_sum": 0.016846951173972058,
+        "delta_sum": -0.3288911682213026,
+        "physical_log": "2021.06.28.15.10.57_veh-16",
+        "negative_contribution_PDMS": -0.002846518354975092,
+        "positive_contribution_PDMS": 0.00013870369812260874,
+        "net_contribution_PDMS": -0.0027078146568524832,
+        "local_mean_delta_PDMS": -0.9673269653567724
+      },
+      {
+        "scenes": 92,
+        "degraded": 20,
+        "improved": 5,
+        "new_zero": 0,
+        "repaired_zero": 4,
+        "negative_sum": 0.33880171389560254,
+        "positive_sum": 3.5588698938428567,
+        "delta_sum": 3.220068179947254,
+        "physical_log": "2021.06.28.13.53.26_veh-26",
+        "negative_contribution_PDMS": -0.0027894097966046642,
+        "positive_contribution_PDMS": 0.02930075657700359,
+        "net_contribution_PDMS": 0.026511346780398928,
+        "local_mean_delta_PDMS": 3.5000741086383194
+      },
+      {
+        "scenes": 23,
+        "degraded": 14,
+        "improved": 0,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.3132963991905302,
+        "positive_sum": 0.0,
+        "delta_sum": -0.3132963991905302,
+        "physical_log": "2021.05.25.18.38.25_veh-25",
+        "negative_contribution_PDMS": -0.00257942037864754,
+        "positive_contribution_PDMS": 0.0,
+        "net_contribution_PDMS": -0.00257942037864754,
+        "local_mean_delta_PDMS": -1.3621582573501314
+      },
+      {
+        "scenes": 25,
+        "degraded": 19,
+        "improved": 0,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.28510787223156886,
+        "positive_sum": 0.0,
+        "delta_sum": -0.28510787223156886,
+        "physical_log": "2021.05.25.14.26.37_veh-27",
+        "negative_contribution_PDMS": -0.002347339636354099,
+        "positive_contribution_PDMS": 0.0,
+        "net_contribution_PDMS": -0.002347339636354099,
+        "local_mean_delta_PDMS": -1.1404314889262754
+      },
+      {
+        "scenes": 77,
+        "degraded": 51,
+        "improved": 23,
+        "new_zero": 0,
+        "repaired_zero": 9,
+        "negative_sum": 0.21980899408204924,
+        "positive_sum": 10.721243625673672,
+        "delta_sum": 10.50143463159162,
+        "physical_log": "2021.08.16.14.23.37_veh-45",
+        "negative_contribution_PDMS": -0.001809723316993654,
+        "positive_contribution_PDMS": 0.08826974827658218,
+        "net_contribution_PDMS": 0.0864600249595885,
+        "local_mean_delta_PDMS": 13.63822679427483
+      },
+      {
+        "scenes": 39,
+        "degraded": 22,
+        "improved": 3,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.16795175305890542,
+        "positive_sum": 0.018148495263746622,
+        "delta_sum": -0.1498032577951588,
+        "physical_log": "2021.09.16.16.20.27_veh-08",
+        "negative_contribution_PDMS": -0.0013827741895184045,
+        "positive_contribution_PDMS": 0.00014941952300137184,
+        "net_contribution_PDMS": -0.0012333546665170328,
+        "local_mean_delta_PDMS": -0.3841109174234841
+      },
+      {
+        "scenes": 16,
+        "degraded": 5,
+        "improved": 1,
+        "new_zero": 0,
+        "repaired_zero": 1,
+        "negative_sum": 0.029017228357418268,
+        "positive_sum": 0.5833333333333334,
+        "delta_sum": 0.5543161049759151,
+        "physical_log": "2021.09.16.21.13.37_veh-42",
+        "negative_contribution_PDMS": -0.00023890357613550362,
+        "positive_contribution_PDMS": 0.004802678522421648,
+        "net_contribution_PDMS": 0.0045637749462861445,
+        "local_mean_delta_PDMS": 3.464475656099469
+      }
+    ]
+  },
+  "worst_scene_examples": [
+    {
+      "token": "491a9b7a44225a75",
+      "log": "2021.09.16.17.40.09_veh-45_02539_02745",
+      "physical_log": "2021.09.16.17.40.09_veh-45",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions",
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.26070308685302734
+    },
+    {
+      "token": "5bdbe484641a55fa",
+      "log": "2021.10.06.07.26.10_veh-52_00422_00728",
+      "physical_log": "2021.10.06.07.26.10_veh-52",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.3910560607910156
+    },
+    {
+      "token": "6b7e5348100b5572",
+      "log": "2021.09.16.19.27.01_veh-45_01749_03230",
+      "physical_log": "2021.09.16.19.27.01_veh-45",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions",
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.26070356369018555
+    },
+    {
+      "token": "910c4dd3f1ec51b1",
+      "log": "2021.09.16.13.53.10_veh-42_00180_00342",
+      "physical_log": "2021.09.16.13.53.10_veh-42",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.6028785705566406
+    },
+    {
+      "token": "c9fb5f51480b5ff8",
+      "log": "2021.09.16.19.49.00_veh-42_00990_01609",
+      "physical_log": "2021.09.16.19.49.00_veh-42",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.26070308685302734
+    },
+    {
+      "token": "dc207d97e04f5ce1",
+      "log": "2021.09.16.17.40.09_veh-45_02539_02745",
+      "physical_log": "2021.09.16.17.40.09_veh-45",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions",
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.3258781433105469
+    },
+    {
+      "token": "e036ba13ad4d5784",
+      "log": "2021.09.29.14.44.26_veh-28_00528_00992",
+      "physical_log": "2021.09.29.14.44.26_veh-28",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions",
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.4990043640136719
+    },
+    {
+      "token": "ebffacdb3be25252",
+      "log": "2021.09.29.18.19.40_veh-28_00438_00833",
+      "physical_log": "2021.09.29.18.19.40_veh-28",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.2607032060623169
+    },
+    {
+      "token": "1a928640315c5332",
+      "log": "2021.09.16.13.53.10_veh-42_01510_01591",
+      "physical_log": "2021.09.16.13.53.10_veh-42",
+      "delta_scene_PDMS": -99.88436781795458,
+      "IL_PDMS": 99.88436781795458,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.99722482763091,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9988436781795459
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.4562339782714844
+    },
+    {
+      "token": "11c529f1623b5034",
+      "log": "2021.09.16.13.53.10_veh-42_01510_01591",
+      "physical_log": "2021.09.16.13.53.10_veh-42",
+      "delta_scene_PDMS": -99.683848805507,
+      "IL_PDMS": 99.683848805507,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9924123713321676,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9968384880550699
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.5051116943359375
+    },
+    {
+      "token": "12c01b203ea85b41",
+      "log": "2021.09.16.19.12.04_veh-42_00289_00398",
+      "physical_log": "2021.09.16.19.12.04_veh-42",
+      "delta_scene_PDMS": -98.66193505402182,
+      "IL_PDMS": 98.66193505402182,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9678864412965238,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9866193505402183
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.35846710205078125
+    },
+    {
+      "token": "c505de060d305ef5",
+      "log": "2021.09.16.19.12.04_veh-42_00289_00398",
+      "physical_log": "2021.09.16.19.12.04_veh-42",
+      "delta_scene_PDMS": -97.55472056555092,
+      "IL_PDMS": 97.55472056555092,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9413132935732219,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9755472056555092
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.4073505401611328
+    },
+    {
+      "token": "7857a22b3bc85bb4",
+      "log": "2021.09.16.19.12.04_veh-42_00289_00398",
+      "physical_log": "2021.09.16.19.12.04_veh-42",
+      "delta_scene_PDMS": -96.631293488986,
+      "IL_PDMS": 96.631293488986,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9191510437356641,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.96631293488986
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.4399375915527344
+    },
+    {
+      "token": "a15d7c93c85e5505",
+      "log": "2021.09.16.19.12.04_veh-42_00289_00398",
+      "physical_log": "2021.09.16.19.12.04_veh-42",
+      "delta_scene_PDMS": -96.60573296949761,
+      "IL_PDMS": 96.60573296949761,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9185375912679428,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.966057329694976
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.47252464294433594
+    },
+    {
+      "token": "afe83cb6c0ae5f67",
+      "log": "2021.09.16.13.53.10_veh-42_00180_00342",
+      "physical_log": "2021.09.16.13.53.10_veh-42",
+      "delta_scene_PDMS": -96.41800061385801,
+      "IL_PDMS": 96.41800061385801,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9140320147325923,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9641800061385801
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.4236431121826172
+    },
+    {
+      "token": "ef1f8e45b9f05e4f",
+      "log": "2021.09.16.19.12.04_veh-42_00289_00398",
+      "physical_log": "2021.09.16.19.12.04_veh-42",
+      "delta_scene_PDMS": -96.27302357490203,
+      "IL_PDMS": 96.27302357490203,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9105525657976485,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9627302357490203
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.45623016357421875
+    },
+    {
+      "token": "3038555c47555d08",
+      "log": "2021.09.09.18.29.25_veh-39_00427_00556",
+      "physical_log": "2021.09.09.18.29.25_veh-39",
+      "delta_scene_PDMS": -94.56641117201222,
+      "IL_PDMS": 94.56641117201222,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.869593868128293,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9456641117201222
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.39716339111328125
+    },
+    {
+      "token": "caa0f73288d75ba7",
+      "log": "2021.09.29.14.44.26_veh-28_00528_00992",
+      "physical_log": "2021.09.29.14.44.26_veh-28",
+      "delta_scene_PDMS": -94.29100401061362,
+      "IL_PDMS": 94.29100401061362,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions",
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8629840962547272,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9429100401061362
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.5458488464355469
+    },
+    {
+      "token": "27ff47ea8aea59cf",
+      "log": "2021.10.06.08.16.17_veh-52_01949_02501",
+      "physical_log": "2021.10.06.08.16.17_veh-52",
+      "delta_scene_PDMS": -93.60665885317117,
+      "IL_PDMS": 93.60665885317117,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8465598124761079,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9360665885317117
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.3910541534423828
+    },
+    {
+      "token": "9147938e42675685",
+      "log": "2021.09.16.13.53.10_veh-42_00077_00153",
+      "physical_log": "2021.09.16.13.53.10_veh-42",
+      "delta_scene_PDMS": -90.19190861060802,
+      "IL_PDMS": 90.19190861060802,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7646058066545928,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.5,
+        "score": 0.9019190861060803
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.5,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.6517581939697266
+    },
+    {
+      "token": "7c8900e0a2ef5024",
+      "log": "2021.09.16.14.39.34_veh-42_00032_00186",
+      "physical_log": "2021.09.16.14.39.34_veh-42",
+      "delta_scene_PDMS": -88.91676317257962,
+      "IL_PDMS": 88.91676317257962,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7340023161419111,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8891676317257963
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.5214071273803711
+    },
+    {
+      "token": "01876d7aa6f55554",
+      "log": "2021.10.06.07.26.10_veh-52_00953_01126",
+      "physical_log": "2021.10.06.07.26.10_veh-52",
+      "delta_scene_PDMS": -83.41449635546799,
+      "IL_PDMS": 83.41449635546799,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.6019479125312319,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8341449635546799
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.5214061737060547
+    },
+    {
+      "token": "0614c017a1f65b80",
+      "log": "2021.10.06.08.16.17_veh-52_00612_00782",
+      "physical_log": "2021.10.06.08.16.17_veh-52",
+      "delta_scene_PDMS": -81.07398079786329,
+      "IL_PDMS": 81.07398079786329,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.5457755391487191,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8107398079786329
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.26070356369018555
+    },
+    {
+      "token": "4376d00ed2245c21",
+      "log": "2021.10.06.08.16.17_veh-52_01590_01725",
+      "physical_log": "2021.10.06.08.16.17_veh-52",
+      "delta_scene_PDMS": -80.39822936348124,
+      "IL_PDMS": 80.39822936348124,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.5295575047235497,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8039822936348123
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.6517572402954102
+    },
+    {
+      "token": "3f31d5d096f957c9",
+      "log": "2021.10.06.07.26.10_veh-52_00953_01126",
+      "physical_log": "2021.10.06.07.26.10_veh-52",
+      "delta_scene_PDMS": -79.49803685675874,
+      "IL_PDMS": 79.49803685675874,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.5079528845622101,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.7949803685675875
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.5214061737060547
+    },
+    {
+      "token": "d44d886053b15b23",
+      "log": "2021.09.29.19.02.14_veh-28_03198_03360",
+      "physical_log": "2021.09.29.19.02.14_veh-28",
+      "delta_scene_PDMS": -78.01800406992655,
+      "IL_PDMS": 78.01800406992655,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.47243209767823724,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.0,
+        "score": 0.7801800406992655
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 1.5642204284667969
+    },
+    {
+      "token": "4f6abcc897955dfd",
+      "log": "2021.10.06.07.26.10_veh-52_00953_01126",
+      "physical_log": "2021.10.06.07.26.10_veh-52",
+      "delta_scene_PDMS": -70.83333333333333,
+      "IL_PDMS": 100.0,
+      "PPO_FULL_PDMS": 29.166666666666668,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions",
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.0,
+        "score": 1.0
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.5,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.0,
+        "score": 0.2916666666666667
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.3910541534423828
+    },
+    {
+      "token": "1d3cf448005f56c1",
+      "log": "2021.10.06.07.26.10_veh-52_00422_00728",
+      "physical_log": "2021.10.06.07.26.10_veh-52",
+      "delta_scene_PDMS": -58.333333333333336,
+      "IL_PDMS": 58.333333333333336,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.26070404052734375
+    },
+    {
+      "token": "5e4dd8c91b8453bf",
+      "log": "2021.08.30.14.54.34_veh-40_00439_00835",
+      "physical_log": "2021.08.30.14.54.34_veh-40",
+      "delta_scene_PDMS": -58.333333333333336,
+      "IL_PDMS": 58.333333333333336,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.782109260559082
+    },
+    {
+      "token": "93d5e0dd29bc5e7c",
+      "log": "2021.08.30.14.54.34_veh-40_00439_00835",
+      "physical_log": "2021.08.30.14.54.34_veh-40",
+      "delta_scene_PDMS": -58.333333333333336,
+      "IL_PDMS": 58.333333333333336,
+      "PPO_FULL_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "PPO_FULL_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.6517581939697266
+    }
+  ],
+  "provenance": {
+    "parent_selection": {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+      "file_sha256": "f117a64f4cd3617541def37b6b448a095870c59a2a0ffa761124c1393c3353c5"
+    },
+    "IL_summary": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/IL_late_checkpoints_NAVTEST_20261029T0310Z/WORLD_IL_070000/SUMMARY.json",
+      "file_sha256": "6a18c5e58acb4c29d31d10f1852638b47fbadc1a8419630d324eba6c4996e436",
+      "seal": "65db5cea99e5350bbe567d1dabb05645fdd025e3233638634443985444947814"
+    },
+    "PPO_FULL_summary": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/SUMMARY.json",
+      "file_sha256": "fc0758d90a9cc9c69e4d58197c2a12f2490a85e397bac881672a78f46d9ccf5a",
+      "seal": "29165d101fa57b816edd651a6d3463ac62e7730b904193d15b79917462668979"
+    },
+    "IL_identity": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/IL_late_checkpoints_NAVTEST_20261029T0310Z/WORLD_IL_070000/evaluation/identity.json",
+      "file_sha256": "f3c4df2db4f7732f39447a4fe5f316b0e626d3f06e2bba7d1e8a1674a96844c3",
+      "seal": "4ce3d1dbf6a7d21ae250549813e0b24953e8792a02f9e9fa8cec6da4a0f820aa"
+    },
+    "PPO_FULL_identity": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/identity.json",
+      "file_sha256": "198c673adbffe28c04465e0bd10b34a67b3bc0832022eaec8a4ce31ec5e7f22e",
+      "seal": "fd3bb00010486c36229172b470c4997eeed3a5e82214ceb4429851c6516e3053"
+    },
+    "IL_scene_raw_hash_inventory_sha256": "661fd6400d8daebaeda4bc1fbaf1e5ea2bb401323c380f30e42d61ace0a1965a",
+    "PPO_FULL_scene_raw_hash_inventory_sha256": "4e8f4bda675fca1ca820c4f7fd78b83622ff66f1a2303b2ce81ad08562db3d93",
+    "paired_tool": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-algorithms-20261030/tools/qwen_world_postcot/summarize.py",
+      "file_sha256": "2014cbb6d5f2f46b6f8056971aa68c859cbaa0364bc318f71dbae34c5efede4e",
+      "function": "paired_statistics"
+    },
+    "analysis_script_sha256": "9bea68b04b714d97fde7e310c393e7ccb7e67483161d878fc15414f821f7c707"
+  },
+  "matching_evidence": {
+    "exact_ordered_tokens": true,
+    "scene_count": 12146,
+    "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+    "all_scene_log_pairs_equal": true,
+    "all_official_cache_hashes_equal": true,
+    "data_sha256": "ab525a0f0ad77fdab269ff637b0d83aa642f46e802dfcc8018b2cdb445009219",
+    "population_sha256": "925f996346ee986657f4058f6e6e64b9da842abfa554e2ac70bd82268190f9e9",
+    "canonical_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "seed": 2101,
+    "numerics_equal": true,
+    "inference": {
+      "old": "single_candidate_cleanx_K10_shift5",
+      "new": {
+        "sampler": "ODE",
+        "steps": 10,
+        "shift": 5.0,
+        "seed": 2101,
+        "scene_seed_namespace": "native_qwen_sourceflow_ODE",
+        "candidates": 1
+      },
+      "adapter": "Equivalent single-candidate ODE10 shift5; both evaluator sources seed by native_qwen_sourceflow_ODE + seed + token"
+    }
+  },
+  "scope": {
+    "new_GPU_forwards": 0,
+    "new_scores": 0,
+    "weights_or_cache_payloads_read": false,
+    "sealed_summary_or_runtime_modified": false,
+    "NAVTEST_scenes_must_not_enter_training_bank": true
+  },
+  "interpretation": "Early 1k fixed-seed paired diagnostic only. CI is physical-log cluster resampling, not training/inference-seed uncertainty. No final algorithm superiority or inferiority claim.",
+  "sha256": "0df924be6d99b47ea3caf3e0e014d1cbe89609d4b4005e582c1fb654ba05ab49"
+}

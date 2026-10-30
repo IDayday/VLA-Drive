@@ -1,0 +1,438 @@
+{
+  "schema": "world_TRAIN_safe_comfort_counterfactual_v1",
+  "status": "COMPLETE",
+  "utc": "2026-10-30T04:22:38.521161+00:00",
+  "updates": [
+    1,
+    1000
+  ],
+  "train_groups": 2000,
+  "train_candidates": 16000,
+  "variants": {
+    "canonical": {
+      "reward_mean": 0.6984700139701417,
+      "reward_bounds": [
+        0.0,
+        1.0
+      ],
+      "strict_old_winner_displaced": 0,
+      "strict_old_winner_displaced_fraction": 0.0,
+      "argmax_index_changed_including_ties": 0,
+      "argmax_index_changed_same_EP": 0,
+      "selected_EP_delta_mean": 0.0,
+      "selected_EP_delta_at_strict_changes": {
+        "n": 0
+      },
+      "selected_EP_increased_groups": 0,
+      "selected_EP_decreased_groups": 0,
+      "selected_raw_canonical_change_mean": 0.0,
+      "selected_unsafe_groups_before": 22,
+      "selected_unsafe_groups_after": 22,
+      "selected_safe_to_unsafe": 0,
+      "selected_unsafe_to_safe": 0,
+      "current_positive_unsafe_candidates": 282,
+      "new_positive_unsafe_candidates": 282,
+      "unsafe_advantage_nonpositive_to_positive": 0,
+      "unsafe_advantage_positive_to_nonpositive": 0,
+      "current_positive_unsafe_advantage_mass": 100.16841125488281,
+      "new_positive_unsafe_advantage_mass": 100.16841125488281,
+      "current_negative_unsafe_advantage_mass": -4364.224609375,
+      "new_negative_unsafe_advantage_mass": -4364.224609375,
+      "source_normalized_advantage_cosine": 1.0,
+      "mean_absolute_advantage_change": 0.0,
+      "mean_absolute_advantage": 0.6230840086936951,
+      "max_absolute_advantage": 4.052530288696289,
+      "any_advantage_sign_changed_groups": 0,
+      "safe_subgroup_EP_opportunity_gap_after": {
+        "n": 1923,
+        "mean": 0.020821424195440065,
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 0.07829865628010464,
+        "p99": 0.254826558194831,
+        "max": 0.38717831011312187
+      },
+      "positive_violations": {
+        "NC": {
+          "before": 1,
+          "after": 1,
+          "new": 0
+        },
+        "DAC": {
+          "before": 0,
+          "after": 0,
+          "new": 0
+        },
+        "TTC": {
+          "before": 282,
+          "after": 282,
+          "new": 0
+        }
+      }
+    },
+    "small_safe_EP_bonus": {
+      "reward_mean": 0.695162265804313,
+      "reward_bounds": [
+        0.0,
+        1.0
+      ],
+      "strict_old_winner_displaced": 2,
+      "strict_old_winner_displaced_fraction": 0.001,
+      "argmax_index_changed_including_ties": 2,
+      "argmax_index_changed_same_EP": 0,
+      "selected_EP_delta_mean": 0.000378940451104038,
+      "selected_EP_delta_at_strict_changes": {
+        "n": 2,
+        "mean": 0.378940451104038,
+        "min": 0.37070259209495415,
+        "p50": 0.378940451104038,
+        "p90": 0.3855307383113051,
+        "p99": 0.3870135529329402,
+        "max": 0.38717831011312187
+      },
+      "selected_EP_increased_groups": 2,
+      "selected_EP_decreased_groups": 0,
+      "selected_raw_canonical_change_mean": -8.774812039984093e-06,
+      "selected_unsafe_groups_before": 22,
+      "selected_unsafe_groups_after": 22,
+      "selected_safe_to_unsafe": 0,
+      "selected_unsafe_to_safe": 0,
+      "current_positive_unsafe_candidates": 282,
+      "new_positive_unsafe_candidates": 258,
+      "unsafe_advantage_nonpositive_to_positive": 0,
+      "unsafe_advantage_positive_to_nonpositive": 24,
+      "current_positive_unsafe_advantage_mass": 100.16841125488281,
+      "new_positive_unsafe_advantage_mass": 87.90411376953125,
+      "current_negative_unsafe_advantage_mass": -4364.224609375,
+      "new_negative_unsafe_advantage_mass": -4381.228515625,
+      "source_normalized_advantage_cosine": 0.9996882677078247,
+      "mean_absolute_advantage_change": 0.015404787845909595,
+      "mean_absolute_advantage": 0.6219250559806824,
+      "max_absolute_advantage": 4.005867958068848,
+      "any_advantage_sign_changed_groups": 111,
+      "safe_subgroup_EP_opportunity_gap_after": {
+        "n": 1923,
+        "mean": 0.020427310361738518,
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 0.07807946027048053,
+        "p99": 0.24578769445873272,
+        "max": 0.3504446181389855
+      },
+      "positive_violations": {
+        "NC": {
+          "before": 1,
+          "after": 1,
+          "new": 0
+        },
+        "DAC": {
+          "before": 0,
+          "after": 0,
+          "new": 0
+        },
+        "TTC": {
+          "before": 282,
+          "after": 258,
+          "new": 0
+        }
+      }
+    },
+    "all_fixed_comfort1": {
+      "reward_mean": 0.7475950139701418,
+      "reward_bounds": [
+        0.0,
+        1.0
+      ],
+      "strict_old_winner_displaced": 518,
+      "strict_old_winner_displaced_fraction": 0.259,
+      "argmax_index_changed_including_ties": 774,
+      "argmax_index_changed_same_EP": 256,
+      "selected_EP_delta_mean": 0.019694829894682048,
+      "selected_EP_delta_at_strict_changes": {
+        "n": 518,
+        "mean": 0.07604181426518164,
+        "min": -0.7283505556607853,
+        "p50": 0.06120197774183389,
+        "p90": 0.1585859527140388,
+        "p99": 0.3119561263930705,
+        "max": 0.38717831011312187
+      },
+      "selected_EP_increased_groups": 517,
+      "selected_EP_decreased_groups": 1,
+      "selected_raw_canonical_change_mean": -0.05608548754388247,
+      "selected_unsafe_groups_before": 22,
+      "selected_unsafe_groups_after": 21,
+      "selected_safe_to_unsafe": 0,
+      "selected_unsafe_to_safe": 1,
+      "current_positive_unsafe_candidates": 282,
+      "new_positive_unsafe_candidates": 304,
+      "unsafe_advantage_nonpositive_to_positive": 64,
+      "unsafe_advantage_positive_to_nonpositive": 42,
+      "current_positive_unsafe_advantage_mass": 100.16841125488281,
+      "new_positive_unsafe_advantage_mass": 111.73171997070312,
+      "current_negative_unsafe_advantage_mass": -4364.224609375,
+      "new_negative_unsafe_advantage_mass": -4347.61962890625,
+      "source_normalized_advantage_cosine": 0.9661017060279846,
+      "mean_absolute_advantage_change": 0.17894519865512848,
+      "mean_absolute_advantage": 0.5711259841918945,
+      "max_absolute_advantage": 4.279269695281982,
+      "any_advantage_sign_changed_groups": 997,
+      "safe_subgroup_EP_opportunity_gap_after": {
+        "n": 1923,
+        "mean": 0.0,
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "max": 0.0
+      },
+      "positive_violations": {
+        "NC": {
+          "before": 1,
+          "after": 1,
+          "new": 0
+        },
+        "DAC": {
+          "before": 0,
+          "after": 0,
+          "new": 0
+        },
+        "TTC": {
+          "before": 282,
+          "after": 304,
+          "new": 64
+        }
+      }
+    },
+    "PPO_SAFE_COMFORT": {
+      "reward_mean": 0.7396783473034753,
+      "reward_bounds": [
+        0.0,
+        1.0
+      ],
+      "strict_old_winner_displaced": 516,
+      "strict_old_winner_displaced_fraction": 0.258,
+      "argmax_index_changed_including_ties": 770,
+      "argmax_index_changed_same_EP": 254,
+      "selected_EP_delta_mean": 0.019655624086085233,
+      "selected_EP_delta_at_strict_changes": {
+        "n": 516,
+        "mean": 0.07618458948095051,
+        "min": -0.7283505556607853,
+        "p50": 0.06120197774183389,
+        "p90": 0.15896265465953152,
+        "p99": 0.3119721876901708,
+        "max": 0.38717831011312187
+      },
+      "selected_EP_increased_groups": 515,
+      "selected_EP_decreased_groups": 1,
+      "selected_raw_canonical_change_mean": -0.05576848996413115,
+      "selected_unsafe_groups_before": 22,
+      "selected_unsafe_groups_after": 21,
+      "selected_safe_to_unsafe": 0,
+      "selected_unsafe_to_safe": 1,
+      "current_positive_unsafe_candidates": 282,
+      "new_positive_unsafe_candidates": 252,
+      "unsafe_advantage_nonpositive_to_positive": 0,
+      "unsafe_advantage_positive_to_nonpositive": 30,
+      "current_positive_unsafe_advantage_mass": 100.16841125488281,
+      "new_positive_unsafe_advantage_mass": 87.10943603515625,
+      "current_negative_unsafe_advantage_mass": -4364.224609375,
+      "new_negative_unsafe_advantage_mass": -4461.8798828125,
+      "source_normalized_advantage_cosine": 0.9712715744972229,
+      "mean_absolute_advantage_change": 0.157253697514534,
+      "mean_absolute_advantage": 0.5837662816047668,
+      "max_absolute_advantage": 4.032670974731445,
+      "any_advantage_sign_changed_groups": 939,
+      "safe_subgroup_EP_opportunity_gap_after": {
+        "n": 1923,
+        "mean": 0.0,
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "max": 0.0
+      },
+      "positive_violations": {
+        "NC": {
+          "before": 1,
+          "after": 1,
+          "new": 0
+        },
+        "DAC": {
+          "before": 0,
+          "after": 0,
+          "new": 0
+        },
+        "TTC": {
+          "before": 282,
+          "after": 252,
+          "new": 0
+        }
+      }
+    }
+  },
+  "stochastic_comfort_diagnostic": {
+    "safe_candidates": 11975,
+    "safe_comfort_failures": 3956,
+    "safe_comfort_failure_fraction": 0.33035490605427975,
+    "all8safe_groups": 602,
+    "all8safe_comfort_varying_groups": 577,
+    "all8safe_EP_component_mean_absolute_centered_reward": 0.02536750892349467,
+    "all8safe_comfort_component_mean_absolute_centered_reward": 0.06513877353266886,
+    "all8safe_comfort_covariance_alignment_share_of_within_reward_variance": 0.7871941661680338,
+    "all8safe_EP_covariance_alignment_share_of_within_reward_variance": 0.21280583383196625,
+    "pairwise_ranking": {
+      "safe_pairs": 33856,
+      "distinct_EP_pairs": 23730,
+      "score_EP_discordant_pairs": 5443,
+      "constant_comfort_distinct_EP_pairs": 13504,
+      "constant_comfort_discordant_pairs": 0,
+      "different_comfort_distinct_EP_pairs": 10226,
+      "different_comfort_discordant_pairs": 5443,
+      "unsafe_higherEP_versus_safe_pairs": 2886,
+      "unsafe_higherEP_score_beats_safe": 6
+    },
+    "matched_existing_TRAIN_panel": {
+      "scenes": 20,
+      "stochastic_candidate_count": 160,
+      "stochastic_comfort_mean": 0.65625,
+      "IL_ODE_comfort_mean": 1.0,
+      "limitation": "Same observations, but SDE policies span updates0..996; no exact same-checkpoint/root-noise ODE-vs-SDE causal experiment."
+    },
+    "existing_ODE_TRAIN_panel_means": {
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/IL70_TRAIN_001024/SUMMARY.json": {
+        "score": 0.9364668412698354,
+        "no_at_fault_collisions": 0.998046875,
+        "drivable_area_compliance": 0.9931640625,
+        "time_to_collision_within_bound": 0.994140625,
+        "ego_progress": 0.8627547940476056,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.98876953125
+      },
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_TRAIN1024/SUMMARY.json": {
+        "score": 0.9331926212265258,
+        "no_at_fault_collisions": 0.998046875,
+        "drivable_area_compliance": 0.9970703125,
+        "time_to_collision_within_bound": 0.9951171875,
+        "ego_progress": 0.8484513534436617,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.98876953125
+      }
+    }
+  },
+  "anchor": {
+    "beta": 50,
+    "weights": [
+      0.2,
+      1.0,
+      1.0
+    ],
+    "reduction": "weighted mean over 8 horizons x3 normalized SDE transition-mean dimensions",
+    "normalized_equal_residual_x_force_relative_to_y": 0.2,
+    "normalization_scales_physical_units_per_normalized_unit": [
+      33.37,
+      21.0,
+      1.765
+    ],
+    "same_metre_x_penalty_relative_to_y": 0.07920565172736123,
+    "normalized_transition_mean_residual_MSE_by_dimension": [
+      2.0808308780279257e-05,
+      6.145230124307996e-06,
+      1.4024664017732926e-05
+    ],
+    "weighted_penalty_mass_share_by_dimension": [
+      0.17103968909696313,
+      0.2525621522127436,
+      0.5763981586902932
+    ],
+    "longitudinal_force_if_only_x_weight_raised_to1": 3.6666666666666665,
+    "lateral_heading_force_if_only_x_weight_raised_to1": 0.7333333333333334,
+    "caveat": "These are local quadratic derivatives/penalty values, not parameter-gradient contributions or an ODE longitudinal guard. Symmetric anchor resists both slowdown and necessary safety corrections."
+  },
+  "historical_context": {
+    "matched_fixed50k": [
+      {
+        "label": "canonical50k",
+        "path": "/mnt/project/qwen-sourceflow-native-20261018/analysis/RL_canonical_update050000_NAVTEST.json",
+        "file_sha256": "361e7c175b56a539fe9d965968441e791d9f7c4cf01563ef9b25fd8f57edbce9",
+        "PDMS": 90.513164102699,
+        "means": {
+          "no_at_fault_collisions": 0.9876502552280586,
+          "drivable_area_compliance": 0.9804050716285196,
+          "ego_progress": 0.8390198473909186,
+          "time_to_collision_within_bound": 0.9650913881113123,
+          "comfort": 0.9994236785773094,
+          "driving_direction_compliance": 0.9804050716285196,
+          "score": 0.90513164102699
+        },
+        "own_IL_parent": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000"
+      },
+      {
+        "label": "WLA50k",
+        "path": "/mnt/project/qwen-sourceflow-safe-rl-20261024/analysis/RL_wla_adv_update050000_NAVTEST.json",
+        "file_sha256": "86982405df635af9b88fc7162a87530d0fe281785b99351211272333d574f1c8",
+        "PDMS": 89.61765984129099,
+        "means": {
+          "no_at_fault_collisions": 0.9776469619627861,
+          "drivable_area_compliance": 0.9748065206652395,
+          "ego_progress": 0.8599321289828362,
+          "time_to_collision_within_bound": 0.935534332290466,
+          "comfort": 0.9934134694549646,
+          "driving_direction_compliance": 0.9786761073604479,
+          "score": 0.8961765984129099
+        },
+        "own_IL_parent": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000"
+      },
+      {
+        "label": "SCADV3_50k",
+        "path": "/mnt/project/qwen-sourceflow-safe-rl-20261024/analysis/RL_scadv3_update050000_NAVTEST.json",
+        "file_sha256": "2a759091e7eab9d3da2a81ddec669ca4dfe8954ac55bab680aeb0e02ad87ab54",
+        "PDMS": 90.32419929979503,
+        "means": {
+          "no_at_fault_collisions": 0.9855096328009221,
+          "drivable_area_compliance": 0.9759591635106207,
+          "ego_progress": 0.8477083965721403,
+          "time_to_collision_within_bound": 0.9581755310390252,
+          "comfort": 0.9992590153136836,
+          "driving_direction_compliance": 0.9791700971513255,
+          "score": 0.9032419929979503
+        },
+        "own_IL_parent": "/mnt/project/qwen-sourceflow-native-20261018/interim_navtest_IL053000_20261023/pinned_checkpoint_update053000"
+      }
+    ],
+    "comparison_caution": "Historical Qwen-Flow IL53k is a different model from current Qwen-World IL70k; compare methods within the old run, not absolute rankings against this World1k.",
+    "WLA": "Per-component group z-scores with weights2/2/5/5/2, weighted-combination renormalization and canonical-variance shrinkage tau.1.",
+    "SCADV3": "Group-standardized PDMS and NC/DAC/TTC costs with floors and learned nonnegative OmniSafe dual multipliers.",
+    "current_candidate": "Single scalar gated comfort refund; unchanged canonical multiplicative gates, TTC/EP coefficients, global RAW reward std, beta50, optimizer, sample population and scope."
+  },
+  "recommendation": {
+    "candidate": "PPO_SAFE_COMFORT",
+    "worthy_of_one_isolated_test": true,
+    "rationale": "25.8% strict winner displacement, all safe EP opportunity recovered, zero newly positive unsafe candidates in existing bank; all-fixed1 gives64.",
+    "formula": "if NC=DAC=TTC=1: (5EP+5TTC+2)/12; else original canonical reward",
+    "code_commit": "1b97d47781dffe28ba21a8e2ba294f4bd8ba3e1d",
+    "entry": "starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry",
+    "research_reward_transform": "canonical_all3safe_constant_comfort1_train_only_v1",
+    "no_mix_with_centered_batchstd": true,
+    "training_seed": 42,
+    "evaluation_seed": 2101,
+    "minimum_interpretation": "Offline scalar-reward/advantage effects only, no policy-performance improvement established.",
+    "primary_risk": "Official ODE Comfort regression from reducing training pressure; canonical PDMS and safety/comfort must be evaluated unchanged.",
+    "no_new_GPU_or_registration": true
+  },
+  "provenance": {
+    "component_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PPO_FULL_u001000_canonical_components.npz",
+    "component_cache_sha256": "4e63ced87d5661aa2717c6387f31ccd71c7345d7b4c4d942a3353afd7fcdd959",
+    "base_diagnostic": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safe_EP_reward_u001000.json",
+    "base_diagnostic_sha256": "acfe45fb0327ccd9b05b90c9de87ed8a2b87dd034b22d0b404ce1f0c73590d43",
+    "script_sha256": "fb47e1df878341f17f1e8fc38c6b02e9d131b40ace425613d5e2933d57e76f29",
+    "source_bank_rereads": 0,
+    "new_policy_forwards": 0,
+    "new_scores": 0,
+    "scope_note": "Hypothesis arose after a NAVTEST progress diagnosis; numeric counterfactuals and coefficient-free candidate are based only on original TRAIN banks. No NAVTEST scenes enter training.",
+    "NAVTEST_numeric_records_used_in_counterfactual": false,
+    "NAVTEST_has_informed_research_hypothesis": true
+  },
+  "sha256": "a6b46a87709146a06c1bfec7e774ae1a595b3fc2e80e0f83c73bd2332719009f"
+}

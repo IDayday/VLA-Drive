@@ -1,0 +1,1802 @@
+{
+  "schema": "world_NFT_1000_vs_pinned_IL70_paired_diagnostic_v1",
+  "status": "COMPLETE",
+  "utc": "2026-10-30T03:36:49.728469+00:00",
+  "RL_updates": 1000,
+  "IL_updates": 70000,
+  "reference_PDMS": 88.79290990699972,
+  "RL_PDMS": 88.76282705735342,
+  "delta_PDMS": -0.030082849646254496,
+  "CI95_PDMS": [
+    -0.0724510897125858,
+    0.010527765206341338
+  ],
+  "G_plus_PDMS": 0.05885130794981825,
+  "G_minus_PDMS": -0.08893415759607273,
+  "paired": {
+    "mean_delta": -0.00030082849646254496,
+    "CI95": [
+      -0.000724510897125858,
+      0.00010527765206341338
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 3,
+    "new_zero": 5,
+    "high_to_zero": 4,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 565,
+    "baseline_nonzero_denominator": 11581,
+    "baseline_high_denominator": 11081,
+    "repaired_zero_rate": 0.005309734513274336,
+    "new_zero_rate": 0.00043174164579915376,
+    "high_to_zero_rate": 0.00036097825106037363,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 1,
+        "repaired_failure": 0,
+        "baseline_pass": 11915,
+        "baseline_failure": 231
+      },
+      "drivable_area_compliance": {
+        "new_failure": 4,
+        "repaired_failure": 3,
+        "baseline_pass": 11784,
+        "baseline_failure": 362
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 13,
+        "repaired_failure": 5,
+        "baseline_pass": 11531,
+        "baseline_failure": 615
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "safety_metrics": {
+    "score": {
+      "IL_mean_percent": 88.79290990699972,
+      "NFT_mean_percent": 88.76282705735348,
+      "delta_percentage_points": -0.030082849646251297
+    },
+    "no_at_fault_collisions": {
+      "IL_mean_percent": 98.18458751852461,
+      "NFT_mean_percent": 98.17635435534332,
+      "delta_percentage_points": -0.008233163181292635,
+      "new_failure": 1,
+      "repaired_failure": 0,
+      "baseline_pass": 11915,
+      "baseline_failure": 231
+    },
+    "drivable_area_compliance": {
+      "IL_mean_percent": 97.01959492837148,
+      "NFT_mean_percent": 97.01136176519019,
+      "delta_percentage_points": -0.008233163181292635,
+      "new_failure": 4,
+      "repaired_failure": 3,
+      "baseline_pass": 11784,
+      "baseline_failure": 362
+    },
+    "time_to_collision_within_bound": {
+      "IL_mean_percent": 94.93660464350403,
+      "NFT_mean_percent": 94.87073933805368,
+      "delta_percentage_points": -0.06586530545035219,
+      "new_failure": 13,
+      "repaired_failure": 5,
+      "baseline_pass": 11531,
+      "baseline_failure": 615
+    },
+    "ego_progress": {
+      "IL_mean_percent": 82.77131997518626,
+      "NFT_mean_percent": 82.77156582149364,
+      "delta_percentage_points": 0.00024584630737845004
+    },
+    "comfort": {
+      "IL_mean_percent": 100.0,
+      "NFT_mean_percent": 100.0,
+      "delta_percentage_points": 0.0
+    },
+    "driving_direction_compliance": {
+      "IL_mean_percent": 98.45628190350733,
+      "NFT_mean_percent": 98.47274822986991,
+      "delta_percentage_points": 0.01646632636258527
+    }
+  },
+  "scene_categories": {
+    "score_down_EP_down_safety_unchanged": {
+      "scenes": 3663,
+      "G_minus_PDMS": -0.012444709942283055,
+      "G_plus_PDMS": 0.0
+    },
+    "score_down_with_new_NC_DAC_TTC_violation": {
+      "scenes": 17,
+      "G_minus_PDMS": -0.07648944765378969,
+      "G_plus_PDMS": 0.0
+    }
+  },
+  "changed_scores": {
+    "improved": 3682,
+    "degraded": 3680,
+    "exactly_unchanged": 4784,
+    "improved_at_least_5_scene_PDMS": 8,
+    "degraded_at_least_5_scene_PDMS": 17
+  },
+  "trajectories": {
+    "exact_requested_trajectory_unchanged": 625,
+    "exact_requested_trajectory_unchanged_fraction": 0.05145726988308908,
+    "all_metric_components_unchanged": 4782
+  },
+  "log_concentration": {
+    "physical_logs": 44,
+    "logs_with_any_degraded_scene": 43,
+    "top1_share_of_G_minus": 0.21039527391666363,
+    "top3_share_of_G_minus": 0.4394391331232016,
+    "top5_share_of_G_minus": 0.5785829387136704,
+    "all_logs_sorted_by_G_minus": [
+      {
+        "scenes": 929,
+        "degraded": 377,
+        "improved": 435,
+        "new_zero": 2,
+        "repaired_zero": 1,
+        "negative_sum": 2.272677710370855,
+        "positive_sum": 1.4435763380079523,
+        "delta_sum": -0.8291013723629008,
+        "physical_log": "2021.10.06.08.16.17_veh-52",
+        "negative_contribution_PDMS": -0.018711326447973447,
+        "positive_contribution_PDMS": 0.01188519955547466,
+        "net_contribution_PDMS": -0.006826126892498772,
+        "local_mean_delta_PDMS": -0.08924664933938653
+      },
+      {
+        "scenes": 625,
+        "degraded": 204,
+        "improved": 214,
+        "new_zero": 1,
+        "repaired_zero": 0,
+        "negative_sum": 1.4738360571733473,
+        "positive_sum": 0.1422269263526148,
+        "delta_sum": -1.3316091308207332,
+        "physical_log": "2021.09.16.19.27.01_veh-45",
+        "negative_contribution_PDMS": -0.012134332761183494,
+        "positive_contribution_PDMS": 0.0011709774934349976,
+        "net_contribution_PDMS": -0.010963355267748501,
+        "local_mean_delta_PDMS": -0.2130574609313173
+      },
+      {
+        "scenes": 284,
+        "degraded": 78,
+        "improved": 97,
+        "new_zero": 1,
+        "repaired_zero": 0,
+        "negative_sum": 1.000282604456872,
+        "positive_sum": 0.05689321249596707,
+        "delta_sum": -0.943389391960905,
+        "physical_log": "2021.09.16.19.49.00_veh-42",
+        "negative_contribution_PDMS": -0.008235489909903441,
+        "positive_contribution_PDMS": 0.0004684111023873462,
+        "net_contribution_PDMS": -0.007767078807516095,
+        "local_mean_delta_PDMS": -0.3321793633665158
+      },
+      {
+        "scenes": 404,
+        "degraded": 130,
+        "improved": 112,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.8846935882851079,
+        "positive_sum": 0.1283416119623474,
+        "delta_sum": -0.7563519763227605,
+        "physical_log": "2021.09.09.17.18.51_veh-48",
+        "negative_contribution_PDMS": -0.007283826677796048,
+        "positive_contribution_PDMS": 0.0010566574342363525,
+        "net_contribution_PDMS": -0.006227169243559694,
+        "local_mean_delta_PDMS": -0.18721583572345557
+      },
+      {
+        "scenes": 379,
+        "degraded": 87,
+        "improved": 89,
+        "new_zero": 1,
+        "repaired_zero": 0,
+        "negative_sum": 0.6183298381198521,
+        "positive_sum": 0.0565792499105332,
+        "delta_sum": -0.5617505882093189,
+        "physical_log": "2021.06.03.13.55.17_veh-35",
+        "negative_contribution_PDMS": -0.005090810457104002,
+        "positive_contribution_PDMS": 0.0004658261971886482,
+        "net_contribution_PDMS": -0.0046249842599153535,
+        "local_mean_delta_PDMS": -0.14821915256182555
+      },
+      {
+        "scenes": 985,
+        "degraded": 384,
+        "improved": 430,
+        "new_zero": 0,
+        "repaired_zero": 1,
+        "negative_sum": 0.5632469901982396,
+        "positive_sum": 1.5137366223644726,
+        "delta_sum": 0.950489632166232,
+        "physical_log": "2021.10.06.07.26.10_veh-52",
+        "negative_contribution_PDMS": -0.004637304381674952,
+        "positive_contribution_PDMS": 0.0124628406254279,
+        "net_contribution_PDMS": 0.007825536243752939,
+        "local_mean_delta_PDMS": 0.09649640935697786
+      },
+      {
+        "scenes": 648,
+        "degraded": 206,
+        "improved": 192,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.5007299614450859,
+        "positive_sum": 0.1382197433880062,
+        "delta_sum": -0.3625102180570797,
+        "physical_log": "2021.09.29.19.02.14_veh-28",
+        "negative_contribution_PDMS": -0.004122591482340572,
+        "positive_contribution_PDMS": 0.0011379857021900724,
+        "net_contribution_PDMS": -0.0029846057801504997,
+        "local_mean_delta_PDMS": -0.055942934885351805
+      },
+      {
+        "scenes": 510,
+        "degraded": 106,
+        "improved": 100,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.4727072082515068,
+        "positive_sum": 0.034472446961551606,
+        "delta_sum": -0.4382347612899552,
+        "physical_log": "2021.05.25.14.16.10_veh-35",
+        "negative_contribution_PDMS": -0.003891875582508701,
+        "positive_contribution_PDMS": 0.00028381728109296565,
+        "net_contribution_PDMS": -0.0036080583014157356,
+        "local_mean_delta_PDMS": -0.08592838456665788
+      },
+      {
+        "scenes": 162,
+        "degraded": 22,
+        "improved": 44,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.4451186316901091,
+        "positive_sum": 0.4660128007132265,
+        "delta_sum": 0.02089416902311736,
+        "physical_log": "2021.06.28.18.03.27_veh-14",
+        "negative_contribution_PDMS": -0.003664734329739084,
+        "positive_contribution_PDMS": 0.0038367594328439524,
+        "net_contribution_PDMS": 0.00017202510310486877,
+        "local_mean_delta_PDMS": 0.01289763519945516
+      },
+      {
+        "scenes": 215,
+        "degraded": 57,
+        "improved": 63,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.4447065262541545,
+        "positive_sum": 0.06049868396432112,
+        "delta_sum": -0.3842078422898334,
+        "physical_log": "2021.09.09.18.29.25_veh-39",
+        "negative_contribution_PDMS": -0.003661341398436971,
+        "positive_contribution_PDMS": 0.0004980955373318057,
+        "net_contribution_PDMS": -0.0031632458611051653,
+        "local_mean_delta_PDMS": -0.17870132199527133
+      },
+      {
+        "scenes": 182,
+        "degraded": 59,
+        "improved": 46,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.44010545623072705,
+        "positive_sum": 0.040153547717049376,
+        "delta_sum": -0.3999519085136777,
+        "physical_log": "2021.09.29.15.23.04_veh-28",
+        "negative_contribution_PDMS": -0.0036234600381255316,
+        "positive_contribution_PDMS": 0.0003305907106623528,
+        "net_contribution_PDMS": -0.0032928693274631785,
+        "local_mean_delta_PDMS": -0.21975379588663607
+      },
+      {
+        "scenes": 215,
+        "degraded": 55,
+        "improved": 45,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.43467138461539945,
+        "positive_sum": 0.038779844370669614,
+        "delta_sum": -0.39589154024472983,
+        "physical_log": "2021.06.03.18.47.39_veh-35",
+        "negative_contribution_PDMS": -0.0035787204397777,
+        "positive_contribution_PDMS": 0.0003192807868489183,
+        "net_contribution_PDMS": -0.0032594396529287816,
+        "local_mean_delta_PDMS": -0.18413560011382782
+      },
+      {
+        "scenes": 257,
+        "degraded": 50,
+        "improved": 41,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.4254993087105846,
+        "positive_sum": 0.043033078692394366,
+        "delta_sum": -0.38246623001819025,
+        "physical_log": "2021.05.25.15.59.03_veh-30",
+        "negative_contribution_PDMS": -0.003503205242142143,
+        "positive_contribution_PDMS": 0.0003542983590679595,
+        "net_contribution_PDMS": -0.0031489068830741827,
+        "local_mean_delta_PDMS": -0.14881954475415962
+      },
+      {
+        "scenes": 641,
+        "degraded": 158,
+        "improved": 171,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.098297554696826,
+        "positive_sum": 0.10110436060459727,
+        "delta_sum": 0.0028068059077712704,
+        "physical_log": "2021.06.28.20.24.43_veh-38",
+        "negative_contribution_PDMS": -0.0008092998081411657,
+        "positive_contribution_PDMS": 0.0008324086991980674,
+        "net_contribution_PDMS": 2.3108891056901617e-05,
+        "local_mean_delta_PDMS": 0.00043787923678178945
+      },
+      {
+        "scenes": 516,
+        "degraded": 179,
+        "improved": 178,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.07198078828861199,
+        "positive_sum": 0.0906952739525908,
+        "delta_sum": 0.01871448566397882,
+        "physical_log": "2021.09.16.14.39.34_veh-42",
+        "negative_contribution_PDMS": -0.0005926295758983368,
+        "positive_contribution_PDMS": 0.0007467089902238662,
+        "net_contribution_PDMS": 0.00015407941432552956,
+        "local_mean_delta_PDMS": 0.0036268383069726394
+      },
+      {
+        "scenes": 438,
+        "degraded": 133,
+        "improved": 109,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.06673383006517353,
+        "positive_sum": 0.4927141572030439,
+        "delta_sum": 0.4259803271378704,
+        "physical_log": "2021.09.29.18.19.40_veh-28",
+        "negative_contribution_PDMS": -0.0005494305126393343,
+        "positive_contribution_PDMS": 0.00405659605798653,
+        "net_contribution_PDMS": 0.0035071655453471954,
+        "local_mean_delta_PDMS": 0.09725578245156857
+      },
+      {
+        "scenes": 423,
+        "degraded": 90,
+        "improved": 83,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.05494668549360571,
+        "positive_sum": 0.0747717900388647,
+        "delta_sum": 0.019825104545258987,
+        "physical_log": "2021.06.28.16.29.11_veh-38",
+        "negative_contribution_PDMS": -0.0004523850279401095,
+        "positive_contribution_PDMS": 0.0006156083487474452,
+        "net_contribution_PDMS": 0.00016322332080733563,
+        "local_mean_delta_PDMS": 0.0046867859445056705
+      },
+      {
+        "scenes": 427,
+        "degraded": 147,
+        "improved": 122,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0530536224581272,
+        "positive_sum": 0.10182009159138361,
+        "delta_sum": 0.04876646913325641,
+        "physical_log": "2021.09.09.14.18.22_veh-48",
+        "negative_contribution_PDMS": -0.0004367991310565388,
+        "positive_contribution_PDMS": 0.000838301429206188,
+        "net_contribution_PDMS": 0.00040150229814964937,
+        "local_mean_delta_PDMS": 0.011420718766570588
+      },
+      {
+        "scenes": 453,
+        "degraded": 141,
+        "improved": 132,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.05295836885135796,
+        "positive_sum": 0.09324028917949617,
+        "delta_sum": 0.04028192032813821,
+        "physical_log": "2021.09.29.14.44.26_veh-28",
+        "negative_contribution_PDMS": -0.0004360148925684008,
+        "positive_contribution_PDMS": 0.0007676625158858568,
+        "net_contribution_PDMS": 0.000331647623317456,
+        "local_mean_delta_PDMS": 0.008892256143076867
+      },
+      {
+        "scenes": 340,
+        "degraded": 123,
+        "improved": 90,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.04961732525110074,
+        "positive_sum": 0.07546422036711598,
+        "delta_sum": 0.025846895116015234,
+        "physical_log": "2021.08.30.16.16.44_veh-40",
+        "negative_contribution_PDMS": -0.0004085075354116643,
+        "positive_contribution_PDMS": 0.0006213092406316151,
+        "net_contribution_PDMS": 0.0002128017052199509,
+        "local_mean_delta_PDMS": 0.007602027975298598
+      },
+      {
+        "scenes": 352,
+        "degraded": 122,
+        "improved": 128,
+        "new_zero": 0,
+        "repaired_zero": 1,
+        "negative_sum": 0.046843925940388276,
+        "positive_sum": 1.0641564463619355,
+        "delta_sum": 1.0173125204215472,
+        "physical_log": "2021.09.16.13.53.10_veh-42",
+        "negative_contribution_PDMS": -0.00038567368631967953,
+        "positive_contribution_PDMS": 0.008761373673324021,
+        "net_contribution_PDMS": 0.008375699987004341,
+        "local_mean_delta_PDMS": 0.2890092387561214
+      },
+      {
+        "scenes": 271,
+        "degraded": 93,
+        "improved": 85,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.045693650910654915,
+        "positive_sum": 0.05996570491213182,
+        "delta_sum": 0.014272054001476908,
+        "physical_log": "2021.05.25.17.54.41_veh-35",
+        "negative_contribution_PDMS": -0.0003762032842965167,
+        "positive_contribution_PDMS": 0.0004937074338229197,
+        "net_contribution_PDMS": 0.000117504149526403,
+        "local_mean_delta_PDMS": 0.005266440590950889
+      },
+      {
+        "scenes": 259,
+        "degraded": 84,
+        "improved": 73,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.041006557751391004,
+        "positive_sum": 0.03878365979424392,
+        "delta_sum": -0.0022228979571470853,
+        "physical_log": "2021.08.30.13.45.25_veh-40",
+        "negative_contribution_PDMS": -0.00033761368147036886,
+        "positive_contribution_PDMS": 0.00031931219985381127,
+        "net_contribution_PDMS": -1.8301481616557592e-05,
+        "local_mean_delta_PDMS": -0.0008582617595162492
+      },
+      {
+        "scenes": 191,
+        "degraded": 77,
+        "improved": 72,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.03408950389704668,
+        "positive_sum": 0.03632864036941463,
+        "delta_sum": 0.002239136472367953,
+        "physical_log": "2021.09.16.19.12.04_veh-42",
+        "negative_contribution_PDMS": -0.00028066444835375166,
+        "positive_contribution_PDMS": 0.00029909962431594464,
+        "net_contribution_PDMS": 1.843517596219293e-05,
+        "local_mean_delta_PDMS": 0.0011723227604020696
+      },
+      {
+        "scenes": 164,
+        "degraded": 53,
+        "improved": 50,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.021678318951977804,
+        "positive_sum": 0.022511114282491973,
+        "delta_sum": 0.0008327953305141689,
+        "physical_log": "2021.05.25.14.24.08_veh-25",
+        "negative_contribution_PDMS": -0.00017848113742777709,
+        "positive_contribution_PDMS": 0.00018533767728052012,
+        "net_contribution_PDMS": 6.856539852743034e-06,
+        "local_mean_delta_PDMS": 0.0005078020308013224
+      },
+      {
+        "scenes": 156,
+        "degraded": 31,
+        "improved": 25,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.020203878614142412,
+        "positive_sum": 0.01311321890138506,
+        "delta_sum": -0.007090659712757352,
+        "physical_log": "2021.06.28.15.02.02_veh-38",
+        "negative_contribution_PDMS": -0.00016634182952529567,
+        "positive_contribution_PDMS": 0.00010796327104713535,
+        "net_contribution_PDMS": -5.837855847816032e-05,
+        "local_mean_delta_PDMS": -0.004545294687664969
+      },
+      {
+        "scenes": 144,
+        "degraded": 39,
+        "improved": 29,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.01886219291517266,
+        "positive_sum": 0.01648131373748707,
+        "delta_sum": -0.002380879177685591,
+        "physical_log": "2021.09.16.15.12.03_veh-42",
+        "negative_contribution_PDMS": -0.00015529551222766885,
+        "positive_contribution_PDMS": 0.0001356933454428377,
+        "net_contribution_PDMS": -1.9602166784831144e-05,
+        "local_mean_delta_PDMS": -0.001653388317837216
+      },
+      {
+        "scenes": 190,
+        "degraded": 44,
+        "improved": 54,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.01885324930067822,
+        "positive_sum": 0.03383012427385912,
+        "delta_sum": 0.014976874973180898,
+        "physical_log": "2021.08.30.14.54.34_veh-40",
+        "negative_contribution_PDMS": -0.00015522187799010557,
+        "positive_contribution_PDMS": 0.0002785289335901459,
+        "net_contribution_PDMS": 0.00012330705560004032,
+        "local_mean_delta_PDMS": 0.007882565775358367
+      },
+      {
+        "scenes": 175,
+        "degraded": 55,
+        "improved": 51,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.018665955157263103,
+        "positive_sum": 0.022680507818292367,
+        "delta_sum": 0.004014552661029264,
+        "physical_log": "2021.09.09.18.04.06_veh-40",
+        "negative_contribution_PDMS": -0.00015367985474446817,
+        "positive_contribution_PDMS": 0.00018673232190262115,
+        "net_contribution_PDMS": 3.3052467158153e-05,
+        "local_mean_delta_PDMS": 0.0022940300920167222
+      },
+      {
+        "scenes": 165,
+        "degraded": 45,
+        "improved": 60,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.016441961467557165,
+        "positive_sum": 0.461157474755428,
+        "delta_sum": 0.44471551328787085,
+        "physical_log": "2021.06.03.12.02.06_veh-35",
+        "negative_contribution_PDMS": -0.00013536935178295046,
+        "positive_contribution_PDMS": 0.0037967847419350244,
+        "net_contribution_PDMS": 0.0036614153901520737,
+        "local_mean_delta_PDMS": 0.2695245535078005
+      },
+      {
+        "scenes": 189,
+        "degraded": 39,
+        "improved": 39,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0161437304648393,
+        "positive_sum": 0.03340151025724547,
+        "delta_sum": 0.01725777979240617,
+        "physical_log": "2021.06.03.17.06.58_veh-35",
+        "negative_contribution_PDMS": -0.0001329139672718533,
+        "positive_contribution_PDMS": 0.00027500008444957577,
+        "net_contribution_PDMS": 0.00014208611717772245,
+        "local_mean_delta_PDMS": 0.009131100419262524
+      },
+      {
+        "scenes": 156,
+        "degraded": 34,
+        "improved": 39,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.014086564147995473,
+        "positive_sum": 0.029525509727561405,
+        "delta_sum": 0.015438945579565932,
+        "physical_log": "2021.06.28.16.57.59_veh-26",
+        "negative_contribution_PDMS": -0.00011597698129421599,
+        "positive_contribution_PDMS": 0.0002430883395979039,
+        "net_contribution_PDMS": 0.0001271113583036879,
+        "local_mean_delta_PDMS": 0.00989675998690124
+      },
+      {
+        "scenes": 106,
+        "degraded": 40,
+        "improved": 34,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.012283584778089662,
+        "positive_sum": 0.028167609921000647,
+        "delta_sum": 0.015884025142910985,
+        "physical_log": "2021.09.16.17.40.09_veh-45",
+        "negative_contribution_PDMS": -0.00010113275792927435,
+        "positive_contribution_PDMS": 0.00023190852890664127,
+        "net_contribution_PDMS": 0.0001307757709773669,
+        "local_mean_delta_PDMS": 0.014984929380104702
+      },
+      {
+        "scenes": 77,
+        "degraded": 30,
+        "improved": 34,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.010822763985350647,
+        "positive_sum": 0.013203496163084028,
+        "delta_sum": 0.00238073217773338,
+        "physical_log": "2021.08.16.14.23.37_veh-45",
+        "negative_contribution_PDMS": -8.91055819640264e-05,
+        "positive_contribution_PDMS": 0.00010870653847426336,
+        "net_contribution_PDMS": 1.960095651023695e-05,
+        "local_mean_delta_PDMS": 0.003091859971082312
+      },
+      {
+        "scenes": 87,
+        "degraded": 26,
+        "improved": 22,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.008231837117663177,
+        "positive_sum": 0.014795877608582808,
+        "delta_sum": 0.0065640404909196315,
+        "physical_log": "2021.09.16.15.47.30_veh-45",
+        "negative_contribution_PDMS": -6.777405827155588e-05,
+        "positive_contribution_PDMS": 0.00012181687476192005,
+        "net_contribution_PDMS": 5.4042816490364166e-05,
+        "local_mean_delta_PDMS": 0.007544874127493829
+      },
+      {
+        "scenes": 74,
+        "degraded": 16,
+        "improved": 19,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.006074518958588793,
+        "positive_sum": 0.031871156257823774,
+        "delta_sum": 0.02579663729923498,
+        "physical_log": "2021.06.28.21.16.05_veh-14",
+        "negative_contribution_PDMS": -5.0012505833927155e-05,
+        "positive_contribution_PDMS": 0.0002624004302471906,
+        "net_contribution_PDMS": 0.00021238792441326346,
+        "local_mean_delta_PDMS": 0.03486032067464186
+      },
+      {
+        "scenes": 70,
+        "degraded": 14,
+        "improved": 7,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.005672315138796402,
+        "positive_sum": 0.0012142453406092102,
+        "delta_sum": -0.004458069798187192,
+        "physical_log": "2021.06.28.21.47.53_veh-35",
+        "negative_contribution_PDMS": -4.670109615343654e-05,
+        "positive_contribution_PDMS": 9.997080031361849e-06,
+        "net_contribution_PDMS": -3.670401612207469e-05,
+        "local_mean_delta_PDMS": -0.006368671140267417
+      },
+      {
+        "scenes": 34,
+        "degraded": 9,
+        "improved": 13,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0049248680415008295,
+        "positive_sum": 0.005022452801165422,
+        "delta_sum": 9.75847596645929e-05,
+        "physical_log": "2021.06.28.15.10.57_veh-16",
+        "negative_contribution_PDMS": -4.0547242232017366e-05,
+        "positive_contribution_PDMS": 4.135067348234334e-05,
+        "net_contribution_PDMS": 8.034312503259748e-07,
+        "local_mean_delta_PDMS": 0.00028701399901350855
+      },
+      {
+        "scenes": 23,
+        "degraded": 6,
+        "improved": 6,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.00469671836809038,
+        "positive_sum": 0.0013689968871619662,
+        "delta_sum": -0.003327721480928414,
+        "physical_log": "2021.05.25.18.38.25_veh-25",
+        "negative_contribution_PDMS": -3.8668848741070145e-05,
+        "positive_contribution_PDMS": 1.1271174766688344e-05,
+        "net_contribution_PDMS": -2.7397673974381803e-05,
+        "local_mean_delta_PDMS": -0.014468354264906147
+      },
+      {
+        "scenes": 39,
+        "degraded": 9,
+        "improved": 13,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0045168069766231556,
+        "positive_sum": 0.00736259471745071,
+        "delta_sum": 0.0028457877408275545,
+        "physical_log": "2021.09.16.16.20.27_veh-08",
+        "negative_contribution_PDMS": -3.7187608896946774e-05,
+        "positive_contribution_PDMS": 6.061744374650675e-05,
+        "net_contribution_PDMS": 2.3429834849559975e-05,
+        "local_mean_delta_PDMS": 0.007296891643147576
+      },
+      {
+        "scenes": 25,
+        "degraded": 7,
+        "improved": 8,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0040550627652991,
+        "positive_sum": 0.00613578420781502,
+        "delta_sum": 0.0020807214425159204,
+        "physical_log": "2021.05.25.14.26.37_veh-27",
+        "negative_contribution_PDMS": -3.338599345709781e-05,
+        "positive_contribution_PDMS": 5.051691262814935e-05,
+        "net_contribution_PDMS": 1.7130919171051542e-05,
+        "local_mean_delta_PDMS": 0.008322885770063682
+      },
+      {
+        "scenes": 92,
+        "degraded": 8,
+        "improved": 10,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0020494194521866183,
+        "positive_sum": 0.003245177194718951,
+        "delta_sum": 0.001195757742532333,
+        "physical_log": "2021.06.28.13.53.26_veh-26",
+        "negative_contribution_PDMS": -1.6873204776771104e-05,
+        "positive_contribution_PDMS": 2.671807339633584e-05,
+        "net_contribution_PDMS": 9.844868619564737e-06,
+        "local_mean_delta_PDMS": 0.0012997366766655792
+      },
+      {
+        "scenes": 58,
+        "degraded": 13,
+        "improved": 14,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0018519556110556668,
+        "positive_sum": 0.009700565904182112,
+        "delta_sum": 0.007848610293126446,
+        "physical_log": "2021.05.25.16.37.23_veh-25",
+        "negative_contribution_PDMS": -1.5247452750334815e-05,
+        "positive_contribution_PDMS": 7.986634204003056e-05,
+        "net_contribution_PDMS": 6.461888928969575e-05,
+        "local_mean_delta_PDMS": 0.013532086712286975
+      },
+      {
+        "scenes": 16,
+        "degraded": 0,
+        "improved": 4,
+        "new_zero": 0,
+        "repaired_zero": 0,
+        "negative_sum": 0.0,
+        "positive_sum": 0.0017223915516559885,
+        "delta_sum": 0.0017223915516559885,
+        "physical_log": "2021.09.16.21.13.37_veh-42",
+        "negative_contribution_PDMS": -0.0,
+        "positive_contribution_PDMS": 1.4180730706866364e-05,
+        "net_contribution_PDMS": 1.4180730706866364e-05,
+        "local_mean_delta_PDMS": 0.010764947197849928
+      }
+    ]
+  },
+  "worst_scene_examples": [
+    {
+      "token": "932f0bf1d23b5ba7",
+      "log": "2021.09.16.19.27.01_veh-45_00472_00711",
+      "physical_log": "2021.09.16.19.27.01_veh-45",
+      "delta_scene_PDMS": -100.0,
+      "IL_PDMS": 100.0,
+      "NFT_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035202026367188
+    },
+    {
+      "token": "7956c9ed4b855859",
+      "log": "2021.09.16.19.49.00_veh-42_00990_01609",
+      "physical_log": "2021.09.16.19.49.00_veh-42",
+      "delta_scene_PDMS": -97.73478140152962,
+      "IL_PDMS": 97.73478140152962,
+      "NFT_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9456347536367109,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.5,
+        "score": 0.9773478140152961
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.5,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "27ff47ea8aea59cf",
+      "log": "2021.10.06.08.16.17_veh-52_01949_02501",
+      "physical_log": "2021.10.06.08.16.17_veh-52",
+      "delta_scene_PDMS": -93.60665885317117,
+      "IL_PDMS": 93.60665885317117,
+      "NFT_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8465598124761079,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9360665885317117
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.041015625
+    },
+    {
+      "token": "0614c017a1f65b80",
+      "log": "2021.10.06.08.16.17_veh-52_00612_00782",
+      "physical_log": "2021.10.06.08.16.17_veh-52",
+      "delta_scene_PDMS": -81.07398079786329,
+      "IL_PDMS": 81.07398079786329,
+      "NFT_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "drivable_area_compliance"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.5457755391487191,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8107398079786329
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.0205078125
+    },
+    {
+      "token": "f4d95a784b725915",
+      "log": "2021.06.03.13.55.17_veh-35_02866_03582",
+      "physical_log": "2021.06.03.13.55.17_veh-35",
+      "delta_scene_PDMS": -58.333333333333336,
+      "IL_PDMS": 58.333333333333336,
+      "NFT_PDMS": 0.0,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "no_at_fault_collisions"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 0.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.0
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.06517601013183594
+    },
+    {
+      "token": "fb8bef473d555fe3",
+      "log": "2021.10.06.07.26.10_veh-52_01245_02064",
+      "physical_log": "2021.10.06.07.26.10_veh-52",
+      "delta_scene_PDMS": -41.77249936635184,
+      "IL_PDMS": 90.81989756309957,
+      "NFT_PDMS": 49.047398196747736,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7796775415143898,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9081989756309957
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7771375567219456,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.4904739819674773
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.06517601013183594
+    },
+    {
+      "token": "742456f4f1c65425",
+      "log": "2021.09.09.17.18.51_veh-48_01248_01450",
+      "physical_log": "2021.09.09.17.18.51_veh-48",
+      "delta_scene_PDMS": -41.666666666666664,
+      "IL_PDMS": 100.0,
+      "NFT_PDMS": 58.333333333333336,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.5,
+        "score": 1.0
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.5,
+        "score": 0.5833333333333334
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.06517601013183594
+    },
+    {
+      "token": "7aaa5ff3f0d255ef",
+      "log": "2021.10.06.08.16.17_veh-52_01430_01579",
+      "physical_log": "2021.10.06.08.16.17_veh-52",
+      "delta_scene_PDMS": -41.666666666666664,
+      "IL_PDMS": 100.0,
+      "NFT_PDMS": 58.333333333333336,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.01025390625
+    },
+    {
+      "token": "d6fb4629926d57db",
+      "log": "2021.09.09.18.29.25_veh-39_00569_00903",
+      "physical_log": "2021.09.09.18.29.25_veh-39",
+      "delta_scene_PDMS": -41.666666666666664,
+      "IL_PDMS": 100.0,
+      "NFT_PDMS": 58.333333333333336,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "e22c4b8440c759b7",
+      "log": "2021.06.03.18.47.39_veh-35_00257_00492",
+      "physical_log": "2021.06.03.18.47.39_veh-35",
+      "delta_scene_PDMS": -41.666666666666664,
+      "IL_PDMS": 100.0,
+      "NFT_PDMS": 58.333333333333336,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.06517601013183594
+    },
+    {
+      "token": "22b526a96ad65c88",
+      "log": "2021.09.29.15.23.04_veh-28_00814_01101",
+      "physical_log": "2021.09.29.15.23.04_veh-28",
+      "delta_scene_PDMS": -41.66646067187531,
+      "IL_PDMS": 92.19691421194293,
+      "NFT_PDMS": 50.53045354006761,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8127259410866302,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9219691421194293
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8127308849616226,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5053045354006761
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.01025390625
+    },
+    {
+      "token": "812464919a4f5362",
+      "log": "2021.05.25.14.16.10_veh-35_00083_00485",
+      "physical_log": "2021.05.25.14.16.10_veh-35",
+      "delta_scene_PDMS": -41.628599345772464,
+      "IL_PDMS": 95.0651989658843,
+      "NFT_PDMS": 53.436599620111835,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8815647751812232,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.950651989658843
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8824783908826841,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5343659962011184
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.06517601013183594
+    },
+    {
+      "token": "4bb2fc18f5ee5dcb",
+      "log": "2021.09.16.19.27.01_veh-45_01749_03230",
+      "physical_log": "2021.09.16.19.27.01_veh-45",
+      "delta_scene_PDMS": -41.49689027073818,
+      "IL_PDMS": 94.9663535405596,
+      "NFT_PDMS": 53.469463269821425,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8791924849734304,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.949663535405596
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8832671184757142,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5346946326982143
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.08203125
+    },
+    {
+      "token": "117b147622605d6a",
+      "log": "2021.09.29.19.02.14_veh-28_00540_00917",
+      "physical_log": "2021.09.29.19.02.14_veh-28",
+      "delta_scene_PDMS": -41.48825976802254,
+      "IL_PDMS": 98.76948353319675,
+      "NFT_PDMS": 57.281223765174204,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9704676047967219,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9876948353319674
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9747493703641811,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.572812237651742
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.06517601013183594
+    },
+    {
+      "token": "1741767a7646583a",
+      "log": "2021.06.28.18.03.27_veh-14_00620_01581",
+      "physical_log": "2021.06.28.18.03.27_veh-14",
+      "delta_scene_PDMS": -41.480631538713794,
+      "IL_PDMS": 95.74010173146984,
+      "NFT_PDMS": 54.25947019275604,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8977624415552761,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9574010173146984
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9022272846261451,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5425947019275604
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035106658935547
+    },
+    {
+      "token": "3c584e53042d5157",
+      "log": "2021.09.09.17.18.51_veh-48_01248_01450",
+      "physical_log": "2021.09.09.17.18.51_veh-48",
+      "delta_scene_PDMS": -41.181462242521775,
+      "IL_PDMS": 99.15317925166217,
+      "NFT_PDMS": 57.9717170091404,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9796763020398921,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9915317925166217
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9913212082193695,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.579717170091404
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035202026367188
+    },
+    {
+      "token": "6a8a6b3a7d5f55cd",
+      "log": "2021.05.25.15.59.03_veh-30_04027_04200",
+      "physical_log": "2021.05.25.15.59.03_veh-30",
+      "delta_scene_PDMS": -40.91060694636948,
+      "IL_PDMS": 99.24394027970281,
+      "NFT_PDMS": 58.333333333333336,
+      "category": "score_down_with_new_NC_DAC_TTC_violation",
+      "new_safety_violations": [
+        "time_to_collision_within_bound"
+      ],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9818545667128674,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9924394027970281
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 0.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.5833333333333334
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035106658935547
+    },
+    {
+      "token": "58b96e6ca9a95ff4",
+      "log": "2021.06.28.16.29.11_veh-38_03263_03766",
+      "physical_log": "2021.06.28.16.29.11_veh-38",
+      "delta_scene_PDMS": -1.4169194529346396,
+      "IL_PDMS": 92.86601789291606,
+      "NFT_PDMS": 91.44909843998143,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8287844294299855,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9286601789291606
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7947783625595539,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9144909843998142
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "7508fad57cde547d",
+      "log": "2021.06.28.20.24.43_veh-38_03385_04952",
+      "physical_log": "2021.06.28.20.24.43_veh-38",
+      "delta_scene_PDMS": -1.2255444294692386,
+      "IL_PDMS": 99.45885050716369,
+      "NFT_PDMS": 98.23330607769445,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9870124121719286,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9945885050716369
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9575993458646668,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9823330607769445
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "075154c90a0a5d7c",
+      "log": "2021.06.28.18.03.27_veh-14_00620_01581",
+      "physical_log": "2021.06.28.18.03.27_veh-14",
+      "delta_scene_PDMS": -1.0684534796101985,
+      "IL_PDMS": 100.0,
+      "NFT_PDMS": 98.9315465203898,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 1.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 1.0
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9743571164893553,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.989315465203898
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "a87f744c67175bc4",
+      "log": "2021.09.29.18.19.40_veh-28_00438_00833",
+      "physical_log": "2021.09.29.18.19.40_veh-28",
+      "delta_scene_PDMS": -0.9742661492138094,
+      "IL_PDMS": 83.10510294392665,
+      "NFT_PDMS": 82.13083679471285,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.5945224706542398,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8310510294392666
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.5711400830731084,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8213083679471285
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "de31419c6502517b",
+      "log": "2021.05.25.14.16.10_veh-35_01100_01664",
+      "physical_log": "2021.05.25.14.16.10_veh-35",
+      "delta_scene_PDMS": -0.85166966227882,
+      "IL_PDMS": 90.1110933813682,
+      "NFT_PDMS": 89.2594237190894,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.762666241152837,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9011109338136821
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7422261692581453,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8925942371908939
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "bdb0f78978cd5307",
+      "log": "2021.09.16.14.39.34_veh-42_01111_01448",
+      "physical_log": "2021.09.16.14.39.34_veh-42",
+      "delta_scene_PDMS": -0.7628614942416512,
+      "IL_PDMS": 92.02743465251272,
+      "NFT_PDMS": 91.26457315827108,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8086584316603055,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9202743465251273
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7903497557985059,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9126457315827108
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "3623049267d35a95",
+      "log": "2021.09.29.18.19.40_veh-28_00844_01218",
+      "physical_log": "2021.09.29.18.19.40_veh-28",
+      "delta_scene_PDMS": -0.7535943940616519,
+      "IL_PDMS": 93.85052381806099,
+      "NFT_PDMS": 93.09692942399934,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8524125716334638,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9385052381806099
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8343263061759842,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9309692942399934
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "6b0a15391789599e",
+      "log": "2021.09.29.18.19.40_veh-28_01268_01685",
+      "physical_log": "2021.09.29.18.19.40_veh-28",
+      "delta_scene_PDMS": -0.7324255842291683,
+      "IL_PDMS": 98.32011863028805,
+      "NFT_PDMS": 97.58769304605889,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9596828471269134,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9832011863028806
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.9421046331054131,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9758769304605889
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035202026367188
+    },
+    {
+      "token": "1351ae1e0afb5c16",
+      "log": "2021.09.09.14.18.22_veh-48_00322_00895",
+      "physical_log": "2021.09.09.14.18.22_veh-48",
+      "delta_scene_PDMS": -0.6989236789826214,
+      "IL_PDMS": 94.94891929416796,
+      "NFT_PDMS": 94.24999561518534,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8787740630600313,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9494891929416797
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8619998947644482,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9424999561518534
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "44c39701a6d65696",
+      "log": "2021.06.28.16.57.59_veh-26_00016_00484",
+      "physical_log": "2021.06.28.16.57.59_veh-26",
+      "delta_scene_PDMS": -0.691324856985176,
+      "IL_PDMS": 91.33506931010083,
+      "NFT_PDMS": 90.64374445311566,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.79204166344242,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9133506931010084
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7754498668747757,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9064374445311566
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035202026367188
+    },
+    {
+      "token": "40660dbe143d52c1",
+      "log": "2021.06.28.18.03.27_veh-14_00620_01581",
+      "physical_log": "2021.06.28.18.03.27_veh-14",
+      "delta_scene_PDMS": -0.665070869312756,
+      "IL_PDMS": 85.72804369019588,
+      "NFT_PDMS": 85.06297282088312,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.657473048564701,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8572804369019588
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.6415113477011948,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8506297282088312
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "3402ab10c02a5e25",
+      "log": "2021.09.09.18.29.25_veh-39_00569_00903",
+      "physical_log": "2021.09.09.18.29.25_veh-39",
+      "delta_scene_PDMS": -0.6528992569577285,
+      "IL_PDMS": 88.92456867237074,
+      "NFT_PDMS": 88.27166941541302,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7341896481368975,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8892456867237074
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7185200659699124,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.8827166941541301
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035154342651367
+    },
+    {
+      "token": "e6a94b91b19f5315",
+      "log": "2021.09.16.15.12.03_veh-42_01037_01434",
+      "physical_log": "2021.09.16.15.12.03_veh-42",
+      "delta_scene_PDMS": -0.6298597895992741,
+      "IL_PDMS": 94.87252230398528,
+      "NFT_PDMS": 94.24266251438601,
+      "category": "score_down_EP_down_safety_unchanged",
+      "new_safety_violations": [],
+      "IL_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.876940535295647,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9487252230398528
+      },
+      "NFT_metrics": {
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.8618239003452646,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0,
+        "score": 0.9424266251438601
+      },
+      "requested_trajectory_unchanged": false,
+      "max_requested_xy_change_m": 0.13035106658935547
+    }
+  ],
+  "provenance": {
+    "parent_selection": {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+      "file_sha256": "f117a64f4cd3617541def37b6b448a095870c59a2a0ffa761124c1393c3353c5"
+    },
+    "IL_summary": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/IL_late_checkpoints_NAVTEST_20261029T0310Z/WORLD_IL_070000/SUMMARY.json",
+      "file_sha256": "6a18c5e58acb4c29d31d10f1852638b47fbadc1a8419630d324eba6c4996e436",
+      "seal": "65db5cea99e5350bbe567d1dabb05645fdd025e3233638634443985444947814"
+    },
+    "NFT_summary": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/NFT_FULL_u001000_NAVTEST/SUMMARY.json",
+      "file_sha256": "52b73a579e83f6b642a417f61b1e29a7dea61c89823c7a121009d75a9fd53821",
+      "seal": "2e902ff0a7ec139639b28e62b0d721018baf40a8fe7f385ddafcb9098c9d9d67"
+    },
+    "IL_identity": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/IL_late_checkpoints_NAVTEST_20261029T0310Z/WORLD_IL_070000/evaluation/identity.json",
+      "file_sha256": "f3c4df2db4f7732f39447a4fe5f316b0e626d3f06e2bba7d1e8a1674a96844c3",
+      "seal": "4ce3d1dbf6a7d21ae250549813e0b24953e8792a02f9e9fa8cec6da4a0f820aa"
+    },
+    "NFT_identity": {
+      "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/NFT_FULL_u001000_NAVTEST/identity.json",
+      "file_sha256": "1d973801ba62ec849c2935e42249f1ce4589628d0e6a3c8ea265bda5020acba7",
+      "seal": "79f1d84513ef869e3139fc7d042c899d198d6930e77a0c693801fbddf24edfa4"
+    },
+    "IL_scene_raw_hash_inventory_sha256": "661fd6400d8daebaeda4bc1fbaf1e5ea2bb401323c380f30e42d61ace0a1965a",
+    "NFT_scene_raw_hash_inventory_sha256": "3f555bc3780fe850bc61ff989f71244494f8debb55b05304e96e67003169b063",
+    "paired_tool": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-algorithms-20261030/tools/qwen_world_postcot/summarize.py",
+      "file_sha256": "2014cbb6d5f2f46b6f8056971aa68c859cbaa0364bc318f71dbae34c5efede4e",
+      "function": "paired_statistics"
+    },
+    "analysis_script_sha256": "4f65a0968ddd44dce50125406f0a614b6aaece33ce83187a6190cdb9538c5db5"
+  },
+  "matching_evidence": {
+    "exact_ordered_tokens": true,
+    "scene_count": 12146,
+    "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+    "all_scene_log_pairs_equal": true,
+    "all_official_cache_hashes_equal": true,
+    "data_sha256": "ab525a0f0ad77fdab269ff637b0d83aa642f46e802dfcc8018b2cdb445009219",
+    "population_sha256": "925f996346ee986657f4058f6e6e64b9da842abfa554e2ac70bd82268190f9e9",
+    "canonical_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "seed": 2101,
+    "numerics_equal": true,
+    "inference": {
+      "old": "single_candidate_cleanx_K10_shift5",
+      "new": {
+        "sampler": "ODE",
+        "steps": 10,
+        "shift": 5.0,
+        "seed": 2101,
+        "scene_seed_namespace": "native_qwen_sourceflow_ODE",
+        "candidates": 1
+      },
+      "adapter": "Equivalent single-candidate ODE10 shift5; both evaluator sources seed by native_qwen_sourceflow_ODE + seed + token"
+    }
+  },
+  "scope": {
+    "new_GPU_forwards": 0,
+    "new_scores": 0,
+    "weights_or_cache_payloads_read": false,
+    "sealed_summary_or_runtime_modified": false,
+    "NAVTEST_scenes_must_not_enter_training_bank": true
+  },
+  "interpretation": "Early 1k fixed-seed paired diagnostic only. CI is physical-log cluster resampling, not training/inference-seed uncertainty. No final algorithm superiority or inferiority claim.",
+  "sha256": "a66aa4e136f140933c3fc5216b9cda30f97b0800b6a89486d99c2ea61686c1b7"
+}
