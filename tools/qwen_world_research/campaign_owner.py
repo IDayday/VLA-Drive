@@ -22,7 +22,7 @@ import traceback
 DEFAULT_ROOT = Path('/mnt/project/qwen-world-rl-optimization-20261030')
 FIRST_ARMS = ('PPO_HARD', 'PPO_FULL', 'PPO_ADAPTIVE', 'CISPO_FULL', 'NFT_FULL')
 GATES = (1000, 5000, 10000, 20000, 35000, 50000)
-FIRST_PRUNING_GATE = 5000
+FIRST_PRIORITY_GATE = 5000
 SAFETY = ('no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collision_within_bound')
 SCHEMA = 'world_rl_optimization_campaign_owner_v1'
 
@@ -153,24 +153,27 @@ def select_survivors(summaries, *, score_tolerance=.25, safety_tolerance=.25, ma
 
 
 def select_at_gate(gate, summaries, *, score_tolerance=.25, safety_tolerance=.25):
-    """The1k gate diagnoses every healthy arm before adaptive feedback starts.
+    """Scores set resource priority only; every healthy arm keeps its budget.
 
-    This correction was registered before the first complete new1k Navtest
-    result. It prevents screening the adaptive arm on its uniform initial stage.
-    Training/scoring failures remain failures; no scores are read in this branch.
+    The later continuation policy supersedes the original max2/.25-point cap.
+    No score, including a small or unconfirmed deficit, ends an experiment.
+    At1k even priority is independent of scores.
     """
-    if gate < FIRST_PRUNING_GATE:
-        selected=[arm for arm in FIRST_ARMS if arm in summaries]
-        return selected,dict(selected=selected,diagnostic_only=True,
-            first_pruning_gate=FIRST_PRUNING_GATE,Test_selection_used=False,
-            training_scene_selection_uses_NAVTEST=False,
-            decisions={arm:dict(selected_for_next_gate=True,
-                reason='completed diagnostic stage; all healthy arms continue before first pruning') for arm in selected},
-            interpretation='no point-score or safety-score pruning at1k; adaptive arm must receive actual adaptive exposure')
-    selected,decision=select_survivors(summaries,score_tolerance=score_tolerance,
-                                     safety_tolerance=safety_tolerance)
-    decision.update(diagnostic_only=False,first_pruning_gate=FIRST_PRUNING_GATE)
-    return selected,decision
+    selected=[arm for arm in FIRST_ARMS if arm in summaries]
+    score_priority=gate>=FIRST_PRIORITY_GATE
+    if score_priority:
+        selected=([arm for arm in selected if arm=='PPO_FULL']+
+                  sorted((arm for arm in selected if arm!='PPO_FULL'),
+                         key=lambda arm:float(summaries[arm]['PDMS']),reverse=True))
+    return selected,dict(selected=selected,priority_order=selected,
+        diagnostic_only=True,automatic_pruning=False,first_pruning_gate=None,
+        first_budget_priority_gate=FIRST_PRIORITY_GATE,Test_selection_used=score_priority,
+        training_scene_selection_uses_NAVTEST=False,
+        continuation_policy_supersedes_max2_budget_cap=True,
+        decisions={arm:dict(selected_for_next_gate=True,resource_priority=index,
+            reason='healthy experiment retains its planned budget; score informs resource priority only')
+            for index,arm in enumerate(selected)},
+        interpretation='all healthy arms continue; any future futility/reserve decision requires a separate evidence-based receipt')
 
 
 class CampaignOwner:
@@ -222,11 +225,16 @@ class CampaignOwner:
         self.state['status'] = 'RUNNING'
         self.state['selection_policy'] = dict(score_tolerance_PDMS_points=score_tolerance,
             safety_tolerance_percentage_points=safety_tolerance,Test_selection_used=True,
-            max_challengers=2,control='PPO_FULL',gates=list(GATES),
-            first_pruning_gate=FIRST_PRUNING_GATE,first_gate_diagnostic_only=True,
-            first_gate_Test_selection_used=False,all_healthy_arms_continue_to=FIRST_PRUNING_GATE,
+            max_challengers=None,control='PPO_FULL',gates=list(GATES),
+            automatic_pruning=False,continuation_policy_supersedes_max2_budget_cap=True,
+            first_pruning_gate=None,first_budget_priority_gate=FIRST_PRIORITY_GATE,
+            first_gate_diagnostic_only=True,
+            first_gate_Test_selection_used=False,all_healthy_arms_continue_to=50000,
+            first_gate_global_barrier=False,first_gate_waits_for_NAVTEST=False,
+            first_gate_results_required_before_first_priority=True,
             correction_registered_before_first_complete_new_1k_NAVTEST=True)
         self.eval_pool = ThreadPoolExecutor(max_workers=12,thread_name_prefix='research_eval')
+        self.nav_futures = {}
         self.baseline_future = None
         self.flush()
 
@@ -425,42 +433,81 @@ class CampaignOwner:
             self.event('training_stage_complete',arm=arm,updates=target,checkpoint=checkpoint['path'])
             return checkpoint['path']
 
-    def evaluate_boundary(self, arm, update, checkpoint, *, navtest):
+    def nav_evaluation(self, arm, update, checkpoint, node):
+        """Adopt one durable evaluation; retain failures across CPU-owner restarts."""
+        key=(arm,update)
+        with self.mutex:
+            if key not in self.nav_futures:
+                def evaluate():
+                    if node.get('evaluation_error'):
+                        raise RuntimeError('Prior evaluation failure requires review: '+node['evaluation_error'])
+                    try:
+                        return self.run_evaluation(f'{arm}_u{update:06}_NAVTEST',checkpoint,
+                                                   cohort='NAVTEST',node=node)
+                    except Exception:
+                        error=traceback.format_exc()
+                        with self.mutex:
+                            node.update(status='FAILED_REQUIRES_REVIEW',evaluation_error=error)
+                            self.flush()
+                        self.event('asynchronous_evaluation_failed',arm=arm,updates=update,error=error[-2500:])
+                        raise
+                self.nav_futures[key]=self.eval_pool.submit(evaluate)
+            return self.nav_futures[key]
+
+    def check_first_diagnostic(self, arm):
+        future=self.nav_futures.get((arm,1000))
+        if future is not None and future.done():
+            future.result()  # A real scoring failure forbids further dispatches.
+
+    def evaluate_boundary(self, arm, update, checkpoint, *, navtest, wait_navtest=True):
         baseline=self.baseline_future.result()
         node=self.stage(arm,update)
         with self.mutex:
             train_node=node.setdefault('TRAIN_DIAGNOSTIC',{})
             nav_node=node.setdefault('NAVTEST',{})
-        self.update_arm(arm,status='EVALUATING',updates=update)
-        tasks=[self.eval_pool.submit(self.run_evaluation,f'{arm}_u{update:06}_TRAIN1024',checkpoint,
-                                    cohort='TRAIN_DIAGNOSTIC',node=train_node,baseline=baseline['output'])]
-        if navtest:
-            tasks.append(self.eval_pool.submit(self.run_evaluation,f'{arm}_u{update:06}_NAVTEST',checkpoint,
-                                               cohort='NAVTEST',node=nav_node))
-        summaries=[task.result() for task in tasks]
-        self.update_arm(arm,status='GATE_EVALUATED' if navtest else 'TRAIN_PANEL_COMPLETE',updates=update)
+            historical=update<int(self.state['runs'][arm].get('updates',0))
+        if not historical:self.update_arm(arm,status='EVALUATING',updates=update)
+        train=self.eval_pool.submit(self.run_evaluation,f'{arm}_u{update:06}_TRAIN1024',checkpoint,
+                                    cohort='TRAIN_DIAGNOSTIC',node=train_node,baseline=baseline['output'])
+        nav=self.nav_evaluation(arm,update,checkpoint,nav_node) if navtest else None
+        train_summary=train.result()
         if self.runs[arm]['data_policy']=='adaptive' and update<50000:
             bank=train_node['spec'].get('training_bank')
             if not bank or not Path(bank).exists():raise RuntimeError('Current TRAIN diagnostic bank not complete')
             self.next_adaptive_stage(arm,update,bank,baseline['training_bank'])
-        return summaries[-1] if navtest else summaries[0]
+        if not historical:
+            self.update_arm(arm,status='TRAIN_PANEL_COMPLETE',updates=update)
+        if nav is not None and wait_navtest:
+            summary=nav.result()
+            if not historical:self.update_arm(arm,status='GATE_EVALUATED',updates=update)
+            return summary
+        return train_summary
 
     def advance_arm(self, arm, target, first=False):
         try:
             if first:
                 checkpoint=self.train_to(arm,1000,adopt_first=True)
-                return self.evaluate_boundary(arm,1000,checkpoint,navtest=True)
+                self.evaluate_boundary(arm,1000,checkpoint,navtest=True,wait_navtest=False)
+                self.event('first_diagnostic_released_training',arm=arm,next_gate=target,
+                           NAVTEST_waited_for=False,other_arms_waited_for=False)
+            self.check_first_diagnostic(arm)
             prior=int(self.state['runs'][arm].get('updates',0))
             checkpoint=self.state['runs'][arm].get('checkpoint')
-            if prior>=target and self.stage(arm,target).get('NAVTEST',{}).get('summary'):
-                return self.stage(arm,target)['NAVTEST']['summary']
+            if prior>=target:
+                node=self.stage(arm,target)
+                if node.get('NAVTEST',{}).get('summary'):return node['NAVTEST']['summary']
+                checkpoint=node.get('checkpoint') or (checkpoint if prior==target else None)
+                if not checkpoint:raise RuntimeError('Historical gate has no preserved native checkpoint')
+                return self.evaluate_boundary(arm,target,checkpoint,navtest=True)
             adaptive=self.runs[arm]['data_policy']=='adaptive'
             boundaries=list(range(prior+1000,target+1,1000)) if adaptive else [target]
             for boundary in boundaries:
+                self.check_first_diagnostic(arm)
                 if (self.owner_root/'STOP_AFTER_CURRENT_STAGE').exists():
                     self.update_arm(arm,status='HELD_BY_STOP_REQUEST')
                     return None
                 checkpoint=self.train_to(arm,boundary,resume=checkpoint)
+                self.check_first_diagnostic(arm)
                 summary=self.evaluate_boundary(arm,boundary,checkpoint,navtest=boundary==target)
             return summary
         except Exception:
@@ -469,6 +516,29 @@ class CampaignOwner:
             self.update_run_registry(arm,status='FAILED_REQUIRES_REVIEW',controller_error=error)
             self.event('arm_stopped_after_failure',arm=arm,target=target,error=error[-2500:])
             return None
+
+    def collect_first_diagnostics(self):
+        """First-1k scores may overlap training, but precede the first selection."""
+        summaries={}
+        for arm in FIRST_ARMS:
+            future=self.nav_futures.get((arm,1000))
+            if future is None:
+                if self.state['runs'][arm].get('status')!='FAILED_REQUIRES_REVIEW':
+                    raise RuntimeError('Healthy arm has no adopted first NAVTEST: '+arm)
+                continue
+            try:
+                summaries[arm]=future.result()
+            except Exception:
+                error=traceback.format_exc()
+                self.update_arm(arm,status='FAILED_REQUIRES_REVIEW',error=error)
+                self.update_run_registry(arm,status='FAILED_REQUIRES_REVIEW',controller_error=error)
+                self.event('arm_stopped_after_first_diagnostic_failure',arm=arm,error=error[-2500:])
+        _,decision=select_at_gate(1000,summaries)
+        with self.mutex:self.state['selections']['1000']=decision;self.flush()
+        self.event('first_diagnostics_collected_before_pruning',complete_arms=list(summaries),
+                   first_pruning_gate=None,first_budget_priority_gate=FIRST_PRIORITY_GATE,
+                   Test_selection_used=False)
+        return summaries
 
     def parallel_gate(self, arms, target, *, first=False):
         results={}
@@ -489,30 +559,39 @@ class CampaignOwner:
         self.event('owner_adopted_existing_jobs',arms=list(FIRST_ARMS))
         self.baseline_future=self.eval_pool.submit(self.baseline)
         selected=list(FIRST_ARMS)
-        for index,target in enumerate(GATES):
+        # The first wave advances each arm independently through its own TRAIN
+        # feedback to5k. No first-1k score or other arm gates this continuation.
+        for index,target in enumerate(GATES[1:]):
             if (self.owner_root/'STOP_AFTER_CURRENT_STAGE').exists():
                 self.state['status']='HELD_BY_STOP_REQUEST';self.flush();return
             with self.mutex:self.state['current_gate']=target;self.flush()
             summaries=self.parallel_gate(selected,target,first=index==0)
+            if index==0:
+                first_summaries=self.collect_first_diagnostics()
+                summaries={arm:value for arm,value in summaries.items() if arm in first_summaries}
             if 'PPO_FULL' not in summaries:
-                self.state['status']='STOPPED_NO_COMPLETE_MATCHED_CONTROL'
-                self.event('campaign_stopped_no_control',gate=target)
-                return
+                self.state['status']='RUNNING_CONTROL_REVIEW_REQUIRED'
+                selected=list(summaries)
+                self.state['selections'][str(target)]=dict(selected=selected,
+                    reason='No complete matched control; retain every healthy arm without paired screening',
+                    Test_selection_used=False,control_review_required=True)
+                self.event('matched_control_missing_healthy_arms_continue',gate=target,selected=selected)
+                if not selected:
+                    self.state['status']='NO_HEALTHY_ARMS_REVIEW_REQUIRED';self.flush();return
+                if target!=50000:continue
             if target==50000:
                 for arm in summaries:
                     self.update_arm(arm,status='COMPLETE',updates=50000)
                     self.update_run_registry(arm,status='COMPLETE',completed_updates=50000)
-                self.state['status']='COMPLETE';self.event('campaign_complete',arms=list(summaries));return
+                self.state['status']='COMPLETE' if 'PPO_FULL' in summaries else 'COMPLETE_CONTROL_REVIEW_REQUIRED'
+                self.event('campaign_complete',arms=list(summaries));return
             selected,decision=select_at_gate(target,summaries,score_tolerance=self.score_tolerance,
                                             safety_tolerance=self.safety_tolerance)
             self.state['selections'][str(target)]=decision
             for arm in summaries:
-                if arm not in selected:
-                    status='STOPPED_POINT_INFERIOR' if decision['decisions'][arm]['clearly_below_control_gt1point'] else 'HELD_BY_BUDGET_PRIORITY'
-                    self.update_arm(arm,status=status,selection_decision=decision['decisions'][arm])
-                    self.update_run_registry(arm,status=status,selection_gate=target)
+                self.update_arm(arm,selection_decision=decision['decisions'][arm])
             self.event('next_gate_selected',gate=target,selected=selected,
-                       first_pruning_gate=FIRST_PRUNING_GATE,
+                       automatic_pruning=False,first_pruning_gate=None,
                        Test_selection_used=decision['Test_selection_used'])
 
 
@@ -529,10 +608,14 @@ def main():
     if args.plan_only:
         runs=read_json(args.root/'RUNS.json')['runs']
         print(json.dumps(dict(root=str(args.root),adopt=[{k:r.get(k) for k in ('id','job','source','root')} for r in runs if r['id'] in FIRST_ARMS],
-                              gates=GATES,always_continue='PPO_FULL',max_challengers=2,
+                              gates=GATES,always_continue='all healthy arms',max_challengers=None,
+                              automatic_pruning=False,continuation_policy_supersedes_max2_budget_cap=True,
                               adaptive_intermediate_updates=1000,heartbeat_seconds=1800,
-                              first_pruning_gate=FIRST_PRUNING_GATE,first_gate_diagnostic_only=True,
-                              first_gate_Test_selection_used=False,all_healthy_arms_continue_to=FIRST_PRUNING_GATE,
+                              first_pruning_gate=None,first_budget_priority_gate=FIRST_PRIORITY_GATE,
+                              first_gate_diagnostic_only=True,
+                              first_gate_Test_selection_used=False,all_healthy_arms_continue_to=50000,
+                              first_gate_global_barrier=False,first_gate_waits_for_NAVTEST=False,
+                              first_gate_results_required_before_first_priority=True,
                               Test_selection_used=True,no_new_jobs_launched=True),indent=2))
         return
     owner=CampaignOwner(args.root,score_tolerance=args.score_tolerance,
