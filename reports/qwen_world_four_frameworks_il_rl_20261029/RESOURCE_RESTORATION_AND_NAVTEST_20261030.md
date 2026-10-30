@@ -9,3 +9,5 @@ vla-zt3与tsinghua-zt2重新获临时授权，直到撤回；vla-zt修复后重�
 用户又追加一条RL：当前最高已测Qwen-World IL70k88.792910为固定父，采用匹配50k终点最好的attention＋memory方案，从零LoRA/Adam开始完整50k；永久reference为IL70k，Qwen冻结，current memory每inner重算。独立分支feature/qwen-world-best-il-memory-rl-20261030，仅新增父资格schema和调度适配。九个actor/采样/loss/optimizer合同文件hash与原memory run完全相同；39项针对测试通过，真实8卡资格和恢复验收进行中，尚不能写为正式训练完成。
 
 这条追加运行是用户按已观察Test选择的父模型，不是四架构中的第五个主实验，也不是盲测或DEV选择；其训练与未来完整Navtest单列归因。
+
+后续启动确认：真实八卡QUAL6→inner2断点→QUAL16全部PASS；4份fresh全局rollout、256条新候选；Qwen/reference冻结、两个memory均实际更新。已丢弃资格权重，从IL70k全新LoRA/Adam启动正式50k进程。原生权重加载不计为已完成optimizer update；进度以原训练日志为准。源码a59b40b，remote一致，正式与验收运行目录分开。完整证据见BEST_IL_MEMORY_RL_DISPATCH_20261030.json。

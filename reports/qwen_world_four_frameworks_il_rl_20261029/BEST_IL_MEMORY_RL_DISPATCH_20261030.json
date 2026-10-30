@@ -1,0 +1,109 @@
+{
+  "at_utc": "2026-10-30T01:45:21.171788+00:00",
+  "task": "Additional user-requested best-IL memory RL; separate from four-framework campaign",
+  "root": "/mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030",
+  "source_sha": "a59b40b5dfb7062e5a476d5b8c3b93e9e1fe03fe",
+  "remote_sha": "a59b40b5dfb7062e5a476d5b8c3b93e9e1fe03fe",
+  "controller_pid": 1828541,
+  "stage": "FORMAL50000",
+  "formal_host": "training-vla-zt3",
+  "formal_child_pid": 1611864,
+  "formal_budget": {
+    "updates": 50000,
+    "fresh_rollouts": 12500,
+    "scenes": 100000,
+    "candidates": 800000
+  },
+  "real_acceptance": {
+    "status": "PASS",
+    "adaptation": "ATTN_LORA_MEMORY",
+    "updates": 16,
+    "fresh_global_rollouts": 4,
+    "new_candidates": 256,
+    "mid_inner_resume": "update6 inner2 -> update7/8 same chain and old probability; complete16",
+    "initial_IL_full_ODE_parity": "exact on all8ranks",
+    "sampling_recompute_mean_std": "exact7/8/9",
+    "frozen_Qwen_and_permanent_reference": "unchanged on all8ranks",
+    "task_moment_nonzero_tensors_by_group": {
+      "action_lora": 320,
+      "scene_predictive_memory": 138
+    },
+    "changed_tensors_by_rank": [
+      458,
+      458,
+      458,
+      458,
+      458,
+      458,
+      458,
+      458
+    ],
+    "trainable_numel": 52707840,
+    "trainable_tensors": 458,
+    "peak_GPU_GiB": 14.815614700317383,
+    "qualification_weights_used_for_formal_initialization": false
+  },
+  "algorithm_hash_reuse": {
+    "reference_identity": "/mnt/project/qwen-world-postcot-20261025/scope_rl_IL40k_20261027/ATTN_LORA_MEMORY/runs/RL_ATTN_LORA_MEMORY_IL040000_seed42/identity.json",
+    "rows": [
+      {
+        "file": "starVLA/rl/qwen_world_postcot/scope_actor.py",
+        "current": "1ff1a473e545c3792c04e25d21beac37282994ead2899be2bad301ff2bcf5fa2",
+        "prior": "1ff1a473e545c3792c04e25d21beac37282994ead2899be2bad301ff2bcf5fa2",
+        "equal": true
+      },
+      {
+        "file": "starVLA/rl/qwen_world_postcot/scope_conditions.py",
+        "current": "7d889ea6274820a77b0b441262ff4034f9cd67f03e8f531d5006f39c02626eee",
+        "prior": "7d889ea6274820a77b0b441262ff4034f9cd67f03e8f531d5006f39c02626eee",
+        "equal": true
+      },
+      {
+        "file": "starVLA/rl/qwen_world_postcot/rl_actor.py",
+        "current": "84d112aa1cd277832ab4a788504cf67e932aa6f5a00f9220cb5c15e42cad2e23",
+        "prior": "84d112aa1cd277832ab4a788504cf67e932aa6f5a00f9220cb5c15e42cad2e23",
+        "equal": true
+      },
+      {
+        "file": "starVLA/rl/qwen_sourceflow/collection.py",
+        "current": "e9526003fcbea396e384539ce71096f2804fbcaf62cdd477c7d77cb644846b9a",
+        "prior": "e9526003fcbea396e384539ce71096f2804fbcaf62cdd477c7d77cb644846b9a",
+        "equal": true
+      },
+      {
+        "file": "scripts/analysis/simwam_recipe/train.py",
+        "current": "705a9288bd1ffd04f868d1e6da24f0fdc4e85e4fa415d87e950b4f1ed873a27a",
+        "prior": "705a9288bd1ffd04f868d1e6da24f0fdc4e85e4fa415d87e950b4f1ed873a27a",
+        "equal": true
+      },
+      {
+        "file": "starVLA/rl/simwam_recipe/trainer_adapter.py",
+        "current": "7fad3760410d4e21fc82e06b0527f75ed6d60385fdd28bfd0745b2d54dbf6dbe",
+        "prior": "7fad3760410d4e21fc82e06b0527f75ed6d60385fdd28bfd0745b2d54dbf6dbe",
+        "equal": true
+      },
+      {
+        "file": "starVLA/rl/simwam_recipe/vendor/action_math.py",
+        "current": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+        "prior": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+        "equal": true
+      },
+      {
+        "file": "starVLA/rl/simwam_recipe/vendor/trainer_math.py",
+        "current": "4ffb7898036606d60fec24fe77b98d2e3036d0730bd0b3c4a3baa33f05036ca6",
+        "prior": "4ffb7898036606d60fec24fe77b98d2e3036d0730bd0b3c4a3baa33f05036ca6",
+        "equal": true
+      },
+      {
+        "file": "starVLA/rl/qwen_world_postcot/scope_contracts.py",
+        "current": "9e795e35dbd4e15aba007b706a7cbb7a18236463f68b2d0c71cf85da0aba1f5f",
+        "prior": "9e795e35dbd4e15aba007b706a7cbb7a18236463f68b2d0c71cf85da0aba1f5f",
+        "equal": true
+      }
+    ]
+  },
+  "formal_updates_completed_at_dispatch": "Not yet reported: native parent load in progress; process start is not optimizer progress",
+  "reference": "QwenWorld IL70k full Navtest88.792909907; fixed at registration",
+  "future_full_Navtest": "seed2101, single clean-xK10shift5,12146 scenes, canonicalv1.1, paired to IL70k",
+  "all_qualification_weights_discarded": true
+}
