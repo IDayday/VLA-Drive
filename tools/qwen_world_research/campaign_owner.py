@@ -342,7 +342,6 @@ class CampaignOwner:
         attempts=int(node.get('resource75_requeues',0))
         resource_epoch=None
         while True:
-            if self.arm_stop_decision(arm):raise ArmStoppedByResearchDecision()
             spec = node.get('spec')
             while spec is None:
                 if node.get('resource_capacity_wait'):
@@ -458,6 +457,7 @@ class CampaignOwner:
         attempts=int(node.get('resource75_requeues',0))
         resource_epoch=None
         while True:
+            if self.arm_stop_decision(arm):raise ArmStoppedByResearchDecision()
             if not node.get('train_job'):
                 if (node.get('resource_requeue_pending') and attempts>self.resource_retries
                         and resource_epoch is not None):
