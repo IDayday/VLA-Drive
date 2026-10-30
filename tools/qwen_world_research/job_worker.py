@@ -129,6 +129,7 @@ class ResourceRefused(RuntimeError):
 PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
 SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
 RESEARCH_LEASE_ROOT=Path('/mnt/project/runtime_gpu_research_slots')
+EVALUATION_LEASE_ROOT=Path('/mnt/project/runtime_gpu_research_evaluation_slots')
 
 
 def _known_owners(rows,mapping,indices):
@@ -177,7 +178,7 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             raise ResourceRefused('Physical GPU mapping changed under admission lock')
         mapping.update({i:devices[i]['uuid']for i in indices})
         if args.share_min_free_mib:
-            permitted = list(grant['permanent_hosts'])
+            permitted = list(grant['permanent_hosts'])+list(grant.get('shared_training_hosts',[]))
             if getattr(args,'primary_shared_training',False):
                 permitted += grant.get('unbounded_temporary_hosts',[])
             if host not in permitted or args.share_min_free_mib<8192:
@@ -192,10 +193,10 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
         if required and any(devices[i]['free_MiB']<required for i in indices):
             raise ResourceRefused('Measured GPU headroom changed '+('under admission lock'if locked else'before dispatch'))
     devices,owners=_admission_sample();verify(devices,owners,locked=False)
-    PRIMARY_LEASE_ROOT.mkdir(exist_ok=True);SHARED_LEASE_ROOT.mkdir(exist_ok=True);RESEARCH_LEASE_ROOT.mkdir(exist_ok=True)
+    PRIMARY_LEASE_ROOT.mkdir(exist_ok=True);SHARED_LEASE_ROOT.mkdir(exist_ok=True);RESEARCH_LEASE_ROOT.mkdir(exist_ok=True);EVALUATION_LEASE_ROOT.mkdir(exist_ok=True)
     for index in indices:
         shared_worker=args.share_min_free_mib and not getattr(args,'primary_shared_training',False)
-        lease_root=(RESEARCH_LEASE_ROOT if args.research_shared_slot else SHARED_LEASE_ROOT if shared_worker else PRIMARY_LEASE_ROOT)
+        lease_root=(EVALUATION_LEASE_ROOT if args.evaluation_shared_slot else RESEARCH_LEASE_ROOT if args.research_shared_slot else SHARED_LEASE_ROOT if shared_worker else PRIMARY_LEASE_ROOT)
         lease=(lease_root/(mapping[index]+'.lock')).open('a')
         try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError as error:
@@ -215,6 +216,8 @@ def main():
         help='Own the primary training lease while cohosting known inference with measured headroom')
     parser.add_argument('--research-shared-slot',action='store_true',
         help='One additional research learner per physical GPU; all existing owners must be identified and measured headroom retained')
+    parser.add_argument('--evaluation-shared-slot',action='store_true',
+        help='One research evaluation per physical GPU with exact known owners and measured headroom')
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
@@ -226,6 +229,10 @@ def main():
             or args.share_min_free_mib<32768 or not any(entry in command for entry in (
                'tools.qwen_world_research.train','starVLA.rl.qwen_world_research_algorithms.train_nft'))):
         raise ValueError('Additional research slot requires its exact learner and at least32768MiB measured headroom')
+    if args.evaluation_shared_slot and (args.primary_shared_training or args.research_shared_slot
+            or not args.share_min_free_mib or args.share_min_free_mib<20480
+            or 'tools.qwen_world_research.evaluate' not in command):
+        raise ValueError('Evaluation slot requires its exact module and at least20480MiB measured headroom')
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')
@@ -238,7 +245,7 @@ def main():
     state=dict(status='ADMISSION',host=host,worker_pid=os.getpid(),worker_start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
         start_unix=time.time(),gpus=indices,requested_gpu_uuids=expected,
         command=command,cwd=str(Path(args.cwd).resolve()),shared_headroom_MiB=args.share_min_free_mib,
-        additional_research_slot=args.research_shared_slot)
+        additional_research_slot=args.research_shared_slot,evaluation_slot=args.evaluation_shared_slot)
     try:
         try:require_dispatch(admit_long_job=True)
         except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error
