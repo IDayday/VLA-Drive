@@ -519,6 +519,18 @@ def load_snapshot(root: Path) -> dict:
         target=value.get('target','');baseline=value.get('baseline','')
         if target.endswith('_u010000_NAVTEST') and baseline.endswith('_u010000_NAVTEST'):
             matched10['contrasts'][target[:-len('_u010000_NAVTEST')]+'_minus_'+baseline[:-len('_u010000_NAVTEST')]]=value
+    portfolio20_path=next((root/'analysis'/name for name in ('PORTFOLIO_20K_PAIRED.json','MATCHED_20K_PPO_CONTRASTS.json') if (root/'analysis'/name).exists()),None)
+    portfolio20=read_json(portfolio20_path,warnings,inputs) or {} if portfolio20_path else {}
+    matched20=dict(portfolio20,contrasts={})
+    for key,value in portfolio20.get('contrasts',{}).items():
+        parts=key.split('_minus_',1);target=value.get('target',parts[0]);baseline=value.get('baseline',parts[-1])
+        if target.endswith('_u020000_NAVTEST') and baseline.endswith('_u020000_NAVTEST'):
+            matched20['contrasts'][target[:-len('_u020000_NAVTEST')]+'_minus_'+baseline[:-len('_u020000_NAVTEST')]]=value
+        elif '_u' not in key:matched20['contrasts'][key]=value
+    scene_research=read_json(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_RESEARCH.json',warnings,inputs) or {}
+    representation_audit=read_json(root/'analysis'/'REPRESENTATION_TRAINABILITY_AUDIT_20261030.json',warnings,inputs) or {}
+    scene_brief=read_json(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json',warnings,inputs) or {}
+    scene_information_audit=read_json(root/'analysis'/'SCENARIO_SAFETY_EFFICIENCY_AUDIT_20261030.json',warnings,inputs) or {}
     decisions={};stopped_receipts={}
     for path in (root/'owners'/'CAMPAIGN'/'arm_decisions').glob('*.json'):
         value=read_json(path,warnings,inputs) or {}
@@ -538,6 +550,7 @@ def load_snapshot(root: Path) -> dict:
     capacity_policy=read_json(root/'RESOURCE_CAPACITY_POLICY.json',warnings,inputs) or {}
     capacity_adoption=read_json(root/'owners'/'CAMPAIGN'/'resource_capacity_adoption_20261030'/'RECEIPT.json',warnings,inputs) or {}
     pending_additions=read_json(root/'reporting'/'PENDING_RESOURCE_ADDITIONS.json',warnings,inputs) or {}
+    reauthorization_note=read_json(root/'reporting'/'RESOURCE_REAUTHORIZATION_NOTE.json',warnings,inputs) or {}
     migration_path=root/'owners'/'CAMPAIGN'/'async_adoption_and_cispo_expansion_20261030'/'RECEIPT.json'
     cispo_expansion=read_json(migration_path,warnings,inputs) or {}
     cispo_refusal=read_json(root/'jobs'/'CISPO_FULL'/'formal_to005000_attempt001'/'RESULT.json',warnings,inputs) or {}
@@ -557,6 +570,10 @@ def load_snapshot(root: Path) -> dict:
     authorization_pointer=read_json(root/'resources'/'LATEST_RESOURCE_AUTHORIZATION.json',warnings,inputs) or {}
     authorization_path=authorization_pointer.get('record')
     authorization=(read_json(Path(authorization_path),warnings,inputs,optional=False) or {}) if authorization_path else {}
+    activation_path=authorization_pointer.get('activation_receipt')
+    activation_input=read_json(Path(activation_path),warnings,inputs) or {} if activation_path else {}
+    activation={key:value for key,value in activation_input.items() if key!='hosts'}
+    activation['hosts']={host:{key:value for key,value in entry.items() if key!='error'} for host,entry in activation_input.get('hosts',{}).items()}
     migration_result_path=authorization_pointer.get('migration_result') or authorization_pointer.get('previous_withdrawal_migration_result')
     migration_result=(read_json(Path(migration_result_path),warnings,inputs,optional=False) or {}) if migration_result_path else {}
     addition_pointer=read_json(root/'resources'/'LATEST_RESOURCE_ADDITION.json',warnings,inputs) or {}
@@ -579,9 +596,26 @@ def load_snapshot(root: Path) -> dict:
         receipt=read_json(path,warnings,inputs) or {}
         if receipt.get('withdrawn_host') and receipt.get('new_dispatch_allowed') is False:
             withdrawal_receipts.append(dict(receipt,path=str(path)))
-    withdrawn_hosts={receipt['withdrawn_host'] for receipt in withdrawal_receipts}
-    if withdrawal.get('withdrawn_host'):withdrawn_hosts.add(withdrawal['withdrawn_host'])
+    historical_withdrawn_hosts={receipt['withdrawn_host'] for receipt in withdrawal_receipts}
+    if withdrawal.get('withdrawn_host'):historical_withdrawn_hosts.add(withdrawal['withdrawn_host'])
     resources=flatten_resources(resource_input)
+    # LATEST_RESOURCE_ADDITION points at the newest admission, not a cumulative
+    # inventory. Keep earlier immutable additions for still-authorized hosts;
+    # otherwise a later temporary grant would hide already-deployed hosts.
+    historical_addition_inventory=[]
+    for capacity_path in sorted((root/'resources').glob('*/INITIAL_CAPACITY.json'),key=lambda p:p.stat().st_mtime):
+        capacity=read_json(capacity_path,warnings,inputs) or {}
+        rows=flatten_resources(capacity)
+        second_path=capacity_path.parent/'ZT2_CAPACITY_SECOND_SAMPLE.json'
+        second=read_json(second_path,warnings,inputs) or {}
+        if second.get('host'):
+            rows+=flatten_resources({'hosts':{second['host']:second.get('inventory',{})}})
+        if rows:
+            replaced={row['host'] for row in rows}
+            resources=[row for row in resources if row['host'] not in replaced]
+            by_identity={(row['host'],row.get('uuid')):row for row in rows}
+            resources+=list(by_identity.values())
+            historical_addition_inventory.append(dict(path=str(capacity_path),hosts=sorted(replaced)))
     if addition_capacity:
         rows={(r['host'],r.get('uuid')):r for r in resources}
         for row in flatten_resources(addition_capacity):
@@ -595,11 +629,30 @@ def load_snapshot(root: Path) -> dict:
             row['initial_admission']='待清：'+issue if issue else '初次检查合格'
             rows[(row['host'],row.get('uuid'))]=row
         resources=list(rows.values())
-    current_authorized_hosts=sorted({host for key in ('permanent_hosts','temporary_hosts','unbounded_temporary_hosts')
-        for host in authorization.get(key,[]) if isinstance(host,str)}-withdrawn_hosts) if authorization else None
+    for host,entry in activation.get('hosts',{}).items():
+        inventory=entry.get('inventory')
+        if isinstance(inventory,dict) and isinstance(inventory.get('gpus'),list):
+            resources=[row for row in resources if row['host']!=host]
+            resources+=flatten_resources({'hosts':{host:inventory}})
+    steady_hosts={host for key in ('permanent_hosts','unbounded_temporary_hosts') for host in authorization.get(key,[]) if isinstance(host,str)}
+    temporary_hosts={host for host in authorization.get('temporary_hosts',[]) if isinstance(host,str)}
+    def resource_timestamp(value):
+        if finite(value):return value
+        if isinstance(value,str):
+            try:return datetime.fromisoformat(value.replace('Z','+00:00')).timestamp()
+            except ValueError:pass
+        return None
+    now=time.time();starts=resource_timestamp(authorization.get('starts_unix',authorization.get('starts_utc')))
+    expires=resource_timestamp(authorization.get('expires_unix',authorization.get('expires_utc')))
+    temporary_active=bool(temporary_hosts and (not finite(starts) or now>=starts) and (not finite(expires) or now<expires))
+    current_authorized_hosts=sorted(steady_hosts|(temporary_hosts if temporary_active else set())) if authorization else None
+    # The latest explicit grant can supersede an older withdrawal, including a
+    # bounded reauthorization. Historical receipts remain evidence, not fences.
+    withdrawn_hosts=historical_withdrawn_hosts-set(current_authorized_hosts or []) if authorization else historical_withdrawn_hosts
     remaining=current_authorized_hosts if current_authorized_hosts is not None else withdrawal.get('remaining_hosts')
     if isinstance(remaining,list):remaining=[host for host in remaining if host not in withdrawn_hosts]
-    active_resources=([row for row in resources if row['host'] in remaining and row['host'] not in withdrawn_hosts]
+    inventory_unknown={host for host,entry in activation.get('hosts',{}).items() if entry.get('physical_GPU_count') is None and not entry.get('inventory')}
+    active_resources=([row for row in resources if row['host'] in remaining and row['host'] not in withdrawn_hosts and row['host'] not in inventory_unknown]
                       if isinstance(remaining,list) else [row for row in resources if row['host'] not in withdrawn_hosts])
     return dict(generated_utc=utc(), generated_unix=datetime.now(timezone.utc).timestamp(),
                 registration=registration, state=state,campaign_state=campaign, runs=runs, results=results,
@@ -607,6 +660,9 @@ def load_snapshot(root: Path) -> dict:
                 resource_withdrawal=withdrawal,
                 resource_authorization=authorization,resource_authorization_path=authorization_path,
                 resource_authorization_pointer=authorization_pointer,current_authorized_hosts=remaining,
+                resource_activation=activation,resource_activation_path=activation_path,
+                historical_addition_inventory=historical_addition_inventory,
+                resource_inventory_unknown_hosts=sorted(inventory_unknown&set(remaining or [])),
                 host_withdrawal_migration=migration_result,host_withdrawal_migration_path=migration_result_path,
                 resource_addition=addition,resource_addition_path=addition_path,
                 resource_addition_capacity=addition_capacity,resource_addition_second=addition_second,
@@ -614,6 +670,8 @@ def load_snapshot(root: Path) -> dict:
                 resource_addition_deployment=addition_deployment,resource_addition_deployment_path=deployment_path,
                 resource_addition_preferred_routes=addition_preferred,
                 resource_withdrawals=withdrawal_receipts,withdrawn_hosts=sorted(withdrawn_hosts),
+                historical_withdrawn_hosts=sorted(historical_withdrawn_hosts),
+                resource_temporary_window=dict(hosts=sorted(temporary_hosts),starts_unix=starts,expires_unix=expires,active=temporary_active),
                 state_runs_older_than_registry=bool((root/'STATE.json').exists()
                     and (root/'STATE.json').stat().st_mtime<registry_mtime),
                 historical=history, journal_audit=journal_audit, chain_audit=chain_audit,
@@ -631,6 +689,10 @@ def load_snapshot(root: Path) -> dict:
                 pipeline_startup=pipeline_startup,evaluation_scheduling=evaluation_scheduling,
                 first_collection_match=first_collection_match,
                 editorial_analysis=dict(matched_10k=matched10,matched_10k_path=str(root/'analysis'/'PORTFOLIO_10K_PAIRED.json'),
+                    matched_20k=matched20,matched_20k_path=str(portfolio20_path) if portfolio20_path else None,
+                    scene_safety_efficiency=scene_research,
+                    representation_audit=representation_audit,scene_brief_20k=scene_brief,
+                    scene_information_audit=scene_information_audit,
                     decisions=decisions,stopped_receipts=stopped_receipts,nft_decision=decisions.get('NFT_FULL',{}),
                     nft_stopped=stopped_receipts.get('NFT_FULL',{}),adaptive_process=adaptive_process,
                     nft_comparisons={key:value for key,value in portfolio.get('contrasts',{}).items() if value.get('target','').startswith('NFT_FULL')},
@@ -643,6 +705,7 @@ def load_snapshot(root: Path) -> dict:
                 matched_first_stage_contrasts=matched_contrasts,
                 resource_capacity_policy=capacity_policy,resource_capacity_adoption=capacity_adoption,
                 pending_resource_additions=pending_additions,
+                resource_reauthorization_note=reauthorization_note,
                 cispo_prechild_refusal=cispo_refusal,adaptive_stage_one=adaptive_stage,
                 data_audit=data_audit, warnings=warnings, inputs=inputs,
                 events=state.get('events', registration.get('events', []))+campaign.get('events',[]))
