@@ -233,7 +233,7 @@ def main():
                 completed=[k for k,r in requests.items() if (r.root/'COMPLETE.json').exists()]))
     if failures:
         write(root/'failure.json', dict(failures=failures, automatic_retry=False)); return
-    report = Path(args.report_dir); finalize(root, requests, report)
+    report = Path(args.report_dir).resolve(); finalize(root, requests, report)
     def git(*argv): return subprocess.check_output(['git',*argv],cwd=source,text=True)
     if git('rev-parse','HEAD').strip() != head: raise ValueError('Changed source before publication')
     prefix = str(report.relative_to(source))
