@@ -239,8 +239,8 @@ def wait_transport_exit(job):
 
 
 def _eval_routes(root,*,maximum,rank0_extra=True):
-    hosts=allowed_hosts();preference=['training-vlawm-zt2','training-vlawm-zt','training-vla-zt','training-vlawm-tsinghua-zt4',
-        'training-vlawm-tsinghua-zt','training-rl-zt2','training-vlawm-tsinghua-zt5','training-vlawm-tsinghua-zt3']
+    hosts=allowed_hosts();preference=['training-vlawm-tsinghua-zt2','training-vlawm-zt2','training-vlawm-zt','training-vla-zt','training-vlawm-tsinghua-zt4',
+        'training-vlawm-tsinghua-zt','training-rl-zt2','training-vlawm-tsinghua-zt5','training-vlawm-tsinghua-zt3','training-vla-zt3']
     def read(host):
         try:return host,probe(host)
         except Exception as e:return host,dict(error=str(e))
@@ -267,7 +267,7 @@ def _eval_routes(root,*,maximum,rank0_extra=True):
             if len(routes)==maximum:break
         if len(routes)==maximum:break
     write(root/'resources/LATEST_EVALUATION_INVENTORY.json',dict(at_unix=time.time(),hosts=inventory,
-          routes=routes,withdrawn_hosts=['training-vlawm-tsinghua-zt2']))
+          routes=routes,withdrawn_hosts=[h for h in ('training-vlawm-tsinghua-zt2','training-vla-zt3') if h not in hosts]))
     return routes,claims
 
 

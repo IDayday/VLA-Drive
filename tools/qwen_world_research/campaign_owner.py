@@ -20,7 +20,7 @@ import time
 import traceback
 
 DEFAULT_ROOT = Path('/mnt/project/qwen-world-rl-optimization-20261030')
-FIRST_ARMS = ('PPO_HARD', 'PPO_FULL', 'PPO_ADAPTIVE', 'CISPO_FULL', 'NFT_FULL', 'PPO_BATCHSTD', 'PPO_SAFE_COMFORT', 'PPO_ANCHOR40')
+FIRST_ARMS = ('PPO_HARD', 'PPO_FULL', 'PPO_ADAPTIVE', 'CISPO_FULL', 'NFT_FULL', 'PPO_BATCHSTD', 'PPO_SAFE_COMFORT', 'PPO_ANCHOR40', 'PPO_MEMORYLR20', 'PPO_SAFETY_EP')
 GATES = (1000, 5000, 10000, 20000, 35000, 50000)
 FIRST_PRIORITY_GATE = 5000
 SAFETY = ('no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collision_within_bound')
@@ -29,6 +29,10 @@ SCHEMA = 'world_rl_optimization_campaign_owner_v1'
 
 class ArmStoppedByResearchDecision(Exception):
     """A separately recorded allocation decision, never a scientific failure."""
+
+
+class ArmHeldForResourceLease(Exception):
+    """A clean native lease-boundary pause, without a scientific failure."""
 
 
 def now():
@@ -221,6 +225,7 @@ class CampaignOwner:
             arm_state.setdefault('stages',{})
             arm_state['run_root'] = self.runs[arm]['root']
             arm_state['source'] = self.runs[arm].get('source')
+            arm_state['research_budget_updates'] = int(self.runs[arm].get('research_budget_updates',50000))
         owner = dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
                      source_file=str(Path(__file__).resolve()),source_file_sha256=sha_file(__file__),
                      started_at=now(),scope='adopt existing jobs; independent arm budgets; never edit training snapshots')
@@ -433,8 +438,14 @@ class CampaignOwner:
                 raise ValueError('Existing adaptive stage does not bind this stable stream')
             self.event('adaptive_stage_adopted',arm=arm,stage=index,path=str(path))
             return
+        policy_path=self.root/'ADAPTIVE_COVERAGE_POLICY_AMENDMENT.json'
+        policy=read_json(policy_path,{})
+        mixture={}
+        if policy and index>=int(policy['effective_stage_index']):
+            if policy['arm']!=arm:raise ValueError('Adaptive amendment arm changed')
+            mixture={key:float(policy[key]) for key in ('uniform_fraction','low_score_fraction','regression_fraction')}
         body=prepare_stage(manifest,index,current_bank=current_training_bank,
-                           baseline_bank=baseline_bank,world_size=world)
+                           baseline_bank=baseline_bank,world_size=world,**mixture)
         atomic_json(receipt_path,dict(status='PUBLISHED',at=now(),stage_index=index,
             stage_path=str(path),stage_file_sha256=sha_file(path),stage_sha256=body['sha256'],
             generator_source=str(Path(generator.__file__).resolve()),generator_source_sha256=sha_file(generator.__file__),
@@ -442,7 +453,9 @@ class CampaignOwner:
             current_bank=current_training_bank,current_bank_sha256=sha_file(current_training_bank),
             baseline_bank=baseline_bank,baseline_bank_sha256=sha_file(baseline_bank),
             stage0_unchanged=True,NAVTEST_used_for_scene_selection=False,
-            selection='35%uniform,40%low-score,25%IL-regression; repeat across batches; distinct within global batch'))
+            selection=body['priority_diagnostics'],
+            coverage_policy_amendment=str(policy_path) if mixture else None,
+            coverage_policy_sha256=sha_file(policy_path) if mixture else None))
         self.event('adaptive_stage_published',arm=arm,stage=index,path=str(path))
 
     def train_to(self, arm, target, *, resume=None, adopt_first=False):
@@ -493,6 +506,19 @@ class CampaignOwner:
             if code!=0:
                 raise RuntimeError('Formal training failed; preserve evidence and do not retry: '+json.dumps(result,default=str)[:2500])
             if self.arm_stop_decision(arm):raise ArmStoppedByResearchDecision()
+            if (result.get('temporary') is True and
+                    (result.get('expiry_guard_requested') is True or
+                     float(result.get('end_unix',0))>=float(result.get('guard_unix',float('inf'))))):
+                latest=native_checkpoint(self.runs[arm]['root'])
+                if latest['updates']<target:
+                    self.dispatcher.wait_transport_exit(job)
+                    with self.mutex:
+                        node['resource_lease_pause']=dict(checkpoint=latest,result=result,at=now())
+                    self.update_arm(arm,status='HELD_RESOURCE_LEASE',checkpoint=latest['path'],updates=latest['updates'])
+                    self.update_run_registry(arm,status='HELD_RESOURCE_LEASE',last_checkpoint=latest['path'],
+                                             completed_updates=latest['updates'])
+                    self.event('arm_held_resource_lease',arm=arm,updates=latest['updates'],target=target)
+                    raise ArmHeldForResourceLease()
             checkpoint=native_checkpoint(self.runs[arm]['root'],expected_update=target)
             with self.mutex:
                 node.update(checkpoint=checkpoint['path'],train_completed=True,updates=target,train_completed_at=now())
@@ -595,12 +621,16 @@ class CampaignOwner:
             if self.state['runs'][arm].get('status')=='FAILED_REQUIRES_REVIEW':
                 self.event('failed_arm_preserved_for_review',arm=arm)
                 return 'FAILED_REQUIRES_REVIEW'
+            if self.state['runs'][arm].get('status')=='HELD_RESOURCE_LEASE':
+                return 'HELD_RESOURCE_LEASE'
             stop=self.arm_stop_decision(arm)
             if stop:
                 if self.state['runs'][arm].get('status')!='STOPPED_FUTILITY':self.stop_arm(arm,stop)
                 return 'STOPPED_FUTILITY'
             adaptive=self.runs[arm]['data_policy']=='adaptive'
-            boundaries=range(1000,50001,1000) if adaptive else GATES
+            budget=int(self.runs[arm].get('research_budget_updates',50000))
+            if budget not in GATES:raise ValueError('Research budget must be a registered evaluation gate')
+            boundaries=range(1000,budget+1,1000) if adaptive else [g for g in GATES if g<=budget]
             checkpoint=self.state['runs'][arm].get('checkpoint')
             for target in boundaries:
                 if self.arm_stop_decision(arm):raise ArmStoppedByResearchDecision()
@@ -628,10 +658,13 @@ class CampaignOwner:
                 self.queue_boundary(arm,target,checkpoint)
             self.update_arm(arm,status='TRAINING_COMPLETE_EVALUATIONS_PENDING')
             self.check_arm_evaluations(arm,wait_all=True)
-            self.update_arm(arm,status='COMPLETE',updates=50000)
-            self.update_run_registry(arm,status='COMPLETE',completed_updates=50000)
-            self.event('arm_complete',arm=arm,updates=50000)
-            return 'COMPLETE'
+            status='COMPLETE' if budget==50000 else 'PILOT_COMPLETE_REVIEW_REQUIRED'
+            self.update_arm(arm,status=status,updates=budget)
+            self.update_run_registry(arm,status=status,completed_updates=budget)
+            self.event('arm_complete',arm=arm,updates=budget,status=status)
+            return status
+        except ArmHeldForResourceLease:
+            return 'HELD_RESOURCE_LEASE'
         except ArmStoppedByResearchDecision:
             try:
                 self.stop_arm(arm,self.arm_stop_decision(arm))
@@ -679,7 +712,10 @@ class CampaignOwner:
         pool.shutdown(wait=True)
         self.aggregate_priorities()
         statuses={arm:self.state['runs'][arm]['status'] for arm in FIRST_ARMS}
-        self.state['status']=('COMPLETE_WITH_RESEARCH_STOPS' if 'STOPPED_FUTILITY' in statuses.values()
+        self.state['status']=('COMPLETE_PILOTS_REQUIRE_REVIEW' if 'PILOT_COMPLETE_REVIEW_REQUIRED' in statuses.values()
+                              and all(s in ('COMPLETE','STOPPED_FUTILITY','PILOT_COMPLETE_REVIEW_REQUIRED') for s in statuses.values()) else
+                              'FINISHED_WITH_RESOURCE_HOLDS' if 'HELD_RESOURCE_LEASE' in statuses.values() else
+                              'COMPLETE_WITH_RESEARCH_STOPS' if 'STOPPED_FUTILITY' in statuses.values()
                               and all(s in ('COMPLETE','STOPPED_FUTILITY') for s in statuses.values()) else
                               'COMPLETE' if all(s=='COMPLETE' for s in statuses.values()) else
                               'HELD_BY_STOP_REQUEST' if 'HELD_BY_STOP_REQUEST' in statuses.values() else

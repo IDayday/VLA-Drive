@@ -57,7 +57,17 @@ def validate_recipe(cfg):
             raise ValueError('Unregistered inherited scientific change: '+key)
     if set(cfg) != set(base)|{'research'}:
         raise ValueError('Unexpected research config keys')
-    if (not 0 < cfg['learning_rate'] <= 5e-5 or not 0 < cfg['memory_learning_rate'] <= 5e-6
+    memory_lr_limit=5e-6
+    if research.get('memory_lr_ablation') == 'memory_lr2e-5_v1':
+        if (research.get('arm')!='PPO_MEMORYLR20' or research['policy_objective']!='ppo'
+                or research['data_policy']!='uniform_full'
+                or research.get('advantage_normalization') is not None
+                or research.get('reward_transform') is not None
+                or research.get('anchor_ablation') is not None
+                or cfg['memory_learning_rate']!=2e-5):
+            raise ValueError('Register memory LR2e-5 as its own canonical full PPO arm')
+        memory_lr_limit=2e-5
+    if (not 0 < cfg['learning_rate'] <= 5e-5 or not 0 < cfg['memory_learning_rate'] <= memory_lr_limit
             or cfg['lr_scheduler_type'] not in ('constant', 'cosine') or cfg['max_steps'] <= 0
             or cfg['max_steps'] % 4 or cfg['save_every_optimizer_updates'] <= 0):
         raise ValueError('Invalid bounded optimizer schedule')

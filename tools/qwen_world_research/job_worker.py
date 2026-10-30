@@ -151,7 +151,8 @@ def _known_owners(rows,mapping,indices):
                            'tools.qwen_world_research.evaluate',
                            'starVLA.rl.qwen_world_research_algorithms.train_nft',
                            'starVLA.rl.qwen_world_research_algorithms.batchstd_entry',
-                           'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry'}
+                           'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry',
+                           'starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry'}
         entry=args[args.index('-m')+1] if '-m' in args else None
         output=args[args.index('--output')+1] if '--output' in args else None
         if entry not in permitted_entries or not output or not output.startswith(allowed_roots):

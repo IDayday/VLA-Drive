@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from tools.qwen_world_research.campaign_owner import CampaignOwner, atomic_json
+from tools.qwen_world_research.campaign_owner import CampaignOwner, ArmHeldForResourceLease, atomic_json
 
 
 def test_research_stop_releases_only_selected_job_and_retains_any_inner_checkpoint(tmp_path):
@@ -68,3 +68,36 @@ def test_optional_safety_probe_failure_does_not_stop_native_training():
     owner.evaluation_futures[('PPO_FULL', 10000, 'NAVTEST')] = probe
     with pytest.raises(RuntimeError, match='optional probe requires review'):
         owner.check_arm_evaluations('PPO_FULL')
+
+
+def test_expiring_temporary_lease_retains_native_partial_checkpoint(tmp_path):
+    owner=CampaignOwner.__new__(CampaignOwner)
+    owner.root=tmp_path;owner.owner_root=tmp_path/'owners/CAMPAIGN'
+    owner.mutex=threading.RLock();owner.capacity_changed=threading.Condition(owner.mutex)
+    owner.capacity_epoch=0;owner.resource_retries=2
+    run=tmp_path/'native';job=tmp_path/'job';cp=run/'checkpoints/update000042_inner2'
+    atomic_json(cp/'COMPLETE',dict(updates=42,next_inner=2,phase='INNER_COMMITTED'))
+    atomic_json(run/'latest.json',dict(checkpoint=str(cp)))
+    owner.runs={'X':dict(id='X',root=str(run),job=str(job))}
+    atomic_json(tmp_path/'RUNS.json',dict(runs=list(owner.runs.values())))
+    owner.state=dict(runs={'X':dict(stages={'1000':dict(train_job=str(job))})},events=[])
+    owner.dispatcher=SimpleNamespace(wait_job=lambda _:dict(returncode=0,temporary=True,
+        expiry_guard_requested=True,end_unix=100,guard_unix=90),wait_transport_exit=lambda _:None)
+    with pytest.raises(ArmHeldForResourceLease):owner.train_to('X',1000)
+    assert owner.state['runs']['X']['status']=='HELD_RESOURCE_LEASE'
+    assert owner.state['runs']['X']['updates']==42
+    assert owner.state['runs']['X']['checkpoint']==str(cp.resolve())
+
+
+def test_pilot_budget_is_not_recorded_as_full50k_completion(tmp_path):
+    owner=CampaignOwner.__new__(CampaignOwner)
+    owner.root=tmp_path;owner.owner_root=tmp_path/'owners/CAMPAIGN';owner.mutex=threading.RLock()
+    owner.runs={'X':dict(id='X',data_policy='uniform_full',research_budget_updates=1000)}
+    owner.state=dict(runs={'X':dict(updates=1000,checkpoint='sealed_1k',stages={
+        '1000':dict(train_completed=True,checkpoint='sealed_1k')})},events=[])
+    atomic_json(tmp_path/'RUNS.json',dict(runs=list(owner.runs.values())))
+    owner.check_arm_evaluations=lambda *a,**kw:None
+    boundaries=[];owner.queue_boundary=lambda a,u,c:boundaries.append(u)
+    assert owner.run_arm('X')=='PILOT_COMPLETE_REVIEW_REQUIRED'
+    assert boundaries==[1000]
+    assert owner.state['runs']['X']['updates']==1000
