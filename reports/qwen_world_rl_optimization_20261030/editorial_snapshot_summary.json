@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-30 17:00:28 UTC",
+  "generated_utc": "2026-10-30 17:14:56 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": "7 research chapters; 8 scientific figures; operations and hashes folded",
   "training_seed": 42,
@@ -927,5 +927,58 @@
       "expires_unix": 1793407379.0,
       "active": true
     }
+  },
+  "pilots": {
+    "PPO_MEMORYLR20": {
+      "status": "ACTUAL_NATIVE_UPDATES_ALL8_FINITE",
+      "startup_updates": 280,
+      "research_budget": 10000,
+      "scheduler_max": 50000,
+      "guard": "2026-10-31T00:22:59+00:00",
+      "expiry": "2026-10-31T00:42:59+00:00",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_MEMORYLR20/formal_to001000_attempt001"
+    },
+    "PPO_SAFETY_EP": {
+      "status": "ACTUAL_NATIVE_UPDATES_ALL8_FINITE",
+      "startup_updates": 56,
+      "research_budget": 10000,
+      "scheduler_max": 50000,
+      "guard": null,
+      "expiry": null,
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to001000_attempt002"
+    }
+  },
+  "adaptive_phase2": {
+    "schema": "world_rl_adaptive_stage_policy_amendment_v1",
+    "registered_at": "2026-10-30T17:03:02.511510+00:00",
+    "arm": "PPO_ADAPTIVE",
+    "effective_stage_index": 17,
+    "effective_from_optimizer_update": 17001,
+    "uniform_fraction": 0.8,
+    "low_score_fraction": 0.1,
+    "regression_fraction": 0.1,
+    "previous_mixture": {
+      "uniform_fraction": 0.35,
+      "low_score_fraction": 0.4,
+      "regression_fraction": 0.25
+    },
+    "previous_sealed_stages_untouched": true,
+    "reason": "Feedback1024 gain is concentrated; extra3072/fresh2820 no clear advantage. Broaden coverage while retaining low-score/regression targeting.",
+    "evidence": [
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_DIAGNOSIS.json",
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ADAPTIVE_80_10_10_FROZEN_BANK_REPLAY_20261030.json"
+    ],
+    "new4096_tokens_added_to_feedback": false,
+    "NAVTEST_tokens_used_for_scene_selection": false,
+    "IL_parent_and_optimizer_unchanged": true,
+    "new_training_seed": false,
+    "interpretation": "Explicit phase2 adaptive data policy; do not attribute later results to original35/40/25 recipe"
+  },
+  "new_pilot_matched_review": {
+    "status": "WAITING_SUMMARIES",
+    "completed_pairs": 0,
+    "target_pairs": 6,
+    "contrasts": {},
+    "knowledge_scope_zh": "两个pilot均固定IL70知识基础；MemoryLR20只变适应强度，SafetyEP只分解RL信用，不能推广为知识已充分或场景风险输入已充分。"
   }
 }

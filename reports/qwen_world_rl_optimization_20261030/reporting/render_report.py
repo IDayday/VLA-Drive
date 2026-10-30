@@ -528,6 +528,16 @@ def load_snapshot(root: Path) -> dict:
             matched20['contrasts'][target[:-len('_u020000_NAVTEST')]+'_minus_'+baseline[:-len('_u020000_NAVTEST')]]=value
         elif '_u' not in key:matched20['contrasts'][key]=value
     scene_research=read_json(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_RESEARCH.json',warnings,inputs) or {}
+    pilot_startups={};pilot_registrations={}
+    for pilot in scene_research.get('pilots',[]):
+        arm=pilot.get('arm')
+        if not arm:continue
+        evidence=pilot.get('startup_evidence')
+        pilot_startups[arm]=read_json(Path(evidence),warnings,inputs) or {} if evidence else {}
+        pilot_registrations[arm]=read_json(root/f'EXPERIMENT_{arm}_REGISTRATION.json',warnings,inputs) or {}
+    adaptive_coverage_amendment=read_json(root/'ADAPTIVE_COVERAGE_POLICY_AMENDMENT.json',warnings,inputs) or {}
+    safety_ep_operator_review=read_json(root/'jobs'/'PPO_SAFETY_EP'/'formal_to001000_attempt001'/'PRECHILD_OPERATOR_REVIEW.json',warnings,inputs) or {}
+    new_pilot_matched_review=read_json(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json',warnings,inputs) or {}
     representation_audit=read_json(root/'analysis'/'REPRESENTATION_TRAINABILITY_AUDIT_20261030.json',warnings,inputs) or {}
     scene_brief=read_json(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json',warnings,inputs) or {}
     scene_information_audit=read_json(root/'analysis'/'SCENARIO_SAFETY_EFFICIENCY_AUDIT_20261030.json',warnings,inputs) or {}
@@ -691,6 +701,9 @@ def load_snapshot(root: Path) -> dict:
                 editorial_analysis=dict(matched_10k=matched10,matched_10k_path=str(root/'analysis'/'PORTFOLIO_10K_PAIRED.json'),
                     matched_20k=matched20,matched_20k_path=str(portfolio20_path) if portfolio20_path else None,
                     scene_safety_efficiency=scene_research,
+                    pilot_startups=pilot_startups,pilot_registrations=pilot_registrations,
+                    adaptive_coverage_amendment=adaptive_coverage_amendment,safety_ep_operator_review=safety_ep_operator_review,
+                    new_pilot_matched_review=new_pilot_matched_review,
                     representation_audit=representation_audit,scene_brief_20k=scene_brief,
                     scene_information_audit=scene_information_audit,
                     decisions=decisions,stopped_receipts=stopped_receipts,nft_decision=decisions.get('NFT_FULL',{}),

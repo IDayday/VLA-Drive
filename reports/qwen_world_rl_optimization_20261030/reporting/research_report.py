@@ -16,6 +16,7 @@ ALGO_ARMS=ARMS[:4]
 COLORS=dict(zip(ARMS,['#2563eb','#059669','#7c3aed','#d97706','#64748b','#0891b2','#be185d','#dc2626']))
 SHORT={'PPO_FULL':'Full','PPO_BATCHSTD':'BatchStd','PPO_SAFE_COMFORT':'SafeComfort','CISPO_FULL':'CISPO','PPO_HARD':'Hard','PPO_ADAPTIVE':'Adaptive','PPO_ANCHOR40':'Anchor40','NFT_FULL':'NFT'}
 IDEAS={'PPO_FULL':'全量103,288；原始PPO对照','PPO_BATCHSTD':'仅改中心化优势的全局std分母','PPO_SAFE_COMFORT':'安全候选Comfort置1，局部突出EP','CISPO_FULL':'全量数据；仅改策略目标','PPO_HARD':'困难15,171；数据人口对照','PPO_ADAPTIVE':'训练内低分／退化／覆盖再采样','PPO_ANCHOR40':'仅将均值anchor权重β50改为40','NFT_FULL':'纯ODE采样＋NFT目标／EMA'}
+IDEAS.update(PPO_MEMORYLR20='仅memory学习率5e−6→2e−5；既有IL知识适配',PPO_SAFETY_EP='仅安全／可行EP分量优势；候选指标条件信用')
 
 
 def update(row):
@@ -92,6 +93,10 @@ def render_research_report(root,snapshot,history,h):
     analysis10=editorial.get('matched_10k',{})
     analysis20=editorial.get('matched_20k',{})
     scene_research=editorial.get('scene_safety_efficiency',{})
+    pilot_startups=editorial.get('pilot_startups',{})
+    pilot_registrations=editorial.get('pilot_registrations',{})
+    active_pilots={arm for arm,value in pilot_startups.items() if value.get('status')=='ACTUAL_NATIVE_UPDATES_ALL8_FINITE' and len(value.get('rows',[]))==8 and all(row.get('finite') is True for row in value['rows'])}
+    adaptive_amendment=editorial.get('adaptive_coverage_amendment',{})
     adaptive_analysis=editorial.get('adaptive_process',{})
     budgets=sorted({update(r) for r in test if r.get('arm') in PPO_ARMS})
     budget=max((u for u in budgets if ('PPO_FULL',u) in points and sum((a,u) in points for a in PPO_ARMS)>=3),default=1000)
@@ -151,7 +156,7 @@ def render_research_report(root,snapshot,history,h):
         elif run.get('job'):
             state=('已观察全rank原生日志' if run.get('journal_ranks')==run.get('expected_ranks',8) and h.finite(run.get('updates')) else
                    'worker已启动，原生更新待日志' if run.get('job_receipts',{}).get('RUNNING.json') else '已登记派发，启动／更新待收据')
-            next_action='当前目标 '+number(run.get('stage_budget_updates'))+'；周期完整评测异步'
+            next_action='当前阶段 '+number(run.get('stage_budget_updates'))+'；'+('首轮研究cap '+number(run.get('research_budget_updates'))+'，到预算再评审' if run.get('research_budget_updates') else '周期完整评测异步')
         else:state='未派发';next_action='等待研究决策与资源'
         native_cell=('停止于 '+number(stop_receipts[arm].get('checkpoint',{}).get('updates')) if arm in stop_receipts else
                      number(run.get('updates'))+' / '+number(run.get('stage_budget_updates')))
@@ -373,7 +378,7 @@ def render_research_report(root,snapshot,history,h):
         if isinstance(scene_summary,str):body+='<p>'+esc(scene_summary)+'</p>'
         objective=scene_research.get('objective',{})
         if isinstance(objective,dict):
-            body+='<p><b>研究判据：</b>'+esc(objective.get('safety','按场景检查安全约束与尾部'))+' '+esc(objective.get('efficiency','在场景制约内评价可实现效率'))+'</p><p>'+esc(objective.get('all_fail_rule','8个候选全未通过不等于场景无安全解。'))+'</p><p class="muted">实施状态：'+esc(objective.get('status','研究方案准备中，未声明新策略已获收益'))+'</p>'
+            body+='<p><b>研究判据：</b>'+esc(objective.get('safety','按场景检查安全约束与尾部'))+' '+esc(objective.get('efficiency','在场景制约内评价可实现效率'))+'</p><p>'+esc(objective.get('all_fail_rule','8个候选全未通过不等于场景无安全解。'))+'</p><p class="muted">实施状态：'+('受控pilot已实际训练；场景条件策略与部署收益仍待检验。' if active_pilots else esc(objective.get('status','研究方案准备中，未声明新策略已获收益')))+'</p>'
         preliminary=scene_research.get('preliminary_training_evidence',{})
         if preliminary:
             body+='<p>初步信用分配证据（'+esc(preliminary.get('scope','既有TRAIN候选，离线诊断'))+'）：unsafe正优势候选 '+number(preliminary.get('unsafe_positive_advantage'))+'，其中 '+number(preliminary.get('unsafe_positive_with_feasible_alternative'))+' 个有通过候选可替代，'+number(preliminary.get('unsafe_positive_EP_above_all_feasible'))+' 个EP高于所有通过候选。另有 '+number(preliminary.get('groups_with_at_least2_feasible'))+' 组至少两个通过候选，'+number(preliminary.get('groups_feasible_EP_span_ge_005'))+' 组的通过候选EP跨度≥0.05。这里“通过”仅指离线NC=DAC=TTC=1，不等于掌握全部场景风险；这些是待验证的信用分配线索。</p>'
@@ -383,6 +388,10 @@ def render_research_report(root,snapshot,history,h):
         if candidate:body+='<p class="note">CPU信用分配原型把安全优势与“通过候选子集内中心化”的EP优势分开，并保留全失败fallback和绝对成本。该简报记录的是CPU结构检查；是否形成正式pilot，看新注册／worker收据，不能把代数性质当作训练成绩或安全保证。低EP或停车并非自动错误，必须先检查同组是否有通过指标的可行替代。'+link(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json','20k解释、局部方法边界与CPU原型')+'</p>'
     else:body+='<p class="muted">场景条件诊断／表征方案由研究主进程准备，正式SCENE_SAFETY_EFFICIENCY_RESEARCH.json待发布；当前是研究目标与判据，尚非新策略成绩。</p>'
     body+='<h3>数据覆盖与反馈：支持诊断，不替代场景解释</h3><div class="plots-two">'+data_chart+panel_chart+'</div><p>固定Hard的5k→10k下降0.118841点；同10k Full−Hard为+0.283893，配对区间[+0.011398,+0.520610]且NC/DAC/TTC均更高，支持本轮机会成本停止决策。'+adaptive_sentence+'其TRAIN先升后降，不能把反馈panel回升当泛化证明。</p>'
+    if adaptive_amendment:
+        old=adaptive_amendment.get('previous_mixture',{})
+        mix=lambda node:'/'.join(str(round(100*node.get(k,0))) for k in ['uniform_fraction','low_score_fraction','regression_fraction'])
+        body+='<div class="note"><b>Adaptive新阶段已登记：</b>自 '+number(adaptive_amendment.get('effective_from_optimizer_update'))+' 更新起（stage '+number(adaptive_amendment.get('effective_stage_index'))+'），均匀／低分／退化采样从 '+mix(old)+' 改为 '+mix(adaptive_amendment)+'。旧stage0–16原样保留，后续结果属于新混合策略，不能归因于原35/40/25。额外4096诊断不并入既有反馈bank；IL父模型、optimizer与seed保持。'+link(root/'ADAPTIVE_COVERAGE_POLICY_AMENDMENT.json','阶段策略修订收据')+'</div>'
     if adaptive_analysis:
         coverage=adaptive_analysis.get('coverage',{});feedback=coverage.get('feedback1024',{});extra=coverage.get('additional3072_feedback_unseen',{});timing=adaptive_analysis.get('feedback_time_summary',{})
         body+=table(['已完成至'+number(coverage.get('completed_through_updates'))+'更新的曝光','证据','含义'],[
@@ -434,15 +443,46 @@ def render_research_report(root,snapshot,history,h):
                 if item:adaptive_rows.append([label,signed(item.get('delta_points'),5),'['+', '.join(signed(v,5)for v in interval)+']' if len(interval)==2 else '待记录'])
             if adaptive_rows:body+='<h3>4096 final：面板特化迹象，尚无广泛增益证据</h3>'+table(['ADAPTIVE−FULL，同人口','PDMS点差','95%区间'],adaptive_rows)+'<p>旧反馈panel有正向配对支持，反馈外3072与全4096区间跨零；新增场景没有明确增益，也不能写成额外场景已退化。后续数据策略应与场景条件安全—效率诊断结合，不能只追反复评测的panel。</p>'
     new_pilots=[arm for arm in display_arms if arm not in ARMS]
-    body+='<h3>两个独立10k pilot：'+('新登记执行进度见路线表' if new_pilots else '准备中，尚无启动收据')+'</h3>'+table(['研究问题','唯一主要改动','保持不变／判据'],[
+    body+='<h3>两个独立10k pilot：'+('均已全8rank实际训练，梯度有限' if len(active_pilots)>=2 else '已登记执行进度见路线表' if new_pilots else '准备中，尚无启动收据')+'</h3>'+table(['研究问题','唯一主要改动','保持不变／判据'],[
         ['给定IL知识能否更充分适配轨迹任务','memory学习率5e−6 → 2e−5','固定IL父模型与RL配方其余项；检验适配强度，不能代表补齐全部驾驶知识。'],
         ['安全与通过候选内效率能否分别分配信用','安全／可行EP分量优势：PPO_SAFETY_EP候选','不叠加memory LR试验；同预算检查新增风险、必要等待和条件效率。']])+'<p>两项由研究主进程实现与注册，实际是否启动看独立登记／worker收据。PPO_SAFETY_EP是待验证的候选指标条件信用分解：通过者内部才分配效率信用，全未通过时用指标缺失成本给安全方向；它没有新增场景输入，也不代表已具备场景风险推理。新IL达标后的RL对照另起实验；现有已封存模型与旧训练不热改。</p>'
+    if pilot_startups:
+        pilot_rows=[]
+        for arm,value in pilot_startups.items():
+            registration=pilot_registrations.get(arm,{})
+            startup_updates=min((row.get('updates',0) for row in value.get('rows',[])),default=None)
+            guard=registration.get('lease_guard_UTC');expiry=registration.get('lease_expiry_UTC')
+            boundary=('8h临时许可：'+str(guard)+'前保护checkpoint；'+str(expiry)+'到期' if guard else '既有许可主机；按当前有效grant运行')
+            pilot_rows.append([esc(arm),'全8rank有限梯度；启动证据 '+number(startup_updates)+' 更新' if arm in active_pilots else esc(value.get('status','待收据')),
+                number(registration.get('pilot_budget_updates'))+' cap<small>1k／5k／10k评审；scheduler '+number(registration.get('native_scheduler_max_updates'))+' 不等于研究已授权跑满</small>',
+                esc(boundary),link(root/f'STARTUP_{arm}_20261030.json','实际启动')+' · '+link(root/f'EXPERIMENT_{arm}_REGISTRATION.json','独立注册')])
+        no_pilot_score=not any(latest.get(arm) for arm in pilot_startups)
+        body+=table(['独立pilot','实际优化证据（不是成绩）','首轮预算','运行时间边界','来源'],pilot_rows)+'<p>两项均固定IL70、冻结Qwen与输入，测试既有知识的适配和轨迹信用分配；没有注入新知识。'+('目前尚无已完成的正式成绩。' if no_pilot_score else '已完成的正式成绩见路线表，匹配配对见下表。')+'v7科学snapshot独立封存，旧v1–v6保持。</p>'
+        review=editorial.get('safety_ep_operator_review',{})
+        if review:body+=detail('PPO_SAFETY_EP首次派发：child前operator拒绝，非科学训练失败','<p>首次attempt在参数白名单检查阶段被拒，RUNNING不存在、native root不存在；operator单文件审查修复后attempt002已实际优化。不是loss或scorer失败，科学snapshot未更换。'+link(root/'jobs'/'PPO_SAFETY_EP'/'formal_to001000_attempt001'/'PRECHILD_OPERATOR_REVIEW.json','child前审查与修复收据')+'</p>')
+    pilot_review=editorial.get('new_pilot_matched_review',{})
+    if pilot_review:
+        complete_pairs=[(key,row) for key,row in pilot_review.get('contrasts',{}).items() if row.get('status')=='COMPLETE']
+        body+='<h3>新pilot同预算复查：'+number(len(complete_pairs))+' / '+number(pilot_review.get('target_pairs',6))+'组完整</h3>'
+        if complete_pairs:
+            def pilot_metric(row,metric):
+                item=row.get('safety_metrics',{}).get(metric,{})
+                interval=item.get('CI95_delta_percentage_points',[])
+                return signed(item.get('delta_percentage_points'),5)+('<small>['+', '.join(signed(v,5)for v in interval)+']</small>' if len(interval)==2 else '<small>区间待记录</small>')
+            pair_rows=[]
+            for key,row in complete_pairs:
+                target=row.get('target',key.split('_minus_',1)[0]);baseline=row.get('baseline',key.split('_minus_',1)[-1])
+                pair_rows.append([esc(target.replace('_NAVTEST',''))+'<small>− '+esc(baseline.replace('_NAVTEST',''))+'</small>',signed(row.get('delta_PDMS'))+'<small>'+ci_text(row)+'</small>',
+                    pilot_metric(row,'no_at_fault_collisions'),pilot_metric(row,'time_to_collision_within_bound'),pilot_metric(row,'ego_progress'),esc(row.get('review',{}).get('recommendation_zh','按总分和组件区间联合判断'))])
+            body+=table(['同预算完整人口配对','ΔPDMS［95%区间］','ΔNC pp［区间］','ΔTTC pp［区间］','ΔEP pp［区间］','结论／风险'],pair_rows)
+        else:body+='<p class="muted">尚无双方完整且已配对的结果，不填分数或区间；每组完成后独立展示，不必等待六组齐备。</p>'
+        body+='<p>'+esc(pilot_review.get('knowledge_scope_zh',''))+' '+esc(pilot_review.get('interpretation_zh',''))+' '+link(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json','有限CPU配对分析与实际进度')+'</p>'
     actions=[['P0','场景条件安全—效率与表征诊断','合法等待、低风险停滞、确认风险／观测不确定分开','IL补知识、RL做适配与轨迹强化，不把局部奖励去干扰当场景策略'],
         ['已完成／继续拆解','解释20k匹配结果，保留Full控制','SAFE总分阶段增益、BATCH/CISPO的NC/TTC风险','不把10k领先外推；不因一个总分替代场景分组'],
         ['已完成／收据','停止NFT、固定hard-only、BATCH与CISPO后续预算','逐臂STOPPED、退出与checkpoint收据','保留旧结果与历史好点；不是模型失败'],
         ['已完成／后续解释','三模型固定TRAIN4096诊断','旧反馈1024、反馈外3072与实际曝光分层','面板特化迹象，不等于反馈外场景退化'],
         ['已在做','独立运行ANCHOR40单因素','降低anchor压力是否改善后续canonical结果','只改β，不叠SAFE/归一化；成绩按该臂完整结果读数'],
-        ['P1','依据4096 final与场景诊断决定数据策略','反馈panel特化与反馈外场景的实际曝光分层','覆盖回放不是提分结果；不将TRAIN投影当Test']]
+        ['已登记／阶段2','Adaptive自17,001起80/10/10覆盖策略','反馈panel特化与反馈外场景的实际曝光分层','区别旧35/40/25；覆盖回放不是提分结果']]
     body+=table(['优先级','下一步','用什么证据决定','执行边界'],actions)
     body+='<p>资源安排依据用户授权的证据决策调整；其余健康路线不按小分差自动剪枝。'+link(root/'RESEARCH_ALLOCATION_POLICY_20261030.json','当前研究资源决策')+'</p>'
     chapter('06','process','场景条件安全—效率：信息、表征与下一步','核心问题是根据足够的场景信息决定怎样安全且高效地驾驶，而不只是调整奖励系数。',body)
