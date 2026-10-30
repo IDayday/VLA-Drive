@@ -63,6 +63,8 @@ A只actorattention LoRA；B共享attention；C actor＋在线world attention＋w
 
 只读`runtime_watch.py --root <artifact-root> --once`已实际执行，后台每1800秒生成一次运行快照。仅在有100个joint更新的完整窗口后估计训练部分ETA；不把interface短窗口、累计更新或共享worker wall伪写为全流程精确耗时。当前资源撤销、恢复和旧TIME无损迁移见[资源变更](RESOURCE_CHANGE.md)。
 
+2026-10-30补充：四组现已全部进入正式IL，A/B/C/D分别位于rl-zt2、tsinghua-zt、tsinghua-zt4、tsinghua-zt5。zt5八GPU实际全空、RAM充足，原CPU-load代理门槛过于保守；同源码六步完整joint实测最后四步9.2—9.7秒、八rank skip0后，通过既有Campaign的driver接口仅做一次该主机准入。原调度CPU owner正常保存状态后接续，A/B/C训练子进程PID均未改变；未改科学源、缓存、LR、loss、精度或100k/50k预算，资格权重不用于初始化。证据及真实入口见[准入快照](TSINGHUA5_ADMISSION_20261030.json)和`admit_profiled_host.py`。vla-zt虽然GPU空闲，但主机可用RAM仅约26—51GiB，暂未向其派八rank完整模型，未清理未知进程。
+
 ## 真正存在的入口
 
 在该分支worktree且使用已锁定venv Python：
