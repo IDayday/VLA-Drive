@@ -5,6 +5,7 @@ baseline, while keeping an explicit uniform probability floor for unmeasured or
 already competent scenes. Each census is fixed before its optimizer stage.
 """
 from collections import Counter
+import bisect
 import json
 import math
 from pathlib import Path
@@ -67,16 +68,31 @@ def priority_weights(tokens, current_scores, baseline_scores, *, uniform_fractio
                         max_selection_probability=max(weights),importance_correction=False,
                         objective='explicit adaptive training distribution; not an unbiased full-NAVTRAIN gradient')
 
-def stage_census(tokens, weights, exposures, seed):
-    """Weighted sampling without replacement until the full pool is exhausted.
+def stage_census(tokens, weights, exposures, seed, *, world_size=8, adaptive=False):
+    """Allow useful repetition across batches, while keeping each batch distinct.
 
-    This limits concentration/repetition within an evaluation stage. For stages
-    larger than the pool, cycles are explicit and each cycle is independently
-    weighted; no sample is silently removed or replaced by a fabricated one.
+    Stage-wide sampling without replacement would cap a 512-scene diagnostic
+    panel at 12.5% of a 4096-exposure stage, defeating the intended prioritization.
+    Adaptive stages therefore resample across batches. Within each global batch
+    draws are conditioned on distinct scene identity to preserve scene diversity.
+    Initial uniform stages use complete shuffled pool cycles for broad coverage.
     """
     if exposures <= 0 or len(weights)!=len(tokens) or any(v<=0 for v in weights):
         raise ValueError('Invalid stage population, probabilities, or exposure budget')
+    if world_size <= 0 or exposures % world_size or len(tokens) < world_size:
+        raise ValueError('Distinct-scene batches require an aligned budget and sufficient scenes')
     rng=random.Random(seed);result=[]
+    if adaptive:
+        cumulative=[];total=0.
+        for value in weights:
+            total+=value;cumulative.append(total)
+        for _ in range(exposures//world_size):
+            selected=set()
+            while len(selected)<world_size:
+                index=min(bisect.bisect_right(cumulative,rng.random()*total),len(tokens)-1)
+                if index not in selected:
+                    selected.add(index);result.append(tokens[index])
+        return result
     while len(result)<exposures:
         ranked=sorted(range(len(tokens)),key=lambda i:-math.log(max(rng.random(),1e-300))/weights[i])
         result.extend(tokens[i] for i in ranked[:exposures-len(result)])
@@ -112,14 +128,15 @@ def prepare_stage(stream_manifest, stage_index, *, current_bank=None, baseline_b
                                  low_score_fraction=low_score_fraction,regression_fraction=regression_fraction)
     stream_sha=file_sha(path)
     seed=int(fingerprint(dict(seed=m['seed'],stage_index=stage_index,stream_sha256=stream_sha))[:16],16)
-    census=stage_census(tokens,weights,exposures,seed)
+    census=stage_census(tokens,weights,exposures,seed,world_size=world_size,adaptive=bool(current_bank))
     counts=Counter(census)
     stage=dict(schema=STAGE_SCHEMA,stream_manifest_sha256=stream_sha,stage_index=stage_index,
                start_cursor=stage_index*exposures,scene_exposures=exposures,
                ordered_tokens=census,mode='adaptive' if current_bank else 'uniform_initial',
                world_size=world_size,seed=seed,sources=sources,priority_diagnostics=diag,
                unique_scenes=len(counts),max_scene_repeats=max(counts.values()),
-               selection='weighted without replacement within each complete pool cycle; positive uniform probability floor',
+               selection=('weighted draws with replacement across batches; distinct scenes within each global batch; positive uniform probability floor'
+                          if current_bank else 'uniform shuffled complete-pool cycles'),
                population='TRAIN/NAVTRAIN diagnostics only; never NAVTEST failures',
                census_selected_before_optimizer_stage=True)
     out=Path(m['stage_registry'])/f'stage{stage_index:06}.json'

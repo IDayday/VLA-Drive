@@ -9,7 +9,9 @@ from PIL import Image
 
 from starVLA.rl.qwen_world_research_data import manifest as mm
 from starVLA.rl.qwen_world_research_data.data import ResearchSceneData, SceneStream
-from starVLA.rl.qwen_world_research_data.adaptive import priority_weights, prepare_stage
+from starVLA.rl.qwen_world_research_data.adaptive import priority_weights, prepare_stage, stage_census
+from starVLA.rl.qwen_world_research_data.panels import prepare_panels
+from starVLA.rl.qwen_world_research_data.journal_analysis import analyze_journals,paired_regressions
 
 @pytest.fixture
 def population(tmp_path,monkeypatch):
@@ -97,10 +99,21 @@ def test_adaptive_stage_is_immutable_and_resumes_exactly(population):
     current=write_bank(population,'current',{'t00':0.,'t01':.4,'t02':.9})
     baseline=write_bank(population,'baseline',{'t00':.2,'t01':.9,'t02':.9})
     stage=prepare_stage(path,1,current_bank=current,baseline_bank=baseline)
-    assert stage['start_cursor']==16 and stage['unique_scenes']==16
+    assert stage['start_cursor']==16 and stage['unique_scenes']>=8
+    assert all(len(set(stage['ordered_tokens'][i:i+8]))==8 for i in (0,8))
     restored=SceneStream(path,8)
     assert [stream.at(16,r) for r in range(8)]==[restored.at(16,r) for r in range(8)]
     with pytest.raises(FileExistsError):prepare_stage(path,1,current_bank=current,baseline_bank=baseline)
+
+def test_small_diagnostic_panel_can_be_repeated_across_batches():
+    tokens=[f't{i}' for i in range(1000)]
+    scores={t:0. for t in tokens[:16]};baseline={t:.9 for t in tokens[:16]}
+    weights,_=priority_weights(tokens,scores,baseline)
+    census=stage_census(tokens,weights,1024,42,adaptive=True)
+    # Focus can meaningfully exceed stage-wide no-replacement's 16/1024 cap.
+    assert sum(t in scores for t in census)>256
+    assert all(len(set(census[i:i+8]))==8 for i in range(0,1024,8))
+    assert census==stage_census(tokens,weights,1024,42,adaptive=True)
 
 def test_test_banks_and_mismatched_protocols_cannot_drive_selection(population):
     path=make_stream(population,mode='adaptive')
@@ -111,3 +124,46 @@ def test_test_banks_and_mismatched_protocols_cannot_drive_selection(population):
     with pytest.raises(ValueError,match='held-out'):prepare_stage(path,0,current_bank=bad,baseline_bank=baseline)
     bad=write_bank(population,'different_seed',{'t00':.2},inference=dict(sampler='ODE',steps=10,seed=999))
     with pytest.raises(ValueError,match='same sampler'):prepare_stage(path,0,current_bank=bad,baseline_bank=baseline)
+
+def test_panels_are_nested_score_independent_and_cover_physical_logs(population):
+    result=prepare_panels(population['data'],population['root']/'panels',sizes=(8,16))
+    small=mm.read_sealed(result[8]['path']);large=mm.read_sealed(result[16]['path'])
+    assert set(small['tokens'])<set(large['tokens'])
+    assert small['physical_logs']==6 and small['NAVTEST_token_overlap']==0
+    assert small['train_feedback_allowed'] is True
+    assert result==prepare_panels(population['data'],population['root']/'panels',sizes=(8,16))
+
+def test_coverage_counts_fresh_groups_once_and_excludes_partial_active_tail(population):
+    path=make_stream(population)
+    run=population['root']/'run';run.mkdir()
+    identity=mm.sealed(dict(world=2,purpose='formal',data_stream_identity=dict(manifest_sha256=mm.file_sha(path))))
+    mm.atomic_json(run/'identity.json',identity)
+    for rank in range(2):
+        with (run/f'metrics_rank{rank}.jsonl').open('w') as f:
+            for update in range(1,9):
+                group=(update-1)//4+1
+                token=f't{(group-1)*2+rank:02}'
+                row=dict(updates=update,inner_completed=(update-1)%4+1,collection=group,token=token,
+                         run=identity['sha256'],loss=.1,gradient_norm=.2,exploration=dict(
+                             canonical_random_mean=.7,safe_fraction=.5,all_zero=False,zero_PG=False,NC=1.,DAC=.5,TTC=1.))
+                f.write(json.dumps(row)+'\n')
+            if rank==1:f.write('{"updates":9')
+    result=analyze_journals(run,path,world_size=2)
+    assert result['common_optimizer_update']==8
+    assert result['fresh_global_collections']==2 and result['fresh_scene_groups']==4
+    assert result['new_candidates']==32 and result['unique_seen_scenes']==4
+    assert result['file_snapshots'][1]['partial_tail_excluded'] is True
+    assert result['paired_ODE_regressions']['status']=='NOT_MEASURED'
+    assert result['stochastic_means_are_not_paired_ODE_regressions'] is True
+
+def test_paired_ODE_regression_requires_identical_census_and_inference(population):
+    path=make_stream(population,'adaptive')
+    current=write_bank(population,'current',dict(t00=.5,t01=.9))
+    baseline=write_bank(population,'baseline',dict(t00=.9,t01=.5))
+    result=paired_regressions(path,current,baseline)
+    assert result['regressed_scenes']==1 and result['improved_scenes']==1
+    assert result['mean_delta_PDMS']==pytest.approx(0)
+    assert result['G_plus_PDMS']==pytest.approx(20)
+    assert result['G_minus_PDMS']==pytest.approx(-20)
+    wrong=write_bank(population,'wrong',dict(t00=.9,t01=.5),inference=dict(sampler='SDE',steps=10,seed=2101))
+    with pytest.raises(ValueError,match='identical scene census'):paired_regressions(path,current,wrong)
