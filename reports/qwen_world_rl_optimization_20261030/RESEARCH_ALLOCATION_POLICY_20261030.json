@@ -6,15 +6,17 @@
   "stops_require_separate_evidence_receipt": true,
   "decisions": [
     "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/NFT_FULL.json",
-    "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_HARD.json"
+    "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/CISPO_FULL.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_HARD.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_BATCHSTD.json"
   ],
   "continued_arms": [
     "PPO_FULL",
-    "PPO_BATCHSTD",
     "PPO_SAFE_COMFORT",
-    "CISPO_FULL",
     "PPO_ADAPTIVE",
-    "PPO_ANCHOR40"
+    "PPO_ANCHOR40",
+    "PPO_MEMORYLR20",
+    "PPO_SAFETY_EP"
   ],
   "next_priority": [
     "BATCHSTD mainline, matched FULL control, SAFE/CISPO20k gate",
@@ -23,8 +25,13 @@
     "adaptive80/10/10 conditional on feedback-unseen diagnosis"
   ],
   "user_instruction": "值得继续探索的方法就继续实验，没有潜力的方法就及时终止，留出资源给优先级更高的研究路线",
-  "updated_at": "2026-10-30T11:14:41.355174+00:00",
+  "updated_at": "2026-10-30T17:03:02.511510+00:00",
   "new_registered_arms": [
     "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_PPO_ANCHOR40_REGISTRATION.json"
-  ]
+  ],
+  "new_pilot_budgets": {
+    "PPO_MEMORYLR20": 10000,
+    "PPO_SAFETY_EP": 10000
+  },
+  "research_focus": "IL knowledge foundation in parallel; RL knowledge usage, representation adaptation and conditional safety/feasible efficiency"
 }

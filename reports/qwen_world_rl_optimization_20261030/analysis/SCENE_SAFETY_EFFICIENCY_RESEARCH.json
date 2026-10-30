@@ -1,0 +1,209 @@
+{
+  "schema": "world_rl_scene_conditioned_safety_efficiency_research_v1",
+  "status": "ACTIVE_CONTROLLED_RL_PILOTS_AND_IL_RL_INTERFACE_DIAGNOSIS",
+  "updated_at": "2026-10-30T17:12:19.914830+00:00",
+  "headline": "以场景可实现的安全驾驶效率为核心：安全约束、效率信用分配、场景信息三条线共同诊断。",
+  "user_steering": "核心是根据场景提取足够信息，平衡安全与驾驶效率；Comfort去干扰仅是局部对照。",
+  "safecomfort": {
+    "display_name": "通过三项指标候选的Comfort训练去干扰",
+    "source": "starVLA/rl/qwen_world_research_algorithms/safe_comfort.py",
+    "canonical_reward": "NC*DAC*(5EP+5TTC+2Comfort)/12",
+    "training_reward": "NC=DAC=TTC=1时(5EP+7)/12，否则原canonical分",
+    "purpose": "抑制随机SDE候选Comfort差异对已通过指标候选的EP排序干扰",
+    "limits": [
+      "三项离线指标通过不等于掌握场景风险与全部交通规则",
+      "未显式表示必要等待/无故停滞/可实现进度/观测不确定性",
+      "仍为标量组优势，未分开安全与效率梯度信用",
+      "Comfort仍影响正式PDMS，训练塑形有泛化与指标偏移风险"
+    ],
+    "existing_arm_unchanged": true
+  },
+  "observed_information": {
+    "actor_current_inputs": [
+      "左/前/右三路当前同步图像",
+      "自车vx,vy,ax,ay",
+      "四向导航指令及unknown"
+    ],
+    "representation": "冻结Qwen特征→可训练spatial/global/predictive memory→轨迹actor",
+    "not_currently_provided": [
+      "显式历史图像序列",
+      "邻车真实速度/未来轨迹",
+      "显式在线TTC/遮挡置信度/路权标签"
+    ],
+    "privileged_training_only": [
+      "官方NC/DAC/TTC/EP反馈",
+      "缓存中的几何/交通参与者/未来信息，仅可作训练标签或奖励"
+    ],
+    "constraint": "推理仅当前可见信息；未来真值不直接输入actor；预测记忆不等于已校准风险预测"
+  },
+  "scene_examples": [
+    {
+      "scene": "通畅、低交互风险",
+      "desired": "利用可行通行空间稳定推进，抑制无故停滞",
+      "evidence_needed": "可通行空间、导航意图、前方制约与风险裕度"
+    },
+    {
+      "scene": "跟车、拥堵或必须让行",
+      "desired": "保持安全间距，识别必要等待；可行效率目标随制约改变",
+      "evidence_needed": "前车运动、交通信号/路权与可用间隙"
+    },
+    {
+      "scene": "路口交互或遮挡",
+      "desired": "根据冲突对象、可见范围和不确定性选择减速/等待/通行",
+      "evidence_needed": "交互预测、遮挡与风险置信度"
+    },
+    {
+      "scene": "风险解除后",
+      "desired": "及时恢复推进，检查过度保守的滞后",
+      "evidence_needed": "时序变化与可通行机会"
+    }
+  ],
+  "objective": {
+    "concept": "maximize E[scene-feasible progress] subject to scene-stratified collision/offroad/TTC constraints",
+    "safety": "按场景分别检查风险/尾部，不让简单场景平均收益掩盖危险场景退化；风险高不放宽碰撞底线",
+    "efficiency": "比较同场景可行候选间的EP和必要等待；低速/EP低本身不是无效停车标签",
+    "candidate_first_ablation": "分解安全优势与只在通过NC/DAC/TTC候选内中心化的效率优势；按可行集合/风险调节两者；保持原有anchor/数据/部署固定",
+    "all_fail_rule": "8个采样候选全不通过仅说明采样库未找到可行方案；不能判场景无安全解，也不能把停驶作为通用正确答案",
+    "status": "CPU反事实与标签可用性审查；尚未声明已实现场景条件RL或已产生收益"
+  },
+  "priorities": [
+    {
+      "priority": "P0",
+      "work": "已有TRAIN候选的安全-EP冲突审计和最新20k同预算分解",
+      "decision": "区分高EP冒险获正优势、可行内效率浪费、必要等待和候选覆盖不足"
+    },
+    {
+      "priority": "P1",
+      "work": "保持相同rollout/模型输入的安全与效率分量优势受控实验",
+      "decision": "用新增风险和条件效率/Pareto共同评判，不仅总分"
+    },
+    {
+      "priority": "P1",
+      "work": "检查scene/predictive memory是否提取交互、通行机会与不确定性；设计小型可供通行能力/风险监督",
+      "decision": "只从当前观测预测，训练特权标签只作监督；部署保持单候选"
+    },
+    {
+      "priority": "P2",
+      "work": "有证据再补短历史/运动线索",
+      "decision": "先审数据资产/推理成本；不把当前单帧预测称充分动态观测"
+    }
+  ],
+  "preliminary_training_evidence": {
+    "scope": "PPO_FULL首1k现成TRAIN缓存；2000组、16000候选；非20k也非Navtest",
+    "unsafe_positive_advantage": 282,
+    "unsafe_positive_with_feasible_alternative": 254,
+    "unsafe_positive_EP_above_all_feasible": 90,
+    "groups_with_at_least2_feasible": 1923,
+    "groups_feasible_EP_span_ge_005": 1367,
+    "caution": "这些是信用分配与候选机会诊断，不直接证明改进损失会提高部署分数"
+  },
+  "evaluation": [
+    "canonical完整PDMS",
+    "NC/DAC/TTC与EP的同预算配对区间",
+    "场景分层的可行候选EP/通过率/必要等待与无故停滞",
+    "风险-效率Pareto和新增违例尾部；模型预测风险校准"
+  ],
+  "literature": [
+    {
+      "title": "Constrained Policy Optimization",
+      "url": "https://arxiv.org/abs/1705.10528",
+      "use": "奖励与约束分开建模；本项目尚未实现CPO，也不套用其理论保证"
+    },
+    {
+      "title": "Lyapunov-based Safe Policy Optimization for Continuous Control",
+      "url": "https://arxiv.org/abs/1901.10031",
+      "use": "状态相关安全约束的思路；不是当前flow代理比率的安全保证"
+    },
+    {
+      "title": "An Examination of Offline-Trained Encoders in Vision-Based Deep Reinforcement Learning for Autonomous Driving",
+      "url": "https://arxiv.org/abs/2409.10554",
+      "use": "视觉部分可观测与表征学习问题，需要本任务诊断验证"
+    }
+  ],
+  "scientific_boundaries": {
+    "new_GPU_arm_launched": true,
+    "no_live_scientific_snapshot_edits": true,
+    "NAVTEST_used_as_training_scene_list": false,
+    "existing_training_continues": true
+  },
+  "IL_RL_parallel_contract": {
+    "IL": "从离线数据提取驾驶知识并经主任务/辅助任务注入模型；IL框架由用户独立并行改进。",
+    "RL": "固定明确IL起点，基于已有知识强化轨迹与场景条件安全-效率取舍；可适配memory，知识缺口反馈IL。",
+    "new_IL_handoff": "新IL候选完整评测后以同一RL配方另起受控对照；不热换现有run父模型或混淆起点收益与算法收益。",
+    "do_not_rebuild_IL_inside_RL": true
+  },
+  "representation_audit": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/REPRESENTATION_TRAINABILITY_AUDIT_20261030.json",
+  "representation_native_evidence": {
+    "scene_params": 37985280,
+    "predictive_params": 9479680,
+    "action_LoRA_params": 5242880,
+    "memory_nonzero_Adam_second_moment_tensors": 138,
+    "optimizer_step": 20000,
+    "limits": "非零优化状态证明表征在优化，不证明已经编码规划所需信息，也不区分PG和anchor的梯度来源。"
+  },
+  "new_pilots_preparing": [],
+  "pilots": [
+    {
+      "arm": "PPO_MEMORYLR20",
+      "status": "TRAINING",
+      "host": "training-vlawm-tsinghua-zt2",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_MEMORYLR20/formal_to001000_attempt001",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+      "initial_budget_updates": 10000,
+      "native_scheduler_updates": 50000,
+      "startup_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/STARTUP_PPO_MEMORYLR20_20261030.json",
+      "actual_all8_finite_updates": true,
+      "new_IL_or_Qwen_features": false
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "status": "TRAINING",
+      "host": "training-vlawm-zt",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to001000_attempt002",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+      "initial_budget_updates": 10000,
+      "native_scheduler_updates": 50000,
+      "startup_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/STARTUP_PPO_SAFETY_EP_20261030.json",
+      "actual_all8_finite_updates": true,
+      "new_IL_or_Qwen_features": false
+    }
+  ],
+  "adaptive_coverage_phase2": {
+    "schema": "world_rl_adaptive_stage_policy_amendment_v1",
+    "registered_at": "2026-10-30T17:03:02.511510+00:00",
+    "arm": "PPO_ADAPTIVE",
+    "effective_stage_index": 17,
+    "effective_from_optimizer_update": 17001,
+    "uniform_fraction": 0.8,
+    "low_score_fraction": 0.1,
+    "regression_fraction": 0.1,
+    "previous_mixture": {
+      "uniform_fraction": 0.35,
+      "low_score_fraction": 0.4,
+      "regression_fraction": 0.25
+    },
+    "previous_sealed_stages_untouched": true,
+    "reason": "Feedback1024 gain is concentrated; extra3072/fresh2820 no clear advantage. Broaden coverage while retaining low-score/regression targeting.",
+    "evidence": [
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_DIAGNOSIS.json",
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ADAPTIVE_80_10_10_FROZEN_BANK_REPLAY_20261030.json"
+    ],
+    "new4096_tokens_added_to_feedback": false,
+    "NAVTEST_tokens_used_for_scene_selection": false,
+    "IL_parent_and_optimizer_unchanged": true,
+    "new_training_seed": false,
+    "interpretation": "Explicit phase2 adaptive data policy; do not attribute later results to original35/40/25 recipe"
+  },
+  "stopped_late_continuations": [
+    {
+      "arm": "PPO_BATCHSTD",
+      "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_BATCHSTD.json",
+      "native_stop_receipt": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_BATCHSTD.STOPPED.json"
+    },
+    {
+      "arm": "CISPO_FULL",
+      "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/CISPO_FULL.json",
+      "native_stop_receipt": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/CISPO_FULL.STOPPED.json"
+    }
+  ]
+}

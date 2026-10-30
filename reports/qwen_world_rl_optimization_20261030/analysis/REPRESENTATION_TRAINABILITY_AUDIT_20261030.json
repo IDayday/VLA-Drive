@@ -1,0 +1,54 @@
+{
+  "schema": "world_rl_representation_trainability_native_CPU_audit_v1",
+  "status": "COMPLETE",
+  "utc": "2026-10-30T16:40:22.797919+00:00",
+  "arm": "PPO_FULL",
+  "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update020000_inner0",
+  "checkpoint_seal_sha256": "089b8990280c07868bb932810eaff5049fe4663a018441ea7b58a987c13e60d3",
+  "modules": {
+    "action_expert": {
+      "numel": 5242880,
+      "tensors": 320
+    },
+    "scene_provider": {
+      "numel": 37985280,
+      "tensors": 74
+    },
+    "predictive_provider": {
+      "numel": 9479680,
+      "tensors": 64
+    }
+  },
+  "optimizer_groups": [
+    {
+      "name": "action_lora",
+      "lr": 5e-05,
+      "state_tensors": 320,
+      "step_min": 20000,
+      "step_max": 20000,
+      "nonzero_second_moment_tensors": 320,
+      "second_moment_sum": 0.00039561714311804554
+    },
+    {
+      "name": "scene_predictive_memory",
+      "lr": 5e-06,
+      "state_tensors": 138,
+      "step_min": 20000,
+      "step_max": 20000,
+      "nonzero_second_moment_tensors": 138,
+      "second_moment_sum": 0.0002288260629731424
+    }
+  ],
+  "flags": {
+    "qwen_frozen": true,
+    "current_scene_predictive_memory_trainable": true,
+    "reference_IL_memory_frozen": true,
+    "train_only_readout_losses_in_current_RL": false,
+    "current_memory_rebuilt_each_inner": true
+  },
+  "interpretation": "Native stored tensors and nonzero Adam second moments demonstrate actual updates reach memory optimizer state; they do not establish semantic sufficiency, calibrated risk, or PG-only gradient attribution.",
+  "CPU_only": true,
+  "new_model_forward": 0,
+  "new_GPU_work": 0,
+  "checkpoint_mutated": false
+}

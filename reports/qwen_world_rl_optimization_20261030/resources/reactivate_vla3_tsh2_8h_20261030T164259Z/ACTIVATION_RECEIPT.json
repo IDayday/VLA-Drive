@@ -1,0 +1,419 @@
+{
+  "at": "2026-10-30T16:50:54.099036+00:00",
+  "authorization_commit": "/mnt/project/qwen-world-rl-optimization-20261030/resources/reactivate_vla3_tsh2_8h_20261030T164259Z/AUTHORIZATION_COMMIT.json",
+  "checkpoint_guard_seconds": 1200,
+  "checkpoint_guard_utc": "2026-10-31T00:22:59+00:00",
+  "effective_allowed_hosts": [
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt",
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt5",
+    "training-vlawm-tsinghua-zt4",
+    "training-rl-zt2",
+    "training-vlawm-zt",
+    "training-vlawm-zt2",
+    "training-vla-zt3",
+    "training-vlawm-tsinghua-zt2"
+  ],
+  "expires_utc": "2026-10-31T00:42:59+00:00",
+  "grant": "/mnt/project/qwen-world-rl-optimization-20261030/resources/reactivate_vla3_tsh2_8h_20261030T164259Z/RESOURCE_AUTHORIZATION.json",
+  "grant_file_sha256": "cdd69f206c14b285d95400d441c7154a05f59e05e82a99672f2852883f8def44",
+  "hosts": {
+    "training-vla-zt3": {
+      "at_unix": 1793379051.95235,
+      "error": "CalledProcessError(255, ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=8', 'training-vla-zt3', '/usr/bin/python3 -c \\'import json,os,time,subprocess,hashlib\\nfrom pathlib import Path\\ng=subprocess.check_output([\\'\"\\'\"\\'nvidia-smi\\'\"\\'\"\\',\\'\"\\'\"\\'--query-gpu=index,name,uuid,memory.total,memory.free,utilization.gpu\\'\"\\'\"\\',\\'\"\\'\"\\'--format=csv,noheader,nounits\\'\"\\'\"\\'],text=True)\\ngpus=[dict(index=int(i),name=n.strip(),uuid=u.strip(),total_MiB=int(t),free_MiB=int(f),utilization=int(v)) for i,n,u,t,f,v in (r.split(\\'\"\\'\"\\',\\'\"\\'\"\\') for r in g.splitlines())]\\no=subprocess.check_output([\\'\"\\'\"\\'nvidia-smi\\'\"\\'\"\\',\\'\"\\'\"\\'--query-compute-apps=pid,gpu_uuid,used_memory\\'\"\\'\"\\',\\'\"\\'\"\\'--format=csv,noheader,nounits\\'\"\\'\"\\'],text=True)\\nowners=[]\\nfor line in o.splitlines():\\n p,u,m=line.split(\\'\"\\'\"\\',\\'\"\\'\"\\');pid=int(p);path=Path(\\'\"\\'\"\\'/proc\\'\"\\'\"\\')/str(pid);row=dict(pid=pid,uuid=u.strip(),used_MiB=int(m)if m.strip().isdigit()else None,visible=False)\\n try:\\n  args=[a for a in (path/\\'\"\\'\"\\'cmdline\\'\"\\'\"\\').read_bytes().decode().split(\\'\"\\'\"\\'\\\\0\\'\"\\'\"\\') if a];row.update(visible=True,start_ticks=int((path/\\'\"\\'\"\\'stat\\'\"\\'\"\\').read_text().split()[21]),entry=args[args.index(\\'\"\\'\"\\'-m\\'\"\\'\"\\')+1] if \\'\"\\'\"\\'-m\\'\"\\'\"\\' in args else Path(args[0]).name,output=args[args.index(\\'\"\\'\"\\'--output\\'\"\\'\"\\')+1] if \\'\"\\'\"\\'--output\\'\"\\'\"\\' in args else None)\\n except (OSError,ValueError,IndexError):pass\\n owners.append(row)\\ngrant=Path(\\'\"\\'\"\\'/mnt/project/qwen-world-postcot-20261025/RESOURCE_AUTHORIZATION.json\\'\"\\'\"\\');s=os.statvfs(grant.parent)\\nprint(json.dumps(dict(at=time.time(),gpus=gpus,owners=owners,CPU_affinity=len(os.sched_getaffinity(0)),load1=os.getloadavg()[0],MemAvailable_bytes=next(int(l.split()[1])*1024 for l in Path(\\'\"\\'\"\\'/proc/meminfo\\'\"\\'\"\\').read_text().splitlines() if l.startswith(\\'\"\\'\"\\'MemAvailable:\\'\"\\'\"\\')),project_free_bytes=s.f_bavail*s.f_frsize,grant_sha256=hashlib.sha256(grant.read_bytes()).hexdigest(),worker_python_exists=Path(\\'\"\\'\"\\'/mnt/project/flow-safe-improvement-20261013/venv/bin/python\\'\"\\'\"\\').is_file())))\\n\\''])",
+      "exclusive_idle_gpu_indices": [],
+      "headroom32GiB_accounted_gpu_indices": [],
+      "new_job_deployments": 0,
+      "physical_GPU_count": null,
+      "seconds": 0.07875394821166992,
+      "status": "AUTHORIZED_RECORDED_CONNECTION_OR_INVENTORY_FAILED_NOT_DEPLOYED"
+    },
+    "training-vlawm-tsinghua-zt2": {
+      "at_unix": 1793379054.098833,
+      "exclusive_idle_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "headroom32GiB_accounted_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "inventory": {
+        "CPU_affinity": 128,
+        "MemAvailable_bytes": 996011999232,
+        "at": 1793379054.0146055,
+        "gpus": [
+          {
+            "free_MiB": 81153,
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00"
+          },
+          {
+            "free_MiB": 81153,
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897"
+          },
+          {
+            "free_MiB": 81153,
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6"
+          },
+          {
+            "free_MiB": 81153,
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0"
+          },
+          {
+            "free_MiB": 81153,
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915"
+          },
+          {
+            "free_MiB": 81153,
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-88994300-43aa-ec6a-973e-a92276b2a045"
+          },
+          {
+            "free_MiB": 81153,
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3"
+          },
+          {
+            "free_MiB": 81153,
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB",
+            "total_MiB": 81920,
+            "utilization": 0,
+            "uuid": "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+          }
+        ],
+        "grant_sha256": "f676192ab512904e859a9cca2c880dd3b4b5e5a6cbc5b63b80b15a34fb3e6c71",
+        "load1": 12.48681640625,
+        "owners": [],
+        "project_free_bytes": 11212119433216,
+        "worker_python_exists": true
+      },
+      "new_job_deployments": 0,
+      "per_gpu": [
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 0,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+          "visible_owner_count": 0
+        },
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 1,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+          "visible_owner_count": 0
+        },
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 2,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6",
+          "visible_owner_count": 0
+        },
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 3,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0",
+          "visible_owner_count": 0
+        },
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 4,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915",
+          "visible_owner_count": 0
+        },
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 5,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-88994300-43aa-ec6a-973e-a92276b2a045",
+          "visible_owner_count": 0
+        },
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 6,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3",
+          "visible_owner_count": 0
+        },
+        {
+          "accounting_issue": null,
+          "all_reported_owners_visible": true,
+          "exclusive_idle_observed": true,
+          "free_MiB": 81153,
+          "headroom32GiB_accounted": true,
+          "index": 7,
+          "name": "NVIDIA A800-SXM4-80GB",
+          "total_MiB": 81920,
+          "utilization": 0,
+          "uuid": "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3",
+          "visible_owner_count": 0
+        }
+      ],
+      "physical_GPU_count": 8,
+      "read_only_admission_slot_snapshot": {
+        "at_unix": 1793379195.4603987,
+        "locks_retained": false,
+        "process_signals": 0,
+        "slots": {
+          "evaluation": [
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-88994300-43aa-ec6a-973e-a92276b2a045"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+            }
+          ],
+          "primary": [
+            {
+              "state": "FREE",
+              "uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00"
+            },
+            {
+              "state": "FREE",
+              "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897"
+            },
+            {
+              "state": "FREE",
+              "uuid": "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6"
+            },
+            {
+              "state": "FREE",
+              "uuid": "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0"
+            },
+            {
+              "state": "FREE",
+              "uuid": "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915"
+            },
+            {
+              "state": "FREE",
+              "uuid": "GPU-88994300-43aa-ec6a-973e-a92276b2a045"
+            },
+            {
+              "state": "FREE",
+              "uuid": "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3"
+            },
+            {
+              "state": "FREE",
+              "uuid": "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+            }
+          ],
+          "research": [
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-88994300-43aa-ec6a-973e-a92276b2a045"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+            }
+          ],
+          "secondary": [
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-88994300-43aa-ec6a-973e-a92276b2a045"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3"
+            },
+            {
+              "state": "FREE_NO_FILE",
+              "uuid": "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+            }
+          ]
+        }
+      },
+      "seconds": 2.225069284439087,
+      "status": "INVENTORY_COMPLETE_AUTHORIZED_NOT_DEPLOYED"
+    }
+  },
+  "legacy_vla3_run_liveness": {
+    "old_job_receipts_untouched": true,
+    "reason": "Read-only SSH inventory authentication denied despite new authorization; no previous isolation/recovery roots or STOP flags altered.",
+    "status": "UNKNOWN"
+  },
+  "lifecycle_validation": {
+    "at_expiry_new_hosts": [],
+    "at_guard_long_job_new_hosts": [],
+    "current_effective_hosts": [
+      "training-vla-zt",
+      "training-vlawm-tsinghua-zt",
+      "training-vlawm-tsinghua-zt3",
+      "training-vlawm-tsinghua-zt5",
+      "training-vlawm-tsinghua-zt4",
+      "training-rl-zt2",
+      "training-vlawm-zt",
+      "training-vlawm-zt2",
+      "training-vla-zt3",
+      "training-vlawm-tsinghua-zt2"
+    ]
+  },
+  "metadata_updated_utc": "2026-10-30T16:53:15.468413+00:00",
+  "new_training_or_evaluation_deployments": 0,
+  "previous_isolated_runroots_unchanged": true,
+  "readiness_caveat": "Headroom/accounting snapshot is not a model admission or deployment. Exact UUID/owner/headroom and lease locks must be revalidated by the existing worker at dispatch.",
+  "request": "/mnt/project/qwen-world-rl-optimization-20261030/resources/reactivate_vla3_tsh2_8h_20261030T164259Z/REQUEST.json",
+  "schema": "world_RL_exact_host_8h_activation_inventory_v1",
+  "scientific_runtime_modified": false,
+  "starts_utc": "2026-10-30T16:42:59+00:00",
+  "temporary_hosts": [
+    "training-vla-zt3",
+    "training-vlawm-tsinghua-zt2"
+  ],
+  "unknown_or_pressure_process_signals": 0
+}

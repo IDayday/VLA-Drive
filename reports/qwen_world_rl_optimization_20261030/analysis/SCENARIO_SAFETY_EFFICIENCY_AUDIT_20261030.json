@@ -1,0 +1,328 @@
+{
+  "GPU_process_actions": 0,
+  "RL_trainable_scope_and_losses": {
+    "IL_auxiliary_losses_retained_in_RL": false,
+    "IL_only_losses_not_called": [
+      "DINO readout",
+      "current-object readout",
+      "future readout",
+      "post-action head",
+      "IL clean-x supervised loss"
+    ],
+    "Qwen_frozen": true,
+    "active_GRPO_loss": "PPO/CISPO policy gradient plus beta-weighted frozen IL mean/x anchor; configured BC=False. Beta40 changes anchor strength only.",
+    "all_scene_features_frozen": false,
+    "can_learn": [
+      "reweight/fuse frozen-Qwen visual/text features for action-relevant scene distinctions",
+      "adapt current scene/object-like latent memory and ego conditioning",
+      "adapt predictive latent priors and action-memory attention using downstream RL credit",
+      "change motion generation via attention LoRA while full action base stays frozen"
+    ],
+    "identity_sha256": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+    "limitations": [
+      "Only one synchronized time instant: other-agent motion is ambiguous without temporal history or explicit velocity sensing.",
+      "Hidden agents, occluded signal state and future light changes cannot become observed facts merely by training predictive memory.",
+      "Frozen Qwen may omit small signal/visibility cues; trainable memory cannot guarantee recovery of information absent from its inputs.",
+      "Removing IL auxiliary losses can allow latent semantic drift; action mean anchoring does not directly preserve object/future/post-task accuracy. This is a hypothesis for diagnosis, not an established cause."
+    ],
+    "optimizer_groups": [
+      {
+        "lr": 5e-05,
+        "name": "action_lora",
+        "numel": 5242880,
+        "tensors": 320
+      },
+      {
+        "lr": 5e-06,
+        "name": "scene_predictive_memory",
+        "numel": 47464960,
+        "tensors": 138
+      }
+    ],
+    "prefix_tensor_counts": {
+      "action_expert.": 320,
+      "predictive_provider.": 64,
+      "scene_provider.": 74
+    },
+    "reference": "Frozen copied IL70 scene/predictive providers and reference action path remain anchors; current providers rebuild differentiably from frozen Qwen features.",
+    "scene_predictive_separate_numel": "not recorded separately in existing identity; combined47,464,960 only. No model/tensor load performed to invent a split.",
+    "source_loss_evidence": "RL actor forward calls _loss._policy_loss; registered total=pg+bc_coeff*bc_loss+beta*kl_loss; IL full-model auxiliary training_forward is not called.",
+    "trainable_parameter_total": 52707840
+  },
+  "actor_current_inputs": {
+    "current_camera_images": [
+      "cam_l0",
+      "cam_f0",
+      "cam_r0"
+    ],
+    "navigation": [
+      "turn left",
+      "go straight",
+      "turn right",
+      "unknown"
+    ],
+    "not_current_actor_inputs": [
+      "structured traffic-light state",
+      "map polygons/route lane ids/route polyline",
+      "object boxes/other-agent velocities",
+      "TTC/headway/official safety score",
+      "future GT poses/tracks/occupancy/post labels"
+    ],
+    "observation_record_metadata_not_exposed_by_observation": [
+      "token",
+      "log",
+      "timestamp",
+      "raw_future_dt_seconds",
+      "timestamp_gap",
+      "requested_GT"
+    ],
+    "proprio_components": [
+      "vx",
+      "vy",
+      "ax",
+      "ay",
+      "driving_command[4]"
+    ],
+    "proprio_dimension": 8,
+    "source": "ResearchSceneData.observation returns only images,proprio,navigation; requested_GT is target-only."
+  },
+  "at": "2026-10-30T16:44:45.273147+00:00",
+  "available_fields_and_limits": [
+    {
+      "actor_visible": true,
+      "availability": "available_now",
+      "name": "current_ego_speed_acceleration_navigation",
+      "origin": "current proprio/command",
+      "use": "speed/acceleration/navigation strata; do not call this object-relative TTC"
+    },
+    {
+      "actor_visible": "image only; no structured label",
+      "availability": "available_in_raw_current_TRAIN_frame; absent from compact actor record",
+      "name": "current_signal_status",
+      "origin": "raw traffic_lights[(lane_connector_id,is_red)] with is_red=True\u2192RED",
+      "unknown_rule": "missing relevant light entry is UNKNOWN, not green",
+      "use": "join connector id to on-route lane ids and current map geometry; nearby red on another road is not relevant red"
+    },
+    {
+      "actor_visible": "visual cues only",
+      "availability": "available_as_privileged_static_geometry",
+      "name": "current_intersection_or_approach",
+      "origin": "MetricCache.drivable_area_map map types INTERSECTION/LANE_CONNECTOR, ego_state and centerline/route_lane_ids",
+      "use": "in-intersection boolean and ahead distance to route-related intersection; navigation turn alone is not intersection ground truth"
+    },
+    {
+      "actor_visible": "visible image content; no structured boxes or lead velocity input",
+      "availability": "derivable_privileged_current_label",
+      "name": "current_lead_vehicle_or_queue",
+      "origin": "raw current anns gt_boxes/gt_names/gt_velocity_3d or cache observation[0] geometry filtered to t0 tokens",
+      "unknown_rule": "do not use all cache.unique_objects: it includes objects first appearing in future GT",
+      "use": "official coordinate conversion, on-route corridor+heading gate, nearest positive longitudinal gap; retain lead gap/headway/current closing-speed proxy separately"
+    },
+    {
+      "actor_visible": "current three images only",
+      "availability": "no direct verified visibility/occlusion truth label in compact record or canonical feedback",
+      "name": "occlusion_visibility",
+      "not_allowed": "occ_gt_final_path/flow_gt_final_path and future object appearance are not current-visible occlusion labels",
+      "origin": "candidate proxies: current camera calibration/3D box projection, overlap, missing camera flags, manual current-image audit",
+      "use": "explicitly versioned visibility proxy with UNKNOWN category; labels require validation"
+    },
+    {
+      "actor_visible": false,
+      "availability": "not a current actor input; several privileged diagnostic proxies exist",
+      "name": "feasible_progress_opportunity",
+      "origin": "cache fixed PDM reference trajectory/centerline; existing safe rollout candidates records with raw_progress_meters; existing IL/FULL/ADAPT ODE rows",
+      "use": "best observed safe candidate progress is a lower bound on observed opportunity, not a proven optimum. PDM reference is not human routeGT or a certified safe maximum. No extra GPU inference is needed to reuse already-scored candidates."
+    },
+    {
+      "actor_visible": "partially observable via current images/ego/nav",
+      "availability": "composite diagnostic stratum, not an existing oracle field",
+      "name": "low_risk_free_flow",
+      "origin": "current relevant signal, static route/intersection geometry, current lead/crossing geometry, visibility uncertainty",
+      "use": "require explicitly available negative-risk evidence; do not equate absent labels with safety. Future-GT hazard outcomes are a separate validation column."
+    },
+    {
+      "actor_visible": false,
+      "availability": "available_after_candidate_simulation",
+      "name": "official_TTC_outcome",
+      "origin": "time_to_collision_within_bound and official_first_ttc_infraction_seconds",
+      "use": "future trajectory safety outcome, not measured current TTC or actor perception input"
+    },
+    {
+      "actor_visible": false,
+      "availability": "present_in_canonical_v1_metric_cache",
+      "name": "future_GT_tracks",
+      "origin": "MetricCacheProcessor._interpolate_gt_observation samples scenario objects at0..5s then10Hz interpolation",
+      "use": "privileged scorer/outcome analysis only; current-condition labels must restrict to t0 or current raw frame"
+    },
+    {
+      "actor_visible": false,
+      "availability": "requested_GT[8,3] is stored as IL future-trajectory target; cache has reference centerline/route_lane_ids",
+      "name": "future_ego_route_GT",
+      "origin": "raw future poses vs privileged PDM reference route assets",
+      "use": "never rename requested_GT or reference centerline as actor route input; actor gets only coarse command/navigation text"
+    }
+  ],
+  "data_selection_design": {
+    "current_stage_policy": "no sealed stage or current adaptive recipe changed",
+    "future_sampling_design": [
+      "Preserve a broad uniform exploration floor; select context-specific safety failures and low-risk inefficiency separately instead of globally increasing/decreasing speed.",
+      "Do not label required red/queue stops as low-score hard negatives; do not prioritize only absolute low score.",
+      "Use only current-policy TRAIN feedback with matching sampler identity; FULL diagnostics cannot silently become ADAPT current-policy bank.",
+      "Use within-context coverage, bounded scene repetition, stage-specific versioned manifests and an uncertainty bucket; choose quotas after observed stratum counts rather than declare arbitrary optimal percentages.",
+      "Previous80/10/10 replay describes a low-score/regression mixture. Replacing those components with contextual safety/efficiency is a different registered recipe and needs its own evidence."
+    ],
+    "legal_population": "TRAIN/NAVTRAIN103288 including oldDEV training diagnostics; NAVTEST tokens/failure lists excluded",
+    "next_CPU_diagnosis": [
+      "Build current-condition labels by reading each TRAIN raw log once; use static cached geometry only when needed. Start with existing4096 paired rows.",
+      "Compare IL70/FULL10k/ADAPT10k within each context: NC/DAC/TTC incidents, EP, raw progress, safe-opportunity gaps; cluster by162physical logs and label small strata clearly.",
+      "Split original feedback1024, extra3072, and actual training exposure; do not call all extras unseen or heldout.",
+      "Keep current-condition features, future-outcome labels and policy-generated witness fields in separate columns with provenance/time index."
+    ],
+    "possible_representation_experiment": "If current visible cues exist but latent scene distinctions drift, a separately registered small current-object auxiliary retention term is a hypothesis. It is not active today and should not be conflated with changing data, reward and Qwen unfreezing simultaneously."
+  },
+  "diagnostic_strata": [
+    {
+      "current_definition": "explicit current red matched to relevant route connector and ahead geometry; or stationary close lead/queue",
+      "efficiency_interpretation": "low raw meters can be justified; do not reward speed globally",
+      "missing": "UNKNOWN if relevance/visibility is unresolved",
+      "name": "relevant_red_or_required_stop",
+      "sources": [
+        "raw current traffic_lights",
+        "privileged route/static geometry",
+        "current lead boxes"
+      ]
+    },
+    {
+      "current_definition": "ego in INTERSECTION polygon or approaching an on-route connector; split straight/turn by command",
+      "efficiency_interpretation": "compare safety incidents and progress jointly; identify cautious-but-necessary vs unnecessary delay",
+      "name": "intersection_crossing_or_merge",
+      "sources": [
+        "privileged drivable map",
+        "current ego pose",
+        "coarse current command"
+      ]
+    },
+    {
+      "current_definition": "nearest current on-route ahead vehicle with aligned heading; split by gap, ego speed, and closing-speed proxy",
+      "efficiency_interpretation": "judge delay against available gap/lead motion, not absolute speed",
+      "name": "lead_vehicle_following",
+      "sources": [
+        "current raw annotations via official transforms"
+      ]
+    },
+    {
+      "current_definition": "validated current-image visibility proxy or manually audited labels; keep UNKNOWN distinct",
+      "efficiency_interpretation": "future hidden-agent collision is a privileged outcome; do not claim actor observed hidden agents",
+      "name": "visibility_limited_or_unknown",
+      "sources": [
+        "current3 cameras",
+        "current calibration/boxes if validated"
+      ]
+    },
+    {
+      "current_definition": "known unblocked route corridor, no relevant current stop requirement, sufficient visibility, and observed safe progress opportunity",
+      "efficiency_interpretation": "safe-but-slow can be actionable here; require both low progress and a valid opportunity witness",
+      "name": "low_risk_clear_progress_opportunity",
+      "sources": [
+        "current-condition labels",
+        "separate privileged candidate opportunity witness"
+      ]
+    },
+    {
+      "current_definition": "missing camera, timestamp gap, inconsistent annotation/map linkage, unverified coordinate conversion",
+      "efficiency_interpretation": "do not turn uncertainty or infrastructure failure into reward0 or efficiency failure",
+      "name": "scene_or_label_uncertain",
+      "sources": [
+        "compact record metadata",
+        "raw/cached provenance"
+      ]
+    }
+  ],
+  "existing_evidence": {
+    "CPU_sample_checked": true,
+    "TRAIN4096_final": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_DIAGNOSIS.json",
+    "actor_scope_identity": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/identity.json",
+    "canonical_cache_schema_exact": [
+      "file_path",
+      "trajectory",
+      "ego_state",
+      "observation",
+      "centerline",
+      "route_lane_ids",
+      "drivable_area_map"
+    ],
+    "sample_caveat": "Raw red signals may concern other roads; relevant red requires on-route matching. One cache sample is interface evidence, not prevalence statistics."
+  },
+  "failure_taxonomy": [
+    {
+      "code": "S_UNSAFE_PROGRESS",
+      "interpretation": "fast/high-progress trajectory is not a success if unsafe",
+      "selection": "TRAIN scene-specific safety regression with current-context bucket; future outcome may diagnose but never become actor input",
+      "test": "NC<1 or DAC<1 or TTC<1; retain exact times and component"
+    },
+    {
+      "code": "E_LOW_RISK_UNDER_PROGRESS",
+      "interpretation": "candidate unnecessary delay; do not identify from low raw speed alone",
+      "selection": "TRAIN efficiency bucket; require witness provenance and versioned threshold",
+      "test": "NC=DAC=TTC=1 and current low-risk clear stratum, plus low progress against a valid same-scene safe opportunity witness"
+    },
+    {
+      "code": "J_JUSTIFIED_CAUTION",
+      "interpretation": "appropriate caution, not a negative efficiency sample by default",
+      "selection": "retain in coverage and calibration; avoid blindly oversampling to force faster motion",
+      "test": "safe low progress with relevant red/queue/limited visibility or no demonstrated feasible forward opportunity"
+    },
+    {
+      "code": "U_UNOBSERVABLE_FUTURE_HAZARD",
+      "interpretation": "partial observability/uncertainty case; do not pretend a current TTC sensor existed",
+      "selection": "separate uncertainty stratum; train expected-risk behavior or propose a separately registered sensing/history change",
+      "test": "future privileged tracks explain collision/TTC while initial actor-visible evidence is absent/uncertain"
+    },
+    {
+      "code": "C_CONTEXT_COLLAPSE",
+      "interpretation": "failure to condition safety-efficiency behavior on scene context; inspect trainable-memory semantics",
+      "selection": "balanced within-context comparisons to IL/FULL/control, with actor visibility annotated",
+      "test": "same policy becomes slow across clear/green and constrained/red strata or aggressive across both"
+    },
+    {
+      "code": "P_PROTOCOL_OR_DATA_FAILURE",
+      "interpretation": "operational/data issue, never model failure score0",
+      "selection": "fix or quarantine with explicit count; no fabricated reward",
+      "test": "cache missing, scorer error, incomplete population, bad metadata/coordinate frame"
+    }
+  ],
+  "frozen_runtime_or_sealed_adaptive_modified": false,
+  "new_scores_or_training_samples_generated": false,
+  "reward_readout_semantics": {
+    "TTC_semantics": "candidate future simulated infraction metric/time, not actor current risk estimate",
+    "canonical_EP_is_pair_normalized": true,
+    "canonical_components": [
+      "NC",
+      "DAC",
+      "EP",
+      "TTC",
+      "comfort"
+    ],
+    "existing_margin_status": "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+    "explicit_red_light_compliance_metric_available": false,
+    "normalization": "Official reference+one candidate; safety-masked progress. If maximum masked raw progress<=5m, safe candidates receive EP1. Low meters alone therefore need not mean inefficiency.",
+    "primary_new_focus": "scene-conditioned safety versus progress/efficiency; comfort remains an ancillary recorded metric",
+    "raw_progress_meters_available": true,
+    "red_cache_caveat": "Although PDMObservation class supports red-light polygons, this canonical cache builder uses update_detections_tracks(GT tracks), which does not add signal polygons. Do not infer green from absent red_light tokens. Reference planner uses current traffic lights; canonical feedback has no separate red-light violation field.",
+    "risk_margin_or_probability_available": false,
+    "training_rewards": "R_CANONICAL_X1 collection selects canonical_PDMS; train_reward_source is a separately recorded readout, not proof that active training uses its10/5/2 weights."
+  },
+  "schema": "world_rl_scene_conditioned_safety_efficiency_information_audit_v1",
+  "sources_sha256": {
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/navsim_v1.1/navsim/navsim/planning/metric_caching/metric_cache_processor.py": "164c6be26ce4b1286d1260886f2124afddc5aae8476692fb43b0120b78ff4895",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/navsim_v1.1/navsim/navsim/planning/scenario_builder/navsim_scenario.py": "d29c803697dddc9af059f9b742f1310a53ec520ebb2a8916c4d40829e1d574fe",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/scripts/analysis/constrained_flow_noise/batched_canonical_score.py": "5b368a4b23e8de6891e7f44c8f4a19b26484783224aa95bdcb7e52fe94868dca",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/scripts/analysis/qwen_sourceflow/prepare_data.py": "92c0b5acc18b31721a8def44f48a9de992db1da9e67215552c216fd0f20a8f22",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/model/modules/qwen_world_postcot/model.py": "bfdc21f7d38b375e0c1f187ebbe0f50b03063078cefbc6e19fd8683aaaa51bd7",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_postcot/scope_actor.py": "1ff1a473e545c3792c04e25d21beac37282994ead2899be2bad301ff2bcf5fa2",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_postcot/scope_conditions.py": "7d889ea6274820a77b0b441262ff4034f9cd67f03e8f531d5006f39c02626eee",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/policy.py": "340e3855423d1a5c53e3f92f6fa374db66db5e2e1625acb0801dce7c0a3700ea",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_data/data.py": "45ae2a603a94cdcc830240eb347550f841f34d121508360a1faf0d3dffca4d06"
+  }
+}

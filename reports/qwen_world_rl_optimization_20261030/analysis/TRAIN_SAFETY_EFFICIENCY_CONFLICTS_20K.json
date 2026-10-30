@@ -1,0 +1,427 @@
+{
+  "schema": "world_TRAIN_conditional_safety_efficiency_CPU_v1",
+  "status": "COMPLETE",
+  "utc": "2026-10-30T16:40:42.681065+00:00",
+  "datasets": {
+    "PPO_FULL_first1k": {
+      "counts": {
+        "groups": 2000,
+        "candidates": 16000,
+        "sampled_all_failed_groups": 21,
+        "one_sampled_feasible_group": 56,
+        "two_plus_sampled_feasible_groups": 1923,
+        "all_sampled_feasible_groups": 602,
+        "actual_positive_unsafe": 282,
+        "actual_positive_unsafe_with_feasible_alternative": 254,
+        "candidate_positive_unsafe_with_feasible_alternative": 0,
+        "all_failed_cost_tied_groups": 5,
+        "candidate_all_failed_groups_kept_eligible": 21,
+        "actual_positive_unsafe_EP_above_all_feasible": 90,
+        "actual_positive_feasible_below_feasible_mean_EP": 2888,
+        "actual_positive_feasible_with_higher_EP_and_no_worse_Comfort_alternative": 4531,
+        "above_dominated_with_EP_gap_at_least005": 3130,
+        "actual_positive_feasible_EP_zero": 5,
+        "EP_zero_positive_with_better_feasible": 5,
+        "groups_with_feasible_EP_range_at_least005": 1367,
+        "dominated_actual_positives_get_negative_efficiency_component": 2796,
+        "dominated_actual_positives_become_total_nonpositive": 931,
+        "candidate_max_abs_advantage": 1.875,
+        "candidate_mean_abs_advantage": 0.3799742209179119,
+        "actual_mean_abs_advantage": 0.6230840086936951,
+        "TRAIN_only_common_gain_to_match_mean_abs": 1.6398060036507152
+      },
+      "low_EP_feasible_examples": [
+        {
+          "group_index": 375,
+          "inefficient_index": 0,
+          "better_feasible_index": 2,
+          "EP": 0.09291474886326564,
+          "better_EP": 0.4662180940216554,
+          "actual_A": 0.14177238941192627,
+          "candidate_A_safe": 0.5,
+          "candidate_A_eff": -0.24359654659744903,
+          "candidate_A_total": 0.256403453402551
+        },
+        {
+          "group_index": 569,
+          "inefficient_index": 3,
+          "better_feasible_index": 0,
+          "EP": 0.13740564152214885,
+          "better_EP": 0.7048209994376257,
+          "actual_A": 0.05958599969744682,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.41090642718737025,
+          "candidate_A_total": -0.16090642718737025
+        },
+        {
+          "group_index": 722,
+          "inefficient_index": 0,
+          "better_feasible_index": 1,
+          "EP": 0.11853038009261922,
+          "better_EP": 0.47327364050325205,
+          "actual_A": 0.5459432601928711,
+          "candidate_A_safe": 0.5,
+          "candidate_A_eff": -0.16217896899186535,
+          "candidate_A_total": 0.33782103100813465
+        },
+        {
+          "group_index": 722,
+          "inefficient_index": 6,
+          "better_feasible_index": 1,
+          "EP": 0.07899656751590674,
+          "better_EP": 0.47327364050325205,
+          "actual_A": 0.4952099621295929,
+          "candidate_A_safe": 0.5,
+          "candidate_A_eff": -0.20171278156857786,
+          "candidate_A_total": 0.29828721843142214
+        },
+        {
+          "group_index": 734,
+          "inefficient_index": 1,
+          "better_feasible_index": 4,
+          "EP": 0.09575267548200507,
+          "better_EP": 0.7048365688780277,
+          "actual_A": 0.5475309491157532,
+          "candidate_A_safe": 0.625,
+          "candidate_A_eff": -0.323897489087096,
+          "candidate_A_total": 0.301102510912904
+        },
+        {
+          "group_index": 1101,
+          "inefficient_index": 4,
+          "better_feasible_index": 3,
+          "EP": 0.0,
+          "better_EP": 0.5789195424776875,
+          "actual_A": 0.18392589688301086,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.36459740701364574,
+          "candidate_A_total": -0.11459740701364574
+        },
+        {
+          "group_index": 1114,
+          "inefficient_index": 0,
+          "better_feasible_index": 2,
+          "EP": 0.0,
+          "better_EP": 0.8776271895539768,
+          "actual_A": 0.5029735565185547,
+          "candidate_A_safe": 0.625,
+          "candidate_A_eff": -0.4665148221598859,
+          "candidate_A_total": 0.15848517784011412
+        },
+        {
+          "group_index": 1208,
+          "inefficient_index": 0,
+          "better_feasible_index": 4,
+          "EP": 0.18068097044158618,
+          "better_EP": 0.636230428857894,
+          "actual_A": 0.60069739818573,
+          "candidate_A_safe": 0.5,
+          "candidate_A_eff": -0.30178379462149807,
+          "candidate_A_total": 0.19821620537850193
+        },
+        {
+          "group_index": 1290,
+          "inefficient_index": 4,
+          "better_feasible_index": 0,
+          "EP": 0.07038310769997255,
+          "better_EP": 0.5572099023357746,
+          "actual_A": 0.5056982040405273,
+          "candidate_A_safe": 0.5,
+          "candidate_A_eff": -0.31709915533144817,
+          "candidate_A_total": 0.18290084466855183
+        },
+        {
+          "group_index": 1490,
+          "inefficient_index": 0,
+          "better_feasible_index": 7,
+          "EP": 0.0,
+          "better_EP": 0.3431402534561661,
+          "actual_A": 0.17407171428203583,
+          "candidate_A_safe": 0.375,
+          "candidate_A_eff": -0.07467790029619305,
+          "candidate_A_total": 0.30032209970380697
+        },
+        {
+          "group_index": 1490,
+          "inefficient_index": 2,
+          "better_feasible_index": 7,
+          "EP": 0.0,
+          "better_EP": 0.3431402534561661,
+          "actual_A": 0.7166626453399658,
+          "candidate_A_safe": 0.375,
+          "candidate_A_eff": -0.07467790029619305,
+          "candidate_A_total": 0.30032209970380697
+        },
+        {
+          "group_index": 1490,
+          "inefficient_index": 5,
+          "better_feasible_index": 7,
+          "EP": 0.030249248024799093,
+          "better_EP": 0.3431402534561661,
+          "actual_A": 0.7576951384544373,
+          "candidate_A_safe": 0.375,
+          "candidate_A_eff": -0.044428652271393955,
+          "candidate_A_total": 0.330571347728606
+        }
+      ],
+      "candidate_coefficients": {
+        "lambda_eff": 1.0,
+        "kappa_absolute": 1.0,
+        "common_gain": 1.0,
+        "illustration_only": true
+      },
+      "cautions": [
+        "EP0 is a progress metric, not proof that the vehicle should move. A sampled feasible alternative is required for the relative inefficiency diagnostic.",
+        "All8 failed samples do not imply the scene has no safe solution; tied costs provide no relative direction and require recovery/exploration/teacher information.",
+        "An efficiency-dominated candidate may remain total-positive because safety credit is retained; only A_eff has the stated within-feasible centering property.",
+        "Zero new unsafe-positive efficiency credit is a fixed-bank algebraic property, not a trained-policy safety guarantee."
+      ],
+      "provenance": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PPO_FULL_u001000_canonical_components.npz",
+        "reused": true
+      }
+    },
+    "PPO_FULL_near20k": {
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "sampled_all_failed_groups": 6,
+        "one_sampled_feasible_group": 11,
+        "two_plus_sampled_feasible_groups": 983,
+        "all_sampled_feasible_groups": 367,
+        "actual_positive_unsafe": 90,
+        "actual_positive_unsafe_with_feasible_alternative": 79,
+        "candidate_positive_unsafe_with_feasible_alternative": 0,
+        "all_failed_cost_tied_groups": 0,
+        "candidate_all_failed_groups_kept_eligible": 6,
+        "actual_positive_unsafe_EP_above_all_feasible": 37,
+        "actual_positive_feasible_below_feasible_mean_EP": 1507,
+        "actual_positive_feasible_with_higher_EP_and_no_worse_Comfort_alternative": 2496,
+        "above_dominated_with_EP_gap_at_least005": 1712,
+        "actual_positive_feasible_EP_zero": 0,
+        "EP_zero_positive_with_better_feasible": 0,
+        "groups_with_feasible_EP_range_at_least005": 717,
+        "dominated_actual_positives_get_negative_efficiency_component": 1466,
+        "dominated_actual_positives_become_total_nonpositive": 535,
+        "candidate_max_abs_advantage": 1.75,
+        "candidate_mean_abs_advantage": 0.31703767892568796,
+        "actual_mean_abs_advantage": 0.6062783002853394,
+        "TRAIN_only_common_gain_to_match_mean_abs": 1.9123225426699137
+      },
+      "low_EP_feasible_examples": [
+        {
+          "group_index": 404,
+          "inefficient_index": 1,
+          "better_feasible_index": 0,
+          "EP": 0.18398399886250022,
+          "better_EP": 0.5525667904367743,
+          "actual_A": 0.32990482449531555,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.16315179693873155,
+          "candidate_A_total": 0.08684820306126845
+        },
+        {
+          "group_index": 516,
+          "inefficient_index": 1,
+          "better_feasible_index": 2,
+          "EP": 0.1813638759941586,
+          "better_EP": 0.6477309343530359,
+          "actual_A": 0.17621691524982452,
+          "candidate_A_safe": 0.125,
+          "candidate_A_eff": -0.12763796129438076,
+          "candidate_A_total": -0.002637961294380764
+        },
+        {
+          "group_index": 516,
+          "inefficient_index": 3,
+          "better_feasible_index": 2,
+          "EP": 0.15867374181025837,
+          "better_EP": 0.6477309343530359,
+          "actual_A": 0.14681419730186462,
+          "candidate_A_safe": 0.125,
+          "candidate_A_eff": -0.150328095478281,
+          "candidate_A_total": -0.025328095478280993
+        },
+        {
+          "group_index": 604,
+          "inefficient_index": 3,
+          "better_feasible_index": 4,
+          "EP": 0.12729453795629073,
+          "better_EP": 0.6554161242419925,
+          "actual_A": 0.26471543312072754,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.2636127907418492,
+          "candidate_A_total": -0.013612790741849179
+        }
+      ],
+      "candidate_coefficients": {
+        "lambda_eff": 1.0,
+        "kappa_absolute": 1.0,
+        "common_gain": 1.0,
+        "illustration_only": true
+      },
+      "cautions": [
+        "EP0 is a progress metric, not proof that the vehicle should move. A sampled feasible alternative is required for the relative inefficiency diagnostic.",
+        "All8 failed samples do not imply the scene has no safe solution; tied costs provide no relative direction and require recovery/exploration/teacher information.",
+        "An efficiency-dominated candidate may remain total-positive because safety credit is retained; only A_eff has the stated within-feasible centering property.",
+        "Zero new unsafe-positive efficiency credit is a fixed-bank algebraic property, not a trained-policy safety guarantee."
+      ],
+      "provenance": {
+        "run": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL",
+        "updates": [
+          19501,
+          20000
+        ],
+        "groups": 1000,
+        "candidates": 8000,
+        "component_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PPO_FULL_u020000_tail500_components.npz",
+        "cache_sha256": "87f6fb11c9034f0d08ea3249a70d0bcc0984078db831d371d26f4f07fb7f46f2",
+        "banks_read_once": 1000,
+        "inventory_sizes_sha256": "934244b3bdd0309943900d20ba76b524d4ee45bb69cc4d05e5ec2ddd53b4686c"
+      }
+    },
+    "PPO_SAFE_COMFORT_near20k": {
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "sampled_all_failed_groups": 9,
+        "one_sampled_feasible_group": 8,
+        "two_plus_sampled_feasible_groups": 983,
+        "all_sampled_feasible_groups": 387,
+        "actual_positive_unsafe": 66,
+        "actual_positive_unsafe_with_feasible_alternative": 54,
+        "candidate_positive_unsafe_with_feasible_alternative": 0,
+        "all_failed_cost_tied_groups": 2,
+        "candidate_all_failed_groups_kept_eligible": 9,
+        "actual_positive_unsafe_EP_above_all_feasible": 18,
+        "actual_positive_feasible_below_feasible_mean_EP": 1108,
+        "actual_positive_feasible_with_higher_EP_and_no_worse_Comfort_alternative": 2327,
+        "above_dominated_with_EP_gap_at_least005": 1542,
+        "actual_positive_feasible_EP_zero": 1,
+        "EP_zero_positive_with_better_feasible": 1,
+        "groups_with_feasible_EP_range_at_least005": 710,
+        "dominated_actual_positives_get_negative_efficiency_component": 1082,
+        "dominated_actual_positives_become_total_nonpositive": 66,
+        "candidate_max_abs_advantage": 1.75,
+        "candidate_mean_abs_advantage": 0.30713352069129574,
+        "actual_mean_abs_advantage": 0.5409904718399048,
+        "TRAIN_only_common_gain_to_match_mean_abs": 1.7614178700593934
+      },
+      "low_EP_feasible_examples": [
+        {
+          "group_index": 28,
+          "inefficient_index": 6,
+          "better_feasible_index": 0,
+          "EP": 0.19925437821507566,
+          "better_EP": 0.4797552247251375,
+          "actual_A": 0.0004891484859399498,
+          "candidate_A_safe": 0.0,
+          "candidate_A_eff": 0.00027525807259046187,
+          "candidate_A_total": 0.00027525807259046187
+        },
+        {
+          "group_index": 120,
+          "inefficient_index": 1,
+          "better_feasible_index": 4,
+          "EP": 0.0,
+          "better_EP": 0.9887748658830655,
+          "actual_A": 0.02644956484436989,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.4357577398485084,
+          "candidate_A_total": -0.1857577398485084
+        },
+        {
+          "group_index": 120,
+          "inefficient_index": 7,
+          "better_feasible_index": 3,
+          "EP": 0.17765702855519216,
+          "better_EP": 0.365117785549912,
+          "actual_A": 0.22915107011795044,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.25810071129331624,
+          "candidate_A_total": -0.008100711293316243
+        },
+        {
+          "group_index": 404,
+          "inefficient_index": 1,
+          "better_feasible_index": 0,
+          "EP": 0.15311873694756803,
+          "better_EP": 0.4882796184058991,
+          "actual_A": 0.20777884125709534,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.1416874581698919,
+          "candidate_A_total": 0.1083125418301081
+        },
+        {
+          "group_index": 404,
+          "inefficient_index": 4,
+          "better_feasible_index": 0,
+          "EP": 0.14584366279633953,
+          "better_EP": 0.4882796184058991,
+          "actual_A": 0.19886474311351776,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.1489625323211204,
+          "candidate_A_total": 0.10103746767887961
+        },
+        {
+          "group_index": 404,
+          "inefficient_index": 7,
+          "better_feasible_index": 0,
+          "EP": 0.15409196393550395,
+          "better_EP": 0.4882796184058991,
+          "actual_A": 0.20897126197814941,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.14071423118195597,
+          "candidate_A_total": 0.10928576881804403
+        },
+        {
+          "group_index": 604,
+          "inefficient_index": 3,
+          "better_feasible_index": 4,
+          "EP": 0.14055882015931512,
+          "better_EP": 0.6285717180845108,
+          "actual_A": 0.22815965116024017,
+          "candidate_A_safe": 0.25,
+          "candidate_A_eff": -0.23626201447455555,
+          "candidate_A_total": 0.013737985525444446
+        }
+      ],
+      "candidate_coefficients": {
+        "lambda_eff": 1.0,
+        "kappa_absolute": 1.0,
+        "common_gain": 1.0,
+        "illustration_only": true
+      },
+      "cautions": [
+        "EP0 is a progress metric, not proof that the vehicle should move. A sampled feasible alternative is required for the relative inefficiency diagnostic.",
+        "All8 failed samples do not imply the scene has no safe solution; tied costs provide no relative direction and require recovery/exploration/teacher information.",
+        "An efficiency-dominated candidate may remain total-positive because safety credit is retained; only A_eff has the stated within-feasible centering property.",
+        "Zero new unsafe-positive efficiency credit is a fixed-bank algebraic property, not a trained-policy safety guarantee."
+      ],
+      "provenance": {
+        "run": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFE_COMFORT",
+        "updates": [
+          19501,
+          20000
+        ],
+        "groups": 1000,
+        "candidates": 8000,
+        "component_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PPO_SAFE_COMFORT_u020000_tail500_components.npz",
+        "cache_sha256": "265f3091e840053bc22cd2bbce37dfee3b1664b350ba667a9cee05e17d11e6a6",
+        "banks_read_once": 1000,
+        "inventory_sizes_sha256": "a8bdf05b1edb90354dfbd386671c184d4119d85d6e88d3ab37451529f36848b5"
+      }
+    }
+  },
+  "prototype": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/gated_safety_efficiency_cpu.py",
+  "prototype_sha256": "4f70d502a796d6a5537a954648b086696effc76911533e9e86eb62b48aac4e25",
+  "CPU_structural_checks": "PASS: efficiency credit only on sampled feasible; no positive unsafe A if a feasible alternative exists; all-failed group retains absolute cost/eligible flag.",
+  "scope": {
+    "new_GPU_forwards": 0,
+    "new_scores": 0,
+    "new_seeds": 0,
+    "runtime_injection": false,
+    "training_registration": false
+  },
+  "sha256": "fd35a3ef632c3e98d51af44eaec0200ff690509e15a38138d4268505a35d5115"
+}

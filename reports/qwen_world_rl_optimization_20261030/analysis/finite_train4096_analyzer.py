@@ -132,7 +132,10 @@ def main():
    if state['status']=='COMPLETE':
     if len(analyzer.models)!=3:raise RuntimeError('COMPLETE owner lacks three complete4096 populations')
     return
-   if not same_process(target):raise RuntimeError('Exact diagnostic owner exited without COMPLETE')
+   if not same_process(target):
+    latest=read(D/'STATE.json')
+    if latest['status']=='COMPLETE':analyzer.publish(latest);return
+    raise RuntimeError('Exact diagnostic owner exited without COMPLETE')
    ready,_,_=select.select([pidfd]+([notify]if notify is not None else[]),[],[],1800)
    if notify in ready:
     try:os.read(notify,65536)

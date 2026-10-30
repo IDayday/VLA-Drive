@@ -1,0 +1,58 @@
+{
+  "schema": "world_rl_single_factor_arm_registration_v1",
+  "registered_unix": 1793379617.147516,
+  "arm": "PPO_MEMORYLR20",
+  "source": {
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+    "commit": "121aa27aa99ce98f2f4095daee026b2b581cd288",
+    "created_unix": 1793379617.122167,
+    "scope": "PPO_MEMORYLR20 fresh registered scientific runtime only; existing v1..v6 unchanged"
+  },
+  "run": {
+    "parent_updates": 70000,
+    "parent_PDMS": 88.79290990699972,
+    "old_DEV_role": "TRAIN_DIAGNOSTIC; not held-out for full population arms",
+    "data_scenes": 103288,
+    "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+    "target_updates": 50000,
+    "id": "PPO_MEMORYLR20",
+    "algorithm": "ppo_memory_lr20",
+    "data_policy": "uniform_full",
+    "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_MEMORYLR20",
+    "status": "REGISTERED",
+    "stage_budget_updates": 1000,
+    "research_budget_updates": 10000,
+    "budget_review_required": true,
+    "priority": 1,
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_MEMORYLR20.yaml",
+    "config_sha256": "89ff4ce65fd0a1019f8f669d3cfb6575c915c4ff09744023bc810bb7076f58f1",
+    "host": "training-vlawm-tsinghua-zt2",
+    "lease": "primary",
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+    "source_sha": "121aa27aa99ce98f2f4095daee026b2b581cd288",
+    "module": "tools.qwen_world_research.train",
+    "qualification_root": null,
+    "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_MEMORYLR20/STATE.json",
+    "hypothesis": "Fixed IL70 knowledge and raw canonical PPO. Only memory LR5e-6 to2e-5: test adaptation strength, not new knowledge injection or Qwen unfreezing.",
+    "host_deadline_UTC": "2026-10-31T00:42:59+00:00"
+  },
+  "scientific_delta": {
+    "memory_learning_rate": [
+      5e-06,
+      2e-05
+    ]
+  },
+  "other_scientific_changes": false,
+  "pilot_budget_updates": 10000,
+  "native_scheduler_max_updates": 50000,
+  "first_reviews": [
+    1000,
+    5000,
+    10000
+  ],
+  "new_training_seed": false,
+  "extra_GPU_qualification": false,
+  "IL_RL_boundary": "No IL pipeline edits/new knowledge labels. Same pretrained Qwen frozen;47.46m memory trainable, action LoRA unchanged.",
+  "lease_guard_UTC": "2026-10-31T00:22:59+00:00",
+  "lease_expiry_UTC": "2026-10-31T00:42:59+00:00"
+}

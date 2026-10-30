@@ -1,0 +1,35 @@
+{
+  "schema": "world_IL_RL_parallel_research_interface_v1",
+  "registered_at": "2026-10-30T17:19:22.752920+00:00",
+  "IL_role": "离线驾驶知识提取、表征学习与辅助任务注入，用户并行改进qwen-world等IL框架。",
+  "RL_role": "从明确IL起点学习知识利用、轨迹质量与场景安全-效率取舍；memory可适配，冻结IL起点不等于冻结全部表征。",
+  "controlled_comparisons": [
+    {
+      "axis": "同IL、不同RL",
+      "purpose": "判断信用分配/算法/数据流程的增益"
+    },
+    {
+      "axis": "不同IL、同RL",
+      "purpose": "判断知识基础是否改善RL的增益和上限"
+    },
+    {
+      "axis": "不同IL且不同RL",
+      "purpose": "可探索组合性能，但不能单独归因"
+    }
+  ],
+  "parent_handoff": "新IL候选完整评测后另起受控RL运行，重新固定reference与optimizer；不替换任何旧运行IL_PARENT。",
+  "feedback_to_IL": "仅TRAIN来源的知识/信息缺口、场景类型、可行行为与证据；NAVTEST保留聚合诊断，不把其token回流训练。",
+  "knowledge_diagnostic": "可复用IL辅助头作为探针，比较Qwen特征/IL memory/RL memory的信息可读性；固定探针下降需与表征基变换区别，不直接宣布知识消失。",
+  "current_RL_scope": {
+    "Qwen": "frozen",
+    "scene_params": 37985280,
+    "predictive_params": 9479680,
+    "action_attention_LoRA_params": 5242880,
+    "IL_object_future_post_auxiliary_losses_in_RL": false
+  },
+  "active_pilots": [
+    "PPO_MEMORYLR20",
+    "PPO_SAFETY_EP"
+  ],
+  "scope_audit": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/REPRESENTATION_TRAINABILITY_AUDIT_20261030.json"
+}

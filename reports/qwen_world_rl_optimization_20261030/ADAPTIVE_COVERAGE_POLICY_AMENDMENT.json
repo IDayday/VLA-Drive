@@ -1,0 +1,26 @@
+{
+  "schema": "world_rl_adaptive_stage_policy_amendment_v1",
+  "registered_at": "2026-10-30T17:03:02.511510+00:00",
+  "arm": "PPO_ADAPTIVE",
+  "effective_stage_index": 17,
+  "effective_from_optimizer_update": 17001,
+  "uniform_fraction": 0.8,
+  "low_score_fraction": 0.1,
+  "regression_fraction": 0.1,
+  "previous_mixture": {
+    "uniform_fraction": 0.35,
+    "low_score_fraction": 0.4,
+    "regression_fraction": 0.25
+  },
+  "previous_sealed_stages_untouched": true,
+  "reason": "Feedback1024 gain is concentrated; extra3072/fresh2820 no clear advantage. Broaden coverage while retaining low-score/regression targeting.",
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_DIAGNOSIS.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ADAPTIVE_80_10_10_FROZEN_BANK_REPLAY_20261030.json"
+  ],
+  "new4096_tokens_added_to_feedback": false,
+  "NAVTEST_tokens_used_for_scene_selection": false,
+  "IL_parent_and_optimizer_unchanged": true,
+  "new_training_seed": false,
+  "interpretation": "Explicit phase2 adaptive data policy; do not attribute later results to original35/40/25 recipe"
+}

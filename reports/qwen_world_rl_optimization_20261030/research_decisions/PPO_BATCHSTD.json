@@ -1,0 +1,16 @@
+{
+  "schema": "world_rl_evidence_based_arm_decision_v1",
+  "arm": "PPO_BATCHSTD",
+  "disposition": "STOP_FUTILITY",
+  "created_at": "2026-10-30T16:50:57.850099+00:00",
+  "reason": "20k matched control gain not established, while NC and TTC component intervals both indicate degradation. Reallocate continuation budget to safety/feasible-efficiency and representation-adaptation pilots. Preserve all checkpoints, including BATCH10k peak; stopping this later continuation does not invalidate its earlier gain.",
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/MATCHED_20K_PPO_CONTRASTS.json"
+  ],
+  "matched_budget_updates": 20000,
+  "control": "PPO_FULL",
+  "Test_selection_used": true,
+  "NAVTEST_used_for_training_scene_selection": false,
+  "scope": "stop this registered long continuation under opportunity cost and safety regression; preserve earlier best points",
+  "stop_mode": "native cooperative checkpoint, retain optimizer/RNG/pending rollout"
+}

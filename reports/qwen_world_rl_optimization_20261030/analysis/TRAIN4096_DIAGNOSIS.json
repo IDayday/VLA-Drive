@@ -1,6 +1,6 @@
 {
   "GPU_process_actions": 0,
-  "at": "2026-10-30T11:35:32.097986+00:00",
+  "at": "2026-10-30T16:32:29.456956+00:00",
   "bootstrap": {
     "paired_same_scene_and_resampled_log_indices": true,
     "replicates": 2000,
@@ -24,8 +24,22 @@
       "text_zh": "FULL10k\u5728\u5b8c\u6574TRAIN4096\u4e0b\u964d\u4e0d\u80fd\u636e\u6b64\u63a8\u65ad\u6cdb\u5316\u9000\u5316\u6216\u505c\u6b62\u63a7\u5236\u81c2\uff1b\u5176\u5b8c\u6574NAVTEST\u540c\u671f\u63d0\u5347\u3002"
     },
     {
-      "code": "ADAPT_PENDING_NO_ADAPT_SCORE_IMPUTED",
-      "text_zh": "\u5f53\u524d\u4ec5\u53d1\u5e03IL70\u4e0eFULL\u4e24\u4efd\u5b8c\u65744096\u603b\u4f53\uff1bADAPT\u5c1a\u672a\u5b8c\u6210\uff0c\u6ca1\u6709\u586b\u9020\u7b2c\u4e09\u6a21\u578b\u6216partial-scene\u5747\u503c\u3002"
+      "code": "NO_CLEAR_BROAD_ADAPTIVE_ADVANTAGE",
+      "extra_ADAPT_minus_FULL": {
+        "cluster_bootstrap_95pct": [
+          -0.1248250085210336,
+          0.20839968280025067
+        ],
+        "delta_points": 0.029235798066963734
+      },
+      "panel_ADAPT_minus_FULL": {
+        "cluster_bootstrap_95pct": [
+          0.13953170024935757,
+          0.9248943259912272
+        ],
+        "delta_points": 0.4996772457145215
+      },
+      "text_zh": "\u4ee5\u4e0a\u662fTRAIN\u8bca\u65ad\u7684\u573a\u666f\u5dee\u5f02\uff0c\u4e0d\u80fd\u66ff\u4ee3\u539f\u751fTest\u6216\u4f5c\u66dd\u5149\u6539\u5584\u7684\u56e0\u679c\u8bc1\u660e\u3002"
     }
   ],
   "estimator_notes": {
@@ -33,8 +47,27 @@
     "population_log_reweighted_TRAIN_projection": "Per-log mean weighted by full NAVTRAIN N_log (equivalent scene weights N_log/n_log). Descriptive TRAIN projection, not a canonical full103288 evaluation or NAVTEST. For exposure-conditioned subsets this is a represented-log projection, not an unbiased population estimator.",
     "scene_mean": "Raw mean over selected scenes; fixed panel is almost equally allocated over physical logs, not103288 scenes."
   },
-  "exposure_basis": "planned sealed stage0..9; ADAPT10k pending",
-  "exposure_native_proof": null,
+  "exposure_basis": "actual native10k committed cursor20000 and sealed stage0..9",
+  "exposure_native_proof": {
+    "COMPLETE": {
+      "files_sha256": "b15184abd6426b549df6d1462763c00ee06e1f26afcdb2b21e789997cfe84426",
+      "next_inner": 0,
+      "phase": "READY",
+      "schema": 2,
+      "updates": 10000,
+      "world": 8
+    },
+    "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ADAPTIVE/checkpoints/update010000_inner0",
+    "scene_cursor_each_rank": 20000,
+    "transaction_rank_count": 8
+  },
+  "feedback_vs_extra_interaction": {
+    "panel_minus_extra_log_equal_delta_points": 0.470441447647558,
+    "physical_log_cluster_bootstrap_95pct": [
+      0.05890851080217556,
+      0.9313730642415705
+    ]
+  },
   "limits": [
     "TRAIN includes old DEV; none of these groups is an independent heldout Test.",
     "Extra3072 are feedback-unseen, while only the exposure0 subset is training-unseen under the recorded ADAPT census.",
@@ -67,6 +100,22 @@
       "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
       "sha256": "94f338fff4fc611d233594575aac04c09b70ca0b743b36263b213135ee422125"
     },
+    "PPO_ADAPTIVE": {
+      "IL_updates": 70000,
+      "RL_updates": 10000,
+      "data_sha256": "f35dcb5b1aca4b85ddb0e5fcd9691dd0411bbb3b44f31990ba84f002eedc535d",
+      "inference": {
+        "candidates": 1,
+        "sampler": "ODE",
+        "scene_seed_namespace": "native_qwen_sourceflow_ODE",
+        "seed": 2101,
+        "shift": 5.0,
+        "steps": 10
+      },
+      "model_sha256": "ce2e79c96cfb4bab05a0218af2f659dc525bfe4d92d1c471c2d4d5412d926766",
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "sha256": "1092e7cf3c12d46a44d376c12bdb069b375937c1c7aab6dc773371c56198105a"
+    },
     "PPO_FULL": {
       "IL_updates": 70000,
       "RL_updates": 10000,
@@ -86,23 +135,33 @@
   },
   "models_complete": [
     "IL70",
-    "PPO_FULL"
-  ],
-  "models_pending": [
+    "PPO_FULL",
     "PPO_ADAPTIVE"
   ],
+  "models_pending": [],
   "native_Test": false,
   "next_stage_recommendations": [
     {
       "action": "Keep FULL matched control; finish ADAPT10k4096 diagnosis without changing current adaptive feedback.",
       "automatic_training_action": false,
       "priority": 1
+    },
+    {
+      "action": "Do not declare adaptive winner from feedback panel; use same-budget independent extra scenes and fullTest with safety evidence.",
+      "automatic_training_action": false,
+      "priority": 2
     }
   ],
   "normalized_metrics_caches": {
     "IL70": {
       "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_CACHE/IL70_94f338fff4fc611d.json",
       "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_CACHE/IL70_94f338fff4fc611d.npz",
+      "reused_from_disk": true,
+      "scene_rows_read_this_process": 0
+    },
+    "PPO_ADAPTIVE": {
+      "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_CACHE/PPO_ADAPTIVE_1092e7cf3c12d46a.json",
+      "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN4096_CACHE/PPO_ADAPTIVE_1092e7cf3c12d46a.npz",
       "reused_from_disk": true,
       "scene_rows_read_this_process": 0
     },
@@ -113,7 +172,7 @@
       "scene_rows_read_this_process": 0
     }
   },
-  "owner_status_at_analysis": "RUNNING",
+  "owner_status_at_analysis": "COMPLETE",
   "panel_physical_logs": 162,
   "panel_scenes": 4096,
   "runtime_or_controller_modified": false,
@@ -170,7 +229,7 @@
       "sha256": "21da347f6ea64dd5405923181c085735e7d1760c6f8ad0dc96200d13d53e91ce"
     }
   ],
-  "status": "INTERIM_COMPLETE_MODELS",
+  "status": "COMPLETE",
   "subgroups": {
     "all4096": {
       "ADAPT10k_exposures_sum": 11958,
@@ -205,6 +264,35 @@
             "time_to_collision_within_bound": 99.365234375
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.87844254510922,
+            "driving_direction_compliance": 98.16571699905035,
+            "ego_progress": 85.78042382770711,
+            "no_at_fault_collisions": 99.96343779677113,
+            "score": 93.73154162601774,
+            "time_to_collision_within_bound": 99.38936372269704
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.92003836919027,
+            "driving_direction_compliance": 98.23062251628015,
+            "ego_progress": 85.97360094737796,
+            "no_at_fault_collisions": 99.90752071876696,
+            "score": 93.76399203189634,
+            "time_to_collision_within_bound": 99.28236357786744
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.8779296875,
+            "driving_direction_compliance": 98.15673828125,
+            "ego_progress": 85.76847421598657,
+            "no_at_fault_collisions": 99.96337890625,
+            "score": 93.7263446711904,
+            "time_to_collision_within_bound": 99.3896484375
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -236,6 +324,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.11870845204178539
+              ],
+              "delta_points": 0.04748338081671415
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.2934472934472934,
+                0.7350664767331433
+              ],
+              "delta_points": 0.5109211775878443
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.41026828110161445,
+                -0.048421177587844325
+              ],
+              "delta_points": -0.21652421652421655
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5194028034645004,
+                -0.9395488359078723
+              ],
+              "delta_points": -1.2221767288364165
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.04748338081671415,
+                0.10874881291547954
+              ],
+              "delta_points": 0.024216524216524215
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.4789074398056078,
+                0.03877333627936506
+              ],
+              "delta_points": -0.21853640194853916
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.27160493827160487,
+                0.31339031339031337
+              ],
+              "delta_points": 0.02089268755935424
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.2532168079633059
+              ],
+              "delta_points": 0.09875300131670668
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.3982485439549886,
+                1.0445652839289934
+              ],
+              "delta_points": 0.7048655588853872
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.28492893308756,
+                -0.04078034162298423
+              ],
+              "delta_points": -0.1512313590677002
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5003541045940358,
+                -0.7462003841320728
+              ],
+              "delta_points": -1.114509844678624
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.1231851847047665,
+                0.08136941569653794
+              ],
+              "delta_points": -0.017788945621801326
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.4415526469921084,
+                0.31653949316198293
+              ],
+              "delta_points": -0.05795312103677484
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.39151353869096867,
+                0.4749379320732155
+              ],
+              "delta_points": 0.0721790601931567
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.1221016136725885
+              ],
+              "delta_points": 0.048828125
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.2931816936729109,
+                0.7340527221398937
+              ],
+              "delta_points": 0.5126953125
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.4150466676623962,
+                -0.048935350356746635
+              ],
+              "delta_points": -0.2197265625
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5238177769135826,
+                -0.9390064301338452
+              ],
+              "delta_points": -1.2231369796224705
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.048603559625740506,
+                0.10981100370035687
+              ],
+              "delta_points": 0.0244140625
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.47815070725842346,
+                0.042871891581059626
+              ],
+              "delta_points": -0.2160276030076635
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.2686875229086895,
+                0.31699778757114566
+              ],
+              "delta_points": 0.0244140625
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.1225071225071225
+              ],
+              "delta_points": 0.04843304843304844
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.11063627730294397,
+                0.03561253561253561
+              ],
+              "delta_points": -0.03751187084520418
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.06403747393538876,
+                0.33490361916018074
+              ],
+              "delta_points": 0.19447608488741738
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.012345679012345678,
+                0.15576923076923066
+              ],
+              "delta_points": 0.060778727445394115
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.010278830596128892,
+                0.316060818648729
+              ],
+              "delta_points": 0.14804056674551622
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.1462488129154796,
+                0.3703703703703704
+              ],
+              "delta_points": 0.10161443494776827
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.1021848860104191
+              ],
+              "delta_points": 0.038480901795129974
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.09756063756708151,
+                0.045641806860780315
+              ],
+              "delta_points": -0.024861030844300927
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.053842539048849294,
+                0.3989603900100917
+              ],
+              "delta_points": 0.2169372402483985
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.07205758129484026,
+                0.18293261761744609
+              ],
+              "delta_points": 0.050621711957007445
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.09694438047912522,
+                0.283603368538308
+              ],
+              "delta_points": 0.10073026497295123
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.2813848048429329,
+                0.23169258828177206
+              ],
+              "delta_points": -0.0085139088314675
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.12233912405187179
+              ],
+              "delta_points": 0.048828125
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.10989078093377068,
+                0.036567528035104824
+              ],
+              "delta_points": -0.03662109375
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.0636673059173265,
+                0.33526943618127997
+              ],
+              "delta_points": 0.19428442518651856
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.012233912405187179,
+                0.1582663744825907
+              ],
+              "delta_points": 0.06103515625
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.010958995521776609,
+                0.31376074419466465
+              ],
+              "delta_points": 0.1467361099684304
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.14681144442045482,
+                0.36567750953466416
+              ],
+              "delta_points": 0.09765625
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -428,6 +826,35 @@
             "time_to_collision_within_bound": 98.53479853479854
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.45255474452554,
+            "driving_direction_compliance": 98.9963503649635,
+            "ego_progress": 67.27394073041552,
+            "no_at_fault_collisions": 100.0,
+            "score": 85.89273077879238,
+            "time_to_collision_within_bound": 99.63503649635037
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.83822031146788,
+            "driving_direction_compliance": 99.46385987303933,
+            "ego_progress": 66.27969138623399,
+            "no_at_fault_collisions": 100.0,
+            "score": 85.61362343084453,
+            "time_to_collision_within_bound": 99.41949641173771
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.26739926739927,
+            "driving_direction_compliance": 99.26739926739927,
+            "ego_progress": 66.97504767988211,
+            "no_at_fault_collisions": 100.0,
+            "score": 85.6596276199753,
+            "time_to_collision_within_bound": 99.63369963369964
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -459,6 +886,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.6824817518247848
+              ],
+              "delta_points": 0.9732360097323599
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.3680048661800321
+              ],
+              "delta_points": 0.12165450121654499
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -7.187681951219217,
+                -2.8226586489141865
+              ],
+              "delta_points": -5.23217767262258
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.5547445255474455
+              ],
+              "delta_points": 0.9124087591240876
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -2.833841409315235,
+                1.2037160792912966
+              ],
+              "delta_points": -1.0801145817598161
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.9197080291970803
+              ],
+              "delta_points": 1.094890510948905
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.769982277293999
+              ],
+              "delta_points": 0.6247271017364726
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.322713136954586
+              ],
+              "delta_points": 0.08900681825815336
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -7.895632476794826,
+                -3.854926369078246
+              ],
+              "delta_points": -6.097873281449801
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.471524944737398
+              ],
+              "delta_points": 0.8195344775467706
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -3.1100097125226496,
+                0.3656556777875257
+              ],
+              "delta_points": -1.69829461268886
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.719790754729744
+              ],
+              "delta_points": 0.9449277309419049
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.938173016016649
+              ],
+              "delta_points": 0.7326007326007326
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.6061111845584277
+              ],
+              "delta_points": 0.18315018315018314
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -6.550252894499146,
+                -3.310658803660054
+              ],
+              "delta_points": -4.9895899467941325
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.845018450184502
+              ],
+              "delta_points": 0.7326007326007326
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -2.484582346022732,
+                0.31112643567545145
+              ],
+              "delta_points": -1.2242949564633672
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.898550724637681
+              ],
+              "delta_points": 1.098901098901099
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.7360097323600642
+              ],
+              "delta_points": 0.24330900243308998
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.411730052790424,
+                1.9642939156988533
+              ],
+              "delta_points": 0.060454006674096804
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.8604014598540064
+              ],
+              "delta_points": 1.1557177615571774
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.1028824071469163,
+                3.404348298426059
+              ],
+              "delta_points": 1.398871245684361
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.608272506082725,
+                5.234184914841833
+              ],
+              "delta_points": 2.67639902676399
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.645426273909172
+              ],
+              "delta_points": 0.17801363651630672
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.4816882281441806,
+                2.1251312581476824
+              ],
+              "delta_points": 0.07399348885232764
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                3.183527903784231
+              ],
+              "delta_points": 1.25953044704934
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.34938349305322786,
+                3.058768117274741
+              ],
+              "delta_points": 1.0902045746338709
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.4443044916367541,
+                3.89713111789783
+              ],
+              "delta_points": 1.91485947372153
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.2122223691168554
+              ],
+              "delta_points": 0.3663003663003663
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.951406844549288,
+                1.8933907507185443
+              ],
+              "delta_points": 0.36650075499776047
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.4223555843906177
+              ],
+              "delta_points": 1.098901098901099
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.1354088928434449,
+                3.0811529414544854
+              ],
+              "delta_points": 1.4652849604920455
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.7246376811594203,
+                4.924710508123053
+              ],
+              "delta_points": 2.5641025641025643
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -651,6 +1388,35 @@
             "time_to_collision_within_bound": 98.87005649717514
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 98.92773892773894,
+            "ego_progress": 88.58753094039108,
+            "no_at_fault_collisions": 100.0,
+            "score": 94.55521636890809,
+            "time_to_collision_within_bound": 98.34498834498834
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 98.05338230393647,
+            "ego_progress": 88.72274209635894,
+            "no_at_fault_collisions": 100.0,
+            "score": 94.69690312992178,
+            "time_to_collision_within_bound": 98.5498254154533
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 98.87005649717514,
+            "ego_progress": 88.53446076738835,
+            "no_at_fault_collisions": 100.0,
+            "score": 94.63417974535719,
+            "time_to_collision_within_bound": 98.58757062146893
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -682,6 +1448,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.6993006993006993
+              ],
+              "delta_points": 0.23310023310023306
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.8409090909090909,
+                0.0
+              ],
+              "delta_points": -0.30303030303030304
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.8548681330705499,
+                -0.41947635899991803
+              ],
+              "delta_points": -1.1345399589646012
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -1.5095038743480214,
+                0.1387934776904494
+              ],
+              "delta_points": -0.666975177152111
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -2.5641025641025643,
+                0.5128205128205129
+              ],
+              "delta_points": -0.7925407925407925
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.6332763438977606
+              ],
+              "delta_points": 0.19812810593877225
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.994137751388945,
+                0.0
+              ],
+              "delta_points": -0.3300082583561525
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.8048887382324315,
+                -0.08666842153054947
+              ],
+              "delta_points": -0.9237586219561659
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -1.635610522858062,
+                0.43558425529706557
+              ],
+              "delta_points": -0.501440043887829
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -3.0743845755595802,
+                1.1751623563720102
+              ],
+              "delta_points": -0.5570768316889062
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.8772572927920972
+              ],
+              "delta_points": 0.2824858757062147
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -1.133224954931754,
+                0.0
+              ],
+              "delta_points": -0.423728813559322
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.6196281931567502,
+                -0.3112387170791436
+              ],
+              "delta_points": -0.9879569256861376
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -1.1143555898190785,
+                0.4226650183381632
+              ],
+              "delta_points": -0.36456773975152124
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -1.6173599475486269,
+                0.8902739508266211
+              ],
+              "delta_points": -0.2824858757062147
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.050746501666061365,
+                0.5184654078792391
+              ],
+              "delta_points": 0.2873764952215166
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.2311857843393676,
+                0.1925384807475535
+              ],
+              "delta_points": 0.022615109217201747
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.6993006993006993,
+                0.0
+              ],
+              "delta_points": -0.23310023310023306
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.06789239864741813,
+                0.6635081752253835
+              ],
+              "delta_points": 0.37733756044348626
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.03641859788464549,
+                0.2574878795694877
+              ],
+              "delta_points": 0.12311600671878797
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.27214366220156294,
+                0.0
+              ],
+              "delta_points": -0.08185914431839585
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.11873769027829525,
+                0.5810072686806966
+              ],
+              "delta_points": 0.3615711943319717
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.26097674806020477,
+                0.22038598006301782
+              ],
+              "delta_points": 0.03295221609406566
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.8955223880597015,
+                0.0
+              ],
+              "delta_points": -0.2824858757062147
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -874,6 +1950,35 @@
             "time_to_collision_within_bound": 100.0
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 98.31597222222223,
+            "ego_progress": 83.58910789137676,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.16212828807369,
+            "time_to_collision_within_bound": 100.0
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 98.90508157413532,
+            "ego_progress": 83.88716473081816,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.28631863784092,
+            "time_to_collision_within_bound": 100.0
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 97.55747126436782,
+            "ego_progress": 83.11581513264404,
+            "no_at_fault_collisions": 100.0,
+            "score": 92.96492297193501,
+            "time_to_collision_within_bound": 100.0
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -905,6 +2010,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.0833333333333335
+              ],
+              "delta_points": 0.6944444444444444
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -1.134837962962963,
+                0.11574074074074073
+              ],
+              "delta_points": -0.43981481481481477
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.9171808942091562,
+                1.5050180256301382
+              ],
+              "delta_points": 0.14269256485284085
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.3821587059204827,
+                1.8743038761834103
+              ],
+              "delta_points": 0.46454782794794247
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                3.417619375990667
+              ],
+              "delta_points": 1.0768639672138145
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.8194290425939957,
+                0.03613830972906707
+              ],
+              "delta_points": -0.3167979394793201
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.9143589710512726,
+                2.5389330412671396
+              ],
+              "delta_points": 0.5636976659899341
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.3809829046046964,
+                3.050897349937356
+              ],
+              "delta_points": 0.8630446750371973
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.9118541033434651
+              ],
+              "delta_points": 0.28735632183908044
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -2.411429635414407,
+                0.14705882352941177
+              ],
+              "delta_points": -1.0057471264367817
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.9793872615093324,
+                0.31771465995123865
+              ],
+              "delta_points": -0.3844933037935803
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.4008171451131714,
+                0.6336902546830822
+              ],
+              "delta_points": 0.0074189778254712315
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.43981481481481477,
+                0.1388888888888889
+              ],
+              "delta_points": -0.11574074074074073
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.5551199853336752,
+                1.0903336196957925
+              ],
+              "delta_points": 0.822038559610627
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.23129999388903077,
+                0.45430567487324686
+              ],
+              "delta_points": 0.34251606650442734
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.17150614211620704,
+                0.03797254578554267
+              ],
+              "delta_points": -0.05065921008630565
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.7333710967390054,
+                1.5002065710329675
+              ],
+              "delta_points": 1.1079835784686383
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.3055712903079182,
+                0.6250860712637357
+              ],
+              "delta_points": 0.4616598243619322
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.6649379432624113,
+                0.2994011976047904
+              ],
+              "delta_points": -0.14367816091954022
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.536618494757809,
+                1.0207603634596432
+              ],
+              "delta_points": 0.7823069334360381
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.22359103948241948,
+                0.4253168181081838
+              ],
+              "delta_points": 0.3259612222650156
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -1097,6 +2512,35 @@
             "time_to_collision_within_bound": 99.34895833333333
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.90253411306043,
+            "driving_direction_compliance": 98.03443794671867,
+            "ego_progress": 85.97183429477924,
+            "no_at_fault_collisions": 99.95126705653023,
+            "score": 93.77586828924619,
+            "time_to_collision_within_bound": 99.28525016244312
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.91969312173626,
+            "driving_direction_compliance": 98.03003558776886,
+            "ego_progress": 86.20433614453034,
+            "no_at_fault_collisions": 99.87711926590546,
+            "score": 93.77778108376951,
+            "time_to_collision_within_bound": 99.1215670847788
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.90234375,
+            "driving_direction_compliance": 98.03059895833333,
+            "ego_progress": 85.97153010300762,
+            "no_at_fault_collisions": 99.951171875,
+            "score": 93.77500118590332,
+            "time_to_collision_within_bound": 99.28385416666667
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -1128,6 +2572,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.16244314489928524
+              ],
+              "delta_points": 0.0649772579597141
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.2599090318388564,
+                0.8122157244964259
+              ],
+              "delta_points": 0.5198180636777127
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.3573749187784275,
+                -0.016244314489928524
+              ],
+              "delta_points": -0.1786874593892138
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5946356786374307,
+                -0.9187524299240551
+              ],
+              "delta_points": -1.2596369848229994
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.08122157244964262,
+                0.0
+              ],
+              "delta_points": -0.03248862897985705
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.5693470993975107,
+                0.043247990743022734
+              ],
+              "delta_points": -0.2667900313187792
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.42235217673814157,
+                0.29239766081871343
+              ],
+              "delta_points": -0.0649772579597141
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.34650721089715547
+              ],
+              "delta_points": 0.13513568601233544
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.34183712597829313,
+                1.120600015436006
+              ],
+              "delta_points": 0.7143031849626391
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.2618723261171289,
+                -0.015877062501924794
+              ],
+              "delta_points": -0.12588714641533738
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5989717038236737,
+                -0.7141955466370545
+              ],
+              "delta_points": -1.1688217842914628
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.20605492335607403,
+                0.0
+              ],
+              "delta_points": -0.0778100273532565
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.5814586750874176,
+                0.3460986472531121
+              ],
+              "delta_points": -0.11977968954821062
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.6213387187283668,
+                0.5255634783199196
+              ],
+              "delta_points": -0.010853658039452289
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.16281341582546402
+              ],
+              "delta_points": 0.06510416666666667
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.26058419787080356,
+                0.813808708228183
+              ],
+              "delta_points": 0.5208333333333334
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.35738363523986116,
+                -0.016318537859007835
+              ],
+              "delta_points": -0.17903645833333334
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5944492923187492,
+                -0.9177856136222062
+              ],
+              "delta_points": -1.2587916895509952
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.08143588076433554,
+                0.0
+              ],
+              "delta_points": -0.032552083333333336
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.569056389398278,
+                0.0441728551099865
+              ],
+              "delta_points": -0.2659338040328712
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.4231770833333333,
+                0.29239766081871343
+              ],
+              "delta_points": -0.06510416666666667
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.09746588693957114
+              ],
+              "delta_points": 0.03248862897985705
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.11371020142949965,
+                0.04873294346978557
+              ],
+              "delta_points": -0.03248862897985705
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.01495360331798842,
+                0.22868399033643505
+              ],
+              "delta_points": 0.10698019415548904
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.04873294346978557,
+                0.0
+              ],
+              "delta_points": -0.016244314489928524
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.1248250085210336,
+                0.20839968280025067
+              ],
+              "delta_points": 0.029235798066963734
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.3248862897985705,
+                0.2274204028589993
+              ],
+              "delta_points": -0.0649772579597141
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.08842716062429187
+              ],
+              "delta_points": 0.027261535451206437
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.11811070423020026,
+                0.07140319260653162
+              ],
+              "delta_points": -0.023312434521358772
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.04614582218480122,
+                0.24723482316150705
+              ],
+              "delta_points": 0.10263300760041259
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.1483279131325249,
+                0.0
+              ],
+              "delta_points": -0.04667582518374785
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.24230957796391794,
+                0.14549294666667667
+              ],
+              "delta_points": -0.03604957334950123
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.47925747610886993,
+                0.08029125054933799
+              ],
+              "delta_points": -0.1777859760546902
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0979431929480901
+              ],
+              "delta_points": 0.032552083333333336
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.11393229166666667,
+                0.04871711594673595
+              ],
+              "delta_points": -0.032552083333333336
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.016433610386919824,
+                0.22717618636376652
+              ],
+              "delta_points": 0.10641012583960242
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.04897159647404505,
+                0.0
+              ],
+              "delta_points": -0.016276041666666668
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.12493354971700799,
+                0.2085112185881336
+              ],
+              "delta_points": 0.028968310065231376
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.3255208333333333,
+                0.22779228656511008
+              ],
+              "delta_points": -0.06510416666666667
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -1320,6 +3074,35 @@
             "time_to_collision_within_bound": 99.2063492063492
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 99.10714285714286,
+            "ego_progress": 85.04150339920103,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.26023840927907,
+            "time_to_collision_within_bound": 98.78306878306879
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 98.99944275896229,
+            "ego_progress": 84.9325047442606,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.11988466807752,
+            "time_to_collision_within_bound": 98.55521845912533
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 99.4047619047619,
+            "ego_progress": 85.10185755492192,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.2964089018524,
+            "time_to_collision_within_bound": 98.80952380952381
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -1351,6 +3134,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.1904761904761905
+              ],
+              "delta_points": 0.3968253968253968
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -2.380952380952381,
+                0.0
+              ],
+              "delta_points": -0.7936507936507936
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -2.891992082540975,
+                -1.0907569971078144
+              ],
+              "delta_points": -2.0463383955273358
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -2.0559623916112275,
+                0.019571403282484023
+              ],
+              "delta_points": -0.9959390581011149
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -3.015873015873016,
+                0.31746031746031744
+              ],
+              "delta_points": -0.8994708994708994
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.125135935965082
+              ],
+              "delta_points": 0.3386787195839267
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -3.079290795134879,
+                0.0
+              ],
+              "delta_points": -0.9658844653581822
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -3.125076587481301,
+                -1.0197026344567401
+              ],
+              "delta_points": -2.08660037625876
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -2.4215201079944864,
+                0.04337680910421541
+              ],
+              "delta_points": -1.0688024823958746
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -3.7360092470688024,
+                0.7013950888995321
+              ],
+              "delta_points": -0.9526757889088396
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.2606371662589078
+              ],
+              "delta_points": 0.3968253968253968
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -1.25,
+                0.0
+              ],
+              "delta_points": -0.3968253968253968
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -2.622454502458754,
+                -0.9470414053994128
+              ],
+              "delta_points": -1.8469928054589473
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -1.5988593327417693,
+                0.33648483906652144
+              ],
+              "delta_points": -0.7034427694703281
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -1.9157088122605364,
+                0.8298755186721992
+              ],
+              "delta_points": -0.3968253968253968
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.1409407111301979,
+                0.4281995801869844
+              ],
+              "delta_points": 0.13353500207972957
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.058725296304249115,
+                0.178416491744579
+              ],
+              "delta_points": 0.05563958419988821
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.22804488360658362,
+                0.5482758041161674
+              ],
+              "delta_points": 0.16138966685487924
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.09501870150274223,
+                0.2284482517150705
+              ],
+              "delta_points": 0.06724569452286741
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.09597969150977886,
+                0.5241259381221726
+              ],
+              "delta_points": 0.2075422466180217
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.03999153812907496,
+                0.2183858075509055
+              ],
+              "delta_points": 0.08647593609084293
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -1543,6 +3636,35 @@
             "time_to_collision_within_bound": 99.36170212765957
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.89081537964981,
+            "driving_direction_compliance": 97.86726275413783,
+            "ego_progress": 86.06062927999027,
+            "no_at_fault_collisions": 99.94744486488551,
+            "score": 93.82052197430711,
+            "time_to_collision_within_bound": 99.32437454080615
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.91269375040181,
+            "driving_direction_compliance": 97.83801288281337,
+            "ego_progress": 86.30373622928258,
+            "no_at_fault_collisions": 99.86796514504036,
+            "score": 93.82180357349326,
+            "time_to_collision_within_bound": 99.14783281067652
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.8936170212766,
+            "driving_direction_compliance": 97.90780141843972,
+            "ego_progress": 86.04924552219835,
+            "no_at_fault_collisions": 99.94680851063829,
+            "score": 93.81776900703127,
+            "time_to_collision_within_bound": 99.32624113475177
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -1574,6 +3696,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.17390971983335243
+              ],
+              "delta_points": 0.06879944960440317
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.2820708421986945,
+                0.8421224497487964
+              ],
+              "delta_points": 0.5431705929068616
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.3317457966509107,
+                -0.0026912608773204767
+              ],
+              "delta_points": -0.15785651492565833
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5449765087215714,
+                -0.8482072042262394
+              ],
+              "delta_points": -1.1971715751481558
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.0907770515613653,
+                0.0
+              ],
+              "delta_points": -0.03631082062454611
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.5473354472392994,
+                0.10834319406095429
+              ],
+              "delta_points": -0.21720973793398268
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.4021771761011097,
+                0.3361282446160184
+              ],
+              "delta_points": -0.03223647050329772
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.36318183264264303
+              ],
+              "delta_points": 0.14110654677306148
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.3686496658916923,
+                1.2346503423361006
+              ],
+              "delta_points": 0.7722251428750245
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.2034487560342603,
+                0.007456786093298058
+              ],
+              "delta_points": -0.09246776531170757
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.556163077559812,
+                -0.6254574623840421
+              ],
+              "delta_points": -1.0990437758987133
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.2302966790450239,
+                0.0
+              ],
+              "delta_points": -0.0869641482183455
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.58528433288202,
+                0.44484302623472016
+              ],
+              "delta_points": -0.06503671265098937
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.6591647502649063,
+                0.5574082721825585
+              ],
+              "delta_points": -0.008441442614845857
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.17780938833570412
+              ],
+              "delta_points": 0.07092198581560284
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.2812914803526803,
+                0.8188186099714616
+              ],
+              "delta_points": 0.5319148936170213
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.33664068036853295,
+                0.0
+              ],
+              "delta_points": -0.1595744680851064
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.5479180046235703,
+                -0.8567187026475993
+              ],
+              "delta_points": -1.2062290366400714
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.089063850149598,
+                0.0
+              ],
+              "delta_points": -0.03546099290780142
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.5464229674171595,
+                0.09929673001235965
+              ],
+              "delta_points": -0.22683725818526862
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.3930045244464575,
+                0.3201764567541516
+              ],
+              "delta_points": -0.03546099290780142
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.12345679012345678
+              ],
+              "delta_points": 0.0411522633744856
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.11933731690640302,
+                0.05133415722797673
+              ],
+              "delta_points": -0.03349726288609444
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.02409319625321695,
+                0.23827521694037096
+              ],
+              "delta_points": 0.10483522303020637
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.05446623093681917,
+                0.0
+              ],
+              "delta_points": -0.018155410312273055
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.1447711249143775,
+                0.24486471186597702
+              ],
+              "delta_points": 0.03311469182449735
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.3618075993663656,
+                0.26632646506729185
+              ],
+              "delta_points": -0.06365541668259246
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.11200773679076975
+              ],
+              "delta_points": 0.03453127823819482
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.12290505041722788,
+                0.07576233762338766
+              ],
+              "delta_points": -0.02403589515765324
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.0685750592837528,
+                0.25285512749086225
+              ],
+              "delta_points": 0.09262461315717842
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.16577825585399847,
+                0.0
+              ],
+              "delta_points": -0.052167098734777
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.2814815844828001,
+                0.1690932353789505
+              ],
+              "delta_points": -0.04420411872760384
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.5312230243326317,
+                0.10677179877902628
+              ],
+              "delta_points": -0.19181302769080597
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.10718209377851427
+              ],
+              "delta_points": 0.03546099290780142
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.12402661294719089,
+                0.05283736914592849
+              ],
+              "delta_points": -0.03546099290780142
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.028659530636065245,
+                0.22464759728312192
+              ],
+              "delta_points": 0.0973727873870629
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                -0.05362936760876537,
+                0.0
+              ],
+              "delta_points": -0.01773049645390071
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.14295033732712756,
+                0.21723433168437958
+              ],
+              "delta_points": 0.02382933071826187
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.35499072695807915,
+                0.24787974594595677
+              ],
+              "delta_points": -0.07092198581560284
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -1766,6 +4198,35 @@
             "time_to_collision_within_bound": 99.4140625
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.79423868312757,
+            "driving_direction_compliance": 98.56701940035272,
+            "ego_progress": 85.16683746530379,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.5708873526557,
+            "time_to_collision_within_bound": 99.69135802469135
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.9172217488963,
+            "driving_direction_compliance": 98.84372083974166,
+            "ego_progress": 85.26273232281368,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.71382994969345,
+            "time_to_collision_within_bound": 99.76634910799578
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.8046875,
+            "driving_direction_compliance": 98.53515625,
+            "ego_progress": 85.15930655492359,
+            "no_at_fault_collisions": 100.0,
+            "score": 93.58037512705155,
+            "time_to_collision_within_bound": 99.70703125
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -1797,6 +4258,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.08818342151675485,
+                0.882201646090533
+              ],
+              "delta_points": 0.4703115814226925
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.8526234567901233,
+                0.058788947677836566
+              ],
+              "delta_points": -0.32333921222810114
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.6316921099065427,
+                -0.5470132043477823
+              ],
+              "delta_points": -1.109284430005572
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.48500881834215165
+              ],
+              "delta_points": 0.19106407995296884
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.5302499877055996,
+                0.4114500672919408
+              ],
+              "delta_points": -0.08252322541629396
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.13227513227513224,
+                0.8671369782480892
+              ],
+              "delta_points": 0.27924750146972366
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.13603885851727743,
+                1.3007340178686673
+              ],
+              "delta_points": 0.6498242546960694
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.5726328766896414,
+                0.024713397667786238
+              ],
+              "delta_points": -0.22021181642822105
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.663371889457454,
+                -0.20273381410153787
+              ],
+              "delta_points": -0.9606167198094183
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.4305608558687106
+              ],
+              "delta_points": 0.15804168464690502
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.47199676071444424,
+                0.7774211926796604
+              ],
+              "delta_points": 0.1132017796768476
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.03445755271145279,
+                0.8172040036779223
+              ],
+              "delta_points": 0.3316201393422368
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.09784735812133072,
+                0.8919909837936447
+              ],
+              "delta_points": 0.48828125
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.8806262230919765,
+                0.04911591355599214
+              ],
+              "delta_points": -0.341796875
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -1.6553739366827889,
+                -0.546303205744983
+              ],
+              "delta_points": -1.1161728498368957
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.49067713444553485
+              ],
+              "delta_points": 0.1953125
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.529506540184711,
+                0.4486174340884741
+              ],
+              "delta_points": -0.06630899993204031
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.09823182711198428,
+                0.8772143774069318
+              ],
+              "delta_points": 0.29296875
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.26455026455026454
+              ],
+              "delta_points": 0.08818342151675485
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.22045855379188709,
+                0.08818342151675485
+              ],
+              "delta_points": -0.058788947677836566
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.10157135312858517,
+                0.8974255718499177
+              ],
+              "delta_points": 0.4584846489741116
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.6760728982951205
+              ],
+              "delta_points": 0.2939447383891828
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.13953170024935757,
+                0.9248943259912272
+              ],
+              "delta_points": 0.4996772457145215
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0716490299823634,
+                1.2933568489124045
+              ],
+              "delta_points": 0.6025867136978248
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.21586772605375237
+              ],
+              "delta_points": 0.06597364373679143
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.09916494307809542,
+                0.025355419834647546
+              ],
+              "delta_points": -0.02913720673770244
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.10926759637529514,
+                1.118692838170055
+              ],
+              "delta_points": 0.5662045781624713
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.8348602439359696
+              ],
+              "delta_points": 0.34828643718350166
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.12017697233789906,
+                1.0282541445779967
+              ],
+              "delta_points": 0.5132714344138826
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.04743919105413581,
+                1.0571450626963688
+              ],
+              "delta_points": 0.5062589670675798
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.29469548133595286
+              ],
+              "delta_points": 0.09765625
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.19724352646366466,
+                0.09823424185699685
+              ],
+              "delta_points": -0.048828125
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.09466048852420707,
+                0.8931593412791711
+              ],
+              "delta_points": 0.45790732322726685
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.6815968841285297
+              ],
+              "delta_points": 0.29296875
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.1329616965298501,
+                0.9374591972980548
+              ],
+              "delta_points": 0.5000395096780278
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.09384023099133795,
+                1.2658227848101267
+              ],
+              "delta_points": 0.5859375
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -1989,6 +4760,35 @@
             "time_to_collision_within_bound": 99.1701244813278
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.79423868312757,
+            "driving_direction_compliance": 98.37889476778366,
+            "ego_progress": 79.2433123438371,
+            "no_at_fault_collisions": 100.0,
+            "score": 91.06417163846437,
+            "time_to_collision_within_bound": 99.59876543209876
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.9172217488963,
+            "driving_direction_compliance": 98.45965603343032,
+            "ego_progress": 78.94609049968021,
+            "no_at_fault_collisions": 100.0,
+            "score": 91.0586934733099,
+            "time_to_collision_within_bound": 99.71066338780885
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 99.72337482710927,
+            "driving_direction_compliance": 98.20193637621024,
+            "ego_progress": 78.98205074769447,
+            "no_at_fault_collisions": 100.0,
+            "score": 90.90826572762977,
+            "time_to_collision_within_bound": 99.5850622406639
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -2020,6 +4820,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.4814814814814814
+              ],
+              "delta_points": 0.6378600823045266
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.9128086419753086,
+                0.13888888888888887
+              ],
+              "delta_points": -0.3196649029982363
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -2.8306592843986316,
+                -1.1983196166830137
+              ],
+              "delta_points": -2.0428766421276428
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.51440329218107
+              ],
+              "delta_points": 0.20576131687242796
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -1.0056336176989602,
+                0.48509021706438954
+              ],
+              "delta_points": -0.34622603572876764
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.1440329218106996,
+                1.008230452674897
+              ],
+              "delta_points": 0.3395061728395061
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.843239316409749
+              ],
+              "delta_points": 0.7095693594609248
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.5947773512643467,
+                0.04941605552236874
+              ],
+              "delta_points": -0.22036165174767913
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -3.071688960798004,
+                -1.125239264856151
+              ],
+              "delta_points": -2.184929884888601
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.4743416143770034
+              ],
+              "delta_points": 0.17233366896444893
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -1.075149333247701,
+                0.7656164661302257
+              ],
+              "delta_points": -0.3137305315814923
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.04134906325374335,
+                1.1240617255203404
+              ],
+              "delta_points": 0.44193581700358864
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.952445916975248
+              ],
+              "delta_points": 0.4149377593360996
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -1.2658673560349438,
+                0.07246903437815973
+              ],
+              "delta_points": -0.48409405255878285
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -2.577463306335455,
+                -1.188321299646112
+              ],
+              "delta_points": -1.9090681741524225
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.7052435195588598
+              ],
+              "delta_points": 0.2766251728907331
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                -0.9335133908761118,
+                0.26135213236497057
+              ],
+              "delta_points": -0.3920333620978572
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                -0.14184397163120568,
+                1.2330465300577371
+              ],
+              "delta_points": 0.4149377593360996
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.3703703703703704
+              ],
+              "delta_points": 0.12345679012345678
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.30864197530864196,
+                0.08818342151675485
+              ],
+              "delta_points": -0.08450911228689006
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.023569861289753545,
+                0.96445847520175
+              ],
+              "delta_points": 0.4399635130921041
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.7407407407407407
+              ],
+              "delta_points": 0.3292181069958848
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.11149338246601502,
+                1.056033811182557
+              ],
+              "delta_points": 0.5502591455442065
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.06018518518518523,
+                1.440329218106996
+              ],
+              "delta_points": 0.6790123456790123
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.3022148164752534
+              ],
+              "delta_points": 0.09236310123150801
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.11808011165699604,
+                0.024849933586605318
+              ],
+              "delta_points": -0.03752798462735726
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                -0.0053089268226100385,
+                1.2801824545161087
+              ],
+              "delta_points": 0.5936001769916723
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.9679233800587362
+              ],
+              "delta_points": 0.4006273720083649
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.10291859956346996,
+                1.1879888928752855
+              ],
+              "delta_points": 0.5777525587076738
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.056927029264963014,
+                1.2031790068189872
+              ],
+              "delta_points": 0.5757364521209305
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.42858675659104833
+              ],
+              "delta_points": 0.13831258644536654
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                -0.2869958782892827,
+                0.1422475106685633
+              ],
+              "delta_points": -0.06915629322268327
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.1132059831139566,
+                1.2248168394483814
+              ],
+              "delta_points": 0.6196308099528441
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.9602194787379973
+              ],
+              "delta_points": 0.4149377593360996
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.17951302527275106,
+                1.3040968692086383
+              ],
+              "delta_points": 0.6961693612240125
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.12678803641092348,
+                1.7689494402412114
+              ],
+              "delta_points": 0.8298755186721992
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {
@@ -2212,6 +5322,35 @@
             "time_to_collision_within_bound": 100.0
           }
         },
+        "PPO_ADAPTIVE": {
+          "physical_log_equal": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 98.6842105263158,
+            "ego_progress": 99.99865747617842,
+            "no_at_fault_collisions": 100.0,
+            "score": 99.99944061507433,
+            "time_to_collision_within_bound": 100.0
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 99.21491202601474,
+            "ego_progress": 99.99917052125535,
+            "no_at_fault_collisions": 100.0,
+            "score": 99.99965438385638,
+            "time_to_collision_within_bound": 100.0
+          },
+          "scene_mean": {
+            "comfort": 100.0,
+            "drivable_area_compliance": 100.0,
+            "driving_direction_compliance": 99.33554817275747,
+            "ego_progress": 99.99703395899883,
+            "no_at_fault_collisions": 100.0,
+            "score": 99.99876414958284,
+            "time_to_collision_within_bound": 100.0
+          }
+        },
         "PPO_FULL": {
           "physical_log_equal": {
             "comfort": 100.0,
@@ -2243,6 +5382,316 @@
         }
       },
       "paired": {
+        "PPO_ADAPTIVE_minus_IL70": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.2531328320802004
+              ],
+              "delta_points": 0.5012531328320802
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.08459988201998282,
+                1.4676779569871552
+              ],
+              "delta_points": 0.6471524055263944
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.035249950841659536,
+                1.3425266341247653
+              ],
+              "delta_points": 0.5620444964547111
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                2.6261383534263802
+              ],
+              "delta_points": 0.9925865706598531
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.13099840778111627,
+                2.9031679943765685
+              ],
+              "delta_points": 1.2213834833183983
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.054582669908798426,
+                2.7150811530317767
+              ],
+              "delta_points": 1.0879186176009137
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                1.7302539888504413
+              ],
+              "delta_points": 0.6644518272425249
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.0794467098247506,
+                1.868364121880822
+              ],
+              "delta_points": 0.7883564507615297
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.03310279576031279,
+                1.788933901036611
+              ],
+              "delta_points": 0.7160787537087769
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          }
+        },
+        "PPO_ADAPTIVE_minus_PPO_FULL": {
+          "physical_log_equal": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.014280785609233015,
+                0.08354616965332906
+              ],
+              "delta_points": 0.046541563259189726
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.005950327337180431,
+                0.03481090402222064
+              ],
+              "delta_points": 0.01939231802466248
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "population_log_reweighted_TRAIN_projection": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.008912141637470665,
+                0.12528651099288896
+              ],
+              "delta_points": 0.06103463315955228
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.0037133923489461214,
+                0.05220271291370388
+              ],
+              "delta_points": 0.025431097149813522
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          },
+          "scene_mean": {
+            "comfort": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "drivable_area_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "driving_direction_compliance": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "ego_progress": {
+              "cluster_bootstrap_95pct": [
+                0.019886345338622255,
+                0.12830026794726945
+              ],
+              "delta_points": 0.06944858268709238
+            },
+            "no_at_fault_collisions": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            },
+            "score": {
+              "cluster_bootstrap_95pct": [
+                0.008285977224426047,
+                0.05345844497802902
+              ],
+              "delta_points": 0.02893690945295525
+            },
+            "time_to_collision_within_bound": {
+              "cluster_bootstrap_95pct": [
+                0.0,
+                0.0
+              ],
+              "delta_points": 0.0
+            }
+          }
+        },
         "PPO_FULL_minus_IL70": {
           "physical_log_equal": {
             "comfort": {

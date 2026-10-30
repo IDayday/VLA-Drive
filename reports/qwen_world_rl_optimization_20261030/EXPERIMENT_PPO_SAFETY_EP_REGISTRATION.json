@@ -1,0 +1,56 @@
+{
+  "schema": "world_rl_single_factor_arm_registration_v1",
+  "registered_unix": 1793379735.2759438,
+  "arm": "PPO_SAFETY_EP",
+  "source": {
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+    "commit": "121aa27aa99ce98f2f4095daee026b2b581cd288",
+    "created_unix": 1793379617.122167,
+    "scope": "PPO_MEMORYLR20 fresh registered scientific runtime only; existing v1..v6 unchanged"
+  },
+  "run": {
+    "parent_updates": 70000,
+    "parent_PDMS": 88.79290990699972,
+    "old_DEV_role": "TRAIN_DIAGNOSTIC; not held-out for full population arms",
+    "data_scenes": 103288,
+    "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+    "target_updates": 50000,
+    "id": "PPO_SAFETY_EP",
+    "algorithm": "ppo_safety_feasible_EP_credit",
+    "data_policy": "uniform_full",
+    "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP",
+    "status": "REGISTERED",
+    "stage_budget_updates": 1000,
+    "research_budget_updates": 10000,
+    "budget_review_required": true,
+    "priority": 1,
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_EP.yaml",
+    "config_sha256": "20320947b698df80d604255c7b336b3f5a75abbac61edfe68a4b067cfd3aa674",
+    "host": "training-vlawm-zt",
+    "lease": "research",
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+    "source_sha": "121aa27aa99ce98f2f4095daee026b2b581cd288",
+    "module": "starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry",
+    "qualification_root": null,
+    "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_SAFETY_EP/STATE.json",
+    "hypothesis": "Only replace once-finalized advantages with fixed safety/feasible-EP decomposition and its global scale. Same IL70 knowledge, scope, input, raw canonical feedback, beta50, sampling and source PPO. Not explicit scene-risk inference."
+  },
+  "pilot_budget_updates": 10000,
+  "native_scheduler_max_updates": 50000,
+  "scientific_delta": "candidate_metric_safety_feasible_EP_global_std_v1 advantage construction; no scalar reward transform",
+  "kappa": 0,
+  "lambda_EP": 1,
+  "all_fail": "mean cost minus candidate cost; exact ties PGmask0 and ILanchor only, no invented safety solution",
+  "first_reviews": [
+    1000,
+    5000,
+    10000
+  ],
+  "new_training_seed": false,
+  "extra_GPU_qualification": false,
+  "scope": "candidate metric-conditioned credit; not sufficient scene representation or calibrated real-world safety",
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN_SAFETY_EFFICIENCY_CONFLICTS_20K.json"
+  ]
+}
