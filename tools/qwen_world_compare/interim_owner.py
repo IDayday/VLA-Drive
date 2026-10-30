@@ -64,6 +64,12 @@ class InterimRequest(Request):
 
     def route(self,routes,inv,*,parity=False):
         with LOCK:
+            from starVLA.rl.qwen_world_compare.contracts import authorization
+            grant,_=authorization()
+            # Finite temporary hosts use the idle primary slot. The worker's
+            # native deadline guard then owns checkpoint/exit before expiry.
+            routes=[r for r in routes if r['host']not in grant.get('temporary_hosts',[])or
+                    not any(o['uuid']==r['uuid']for o in inv['second'][r['host']]['owners'])]
             if not parity:
                 if sum(v[1]!='parity'for v in RESERVED.values())>=16:return None
                 campaign=read(self.root.parent/'PINNED.json')
@@ -90,8 +96,11 @@ class InterimRequest(Request):
         if route:
             with LOCK:RESERVED[route['uuid']]=(str(self.root),name)
             guard=49152 if name=='parity' else 32768
-            invocation+=['--gpus',str(route['gpu']),'--expected-gpu-uuids-json',json.dumps([route['uuid']]),
-                         '--share-min-free-mib',str(guard),'--minimum-free-mib',str(guard)]
+            invocation+=['--gpus',str(route['gpu']),'--expected-gpu-uuids-json',json.dumps([route['uuid']]),'--minimum-free-mib',str(guard)]
+            from starVLA.rl.qwen_world_compare.contracts import authorization
+            grant,_=authorization()
+            if route['host']in grant.get('temporary_hosts',[]):invocation+=['--lease-slot','primary']
+            else:invocation+=['--share-min-free-mib',str(guard)]
         code='''import subprocess,os,json
 from pathlib import Path
 s=__SPEC__;d=Path(s['directory']);f=open(d/'transport.log','ab',buffering=0)
@@ -167,7 +176,7 @@ def main():
     for label,pin in read(root/'PINNED.json')['models'].items():
         d=root/label;d.mkdir(exist_ok=False);requests[label]=InterimRequest(d,pin)
     completed={};failed={}
-    with ThreadPoolExecutor(max_workers=4)as pool:
+    with ThreadPoolExecutor(max_workers=min(6,len(requests)))as pool:
         futures={pool.submit(v.run):k for k,v in requests.items()}
         for f in as_completed(futures):
             label=futures[f]
