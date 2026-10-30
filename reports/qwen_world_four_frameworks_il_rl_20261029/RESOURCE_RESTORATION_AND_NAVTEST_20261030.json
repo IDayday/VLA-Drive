@@ -1,0 +1,61 @@
+{
+  "at_utc": "2026-10-30T01:39:59.853217+00:00",
+  "resource_change": {
+    "at": "2026-10-30T01:24:03.562739+00:00",
+    "user_instructions": [
+      "vla-zt3 和tsinghua-zt2 也可以使用",
+      "vla-zt服务器也修复好了，也能使用"
+    ],
+    "restored_hosts": [
+      "training-vla-zt3",
+      "training-vlawm-tsinghua-zt2"
+    ],
+    "reconfirmed_host": "training-vla-zt",
+    "scope": "New and existing registered Qwen World/four-framework tasks and requested full Navtest; temporary use until withdrawn, no unstated deadline; preserve unknown and real workloads; tsinghua-zt6 remains forbidden"
+  },
+  "four_frameworks_scientific_source": "fdaff809652370328e45c0d996ad706e1af2fc0c",
+  "four_frameworks_budget_unchanged": {
+    "IL": 100000,
+    "RL": 50000,
+    "seed": 42
+  },
+  "latest_and_midpoint_Navtest": {
+    "root": "/mnt/project/qwen-world-postcot-20261025/latest_midpoints_NAVTEST_20261030T012613Z",
+    "owner": {
+      "pid": 1823495,
+      "source": "/mnt/project/VLA-Drive-qwen-world-latest-midpoints-navtest-20261030",
+      "source_sha": "ea25a006e2cb02a7690d0ea1d0a334670bb7bf36",
+      "at": 1793323614.715522,
+      "start_ticks": 1476222782
+    },
+    "labels": [
+      "WORLD_IL_100000",
+      "WORLD_IL_098000",
+      "OPTIMIZED_IL_035000",
+      "OPTIMIZED_IL_030000",
+      "HUBER_IL_014000",
+      "TIME_RESIDUAL_IL_016000",
+      "TIME_RESIDUAL_IL_015000",
+      "ATTENTION_RL_021000",
+      "MEMORY_RL_034000",
+      "TIME_RL_039000"
+    ],
+    "full_population": 12146,
+    "seed": 2101,
+    "protocol": "single_candidate_cleanx_K10_shift5_canonical_v1.1",
+    "new_model_count": 10,
+    "logical_inferences": 121460,
+    "deduplicated_optimized40k": true,
+    "RL50k_endpoints_reused": true
+  },
+  "additional_user_requested_RL": {
+    "root": "/mnt/project/qwen-world-postcot-20261025/best_IL70_memory_RL_20261030",
+    "parent": "QwenWorld IL70k",
+    "parent_complete_Navtest_PDMS": 88.79290990699972,
+    "method": "attention LoRA + trainable scene/predictive memory; frozen Qwen",
+    "budget": 50000,
+    "status": "REAL_8GPU_QUALIFICATION_RUNNING_BEFORE_FORMAL_START",
+    "source": "a59b40b5dfb7062e5a476d5b8c3b93e9e1fe03fe",
+    "new_method_arm_in_four_frameworks": false
+  }
+}
