@@ -1,5 +1,7 @@
 # Qwen-World：最高已测IL父模型上的attention＋memory RL
 
+**已按用户指示终止**：正式更新908，227份fresh全局rollout，14528条候选；八rank在同一保存边界退出，GPU进程与控制器已退出，后续自动Navtest取消，禁止自动恢复。本运行未完成原50k预算，没有部署提分结论。以下为历史登记方案。
+
 用户单独授权的新运行：IL70k（完整Navtest88.792909907）→attention LoRA＋scene/predictive memory，Qwen冻结，50k更新。最高IL的选择时间在PARENT_SELECTION中锁定，不追逐之后新补测分数。Test已被观察，不能声称DEV选父或盲测。四架构主实验保持原100k IL/DEV选择/50k RL合同。
 
 方法依据：原三条匹配50k终点memory90.628892，高于attention89.905612和time89.508000；这是单seed证据，不是已经证明方法普遍优越。原memory33.3k90.741310是中间已测峰值，未用其RL权重初始化。本轮从IL70k重新初始化LoRA与Adam。
