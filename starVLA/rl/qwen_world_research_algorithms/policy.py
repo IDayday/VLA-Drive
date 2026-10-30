@@ -14,6 +14,7 @@ import math
 import torch
 
 from starVLA.rl.simwam_recipe.trainer_adapter import SourceLoss
+from .batchstd import NORMALIZATION_SCHEMA
 
 
 def _masked_mean(value, mask):
@@ -118,14 +119,23 @@ class ResearchLoss(SourceLoss):
         research = cfg.get('research', {})
         self.algorithm = research.get('policy_objective', 'ppo')
         self.cispo_upper = float(research.get('cispo_upper', 1.005))
+        self.advantage_normalization = research.get('advantage_normalization')
         if self.algorithm not in ('ppo', 'cispo'):
             raise ValueError('Unsupported research policy objective')
+        if self.advantage_normalization not in (None, NORMALIZATION_SCHEMA):
+            raise ValueError('Unsupported research advantage normalization')
+        if self.advantage_normalization and self.algorithm != 'ppo':
+            raise ValueError('Centered-batch normalization is a separate PPO-only one-factor arm')
         if self.ppo_clip_range is None or self.kl_gate_enabled:
             raise ValueError('Research control requires the registered PPO clip and no KL gate')
         if cfg['grpo']['train']['use_bc_loss']:
             raise ValueError('BC is a separate experimental change, not this objective control')
 
     def _policy_loss(self, model, rollout):
+        if self.advantage_normalization:
+            meta = rollout.get('advantage_statistics', {})
+            if meta.get('normalization_schema') != self.advantage_normalization or 'normalization_std' not in rollout:
+                raise ValueError('New normalization arm requires its once-finalized saved advantages')
         chain, times, deltas = (rollout[k] for k in ('chain', 'timesteps', 'deltas'))
         indices = rollout.get('stoch_idx')
         beta = self._effective_kl_beta(model)
@@ -150,6 +160,11 @@ class ResearchLoss(SourceLoss):
                                   clip_range=self.ppo_clip_range, cispo_upper=self.cispo_upper)
         extra['approx_kl'] = (rollout['old_logp']-new_logp).mean().detach()
         extra['adv_kept_frac'] = mask.mean().detach()
+        if self.advantage_normalization:
+            scale = rollout['normalization_std'].detach()
+            raw_scale = rollout['global_std'].detach()
+            extra.update(advantage_normalization_std=scale, raw_reward_batch_std=raw_scale,
+                advantage_raw_to_centered_scale=(raw_scale+1e-8)/(scale+1e-8))
         bc_loss = torch.zeros((), device=pg.device, dtype=pg.dtype)
         kl_loss = torch.zeros((), device=pg.device, dtype=pg.dtype)
         if terms is not None:

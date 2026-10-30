@@ -86,16 +86,19 @@ def atomic_torch(path,value):
     os.replace(tmp,path)
 
 
-def save(root,actor,optimizer,scheduler,generator,state,rollout,identity,*,tag=None, fault=None):
+def save(root,actor,optimizer,scheduler,generator,state,rollout,identity,*,tag=None, fault=None,
+         boundary_validator=None,rank_validator=None):
+    boundary_validator=validate_boundary if boundary_validator is None else boundary_validator
+    rank_validator=validate_ranks if rank_validator is None else rank_validator
     rank=dist.get_rank() if dist.is_initialized() else 0
     world=dist.get_world_size() if dist.is_initialized() else 1
     name=tag or f"update{state['updates']:06}_inner{state['next_inner']}"
     final=Path(root)/'checkpoints'/name
     error=None; summary=None
-    try: summary=validate_boundary(state,rollout,identity,optimizer,scheduler)
+    try: summary=boundary_validator(state,rollout,identity,optimizer,scheduler)
     except Exception as exc: error=repr(exc)
     check_errors(error)
-    summaries=validate_ranks(gather(summary))
+    summaries=rank_validator(gather(summary))
     attempt_id=gather(uuid.uuid4().hex if rank==0 else None)[0]
     attempt=final.with_name(name+'.incomplete.'+attempt_id)
     error=None
@@ -136,7 +139,10 @@ def save(root,actor,optimizer,scheduler,generator,state,rollout,identity,*,tag=N
     return str(final)
 
 
-def restore(path,actor,optimizer,scheduler,generator,identity,*,migration=None):
+def restore(path,actor,optimizer,scheduler,generator,identity,*,migration=None,
+            boundary_validator=None,rank_validator=None):
+    boundary_validator=validate_boundary if boundary_validator is None else boundary_validator
+    rank_validator=validate_ranks if rank_validator is None else rank_validator
     rank=dist.get_rank() if dist.is_initialized() else 0
     world=dist.get_world_size() if dist.is_initialized() else 1
     error=None;summary=None
@@ -154,14 +160,14 @@ def restore(path,actor,optimizer,scheduler,generator,identity,*,migration=None):
         common=torch.load(path/'optimizer.pt',map_location='cpu',weights_only=False)
         own=torch.load(path/f'rank{rank}.pt',map_location='cpu',weights_only=False)
         if own['identity_sha256']!=identity['sha256']:raise ValueError('Rank identity changed')
-        summary=validate_boundary(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'],legacy=legacy)
+        summary=boundary_validator(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'],legacy=legacy)
         if not legacy:
             transaction=json.loads((path/'transaction.json').read_text())
             if summary!=transaction['ranks'][rank] or complete['phase']!=summary['phase']:
                 raise ValueError('Committed state/digests changed')
     except Exception as exc:error=repr(exc)
     check_errors(error)
-    validate_ranks(gather(summary))
+    rank_validator(gather(summary))
     own['state']['phase']=summary['phase']
     restore_adapters(actor,common['adapters']);optimizer.load_state_dict(common['optimizer']);scheduler.load_state_dict(common['scheduler'])
     rng=own['rng'];random.setstate(rng['python']);np.random.set_state(rng['numpy']);torch.set_rng_state(rng['torch'])

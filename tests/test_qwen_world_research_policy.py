@@ -7,6 +7,11 @@ from starVLA.rl.simwam_recipe.trainer_adapter import SourceLoss
 from starVLA.rl.qwen_world_research_algorithms.policy import (
     ResearchLoss, policy_gradient_objective, ratio_diagnostics,
 )
+from starVLA.rl.qwen_world_research_algorithms.batchstd import (
+    NORMALIZATION_SCHEMA, centered_batch_advantages,
+    finalize_centered_batch_advantages, validate_centered_batch_ranks,
+    validate_centered_batch_boundary,
+)
 
 
 def cfg(algorithm='ppo'):
@@ -120,3 +125,121 @@ def test_cispo_changes_only_policy_component_for_nonzero_reference_drift():
     for key in ('kl_loss','kl_div','kl_x','kl_x_norm','kl_v'):
         torch.testing.assert_close(cm[key],sm[key],rtol=0,atol=0)
     torch.testing.assert_close(cispo-cm['policy_loss'],source-sm['policy_loss'],rtol=1e-12,atol=1e-12)
+
+
+def batch_rewards():
+    return torch.tensor([[1.]*8, [0.]*8, [.89,.90,.91,.92,.93,.94,.95,.96],
+        [0.,1.,0.,1.,0.,1.,0.,1.], [.5]*8, [.2,.3,.4,.5,.6,.7,.8,.9],
+        [.8,.82,.84,.86,.88,.90,.92,.94], [.01,.02,.03,.04,.05,.06,.07,.08]], dtype=torch.float32)
+
+
+def test_centered_batchstd_uses_all64_once_and_reuses_saved_advantages_four_inner(monkeypatch):
+    """One global collection, tied groups retained, four gradients on same A."""
+    from starVLA.rl.qwen_world_research_algorithms import batchstd
+    rewards=batch_rewards(); gathered_calls=[]
+    monkeypatch.setattr(batchstd.dist,'is_available',lambda:True)
+    monkeypatch.setattr(batchstd.dist,'is_initialized',lambda:True)
+    monkeypatch.setattr(batchstd.dist,'get_world_size',lambda:8)
+    def gather(out, value):
+        gathered_calls.append(1)
+        for rank in range(8):out[rank].copy_(rewards[rank:rank+1].double())
+    monkeypatch.setattr(batchstd.dist,'all_gather',gather)
+    r=rollout()
+    r.update(rewards=rewards[3:4], chain=torch.zeros(8,11,8,3,dtype=torch.float64),
+             old_logp=torch.zeros(8,3,dtype=torch.float64))
+    del r['advantages'];del r['adv_mask']
+    finalize_centered_batch_advantages(r)
+    assert len(gathered_calls)==1
+    assert r['advantage_statistics']['normalization_population_candidates']==64
+    values=rewards.double();off=values-values[:,:1];c=off-off.mean(1,keepdim=True)
+    expected=(c/(c.std(unbiased=False)+1e-8)).float()
+    torch.testing.assert_close(r['advantages'],expected[3],rtol=0,atol=0)
+    assert r['global_std']>r['normalization_std']
+    config=cfg();config['research']['advantage_normalization']=NORMALIZATION_SCHEMA
+    model=ToyModel()
+    model.p=torch.nn.Parameter(torch.linspace(-.02,.02,8*3*8*3,dtype=torch.float64).reshape(8,3,8,3))
+    adv_id=id(r['advantages']);adv_bits=r['advantages'].clone()
+    for _ in range(4):
+        reference=copy.deepcopy(model)
+        got,gm=ResearchLoss(config)._policy_loss(model,r)
+        want,wm=SourceLoss(cfg())._policy_loss(reference,r)
+        got.backward();want.backward()
+        torch.testing.assert_close(got,want,rtol=0,atol=0)
+        torch.testing.assert_close(model.p.grad,reference.p.grad,rtol=0,atol=0)
+        torch.testing.assert_close(gm['kl_loss'],wm['kl_loss'],rtol=0,atol=0)
+        assert torch.isfinite(model.p.grad).all() and bool(model.p.grad.abs().sum()>0)
+        assert id(r['advantages'])==adv_id and torch.equal(r['advantages'],adv_bits)
+        assert len(gathered_calls)==1
+        model.p.grad=None
+    with pytest.raises(ValueError,match='must not be renormalized'):
+        finalize_centered_batch_advantages(r)
+
+
+def test_centered_batchstd_is_global_not_pergroup_and_rank_validator_rejects_rawstd():
+    rewards=batch_rewards();values=rewards.double();centered=values-values.mean(1,keepdim=True)
+    expected=centered/(centered.std(unbiased=False)+1e-8)
+    summaries=[]
+    for rank in range(8):
+        result=centered_batch_advantages(rewards[rank:rank+1],all_rewards=rewards)
+        torch.testing.assert_close(result['advantages'],expected[rank].float(),rtol=0,atol=0)
+        # Adding arbitrary scene offsets cannot change this denominator.
+        shifted=rewards.double()+torch.arange(8,dtype=torch.float64)[:,None]*3
+        again=centered_batch_advantages(shifted[rank:rank+1],all_rewards=shifted)
+        torch.testing.assert_close(result['advantages'],again['advantages'],atol=1e-7,rtol=1e-6)
+        summaries.append(dict(phase='ROLLOUT_COMMITTED',updates=0,collections=1,
+            scene_cursor=8,next_inner=0,run='new-arm',pending=True,behavior={'update':0},
+            advantage_normalization_schema=NORMALIZATION_SCHEMA,
+            rewards=values[rank:rank+1].tolist(), advantages=result['advantages'].tolist(),
+            mask=result['adv_mask'].tolist(),global_std=float(result['global_std']),
+            normalization_std=float(result['normalization_std'])))
+    validate_centered_batch_ranks(summaries)
+    # Constant all-1/all-0 groups have zero PG and remain in the 64-way scale.
+    assert summaries[0]['mask']==[0.]*8 and summaries[1]['advantages']==[0.]*8
+    bad=copy.deepcopy(summaries)
+    bad[3]['advantages']=(centered[3]/(values.std(unbiased=False)+1e-8)).float().tolist()
+    with pytest.raises(ValueError,match='not globally finalized'):
+        validate_centered_batch_ranks(bad)
+
+
+def test_centered_batchstd_all_tied_is_finite_zero_and_requires_explicit_protocol():
+    rewards=torch.arange(8,dtype=torch.float64)[:,None].expand(8,8)
+    got=centered_batch_advantages(rewards,all_rewards=rewards)
+    assert torch.equal(got['advantages'],torch.zeros(64))
+    assert torch.equal(got['adv_mask'],torch.zeros(64)) and got['normalization_std']==0
+    c=cfg('cispo');c['research']['advantage_normalization']=NORMALIZATION_SCHEMA
+    with pytest.raises(ValueError,match='PPO-only'):
+        ResearchLoss(c)
+    c=cfg();c['research']['advantage_normalization']=NORMALIZATION_SCHEMA
+    with pytest.raises(ValueError,match='once-finalized'):
+        ResearchLoss(c)._policy_loss(ToyModel(),rollout())
+
+
+def test_centered_batchstd_preserves_native_boundary_contract_and_separate_identity():
+    identity=dict(world=8,sha256='new-arm',schema='world_postcot_cleanx_scope_RL_v1',
+        projected_condition_identity='fixed-condition',recipe=dict(max_steps=50000,
+            action_shape=[8,3],model_family='QwenWorldPostCoT',prediction_type='x0',
+            adaptation='ATTN_LORA_MEMORY',variant='R_CANONICAL',
+            research=dict(advantage_normalization=NORMALIZATION_SCHEMA)))
+    state=dict(updates=0,collections=1,next_inner=0,phase='ROLLOUT_COMMITTED',
+               scene_cursor=8,raw_scene_exposures=8,new_candidates=64)
+    rewards=batch_rewards();summaries=[]
+    for rank in range(8):
+        r=rollout();r.update(rewards=rewards[rank:rank+1],
+            chain=torch.zeros(8,11,8,3),old_logp=torch.zeros(8,3),
+            old_probability={'source_clamped_logprob':torch.zeros(8,3,8,3)},
+            records=[],token=f'scene{rank}',log=f'log{rank}',
+            behavior_version=dict(run='new-arm',update=0,adapter_sha256='fixed'),
+            cond_bg=dict(schema='world_postcot_trainable_memory_observation_v1',
+                         token=f'scene{rank}',identity='fixed-condition',repeats=8))
+        material=centered_batch_advantages(rewards[rank:rank+1],all_rewards=rewards)
+        for key in ['advantages','adv_mask','global_std','raw_group_std','normalization_std']:
+            r[key]=material[key]
+        r['advantage_statistics']={k:v for k,v in material.items() if not torch.is_tensor(v)}
+        summaries.append(validate_centered_batch_boundary(state,r,identity))
+    validate_centered_batch_ranks(summaries)
+    old=copy.deepcopy(identity);old['recipe']['research']={}
+    with pytest.raises(ValueError,match='separately registered'):
+        validate_centered_batch_boundary(state,r,old)
+    from starVLA.rl.simwam_recipe.recovery_state import validate_ranks
+    with pytest.raises(ValueError,match='not globally finalized'):
+        validate_ranks(summaries)

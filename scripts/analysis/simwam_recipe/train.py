@@ -81,6 +81,13 @@ def main(runtime=None):
     # unchanged; no global monkeypatching or implicit checkpoint substitution.
     if runtime is not None:runtime.add_arguments(p)
     a=p.parse_args()
+    # Explicit per-runtime policy math; historical entries keep source defaults.
+    finalizer=getattr(runtime,'finalize_advantages',finalize_advantages)
+    boundary_validator=getattr(runtime,'validate_boundary',validate_boundary)
+    rank_validator=getattr(runtime,'validate_ranks',validate_ranks)
+    validation_hooks={k:getattr(runtime,k) for k in ('validate_boundary','validate_ranks') if hasattr(runtime,k)}
+    checkpoint_validation={('boundary_validator' if k=='validate_boundary' else 'rank_validator'):v
+                           for k,v in validation_hooks.items()}
     dispatch=runtime.require_dispatch if runtime is not None else require_dispatch
     cfg=runtime.load_recipe(a) if runtime is not None else load_recipe(a.config)
     host=dispatch();configure_numerics()
@@ -175,7 +182,7 @@ def main(runtime=None):
                RL_updates_local=0,anchor_only_updates_local=0,scene_cursor=0,
                seconds_rollout=0.,seconds_scoring_wait=0.,seconds_scoring_cpu=0.,seconds_old_probability=0.,seconds_update=0.)
     rollout=None
-    if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,migration=migration)
+    if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,migration=migration,**checkpoint_validation)
     if rollout is not None and 'chain_identity' not in rollout:rollout['chain_identity']=rollout_digest(rollout)
     invocation=Invocation(root,rank,state,identity,a.resume)
     invocation.record.update(process_start_unix=process_started_unix,preparation_seconds=time.monotonic()-process_started)
@@ -184,7 +191,7 @@ def main(runtime=None):
             raise RuntimeError('Qualification injected failure: '+point)
     def save_boundary():
         begin=time.monotonic()
-        result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,fault=fault)
+        result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,fault=fault,**checkpoint_validation)
         invocation.saved(result,time.monotonic()-begin)
         return result
     frozen_before=parameter_hash(actor,trainable=False) if a.qualification else None
@@ -220,7 +227,7 @@ def main(runtime=None):
                 try:fault('before_finalize')
                 except Exception:error=traceback.format_exc()
                 if not all_ok(error,device):raise RuntimeError('Collection not committed before advantage finalization')
-                finalize_advantages(rollout)
+                finalizer(rollout)
                 state['collections']+=1;state['raw_scene_exposures']+=world;state['new_candidates']+=world*8;state['scene_cursor']+=world
                 for k,v in rollout['seconds'].items():state['seconds_'+k]+=v
                 state['next_inner']=0
@@ -229,10 +236,10 @@ def main(runtime=None):
                 rollout['chain_identity']=rollout_digest(rollout)
                 # This check is cheap (metadata only), and commits the SAME source advantages.
                 error=None;summary=None
-                try:summary=validate_boundary(state,rollout,identity)
+                try:summary=boundary_validator(state,rollout,identity)
                 except Exception:error=traceback.format_exc()
                 checkpoint.check_errors(error)
-                validate_ranks(checkpoint.gather(summary))
+                rank_validator(checkpoint.gather(summary))
                 # Every fresh chain remains replayable, including negative candidates.
                 behavior_path=root/'behavior'/f'collection{state["collections"]:06}'/f'rank{rank}.pt'
                 error=None
