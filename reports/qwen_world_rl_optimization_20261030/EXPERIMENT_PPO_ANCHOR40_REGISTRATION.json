@@ -1,0 +1,50 @@
+{
+  "schema": "world_rl_single_factor_arm_registration_v1",
+  "arm": "PPO_ANCHOR40",
+  "registered_unix": 1793359118.9911754,
+  "source": {
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v6_318829e415aa",
+    "commit": "318829e415aa475b4e1a3acc0f23d103d01b4893",
+    "created_unix": 1793359118.9838674,
+    "scope": "new PPO_ANCHOR40 only; all existing scientific learners preserve snapshots v1..v5"
+  },
+  "run": {
+    "parent_updates": 70000,
+    "parent_PDMS": 88.79290990699972,
+    "old_DEV_role": "TRAIN_DIAGNOSTIC; not held-out for full population arms",
+    "data_scenes": 103288,
+    "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+    "module": "tools.qwen_world_research.train",
+    "target_updates": 50000,
+    "id": "PPO_ANCHOR40",
+    "algorithm": "ppo_rawstd_anchor40",
+    "data_policy": "uniform_full",
+    "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ANCHOR40",
+    "status": "REGISTERED",
+    "stage_budget_updates": 1000,
+    "priority": 2,
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_ANCHOR40.yaml",
+    "config_sha256": "9ba68db8ecd346aaa6242f27cd382eb317b6e913cbf7081422e217ca52340030",
+    "host": "training-vla-zt",
+    "lease": "research",
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v6_318829e415aa",
+    "source_sha": "318829e415aa475b4e1a3acc0f23d103d01b4893",
+    "qualification_root": null,
+    "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_ANCHOR40/STATE.json",
+    "hypothesis": "Single-variable mean-IL-anchor coefficient50 to40, RAW global rewardstd retained. Probe whether BATCHSTD gain is reproducible by fixed PG/anchor rebalance. Fresh pinned IL70, same full stream/seed42, optimizer schedule50k; no SAFE mix."
+  },
+  "scientific_delta": {
+    "grpo.train.kl_beta": [
+      50,
+      40
+    ]
+  },
+  "other_scientific_changes": false,
+  "initialization": "fresh pinned IL70 model, fresh native optimizer/RNG; not a resume or new training seed",
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PORTFOLIO_10K_PAIRED.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/advantage_normalization_u001000.json"
+  ],
+  "math_caveat": "s*PG+50*anchor=s*(PG+50/s*anchor) only before advantage clipping; dynamic batch s, Adam state, clipping, eps and decay prevent optimizer equivalence",
+  "zero_extra_gpu_qualification": true
+}

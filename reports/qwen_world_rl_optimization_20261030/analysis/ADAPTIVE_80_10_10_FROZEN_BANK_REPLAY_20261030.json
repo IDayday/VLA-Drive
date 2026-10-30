@@ -1,0 +1,283 @@
+{
+  "GPU_process_actions": 0,
+  "at": "2026-10-30T11:17:15.156309+00:00",
+  "candidate_uniform_floor": 7.745333436604446e-06,
+  "cumulative_comparison": {
+    "10000": {
+      "actual35_40_25": {
+        "additional3072_training_unseen": 2820,
+        "exposure_effective_scene_count": 1226.6025562397272,
+        "feedback1024_exposures": 11697,
+        "feedback1024_fraction": 0.58485,
+        "feedback1024_unique_exposed": 723,
+        "maximum_scene_exposures": 121,
+        "population_coverage": 0.08425954612346062,
+        "scene_exposures": 20000,
+        "unique_scenes": 8703
+      },
+      "actual_observed_horizon": false,
+      "replay80_10_10": {
+        "additional3072_training_unseen": 2588,
+        "exposure_effective_scene_count": 7387.161113983896,
+        "feedback1024_exposures": 3806,
+        "feedback1024_fraction": 0.1903,
+        "feedback1024_unique_exposed": 707,
+        "maximum_scene_exposures": 36,
+        "population_coverage": 0.15206025869413678,
+        "scene_exposures": 20000,
+        "unique_scenes": 15706
+      },
+      "stage0_identical": true
+    },
+    "9000": {
+      "actual35_40_25": {
+        "additional3072_training_unseen": 2833,
+        "exposure_effective_scene_count": 1239.5935357492654,
+        "feedback1024_exposures": 10410,
+        "feedback1024_fraction": 0.5783333333333334,
+        "feedback1024_unique_exposed": 721,
+        "maximum_scene_exposures": 108,
+        "population_coverage": 0.07778251103710014,
+        "scene_exposures": 18000,
+        "unique_scenes": 8034
+      },
+      "actual_observed_horizon": true,
+      "replay80_10_10": {
+        "additional3072_training_unseen": 2624,
+        "exposure_effective_scene_count": 7173.855282968736,
+        "feedback1024_exposures": 3387,
+        "feedback1024_fraction": 0.18816666666666668,
+        "feedback1024_unique_exposed": 691,
+        "maximum_scene_exposures": 36,
+        "population_coverage": 0.13873828518317713,
+        "scene_exposures": 18000,
+        "unique_scenes": 14330
+      },
+      "stage0_identical": true
+    }
+  },
+  "current_uniform_floor": 3.3885833785144447e-06,
+  "limitations": [
+    "Counterfactual sampling coverage under the existing9 frozen current-policy banks; it does not simulate a policy trained with80/10/10 or predict score improvement.",
+    "Same actual stage seed and within-global-batch distinctness; stage0 identical. Different future policies would produce different future diagnostic banks.",
+    "Stage9 is published for9k\u219210k; its whole census is planned until10k actually completes.",
+    "Only lawful TRAIN bank scores select scenes; no NAVTEST scene identities/scores used."
+  ],
+  "live_stage_recipe_modified": false,
+  "minimum_probability_lift": 2.285714285714286,
+  "mixtures": {
+    "candidate": {
+      "IL_regression": 0.1,
+      "low_score": 0.1,
+      "uniform": 0.8
+    },
+    "current": {
+      "IL_regression": 0.25,
+      "low_score": 0.4,
+      "uniform": 0.35
+    }
+  },
+  "new_policy_or_inference_seed": false,
+  "population_scenes": 103288,
+  "schema": "world_rl_adaptive_mixture_frozen_bank_replay_v1",
+  "stage_rows": [
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 674.0815638692281,
+        "feedback1024_exposures": 1292,
+        "feedback1024_fraction": 0.646,
+        "max_scene_repeats": 17,
+        "unique_scenes": 1207
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 1000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1646.0905349794239,
+        "feedback1024_exposures": 389,
+        "feedback1024_fraction": 0.1945,
+        "max_scene_repeats": 7,
+        "unique_scenes": 1859
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 17623247966925933592,
+      "stage_index": 1
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 339.38571186153064,
+        "feedback1024_exposures": 1294,
+        "feedback1024_fraction": 0.647,
+        "max_scene_repeats": 70,
+        "unique_scenes": 1179
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 2000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1283.6970474967907,
+        "feedback1024_exposures": 412,
+        "feedback1024_fraction": 0.206,
+        "max_scene_repeats": 28,
+        "unique_scenes": 1850
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 4948923946965456059,
+      "stage_index": 2
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 453.20643553138456,
+        "feedback1024_exposures": 1298,
+        "feedback1024_fraction": 0.649,
+        "max_scene_repeats": 61,
+        "unique_scenes": 1223
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 3000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1389.854065323141,
+        "feedback1024_exposures": 430,
+        "feedback1024_fraction": 0.215,
+        "max_scene_repeats": 23,
+        "unique_scenes": 1842
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 14757800574633877897,
+      "stage_index": 3
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 658.1112207963146,
+        "feedback1024_exposures": 1328,
+        "feedback1024_fraction": 0.664,
+        "max_scene_repeats": 21,
+        "unique_scenes": 1214
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 4000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1632.6530612244899,
+        "feedback1024_exposures": 434,
+        "feedback1024_fraction": 0.217,
+        "max_scene_repeats": 12,
+        "unique_scenes": 1857
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 2989437549137533797,
+      "stage_index": 4
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 548.9980785067253,
+        "feedback1024_exposures": 1320,
+        "feedback1024_fraction": 0.66,
+        "max_scene_repeats": 34,
+        "unique_scenes": 1167
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 5000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1379.3103448275863,
+        "feedback1024_exposures": 416,
+        "feedback1024_fraction": 0.208,
+        "max_scene_repeats": 24,
+        "unique_scenes": 1847
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 12547543762968408376,
+      "stage_index": 5
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 663.7902422834385,
+        "feedback1024_exposures": 1279,
+        "feedback1024_fraction": 0.6395,
+        "max_scene_repeats": 16,
+        "unique_scenes": 1230
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 6000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1596.1691939345571,
+        "feedback1024_exposures": 438,
+        "feedback1024_fraction": 0.219,
+        "max_scene_repeats": 7,
+        "unique_scenes": 1829
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 15146361450101032544,
+      "stage_index": 6
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 683.526999316473,
+        "feedback1024_exposures": 1286,
+        "feedback1024_fraction": 0.643,
+        "max_scene_repeats": 15,
+        "unique_scenes": 1208
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 7000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1596.1691939345571,
+        "feedback1024_exposures": 425,
+        "feedback1024_fraction": 0.2125,
+        "max_scene_repeats": 6,
+        "unique_scenes": 1831
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 3965612536196917022,
+      "stage_index": 7
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 549.7526113249038,
+        "feedback1024_exposures": 1287,
+        "feedback1024_fraction": 0.6435,
+        "max_scene_repeats": 34,
+        "unique_scenes": 1197
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 8000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1586.0428231562253,
+        "feedback1024_exposures": 417,
+        "feedback1024_fraction": 0.2085,
+        "max_scene_repeats": 9,
+        "unique_scenes": 1844
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 2462992570998412332,
+      "stage_index": 8
+    },
+    {
+      "actual35_40_25": {
+        "exposure_effective_scene_count": 615.1953245155337,
+        "feedback1024_exposures": 1287,
+        "feedback1024_fraction": 0.6435,
+        "max_scene_repeats": 26,
+        "unique_scenes": 1203
+      },
+      "actual_min_selection_probability": 3.3885833785144447e-06,
+      "bank_updates": 9000,
+      "replay80_10_10": {
+        "exposure_effective_scene_count": 1569.8587127158555,
+        "feedback1024_exposures": 419,
+        "feedback1024_fraction": 0.2095,
+        "max_scene_repeats": 9,
+        "unique_scenes": 1839
+      },
+      "replay_expected_feedback_panel_mass": 0.20793122143908296,
+      "replay_min_selection_probability": 7.745333436604446e-06,
+      "same_stage_random_seed": 5549557926931875315,
+      "stage_index": 9
+    }
+  ]
+}

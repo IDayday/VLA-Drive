@@ -1,0 +1,133 @@
+{
+  "schema": "world_rl_evidence_based_arm_decision_v1",
+  "arm": "PPO_HARD",
+  "disposition": "STOP_FUTILITY",
+  "created_at": "2026-10-30T11:14:41.355174+00:00",
+  "reason": "Fixed15171-hard-only pool loses to full103288 at matched10k by0.283893 PDMS (44-log CI[0.011398,0.520610]); NC/DAC/TTC all lower, and own5k90.8544 to10k90.7356 declines. Preserve earlier checkpoints; allocate future compute to normalization/coverage studies.",
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PORTFOLIO_10K_PAIRED.json"
+  ],
+  "matched_budget_updates": 10000,
+  "control": "PPO_FULL",
+  "Test_selection_used": true,
+  "NAVTEST_used_for_training_scene_selection": false,
+  "scope": "opportunity-cost decision for this fixed hard-only schedule; not a claim against all hard-sample use",
+  "stop_mode": "native cooperative checkpoint; preserve optimizer/RNG/pending rollout",
+  "reason_details": {
+    "target": "PPO_FULL_u010000_NAVTEST",
+    "baseline": "PPO_HARD_u010000_NAVTEST",
+    "target_PDMS": 91.01948815223066,
+    "baseline_PDMS": 90.73559499508066,
+    "delta_PDMS": 0.2838931571494536,
+    "CI95_PDMS": [
+      0.011398340108896813,
+      0.5206101548994304
+    ],
+    "CI_excludes_zero": true,
+    "G_plus_PDMS": 1.1678683196669106,
+    "G_minus_PDMS": -0.883975162517457,
+    "paired": {
+      "mean_delta": 0.0028389315714945364,
+      "CI95": [
+        0.00011398340108896813,
+        0.005206101548994304
+      ],
+      "bootstrap": 2000,
+      "bootstrap_seed": 42,
+      "physical_groups": 44,
+      "repaired_zero": 88,
+      "new_zero": 38,
+      "high_to_zero": 32,
+      "scene_denominator": 12146,
+      "baseline_zero_denominator": 293,
+      "baseline_nonzero_denominator": 11853,
+      "baseline_high_denominator": 11366,
+      "repaired_zero_rate": 0.3003412969283277,
+      "new_zero_rate": 0.00320593942461824,
+      "high_to_zero_rate": 0.0028154143938060885,
+      "safety_transitions": {
+        "no_at_fault_collisions": {
+          "new_failure": 11,
+          "repaired_failure": 43,
+          "baseline_pass": 11981,
+          "baseline_failure": 165
+        },
+        "drivable_area_compliance": {
+          "new_failure": 29,
+          "repaired_failure": 46,
+          "baseline_pass": 12001,
+          "baseline_failure": 145
+        },
+        "time_to_collision_within_bound": {
+          "new_failure": 46,
+          "repaired_failure": 136,
+          "baseline_pass": 11699,
+          "baseline_failure": 447
+        }
+      },
+      "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+    },
+    "safety_metrics": {
+      "score": {
+        "target_mean_percent": 91.01948815223028,
+        "baseline_mean_percent": 90.73559499508082,
+        "delta_percentage_points": 0.2838931571494536
+      },
+      "no_at_fault_collisions": {
+        "target_mean_percent": 98.95438827597562,
+        "baseline_mean_percent": 98.68681047258356,
+        "delta_percentage_points": 0.2675778033920632,
+        "new_failure": 11,
+        "repaired_failure": 43,
+        "baseline_pass": 11981,
+        "baseline_failure": 165
+      },
+      "drivable_area_compliance": {
+        "target_mean_percent": 98.94615511279433,
+        "baseline_mean_percent": 98.80619133871234,
+        "delta_percentage_points": 0.1399637740820023,
+        "new_failure": 29,
+        "repaired_failure": 46,
+        "baseline_pass": 12001,
+        "baseline_failure": 145
+      },
+      "time_to_collision_within_bound": {
+        "target_mean_percent": 97.06076074427796,
+        "baseline_mean_percent": 96.31977605796148,
+        "delta_percentage_points": 0.7409846863164828,
+        "new_failure": 46,
+        "repaired_failure": 136,
+        "baseline_pass": 11699,
+        "baseline_failure": 447
+      },
+      "ego_progress": {
+        "target_mean_percent": 83.22404940028608,
+        "baseline_mean_percent": 83.59897705495216,
+        "delta_percentage_points": -0.37492765466607064
+      },
+      "comfort": {
+        "target_mean_percent": 99.97530051045612,
+        "baseline_mean_percent": 99.95883418409352,
+        "delta_percentage_points": 0.016466326362588508
+      },
+      "driving_direction_compliance": {
+        "target_mean_percent": 98.35336736374116,
+        "baseline_mean_percent": 97.97875843899226,
+        "delta_percentage_points": 0.3746089247488885
+      }
+    },
+    "changed_scores": {
+      "improved": 3436,
+      "degraded": 4985,
+      "unchanged_within_epsilon": 3725,
+      "improved_at_least5_scene_PDMS": 226,
+      "degraded_at_least5_scene_PDMS": 129
+    },
+    "loss_decomposition": {
+      "EP_down_safety_unchanged_scenes": 4905,
+      "EP_down_safety_unchanged_Gminus_PDMS": -0.4664721072769492,
+      "new_safety_violation_degraded_scenes": 79,
+      "new_safety_violation_Gminus_PDMS": -0.4161308613769588
+    }
+  }
+}

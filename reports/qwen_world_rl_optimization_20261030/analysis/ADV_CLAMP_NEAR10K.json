@@ -1,0 +1,46 @@
+{
+  "schema": "world_BATCHSTD_near10k_advantage_cap_diagnostic_v1",
+  "status": "COMPLETE",
+  "utc": "2026-10-30T11:19:55.622232+00:00",
+  "updates": [
+    9501,
+    10000
+  ],
+  "collections": [
+    2376,
+    2500
+  ],
+  "groups": 1000,
+  "candidates": 8000,
+  "active_candidates": 7912,
+  "advantage_cap": 5.0,
+  "candidates_strictly_clamped": 0,
+  "strictly_clamped_fraction_all_candidates": 0.0,
+  "strictly_clamped_fraction_active_candidates": 0.0,
+  "candidates_touching_or_exceeding_cap": 0,
+  "groups_with_any_clamp": 0,
+  "collections_with_any_clamp": 0,
+  "maximum_absolute_stored_advantage": 4.84361457824707,
+  "raw_std_same_candidates_cap_hits": 0,
+  "cap_homogeneity_discrepancy_abs_sum": 0.00016428523233396746,
+  "cap_homogeneity_discrepancy_relative_to_unclipped_advantage_L1": 2.8847408772432563e-08,
+  "scale_mean": 1.1995173881095988,
+  "scale_median": 1.1697016053733136,
+  "scale_p90": 1.4045889642959382,
+  "effective_beta_mean": 42.11894357272397,
+  "beta_of_mean_scale": 41.68343076610036,
+  "equivalence_limitations": [
+    "PG_C=s*PG_RAW holds before advantage cap5 and FP32 rounding, on fixed candidates, ratios, masks and discount1.",
+    "At cap hits, different clipping changes weights nonuniformly; per-batch beta50/s is not a strict global optimizer equivalence.",
+    "s varies across batches; Adam moments, eps, decoupled weight decay and possible gradient clipping prevent exact optimizer equivalence. Observed clip1 did not activate.",
+    "RAWstd+beta40 is a fixed-scale attribution control, not a reimplementation of BATCHSTD."
+  ],
+  "provenance": {
+    "run": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_BATCHSTD",
+    "banks_read": 1000,
+    "inventory_sizes_sha256": "50586e566292b37e6f58c274caffb3bc7198631a932fa7ca961090b01273c9bc",
+    "new_forwards": 0,
+    "new_scores": 0,
+    "new_GPU": 0
+  }
+}

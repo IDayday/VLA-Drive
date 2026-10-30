@@ -1,0 +1,150 @@
+{
+  "arm": "NFT_FULL",
+  "at": "2026-10-30T11:10:45.928727+00:00",
+  "checkpoint": {
+    "files_sha256": "a102e06f353283312dbf48dc66d38c201f26432918e066d5ed6d839f1583a02d",
+    "next_inner": 0,
+    "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/NFT_FULL/checkpoints/update028580_inner0",
+    "phase": "READY",
+    "updates": 28580
+  },
+  "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/NFT_FULL.json",
+  "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/NFT_FULL/formal_to035000_attempt001",
+  "native_job_exited": true,
+  "optimizer_state_retained": true,
+  "result": {
+    "additional_research_slot": true,
+    "child_pid": 1947777,
+    "child_start_ticks": 1478878758,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc-per-node=8",
+      "-m",
+      "starVLA.rl.qwen_world_research_algorithms.train_nft",
+      "--config",
+      "/mnt/project/qwen-world-rl-optimization-20261030/configs/NFT_FULL.yaml",
+      "--manifest",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "--output",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/NFT_FULL",
+      "--il-checkpoint",
+      "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "--parent-selection",
+      "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+      "--data",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+      "--stop-after-update",
+      "35000",
+      "--resume",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/NFT_FULL/checkpoints/update020000_inner0"
+    ],
+    "cwd": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v2_ab72937ea9e2",
+    "deadline_unix": 1793328409.0145648,
+    "end_unix": 1793358645.9045966,
+    "evaluation_slot": false,
+    "gpu_uuids": [
+      "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+      "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+      "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+      "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+      "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+      "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+      "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+      "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+    ],
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "guard_unix": 1793327209.0145648,
+    "host": "training-vla-zt",
+    "known_rank_processes": [
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947780,
+        "pid": 1947780,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      },
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947781,
+        "pid": 1947781,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      },
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947782,
+        "pid": 1947782,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      },
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947783,
+        "pid": 1947783,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      },
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947784,
+        "pid": 1947784,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      },
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947785,
+        "pid": 1947785,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      },
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947786,
+        "pid": 1947786,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      },
+      {
+        "entry": "starVLA.rl.qwen_world_research_algorithms.train_nft",
+        "pgid": 1947787,
+        "pid": 1947787,
+        "start_ticks": 1478878915,
+        "usr1_handler": true
+      }
+    ],
+    "migration_required": false,
+    "receipt": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/NFT_FULL/formal_to035000_attempt001",
+    "requested_gpu_uuids": [
+      "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+      "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+      "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+      "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+      "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+      "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+      "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+      "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+    ],
+    "returncode": 0,
+    "shared_headroom_MiB": 32768,
+    "start_unix": 1793350174.0333807,
+    "status": "EXITED",
+    "temporary": false,
+    "worker_pid": 1947768,
+    "worker_start_ticks": 1478878713
+  },
+  "status": "STOPPED_FUTILITY",
+  "training_seed_unchanged": true
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "world_rl_evidence_based_arm_decision_v1",
+  "arm": "NFT_FULL",
+  "disposition": "STOP_FUTILITY",
+  "created_at": "2026-10-30T11:07:54.048721+00:00",
+  "reason": "NFT1k/5k/10k/20k has no sustained improvement over IL70; at20k88.7213 vsIL88.7929, whereas PPO10k91.0195. Release remaining budget for targeted PPO and unseen-TRAIN diagnostics.",
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/NFT_FUTILITY_REVIEW_20261030.json"
+  ],
+  "evidence_complete_test_budgets": [
+    1000,
+    5000,
+    10000,
+    20000
+  ],
+  "user_instruction": "值得继续探索的方法就继续实验，没有潜力的方法就及时终止，留出资源给优先级更高的研究路线",
+  "Test_selection_used": true,
+  "NAVTEST_used_for_training_scene_selection": false,
+  "stop_mode": "native cooperative checkpoint; no force kill; preserve optimizer/RNG/pending rollout",
+  "no_new_training_seed": true
+}

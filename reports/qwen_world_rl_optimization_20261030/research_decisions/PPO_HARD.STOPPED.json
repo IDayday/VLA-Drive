@@ -1,0 +1,101 @@
+{
+  "arm": "PPO_HARD",
+  "at": "2026-10-30T11:14:56.861144+00:00",
+  "checkpoint": {
+    "files_sha256": "cd90bf11c51b157ca2a1b4dea5640863a6a17bdd66d2e3082a51b3064d7ee0d9",
+    "next_inner": 2,
+    "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_HARD/checkpoints/update013774_inner2",
+    "phase": "INNER_COMMITTED",
+    "updates": 13774
+  },
+  "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_HARD.json",
+  "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_HARD/formal_to020000_attempt002",
+  "native_job_exited": true,
+  "optimizer_state_retained": true,
+  "result": {
+    "additional_research_slot": false,
+    "child_pid": 70534,
+    "child_start_ticks": 184767618,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc-per-node=8",
+      "-m",
+      "tools.qwen_world_research.train",
+      "--config",
+      "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_HARD.yaml",
+      "--manifest",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/WORLD_HARD_15171.json",
+      "--output",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_HARD",
+      "--il-checkpoint",
+      "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "--parent-selection",
+      "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+      "--data",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+      "--stop-after-update",
+      "20000",
+      "--resume",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_HARD/checkpoints/update010500_inner0"
+    ],
+    "cwd": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v3_4e61823bb3a8",
+    "deadline_unix": 1793328409.0145648,
+    "end_unix": 1793358896.3012052,
+    "evaluation_slot": false,
+    "gpu_uuids": [
+      "GPU-ba6629ed-35db-198b-d353-d6048cbdf36b",
+      "GPU-c976d64e-44ea-d8bd-a026-d1c1f14d4db6",
+      "GPU-e2a93cb8-47e2-0b2f-952e-bcfa5403ad24",
+      "GPU-28ad5baf-48e8-8ea7-2e0b-514cc7f2d690",
+      "GPU-a7b3b440-0f0e-d35e-508a-98b368e9a753",
+      "GPU-07454d91-a706-9214-2999-0ec63e16c489",
+      "GPU-69f7a391-b4e5-fefd-2b4e-721834060a20",
+      "GPU-a4a674df-d68f-fa69-13be-0f089a4cd6af"
+    ],
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "guard_unix": 1793327209.0145648,
+    "host": "training-vlawm-tsinghua-zt5",
+    "known_rank_processes": [
+      {
+        "entry": "tools.qwen_world_research.train",
+        "pgid": 70553,
+        "pid": 70553,
+        "start_ticks": 184767779,
+        "usr1_handler": false
+      }
+    ],
+    "migration_required": false,
+    "receipt": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_HARD/formal_to020000_attempt002",
+    "requested_gpu_uuids": [
+      "GPU-ba6629ed-35db-198b-d353-d6048cbdf36b",
+      "GPU-c976d64e-44ea-d8bd-a026-d1c1f14d4db6",
+      "GPU-e2a93cb8-47e2-0b2f-952e-bcfa5403ad24",
+      "GPU-28ad5baf-48e8-8ea7-2e0b-514cc7f2d690",
+      "GPU-a7b3b440-0f0e-d35e-508a-98b368e9a753",
+      "GPU-07454d91-a706-9214-2999-0ec63e16c489",
+      "GPU-69f7a391-b4e5-fefd-2b4e-721834060a20",
+      "GPU-a4a674df-d68f-fa69-13be-0f089a4cd6af"
+    ],
+    "returncode": 0,
+    "shared_headroom_MiB": 32768,
+    "start_unix": 1793352360.7203062,
+    "status": "EXITED",
+    "temporary": false,
+    "worker_pid": 70525,
+    "worker_start_ticks": 184767554
+  },
+  "status": "STOPPED_FUTILITY",
+  "training_seed_unchanged": true
+}
