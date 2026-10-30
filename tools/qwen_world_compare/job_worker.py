@@ -129,7 +129,9 @@ def _known_owners(rows,mapping,indices):
         try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
-        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
+        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-',
+                                  '/mnt/project/qwen-world-four-frameworks-',
+                                  '/mnt/project/qwen-world-rl-optimization-'))for arg in args):
             raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
 
 

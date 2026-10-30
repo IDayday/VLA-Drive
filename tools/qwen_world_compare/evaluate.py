@@ -194,11 +194,18 @@ def worker(args):
             policy_lineage=dict(IL_updates=meta['IL_updates'], RL_updates=meta.get('RL_updates'),
                 IL_parent_model_sha256=parent['model_sha256'], prediction_type='x0'))
         if args.cohort == 'NAVTEST' and not args.qualification:
-            if not args.selection or not args.policy_role or not args.dev_evaluation:
-                raise ValueError('Formal Navtest needs frozen DEV selection, policy role and its own DEV evaluation')
-            identity['selection'] = validate_evaluation_selection(args.selection, args.policy_role, meta)
-            identity['DEV_binding'] = _dev_binding(args.dev_evaluation, meta=meta,
-                protocol_sha256=service.protocol['sha256'], numerics=identity['numerics'])
+            if getattr(args,'user_interim_registration',None):
+                if args.selection or args.policy_role or args.dev_evaluation or args.limit:
+                    raise ValueError('Interim observation cannot also select a policy or limit Test')
+                from starVLA.rl.qwen_world_compare.interim_navtest import validate_registration
+                identity['user_interim_observation'] = validate_registration(args.user_interim_registration,
+                    meta, data_sha256=data.sha, protocol_sha256=service.protocol['sha256'])
+            else:
+                if not args.selection or not args.policy_role or not args.dev_evaluation:
+                    raise ValueError('Formal Navtest needs frozen DEV selection, policy role and its own DEV evaluation')
+                identity['selection'] = validate_evaluation_selection(args.selection, args.policy_role, meta)
+                identity['DEV_binding'] = _dev_binding(args.dev_evaluation, meta=meta,
+                    protocol_sha256=service.protocol['sha256'], numerics=identity['numerics'])
         identity['sha256'] = fingerprint(identity)
         with (output/'identity.lock').open('a') as guard:
             fcntl.flock(guard, fcntl.LOCK_EX)
@@ -294,8 +301,12 @@ def main():
     parser.add_argument('--selection');parser.add_argument('--policy-role',
         choices=('il_endpoint', 'il_selected', 'rl_endpoint', 'rl_selected'))
     parser.add_argument('--dev-evaluation');parser.add_argument('--native-parity-output')
+    parser.add_argument('--user-interim-registration',help='Exact full Test observation requested by user; no parent selection')
     parser.add_argument('--summarize', action='store_true');parser.add_argument('--evaluation');parser.add_argument('--baseline')
     args = parser.parse_args()
+    if args.user_interim_registration and (args.cohort!='NAVTEST' or args.qualification or args.limit
+            or args.selection or args.policy_role or args.dev_evaluation or not args.export):
+        parser.error('Interim Test requires one formal export, full NAVTEST and no selection/qualification')
     if args.summarize:
         if not args.evaluation:
             parser.error('--summarize requires --evaluation')
