@@ -1,5 +1,6 @@
 """Assemble existing sealed current observations; never fabricate or filter scenes."""
 from collections import Counter
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -12,7 +13,8 @@ PARTITION = Path('/mnt/project/qwen-world-postcot-20261025/data/DATA_PARTITION.j
 SOURCE_ROOT = Path('/mnt/project/qwen-sourceflow-native-20261018/data')
 HARD = Path('/mnt/project/simwam-source-process-20261018/source_manifest.json')
 CACHE_ROOTS = [Path('/mnt/project/flow-safe-improvement-20261013/metric_cache_v1'),
-               Path('/mnt/project/constrained-flow-noise-20261014/metric_cache_v1')]
+               Path('/mnt/project/constrained-flow-noise-20261014/metric_cache_v1'),
+               Path('/mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache')]
 SCHEMA = 'world_rl_research_scene_stream_v1'
 
 def fingerprint(value):
@@ -81,7 +83,7 @@ def write_stream_manifest(path, *, data_root, tokens, name, mode='uniform', seed
     atomic_json(path, sealed(body))
     return read_sealed(path)
 
-def build_population(output, *, verify_files=True):
+def build_population(output, *, verify_files=True, reuse_asset_audit=None):
     """Seal all 103,288 native NAVTRAIN records using existing source records."""
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     pop = json.loads(POPULATION.read_text()); roles = json.loads(PARTITION.read_text())
@@ -107,9 +109,30 @@ def build_population(output, *, verify_files=True):
     train_physical = {physical(log) for log in train_logs}
     if train_logs&test_logs or train_physical&test_physical:
         raise ValueError('NAVTRAIN/NAVTEST log overlap')
-    missing_images = []; missing_caches = []; cache_counts = Counter()
+    missing_images = []; missing_caches = []; cache_counts = Counter(); reuse = None
+    inspect_tokens = tokens
+    if reuse_asset_audit is not None:
+        previous = read_sealed(reuse_asset_audit)
+        previous_missing = previous['missing_metric_caches']
+        if (not verify_files or previous['schema'] != 'world_rl_NAVTRAIN_population_audit_v1'
+                or previous['population_sha256'] != population_sha
+                or previous['source_records'] != sources
+                or previous['full_NAVTRAIN_count'] != len(tokens)
+                or previous['file_existence_checked'] is not True
+                or previous['missing_current_images']
+                or len(previous_missing) != len(set(previous_missing))
+                or not set(previous_missing) <= set(tokens)
+                or sum(previous['cache_root_counts'].values()) + len(previous_missing) != len(tokens)):
+            raise ValueError('Asset audit reuse must identify the exact fully checked immutable source population')
+        cache_counts.update(previous['cache_root_counts'])
+        inspect_tokens = previous_missing
+        reuse = dict(path=str(Path(reuse_asset_audit).resolve()), sha256=file_sha(reuse_asset_audit),
+                     prior_successful_image_checks=len(tokens)*3,
+                     prior_successful_cache_checks=len(tokens)-len(previous_missing),
+                     newly_checked_scenes=len(inspect_tokens),
+                     inventory_is_not_a_new_payload_hash_or_future_existence_guarantee=True)
     if verify_files:
-        for token in tokens:
+        for token in inspect_tokens:
             row = records[token]
             for camera in ('cam_l0', 'cam_f0', 'cam_r0'):
                 path = row['images'].get(camera)
@@ -123,6 +146,7 @@ def build_population(output, *, verify_files=True):
             else:
                 cache_counts[str(cache.parents[3])] += 1
     audit = dict(schema='world_rl_NAVTRAIN_population_audit_v1', population_sha256=population_sha,
+                 completed_at_utc=datetime.now(timezone.utc).isoformat(),asset_audit_reuse=reuse,
                  full_NAVTRAIN_count=len(tokens), original_native_TRAIN_count=len(pop['train_tokens']),
                  old_DEV_count=len(pop['dev_tokens']), world_TRAIN_count=len(roles['train_tokens']),
                  embargoed_native_TRAIN_count=len(roles['embargoed_train_tokens']),
@@ -152,6 +176,7 @@ def build_population(output, *, verify_files=True):
                     token_logs={t:pop['token_logs'][t] for t in tokens},
                     records_file='records.pkl', records_sha256=file_sha(record_path),
                     current_camera_order=['cam_l0','cam_f0','cam_r0'], source_records=sources,
+                    canonical_metric_cache_roots=[str(root) for root in CACHE_ROOTS],
                     current_only_actor_inputs=True, future_targets_are_not_actor_inputs=True,
                     NAVTEST_tokens_excluded=True, NAVTEST_physical_logs_excluded=True)
     atomic_json(output/'manifest.json', manifest)
