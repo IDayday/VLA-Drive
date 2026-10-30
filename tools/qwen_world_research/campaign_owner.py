@@ -27,6 +27,10 @@ SAFETY = ('no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collisi
 SCHEMA = 'world_rl_optimization_campaign_owner_v1'
 
 
+class ArmStoppedByResearchDecision(Exception):
+    """A separately recorded allocation decision, never a scientific failure."""
+
+
 def now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -153,7 +157,7 @@ def select_survivors(summaries, *, score_tolerance=.25, safety_tolerance=.25, ma
 
 
 def select_at_gate(gate, summaries, *, score_tolerance=.25, safety_tolerance=.25):
-    """Scores set resource priority only; every healthy arm keeps its budget.
+    """Scores set priority; only separate research receipts end an arm.
 
     The later continuation policy supersedes the original max2/.25-point cap.
     No score, including a small or unconfirmed deficit, ends an experiment.
@@ -173,7 +177,7 @@ def select_at_gate(gate, summaries, *, score_tolerance=.25, safety_tolerance=.25
         decisions={arm:dict(selected_for_next_gate=True,resource_priority=index,
             reason='healthy experiment retains its planned budget; score informs resource priority only')
             for index,arm in enumerate(selected)},
-        interpretation='all healthy arms continue; any future futility/reserve decision requires a separate evidence-based receipt')
+        interpretation='default budget retained unless a separate evidence-based research stop receipt supersedes it')
 
 
 class CampaignOwner:
@@ -229,7 +233,9 @@ class CampaignOwner:
             automatic_pruning=False,continuation_policy_supersedes_max2_budget_cap=True,
             first_pruning_gate=None,first_budget_priority_gate=FIRST_PRIORITY_GATE,
             first_gate_diagnostic_only=True,
-            first_gate_Test_selection_used=False,all_healthy_arms_continue_to=50000,
+            first_gate_Test_selection_used=False,default_budget_updates=50000,
+            evidence_based_arm_stops=True,arm_decisions=str(self.owner_root/'arm_decisions'),
+            later_user_futility_instruction_supersedes_unconditional_continuation=True,
             first_gate_global_barrier=False,first_gate_waits_for_NAVTEST=False,
             first_gate_results_required_before_first_priority=False,
             independent_arm_pipelines=True,global_training_barriers=False,
@@ -259,6 +265,40 @@ class CampaignOwner:
         with self.mutex:
             self.state['runs'][arm].update(values)
             self.flush()
+
+    def arm_stop_decision(self, arm):
+        path=self.owner_root/'arm_decisions'/f'{arm}.json'
+        decision=read_json(path,{})
+        if not decision:return None
+        if (decision.get('arm')!=arm or decision.get('disposition')!='STOP_FUTILITY'
+                or not decision.get('reason') or not decision.get('evidence')
+                or not all(Path(p).is_file() for p in decision['evidence'])):
+            raise ValueError('Incomplete evidence-based arm decision: '+str(path))
+        return dict(decision,path=str(path))
+
+    def stop_arm(self, arm, decision):
+        """Cooperatively seal this arm, release its exact job and retain results."""
+        current=next(r for r in read_json(self.root/'RUNS.json')['runs'] if r['id']==arm)
+        job=Path(current['job'])
+        self.update_arm(arm,status='STOPPING_BY_RESEARCH_DECISION',research_decision=decision)
+        if not (job/'RESULT.json').exists():
+            (job/'STOP_REQUESTED').touch()
+            self.event('research_arm_cooperative_stop_requested',arm=arm,job=str(job),decision=decision['path'])
+        result=self.dispatcher.wait_job(str(job))
+        self.dispatcher.wait_transport_exit(str(job))
+        if result_code(result)!=0 and not (result_code(result)==75 and result.get('child_not_started') is True):
+            raise RuntimeError('Research stop did not exit cleanly; retain failure: '+json.dumps(result)[:1500])
+        checkpoint=native_checkpoint(current['root'])
+        receipt=dict(arm=arm,status='STOPPED_FUTILITY',decision=decision['path'],job=str(job),
+            result=result,checkpoint=checkpoint,at=now(),native_job_exited=True,
+            optimizer_state_retained=True,training_seed_unchanged=True)
+        atomic_json(self.owner_root/'arm_decisions'/f'{arm}.STOPPED.json',receipt)
+        self.update_arm(arm,status='STOPPED_FUTILITY',updates=checkpoint['updates'],
+                        checkpoint=checkpoint['path'],research_stop_receipt=receipt)
+        self.update_run_registry(arm,status='STOPPED_FUTILITY',completed_updates=checkpoint['updates'],
+                                 last_checkpoint=checkpoint['path'],research_decision=decision['path'])
+        self.capacity_released()
+        self.event('arm_stopped_futility',arm=arm,updates=checkpoint['updates'],decision=decision['path'])
 
     def capacity_released(self):
         """A real adopted worker exited; wake dispatchers without journal polls."""
@@ -302,6 +342,7 @@ class CampaignOwner:
         attempts=int(node.get('resource75_requeues',0))
         resource_epoch=None
         while True:
+            if self.arm_stop_decision(arm):raise ArmStoppedByResearchDecision()
             spec = node.get('spec')
             while spec is None:
                 if node.get('resource_capacity_wait'):
@@ -451,6 +492,7 @@ class CampaignOwner:
                 continue
             if code!=0:
                 raise RuntimeError('Formal training failed; preserve evidence and do not retry: '+json.dumps(result,default=str)[:2500])
+            if self.arm_stop_decision(arm):raise ArmStoppedByResearchDecision()
             checkpoint=native_checkpoint(self.runs[arm]['root'],expected_update=target)
             with self.mutex:
                 node.update(checkpoint=checkpoint['path'],train_completed=True,updates=target,train_completed_at=now())
@@ -532,7 +574,13 @@ class CampaignOwner:
                 decision.update(available_result_arms=list(summaries),
                     pending_result_arms=[arm for arm in FIRST_ARMS if arm not in summaries],
                     training_barrier=False,automatic_pruning=False,
-                    all_healthy_arms_continue_to=50000)
+                    default_budget_updates=50000,evidence_based_arm_stops=True)
+                for arm in summaries:
+                    stop=self.arm_stop_decision(arm)
+                    if stop:
+                        decision.setdefault('decisions',{}).setdefault(arm,{}).update(
+                            selected_for_next_gate=False,reason=stop['reason'],decision_receipt=stop['path'])
+                        decision['selected']=[a for a in decision['selected'] if a!=arm]
                 self.state['selections'][str(gate)]=decision
             if (self.state.get('status') in ('RUNNING','RUNNING_CONTROL_REVIEW_REQUIRED')
                     and self.state['runs']['PPO_FULL'].get('status')=='FAILED_REQUIRES_REVIEW'):
@@ -546,10 +594,15 @@ class CampaignOwner:
             if self.state['runs'][arm].get('status')=='FAILED_REQUIRES_REVIEW':
                 self.event('failed_arm_preserved_for_review',arm=arm)
                 return 'FAILED_REQUIRES_REVIEW'
+            stop=self.arm_stop_decision(arm)
+            if stop:
+                if self.state['runs'][arm].get('status')!='STOPPED_FUTILITY':self.stop_arm(arm,stop)
+                return 'STOPPED_FUTILITY'
             adaptive=self.runs[arm]['data_policy']=='adaptive'
             boundaries=range(1000,50001,1000) if adaptive else GATES
             checkpoint=self.state['runs'][arm].get('checkpoint')
             for target in boundaries:
+                if self.arm_stop_decision(arm):raise ArmStoppedByResearchDecision()
                 self.check_arm_evaluations(arm)
                 if (self.owner_root/'STOP_AFTER_CURRENT_STAGE').exists():
                     self.update_arm(arm,status='HELD_BY_STOP_REQUEST');return 'HELD_BY_STOP_REQUEST'
@@ -578,6 +631,16 @@ class CampaignOwner:
             self.update_run_registry(arm,status='COMPLETE',completed_updates=50000)
             self.event('arm_complete',arm=arm,updates=50000)
             return 'COMPLETE'
+        except ArmStoppedByResearchDecision:
+            try:
+                self.stop_arm(arm,self.arm_stop_decision(arm))
+                return 'STOPPED_FUTILITY'
+            except Exception:
+                error=traceback.format_exc()
+                self.update_arm(arm,status='FAILED_REQUIRES_REVIEW',error=error)
+                self.update_run_registry(arm,status='FAILED_REQUIRES_REVIEW',controller_error=error)
+                self.event('research_stop_requires_review',arm=arm,error=error[-2500:])
+                return 'FAILED_REQUIRES_REVIEW'
         except Exception:
             error=traceback.format_exc()
             self.update_arm(arm,status='FAILED_REQUIRES_REVIEW',error=error)
@@ -605,7 +668,9 @@ class CampaignOwner:
         pool.shutdown(wait=True)
         self.aggregate_priorities()
         statuses={arm:self.state['runs'][arm]['status'] for arm in FIRST_ARMS}
-        self.state['status']=('COMPLETE' if all(s=='COMPLETE' for s in statuses.values()) else
+        self.state['status']=('COMPLETE_WITH_RESEARCH_STOPS' if 'STOPPED_FUTILITY' in statuses.values()
+                              and all(s in ('COMPLETE','STOPPED_FUTILITY') for s in statuses.values()) else
+                              'COMPLETE' if all(s=='COMPLETE' for s in statuses.values()) else
                               'HELD_BY_STOP_REQUEST' if 'HELD_BY_STOP_REQUEST' in statuses.values() else
                               'COMPLETE_WITH_FAILED_ARMS_REVIEW_REQUIRED')
         self.event('campaign_pipelines_finished',statuses=statuses)
@@ -624,12 +689,13 @@ def main():
     if args.plan_only:
         runs=read_json(args.root/'RUNS.json')['runs']
         print(json.dumps(dict(root=str(args.root),adopt=[{k:r.get(k) for k in ('id','job','source','root')} for r in runs if r['id'] in FIRST_ARMS],
-                              gates=GATES,always_continue='all healthy arms',max_challengers=None,
+                              gates=GATES,always_continue='control; other arms unless separate evidence-based stop',max_challengers=None,
                               automatic_pruning=False,continuation_policy_supersedes_max2_budget_cap=True,
                               adaptive_intermediate_updates=1000,heartbeat_seconds=1800,
                               first_pruning_gate=None,first_budget_priority_gate=FIRST_PRIORITY_GATE,
                               first_gate_diagnostic_only=True,
-                              first_gate_Test_selection_used=False,all_healthy_arms_continue_to=50000,
+                              first_gate_Test_selection_used=False,default_budget_updates=50000,
+                              evidence_based_arm_stops=True,
                               first_gate_global_barrier=False,first_gate_waits_for_NAVTEST=False,
                               first_gate_results_required_before_first_priority=False,
                               independent_arm_pipelines=True,global_training_barriers=False,
