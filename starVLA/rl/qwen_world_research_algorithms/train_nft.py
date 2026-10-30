@@ -131,7 +131,7 @@ def main():
     scheduler=actor._loss._build_scheduler(cfg['lr_scheduler_type'],cfg['max_steps'],warmup)
     ema=BehaviorEMA(actor,decay=cfg['research'].get('nft_ema_decay',.9))
     generator=torch.Generator(device='cpu').manual_seed(seed_for('simwam_source_rank_rollout',cfg['seed'],rank))
-    service=(runtime.make_reward_service(cfg,args) if hasattr(runtime,'make_reward_service')
+    service=(runtime.make_reward_service() if hasattr(runtime,'make_reward_service')
              else RewardService(Path.cwd(),workers=1))
     identity=runtime.recipe_identity(cfg,args,conditions.sha)
     sources=runtime.source_files()
