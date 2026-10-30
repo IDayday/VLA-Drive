@@ -20,7 +20,7 @@ import sys
 import time
 
 from starVLA.rl.qwen_world_postcot.contracts import allowed_hosts, fingerprint, file_sha
-from starVLA.rl.qwen_world_postcot.resources import probe, gpu_activity_issue
+from starVLA.rl.qwen_world_postcot.resources import probe, gpu_activity_issue, remote
 
 MODEL='/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
 TASK='qwen_world_rl_optimization_20261030'
@@ -138,9 +138,60 @@ def wait_job(job):
     return value
 
 
+def preferred_training_route(row,target_updates):
+    """One optional natural-gate preference; unavailable capacity never waits."""
+    fallback=(row.get('fallback_host',row['host']),row.get('fallback_lease',row.get('lease','primary')))
+    preferred=row.get('preferred_host');reason='not configured'
+    if not preferred:return row['host'],row.get('lease','primary'),None,reason
+    previous=int(row.get('stage_budget_updates',0))
+    if target_updates<int(row.get('from_target',0)):
+        return *fallback,None,'before preferred from_target'
+    if previous<=0 or target_updates<=previous or int(row.get('completed_updates',0))<previous:
+        return *fallback,None,'previous natural target not complete; use fallback'
+    lease=row.get('preferred_lease',row.get('lease','primary'))
+    lease_roots=dict(primary='/mnt/project/runtime_gpu_leases',
+        secondary='/mnt/project/runtime_gpu_shared_workers',research='/mnt/project/runtime_gpu_research_slots')
+    try:
+        if preferred not in allowed_hosts(admit_long_job=True) or lease not in lease_roots:
+            return *fallback,None,'preferred host/slot not currently authorized'
+        inventory=probe(preferred)
+        gpus={g['index']:g for g in inventory['gpus']}
+        if not all(i in gpus for i in range(8)):
+            return *fallback,None,'preferred host has fewer than eight visible GPUs'
+        selected=[gpus[i] for i in range(8)];owners=inventory['owners']
+        if len({g['uuid']for g in selected})!=8 or any(
+                g['free_MiB']<32768 or gpu_activity_issue(g,owners)
+                or any(not o.get('visible') for o in owners if o['uuid']==g['uuid']) for g in selected):
+            return *fallback,None,'preferred GPU headroom/owner accounting unavailable'
+        # Test the exact eight admission slots without blocking or writing.
+        # The worker independently rechecks UUIDs/owners/headroom under its locks.
+        code="""import fcntl,json,sys
+from pathlib import Path
+locks=[];free=True
+try:
+ for uuid in json.loads(sys.argv[2]):
+  path=Path(sys.argv[1])/(uuid+'.lock')
+  if not path.exists():continue
+  lock=path.open('r');locks.append(lock)
+  try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+  except BlockingIOError:free=False;break
+ print(json.dumps(dict(available=free)))
+finally:
+ for lock in locks:lock.close()
+"""
+        slots=json.loads(remote(preferred,['/usr/bin/python3','-c',code,lease_roots[lease],
+                                          json.dumps([g['uuid']for g in selected])],timeout=15))
+        if slots.get('available') is not True:
+            return *fallback,None,'preferred admission slots busy'
+        inventory=dict(inventory,gpus=selected)
+        return preferred,lease,inventory,'preferred eight-GPU route available at natural boundary'
+    except Exception as error:
+        return *fallback,None,'preferred unavailable; immediate fallback: '+type(error).__name__+': '+str(error)[:300]
+
+
 def dispatch_training(root,arm,target_updates,resume=None,source=None):
     root=Path(root);r=next(x for x in runs(root) if x['id']==arm)
-    source=Path(source or r['source']);host=r.get('host')
+    source=Path(source or r['source']);host,lease,inventory,route_reason=preferred_training_route(r,target_updates)
     if host not in allowed_hosts(admit_long_job=True):
         raise PermissionError('Training host is no longer authorized: '+str(host))
     jobs=root/'jobs'/arm;attempt=1
@@ -150,11 +201,20 @@ def dispatch_training(root,arm,target_updates,resume=None,source=None):
              '--il-checkpoint',str(root/'IL_PARENT'),'--parent-selection',str(root/'PARENT_SELECTION.json'),
              '--data',str(root/'data/NAVTRAIN'),'--stop-after-update',str(target_updates)]
     if resume:command+=['--resume',str(resume)]
-    inventory=probe(host);uuids=[g['uuid'] for g in inventory['gpus']]
+    inventory=inventory if inventory is not None else probe(host);uuids=[g['uuid'] for g in inventory['gpus']]
     job=start_worker(root,jobs/f'formal_to{target_updates:06}_attempt{attempt:03}',
         host=host,source=source,command=command,gpus=list(range(8)),uuids=uuids,
-        lease=r.get('lease','primary'),minimum_free=32768)
-    update_run(root,arm,status='TRAINING_DISPATCHED',job=job,stage_budget_updates=target_updates)
+        lease=lease,minimum_free=32768)
+    route_fields={}
+    if r.get('preferred_host'):
+        write(Path(job)/'ROUTE.json',dict(host=host,lease=lease,reason=route_reason,
+            preferred_host=r['preferred_host'],from_target=r.get('from_target',0),
+            fallback_host=r.get('fallback_host',r['host']),target_updates=target_updates,
+            gpu_uuids=uuids,minimum_free_MiB=32768,at_unix=time.time()))
+        route_fields=dict(host=host,lease=lease,last_route_reason=route_reason,
+            fallback_host=r.get('fallback_host',r['host']),
+            fallback_lease=r.get('fallback_lease',r.get('lease','primary')))
+    update_run(root,arm,status='TRAINING_DISPATCHED',job=job,stage_budget_updates=target_updates,**route_fields)
     return job
 
 
