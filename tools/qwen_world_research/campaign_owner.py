@@ -566,7 +566,7 @@ class CampaignOwner:
                                         adopted_historical_checkpoint=True)
                             self.flush()
                     else:
-                        checkpoint=self.train_to(arm,target,resume=checkpoint,adopt_first=target==1000)
+                        checkpoint=self.train_to(arm,target,resume=self.state['runs'][arm].get('checkpoint') or checkpoint,adopt_first=target==1000)
                         self.check_arm_evaluations(arm)
                 checkpoint=node['checkpoint']
                 if target>int(self.state['runs'][arm].get('updates',0)):
