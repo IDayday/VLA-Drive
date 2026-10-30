@@ -219,7 +219,7 @@ class CampaignOwner:
             arm_state['source'] = self.runs[arm].get('source')
         owner = dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
                      source_file=str(Path(__file__).resolve()),source_file_sha256=sha_file(__file__),
-                     started_at=now(),scope='adopt five existing jobs; continue bounded gates; never edit training snapshots')
+                     started_at=now(),scope='adopt existing jobs; independent arm budgets; never edit training snapshots')
         atomic_json(self.owner_root/'OWNER.json',owner)
         self.state['owner'] = owner
         self.state['status'] = 'RUNNING'
@@ -231,10 +231,14 @@ class CampaignOwner:
             first_gate_diagnostic_only=True,
             first_gate_Test_selection_used=False,all_healthy_arms_continue_to=50000,
             first_gate_global_barrier=False,first_gate_waits_for_NAVTEST=False,
-            first_gate_results_required_before_first_priority=True,
+            first_gate_results_required_before_first_priority=False,
+            independent_arm_pipelines=True,global_training_barriers=False,
+            periodic_NAVTEST_async=True,nonadaptive_TRAIN_diagnostics_async=True,
+            adaptive_waits_for_own_TRAIN_only=True,
             correction_registered_before_first_complete_new_1k_NAVTEST=True)
         self.eval_pool = ThreadPoolExecutor(max_workers=12,thread_name_prefix='research_eval')
-        self.nav_futures = {}
+        self.feedback_pool = ThreadPoolExecutor(max_workers=2,thread_name_prefix='adaptive_feedback')
+        self.evaluation_futures = {}
         self.baseline_future = None
         self.flush()
 
@@ -433,166 +437,155 @@ class CampaignOwner:
             self.event('training_stage_complete',arm=arm,updates=target,checkpoint=checkpoint['path'])
             return checkpoint['path']
 
-    def nav_evaluation(self, arm, update, checkpoint, node):
-        """Adopt one durable evaluation; retain failures across CPU-owner restarts."""
-        key=(arm,update)
+    def evaluation_future(self, arm, update, checkpoint, cohort):
+        """Adopt each immutable checkpoint/cohort once, independently of training."""
+        key=(arm,update,cohort)
         with self.mutex:
-            if key not in self.nav_futures:
+            node=self.stage(arm,update).setdefault(cohort,{})
+            if key not in self.evaluation_futures:
                 def evaluate():
                     if node.get('evaluation_error'):
                         raise RuntimeError('Prior evaluation failure requires review: '+node['evaluation_error'])
                     try:
-                        return self.run_evaluation(f'{arm}_u{update:06}_NAVTEST',checkpoint,
-                                                   cohort='NAVTEST',node=node)
+                        baseline=self.baseline_future.result() if cohort=='TRAIN_DIAGNOSTIC' else None
+                        suffix='TRAIN1024' if baseline else 'NAVTEST'
+                        summary=self.run_evaluation(f'{arm}_u{update:06}_{suffix}',checkpoint,
+                            cohort=cohort,node=node,baseline=baseline['output'] if baseline else None)
                     except Exception:
                         error=traceback.format_exc()
                         with self.mutex:
                             node.update(status='FAILED_REQUIRES_REVIEW',evaluation_error=error)
+                            self.state['runs'][arm]['evaluation_alert']=dict(updates=update,cohort=cohort,error=error)
                             self.flush()
-                        self.event('asynchronous_evaluation_failed',arm=arm,updates=update,error=error[-2500:])
+                        self.event('asynchronous_evaluation_failed',arm=arm,updates=update,cohort=cohort,error=error[-2500:])
                         raise
-                self.nav_futures[key]=self.eval_pool.submit(evaluate)
-            return self.nav_futures[key]
+                    with self.mutex:node['status']='COMPLETE';self.flush()
+                    # Aggregation is administrative: its failure must not turn a
+                    # valid scientific result into a failed training experiment.
+                    try:self.aggregate_priorities()
+                    except Exception:self.event('priority_aggregation_warning',error=traceback.format_exc()[-2500:])
+                    return summary
+                feedback=cohort=='TRAIN_DIAGNOSTIC' and self.runs[arm]['data_policy']=='adaptive'
+                pool=self.feedback_pool if feedback else self.eval_pool
+                self.evaluation_futures[key]=pool.submit(evaluate)
+            return self.evaluation_futures[key]
 
-    def check_first_diagnostic(self, arm):
-        future=self.nav_futures.get((arm,1000))
-        if future is not None and future.done():
-            future.result()  # A real scoring failure forbids further dispatches.
-
-    def evaluate_boundary(self, arm, update, checkpoint, *, navtest, wait_navtest=True):
-        baseline=self.baseline_future.result()
-        node=self.stage(arm,update)
+    def check_arm_evaluations(self, arm, *, wait_all=False):
         with self.mutex:
-            train_node=node.setdefault('TRAIN_DIAGNOSTIC',{})
-            nav_node=node.setdefault('NAVTEST',{})
-            historical=update<int(self.state['runs'][arm].get('updates',0))
-        if not historical:self.update_arm(arm,status='EVALUATING',updates=update)
-        train=self.eval_pool.submit(self.run_evaluation,f'{arm}_u{update:06}_TRAIN1024',checkpoint,
-                                    cohort='TRAIN_DIAGNOSTIC',node=train_node,baseline=baseline['output'])
-        nav=self.nav_evaluation(arm,update,checkpoint,nav_node) if navtest else None
-        train_summary=train.result()
-        if self.runs[arm]['data_policy']=='adaptive' and update<50000:
-            bank=train_node['spec'].get('training_bank')
+            futures=[future for key,future in self.evaluation_futures.items() if key[0]==arm]
+        for future in futures:
+            if wait_all or future.done():future.result()
+
+    def queue_boundary(self, arm, update, checkpoint):
+        adaptive=self.runs[arm]['data_policy']=='adaptive'
+        train=self.evaluation_future(arm,update,checkpoint,'TRAIN_DIAGNOSTIC')
+        if update in GATES:self.evaluation_future(arm,update,checkpoint,'NAVTEST')
+        if adaptive and update<50000:
+            if update>=int(self.state['runs'][arm].get('updates',0)):
+                self.update_arm(arm,status='WAITING_OWN_TRAIN_FEEDBACK')
+            train.result()
+            baseline=self.baseline_future.result()
+            bank=self.stage(arm,update)['TRAIN_DIAGNOSTIC']['spec'].get('training_bank')
             if not bank or not Path(bank).exists():raise RuntimeError('Current TRAIN diagnostic bank not complete')
             self.next_adaptive_stage(arm,update,bank,baseline['training_bank'])
-        if not historical:
-            self.update_arm(arm,status='TRAIN_PANEL_COMPLETE',updates=update)
-        if nav is not None and wait_navtest:
-            summary=nav.result()
-            if not historical:self.update_arm(arm,status='GATE_EVALUATED',updates=update)
-            return summary
-        return train_summary
+        self.event('boundary_evaluations_queued',arm=arm,updates=update,
+            training_waits_for='own TRAIN bank only' if adaptive and update<50000 else 'none',
+            other_arms_waited_for=False,NAVTEST_waited_for=False)
 
-    def advance_arm(self, arm, target, first=False):
+    def aggregate_priorities(self):
+        """Publish available matched-budget evidence without a training barrier."""
+        with self.mutex:
+            for gate in GATES:
+                summaries={arm:self.stage(arm,gate)['NAVTEST']['summary'] for arm in FIRST_ARMS
+                    if self.stage(arm,gate).get('NAVTEST',{}).get('summary')}
+                if not summaries:continue
+                if 'PPO_FULL' in summaries:
+                    _,decision=select_at_gate(gate,summaries,score_tolerance=self.score_tolerance,
+                                              safety_tolerance=self.safety_tolerance)
+                else:
+                    decision=dict(selected=list(summaries),Test_selection_used=False,
+                        control_comparison_pending=True,
+                        reason='Matched control unavailable; no paired screen or training hold')
+                decision.update(available_result_arms=list(summaries),
+                    pending_result_arms=[arm for arm in FIRST_ARMS if arm not in summaries],
+                    training_barrier=False,automatic_pruning=False,
+                    all_healthy_arms_continue_to=50000)
+                self.state['selections'][str(gate)]=decision
+            if (self.state.get('status') in ('RUNNING','RUNNING_CONTROL_REVIEW_REQUIRED')
+                    and self.state['runs']['PPO_FULL'].get('status')=='FAILED_REQUIRES_REVIEW'):
+                self.state['status']='RUNNING_CONTROL_REVIEW_REQUIRED'
+            self.flush()
+
+    def run_arm(self, arm):
+        """One serial native-training chain; other arms and scores never gate it."""
+        target=None
         try:
-            if first:
-                checkpoint=self.train_to(arm,1000,adopt_first=True)
-                self.evaluate_boundary(arm,1000,checkpoint,navtest=True,wait_navtest=False)
-                self.event('first_diagnostic_released_training',arm=arm,next_gate=target,
-                           NAVTEST_waited_for=False,other_arms_waited_for=False)
-            self.check_first_diagnostic(arm)
-            prior=int(self.state['runs'][arm].get('updates',0))
-            checkpoint=self.state['runs'][arm].get('checkpoint')
-            if prior>=target:
-                node=self.stage(arm,target)
-                if node.get('NAVTEST',{}).get('summary'):return node['NAVTEST']['summary']
-                checkpoint=node.get('checkpoint') or (checkpoint if prior==target else None)
-                if not checkpoint:raise RuntimeError('Historical gate has no preserved native checkpoint')
-                return self.evaluate_boundary(arm,target,checkpoint,navtest=True)
+            if self.state['runs'][arm].get('status')=='FAILED_REQUIRES_REVIEW':
+                self.event('failed_arm_preserved_for_review',arm=arm)
+                return 'FAILED_REQUIRES_REVIEW'
             adaptive=self.runs[arm]['data_policy']=='adaptive'
-            boundaries=list(range(prior+1000,target+1,1000)) if adaptive else [target]
-            for boundary in boundaries:
-                self.check_first_diagnostic(arm)
+            boundaries=range(1000,50001,1000) if adaptive else GATES
+            checkpoint=self.state['runs'][arm].get('checkpoint')
+            for target in boundaries:
+                self.check_arm_evaluations(arm)
                 if (self.owner_root/'STOP_AFTER_CURRENT_STAGE').exists():
-                    self.update_arm(arm,status='HELD_BY_STOP_REQUEST')
-                    return None
-                checkpoint=self.train_to(arm,boundary,resume=checkpoint)
-                self.check_first_diagnostic(arm)
-                summary=self.evaluate_boundary(arm,boundary,checkpoint,navtest=boundary==target)
-            return summary
+                    self.update_arm(arm,status='HELD_BY_STOP_REQUEST');return 'HELD_BY_STOP_REQUEST'
+                node=self.stage(arm,target)
+                if not node.get('train_completed'):
+                    committed=int(self.state['runs'][arm].get('updates',0))
+                    dispatched=int(self.runs[arm].get('stage_budget_updates',0))
+                    if target<=committed or target<dispatched:
+                        # Recover only this historical immutable checkpoint; do
+                        # not adopt a newer RUNS.job as an old first-stage job.
+                        old=native_checkpoint(self.runs[arm]['root'],expected_update=target)
+                        with self.mutex:
+                            node.update(checkpoint=old['path'],train_completed=True,updates=target,
+                                        adopted_historical_checkpoint=True)
+                            self.flush()
+                    else:
+                        checkpoint=self.train_to(arm,target,resume=checkpoint,adopt_first=target==1000)
+                        self.check_arm_evaluations(arm)
+                checkpoint=node['checkpoint']
+                if target>int(self.state['runs'][arm].get('updates',0)):
+                    self.update_arm(arm,updates=target,checkpoint=checkpoint)
+                self.queue_boundary(arm,target,checkpoint)
+            self.update_arm(arm,status='TRAINING_COMPLETE_EVALUATIONS_PENDING')
+            self.check_arm_evaluations(arm,wait_all=True)
+            self.update_arm(arm,status='COMPLETE',updates=50000)
+            self.update_run_registry(arm,status='COMPLETE',completed_updates=50000)
+            self.event('arm_complete',arm=arm,updates=50000)
+            return 'COMPLETE'
         except Exception:
             error=traceback.format_exc()
             self.update_arm(arm,status='FAILED_REQUIRES_REVIEW',error=error)
             self.update_run_registry(arm,status='FAILED_REQUIRES_REVIEW',controller_error=error)
             self.event('arm_stopped_after_failure',arm=arm,target=target,error=error[-2500:])
-            return None
+            return 'FAILED_REQUIRES_REVIEW'
 
-    def collect_first_diagnostics(self):
-        """First-1k scores may overlap training, but precede the first selection."""
-        summaries={}
-        for arm in FIRST_ARMS:
-            future=self.nav_futures.get((arm,1000))
-            if future is None:
-                if self.state['runs'][arm].get('status')!='FAILED_REQUIRES_REVIEW':
-                    raise RuntimeError('Healthy arm has no adopted first NAVTEST: '+arm)
-                continue
-            try:
-                summaries[arm]=future.result()
-            except Exception:
-                error=traceback.format_exc()
-                self.update_arm(arm,status='FAILED_REQUIRES_REVIEW',error=error)
-                self.update_run_registry(arm,status='FAILED_REQUIRES_REVIEW',controller_error=error)
-                self.event('arm_stopped_after_first_diagnostic_failure',arm=arm,error=error[-2500:])
-        _,decision=select_at_gate(1000,summaries)
-        with self.mutex:self.state['selections']['1000']=decision;self.flush()
-        self.event('first_diagnostics_collected_before_pruning',complete_arms=list(summaries),
-                   first_pruning_gate=None,first_budget_priority_gate=FIRST_PRIORITY_GATE,
-                   Test_selection_used=False)
-        return summaries
-
-    def parallel_gate(self, arms, target, *, first=False):
-        results={}
-        pool=ThreadPoolExecutor(max_workers=len(arms),thread_name_prefix='research_arm')
-        pending={pool.submit(self.advance_arm,arm,target,first):arm for arm in arms}
+    def run(self):
+        self.event('owner_adopted_independent_pipelines',arms=list(FIRST_ARMS),global_training_barriers=False)
+        self.baseline_future=self.feedback_pool.submit(self.baseline)
+        with self.mutex:
+            self.state.pop('current_gate',None)
+            self.state['scheduling']='independent per-arm native budgets; asynchronous periodic evaluations'
+            self.flush()
+        pool=ThreadPoolExecutor(max_workers=len(FIRST_ARMS),thread_name_prefix='research_arm')
+        pending={pool.submit(self.run_arm,arm):arm for arm in FIRST_ARMS}
         while pending:
             done,_=wait(pending,timeout=1800,return_when=FIRST_COMPLETED)
             if not done:
-                self.event('owner_heartbeat',target=target,waiting_arms=list(pending.values()))
+                self.event('owner_heartbeat',waiting_arms=list(pending.values()))
                 continue
-            for task in done:
-                arm=pending.pop(task);summary=task.result()
-                if summary is not None:results[arm]=summary
+            for future in done:
+                arm=pending.pop(future)
+                self.event('arm_pipeline_finished',arm=arm,status=future.result())
         pool.shutdown(wait=True)
-        return results
-
-    def run(self):
-        self.event('owner_adopted_existing_jobs',arms=list(FIRST_ARMS))
-        self.baseline_future=self.eval_pool.submit(self.baseline)
-        selected=list(FIRST_ARMS)
-        # The first wave advances each arm independently through its own TRAIN
-        # feedback to5k. No first-1k score or other arm gates this continuation.
-        for index,target in enumerate(GATES[1:]):
-            if (self.owner_root/'STOP_AFTER_CURRENT_STAGE').exists():
-                self.state['status']='HELD_BY_STOP_REQUEST';self.flush();return
-            with self.mutex:self.state['current_gate']=target;self.flush()
-            summaries=self.parallel_gate(selected,target,first=index==0)
-            if index==0:
-                first_summaries=self.collect_first_diagnostics()
-                summaries={arm:value for arm,value in summaries.items() if arm in first_summaries}
-            if 'PPO_FULL' not in summaries:
-                self.state['status']='RUNNING_CONTROL_REVIEW_REQUIRED'
-                selected=list(summaries)
-                self.state['selections'][str(target)]=dict(selected=selected,
-                    reason='No complete matched control; retain every healthy arm without paired screening',
-                    Test_selection_used=False,control_review_required=True)
-                self.event('matched_control_missing_healthy_arms_continue',gate=target,selected=selected)
-                if not selected:
-                    self.state['status']='NO_HEALTHY_ARMS_REVIEW_REQUIRED';self.flush();return
-                if target!=50000:continue
-            if target==50000:
-                for arm in summaries:
-                    self.update_arm(arm,status='COMPLETE',updates=50000)
-                    self.update_run_registry(arm,status='COMPLETE',completed_updates=50000)
-                self.state['status']='COMPLETE' if 'PPO_FULL' in summaries else 'COMPLETE_CONTROL_REVIEW_REQUIRED'
-                self.event('campaign_complete',arms=list(summaries));return
-            selected,decision=select_at_gate(target,summaries,score_tolerance=self.score_tolerance,
-                                            safety_tolerance=self.safety_tolerance)
-            self.state['selections'][str(target)]=decision
-            for arm in summaries:
-                self.update_arm(arm,selection_decision=decision['decisions'][arm])
-            self.event('next_gate_selected',gate=target,selected=selected,
-                       automatic_pruning=False,first_pruning_gate=None,
-                       Test_selection_used=decision['Test_selection_used'])
+        self.aggregate_priorities()
+        statuses={arm:self.state['runs'][arm]['status'] for arm in FIRST_ARMS}
+        self.state['status']=('COMPLETE' if all(s=='COMPLETE' for s in statuses.values()) else
+                              'HELD_BY_STOP_REQUEST' if 'HELD_BY_STOP_REQUEST' in statuses.values() else
+                              'COMPLETE_WITH_FAILED_ARMS_REVIEW_REQUIRED')
+        self.event('campaign_pipelines_finished',statuses=statuses)
 
 
 def main():
@@ -615,7 +608,10 @@ def main():
                               first_gate_diagnostic_only=True,
                               first_gate_Test_selection_used=False,all_healthy_arms_continue_to=50000,
                               first_gate_global_barrier=False,first_gate_waits_for_NAVTEST=False,
-                              first_gate_results_required_before_first_priority=True,
+                              first_gate_results_required_before_first_priority=False,
+                              independent_arm_pipelines=True,global_training_barriers=False,
+                              periodic_NAVTEST_async=True,nonadaptive_TRAIN_diagnostics_async=True,
+                              adaptive_waits_for_own_TRAIN_only=True,
                               Test_selection_used=True,no_new_jobs_launched=True),indent=2))
         return
     owner=CampaignOwner(args.root,score_tolerance=args.score_tolerance,
@@ -625,6 +621,7 @@ def main():
     finally:
         owner.flush()
         owner.eval_pool.shutdown(wait=True)
+        owner.feedback_pool.shutdown(wait=True)
 
 
 if __name__=='__main__':
