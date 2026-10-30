@@ -1,0 +1,78 @@
+{
+  "schema": "world_delayed_resource_addition_v1",
+  "user_instruction": "vlawm-zt \u548c vlawm-zt2 \u4e5f\u80fd\u4f7f\u7528\uff0c\u6211\u7a0d\u540e\u4f1akill\u4e0a\u9762\u7684\u538b\u529b\u8fdb\u7a0b\uff0c10\u5206\u949f\u540e\u4f60\u5f00\u59cb\u90e8\u7f72\u5206\u914d\u4efb\u52a1",
+  "not_before_utc": "2026-10-30T09:48:32+00:00",
+  "activated_permission_utc": "2026-10-30T09:50:12.166220+00:00",
+  "hosts": [
+    "training-vlawm-zt",
+    "training-vlawm-zt2"
+  ],
+  "pressure_cleanup_responsibility": "user; no pressure kills authorized to this operation",
+  "capacity_checked": false,
+  "status": "PERMISSION_ACTIVE_CAPACITY_PENDING",
+  "resource_authorization": "/mnt/project/qwen-world-rl-optimization-20261030/resources/add_vlawm_zt_zt2_20261030T095012Z/RESOURCE_AUTHORIZATION.json",
+  "previous_resource_authorization": "/mnt/project/qwen-world-rl-optimization-20261030/resources/RESOURCE_AUTHORIZATION_without_vla_zt3_20261030T090354Z.json",
+  "previous_global_prohibitions": {
+    "training-vlawm-zt": {
+      "aliases": [
+        "training-vlawm-zt",
+        "training-vlawm-zt-worker-0",
+        "vlawm-zt",
+        "vlawm-zt-worker-0"
+      ],
+      "host": "training-vlawm-zt",
+      "new_task_dispatch_allowed": false,
+      "scope": "No new task, retry, next stage, evaluation or pressure on temporary hosts; administrative read-only inventory and owned graceful checkpoint/exit allowed. Preserve unknown processes.",
+      "user_instruction": "\u4e34\u65f6\u8bb8\u53ef\u7684\u670d\u52a1\u5668\u4e0d\u518d\u4f7f\u7528",
+      "utc": "2026-10-29T00:20:27.283103+00:00",
+      "withdrawal_record": "/mnt/project/temporary-host-withdrawal-20261014T2307Z/REQUEST.json",
+      "revocation_record": "/mnt/project/constrained-flow-noise-20261014/resources/temporary_hosts_withdrawal_20261014/REQUEST.json",
+      "authorized_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "current_authorization_record": "/mnt/project/qwen-sourceflow-native-20261018/navtest_resource_move_20261024/authorization.json",
+      "task_scoped_authorization": "qwen_sourceflow_navtest_resources_20261024",
+      "nine_hour_resource_expiry": {
+        "user_expiry_utc": "2026-10-25T23:38:22+00:00",
+        "enforced_utc": "2026-10-26T00:35:19.037477+00:00",
+        "record": "/mnt/project/qwen-flow-trajectory-repair-20261025/resources/POST_EXPIRY_AUDIT_20261026T0032.json",
+        "scope": "Project dispatch only; no unknown occupant signals or GPU reset"
+      },
+      "automatic_retry_allowed": false,
+      "evaluation_allowed": false,
+      "pressure_filler_restart_allowed": false,
+      "record": "/mnt/project/qwen-world-postcot-20261025/temporary_withdrawal_20261029T002027Z/REQUEST.json"
+    },
+    "training-vlawm-zt2": {
+      "aliases": [
+        "training-vlawm-zt2",
+        "vlawm-zt2",
+        "training-vlawm-zt2-worker-0",
+        "vlawm-zt2-worker-0"
+      ],
+      "host": "training-vlawm-zt2",
+      "new_task_dispatch_allowed": false,
+      "scope": "No new tasks, queued next phases, retries, monitors or pressure fillers. Do not interfere with other users.",
+      "user_instruction": "\u6211\u53ef\u7528\u7684\u670d\u52a1\u5668\u6709vla-zt vla-zt2 rl-zt2 tsinghua-zt\u7cfb\u5217\u7684\u670d\u52a1\u5668\uff0c\u5176\u4f59\u670d\u52a1\u5668\u4e0d\u518d\u6d3e\u53d1\u4efb\u52a1\u548c\u4f7f\u7528\uff0c\u907f\u514d\u5f71\u54cd\u522b\u4eba\u7684\u4efb\u52a1\u3002",
+      "utc": "2026-10-14T00:25:17.403957+00:00",
+      "nine_hour_resource_expiry": {
+        "user_expiry_utc": "2026-10-25T23:38:22+00:00",
+        "enforced_utc": "2026-10-26T00:35:19.037477+00:00",
+        "record": "/mnt/project/qwen-flow-trajectory-repair-20261025/resources/POST_EXPIRY_AUDIT_20261026T0032.json",
+        "scope": "Project dispatch only; no unknown occupant signals or GPU reset"
+      }
+    }
+  },
+  "previous_policy_sha256": "0e82747d87d852be50ec7c4ff89d381c3f8135227a3b84d2b70fb2ea8954917a",
+  "withdrawn_hosts_remain_excluded": [
+    "training-vla-zt3",
+    "training-vlawm-tsinghua-zt2"
+  ]
+}

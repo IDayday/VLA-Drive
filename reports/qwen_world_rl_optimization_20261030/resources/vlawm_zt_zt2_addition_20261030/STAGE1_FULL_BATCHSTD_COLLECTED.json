@@ -1,0 +1,1170 @@
+{
+  "GPU_process_actions": 0,
+  "at": "2026-10-30T09:57:08.748079+00:00",
+  "moves": {
+    "PPO_BATCHSTD": {
+      "COMPLETE": {
+        "files_sha256": "6653d1d540511a1f48ad1bef350f8d099b1f501fbfb8a3a7478293418177a2eb",
+        "next_inner": 2,
+        "phase": "INNER_COMMITTED",
+        "schema": 2,
+        "updates": 9734,
+        "world": 8
+      },
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_BATCHSTD.yaml",
+      "exact_old_transport_exited": true,
+      "execution_identity_sha256": "cba5688e529607367c784dff0297805f70be68749db1811ae9d3a8965f9ed4a6",
+      "full_tensor_hashes": "deferred to mandatory strict native restore; none redundantly recomputed here",
+      "identity_sha256": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "module": "starVLA.rl.qwen_world_research_algorithms.batchstd_entry",
+      "native": {
+        "files_sha256": "6653d1d540511a1f48ad1bef350f8d099b1f501fbfb8a3a7478293418177a2eb",
+        "next_inner": 2,
+        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_BATCHSTD/checkpoints/update009734_inner2",
+        "phase": "INNER_COMMITTED",
+        "updates": 9734
+      },
+      "native_resume_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_BATCHSTD/checkpoints/update009734_inner2",
+      "native_training_already_complete": false,
+      "new_host": "training-vlawm-zt",
+      "new_lease": "secondary",
+      "old_gpu_uuids": [
+        "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+        "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+        "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+        "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+        "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+        "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+        "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+        "GPU-91fd88e4-a388-6b59-e684-13a463606f9e"
+      ],
+      "old_host": "training-vlawm-tsinghua-zt",
+      "old_job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_BATCHSTD/formal_to010000_attempt002",
+      "old_launch_source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v4_04a6798fb49d",
+      "old_result": {
+        "additional_research_slot": false,
+        "child_pid": 1723303,
+        "child_start_ticks": 1479115287,
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nproc-per-node=8",
+          "-m",
+          "starVLA.rl.qwen_world_research_algorithms.batchstd_entry",
+          "--config",
+          "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_BATCHSTD.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--output",
+          "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_BATCHSTD",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--stop-after-update",
+          "10000",
+          "--resume",
+          "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_BATCHSTD/checkpoints/update009000_inner0"
+        ],
+        "cwd": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v4_04a6798fb49d",
+        "deadline_unix": 1793328409.0145648,
+        "end_unix": 1793354241.2037258,
+        "evaluation_slot": false,
+        "gpu_uuids": [
+          "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+          "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+          "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+          "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+          "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+          "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+          "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+          "GPU-91fd88e4-a388-6b59-e684-13a463606f9e"
+        ],
+        "gpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "guard_unix": 1793327209.0145648,
+        "host": "training-vlawm-tsinghua-zt",
+        "known_rank_processes": [],
+        "migration_required": false,
+        "receipt": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_BATCHSTD/formal_to010000_attempt002",
+        "requested_gpu_uuids": [
+          "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+          "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+          "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+          "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+          "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+          "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+          "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+          "GPU-91fd88e4-a388-6b59-e684-13a463606f9e"
+        ],
+        "returncode": 0,
+        "shared_headroom_MiB": 32768,
+        "start_unix": 1793352361.577986,
+        "status": "EXITED",
+        "temporary": false,
+        "worker_pid": 1701892,
+        "worker_start_ticks": 1479115189
+      },
+      "old_transport_identity": {
+        "transport_pid": 1960535,
+        "transport_start_ticks": 1479097449
+      },
+      "original_target": 10000,
+      "original_target_reached": false,
+      "owner_checkpoint_at_plan": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_BATCHSTD/checkpoints/update009000_inner0",
+      "owner_updates_at_plan": 9000,
+      "rank_boundaries": [
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            1.090274453163147,
+            0.2973475158214569,
+            -3.6672866344451904,
+            0.2973475158214569,
+            0.2973475158214569,
+            1.090274453163147,
+            0.2973475158214569,
+            0.2973475158214569
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "a13e4b2d0f1eaeb328db35a9d5ae4384faafbb9c7cc763cda14b68645ce2db3f",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "36944033f9e58453a9ed1383d90f166bebc59ea6e6a62fd145f99266509ae794",
+            "cond_bg": "c4522ad644c93c67302ba2bd78c7269d2079eaefa9411c3933f12cdf27f5a69f",
+            "old_logp": "5e2a7bce3cb812bf86e31af4407b0a235cadd5ba4619fdc339a9fa5081ea6edd"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              1.0,
+              0.8333333134651184,
+              0.0,
+              0.8333333134651184,
+              0.8333333134651184,
+              1.0,
+              0.8333333134651184,
+              0.8333333134651184
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        },
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            -0.009652107022702694,
+            0.5424767732620239,
+            0.5180549025535583,
+            0.15816141664981842,
+            0.6899054050445557,
+            0.7791627645492554,
+            -3.4671010971069336,
+            0.7889919281005859
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "d045b04947bd43618a54d263e17484cd909663b70cc6e817775b1741a21f56c4",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "f670d207586ddbc78ba1d914c56b83e9c686a0af2214fe2818fbcabc32a02103",
+            "cond_bg": "7f3c717afea85237796e3ffe31a95ff5b46ddabd82f8b44baca6fe7cd845fde8",
+            "old_logp": "6bd0780a7f4be178bdd8db4bc8c74f678ab58476201fff990cf65f026586c1e9"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.7267271876335144,
+              0.8427801132202148,
+              0.8376468420028687,
+              0.7620002031326294,
+              0.8737683892250061,
+              0.8925295472145081,
+              0.0,
+              0.8945955634117126
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        },
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            0.44713690876960754,
+            0.823298454284668,
+            0.26041874289512634,
+            0.7171007394790649,
+            -0.0005628918879665434,
+            -3.7042152881622314,
+            0.6996099352836609,
+            0.7572134733200073
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "00e39df675d38a9db2762dc3148e443056bee97334d2d672036f5160a0485160",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "10b241834aa9515877cefcef4bd5e05b274cc222da4ec6d85421d6a7609a3a9d",
+            "cond_bg": "5b29d4c35444a84a71390180448eafd7ef4e7926e6d3d6a482e3f7d134e00ad2",
+            "old_logp": "5c64a28ed03f32bbfbd5004002b7eaafbc5dc4b3dee16f6b64ca13a3061029d0"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.8725799322128296,
+              0.9516459703445435,
+              0.8333333134651184,
+              0.9293240904808044,
+              0.778477132320404,
+              0.0,
+              0.9256476759910583,
+              0.9377554655075073
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        },
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            0.14129705727100372,
+            0.49564871191978455,
+            -0.011196443811058998,
+            0.1806042194366455,
+            0.5452274084091187,
+            0.6881398558616638,
+            -3.316066026687622,
+            1.276345133781433
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "ca386d5644df667f1512263bfe0a402081fd111aea5448632a1d28ed9913b4e9",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "e98d07c688646f35192428dd0413669fcab7b36b436f05c61505675bfa4792c9",
+            "cond_bg": "5b29a40fed1aea70712f3a1069ed1547a7187369fd13b3e29314f48cbcd42ffc",
+            "old_logp": "3bb1a64c3c6d47ecaf658329689dd23f51d1e87921959c931bcaab721891127a"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.7267091274261475,
+              0.8011909127235413,
+              0.694656252861023,
+              0.7349711656570435,
+              0.8116119503974915,
+              0.8416509628295898,
+              0.0,
+              0.9652868509292603
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        },
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            0.34543466567993164,
+            0.2580074965953827,
+            0.44988611340522766,
+            -0.516329288482666,
+            -0.3934444487094879,
+            -0.2404535561800003,
+            0.3116954565048218,
+            -0.21479645371437073
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "6c4aa9c02ac657be16f391812b6bddc1fb5cf2f9407d2529fa00e48328475293",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "2e57c823eb4fe3e70b983ce15e2edd4e4153ff38a91edfc601a2e5d475def65e",
+            "cond_bg": "0087313e6ab51603fe5e0f9821e42f9f2d7b44d92b8d819f139f57579ca514bc",
+            "old_logp": "1014c765ca6727155b45564d0e048527b7f5bf66e6178ab9740a11513c18ea9e"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.9304280877113342,
+              0.9120516180992126,
+              0.9523829221725464,
+              0.7492924332618713,
+              0.775121808052063,
+              0.8072792291641235,
+              0.923336386680603,
+              0.8126721382141113
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        },
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            0.46957290172576904,
+            0.33843016624450684,
+            -0.48566964268684387,
+            -0.41265279054641724,
+            0.3121415674686432,
+            0.1364586055278778,
+            -0.8115060329437256,
+            0.4532252252101898
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "7aecada8f62ba3b1c9a1d433ad013b33c9797ea737a56d2a8bbe3967b2524854",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "6ec08405de3eba9835e580c8fadaabc6bd4cb372fdc69f92dc3c2f5a13942d51",
+            "cond_bg": "bdd4cadcfe55b6612d1d1912b68ded8ad558509df35249681f5a898aeba99042",
+            "old_logp": "b45cd17e5917ac1e33823f821738bba40b6f35b8156dfded9fcd3e991f8d6d2a"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              1.0,
+              0.9724348783493042,
+              0.7992159128189087,
+              0.8145634531974792,
+              0.9669092297554016,
+              0.9299821257591248,
+              0.7307277917861938,
+              0.9965638518333435
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        },
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            -0.2616966664791107,
+            -0.17408543825149536,
+            -0.029892394319176674,
+            0.01486247219145298,
+            0.067976213991642,
+            0.21315978467464447,
+            -0.04268833249807358,
+            0.21236436069011688
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "c7963cf97d48d28b36f98201814eb0afbce356784f94ae0f930b3cf39d5bc1ff",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "db4fbcec4865c3354ea1f611865ccbfd9a00d2ee39358adbb43be06e431aef7c",
+            "cond_bg": "d28e72a34e491169234add5ad4187f8bf8e2b1e4ad33f7c8f3bcddae054fb121",
+            "old_logp": "44f234828a275dcd8a06a8f70cc9070cec1b12d852b0168546385860373dacc0"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.8114030957221985,
+              0.8298182487487793,
+              0.8601264357566833,
+              0.8695335388183594,
+              0.8806976079940796,
+              0.9112139940261841,
+              0.8574368357658386,
+              0.9110468029975891
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        },
+        {
+          "advantage_normalization_schema": "group_centered_global_advantage_population_std_v1",
+          "advantages": [
+            0.09911586344242096,
+            -0.6938110589981079,
+            0.09911586344242096,
+            0.09911586344242096,
+            0.09911586344242096,
+            0.09911586344242096,
+            0.09911586344242096,
+            0.09911586344242096
+          ],
+          "behavior": {
+            "adapter_sha256": "e84bb6334ecf43ddd081ce79c56de11014c5bd6bb85e3d8bb505a681d0eb89c0",
+            "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+            "update": 9732
+          },
+          "collections": 2434,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "e04acbf9b579e61a6ed6649963fe1f9f6b18ff4901abe7c88d0f8892daa62599",
+            "behavior_version": "1b31c6e9d4aac3fd9254018976c42070b07b67dea07ad99499dca67f104a3440",
+            "chain": "4d0d21d37bf644d12ca01bfc7eeeb29d1ce5dae3fa252ecedffb483a1a8a2691",
+            "cond_bg": "9817df1da01d9d38272db5898a1efb723e2a4d3136daf9b9aebe13075eaff88d",
+            "old_logp": "869f3fe0a3538983409b7e05a0d0330c2d61d430f8b35aff46784a312cfe279d"
+          },
+          "global_std": 0.22817392738212453,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "normalization_std": 0.21019172314540727,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              1.0,
+              0.8333333134651184,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "run": "82092c903e5e02d7a6af3ec294496bffac3512bf011a7c8ec363d004365f2d8b",
+          "scene_cursor": 19472,
+          "updates": 9734
+        }
+      ],
+      "resume_target": 10000,
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_BATCHSTD",
+      "scientific_identity_sha256": "bc521c1fdcb79d04125973b79b586187c2c817bb28f1b5b11ccba7a85d5d31a5",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v4_04a6798fb49d",
+      "training_seed": 42
+    },
+    "PPO_FULL": {
+      "COMPLETE": {
+        "files_sha256": "3464b1aae3660de1f8b61aaf124a56ddc41304fda46bc02d2bf6b23b96bc46ad",
+        "next_inner": 2,
+        "phase": "INNER_COMMITTED",
+        "schema": 2,
+        "updates": 11558,
+        "world": 8
+      },
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_FULL.yaml",
+      "exact_old_transport_exited": true,
+      "execution_identity_sha256": "f3584c460eaa09d2842b7e170ad8de459d1b9d980e15ef84274ca445f29f9080",
+      "full_tensor_hashes": "deferred to mandatory strict native restore; none redundantly recomputed here",
+      "identity_sha256": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "module": "tools.qwen_world_research.train",
+      "native": {
+        "files_sha256": "3464b1aae3660de1f8b61aaf124a56ddc41304fda46bc02d2bf6b23b96bc46ad",
+        "next_inner": 2,
+        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update011558_inner2",
+        "phase": "INNER_COMMITTED",
+        "updates": 11558
+      },
+      "native_resume_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update011558_inner2",
+      "native_training_already_complete": false,
+      "new_host": "training-vlawm-zt",
+      "new_lease": "primary",
+      "old_gpu_uuids": [
+        "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+        "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+        "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+        "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+        "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+        "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+        "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+        "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+      ],
+      "old_host": "training-vla-zt",
+      "old_job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_FULL/formal_to020000_attempt002",
+      "old_launch_source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v1_42fa8eb8d358",
+      "old_result": {
+        "additional_research_slot": false,
+        "child_pid": 1960531,
+        "child_start_ticks": 1479097363,
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nproc-per-node=8",
+          "-m",
+          "tools.qwen_world_research.train",
+          "--config",
+          "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_FULL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--output",
+          "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--stop-after-update",
+          "20000",
+          "--resume",
+          "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update010500_inner0"
+        ],
+        "cwd": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v1_42fa8eb8d358",
+        "deadline_unix": 1793328409.0145648,
+        "end_unix": 1793354241.2101338,
+        "evaluation_slot": false,
+        "gpu_uuids": [
+          "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+          "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+          "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+          "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+          "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+          "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+          "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+          "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+        ],
+        "gpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "guard_unix": 1793327209.0145648,
+        "host": "training-vla-zt",
+        "known_rank_processes": [],
+        "migration_required": false,
+        "receipt": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_FULL/formal_to020000_attempt002",
+        "requested_gpu_uuids": [
+          "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+          "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+          "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+          "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+          "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+          "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+          "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+          "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+        ],
+        "returncode": 0,
+        "shared_headroom_MiB": 32768,
+        "start_unix": 1793352359.9090707,
+        "status": "EXITED",
+        "temporary": false,
+        "worker_pid": 1960520,
+        "worker_start_ticks": 1479097302
+      },
+      "old_transport_identity": {
+        "transport_pid": 1960520,
+        "transport_start_ticks": 1479097302
+      },
+      "original_target": 20000,
+      "original_target_reached": false,
+      "owner_checkpoint_at_plan": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update010500_inner0",
+      "owner_updates_at_plan": 10500,
+      "rank_boundaries": [
+        {
+          "advantages": [
+            0.4497034549713135,
+            -0.24802877008914948,
+            -1.2748591899871826,
+            0.15170857310295105,
+            -0.061720628291368484,
+            0.2548820972442627,
+            0.4497034549713135,
+            0.27861106395721436
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "a4721bb7be86790cd8b7fb43a12b926c2fb49854accbfc89c70918ee961f142a",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "2505202a27abb65fbde09c66431bac87f78760dbb095b5f71b9f63ca2ec35b54",
+            "cond_bg": "431204fbda8d550626ccdce864d73db1eb591c0bd6d6c345944802e1eccd6574",
+            "old_logp": "d0c8a5095de822c3cfb4a5288219d0f735c21ce558c8ea0a5076dcb213011849"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              1.0,
+              0.7607660293579102,
+              0.40869295597076416,
+              0.8978254199028015,
+              0.8246461749076843,
+              0.9332008957862854,
+              1.0,
+              0.9413369297981262
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        },
+        {
+          "advantages": [
+            -2.101703405380249,
+            0.6383658647537231,
+            0.19317251443862915,
+            -0.5410948395729065,
+            0.25941821932792664,
+            0.7185054421424866,
+            0.6725830435752869,
+            0.16075320541858673
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "52693ebc4b30c24b5e0ce3e18d4a319bdf0ee9f61cdd9c1425176aebfb839941",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "7e3025cb54b5fea701f3db0abc8d9e10b9428b20d9db3a27607869939eafaf98",
+            "cond_bg": "6039f1d04f31f8234e656f2216ae2f999c038ba0e84e0335a4b1917d230eabab",
+            "old_logp": "14cf50d1d61a5c697dda48520a49e06ec666ff390904e4d15fa4927ad06d78f5"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.0,
+              0.9394974708557129,
+              0.7868524193763733,
+              0.5350915193557739,
+              0.8095663189888,
+              0.966975212097168,
+              0.9512296319007874,
+              0.7757366895675659
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        },
+        {
+          "advantages": [
+            0.3313245177268982,
+            -1.1740063428878784,
+            -0.0985407903790474,
+            0.3065266013145447,
+            0.43533000349998474,
+            0.4954765737056732,
+            -0.3373236656188965,
+            0.04121303930878639
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "32c9fcc317e1701b6f4e08333de63d3f73cf668f2b2c9cc894a3bf1091edd799",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "0c9891aa378764687e859e35660460f73f922f27578b3e713205578958c85ac1",
+            "cond_bg": "42a48cbdafcba7bd1d863074e40a607c911221b5e98e3666e92fcf5968aaec09",
+            "old_logp": "330b5e9187a514a6b0e4ecd4f8fa629bd5fb55a3cabf1945f1fb77a2b63b69ad"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.9328048825263977,
+              0.4166666567325592,
+              0.7854154109954834,
+              0.924302339553833,
+              0.9684656262397766,
+              0.9890882968902588,
+              0.7035430669784546,
+              0.8333333134651184
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        },
+        {
+          "advantages": [
+            0.36199310421943665,
+            -0.8532262444496155,
+            -0.8532262444496155,
+            -0.8532262444496155,
+            1.389442801475525,
+            0.8337956666946411,
+            0.8276733756065369,
+            -0.8532262444496155
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "ef4831ade3cb5d96da29521639aaed47436c92ebf0e8b44ad08722e627bb9c25",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "34778475cbe14a9802d1751e4b9dc65e02d8f09a8c5caa2089aec344dee02461",
+            "cond_bg": "42a846115a8b56d4af69d47c5c19221189b15a6ae60b38f5077c80df48457edd",
+            "old_logp": "56a8a4aed6823aafca64f04d2ab2d127257aec35f529a22a264c8b280e4a02f3"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.4166666567325592,
+              0.0,
+              0.0,
+              0.0,
+              0.7689520716667175,
+              0.5784353017807007,
+              0.576336145401001,
+              0.0
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        },
+        {
+          "advantages": [
+            0.4332631826400757,
+            -0.8724235892295837,
+            -1.1381924152374268,
+            0.36957916617393494,
+            -0.03434056043624878,
+            0.34463992714881897,
+            0.43555957078933716,
+            0.46191471815109253
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "4d3b95469bbf31202e7ff6bc0bd35159c9fb4298378b3380b05a2cf251ed89b8",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "85a9c40eb8b13a0d0c358ddde68de99c577ae9334077085fd7b6ac7c3f575030",
+            "cond_bg": "21f5c5c7c0e6360f1d863f4a09b73621463f6522d3a3f03d8e47e43890e22180",
+            "old_logp": "c9f2c3ac3caa2e9aac882f747a2b9d4b33987fb8157ba608aa14b03265c6ef5b"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.8078423738479614,
+              0.3601568341255188,
+              0.26903170347213745,
+              0.7860068082809448,
+              0.6475133895874023,
+              0.7774558067321777,
+              0.8086297512054443,
+              0.817666232585907
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        },
+        {
+          "advantages": [
+            0.1986485868692398,
+            -0.287439227104187,
+            -0.31949383020401,
+            0.18066881597042084,
+            0.05887719616293907,
+            0.016189582645893097,
+            0.15084108710289001,
+            0.001707789720967412
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "704ec63f02267b75a4f0e53563bbe193ce1ada325aeed119380abb6a17e6988e",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "f2e2127416faff3920c846fea92787127b0bfaabf671a5d93079e9139c9ca014",
+            "cond_bg": "ae784197c9ebe9a2e291c0e16abae96132e50173b000be06bf99656830e11ac3",
+            "old_logp": "b3effc31cf965487f8b245ca13a16efe36e3ac699fa8b4230d750de5b6a53ec7"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              1.0,
+              0.8333333134651184,
+              0.8223426342010498,
+              0.9938352108001709,
+              0.9520760774612427,
+              0.9374396204948425,
+              0.983608067035675,
+              0.9324741959571838
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        },
+        {
+          "advantages": [
+            0.010923056863248348,
+            -2.3645262718200684,
+            0.47355377674102783,
+            0.49156954884529114,
+            0.5063892602920532,
+            0.38815006613731384,
+            0.4280279278755188,
+            0.06591252982616425
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "3f1a6111212fc0cd3b639b7e8f755205fdd5ab9f576069d99e71abbacd894afc",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "e89c776383e5f6f7f736770ce636283b83721af5f73a422ff1b72452caf6cf12",
+            "cond_bg": "ccfd84d0c29129c251e700394f6815ab3bdb1a27235dd933e699378d0a18045b",
+            "old_logp": "e049c624b36ff46651fe44a6160053c1fb9915eb8cd1d7da3cf556c5c7c815a2"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.814478874206543,
+              0.0,
+              0.9731027483940125,
+              0.9792798757553101,
+              0.9843611717224121,
+              0.943820059299469,
+              0.9574931263923645,
+              0.8333333134651184
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        },
+        {
+          "advantages": [
+            -1.3721147775650024,
+            -1.3721147775650024,
+            1.5159469842910767,
+            -1.3721147775650024,
+            1.4544578790664673,
+            0.9739906191825867,
+            -1.3721147775650024,
+            1.5440638065338135
+          ],
+          "behavior": {
+            "adapter_sha256": "958020a2b669f1331710b7de21681e406aa0aefacf03987931357922de6be115",
+            "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+            "update": 11556
+          },
+          "collections": 2890,
+          "digests": {
+            "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+            "advantages": "436aa3532a6c118be1830463a2b4935e2b1497257bb74760a5278b2c9abc21a3",
+            "behavior_version": "2512a318326658dd11dc3c1c752ac5d5534d996245b60f77b6ed4bf8ba34a072",
+            "chain": "9053e1ad44d602101e3081ea812e9c89d69452e2d27e47e052edbee0c80c9ebe",
+            "cond_bg": "81f75be33df9f5c61cb21381606ec126864ce1039943e06e11722a0d5ac6937e",
+            "old_logp": "1bc3b9b0705bfe55aeacf2eadcfbe3d1cc4fd406555cc9f0d1ab0e4e38e09f7a"
+          },
+          "global_std": 0.3428736095446292,
+          "mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "next_inner": 2,
+          "pending": true,
+          "phase": "INNER_COMMITTED",
+          "rewards": [
+            [
+              0.0,
+              0.0,
+              0.990240216255188,
+              0.0,
+              0.9691572189331055,
+              0.8044176697731018,
+              0.0,
+              0.9998807311058044
+            ]
+          ],
+          "run": "8f516056183c1626039ba39f57c1fac1a9bac60b91fb2861080aa21bcc5af57a",
+          "scene_cursor": 23120,
+          "updates": 11558
+        }
+      ],
+      "resume_target": 20000,
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL",
+      "scientific_identity_sha256": "5cb2323ff7f63f591230c08a3bcae913d4fc22644bf6ad1c04c7e07e2ebd6210",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v1_42fa8eb8d358",
+      "training_seed": 42
+    }
+  },
+  "network_calls": 0,
+  "plan": "/mnt/project/qwen-world-rl-optimization-20261030/resources/add_vlawm_zt_zt2_20261030T095012Z/STAGE1_FULL_BATCHSTD_PLAN.json",
+  "plan_sha256": "f2bd435b69ca7c16cd2f762bad9a0aff0b8842aa8be51cf4aaeeea6b27b9a485",
+  "schema": "world_rl_cooperative_rehost_collected_v1"
+}
