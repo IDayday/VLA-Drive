@@ -250,7 +250,8 @@ def worker(args):
                     atomic_json(proof_path, dict(status='PASS', model_sha256=meta['model_sha256'],
                         native_model_sha256=parent['model_sha256'], architecture_id=meta['architecture_id'],
                         normalized_max_abs=0., requested_max_abs=0., current_images_only=True,
-                        extra_validation_predictions=1, teacher_or_search_at_inference=False))
+                        extra_validation_predictions=1, teacher_or_search_at_inference=False,
+                        CUDA_peak_native_validation_bytes=torch.cuda.max_memory_allocated()))
                     del native, reference
                     import gc
                     gc.collect();torch.cuda.empty_cache()
@@ -269,6 +270,9 @@ def worker(args):
             record['new'] += 1
             record['wall_seconds'] = time.monotonic()-started
             atomic_json(journal, record);atomic_json(output/f'rank{args.rank}.json', record)
+            if getattr(args,'parity_only',False):
+                record['status']='PARITY_ONLY_COMPLETE'
+                break
         else:
             record['status'] = 'COMPLETE'
     except BaseException:
@@ -302,8 +306,11 @@ def main():
         choices=('il_endpoint', 'il_selected', 'rl_endpoint', 'rl_selected'))
     parser.add_argument('--dev-evaluation');parser.add_argument('--native-parity-output')
     parser.add_argument('--user-interim-registration',help='Exact full Test observation requested by user; no parent selection')
+    parser.add_argument('--parity-only',action='store_true',help='Validate native/export on one committed scene, release GPU, retain the scene for full resume')
     parser.add_argument('--summarize', action='store_true');parser.add_argument('--evaluation');parser.add_argument('--baseline')
     args = parser.parse_args()
+    if args.parity_only and (not args.user_interim_registration or not args.native_parity_output or args.rank!=0):
+        parser.error('Parity-only requires the registered user observation, rank0 and native parity output')
     if args.user_interim_registration and (args.cohort!='NAVTEST' or args.qualification or args.limit
             or args.selection or args.policy_role or args.dev_evaluation or not args.export):
         parser.error('Interim Test requires one formal export, full NAVTEST and no selection/qualification')

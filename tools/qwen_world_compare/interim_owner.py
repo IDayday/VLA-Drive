@@ -64,6 +64,14 @@ class InterimRequest(Request):
 
     def route(self,routes,inv,*,parity=False):
         with LOCK:
+            if not parity:
+                if sum(v[1]!='parity'for v in RESERVED.values())>=16:return None
+                campaign=read(self.root.parent/'PINNED.json')
+                # Keep one sufficiently large device for the short native/export
+                # checks, then the two legacy-family checks/rollouts. Other
+                # GPUs remain fully available to the registered full workers.
+                if not Path(campaign['legacy_queue_complete']).exists():
+                    routes=[r for r in routes if r['uuid']!=campaign['parity_gpu_reserved_uuid']]
             route=super().route([r for r in routes if r['uuid']not in RESERVED],inv,parity=parity)
             if route:RESERVED[route['uuid']]=(str(self.root),None)
             return route
@@ -81,7 +89,7 @@ class InterimRequest(Request):
             '--receipt-root',str(directory),'--command-json',json.dumps(command),'--cwd',str(self.source)]
         if route:
             with LOCK:RESERVED[route['uuid']]=(str(self.root),name)
-            guard=49152 if name=='rank0' else 32768
+            guard=49152 if name=='parity' else 32768
             invocation+=['--gpus',str(route['gpu']),'--expected-gpu-uuids-json',json.dumps([route['uuid']]),
                          '--share-min-free-mib',str(guard),'--minimum-free-mib',str(guard)]
         code='''import subprocess,os,json
@@ -117,17 +125,28 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
                     raise RuntimeError('Worker failed; evidence retained: '+str(self.jobs[name]['receipt_dir']))
             if self.done('export')is True:
                 if not self.reg.exists():self.register()
-                parity=self.proof.exists()and read(self.proof).get('status')=='PASS'
+                parity=(self.proof.exists()and read(self.proof).get('status')=='PASS'and self.done('parity')is True)
+                if parity:
+                    campaign=read(self.root.parent/'PINNED.json');proofs=[]
+                    for label in campaign['models']:
+                        d=self.root.parent/label;proof=d/'native_export_parity.json'
+                        exits=list((d/'jobs').glob('parity_attempt*/RESULT.json'))
+                        if proof.exists()and read(proof).get('status')=='PASS'and any(read(p).get('status')=='EXITED'and read(p).get('returncode')==0 for p in exits):proofs.append(label)
+                    if len(proofs)==len(campaign['models']):
+                        with LOCK:
+                            marker=self.root.parent/'ALL_NATIVE_PARITY_PASS.json'
+                            if not marker.exists():write(marker,dict(status='PASS',models=proofs,all_parity_workers_exited=True))
                 for rank in range(self.world)if parity else[0]:
-                    name='rank'+str(rank)
+                    name='rank'+str(rank)if parity else'parity'
                     if name in self.jobs:continue
                     routes,inv=inventory();write(self.root/'inventory_latest.json',inv)
-                    route=self.route(routes,inv,parity=rank==0)
+                    route=self.route(routes,inv,parity=not parity)
                     if route is None:break
                     args=['--export',str(self.export),'--output',str(self.output),'--cohort','NAVTEST',
                           '--data','/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST','--rank',str(rank),
                           '--world',str(self.world),'--seed','2101','--user-interim-registration',str(self.reg)]
                     if rank==0:args+=['--native-parity-output',str(self.proof)]
+                    if not parity:args+=['--parity-only']
                     self.submit(name,'',args,route)
             time.sleep(20)
         with(self.root/'summary.log').open('x')as log:
@@ -148,7 +167,7 @@ def main():
     for label,pin in read(root/'PINNED.json')['models'].items():
         d=root/label;d.mkdir(exist_ok=False);requests[label]=InterimRequest(d,pin)
     completed={};failed={}
-    with ThreadPoolExecutor(max_workers=2)as pool:
+    with ThreadPoolExecutor(max_workers=4)as pool:
         futures={pool.submit(v.run):k for k,v in requests.items()}
         for f in as_completed(futures):
             label=futures[f]
