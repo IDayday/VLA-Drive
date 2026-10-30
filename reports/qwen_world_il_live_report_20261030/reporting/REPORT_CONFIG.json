@@ -1,0 +1,23 @@
+{
+  "schema": "world_IL_live_report_config_v1",
+  "regular_interval_seconds": 1800,
+  "event_backend": "linux_inotify",
+  "debounce_seconds": 1.0,
+  "journal_polling": false,
+  "event_updates_reset_regular_deadline": false,
+  "training_seed": 42,
+  "inference_seed": 2101,
+  "immediate_event_types": [
+    "evaluation_complete",
+    "training_stage_complete",
+    "important_exception",
+    "stage_selection_complete",
+    "resource_authorization_changed"
+  ],
+  "new_models_or_scores": false,
+  "training_control": false,
+  "root_sources": [
+    "/mnt/project/qwen-world-postcot-20261025",
+    "/mnt/project/qwen-world-four-frameworks-20261029"
+  ]
+}
