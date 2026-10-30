@@ -22,6 +22,7 @@ import traceback
 DEFAULT_ROOT = Path('/mnt/project/qwen-world-rl-optimization-20261030')
 FIRST_ARMS = ('PPO_HARD', 'PPO_FULL', 'PPO_ADAPTIVE', 'CISPO_FULL', 'NFT_FULL')
 GATES = (1000, 5000, 10000, 20000, 35000, 50000)
+FIRST_PRUNING_GATE = 5000
 SAFETY = ('no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collision_within_bound')
 SCHEMA = 'world_rl_optimization_campaign_owner_v1'
 
@@ -151,6 +152,27 @@ def select_survivors(summaries, *, score_tolerance=.25, safety_tolerance=.25, ma
                           interpretation='point-estimate budget allocation; not a statistical non-inferiority claim')
 
 
+def select_at_gate(gate, summaries, *, score_tolerance=.25, safety_tolerance=.25):
+    """The1k gate diagnoses every healthy arm before adaptive feedback starts.
+
+    This correction was registered before the first complete new1k Navtest
+    result. It prevents screening the adaptive arm on its uniform initial stage.
+    Training/scoring failures remain failures; no scores are read in this branch.
+    """
+    if gate < FIRST_PRUNING_GATE:
+        selected=[arm for arm in FIRST_ARMS if arm in summaries]
+        return selected,dict(selected=selected,diagnostic_only=True,
+            first_pruning_gate=FIRST_PRUNING_GATE,Test_selection_used=False,
+            training_scene_selection_uses_NAVTEST=False,
+            decisions={arm:dict(selected_for_next_gate=True,
+                reason='completed diagnostic stage; all healthy arms continue before first pruning') for arm in selected},
+            interpretation='no point-score or safety-score pruning at1k; adaptive arm must receive actual adaptive exposure')
+    selected,decision=select_survivors(summaries,score_tolerance=score_tolerance,
+                                     safety_tolerance=safety_tolerance)
+    decision.update(diagnostic_only=False,first_pruning_gate=FIRST_PRUNING_GATE)
+    return selected,decision
+
+
 class CampaignOwner:
     def __init__(self, root, *, score_tolerance=.25, safety_tolerance=.25,
                  resource_retries=2, dispatcher=None):
@@ -200,7 +222,10 @@ class CampaignOwner:
         self.state['status'] = 'RUNNING'
         self.state['selection_policy'] = dict(score_tolerance_PDMS_points=score_tolerance,
             safety_tolerance_percentage_points=safety_tolerance,Test_selection_used=True,
-            max_challengers=2,control='PPO_FULL',gates=list(GATES))
+            max_challengers=2,control='PPO_FULL',gates=list(GATES),
+            first_pruning_gate=FIRST_PRUNING_GATE,first_gate_diagnostic_only=True,
+            first_gate_Test_selection_used=False,all_healthy_arms_continue_to=FIRST_PRUNING_GATE,
+            correction_registered_before_first_complete_new_1k_NAVTEST=True)
         self.eval_pool = ThreadPoolExecutor(max_workers=12,thread_name_prefix='research_eval')
         self.baseline_future = None
         self.flush()
@@ -478,15 +503,17 @@ class CampaignOwner:
                     self.update_arm(arm,status='COMPLETE',updates=50000)
                     self.update_run_registry(arm,status='COMPLETE',completed_updates=50000)
                 self.state['status']='COMPLETE';self.event('campaign_complete',arms=list(summaries));return
-            selected,decision=select_survivors(summaries,score_tolerance=self.score_tolerance,
-                                              safety_tolerance=self.safety_tolerance)
+            selected,decision=select_at_gate(target,summaries,score_tolerance=self.score_tolerance,
+                                            safety_tolerance=self.safety_tolerance)
             self.state['selections'][str(target)]=decision
             for arm in summaries:
                 if arm not in selected:
                     status='STOPPED_POINT_INFERIOR' if decision['decisions'][arm]['clearly_below_control_gt1point'] else 'HELD_BY_BUDGET_PRIORITY'
                     self.update_arm(arm,status=status,selection_decision=decision['decisions'][arm])
                     self.update_run_registry(arm,status=status,selection_gate=target)
-            self.event('next_gate_selected',gate=target,selected=selected,Test_selection_used=True)
+            self.event('next_gate_selected',gate=target,selected=selected,
+                       first_pruning_gate=FIRST_PRUNING_GATE,
+                       Test_selection_used=decision['Test_selection_used'])
 
 
 def main():
@@ -504,6 +531,8 @@ def main():
         print(json.dumps(dict(root=str(args.root),adopt=[{k:r.get(k) for k in ('id','job','source','root')} for r in runs if r['id'] in FIRST_ARMS],
                               gates=GATES,always_continue='PPO_FULL',max_challengers=2,
                               adaptive_intermediate_updates=1000,heartbeat_seconds=1800,
+                              first_pruning_gate=FIRST_PRUNING_GATE,first_gate_diagnostic_only=True,
+                              first_gate_Test_selection_used=False,all_healthy_arms_continue_to=FIRST_PRUNING_GATE,
                               Test_selection_used=True,no_new_jobs_launched=True),indent=2))
         return
     owner=CampaignOwner(args.root,score_tolerance=args.score_tolerance,
