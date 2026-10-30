@@ -1,5 +1,6 @@
 import json
 import threading
+from concurrent.futures import Future
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -55,3 +56,15 @@ def test_unsubstantiated_research_stop_is_rejected(tmp_path):
     atomic_json(tmp_path / 'arm_decisions/NFT_FULL.json', dict(arm='NFT_FULL', disposition='STOP_FUTILITY'))
     with pytest.raises(ValueError, match='Incomplete evidence'):
         owner.arm_stop_decision('NFT_FULL')
+
+
+def test_optional_safety_probe_failure_does_not_stop_native_training():
+    owner = CampaignOwner.__new__(CampaignOwner)
+    owner.mutex = threading.RLock()
+    probe = Future()
+    probe.set_exception(RuntimeError('optional probe requires review'))
+    owner.evaluation_futures = {('PPO_FULL', 12000, 'NAVTEST'): probe}
+    owner.check_arm_evaluations('PPO_FULL', wait_all=True)
+    owner.evaluation_futures[('PPO_FULL', 10000, 'NAVTEST')] = probe
+    with pytest.raises(RuntimeError, match='optional probe requires review'):
+        owner.check_arm_evaluations('PPO_FULL')
