@@ -100,7 +100,8 @@ def main(runtime=None):
     actor,oldcfg,sft=(runtime.make_actor(cfg,a,device) if runtime is not None else make_actor(cfg,device=device))
     conditions=(runtime.make_conditions(actor) if runtime is not None else
                 ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert))
-    service=RewardService(Path.cwd(),workers=1)
+    service=(runtime.make_reward_service() if runtime is not None and hasattr(runtime,'make_reward_service')
+             else RewardService(Path.cwd(),workers=1))
     trainable=[p for p in actor.parameters() if p.requires_grad]
     optimizer=(runtime.make_optimizer(actor,cfg) if runtime is not None and hasattr(runtime,'make_optimizer') else
         torch.optim.AdamW(trainable,lr=cfg['learning_rate'],betas=tuple(cfg['optimizer_betas']),eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay']))
