@@ -537,7 +537,8 @@ class CampaignOwner:
 
     def check_arm_evaluations(self, arm, *, wait_all=False):
         with self.mutex:
-            futures=[future for key,future in self.evaluation_futures.items() if key[0]==arm]
+            futures=[future for key,future in self.evaluation_futures.items() if key[0]==arm
+                and (key[2]=='TRAIN_DIAGNOSTIC' or key[1] in GATES)]
         for future in futures:
             if wait_all or future.done():future.result()
 
@@ -651,6 +652,16 @@ class CampaignOwner:
     def run(self):
         self.event('owner_adopted_independent_pipelines',arms=list(FIRST_ARMS),global_training_barriers=False)
         self.baseline_future=self.feedback_pool.submit(self.baseline)
+        # Extra matched safety probes reuse already sealed native checkpoints;
+        # they never change a learner's target or become a training barrier.
+        for probe in read_json(self.root/'ADDITIONAL_NAVTEST_PROBES.json',{}).get('evaluations',[]):
+            arm=probe['arm'];update=int(probe['updates'])
+            if self.arm_stop_decision(arm):continue
+            checkpoint=native_checkpoint(self.runs[arm]['root'],update)['path']
+            if (checkpoint!=probe['checkpoint'] or
+                    sha_file(Path(checkpoint)/'COMPLETE')!=probe['checkpoint_seal_sha256']):
+                raise ValueError('Additional matched probe checkpoint binding changed')
+            self.evaluation_future(arm,update,checkpoint,'NAVTEST')
         with self.mutex:
             self.state.pop('current_gate',None)
             self.state['scheduling']='independent per-arm native budgets; asynchronous periodic evaluations'
