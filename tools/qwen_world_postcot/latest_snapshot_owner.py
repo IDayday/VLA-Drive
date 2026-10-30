@@ -35,6 +35,8 @@ class SnapshotRequest(Request):
         return result
 
     def route(self, routes, inventory, *, parity=False):
+        marker=self.pin.get('wait_for_native_checks')
+        if marker and not Path(marker).exists():return None
         with LOCK:
             route = super().route([r for r in routes if r['uuid'] not in RESERVED], inventory, parity=parity)
             if route: RESERVED[route['uuid']] = (str(self.root), None)
