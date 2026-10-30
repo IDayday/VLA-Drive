@@ -46,6 +46,13 @@ def validate_recipe(cfg):
             expected = copy.deepcopy(expected)
             if research['policy_objective'] == 'nft':
                 expected['train']['kl_beta'] = 0
+            if research.get('anchor_ablation') == 'raw_batchstd_beta40_v1':
+                if (research.get('arm') != 'PPO_ANCHOR40' or research['policy_objective'] != 'ppo'
+                        or research['data_policy'] != 'uniform_full'
+                        or research.get('advantage_normalization') is not None
+                        or research.get('reward_transform') is not None):
+                    raise ValueError('Register beta40 as its own RAW-batchstd canonical PPO/full arm')
+                expected['train']['kl_beta'] = 40
         if cfg.get(key) != expected:
             raise ValueError('Unregistered inherited scientific change: '+key)
     if set(cfg) != set(base)|{'research'}:

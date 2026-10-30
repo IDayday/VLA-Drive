@@ -1,0 +1,170 @@
+batch_size: 1
+learning_rate: 5.0e-05
+lr_warmup_steps: 100
+lr_scheduler_type: constant
+max_steps: 50000
+gradient_accumulation_steps: 1
+seed: 42
+weight_decay: 0.01
+max_grad_norm: 1.0
+grpo:
+  target: action
+  sample:
+    group_size: 8
+    num_inference_steps: 10
+    infer_shift: null
+    sample_noise_std: 0.1
+    logprob_noise_std: null
+    anneal_noise: true
+    min_std: 0.001
+    randn_clip: 5.0
+    logprob_clamp_mode: relative
+    logprob_clamp_width: 7.0
+    final_action_clip: null
+    sde_mode: rigorous
+    noise_level: 0.1
+    train_sde_steps: 3
+    sde_exclude_last_step: false
+    sde_step_indices: null
+    merge_sde_window: false
+  train:
+    denoising_discount: 1.0
+    adv_clip_lower_quantile: 0.0
+    adv_clip_upper_quantile: 1.0
+    adv_eps: 1.0e-08
+    adv_global_std: true
+    drop_zero_adv: true
+    use_bc_loss: false
+    bc_coeff: 0.1
+    kl_beta: 40
+    kl_type: x
+    kl_dim_weights:
+    - 0.2
+    - 1.0
+    - 1.0
+    kl_horizon_weights: null
+    ppo_clip_range: 0.005
+    adv_clip_max: 5.0
+    num_inner_epochs: 4
+    rollout_buffer_batches: 1
+    kl_gate:
+      enabled: false
+      delta: 0.0001
+      asymmetric: false
+  lora:
+    enabled: true
+    r: 16
+    alpha: 32.0
+    dropout: 0.0
+    target_modules:
+    - q
+    - k
+    - v
+    - o
+  reward:
+    name: pdm
+    metric_cache_path: ./data/metric_cache_navtrain
+    proposal_time_horizon: 4.0
+    proposal_interval: 0.1
+    model_trajectory_interval: 0.5
+    progress_weight: 5.0
+    ttc_weight: 5.0
+    comfortable_weight: 2.0
+  eval:
+    enabled: false
+    num_batches: 8
+  vis:
+    enabled: false
+    every: 100
+    num_conditions: 2
+    max_samples: 0
+    plot_mode: bev_camera
+    dpi: 150
+evaluation_seed: 2101
+world_size: 8
+action_infer_shift: 5.0
+action_shape:
+- 8
+- 3
+model_storage_dtype: float32
+latent_dtype: float32
+velocity_compute_dtype: float32
+autocast: true
+probability_dtype: float32
+advantage_statistics_dtype: float64
+optimizer: AdamW
+optimizer_betas:
+- 0.9
+- 0.95
+optimizer_eps: 1.0e-08
+distributed_platform: torch_DDP_FP32_LoRA_optimizer
+DDP_find_unused_parameters: true
+DDP_static_graph: false
+DDP_bucket_cap_mb: 25
+gradient_clipping_effective: 1.0
+gradient_clipping_reason: New clean-x recipe explicitly applies clip1; original source
+  effective clip0 is not claimed unchanged
+data_order: explicit registered NAVTRAIN scene stream; exact source sampler seed42
+  or sealed adaptive stages
+save_every_optimizer_updates: 500
+evaluate_updates:
+- 0
+- 1000
+- 5000
+- 10000
+- 20000
+- 35000
+- 50000
+anchor_mapping: source_native_xy_heading
+PG_reduction: source_rank_mean
+probability_mode: source_relative_clamp
+variant: R_CANONICAL
+model_family: QwenWorldPostCoT
+observation: current_Qwen_spatial_global_predictive_student_memory
+frozen_prefill_autocast: bfloat16
+action_autocast: true
+deployment: single_candidate_cleanx_shift5_ODE_K10
+logical_budget:
+  fresh_global_rollouts: 12500
+  scenes: 100000
+  candidates: 800000
+prediction_type: x0
+action_forward_dtype: bfloat16
+source_velocity_conversion: (FP32_state-FP32_pred_x0)/FP32_sigma; exactly once; sigma>0
+context_precision: Preserve actual FP32 residual memory; BF16 projected KV; never
+  condition_fp32 recast
+context_lifetime: Only frozen Qwen features and IL reference memory persist; current
+  memory and KV recomputed each inner
+deployment_lora: preserve attention LoRA wrappers for BF16 parity; merging is not
+  default
+adaptation: ATTN_LORA_MEMORY
+reference_observation: permanently frozen pinned complete World IL70k Qwen and memory
+observation_gradient: frozen Qwen features; current memory rebuilt each inner
+memory_learning_rate: 5.0e-06
+cache_lifetime: one frozen Qwen feature tree per scene; no current-memory graph across
+  inner
+research:
+  schema: world_RL_optimization_experiment_v1
+  campaign_root: /mnt/project/qwen-world-rl-optimization-20261030
+  arm: PPO_ANCHOR40
+  policy_objective: ppo
+  cispo_upper: 1.01
+  data_policy: uniform_full
+  manifest_sha256: 37c9a0b1dd9105e632b2f447056ab987e5cf0d17a671f25e07fdec88ea6d2a3b
+  observation_data: /mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN
+  scoring_cache_roots:
+  - /mnt/project/flow-safe-improvement-20261013/metric_cache_v1
+  - /mnt/project/constrained-flow-noise-20261014/metric_cache_v1
+  - /mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache
+  stage_gate_updates:
+  - 1000
+  - 5000
+  - 10000
+  - 20000
+  - 35000
+  - 50000
+  training_seed: 42
+  primary_evaluation_seed: 2101
+  NAVTEST_used_for_training_selection: false
+  original_DEV_independent: false
+  anchor_ablation: raw_batchstd_beta40_v1
