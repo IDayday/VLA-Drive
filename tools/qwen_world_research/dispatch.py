@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 
-from starVLA.rl.qwen_world_postcot.contracts import allowed_hosts, fingerprint
+from starVLA.rl.qwen_world_postcot.contracts import allowed_hosts, fingerprint, file_sha
 from starVLA.rl.qwen_world_postcot.resources import probe, gpu_activity_issue
 
 MODEL='/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
@@ -245,12 +245,26 @@ def _dispatch_evaluation(root,label,parent_checkpoint,rl_checkpoint,cohort,manif
     if rl_checkpoint:command+=['--rl-checkpoint',str(rl_checkpoint)]
     logroot=root/'exports'/label;logroot.mkdir(parents=True,exist_ok=True)
     env=dict(os.environ,PYTHONPATH=str(source),WORLD_POSTCOT_TASK=TASK,CUBLAS_WORKSPACE_CONFIG=':4096:8',OPENBLAS_NUM_THREADS='1')
-    with (logroot/'export.log').open('ab',buffering=0) as log:
-        subprocess.run(command,cwd=source,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
+    if (export/'COMPLETE').exists():
+        # A capacity wake-up must not rehash an already published multi-GB
+        # export. Each actual GPU restore still performs native strict checks.
+        meta_path=export/'export.json'
+        seal=json.loads((export/'COMPLETE').read_text())
+        if file_sha(meta_path)!=seal['export_sha256']:
+            raise ValueError('Published export metadata changed while waiting for capacity')
+        from tools.qwen_world_research.evaluate import verify_export_binding
+        verify_export_binding(json.loads(meta_path.read_text()),
+                              parent_checkpoint=parent_checkpoint,rl_checkpoint=rl_checkpoint)
+    else:
+        with (logroot/'export.log').open('ab',buffering=0) as log:
+            subprocess.run(command,cwd=source,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
     maximum=8 if cohort=='TRAIN_DIAGNOSTIC' else 16
     with locked(root/'resources/EVALUATION_DISPATCH.lock'):
         routes,claims=_eval_routes(root,maximum=maximum)
-        if not routes:raise BlockingIOError('No authorized evaluation capacity; keep exact checkpoint waiting')
+        minimum=8 if cohort=='NAVTEST' else 4
+        if len(routes)<minimum:
+            raise BlockingIOError(f'Need {minimum} evaluation shards before freezing a new census layout; '
+                                  f'{len(routes)} currently available; keep exact checkpoint waiting')
         jobs=[]
         for rank,route in enumerate(routes):
             job=root/'jobs'/('EVAL_'+label)/f'rank{rank:03}_attempt001'

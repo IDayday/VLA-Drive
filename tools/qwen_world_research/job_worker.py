@@ -53,7 +53,8 @@ def task_ranks(state):
                              'tools.qwen_world_postcot.train_selected_parent_rl',
                              'tools.qwen_world_research.train',
                              'starVLA.rl.qwen_world_research_algorithms.train_nft',
-                             'starVLA.rl.qwen_world_research_algorithms.batchstd_entry'):continue
+                             'starVLA.rl.qwen_world_research_algorithms.batchstd_entry',
+                             'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -148,7 +149,8 @@ def _known_owners(rows,mapping,indices):
                            'tools.qwen_world_compare.train_rl','tools.qwen_world_research.train',
                            'tools.qwen_world_research.evaluate',
                            'starVLA.rl.qwen_world_research_algorithms.train_nft',
-                           'starVLA.rl.qwen_world_research_algorithms.batchstd_entry'}
+                           'starVLA.rl.qwen_world_research_algorithms.batchstd_entry',
+                           'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry'}
         entry=args[args.index('-m')+1] if '-m' in args else None
         output=args[args.index('--output')+1] if '--output' in args else None
         if entry not in permitted_entries or not output or not output.startswith(allowed_roots):
@@ -226,12 +228,14 @@ def main():
     if args.primary_shared_training and (not args.share_min_free_mib or
             not any(entry in command for entry in ('tools.qwen_world_research.train',
                'starVLA.rl.qwen_world_research_algorithms.train_nft',
-               'starVLA.rl.qwen_world_research_algorithms.batchstd_entry'))):
+               'starVLA.rl.qwen_world_research_algorithms.batchstd_entry',
+               'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry'))):
         raise ValueError('Primary sharing is restricted to this explicitly registered research trainer')
     if args.research_shared_slot and (args.primary_shared_training or not args.share_min_free_mib
             or args.share_min_free_mib<32768 or not any(entry in command for entry in (
                'tools.qwen_world_research.train','starVLA.rl.qwen_world_research_algorithms.train_nft',
-               'starVLA.rl.qwen_world_research_algorithms.batchstd_entry'))):
+               'starVLA.rl.qwen_world_research_algorithms.batchstd_entry',
+               'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry'))):
         raise ValueError('Additional research slot requires its exact learner and at least32768MiB measured headroom')
     if args.evaluation_shared_slot and (args.primary_shared_training or args.research_shared_slot
             or not args.share_min_free_mib or args.share_min_free_mib<20480
