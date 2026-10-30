@@ -195,6 +195,13 @@ def _eval_routes(root,*,maximum,rank0_extra=True):
 
 
 def dispatch_evaluation(root,label,parent_checkpoint,rl_checkpoint,cohort,manifest,data,baseline=None):
+    # Prevent duplicate CPU export callers from dispatching the same census
+    # after both observed that its spec did not exist yet.
+    with locked(Path(root)/'evaluation_specs'/f'{label}.dispatch.lock'):
+        return _dispatch_evaluation(root,label,parent_checkpoint,rl_checkpoint,cohort,manifest,data,baseline)
+
+
+def _dispatch_evaluation(root,label,parent_checkpoint,rl_checkpoint,cohort,manifest,data,baseline=None):
     root=Path(root);source=operator_source(root)
     output=TASK_STORAGE/'evaluations'/label;export=TASK_STORAGE/'exports'/label
     spec_path=root/'evaluation_specs'/f'{label}.json'
@@ -202,6 +209,29 @@ def dispatch_evaluation(root,label,parent_checkpoint,rl_checkpoint,cohort,manife
         value=json.loads(spec_path.read_text())
         if any(value[k]!=str(v) for k,v in [('parent_checkpoint',parent_checkpoint),('manifest',manifest),('data',data)]):
             raise ValueError('Evaluation label reused with a different policy/population')
+        refused=[]
+        for rank,job in enumerate(value['jobs']):
+            result=Path(job)/'RESULT.json'
+            if result.exists():
+                row=json.loads(result.read_text())
+                if row.get('returncode')==75 and row.get('child_not_started') is True:
+                    refused.append((rank,Path(job)))
+        if not refused:return value
+        with locked(root/'resources/EVALUATION_DISPATCH.lock'):
+            routes,claims=_eval_routes(root,maximum=len(refused),rank0_extra=any(rank==0 for rank,_ in refused))
+            if len(routes)<len(refused):raise BlockingIOError('Refused pre-child shards retain their completed siblings; waiting for capacity')
+            value.setdefault('previous_attempts',[])
+            for (rank,old),route in zip(refused,routes):
+                launch=json.loads((old/'LAUNCH.json').read_text());attempt=2
+                while (old.parent/f'rank{rank:03}_attempt{attempt:03}').exists():attempt+=1
+                if attempt>3:raise RuntimeError('Bounded pre-child evaluation retries exhausted')
+                job=old.parent/f'rank{rank:03}_attempt{attempt:03}'
+                receipt=start_worker(root,job,host=route['host'],source=Path(value['source']),command=launch['command'],
+                    gpus=[route['gpu']],uuids=[route['uuid']],lease='evaluation',minimum_free=route['minimum_free'])
+                value['previous_attempts'].append(dict(rank=rank,receipt=str(old),reason='resource refusal before model child'))
+                value['jobs'][rank]=receipt
+                claims[route['uuid']]=dict(receipt=receipt,label=label,rank=rank,claimed_unix=time.time())
+            write(root/'resources/EVALUATION_CLAIMS.json',claims);write(spec_path,value)
         return value
     output.parent.mkdir(parents=True,exist_ok=True);export.parent.mkdir(parents=True,exist_ok=True)
     # CPU export overlaps other training and evaluation; native bytes and strict

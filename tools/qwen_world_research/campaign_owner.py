@@ -159,6 +159,8 @@ class CampaignOwner:
         self.lock = (self.owner_root/'owner.lock').open('a')
         fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         self.mutex = threading.RLock()
+        self.capacity_changed = threading.Condition(self.mutex)
+        self.capacity_epoch = 0
         self.dispatcher = dispatcher or importlib.import_module('tools.qwen_world_research.dispatch')
         self.score_tolerance = score_tolerance; self.safety_tolerance = safety_tolerance
         self.resource_retries = resource_retries
@@ -221,6 +223,12 @@ class CampaignOwner:
             self.state['runs'][arm].update(values)
             self.flush()
 
+    def capacity_released(self):
+        """A real adopted worker exited; wake dispatchers without journal polls."""
+        with self.capacity_changed:
+            self.capacity_epoch += 1
+            self.capacity_changed.notify_all()
+
     def update_run_registry(self, arm, **values):
         # dispatch.py uses the same cross-thread/process lock; preserve every
         # unrelated row/field rather than rewriting the registration snapshot.
@@ -246,10 +254,29 @@ class CampaignOwner:
                          baseline=baseline)
         for attempt in range(self.resource_retries+1):
             spec = node.get('spec')
-            if spec is None:
-                spec = self.dispatcher.dispatch_evaluation(**arguments)
-                with self.mutex:node['spec']=spec;self.flush()
-            results = [self.dispatcher.wait_job(job_path(job)) for job in spec['jobs']]
+            while spec is None:
+                with self.capacity_changed:epoch=self.capacity_epoch
+                try:
+                    spec = self.dispatcher.dispatch_evaluation(**arguments)
+                except BlockingIOError as error:
+                    with self.mutex:
+                        node.update(status='WAITING_CAPACITY',capacity_reason=str(error))
+                        self.flush()
+                    self.event('evaluation_waiting_capacity',label=label,reason=str(error))
+                    # Capacity waiting is independent of scientific/resource75
+                    # retry accounting. Actual worker exits wake it immediately;
+                    # unrelated jobs can also release capacity between the
+                    # sparse1800-second administrative heartbeats.
+                    with self.capacity_changed:
+                        released=self.capacity_changed.wait_for(lambda:self.capacity_epoch!=epoch,timeout=1800)
+                    if not released:self.event('capacity_wait_heartbeat',label=label)
+                    continue
+                with self.mutex:
+                    node['spec']=spec;node['status']='DISPATCHED';self.flush()
+            results=[]
+            for job in spec['jobs']:
+                results.append(self.dispatcher.wait_job(job_path(job)))
+                self.capacity_released()
             bad = [r for r in results if result_code(r)!=0]
             if bad:
                 resource_only = all(result_code(r)==75 and r.get('child_not_started') is True for r in bad)
@@ -327,29 +354,46 @@ class CampaignOwner:
         if node.get('checkpoint') and node.get('train_completed'):
             return node['checkpoint']
         if adopt_first and 'train_job' not in node:
-            node['train_job']=self.runs[arm]['job']
-            node['adopted_initial_dispatch']=True
-            self.flush()
+            with self.mutex:
+                node['train_job']=self.runs[arm]['job']
+                node['adopted_initial_dispatch']=True
+                self.flush()
         attempts=int(node.get('resource75_requeues',0))
         while True:
             if not node.get('train_job'):
-                node['train_job']=str(self.dispatcher.dispatch_training(self.root,arm,target,
-                    resume=resume,source=self.runs[arm].get('source')))
-                self.flush()
+                current=next(r for r in read_json(self.root/'RUNS.json')['runs'] if r['id']==arm)
+                if current.get('stage_budget_updates')==target and current.get('job'):
+                    new_job=current['job']
+                    with self.mutex:node['adopted_published_dispatch']=True
+                else:
+                    new_job=str(self.dispatcher.dispatch_training(self.root,arm,target,
+                        resume=resume,source=self.runs[arm].get('source')))
+                with self.mutex:
+                    node['train_job']=new_job
+                    self.flush()
             job=str(node['train_job'])
             self.update_arm(arm,status='TRAINING',stage_target_updates=target,job=job)
             result=self.dispatcher.wait_job(job)
-            node['train_result']=result;self.flush()
+            self.capacity_released()
+            with self.mutex:
+                node['train_result']=result;self.flush()
             code=result_code(result)
             if code==75 and result.get('child_not_started') is True and attempts<self.resource_retries:
-                node.setdefault('previous_train_jobs',[]).append(dict(job=job,result=result))
-                attempts+=1;node['resource75_requeues']=attempts;node.pop('train_job',None)
+                with self.mutex:
+                    node.setdefault('previous_train_jobs',[]).append(dict(job=job,result=result))
+                    attempts+=1;node['resource75_requeues']=attempts;node.pop('train_job',None)
+                # Do not adopt the same refused receipt when selecting a new
+                # bounded attempt at the top of the loop.
+                fresh_job=str(self.dispatcher.dispatch_training(self.root,arm,target,
+                    resume=resume,source=self.runs[arm].get('source')))
+                with self.mutex:node['train_job']=fresh_job;self.flush()
                 self.event('training_resource75_requeue',arm=arm,target=target,attempt=attempts)
                 continue
             if code!=0:
                 raise RuntimeError('Formal training failed; preserve evidence and do not retry: '+json.dumps(result,default=str)[:2500])
             checkpoint=native_checkpoint(self.runs[arm]['root'],expected_update=target)
-            node.update(checkpoint=checkpoint['path'],train_completed=True,updates=target,train_completed_at=now())
+            with self.mutex:
+                node.update(checkpoint=checkpoint['path'],train_completed=True,updates=target,train_completed_at=now())
             self.update_arm(arm,status='TRAINING_BOUNDARY_COMPLETE',updates=target,checkpoint=checkpoint['path'])
             self.update_run_registry(arm,status='STAGE_TRAIN_COMPLETE',completed_updates=target,job=job,
                                      last_checkpoint=checkpoint['path'])
@@ -423,7 +467,7 @@ class CampaignOwner:
         for index,target in enumerate(GATES):
             if (self.owner_root/'STOP_AFTER_CURRENT_STAGE').exists():
                 self.state['status']='HELD_BY_STOP_REQUEST';self.flush();return
-            self.state['current_gate']=target;self.flush()
+            with self.mutex:self.state['current_gate']=target;self.flush()
             summaries=self.parallel_gate(selected,target,first=index==0)
             if 'PPO_FULL' not in summaries:
                 self.state['status']='STOPPED_NO_COMPLETE_MATCHED_CONTROL'
