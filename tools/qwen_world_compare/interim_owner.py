@@ -175,7 +175,7 @@ def main():
             except Exception:failed[label]=traceback.format_exc()
             write(root/'status.json',dict(completed=completed,failed=failed,at=time.time()))
     if failed:write(root/'failure.json',dict(failed=failed));return
-    report=Path(a.report_dir);report.mkdir(parents=True,exist_ok=True)
+    report=Path(a.report_dir).resolve();report.mkdir(parents=True,exist_ok=True)
     write(report/'results.json',completed)
     (report/'README.md').write_text('# User-requested early four-framework Navtest\n\nFull12146, canonicalv1.1, single clean-x K10shift5, seed2101. Budgets differ: no architecture ranking or parent selection.\n\n| Model | PDMS |\n|---|---:|\n'+'\n'.join(f'| {k} | {v["PDMS"]:.6f} |'for k,v in completed.items())+'\n')
     source=Path(__file__).resolve().parents[2];prefix=str(report.relative_to(source))
