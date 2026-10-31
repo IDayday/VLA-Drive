@@ -1,0 +1,53 @@
+{
+  "schema": "LR_study_matched_analyzer_launch_plan_v1",
+  "status": "RUNNING_ACTUAL_OWNER",
+  "at": "2026-10-31T05:56:23.830383+00:00",
+  "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/lr_study_matched_analyzer.py",
+  "script_sha256": "f9d2327ae7ea897eb81764a29dd0852985da25b863e5bd300ff7a10cd3ba2f12",
+  "output": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+  "arms": [
+    "PPO_SAFETY_LRLOW",
+    "PPO_SAFETY_LRCOS",
+    "PPO_SAFETY_DATA",
+    "PPO_SAFETY_LRDATA"
+  ],
+  "global_gates": [
+    12000,
+    14000,
+    16000,
+    18000,
+    20000
+  ],
+  "matched_contrasts": 50,
+  "interactions": 5,
+  "maximum_hours": 24,
+  "launch_argv": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/lr_study_matched_analyzer.py",
+    "--launch",
+    "--max-hours",
+    "24"
+  ],
+  "owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY_ANALYSIS/OWNER.json",
+  "launch": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY_ANALYSIS/LAUNCH.json",
+  "state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY_ANALYSIS/STATE.json",
+  "no_GPU_dispatch": true,
+  "no_journal_polling": true,
+  "refresh_scientific_result": false,
+  "all_actual_results_required_for_COMPLETE": true,
+  "missing_control": "WAIT never substitute fixed10k",
+  "imports": {
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safety_evidence_reviewer.py": "7681c7e6b9c9bdb2dabad1a70caa1c946c9e452f8c2191a32f45b470380b884a",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner_v2.py": "0a36d568437ccc38556eff885627c09b9546055a399e45aafdb3513868786017"
+  },
+  "started": true,
+  "administrative_updated_at": "2026-10-31T06:04:43.428483+00:00",
+  "actual_owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY_ANALYSIS/OWNER.json",
+  "actual_launch": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY_ANALYSIS/LAUNCH.json",
+  "actual_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY_ANALYSIS/STATE.json",
+  "actual_pid": 2385987,
+  "actual_start_ticks": 1486502809,
+  "actual_started_at": "2026-10-31T06:00:15.030254+00:00",
+  "running_source_sha256": "f9d2327ae7ea897eb81764a29dd0852985da25b863e5bd300ff7a10cd3ba2f12",
+  "administrative_metadata_only": true
+}

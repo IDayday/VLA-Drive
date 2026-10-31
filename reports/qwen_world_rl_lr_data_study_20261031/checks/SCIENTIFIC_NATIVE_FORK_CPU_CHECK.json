@@ -1,0 +1,255 @@
+{
+  "status": "PASS",
+  "created_at": "2026-10-31T05:50:29.130102+00:00",
+  "commit": "872df52e5d178de78f1d6454f7aea1dcc43c29ff",
+  "tests": {
+    "command": "modelpython -m pytest -q tests/test_qwen_world_safety_lr.py",
+    "passed": 6,
+    "failed": 0,
+    "scope": "CPU four-role schedule/own-resume plus real native IO and Adam/RNG restore with simulated8-rank control gather"
+  },
+  "registration_checks": [
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_LRLOW.yaml",
+      "config_sha256": "b19b0a4452ff91f1e66cf80a6eb1eda23047f18e256d15b446241a63d9fab2f5",
+      "status": "PASS",
+      "source_compatibility": [
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/policy.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/safety_efficiency.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_conditions.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_runtime.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/rl_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/action_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/trainer_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/model/modules/qwen_world_postcot/flow.py",
+          "compatible": true
+        }
+      ],
+      "population": null,
+      "schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "constant",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 0.2,
+        "end_factor": 0.2
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_LRCOS.yaml",
+      "config_sha256": "b39bf312207b320f1ec3f53c0ba0e693f035395819ba54b1fa2cd2c04878505f",
+      "status": "PASS",
+      "source_compatibility": [
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/policy.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/safety_efficiency.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_conditions.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_runtime.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/rl_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/action_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/trainer_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/model/modules/qwen_world_postcot/flow.py",
+          "compatible": true
+        }
+      ],
+      "population": null,
+      "schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "cosine",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 1.0,
+        "end_factor": 0.1
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_DATA",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_DATA.yaml",
+      "config_sha256": "214481ab3c0d5b7fbe1e878fdad54d01dfbd4a7f99ef01b6173e9a7bc0187e52",
+      "status": "PASS",
+      "source_compatibility": [
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/policy.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/safety_efficiency.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_conditions.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_runtime.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/rl_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/action_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/trainer_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/model/modules/qwen_world_postcot/flow.py",
+          "compatible": true
+        }
+      ],
+      "population": {
+        "stream_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+        "stream_sha256": "5767f6fc52d8c9cef24750da69f2fa63cf6883279cb68299f015c3d2c34b0175",
+        "full_population_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+        "full_population_manifest_sha256": "37c9a0b1dd9105e632b2f447056ab987e5cf0d17a671f25e07fdec88ea6d2a3b",
+        "full_population_count": 103288,
+        "NAVTEST_tokens_in_population": 0,
+        "source_stage_at_parent_cursor": 2,
+        "parent_cursor": 20000,
+        "adaptive_reader_mechanical_only": true,
+        "static80_10_10": true,
+        "teacher_CFM_used": false,
+        "PG_source": "fresh8 candidate canonical SafetyEP only"
+      },
+      "schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "constant",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 1.0,
+        "end_factor": 1.0
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRDATA",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_LRDATA.yaml",
+      "config_sha256": "5cfd751d9c2682896c7a4cdaa95b4956f9c0ec370b5c0e829b203f62440c4328",
+      "status": "PASS",
+      "source_compatibility": [
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/policy.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_research_algorithms/safety_efficiency.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_conditions.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/scope_runtime.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/qwen_world_postcot/rl_actor.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/action_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/rl/simwam_recipe/vendor/trainer_math.py",
+          "compatible": true
+        },
+        {
+          "file": "starVLA/model/modules/qwen_world_postcot/flow.py",
+          "compatible": true
+        }
+      ],
+      "population": {
+        "stream_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+        "stream_sha256": "5767f6fc52d8c9cef24750da69f2fa63cf6883279cb68299f015c3d2c34b0175",
+        "full_population_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+        "full_population_manifest_sha256": "37c9a0b1dd9105e632b2f447056ab987e5cf0d17a671f25e07fdec88ea6d2a3b",
+        "full_population_count": 103288,
+        "NAVTEST_tokens_in_population": 0,
+        "source_stage_at_parent_cursor": 2,
+        "parent_cursor": 20000,
+        "adaptive_reader_mechanical_only": true,
+        "static80_10_10": true,
+        "teacher_CFM_used": false,
+        "PG_source": "fresh8 candidate canonical SafetyEP only"
+      },
+      "schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "constant",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 0.2,
+        "end_factor": 0.2
+      }
+    }
+  ],
+  "model_or_GPU_loaded": false,
+  "parent_optimizer_payload_reread": false,
+  "IL_tensor_file_rehashed": false,
+  "scientific_dispatch": false
+}

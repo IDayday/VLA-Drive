@@ -1,0 +1,804 @@
+{
+  "status": "ACTUAL_FOUR_NATIVE_TRAINING_RUNS_8RANK_EACH",
+  "at_unix": 1793426540.1909542,
+  "arms": [
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRLOW",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_LRLOW/formal_to012000_attempt002",
+      "host": "training-vla-zt",
+      "lease": "research",
+      "initial_child_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRLOW/checkpoints/update010000_inner0",
+      "initial_child_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 10000,
+        "next_inner": 0,
+        "files_sha256": "1fe1783a1d6b383bf7aff406479494e594516b263738b1c974c70a1366d764f3"
+      },
+      "native_fork_provenance": {
+        "schema": "world_Safety10k_exact_native_LR_fork_v1",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "expected_updates": 10000,
+        "checkpoint_files_sha256": "e5479f593eb3d624033e074cf897176cc39c83151aa186e4cf259773a96a7963",
+        "checkpoint_identity_sha256": "a95502b8694bd2b3f1a046417e788868afa70566e3753d7ea6d3bae3e29680ff",
+        "optimizer_file_sha256": "b22aafb4ef1426292300eb726aa6fe1fd01e5e0086a36dd61491c362683b2a33",
+        "expected_parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+        "optimizer": "inherited_AdamW",
+        "rng": "inherited_all_native_per_rank",
+        "reference": "original_frozen_IL70",
+        "initial_global_updates": 10000,
+        "phase_reset": false,
+        "weights_only": false,
+        "optimizer_state_inherited": true,
+        "RNG_state_inherited": true,
+        "stream_cursor_inherited": true,
+        "reference_reset": false,
+        "scheduler_replacement": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 0.2,
+          "end_factor": 0.2
+        },
+        "execution_migration": false,
+        "sampling_distribution_changed": false,
+        "static_population": null,
+        "interpretation": "scientific LR-only exact-native fork,new identity; inherit full Adam/moments/RNG/cursor from sealed Safety10k,then change only two group LRs"
+      },
+      "relative_LR_protocol": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 0.2,
+          "end_factor": 0.2
+        },
+        "base_lrs": [
+          5e-05,
+          5e-06
+        ],
+        "groups": [
+          "action_lora",
+          "scene_predictive_memory"
+        ],
+        "clock": "completed global optimizer updates; next-update LR",
+        "no_rewarmup": true,
+        "Adam_moments_inherited": true,
+        "ratio_action_to_memory": 10.0
+      },
+      "native_ranks": [
+        {
+          "rank": 0,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.00038017326733097434,
+          "finite": true
+        },
+        {
+          "rank": 1,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.0011279555037617683,
+          "finite": true
+        },
+        {
+          "rank": 2,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.0009413589141331613,
+          "finite": true
+        },
+        {
+          "rank": 3,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.0013066540705040097,
+          "finite": true
+        },
+        {
+          "rank": 4,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.0008842318202368915,
+          "finite": true
+        },
+        {
+          "rank": 5,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.0020910403691232204,
+          "finite": true
+        },
+        {
+          "rank": 6,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.0008747755200602114,
+          "finite": true
+        },
+        {
+          "rank": 7,
+          "updates": 10092,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.03140592947602272,
+          "loss": 0.000285337126115337,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRCOS",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_LRCOS/formal_to012000_attempt002",
+      "host": "training-vlawm-tsinghua-zt6",
+      "lease": "research",
+      "initial_child_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRCOS/checkpoints/update010000_inner0",
+      "initial_child_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 10000,
+        "next_inner": 0,
+        "files_sha256": "3017b818333716b0cdcf8f7f7a632b84f81829cda27d0d49d069d6f7300d9267"
+      },
+      "native_fork_provenance": {
+        "schema": "world_Safety10k_exact_native_LR_fork_v1",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "expected_updates": 10000,
+        "checkpoint_files_sha256": "e5479f593eb3d624033e074cf897176cc39c83151aa186e4cf259773a96a7963",
+        "checkpoint_identity_sha256": "a95502b8694bd2b3f1a046417e788868afa70566e3753d7ea6d3bae3e29680ff",
+        "optimizer_file_sha256": "b22aafb4ef1426292300eb726aa6fe1fd01e5e0086a36dd61491c362683b2a33",
+        "expected_parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+        "optimizer": "inherited_AdamW",
+        "rng": "inherited_all_native_per_rank",
+        "reference": "original_frozen_IL70",
+        "initial_global_updates": 10000,
+        "phase_reset": false,
+        "weights_only": false,
+        "optimizer_state_inherited": true,
+        "RNG_state_inherited": true,
+        "stream_cursor_inherited": true,
+        "reference_reset": false,
+        "scheduler_replacement": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "cosine",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 1.0,
+          "end_factor": 0.1
+        },
+        "execution_migration": false,
+        "sampling_distribution_changed": false,
+        "static_population": null,
+        "interpretation": "scientific LR-only exact-native fork,new identity; inherit full Adam/moments/RNG/cursor from sealed Safety10k,then change only two group LRs"
+      },
+      "relative_LR_protocol": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "cosine",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 1.0,
+          "end_factor": 0.1
+        },
+        "base_lrs": [
+          5e-05,
+          5e-06
+        ],
+        "groups": [
+          "action_lora",
+          "scene_predictive_memory"
+        ],
+        "clock": "completed global optimizer updates; next-update LR",
+        "no_rewarmup": true,
+        "Adam_moments_inherited": true,
+        "ratio_action_to_memory": 10.0
+      },
+      "native_ranks": [
+        {
+          "rank": 0,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": 0.0011843983083963394,
+          "finite": true
+        },
+        {
+          "rank": 1,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": 0.0005640311283059418,
+          "finite": true
+        },
+        {
+          "rank": 2,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": 0.001972045749425888,
+          "finite": true
+        },
+        {
+          "rank": 3,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": 0.0010385748464614153,
+          "finite": true
+        },
+        {
+          "rank": 4,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": 0.002393608447164297,
+          "finite": true
+        },
+        {
+          "rank": 5,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": 0.0025989015121012926,
+          "finite": true
+        },
+        {
+          "rank": 6,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": -2.910688635893166e-05,
+          "finite": true
+        },
+        {
+          "rank": 7,
+          "updates": 10103,
+          "used_group_lrs": {
+            "action_lora": 4.998844910998304e-05,
+            "scene_predictive_memory": 4.998844910998304e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 4.9988221531567535e-05,
+            "scene_predictive_memory": 4.998822153156754e-06
+          },
+          "gradient_norm": 0.036842744797468185,
+          "loss": 0.006241039838641882,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "arm": "PPO_SAFETY_DATA",
+      "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_DATA",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_DATA/formal_to012000_attempt002",
+      "host": "training-vlawm-zt",
+      "lease": "primary",
+      "initial_child_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_DATA/checkpoints/update010000_inner0",
+      "initial_child_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 10000,
+        "next_inner": 0,
+        "files_sha256": "45d44416ebc91174776fc59a280f6169273b5e98eb98eea03664192c3410f5ca"
+      },
+      "native_fork_provenance": {
+        "schema": "world_Safety10k_exact_native_LR_fork_v1",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "expected_updates": 10000,
+        "checkpoint_files_sha256": "e5479f593eb3d624033e074cf897176cc39c83151aa186e4cf259773a96a7963",
+        "checkpoint_identity_sha256": "a95502b8694bd2b3f1a046417e788868afa70566e3753d7ea6d3bae3e29680ff",
+        "optimizer_file_sha256": "b22aafb4ef1426292300eb726aa6fe1fd01e5e0086a36dd61491c362683b2a33",
+        "expected_parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+        "optimizer": "inherited_AdamW",
+        "rng": "inherited_all_native_per_rank",
+        "reference": "original_frozen_IL70",
+        "initial_global_updates": 10000,
+        "phase_reset": false,
+        "weights_only": false,
+        "optimizer_state_inherited": true,
+        "RNG_state_inherited": true,
+        "stream_cursor_inherited": true,
+        "reference_reset": false,
+        "scheduler_replacement": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 1.0,
+          "end_factor": 1.0
+        },
+        "execution_migration": false,
+        "sampling_distribution_changed": true,
+        "static_population": {
+          "stream_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+          "stream_sha256": "5767f6fc52d8c9cef24750da69f2fa63cf6883279cb68299f015c3d2c34b0175",
+          "full_population_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "full_population_manifest_sha256": "37c9a0b1dd9105e632b2f447056ab987e5cf0d17a671f25e07fdec88ea6d2a3b",
+          "full_population_count": 103288,
+          "NAVTEST_tokens_in_population": 0,
+          "source_stage_at_parent_cursor": 2,
+          "parent_cursor": 20000,
+          "adaptive_reader_mechanical_only": true,
+          "static80_10_10": true,
+          "teacher_CFM_used": false,
+          "PG_source": "fresh8 candidate canonical SafetyEP only"
+        },
+        "interpretation": "scientific exact-native LR/data combination fork,new identity; inherit full Adam/moments/RNG/globalcursor from sealed Safety10k,then apply registered LR and static80/10/10 sampling"
+      },
+      "relative_LR_protocol": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 1.0,
+          "end_factor": 1.0
+        },
+        "base_lrs": [
+          5e-05,
+          5e-06
+        ],
+        "groups": [
+          "action_lora",
+          "scene_predictive_memory"
+        ],
+        "clock": "completed global optimizer updates; next-update LR",
+        "no_rewarmup": true,
+        "Adam_moments_inherited": true,
+        "ratio_action_to_memory": 10.0
+      },
+      "native_ranks": [
+        {
+          "rank": 0,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.0007564608822576702,
+          "finite": true
+        },
+        {
+          "rank": 1,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.0004638964601326734,
+          "finite": true
+        },
+        {
+          "rank": 2,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.0010590553283691406,
+          "finite": true
+        },
+        {
+          "rank": 3,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.0031906557269394398,
+          "finite": true
+        },
+        {
+          "rank": 4,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.0005939085385762155,
+          "finite": true
+        },
+        {
+          "rank": 5,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.00023003597743809223,
+          "finite": true
+        },
+        {
+          "rank": 6,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.0004236898384988308,
+          "finite": true
+        },
+        {
+          "rank": 7,
+          "updates": 10105,
+          "used_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 5e-05,
+            "scene_predictive_memory": 5e-06
+          },
+          "gradient_norm": 0.030846400186419487,
+          "loss": 0.0007203787681646645,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "arm": "PPO_SAFETY_LRDATA",
+      "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRDATA",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_LRDATA/formal_to012000_attempt002",
+      "host": "training-vlawm-tsinghua-zt4",
+      "lease": "research",
+      "initial_child_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRDATA/checkpoints/update010000_inner0",
+      "initial_child_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 10000,
+        "next_inner": 0,
+        "files_sha256": "429cef6b3b4dbbbde1f9ae6edb8df8be7d1153a99d1a222f91b32f841ceec15e"
+      },
+      "native_fork_provenance": {
+        "schema": "world_Safety10k_exact_native_LR_fork_v1",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "expected_updates": 10000,
+        "checkpoint_files_sha256": "e5479f593eb3d624033e074cf897176cc39c83151aa186e4cf259773a96a7963",
+        "checkpoint_identity_sha256": "a95502b8694bd2b3f1a046417e788868afa70566e3753d7ea6d3bae3e29680ff",
+        "optimizer_file_sha256": "b22aafb4ef1426292300eb726aa6fe1fd01e5e0086a36dd61491c362683b2a33",
+        "expected_parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+        "optimizer": "inherited_AdamW",
+        "rng": "inherited_all_native_per_rank",
+        "reference": "original_frozen_IL70",
+        "initial_global_updates": 10000,
+        "phase_reset": false,
+        "weights_only": false,
+        "optimizer_state_inherited": true,
+        "RNG_state_inherited": true,
+        "stream_cursor_inherited": true,
+        "reference_reset": false,
+        "scheduler_replacement": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 0.2,
+          "end_factor": 0.2
+        },
+        "execution_migration": false,
+        "sampling_distribution_changed": true,
+        "static_population": {
+          "stream_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+          "stream_sha256": "5767f6fc52d8c9cef24750da69f2fa63cf6883279cb68299f015c3d2c34b0175",
+          "full_population_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "full_population_manifest_sha256": "37c9a0b1dd9105e632b2f447056ab987e5cf0d17a671f25e07fdec88ea6d2a3b",
+          "full_population_count": 103288,
+          "NAVTEST_tokens_in_population": 0,
+          "source_stage_at_parent_cursor": 2,
+          "parent_cursor": 20000,
+          "adaptive_reader_mechanical_only": true,
+          "static80_10_10": true,
+          "teacher_CFM_used": false,
+          "PG_source": "fresh8 candidate canonical SafetyEP only"
+        },
+        "interpretation": "scientific exact-native LR/data combination fork,new identity; inherit full Adam/moments/RNG/globalcursor from sealed Safety10k,then apply registered LR and static80/10/10 sampling"
+      },
+      "relative_LR_protocol": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 0.2,
+          "end_factor": 0.2
+        },
+        "base_lrs": [
+          5e-05,
+          5e-06
+        ],
+        "groups": [
+          "action_lora",
+          "scene_predictive_memory"
+        ],
+        "clock": "completed global optimizer updates; next-update LR",
+        "no_rewarmup": true,
+        "Adam_moments_inherited": true,
+        "ratio_action_to_memory": 10.0
+      },
+      "native_ranks": [
+        {
+          "rank": 0,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0006968241068534553,
+          "finite": true
+        },
+        {
+          "rank": 1,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0005348551785573363,
+          "finite": true
+        },
+        {
+          "rank": 2,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0017150918720290065,
+          "finite": true
+        },
+        {
+          "rank": 3,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0007788243237882853,
+          "finite": true
+        },
+        {
+          "rank": 4,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0006635222234763205,
+          "finite": true
+        },
+        {
+          "rank": 5,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0010909236734732985,
+          "finite": true
+        },
+        {
+          "rank": 6,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0009298272780142725,
+          "finite": true
+        },
+        {
+          "rank": 7,
+          "updates": 10079,
+          "used_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "next_group_lrs": {
+            "action_lora": 1e-05,
+            "scene_predictive_memory": 1.0000000000000002e-06
+          },
+          "gradient_norm": 0.02916848659515381,
+          "loss": 0.0014237191062420607,
+          "finite": true
+        }
+      ]
+    }
+  ],
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_lr_historyfix_20261031",
+  "no_new_complete_NAVTEST_gain_established": true,
+  "owning_CPU": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY/OWNER.json",
+  "matched_analyzer": "/mnt/project/qwen-world-rl-optimization-20261030/owners/LR_STUDY_ANALYSIS/OWNER.json"
+}

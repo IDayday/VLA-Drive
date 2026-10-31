@@ -1,0 +1,174 @@
+{
+  "schema": "world_native_Safety_LR_data_factorial_study_v1",
+  "status": "ACTUAL_4X8RANK_NATIVE_TRAINING",
+  "at_unix": 1793425737.0933127,
+  "arms": [
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_LRLOW.yaml",
+      "config_sha256": "b19b0a4452ff91f1e66cf80a6eb1eda23047f18e256d15b446241a63d9fab2f5",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "data_policy": "uniform_full",
+      "lr_schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "constant",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 0.2,
+        "end_factor": 0.2
+      },
+      "base_group_lrs": {
+        "action_lora": 5e-05,
+        "scene_predictive_memory": 5e-06
+      },
+      "initial_used_group_lrs": {
+        "action_lora": 1e-05,
+        "scene_predictive_memory": 1.0000000000000002e-06
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_LRCOS.yaml",
+      "config_sha256": "b39bf312207b320f1ec3f53c0ba0e693f035395819ba54b1fa2cd2c04878505f",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "data_policy": "uniform_full",
+      "lr_schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "cosine",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 1.0,
+        "end_factor": 0.1
+      },
+      "base_group_lrs": {
+        "action_lora": 5e-05,
+        "scene_predictive_memory": 5e-06
+      },
+      "initial_used_group_lrs": {
+        "action_lora": 5e-05,
+        "scene_predictive_memory": 5e-06
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_DATA",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_DATA.yaml",
+      "config_sha256": "214481ab3c0d5b7fbe1e878fdad54d01dfbd4a7f99ef01b6173e9a7bc0187e52",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+      "data_policy": "static_rescue_retention",
+      "lr_schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "constant",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 1.0,
+        "end_factor": 1.0
+      },
+      "base_group_lrs": {
+        "action_lora": 5e-05,
+        "scene_predictive_memory": 5e-06
+      },
+      "initial_used_group_lrs": {
+        "action_lora": 5e-05,
+        "scene_predictive_memory": 5e-06
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRDATA",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_LRDATA.yaml",
+      "config_sha256": "5cfd751d9c2682896c7a4cdaa95b4956f9c0ec370b5c0e829b203f62440c4328",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+      "data_policy": "static_rescue_retention",
+      "lr_schedule": {
+        "schema": "world_native_fork_relative_LR_v1",
+        "kind": "constant",
+        "start_updates": 10000,
+        "end_updates": 20000,
+        "start_factor": 0.2,
+        "end_factor": 0.2
+      },
+      "base_group_lrs": {
+        "action_lora": 5e-05,
+        "scene_predictive_memory": 5e-06
+      },
+      "initial_used_group_lrs": {
+        "action_lora": 1e-05,
+        "scene_predictive_memory": 1.0000000000000002e-06
+      }
+    }
+  ],
+  "starting_complete_NAVTEST_PDMS": 91.34989173702405,
+  "initial_native_global_updates": 10000,
+  "final_approved_native_updates": 20000,
+  "additional_update_budget": 10000,
+  "native_config_ceiling": 50000,
+  "reference": "unchanged original IL70",
+  "parent_Adam": "inherited moments and step10000, no fresh optimizer",
+  "RNG": "all native per-rank Python/NumPy/torch/CUDA/rollout_generator restored",
+  "data_cursor": "inherited20000; static mixture uses existing stage2 at fork",
+  "initial_warmup": "already completed in parent; no second warmup",
+  "same_all_arms": [
+    "SafetyEP candidate metric advantages",
+    "W3 rigorous SDE eta.1 at7,8,9",
+    "full103288 eligible observations",
+    "LoRA+scene/predictive trainable scope",
+    "beta50 physical clean-x reference mean penalty",
+    "seed42 / canonical singleODE seed2101 eval"
+  ],
+  "comparisons": [
+    "LRLOW minus Safety same-native-budget isolates lower amplitude",
+    "LRCOS minus Safety same-native-budget isolates group-relative cosine schedule",
+    "DATA minus Safety same-native-budget isolates static rescue/retention sampling",
+    "LRDATA minus LRLOW isolates sampling at reduced LR",
+    "LRDATA minus DATA isolates reduced LR with rescue sampling",
+    "[LRDATA-DATA]-[LRLOW-Safety] is LR/data interaction; uncertainty from same44 physical logs"
+  ],
+  "NAVTEST_steps": [
+    12000,
+    14000,
+    16000,
+    18000,
+    20000
+  ],
+  "NAVTEST_12to18_owner": "existing independent NAVTEST_CADENCE",
+  "NAVTEST_20_owner": "new independent LR_STUDY",
+  "TRAIN_diagnostic_steps": [
+    20000
+  ],
+  "native_first_dispatch_stop": 12000,
+  "training_does_not_wait_for_NAVTEST": true,
+  "training_scene_selection_uses_NAVTEST": false,
+  "training_seeds": [
+    42
+  ],
+  "actor_likelihood": "unchanged source transition proxy; no KL-driven adaptive LR claimed",
+  "deferred": [
+    "warmup-length new-IL comparison",
+    "true-conditional-KL adaptive LR after measuring appropriate signal",
+    "FPO formal training/positiveCFM combination pending evidence"
+  ],
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_lr_historyfix_20261031",
+  "source_commit": "8a18226a96ddd4b6b8a05ba3aa699ec4c5793460",
+  "first_jobs": [
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_LRLOW/formal_to012000_attempt002"
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_LRCOS/formal_to012000_attempt002"
+    },
+    {
+      "arm": "PPO_SAFETY_DATA",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_DATA/formal_to012000_attempt002"
+    },
+    {
+      "arm": "PPO_SAFETY_LRDATA",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_LRDATA/formal_to012000_attempt002"
+    }
+  ],
+  "dispatched_unix": 1793425937.4476316,
+  "new_performance_gain_established": false,
+  "startup_fix": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_NATIVE_FORK_STARTUP_HISTORY_GUARD_20261031.json",
+  "updated_unix": 1793426540.196723,
+  "native_startup_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_NATIVE_STARTUP_20261031.json"
+}
