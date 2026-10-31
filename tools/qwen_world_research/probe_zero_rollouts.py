@@ -5,6 +5,7 @@ operator dispatch grant. This tool never dispatches, trains, or selects NAVTEST.
 """
 from __future__ import annotations
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -16,6 +17,7 @@ SCHEMA = 'TRAIN_fixed_theta_matched_root_ODE8_SDE8_probe_v1'
 POPULATION = Path('/mnt/project/flow-safe-improvement-20261013/population/manifest.json')
 DEFAULT_ROOT = Path('/mnt/project/qwen-world-rl-optimization-20261030')
 PINNED = {'PPO_ADAPTIVE':26000,'PPO_FULL':35000,'PPO_SAFETY_EP':10000}
+DIAGNOSTIC_NOISE_LEVELS = (.1, .03)
 
 
 def sha(path):
@@ -56,7 +58,51 @@ def validate_train(tokens,pop):
         raise ValueError('Probe requires at most32 TRAIN-only physical-disjoint scenes')
 
 
-def prepare(root,output):
+def prepare_lower_noise(root,output,baseline_manifests):
+    """Clone completed .1 evidence, never reselect scenes or rewrite baseline."""
+    root=Path(root);output=Path(output);baseline=Path(baseline_manifests)
+    if output.resolve()==baseline.resolve():raise ValueError('Lower-noise output must be separate from baseline')
+    registered=read_sealed(baseline/'REGISTRATION.json');plans=[];tokens=None
+    pop=json.loads(POPULATION.read_text())
+    for row in registered['arms']:
+        arm=row['arm'];source=Path(row['manifest']);old=read_sealed(source);folder=Path(row['output'])
+        identity=read_sealed(folder/'identity.json');summary=read_sealed(folder/'SUMMARY.json')
+        if (arm not in PINNED or old['sampling']['noise_level']!=.1 or old['updates']!=PINNED[arm]
+                or summary['status']!='COMPLETE' or summary['identity_sha256']!=identity['sha256']
+                or identity['manifest_sha256']!=old['sha256'] or identity['checkpoint']!=old['rl_checkpoint']):
+            raise ValueError('Completed fixed-theta .1 baseline required')
+        if tokens is None:tokens=old['tokens'];validate_train(tokens,pop)
+        if old['tokens']!=tokens or old['count']!=15:raise ValueError('Keep the same completed15-scene cohort')
+        for name,expected in old['checkpoint_receipts'].items():
+            if sha(Path(old['rl_checkpoint'])/name)!=expected:raise ValueError('Pinned native metadata changed')
+        body=copy.deepcopy(old);body.pop('sha256')
+        body['sampling']['noise_level']=.03
+        body.update(diagnostic_noise_level=.03,required_output=str(output/arm),
+            diagnostic_delta='Only actor.grpo_noise_level .1 -> .03 in the rigorous sampler; native recipe and theta unchanged',
+            baseline_probe=dict(manifest=str(source),manifest_sha256=old['sha256'],manifest_file_sha256=sha(source),
+                output=str(folder),identity_sha256=identity['sha256'],summary_file_sha256=sha(folder/'SUMMARY.json'),
+                scene_file_sha256={t:sha(folder/'scenes'/f'{t}.json') for t in tokens}))
+        manifest=output/(arm+'.json');value=sealed(body)
+        if manifest.exists() and read_sealed(manifest)!=value:raise FileExistsError('Immutable lower-noise manifest exists')
+        atomic(manifest,value)
+        plans.append(dict(arm=arm,manifest=str(manifest),output=str(output/arm),
+            command=['python','-m','tools.qwen_world_research.probe_zero_rollouts','run','--manifest',str(manifest),
+                     '--output',str(output/arm),'--diagnostic-noise-level','0.03']))
+    if {p['arm'] for p in plans}!=set(PINNED):raise ValueError('All three pinned baseline arms required')
+    result=sealed(dict(schema=SCHEMA+'_registration',status='PREPARED_NOT_DISPATCHED',at=time.time(),
+        diagnostic_noise_level=.03,baseline_registration=str(baseline/'REGISTRATION.json'),
+        baseline_registration_file_sha256=sha(baseline/'REGISTRATION.json'),TRAIN_unique_scenes=len(tokens),arms=plans,
+        total_diagnostic_candidates=len(tokens)*16*len(plans),canonical_single_ODE_reused=True,
+        same_theta_same8roots_same_raw_innovations=True,NAVTEST_tokens_included=False,training_seed_unchanged=42))
+    if not (output/'REGISTRATION.json').exists():atomic(output/'REGISTRATION.json',result)
+    return read_sealed(output/'REGISTRATION.json')
+
+
+def prepare(root,output,diagnostic_noise_level=.1,baseline_manifests=None):
+    if diagnostic_noise_level not in DIAGNOSTIC_NOISE_LEVELS:raise ValueError('Diagnostic noise must be .1 or .03')
+    if diagnostic_noise_level==.03:
+        baseline=baseline_manifests or Path(root)/'data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031'
+        return prepare_lower_noise(root,output,baseline)
     root=Path(root);output=Path(output)
     traces=json.loads((root/'analysis/TRAIN_ONLY_ZERO_TRAJECTORIES.json').read_text())
     pop=json.loads(POPULATION.read_text());labels={};union=set()
@@ -114,6 +160,47 @@ def prepare(root,output):
 def tensor_hash(tensor):
     t=tensor.detach().cpu().contiguous()
     return dict(shape=list(t.shape),dtype=str(t.dtype),sha256=hashlib.sha256(t.numpy().tobytes()).hexdigest())
+
+
+def configure_diagnostic_noise(actor,level):
+    """Change the actual rigorous g/mean/std field, not bridge-only std fields."""
+    if level not in DIAGNOSTIC_NOISE_LEVELS:raise ValueError('Diagnostic noise must be .1 or .03')
+    names=('grpo_noise_level','grpo_sample_noise_std','grpo_logprob_noise_std','grpo_min_std','grpo_randn_clip')
+    before={k:float(getattr(actor,k)) for k in names}
+    if (actor.grpo_sde_mode!='rigorous' or before['grpo_noise_level']!=.1
+            or before['grpo_min_std']!=.001 or before['grpo_randn_clip']!=5.
+            or actor._stoch_step_indices(10)!=[7,8,9] or actor.grpo_merge_sde_window):
+        raise ValueError('Only the native rigorous last3-step sampler can receive this diagnostic override')
+    actor.grpo_noise_level=float(level)
+    after={k:float(getattr(actor,k)) for k in names}
+    if any(after[k]!=before[k] for k in names if k!='grpo_noise_level'):
+        raise ValueError('Bridge std/minimum/clipping fields must remain unchanged')
+    return dict(before=before,after=after,active_field='grpo_noise_level',
+        rigorous_formula='g=eta*sqrt(sigma/(1-sigma)); mean correction proportional eta^2; std=max(g*sqrt(-dsigma),min_std)',
+        bridge_fields_unchanged_and_unused_in_rigorous=True,unfloored_std_ratio=level/.1,
+        mean_correction_ratio=(level/.1)**2,native_recipe_unmodified=True)
+
+
+def compare_baseline_pairing(manifest,token,ode,audit):
+    baseline=manifest.get('baseline_probe')
+    if not baseline:return None
+    import numpy as np
+    import torch
+    folder=Path(baseline['output']);path=folder/'scenes'/f'{token}.json'
+    if sha(path)!=baseline['scene_file_sha256'][token]:raise ValueError('Baseline probe scene changed')
+    row=read_sealed(path)
+    if row['identity']!=baseline['identity_sha256']:raise ValueError('Baseline probe identity changed')
+    if (row['pairing']['prior']!=audit['prior']
+            or row['pairing']['CPU_generator_state_sha256']!=audit['CPU_generator_state_sha256']
+            or row['pairing']['innovations']!=audit['innovations']):
+        raise ValueError('Lower-noise call must preserve all8 roots and all raw/clipped innovations')
+    arrays=folder/row['arrays']['path']
+    if sha(arrays)!=row['arrays']['sha256']:raise ValueError('Baseline probe arrays changed')
+    with np.load(arrays,allow_pickle=False) as old:
+        if not torch.equal(ode.cpu(),torch.from_numpy(old['ODE_chain'])):
+            raise ValueError('Lower-noise diagnostic changed deterministic ODE chain')
+    return dict(baseline_identity_sha256=baseline['identity_sha256'],baseline_scene_file_sha256=sha(path),
+        same8_roots=True,same_raw_clipped_innovations=True,ODE_chain_bit_identical=True)
 
 
 def paired_chains(actor,condition,token):
@@ -187,6 +274,12 @@ def run(args):
     from tools.qwen_world_postcot.evaluate import validate_feedback
     host=require_dispatch();m=read_sealed(args.manifest);pop=json.loads(POPULATION.read_text())
     if m['schema']!=SCHEMA:raise ValueError('Unknown finite probe protocol')
+    if (args.diagnostic_noise_level not in DIAGNOSTIC_NOISE_LEVELS
+            or args.diagnostic_noise_level!=m['sampling']['noise_level']
+            or args.diagnostic_noise_level!=m.get('diagnostic_noise_level',.1)):
+        raise ValueError('Manifest and CLI diagnostic noise level must agree')
+    if m.get('required_output') and Path(args.output).resolve()!=Path(m['required_output']).resolve():
+        raise ValueError('Lower-noise output namespace is immutable and distinct from baseline')
     validate_train(m['tokens'],pop)
     if not 0<=args.rank<args.world<=m['count']:raise ValueError('Invalid probe partition')
     if (sha(POPULATION)!=m['population_file_sha256'] or sha(Path(m['data'])/'manifest.json')!=m['data_manifest_file_sha256']):raise ValueError('Population/current observations changed')
@@ -210,6 +303,7 @@ def run(args):
     payload=torch.load(cp/'optimizer.pt',map_location='cpu',weights_only=False)['adapters']
     if set(payload)!=set(native['parameter_contract']['trainable_names']):raise ValueError('Incomplete native trainable closure')
     restore_adapters(actor,payload);del payload
+    noise_audit=configure_diagnostic_noise(actor,args.diagnostic_noise_level)
     conditions=MemoryLearningConditions(model,data,parent['model_sha256'],actor)
     object.__setattr__(actor,'conditions',conditions);actor.eval().requires_grad_(False);model.eval().requires_grad_(False)
     service=RewardService(Path.cwd(),workers=1,cache_roots=roots)
@@ -217,6 +311,7 @@ def run(args):
         Path('starVLA/rl/qwen_world_postcot/scope_conditions.py'),Path('starVLA/rl/simwam_recipe/vendor/action_math.py'),
         Path('starVLA/model/modules/qwen_world_postcot/flow.py')]
     identity=sealed(dict(schema=SCHEMA,manifest_sha256=m['sha256'],checkpoint=m['rl_checkpoint'],updates=m['updates'],
+        diagnostic_noise_level=args.diagnostic_noise_level,actor_noise_override=noise_audit,
         no_training=True,qualification=False,protocol=service.protocol,source={str(p):sha(p) for p in source_files},
         actor_and_deployment_share_current_head_memory=True,Qwen_features_once_per_scene=True,
         prior_pairing='restore private CPU generator before source sampler calls',
@@ -241,6 +336,7 @@ def run(args):
                     state['reused']+=1;continue
                 cond=conditions.get(token,actor.device);tick=time.monotonic()
                 ode,sde,draws,audit=paired_chains(actor,cond,token)
+                cross_level=compare_baseline_pairing(m,token,ode,audit)
                 requested=ActionCodec.denorm_odo(torch.cat([ode[:,-1],sde[:,-1]])).cpu().numpy()
                 if not np.isfinite(requested).all():raise FloatingPointError('Nonfinite diagnostic trajectory')
                 records=service.score((token,m['token_logs'][token],requested))
@@ -261,6 +357,7 @@ def run(args):
                 filename=token+'.npz';np.savez_compressed(out/'scenes'/filename,ODE_chain=ode.cpu().numpy(),SDE_chain=sde.cpu().numpy(),prior=draws['SDE8'][0].numpy(),innovations=np.stack([x.numpy() for x in draws['SDE8'][1:]]))
                 row=sealed(dict(token=token,log=m['token_logs'][token],identity=identity['sha256'],status='OK',
                     selection_labels=m['selection_labels'].get(token,{}),pairing=audit,
+                    cross_level_pairing=cross_level,
                     ODE8=[json_feedback(x) for x in records[:8]],SDE8=[json_feedback(x) for x in records[8:]],
                     canonical_single_ODE=canonical,arrays=dict(path='scenes/'+filename,sha256=sha(out/'scenes'/filename)),seconds=time.monotonic()-tick))
                 atomic(dest,row);state['new']+=1;atomic(statepath,state)
@@ -276,6 +373,10 @@ def run(args):
 def summarize(output):
     out=Path(output);identity=read_sealed(out/'identity.json')
     if identity['schema']!=SCHEMA:raise ValueError('Unknown probe')
+    if (out/'SUMMARY.json').exists():
+        previous=read_sealed(out/'SUMMARY.json')
+        if previous['identity_sha256']!=identity['sha256']:raise ValueError('Existing probe summary identity changed')
+        return previous  # Completed .1 evidence is never rewritten by the new tool.
     for rank in range(identity['world']):
         state=json.loads((out/f'rank{rank}.json').read_text())
         if state['status']!='COMPLETE' or state['identity']!=identity['sha256']:raise ValueError('All fixed shards must complete')
@@ -294,6 +395,9 @@ def summarize(output):
             SDE_feasible_ODE_not=sum(feasible(s) and not feasible(o) for o,s in zip(ode,sde)),
             ODE_feasible_SDE_not=sum(feasible(o) and not feasible(s) for o,s in zip(ode,sde))))
     result=sealed(dict(schema=SCHEMA+'_summary',status='COMPLETE',identity_sha256=identity['sha256'],checkpoint=identity['checkpoint'],updates=identity['updates'],
+        diagnostic_noise_level=identity.get('diagnostic_noise_level',.1),actor_noise_override=identity.get('actor_noise_override'),
+        cross_level_pairing_verified=(all(r.get('cross_level_pairing',{}).get('ODE_chain_bit_identical',False) for r in rows)
+                                     if identity.get('diagnostic_noise_level',.1)==.03 else None),
         count=len(rows),ODE8=describe([r for row in rows for r in row['ODE8']]),SDE8=describe([r for row in rows for r in row['SDE8']]),
         scenes=comparisons,interpretation='selected TRAIN diagnostic cohort; fixed theta and identical initial roots; G8 mean/feasibility are not deployment best-of8 or heldout score; no training update'))
     atomic(out/'SUMMARY.json',result);return result
@@ -304,8 +408,10 @@ def main():
     p.add_argument('--root',default=str(DEFAULT_ROOT));p.add_argument('--manifest');p.add_argument('--output',required=True)
     p.add_argument('--rank',type=int,default=0);p.add_argument('--world',type=int,default=1)
     p.add_argument('--cache-root',action='append');p.add_argument('--cpu-threads',type=int,default=4)
+    p.add_argument('--diagnostic-noise-level',type=float,choices=DIAGNOSTIC_NOISE_LEVELS,default=.1)
+    p.add_argument('--baseline-manifests',help='Completed .1 probe folder; .03 prepare clones its exact cohort/checkpoints/cache')
     a=p.parse_args()
-    if a.mode=='prepare':result=prepare(a.root,a.output)
+    if a.mode=='prepare':result=prepare(a.root,a.output,a.diagnostic_noise_level,a.baseline_manifests)
     elif a.mode=='summarize':result=summarize(a.output)
     else:
         if not a.manifest:p.error('--manifest required for run')
