@@ -476,6 +476,8 @@ def load_snapshot(root: Path) -> dict:
     if baseline_spec:result_rows+=evaluation_entries(baseline_spec)
     train4096_state=read_json(root/'owners'/'TRAIN4096'/'STATE.json',warnings,inputs) or {}
     result_rows+=evaluation_entries(train4096_state)
+    rescue_owner_state=read_json(root/'owners'/'RESCUE_PAIR'/'STATE.json',warnings,inputs) or {}
+    result_rows+=evaluation_entries(rescue_owner_state)
     cadence_folder=root/'owners'/'NAVTEST_CADENCE'
     cadence_state=read_json(cadence_folder/'STATE.json',warnings,inputs) or {}
     cadence_results=read_json(cadence_folder/'RESULTS.json',warnings,inputs) or {}
@@ -560,6 +562,7 @@ def load_snapshot(root: Path) -> dict:
     adaptive_coverage_amendment=read_json(root/'ADAPTIVE_COVERAGE_POLICY_AMENDMENT.json',warnings,inputs) or {}
     safety_ep_operator_review=read_json(root/'jobs'/'PPO_SAFETY_EP'/'formal_to001000_attempt001'/'PRECHILD_OPERATOR_REVIEW.json',warnings,inputs) or {}
     new_pilot_matched_review=read_json(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json',warnings,inputs) or {}
+    lr_research={key:read_json(root/'analysis'/name,warnings,inputs) or {}for key,name in [('native_audit','RL_LR_NATIVE_AUDIT_20261031.json'),('primary','RL_LR_PRIMARY_RESEARCH_20261031.json')]}
     preference_path=next((root/'analysis'/name for name in ('TRAIN_PREFERENCE_RESEARCH_20261031.json','SCENE_PREFERENCE_RESEARCH.json') if (root/'analysis'/name).exists()),None)
     preference_research=read_json(preference_path,warnings,inputs) or {} if preference_path else {}
     zero_path=next((root/'analysis'/name for name in ('ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS.json','ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS_20261031.json') if (root/'analysis'/name).exists()),None)
@@ -599,6 +602,8 @@ def load_snapshot(root: Path) -> dict:
         'bank':'analysis/RESCUE_RETENTION_BANK_20261031.json',
         'census':'analysis/RESCUE_RETENTION_CENSUS_AUDIT_20261031.json',
         'matched_review':'analysis/RESCUE_PAIR_MATCHED_REVIEW.json'}.items()}
+    rescue_study['owner_progress']={key:rescue_owner_state.get(key)for key in ('status','budget_cap_phase_updates','updated_at')}
+    rescue_study['owner_progress']['runs']={arm:{key:node.get(key)for key in ('status','updates','phase_updates','research_budget_updates')}for arm,node in rescue_owner_state.get('runs',{}).items()}
     rescue_bank_path=rescue_study['registration'].get('bank')
     rescue_manifest=read_json(Path(rescue_bank_path),warnings,inputs) or {} if rescue_bank_path else {}
     rescue_low_scenes=rescue_manifest.get('low_scene_audit',[])
@@ -827,6 +832,7 @@ def load_snapshot(root: Path) -> dict:
                     pilot_startups=pilot_startups,pilot_registrations=pilot_registrations,
                     adaptive_coverage_amendment=adaptive_coverage_amendment,safety_ep_operator_review=safety_ep_operator_review,
                     new_pilot_matched_review=new_pilot_matched_review,
+                    lr_research=lr_research,
                     preference_research=preference_research,preference_research_path=str(preference_path) if preference_path else None,
                     zero_longitudinal=zero_longitudinal,zero_longitudinal_path=str(zero_path) if zero_path else None,
                     preference_mixture_study=preference_mixture_study,

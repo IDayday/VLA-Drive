@@ -1,0 +1,710 @@
+{
+  "schema": "world_RL_LR_primary_research_v1",
+  "status": "COMPLETE",
+  "utc": "2026-10-31T05:45:38.986148+00:00",
+  "scope": {
+    "primary_only": true,
+    "pinned_repositories": 8,
+    "new_GPU_forwards": 0,
+    "new_scores": 0,
+    "new_training_seeds": 0,
+    "existing_sources_changed": false
+  },
+  "conclusions_zh": [
+    "官方实践没有统一cosine共识：SimWAM/FlowGRPO/SimpleVLA/VLARL/FPO微调都有constant，ReCogDrive明确cosine到0；DPPO按任务配置，部分名为cosine实际peak=floor。",
+    "当前5e-5 action/5e-6 Memory+100opt warmup→constant来自SimWAM近亲配方，不是训练里已做衰减；50k只是scheduler身份/上限，不会让constant自动减小。",
+    "计数单位必须看step调用位置：DPPO/FPO按rolloutiteration，SimpleVLA按update_actor调用，SimWAM和当前工程按optimizerupdate；不能只对比warmup数字。",
+    "三个隐藏陷阱：FPO constant忽略warmup5；DPPO max=min使warmup/decay无效；旧SimWAM绝对eta_min让我们两paramgroup的floor百分比不同。",
+    "最新Run-then-WalkTable7同文就有AutoDrive1e-6constant与ReCog1e-4→1e-6cosine；同时改reward/reference/阶段，不能把结果单因子归因LR。",
+    "有依据比较更低constant与相对floorcosine，但文献值不是我们scope/loss的最优值证据；优先同Safety10k nativeAdam/RNG/cursor分叉，只改LR策略，不混reward/ref/sampler/optimizerreset。"
+  ],
+  "baseline": {
+    "action_lr": 5e-05,
+    "memory_lr": 5e-06,
+    "schedule": "100 optimizer-update warmup then constant",
+    "scheduler_identity_max_steps": 50000,
+    "inner_updates_per_collection": 4,
+    "warmup_collections": 25,
+    "warmup_fresh_global_scenes": 200,
+    "warmup_new_candidates": 1600,
+    "no_decay_at_1k_5k_10k_50k": true,
+    "reference": "permanentIL70 action+Memory",
+    "optimizer": "nativeAdamW continuation preservesstates/RNG/cursor; weights-only warmstarts are different phases"
+  },
+  "entries": [
+    {
+      "method": "DPPO",
+      "official_repository": "https://github.com/irom-princeton/dppo",
+      "paper": "https://arxiv.org/abs/2409.00588",
+      "actor_lr": {
+        "HalfCheetah_MLP": 0.0001,
+        "RoboMimic_Can_image_MLP": 5e-05,
+        "Furniture_one_leg_low_MLP": 1e-05
+      },
+      "backbone_lr": {
+        "separate_rate": null,
+        "note": "actor_ft.parameters uses same actor LR; visual backbone in actor when trainable has no separately configured group in examined optimizer"
+      },
+      "critic_lr": {
+        "HalfCheetah": 0.001,
+        "RoboMimic_Can_image": 0.001,
+        "Furniture": 0.001
+      },
+      "optimizer": "fresh AdamW for actor_ft, separate critic AdamW; actor_weight_decay0 in shown configs",
+      "scheduler": {
+        "name": "CosineAnnealingWarmupRestarts",
+        "clock": "one actor scheduler.step per outer rollout iteration when itr>=n_critic_warmup_itr, not every optimizer minibatch",
+        "warmup_steps": 10,
+        "warmup_unit": "actor-active rollout iterations",
+        "examples": [
+          {
+            "task": "HalfCheetah",
+            "peak": 0.0001,
+            "min_lr": 0.0001,
+            "cycle": 1000,
+            "train_iterations": 1000,
+            "effective": "constant; peak==floor makes warmup/decay flat"
+          },
+          {
+            "task": "Can image",
+            "peak": 5e-05,
+            "min_lr": 5e-05,
+            "cycle": "n_train_itr",
+            "effective": "constant; peak==floor"
+          },
+          {
+            "task": "Furniture one_leg_low",
+            "peak": 1e-05,
+            "min_lr": 1e-06,
+            "cycle": 10000,
+            "train_iterations": 1000,
+            "effective": "10-iteration ramp then only small fraction of10000 cosine cycle; floor is not reached within1000"
+          }
+        ]
+      },
+      "policy_update_reuse": {
+        "HalfCheetah_epochs": 5,
+        "Can_image_epochs": 10,
+        "Furniture_epochs": 5,
+        "minibatches": "configured batch_size; actor scheduler called once outside epoch/minibatch loops"
+      },
+      "continuation": "examined TrainAgent save/load stores model+itr only, not optimizer/scheduler; reset_actor_optimizer helper copies states and says unused; do not claim exact-native Adam/RNG resume from this save",
+      "evidence": [
+        {
+          "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+          "path": "cfg/gym/finetune/halfcheetah-v2/ft_ppo_diffusion_mlp.yaml",
+          "url": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/cfg/gym/finetune/halfcheetah-v2/ft_ppo_diffusion_mlp.yaml#L45",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/irom-princeton__dppo/files/cfg/gym/finetune/halfcheetah-v2/ft_ppo_diffusion_mlp.yaml",
+          "sha256": "f5d77f8114c2965f900a415f1686254921ec70ed99804cf5ba11341d3ee65f7b"
+        },
+        {
+          "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+          "path": "cfg/robomimic/finetune/can/ft_ppo_diffusion_mlp_img.yaml",
+          "url": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/cfg/robomimic/finetune/can/ft_ppo_diffusion_mlp_img.yaml#L64",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/irom-princeton__dppo/files/cfg/robomimic/finetune/can/ft_ppo_diffusion_mlp_img.yaml",
+          "sha256": "5bd50e971123be0a9870e88464f44fb3c858454aa75c8a3540710c2a8c7dfa29"
+        },
+        {
+          "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+          "path": "cfg/furniture/finetune/one_leg_low/ft_ppo_diffusion_mlp.yaml",
+          "url": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/cfg/furniture/finetune/one_leg_low/ft_ppo_diffusion_mlp.yaml#L45",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/irom-princeton__dppo/files/cfg/furniture/finetune/one_leg_low/ft_ppo_diffusion_mlp.yaml",
+          "sha256": "85ee937a796e8e0cb1ec38a3c32556027e1a16e03285ed2488d2e79860a11ab4"
+        },
+        {
+          "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+          "path": "agent/finetune/train_ppo_agent.py",
+          "url": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/agent/finetune/train_ppo_agent.py#L34",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/irom-princeton__dppo/files/agent/finetune/train_ppo_agent.py",
+          "sha256": "e15a94999c945072e3b5785880552390522fdeb4b52d674828b35e624acac019"
+        },
+        {
+          "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+          "path": "agent/finetune/train_ppo_diffusion_agent.py",
+          "url": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/agent/finetune/train_ppo_diffusion_agent.py#L407",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/irom-princeton__dppo/files/agent/finetune/train_ppo_diffusion_agent.py",
+          "sha256": "c21bb92690d4eb36846cb4550e8ffc946cb4e5d5b33e190d9b35e1ca66e235db"
+        },
+        {
+          "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+          "path": "util/scheduler.py",
+          "url": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/util/scheduler.py#L80",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/irom-princeton__dppo/files/util/scheduler.py",
+          "sha256": "a010f1481ffd2634e9a2c0eda6d6ad016cdcd5fb0daa58a85a63f02ec3c26800"
+        },
+        {
+          "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+          "path": "agent/finetune/train_agent.py",
+          "url": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/agent/finetune/train_agent.py#L124",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/irom-princeton__dppo/files/agent/finetune/train_agent.py",
+          "sha256": "ac4d0029851b107b25bc5af5b3858221ff0f386ee36f98ebf3942ed5a3c0f9d4"
+        }
+      ],
+      "transfer_caution_zh": "不能把10 rollout iteration warmup当10opt update；cosine类名也不能证明实际衰减；无Memory独立LR。"
+    },
+    {
+      "method": "FPO/FPO++ manipulation fine-tuning",
+      "official_repository": "https://github.com/amazon-far/fpo-control",
+      "paper": "https://arxiv.org/abs/2602.02481v2",
+      "actor_lr": 1e-05,
+      "backbone_lr": {
+        "vision_encoder": "frozen by default",
+        "other_trainable_actor": "same1e-5; no separate memory rate"
+      },
+      "critic_lr": 0.0001,
+      "optimizer": "fresh AdamW actor betas(.9,.99),eps1e-5,weight_decay1e-6; critic separate",
+      "scheduler": {
+        "name": "diffusers.get_scheduler(name=constant)",
+        "effective": "constant, no actual LR warmup under constant API",
+        "declared_actor_warmup_steps": 5,
+        "declared_critic_warmup_steps": 1,
+        "clock": "scheduler.step once after each complete rollout/training iteration, after all update_epochs/minibatches",
+        "floor": "equal current constant actor1e-5",
+        "caveat": "constant ignores num_warmup_steps; constant_with_warmup would be different. diffusers0.36.0 local implementation independently confirms API behavior."
+      },
+      "policy_update_reuse": {
+        "default_update_epochs": 10,
+        "default_minibatches": 4,
+        "gradient_accumulation": "explicit cfg; several optimizer steps per scheduler tick",
+        "critic_only_initial_iterations": 1
+      },
+      "continuation": "fine-tuning path loads base policy/current weights (optionally EMA) then constructs fresh optimizers; it saves optimizer/scheduler artifacts but no exact-native resume load was verified in examined path",
+      "evidence": [
+        {
+          "commit": "8f460e4415a2a6debfbeb689093f5e36140bd178",
+          "path": "manipulation_experiments/finetune_online_rl.py",
+          "url": "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/finetune_online_rl.py#L125",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/FPO_CONTROL_8f460e4/finetune_online_rl.py",
+          "sha256": "548eaa6ced4f87e03d17c73f433b7b4ea99a560459e614149cc25fec62bd46f9"
+        },
+        {
+          "url": "https://github.com/huggingface/diffusers/blob/v0.36.0/src/diffusers/optimization.py",
+          "section": "get_scheduler CONSTANT branch versus CONSTANT_WITH_WARMUP"
+        }
+      ],
+      "transfer_caution_zh": "action1e-5与critic1e-4分开；没有cosine共识；不能将declared warmup5误称有效warmup。"
+    },
+    {
+      "method": "FPO++ IsaacLab locomotion",
+      "official_repository": "https://github.com/amazon-far/fpo-control",
+      "paper": "https://arxiv.org/abs/2602.02481v2",
+      "actor_lr": {
+        "default_policy_and_value_joint_optimizer": 0.0001
+      },
+      "backbone_lr": "not VLM; no separate vision/Memory LR in this locomotion configuration",
+      "critic_lr": "same joint optimizer, not independent actor1e-4 versus critic setting",
+      "optimizer": "AdamW when weight_decay>0, otherwise Adam; cfg contains policy+value optimizer",
+      "scheduler": {
+        "default": "fixed",
+        "warmup": 0,
+        "optional": "adaptive on per-minibatch squared x1-prediction drift proxy, not exact KL",
+        "adaptive_floor": 1e-05,
+        "adaptive_ceiling": 0.01,
+        "adaptive_multiplier": 1.5,
+        "clock": "if enabled, check proxy in each minibatch before optimizer step; fixed default does not anneal"
+      },
+      "policy_update_reuse": {
+        "default_learning_epochs": 16,
+        "default_minibatches": 4,
+        "robot_overrides": "humanoid/Spot32epochs; task overrides exist"
+      },
+      "evidence": [
+        {
+          "commit": "8f460e4415a2a6debfbeb689093f5e36140bd178",
+          "path": "isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/rl_cfg.py",
+          "url": "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/rl_cfg.py#L119",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/amazon-far__fpo-control/files/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/rl_cfg.py",
+          "sha256": "c1ccd7f192afaa1306f46da9e7348b5de89c28f1533b049ff262bb5c184cbacd"
+        },
+        {
+          "commit": "8f460e4415a2a6debfbeb689093f5e36140bd178",
+          "path": "isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py",
+          "url": "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py#L383",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/amazon-far__fpo-control/files/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py",
+          "sha256": "900f946f33698ae74b918c49f16a22109ec1d9dfef2f06a4fc697a1e4129a58b"
+        },
+        {
+          "commit": "8f460e4415a2a6debfbeb689093f5e36140bd178",
+          "path": "isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/task_cfgs.py",
+          "url": "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/task_cfgs.py#L116",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/amazon-far__fpo-control/files/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/task_cfgs.py",
+          "sha256": "40ab929c3e01ab604f9eece59fa6c1c0b53f722117737f1376644105d8827360"
+        }
+      ],
+      "continuation": "not audited; do not import locomotion adaptive limits into World normalized-trajectory loss",
+      "transfer_caution_zh": "fixed/optional adaptive与manipulation是不同任务配方；EMA warmup500不是LRwarmup。"
+    },
+    {
+      "method": "Flow-GRPO official SD3/Wan recipes",
+      "official_repository": "https://github.com/yifan123/flow_grpo",
+      "paper": "https://arxiv.org/abs/2505.05470",
+      "actor_lr": {
+        "base_SD3_transformer_LoRA": 0.0003,
+        "Wan_OCR_override": 0.0001
+      },
+      "backbone_lr": {
+        "VAE_and_text_encoders": "frozen",
+        "transformer": "LoRA by configured recipe; same actor LR"
+      },
+      "critic_lr": "not present, group-relative critic-free objective",
+      "optimizer": "AdamW with configured betas(.9,.999),eps1e-8,weight_decay1e-4",
+      "scheduler": {
+        "name": "none in examined train_sd3/train_flux/train_wan2_1 optimizer update paths",
+        "effective": "constant",
+        "warmup": 0,
+        "floor": "constant actor LR",
+        "clock": "optimizer steps under Accelerate gradient accumulation; no LR scheduler tick"
+      },
+      "policy_update_reuse": {
+        "num_inner_epochs": 1,
+        "extra": "train subset of denoising steps; accumulated optimizer updates are not num_epochs or sampler steps"
+      },
+      "continuation": "optimizer newly created; SD3 loads optional LoRA checkpoint but exact optimizer/scheduler resume was not verified in examined script",
+      "evidence": [
+        {
+          "commit": "879042cf5707f8b90daa98d147d7deac2317c5da",
+          "path": "config/base.py",
+          "url": "https://github.com/yifan123/flow_grpo/blob/879042cf5707f8b90daa98d147d7deac2317c5da/config/base.py#L76",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/yifan123__flow_grpo/files/config/base.py",
+          "sha256": "cfee546e081970c109471fe4a987f741efb394a755ba62adb2b6b54cc4033f39"
+        },
+        {
+          "commit": "879042cf5707f8b90daa98d147d7deac2317c5da",
+          "path": "config/grpo.py",
+          "url": "https://github.com/yifan123/flow_grpo/blob/879042cf5707f8b90daa98d147d7deac2317c5da/config/grpo.py#L29",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/yifan123__flow_grpo/files/config/grpo.py",
+          "sha256": "cf5891ed7ea2bca2bbc26e73f6e28c595f28b1f2f3b02be29c1b9cb47da68ff8"
+        },
+        {
+          "commit": "879042cf5707f8b90daa98d147d7deac2317c5da",
+          "path": "scripts/train_sd3.py",
+          "url": "https://github.com/yifan123/flow_grpo/blob/879042cf5707f8b90daa98d147d7deac2317c5da/scripts/train_sd3.py#L380",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/yifan123__flow_grpo/files/scripts/train_sd3.py",
+          "sha256": "b09c084e6edf7457b6d450ae2a00465f38548a16c92baa773f49751644daeaae"
+        },
+        {
+          "commit": "879042cf5707f8b90daa98d147d7deac2317c5da",
+          "path": "scripts/train_sd3.py",
+          "url": "https://github.com/yifan123/flow_grpo/blob/879042cf5707f8b90daa98d147d7deac2317c5da/scripts/train_sd3.py#L467",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/yifan123__flow_grpo/files/scripts/train_sd3.py",
+          "sha256": "b09c084e6edf7457b6d450ae2a00465f38548a16c92baa773f49751644daeaae"
+        },
+        {
+          "commit": "879042cf5707f8b90daa98d147d7deac2317c5da",
+          "path": "scripts/train_sd3.py",
+          "url": "https://github.com/yifan123/flow_grpo/blob/879042cf5707f8b90daa98d147d7deac2317c5da/scripts/train_sd3.py#L943",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/yifan123__flow_grpo/files/scripts/train_sd3.py",
+          "sha256": "b09c084e6edf7457b6d450ae2a00465f38548a16c92baa773f49751644daeaae"
+        }
+      ],
+      "transfer_caution_zh": "图像/视频LoRA actor3e-4不能直接作为驾驶53M action+Memory的建议；diffusion scheduler不是LRscheduler。"
+    },
+    {
+      "method": "SimWAM official NAVSIM action-only GRPO",
+      "official_repository": "https://github.com/H-EmbodVis/SimWAM",
+      "paper": "https://github.com/H-EmbodVis/SimWAM",
+      "actor_lr": 5e-05,
+      "backbone_lr": "video/backbone frozen in action-only adaptation; no separate trainable Memory group upstream",
+      "critic_lr": "not present",
+      "optimizer": "AdamW selected action-expert trainables; LoRA r16/alpha32 default; betas(.9,.95),weight_decay.01",
+      "scheduler": {
+        "default": "100 successful optimizer-update linear warmup then constant",
+        "warmup_count": "min(int(max_steps*.05),lr_warmup_steps100)",
+        "clock": "scheduler.step immediately after successful optimizer.step; fourinner updates per rollout by default",
+        "optional_cosine": {
+          "T_max": "max_steps-warmup",
+          "eta_min": "learning_rate*.01 absolute value passed to every optimizer param group"
+        },
+        "max_steps": 20000,
+        "minimum_constant_lr": 5e-05
+      },
+      "policy_update_reuse": {
+        "num_inner_epochs": 4,
+        "rollout_buffer_batches": 1
+      },
+      "continuation": "directory resume uses accelerator.load_state plus trainer_state global_step/epoch/batch cursor; file-only load imports model weights with optimizer=None",
+      "evidence": [
+        {
+          "commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+          "path": "configs/train_grpo.yaml",
+          "url": "https://github.com/H-EmbodVis/SimWAM/blob/1433ee7e06a62bd8b89da74455df0d82bda7b726/configs/train_grpo.yaml#L10",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/H-EmbodVis__SimWAM/files/configs/train_grpo.yaml",
+          "sha256": "4dfbd720c357e8dd88b706f3012d1ea52d56f99a3a65ccb62c1449057ba9b487"
+        },
+        {
+          "commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+          "path": "src/simwam/trainer_grpo.py",
+          "url": "https://github.com/H-EmbodVis/SimWAM/blob/1433ee7e06a62bd8b89da74455df0d82bda7b726/src/simwam/trainer_grpo.py#L137",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/H-EmbodVis__SimWAM/files/src/simwam/trainer_grpo.py",
+          "sha256": "5f6a7cb9ae7920a28f78fad05111d4891653d3115d2a98fc63c3a56d9c0ad62c"
+        },
+        {
+          "commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+          "path": "src/simwam/trainer_grpo.py",
+          "url": "https://github.com/H-EmbodVis/SimWAM/blob/1433ee7e06a62bd8b89da74455df0d82bda7b726/src/simwam/trainer_grpo.py#L286",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/H-EmbodVis__SimWAM/files/src/simwam/trainer_grpo.py",
+          "sha256": "5f6a7cb9ae7920a28f78fad05111d4891653d3115d2a98fc63c3a56d9c0ad62c"
+        },
+        {
+          "commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+          "path": "src/simwam/trainer_grpo.py",
+          "url": "https://github.com/H-EmbodVis/SimWAM/blob/1433ee7e06a62bd8b89da74455df0d82bda7b726/src/simwam/trainer_grpo.py#L711",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/H-EmbodVis__SimWAM/files/src/simwam/trainer_grpo.py",
+          "sha256": "5f6a7cb9ae7920a28f78fad05111d4891653d3115d2a98fc63c3a56d9c0ad62c"
+        },
+        {
+          "commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+          "path": "src/simwam/trainer_grpo.py",
+          "url": "https://github.com/H-EmbodVis/SimWAM/blob/1433ee7e06a62bd8b89da74455df0d82bda7b726/src/simwam/trainer_grpo.py#L768",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/H-EmbodVis__SimWAM/files/src/simwam/trainer_grpo.py",
+          "sha256": "5f6a7cb9ae7920a28f78fad05111d4891653d3115d2a98fc63c3a56d9c0ad62c"
+        }
+      ],
+      "transfer_caution_zh": "与当前baseline最接近，但我们新增Memory分组和50k identity。直接切旧cosine absolute eta_min会把action floor1%和memory floor10%混在一起，必须per-group相对floor。"
+    },
+    {
+      "method": "ReCogDrive released NAVSIM RL",
+      "official_repository": "https://github.com/xiaomi-research/recogdrive",
+      "paper": "https://arxiv.org/html/2506.08052v2#S8",
+      "actor_lr": 0.0001,
+      "backbone_lr": {
+        "InternVL": "frozen / train_backboneFalse and cached hidden states in releasedRL config",
+        "conditional": "if train_backboneTrue, sameoptimizer1e-4, no separate backboneLR"
+      },
+      "critic_lr": "not present in released DiffGRPO",
+      "optimizer": "AdamW action_head (plus backbone only if explicit train_backbone),betas(.9,.95),weight_decay1e-4",
+      "scheduler": {
+        "name": "WarmupCosLR",
+        "peak": 0.0001,
+        "min_lr": 0.0,
+        "epochs": 10,
+        "warmup_epochs": 0,
+        "clock": "Lightning default epoch interval; optimizer config returns scheduler without interval=step",
+        "IL_not_RL": "plannerBC200epochs/warmup3/min1e-6, VLM stage4e-5/10%warmup are distinct and not RL actor schedule"
+      },
+      "policy_update_reuse": "released forward_grpo creates fresh G8 each training_step; no fourinner reuse loop found in released action planner path",
+      "continuation": "agent.initialize loads state_dict weights from checkpoint_path; RL script Trainer.fit(data...) without ckpt_path, hence fresh optimizer on IL→RL start; exact-native continuation not established by that load",
+      "evidence": [
+        {
+          "commit": "5831ee83c7a6a40bf6919715b96b0e9ba2b48335",
+          "path": "scripts/training/run_recogdrive_train_multi_node_rl_2b.sh",
+          "url": "https://github.com/xiaomi-research/recogdrive/blob/5831ee83c7a6a40bf6919715b96b0e9ba2b48335/scripts/training/run_recogdrive_train_multi_node_rl_2b.sh#L32",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/xiaomi-research__recogdrive/files/scripts/training/run_recogdrive_train_multi_node_rl_2b.sh",
+          "sha256": "036438df25c2946e16871bd0a2587eeec3da7dc07f0cf10d08c4f58fd5e4c381"
+        },
+        {
+          "commit": "5831ee83c7a6a40bf6919715b96b0e9ba2b48335",
+          "path": "navsim/agents/recogdrive/recogdrive_agent.py",
+          "url": "https://github.com/xiaomi-research/recogdrive/blob/5831ee83c7a6a40bf6919715b96b0e9ba2b48335/navsim/agents/recogdrive/recogdrive_agent.py#L252",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/xiaomi-research__recogdrive/files/navsim/agents/recogdrive/recogdrive_agent.py",
+          "sha256": "de468d8dc514e883f3c1dcb8f2dde480f7c6b38fe8fa563feebb51d7e64240ce"
+        },
+        {
+          "commit": "5831ee83c7a6a40bf6919715b96b0e9ba2b48335",
+          "path": "navsim/agents/recogdrive/utils/lr_scheduler.py",
+          "url": "https://github.com/xiaomi-research/recogdrive/blob/5831ee83c7a6a40bf6919715b96b0e9ba2b48335/navsim/agents/recogdrive/utils/lr_scheduler.py#L23",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/xiaomi-research__recogdrive/files/navsim/agents/recogdrive/utils/lr_scheduler.py",
+          "sha256": "8d5b400dbb37e7cd39f1e07d0a681e782e02d8ffe9db64bc214828d0ad2bf3dc"
+        },
+        {
+          "commit": "5831ee83c7a6a40bf6919715b96b0e9ba2b48335",
+          "path": "navsim/planning/training/agent_lightning_module.py",
+          "url": "https://github.com/xiaomi-research/recogdrive/blob/5831ee83c7a6a40bf6919715b96b0e9ba2b48335/navsim/planning/training/agent_lightning_module.py#L136",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/xiaomi-research__recogdrive/files/navsim/planning/training/agent_lightning_module.py",
+          "sha256": "e634cee8987790f5a8542ccd6cf6d9751dcf90ed8726c375be8e483fefe9c6fe"
+        },
+        {
+          "commit": "5831ee83c7a6a40bf6919715b96b0e9ba2b48335",
+          "path": "navsim/agents/recogdrive/recogdrive_diffusion_planner.py",
+          "url": "https://github.com/xiaomi-research/recogdrive/blob/5831ee83c7a6a40bf6919715b96b0e9ba2b48335/navsim/agents/recogdrive/recogdrive_diffusion_planner.py#L819",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/xiaomi-research__recogdrive/files/navsim/agents/recogdrive/recogdrive_diffusion_planner.py",
+          "sha256": "c349bf196611034ebcdfb3dd30fe02e1ac8ee4fc6a76d65934b70dbf583d994a"
+        }
+      ],
+      "transfer_caution_zh": "RL确有cosine到0，但按epoch且复用/credit/actor范围不同，不能直接搬10到我们的10optsteps。"
+    },
+    {
+      "method": "SimpleVLA-RL released LIBERO example",
+      "official_repository": "https://github.com/PRIME-RL/SimpleVLA-RL",
+      "paper": "https://arxiv.org/abs/2509.09674",
+      "actor_lr": {
+        "LIBERO_launcher": 5e-06,
+        "generic_yaml_default": 1e-06
+      },
+      "backbone_lr": "single VLA actor optimizer, no separate action/backbone LR group in released worker; do not relabelactorLR ashead-only",
+      "critic_lr": {
+        "generic_yaml_default": 1e-05,
+        "used_for_GRPO": "not required; actor LR must not use this value"
+      },
+      "optimizer": "AdamW all actor_module_fsdp trainable params; defaultbetas(.9,.999),wd.01",
+      "scheduler": {
+        "name": "get_constant_schedule_with_warmup",
+        "effective": "constant because lr_warmup_steps_ratio0",
+        "warmup_ratio": 0,
+        "clock": "one actor_lr_scheduler.step per update_actor call AFTER update_policy minibatch loop, not per minibatch optimizer.step",
+        "config_trap": "warmup_style/min_lr_ratio fields exist but examined FSDP worker constructs constant schedule unconditionally; field alone is notcosine implementation"
+      },
+      "policy_update_reuse": {
+        "ppo_epochs_config_default": 1,
+        "implementation": "one pass over mini-batches inRobDataParallelPPOActor.update_policy, microbatch accumulation beforeoptimizerstep"
+      },
+      "continuation": "fresh worker optimizer; examined save_checkpoint saves_pretrained model/LoRA weights, no optimizer load verified; do not assume native continuation",
+      "evidence": [
+        {
+          "commit": "7c51662df27b586f9e8a1ab35fcf849f2b8852f9",
+          "path": "examples/run_openvla_oft_rl_libero.sh",
+          "url": "https://github.com/PRIME-RL/SimpleVLA-RL/blob/7c51662df27b586f9e8a1ab35fcf849f2b8852f9/examples/run_openvla_oft_rl_libero.sh#L40",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/PRIME-RL__SimpleVLA-RL/files/examples/run_openvla_oft_rl_libero.sh",
+          "sha256": "f6258665739cdd84b5b892e66957713c7d87fb4a3fb8a8023f218303e41b59bd"
+        },
+        {
+          "commit": "7c51662df27b586f9e8a1ab35fcf849f2b8852f9",
+          "path": "verl/trainer/config/ppo_trainer.yaml",
+          "url": "https://github.com/PRIME-RL/SimpleVLA-RL/blob/7c51662df27b586f9e8a1ab35fcf849f2b8852f9/verl/trainer/config/ppo_trainer.yaml#L59",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/PRIME-RL__SimpleVLA-RL/files/verl/trainer/config/ppo_trainer.yaml",
+          "sha256": "a203d114217f2ba9d3a76071a3bc2e924cc099bc7d172a518acdb6e285796065"
+        },
+        {
+          "commit": "7c51662df27b586f9e8a1ab35fcf849f2b8852f9",
+          "path": "verl/workers/fsdp_workers.py",
+          "url": "https://github.com/PRIME-RL/SimpleVLA-RL/blob/7c51662df27b586f9e8a1ab35fcf849f2b8852f9/verl/workers/fsdp_workers.py#L303",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/PRIME-RL__SimpleVLA-RL/files/verl/workers/fsdp_workers.py",
+          "sha256": "832183fe5fd57d8339d04dfce3b5d98f003ea2fa5515f0155dabde46233f7b86"
+        },
+        {
+          "commit": "7c51662df27b586f9e8a1ab35fcf849f2b8852f9",
+          "path": "verl/workers/fsdp_workers.py",
+          "url": "https://github.com/PRIME-RL/SimpleVLA-RL/blob/7c51662df27b586f9e8a1ab35fcf849f2b8852f9/verl/workers/fsdp_workers.py#L415",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/PRIME-RL__SimpleVLA-RL/files/verl/workers/fsdp_workers.py",
+          "sha256": "832183fe5fd57d8339d04dfce3b5d98f003ea2fa5515f0155dabde46233f7b86"
+        },
+        {
+          "commit": "7c51662df27b586f9e8a1ab35fcf849f2b8852f9",
+          "path": "verl/workers/actor/dp_rob.py",
+          "url": "https://github.com/PRIME-RL/SimpleVLA-RL/blob/7c51662df27b586f9e8a1ab35fcf849f2b8852f9/verl/workers/actor/dp_rob.py#L401",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/PRIME-RL__SimpleVLA-RL/files/verl/workers/actor/dp_rob.py",
+          "sha256": "3976bd3a0fffa68738ed9a7a466fea850055dde0c83e4ab2b61f2d7457f3bb72"
+        }
+      ],
+      "transfer_caution_zh": "AR VLA全模型actor与continuous53M分组范围不同，5e-6可作幅度参考而非最优值证明。"
+    },
+    {
+      "method": "VLA-RL author released LIBERO launcher",
+      "official_repository": "https://github.com/GuanxingLu/vlarl",
+      "paper": "https://arxiv.org/abs/2505.18719",
+      "actor_lr": {
+        "launcher": 8e-06,
+        "code_dataclass_default": 5e-05
+      },
+      "backbone_lr": "same policy optimizer; no separately configured backbone LR",
+      "critic_lr": {
+        "launcher": 5e-05,
+        "code_default": 5e-05
+      },
+      "optimizer": "fresh AdamW model.parameters; optional LoRA flag isFalse by default",
+      "scheduler": {
+        "policy_lr_scheduler_type": "constant",
+        "policy_warmup_ratio": 0.0,
+        "effective": "constant",
+        "clock": "policy_scheduler.step after policy_optimizer.step inside micro/minibatch training loop; num_training_steps argument is outer rolloutsteps*num_epochs so nonconstant overrides need count audit"
+      },
+      "policy_update_reuse": {
+        "num_epochs_launcher": 1,
+        "critic_only_initial_rollouts": 3
+      },
+      "continuation": "examined source initializes policy optimizer fresh; load_model flag does not by itself prove Adam/RNG continuation",
+      "evidence": [
+        {
+          "commit": "212379e840376e07505cba398c0c587d96a13678",
+          "path": "scripts/train_rl_vllm_ray_fsdp.sh",
+          "url": "https://github.com/GuanxingLu/vlarl/blob/212379e840376e07505cba398c0c587d96a13678/scripts/train_rl_vllm_ray_fsdp.sh#L95",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/GuanxingLu__vlarl/files/scripts/train_rl_vllm_ray_fsdp.sh",
+          "sha256": "43f62b9f2279d8d3699ecbffb33a915a54b09e51b7d52c83a19aeb704a0fece1"
+        },
+        {
+          "commit": "212379e840376e07505cba398c0c587d96a13678",
+          "path": "ppo_vllm_ray_fsdp_v3.py",
+          "url": "https://github.com/GuanxingLu/vlarl/blob/212379e840376e07505cba398c0c587d96a13678/ppo_vllm_ray_fsdp_v3.py#L249",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/GuanxingLu__vlarl/files/ppo_vllm_ray_fsdp_v3.py",
+          "sha256": "8d3e56553883623759379829264f0245a70ae326e5550e87e26de5f551f20991"
+        },
+        {
+          "commit": "212379e840376e07505cba398c0c587d96a13678",
+          "path": "ppo_vllm_ray_fsdp_v3.py",
+          "url": "https://github.com/GuanxingLu/vlarl/blob/212379e840376e07505cba398c0c587d96a13678/ppo_vllm_ray_fsdp_v3.py#L690",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/GuanxingLu__vlarl/files/ppo_vllm_ray_fsdp_v3.py",
+          "sha256": "8d3e56553883623759379829264f0245a70ae326e5550e87e26de5f551f20991"
+        },
+        {
+          "commit": "212379e840376e07505cba398c0c587d96a13678",
+          "path": "ppo_vllm_ray_fsdp_v3.py",
+          "url": "https://github.com/GuanxingLu/vlarl/blob/212379e840376e07505cba398c0c587d96a13678/ppo_vllm_ray_fsdp_v3.py#L1682",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/GuanxingLu__vlarl/files/ppo_vllm_ray_fsdp_v3.py",
+          "sha256": "8d3e56553883623759379829264f0245a70ae326e5550e87e26de5f551f20991"
+        }
+      ],
+      "transfer_caution_zh": "代码默认5e-5与正式launcher8e-6必须分开；value5e-5不能冒充actor实际LR。"
+    },
+    {
+      "method": "Run-then-Walk (AutoDrive-P3 released; ReCogDrive paper table)",
+      "official_repository": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk",
+      "paper": "https://arxiv.org/html/2609.25831v2#S0.SS1",
+      "actor_lr": {
+        "paper_AutoDrive_Run": 1e-06,
+        "paper_AutoDrive_Walk": 1e-06,
+        "paper_ReCogDrive_Run": 0.0001,
+        "paper_ReCogDrive_Walk": 1e-06,
+        "released_AutoDrive_both_stages": 1e-06
+      },
+      "backbone_lr": {
+        "released_AutoDrive": "same actor LR; freeze_vision_towerFalse inconfig",
+        "ReCogDrive": "not released in thisrepo"
+      },
+      "critic_lr": "GRPO, no learned critic required",
+      "scheduler": {
+        "paper_AutoDrive": "constant both stages",
+        "paper_ReCogDrive": "cosine both stages",
+        "released_AutoDrive": "constant_with_warmup ratio0 => constant",
+        "clock": "releasedFSDP scheduler.step once per update_actor after policy update",
+        "warmup": {
+          "AutoDrive_ratio": 0.0,
+          "ReCogDrive": "UNKNOWN from Table7"
+        },
+        "min_lr": {
+          "AutoDrive": "constant1e-6",
+          "ReCogDrive": "UNKNOWN; do not silently assume original ReCogDrive0 in newly shortened stages"
+        }
+      },
+      "policy_update_reuse": {
+        "released_ppo_epochs": 1,
+        "group_size": 8
+      },
+      "continuation": "MODEL_PATH selectsstageinitialweights; optional LOAD_CHECKPOINT_PATH explicitfullFSDPresume supportsoptimizer/scheduler. Whether paperstage transition preservedAdam/RNG isUNKNOWN; never inferfromwordcontinue",
+      "paper_code_disclosure": "Table7 AutoDrive3Run+2Walk/ReCog5Run+1Walk; releasedAutoDrive launcher defaults15epochs perstage unless RUN_EPOCHS/WALK_EPOCHS overrides. Thisrepo contains AutoDrivecode, not ReCogDrive1e-4→1e-6 stage configs.",
+      "evidence": [
+        {
+          "commit": "2f99d85782995f175d5a117eb45356bff34e343a",
+          "path": "rl/scripts/train_rl.sh",
+          "url": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/blob/2f99d85782995f175d5a117eb45356bff34e343a/rl/scripts/train_rl.sh#L48",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/haha-yuki-haha__AutoDrive-P3_with_Run-then-walk/files/rl/scripts/train_rl.sh",
+          "sha256": "4acae9323ab4fab4b8e73e242ede6e3c667ee0b3c6d20e03582538718ae5310e"
+        },
+        {
+          "commit": "2f99d85782995f175d5a117eb45356bff34e343a",
+          "path": "rl/scripts/train_run.sh",
+          "url": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/blob/2f99d85782995f175d5a117eb45356bff34e343a/rl/scripts/train_run.sh",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/haha-yuki-haha__AutoDrive-P3_with_Run-then-walk/files/rl/scripts/train_run.sh",
+          "sha256": "08a2f82d1fd155c13eed3da39c4fbb8ef3b0262789bad797817037e9accd4f11"
+        },
+        {
+          "commit": "2f99d85782995f175d5a117eb45356bff34e343a",
+          "path": "rl/scripts/train_walk.sh",
+          "url": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/blob/2f99d85782995f175d5a117eb45356bff34e343a/rl/scripts/train_walk.sh",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/haha-yuki-haha__AutoDrive-P3_with_Run-then-walk/files/rl/scripts/train_walk.sh",
+          "sha256": "beb412476de633c3281dc99f7c407c9b42a034c1d8b98dd0d0aefe9186cd8bf3"
+        },
+        {
+          "commit": "2f99d85782995f175d5a117eb45356bff34e343a",
+          "path": "rl/examples/AutoDrive/config.yaml",
+          "url": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/blob/2f99d85782995f175d5a117eb45356bff34e343a/rl/examples/AutoDrive/config.yaml#L58",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/haha-yuki-haha__AutoDrive-P3_with_Run-then-walk/files/rl/examples/AutoDrive/config.yaml",
+          "sha256": "b480bb5ff754dea0ed4b006403d857d477ce4d20c4b82a5fd91e20125e578b55"
+        },
+        {
+          "commit": "2f99d85782995f175d5a117eb45356bff34e343a",
+          "path": "rl/verl/workers/actor/config.py",
+          "url": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/blob/2f99d85782995f175d5a117eb45356bff34e343a/rl/verl/workers/actor/config.py#L44",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/haha-yuki-haha__AutoDrive-P3_with_Run-then-walk/files/rl/verl/workers/actor/config.py",
+          "sha256": "e9a7d0d99d3e55a9b672ce9ac3febc0c4d3c7b1306e08e8d4f1b88e1a6ffbfe7"
+        },
+        {
+          "commit": "2f99d85782995f175d5a117eb45356bff34e343a",
+          "path": "rl/verl/workers/fsdp_workers.py",
+          "url": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/blob/2f99d85782995f175d5a117eb45356bff34e343a/rl/verl/workers/fsdp_workers.py#L316",
+          "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/haha-yuki-haha__AutoDrive-P3_with_Run-then-walk/files/rl/verl/workers/fsdp_workers.py",
+          "sha256": "4d70cefb4e0128dcd632d02c7332b8ac3963694083a4bb7cba8b74a87bae3710"
+        },
+        {
+          "url": "https://arxiv.org/html/2609.25831v2",
+          "section": "AppendixC/Table7"
+        }
+      ],
+      "transfer_caution_zh": "两阶段同时更换reward、阶段初始策略/参考策略，不能把收益归因LR或cosine，更不能说所有planner都该相同调度。"
+    },
+    {
+      "method": "DriveDPO",
+      "paper": "https://arxiv.org/html/2509.17940v1",
+      "actor_lr": {
+        "reported_model_lr": 0.0001,
+        "separately_disclosed_DPO_actor_lr": null
+      },
+      "backbone_lr": "UNKNOWN separategroup; ResNet34 described",
+      "critic_lr": "not learned actor-critic",
+      "scheduler": "UNKNOWN",
+      "warmup": "UNKNOWN",
+      "min_lr": "UNKNOWN",
+      "continuation": "UNKNOWN optimizer/scheduler continuity",
+      "policy_update_reuse": "paper:30distillationepochs+10SafetyDPOepochs,1024sampledtrajectories perDPOiteration; optimizer update clock not given",
+      "evidence": [
+        {
+          "url": "https://arxiv.org/html/2509.17940v1",
+          "section": "5.2"
+        }
+      ],
+      "source_commit": null,
+      "official_code_status": "No author code link verified from examinedpaper; do not use a guessedrepo",
+      "transfer_caution_zh": "model全局LR与单独DPO actor/backbone参数未拆开，不能补造scheduler或把distillation schedule当RL。"
+    },
+    {
+      "method": "DriveRFT",
+      "status": "IDENTIFIER_UNRESOLVED",
+      "actor_lr": null,
+      "scheduler": null,
+      "evidence": [],
+      "unknowns": "Exactname primary search did not identifyan unambiguous authorpaper/repo. WorldRFT2512.19133 andPlannerRFT2601.12901 aredifferent titles; not silently substituted."
+    }
+  ],
+  "scheduler_count_and_floor_cautions": {
+    "naive_global50k_cosine_multiplier_at_updates": {
+      "5000": 0.9766321348340219,
+      "10000": 0.9069237502986824,
+      "20000": 0.6597406456148421,
+      "35000": 0.21480318711204544,
+      "50000": 0.01
+    },
+    "note_zh": "若50k cosine只看5k，LR仅降约2.3%，短pilot可能根本没有足够schedule对照；新phase horizon应一次登记并明确global/relative clock，不因stage stop动态重写。",
+    "absolute_floor_problem": {
+      "legacy_eta_min": 5e-07,
+      "action_relative_floor": 0.01,
+      "memory_relative_floor": 0.1
+    },
+    "warm_restart": "NativeSafety10k fork不要重跑100step warmup或重置Adam；LRphase t=globalupdates-10000，原states.step/sceneCursor/RNG必须保留。"
+  },
+  "candidate_experiments": [
+    {
+      "name": "PPO_SAFETY_LRLOW",
+      "status": "ROOT_SELECTED_DESIGN_NOT_DEPLOYED_BY_THIS_RESEARCH",
+      "starting_point": "exact nativeSafety10k current/Adam/RNG/cursor,globalupdate10000",
+      "change": "lowerconstant action andMemory together,keep10:1ratio; exactratesrootregistration",
+      "unchanged": "reward/reference/sampler/SafetyEPscope/inner4/beta50/dataorder",
+      "warmup": "no repeatedwarmup; retain native ancestry"
+    },
+    {
+      "name": "PPO_SAFETY_LRCOS",
+      "status": "ROOT_SELECTED_DESIGN_NOT_DEPLOYED_BY_THIS_RESEARCH",
+      "starting_point": "same exactnativefork",
+      "change": "same lowerinitialLR pair asLRLOW,cosine over explicitly registered continuationhorizonwithrelativefloor pergroup",
+      "unchanged": "sameasLRLOW except schedule shape",
+      "comparison": "matchedglobal12/14/16/18/20k againstLRLOW and originalSafetyu wherecomplete; fixedparentSafety10k separately"
+    }
+  ],
+  "uncertain_fields_policy": "UNKNOWN means not disclosed/verified,notzero. Critic/IL/backboneLR never substitutedforactor.",
+  "source_inventory": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/paper_sources/RL_LR_20261031/selected_sources.json",
+  "source_inventory_sha256": "d5f39d17267899baf1ae73d0bf9102c275f28329d0385b3aeb212307acd0f63d",
+  "source_fetch_protocol": "onlypinned selectedtextsources+blobless tree metadata;GitHubAPI quota fallback gitlsremote/filterblobnone;no fullweights/datasetdownload",
+  "builder": {
+    "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/build_rl_lr_primary_research_20261031.py",
+    "sha256": "71c187fdea9f1d2926b4db053ef16bdf96f40c50d0f927d6eb7262e4704984ce"
+  },
+  "sha256": "64dad66b621f9c5157036eba59a4f00577a0c04c47b328855311ae5ab09545de"
+}

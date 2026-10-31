@@ -1,10 +1,10 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 03:58:36 UTC",
+  "generated_utc": "2026-10-31 05:47:21 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": {
     "main_sections": 7,
-    "scientific_figures": 9
+    "scientific_figures": 10
   },
   "training_seed": 42,
   "inference_seed": 2101,
@@ -385,6 +385,86 @@
       "scenes": 12146,
       "PDMS": 90.39983099079379,
       "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_NOISE03",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.14266867648708,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_NOISE03_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_LASTDET",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 88.72017794897997,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_LASTDET_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_RESCUE_REPLAY",
+      "updates": 1000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.12293237323514,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u001000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_RESCUE_CFM",
+      "updates": 1000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.00854847562158,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_CFM_u001000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_RESCUE_CFM",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 87.84041829657772,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_CFM_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_RESCUE_REPLAY",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 88.01667850294396,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 12000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.88994717236211,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u012000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 14000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.10662196446827,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u014000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 16000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.21475039180305,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u016000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 18000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.92927646571185,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u018000_NAVTEST/SUMMARY.json"
     },
     {
       "arm": "PPO_ADAPTIVE",
@@ -5712,5 +5792,46 @@
       }
     },
     "updated_at": "2026-10-31T03:58:36.034694+00:00"
+  },
+  "LR_research": {
+    "native_audit_status": "COMPLETE",
+    "primary_status": "COMPLETE",
+    "native_findings": [
+      {
+        "confidence": "SOURCE_AND_NATIVE_METADATA",
+        "id": "CURRENT_CONSTANT_NOT_DECAYING",
+        "text": "当前使用constant，并非cosine。100个optimizer更新后action持续5e-5、memory持续5e-6；max_steps50k不是pilot1k/5k预算。停止门槛仅合作保存，不改变LR或重warmup。"
+      },
+      {
+        "confidence": "FROZEN_SOURCE_AND_OBSERVED_JOURNALS",
+        "id": "TWO_GROUP_LOG_OFFSET",
+        "text": "原生日志并非只能看到group0：lr记录本次action使用值，optimizer_group_lrs记录两组scheduler.step后下一次值。warmup区间一格错位，不能将二者不相等误判为LR异常。"
+      },
+      {
+        "confidence": "SEALED_CHECKPOINT_METADATA",
+        "id": "NATIVE_RESUME_PRESERVES",
+        "text": "native续训保存并恢复Adam step/paramgroup LR和scheduler计数；阶段切换1k→5k、10k→20k不会再热身。救援weights-only新phase则明确重新Adam和warmup，不能与原Safety native继续视为单变量。"
+      },
+      {
+        "confidence": "CPU_TOY_REPRODUCED_UNUSED_BRANCH",
+        "id": "UNUSED_VENDOR_COSINE_ABSOLUTE_FLOOR",
+        "text": "vendor cosine给两个paramgroup使用同一个绝对eta_min=action_peak*0.01=5e-7。末端action降到1%而memory仅降到10%，action:memory由10:1漂移至1:1。当前所有注册arm均constant，不是当前退化故障；新cosine需按各group相同比例调度。"
+      },
+      {
+        "confidence": "HYPOTHESIS",
+        "id": "LR_CAUSALITY_NOT_ESTABLISHED",
+        "text": "Safety10k后完整评测在相同峰值LR下波动、救援freshphase在重warmup后再全峰值更新且已有明显下降，使低LR/衰减成为应验证变量；采样器W3→W2、80/10/10曝光、freshAdam、CFM等同时变化，现有数据不能证明LR是根因。"
+      }
+    ],
+    "primary_conclusions": [
+      "官方实践没有统一cosine共识：SimWAM/FlowGRPO/SimpleVLA/VLARL/FPO微调都有constant，ReCogDrive明确cosine到0；DPPO按任务配置，部分名为cosine实际peak=floor。",
+      "当前5e-5 action/5e-6 Memory+100opt warmup→constant来自SimWAM近亲配方，不是训练里已做衰减；50k只是scheduler身份/上限，不会让constant自动减小。",
+      "计数单位必须看step调用位置：DPPO/FPO按rolloutiteration，SimpleVLA按update_actor调用，SimWAM和当前工程按optimizerupdate；不能只对比warmup数字。",
+      "三个隐藏陷阱：FPO constant忽略warmup5；DPPO max=min使warmup/decay无效；旧SimWAM绝对eta_min让我们两paramgroup的floor百分比不同。",
+      "最新Run-then-WalkTable7同文就有AutoDrive1e-6constant与ReCog1e-4→1e-6cosine；同时改reward/reference/阶段，不能把结果单因子归因LR。",
+      "有依据比较更低constant与相对floorcosine，但文献值不是我们scope/loss的最优值证据；优先同Safety10k nativeAdam/RNG/cursor分叉，只改LR策略，不混reward/ref/sampler/optimizerreset。"
+    ],
+    "actual_new_LR_training_claimed": false,
+    "figure": "reporting/figures/research_learning_rates.png"
   }
 }
