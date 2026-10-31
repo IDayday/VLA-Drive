@@ -84,6 +84,16 @@ def test_training_dispatch_has_durable_intent_and_disjoint_eight_gpu_hosts(insta
     assert '--nproc-per-node=8'in calls[0]['command']
 
 
+def test_execution_hold_blocks_restart_without_touching_other_running_jobs(instance):
+    instance._training('B','IL');before=len(instance.driver.calls)
+    save(instance.directory/'IL_EXECUTION_HANDOFFS.json',dict(schema='qwen_world_compare_IL_handoff_registry_v1',
+        architectures={a:dict(status='HOLD')for a in 'ABCD'}))
+    instance._training('A','IL');instance._training('B','IL')
+    assert len(instance.driver.calls)==before
+    assert instance.state['architectures']['A']['status']=='WAITING_EXECUTION_HANDOFF'
+    assert next(iter(instance.state['jobs'].values()))['status']=='RUNNING'
+
+
 def test_running_resume_family_does_not_start_another_learner_when_checkpoint_advances(instance,monkeypatch):
     instance._training('A','IL');old=list(instance.state['jobs'].values())[-1]
     old['status']='COMPLETE'

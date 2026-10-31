@@ -188,6 +188,11 @@ def main():
         state=cp.restore(a.qualification_parent,engine,parent,builder);last=a.qualification_parent
     cp._rank_zero_call(publish)
     start=state['updates'];limit=(start+a.stop_after if a.qualification_parent else a.stop_after)if a.qualification else 100000
+    first_handoff=bool(migration and json.loads((Path(a.resume)/'identity.json').read_text())==migration['old_identity'])
+    if first_handoff:
+        cp.atomic_json(out/f'EXECUTION_RESTORE_rank{rank}.json',dict(status='RESTORED',updates=start,cursor=state['cursor'],
+            parent=a.resume,migration_sha256=migration['sha256'],optimizer_global_steps=int(engine.global_steps),
+            builder=builder.state_dict(),lr=[g['lr']for g in optimizer.param_groups],native_full_state_loader=True))
     qualified_tokens=evidence.manifest['scenes']
     prefetch=None
     if a.cpu_prefetch_depth:
@@ -249,10 +254,12 @@ def main():
                 if profiler is not None:profiler.step(update=state['updates'],scenes=32,wall_seconds=elapsed,data_wait_seconds=data_seconds,optimizer_seconds=None)
                 if rank==0 and(state['updates']<=5 or state['updates']%20==0):print(json.dumps(row),flush=True)
                 requested=torch.tensor(int(STOP or boundary_stop_due(host)),device=device);dist.all_reduce(requested,op=dist.ReduceOp.MAX);terminal=state['updates']==limit or bool(requested)
-                if not a.profile_no_save and(terminal or state['updates']%1000==0 or state['updates']in a.qualification_save_at):
+                handoff_boundary=first_handoff and state['updates']==start+2
+                if not a.profile_no_save and(terminal or handoff_boundary or state['updates']%1000==0 or state['updates']in a.qualification_save_at):
                     st=time.monotonic();last=cp.save(out,engine,state,identity,builder)
                     if rank==0:
                         cp.atomic_json(out/'progress.json',dict(state,status='COMPLETE'if state['updates']==100000 else'STOPPED'if terminal else'RUNNING',checkpoint=last,save_seconds=time.monotonic()-st));cp.retain_rolling(out,2)
+                        if handoff_boundary:cp.atomic_json(out/'EXECUTION_HANDOFF_COMPLETE.json',dict(status='PASS',from_updates=start,updates=state['updates'],checkpoint=last,migration_sha256=migration['sha256']))
                 if terminal:break
         if rank==0:cp.atomic_json(out/'INVOCATION_COMPLETE.json',dict(updates=state['updates'],invocation_start_update=start,qualification=a.qualification,checkpoint=last,profile_no_save=a.profile_no_save))
         if gradient_audit is not None:
@@ -260,7 +267,9 @@ def main():
     except BaseException:
         cp.atomic_json(out/f'FAILURE_rank{rank}.json',dict(error=traceback.format_exc(),state=state,last_complete_checkpoint=last));raise
     finally:
-        if prefetch is not None:prefetch.close()
+        if prefetch is not None:
+            prefetch.close()
+            cp.atomic_json(out/f'CPU_PREFETCH_start{start:06d}_pid{os.getpid()}_rank{rank}.json',prefetch.statistics())
         if profiler is not None:profiler.__exit__(*sys.exc_info())
         bank.close();teacher.close();dist.destroy_process_group()
 

@@ -22,6 +22,14 @@ ALLOWED_PATCH={
     'tools/qwen_world_compare/qualify_prefetch.py',
     'tools/qwen_world_compare/analyze_execution_pair.py',
     'tools/qwen_world_compare/prepare_execution_handoff.py',
+    # Reuse the already qualified operations source fcd43eb; these files do
+    # not implement actor/loss/optimizer mathematics.
+    'tools/qwen_world_compare/campaign.py',
+    'tools/qwen_world_compare/dispatch.py',
+    'tools/qwen_world_compare/profile.py',
+    'tools/qwen_world_compare/qualify.py',
+    'tools/qwen_world_compare/qualify_rl.py',
+    'starVLA/rl/qwen_world_compare/profiling.py',
 }
 
 

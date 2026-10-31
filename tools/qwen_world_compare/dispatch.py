@@ -43,14 +43,17 @@ def choose_host(*,excluded_uuids=(),minimum=65000,maximum_load_fraction=.85):
     if not candidates:return None
     _,host,record=min(candidates);return host,record
 
-def launch(host,source,command,name,*,gpus='',expected_uuids=None,minimum=None):
+def launch(host,source,command,name,*,gpus='',expected_uuids=None,minimum=None,share_minimum=None,lease_slot=None):
     directory=ROOT/'jobs'/name;directory.mkdir(parents=True,exist_ok=True)
     if(directory/'DISPATCH.json').exists():raise ValueError('An invocation may only be dispatched once')
     executor=str(Path(source)/'tools/qwen_world_compare/job_worker.py')
     args=[MODEL_PYTHON,executor,'--receipt-root',str(directory),'--gpus',gpus,'--command-json',json.dumps(command),'--cwd',str(source)]
     if expected_uuids is not None:args+=['--expected-gpu-uuids-json',json.dumps(expected_uuids)]
     if minimum:args+=['--minimum-free-mib',str(minimum),'--lease-slot','primary']
-    env=dict(WORLD_COMPARE_ROOT=str(ROOT),WORLD_COMPARE_TASK='qwen_world_compare_20261029',PYTHONPATH=str(source),OMP_NUM_THREADS='4',MKL_NUM_THREADS='4',OPENBLAS_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8')
+    if share_minimum:
+        if minimum:raise ValueError('Choose exclusive capacity or measured sharing')
+        args+=['--share-min-free-mib',str(share_minimum),'--lease-slot',lease_slot or 'shared']
+    env=dict(WORLD_COMPARE_ROOT=str(ROOT),WORLD_COMPARE_TASK='qwen_world_compare_20261029',PYTHONPATH=str(source),OMP_NUM_THREADS='4',MKL_NUM_THREADS='4',OPENBLAS_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8',PYTHONUTF8='1',LC_ALL='C.UTF-8')
     code=('import subprocess,json,os;from pathlib import Path;'
         'p=subprocess.Popen('+repr(args)+',cwd='+repr(str(source))+',stdout=open('+repr(str(directory/'worker.log'))+',"ab"),stderr=subprocess.STDOUT,start_new_session=True,env=dict(os.environ,**'+repr(env)+'));'
         'print(json.dumps(dict(worker_pid=p.pid,worker_start_ticks=int(Path(f"/proc/{p.pid}/stat").read_text().split()[21]))))')

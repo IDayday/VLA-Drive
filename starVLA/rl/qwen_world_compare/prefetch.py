@@ -6,6 +6,7 @@ Only one worker owns the cache readers; there is no concurrent builder access.
 """
 from concurrent.futures import ThreadPoolExecutor
 import sqlite3
+import time
 
 
 class OrderedUpdatePrefetch:
@@ -23,9 +24,17 @@ class OrderedUpdatePrefetch:
         self.depth,self.scenes=depth,scenes_per_update
         self.pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='fixed_IL_CPU_prefetch')
         self.pending={};self.closed=False;self.consumed_updates=0
+        self.prepared_updates=0;self.failed_preparations=0;self.preparation_seconds=0.;self.attempted_microbatches=0
         self._fill()
 
     def _build(self,update,cursor):
+        start=time.perf_counter()
+        try:return self._build_update(update,cursor)
+        except BaseException:
+            self.failed_preparations+=1;raise
+        finally:self.preparation_seconds+=time.perf_counter()-start
+
+    def _build_update(self,update,cursor):
         builder=self.builder
         if self.builder_factory is not None:
             if self.worker_builder is None:
@@ -34,8 +43,12 @@ class OrderedUpdatePrefetch:
                 actual={k:v for k,v in self.worker_builder.state_dict().items()if k!='calls'}
                 if expected!=actual:raise ValueError('Worker builder fixed-bank identity mismatch')
             builder=self.worker_builder
-        return [builder.build(tokens,positions,update,account=False)
-                for tokens,positions in self.request(update,cursor)]
+        result=[]
+        for tokens,positions in self.request(update,cursor):
+            self.attempted_microbatches+=1
+            result.append(builder.build(tokens,positions,update,account=False))
+        self.prepared_updates+=1
+        return result
 
     def _fill(self):
         for offset in range(self.depth):
@@ -65,6 +78,13 @@ class OrderedUpdatePrefetch:
     def _close_worker(self):
         if self.worker_builder is not None:
             self.worker_builder.close();self.worker_builder=None
+
+    def statistics(self):
+        return dict(consumed_updates=self.consumed_updates,prepared_updates=self.prepared_updates,
+            unconsumed_prepared_updates=self.prepared_updates-self.consumed_updates,
+            attempted_microbatches=self.attempted_microbatches,failed_preparations=self.failed_preparations,
+            CPU_reader_worker_seconds=self.preparation_seconds,
+            semantics='Physical CPU-only preparation includes unconsumed work; only consumption advances native builder/data progress.')
 
     def __enter__(self):return self
     def __exit__(self,*_):self.close()
