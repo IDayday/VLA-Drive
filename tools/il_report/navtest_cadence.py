@@ -14,6 +14,7 @@ import uuid
 
 from .health import atomic, alive
 from .evidence import OLD, FOUR, classify
+from .lifecycle import user_termination
 
 REPORT = Path('/mnt/project/qwen-world-il-research-20261030')
 ROOT = REPORT/'navtest_cadence_20261031'
@@ -40,7 +41,7 @@ def runs():
         if arm in selected:
             result[arm] = OLD/f'fresh_loss_IL_20261029/{arm}/runs/IL_full_seed42'
     result.update({'ARCH_'+a: FOUR/f'runs/ARCH_{a}/IL_seed42' for a in 'ABCD'})
-    return result
+    return {name:run for name,run in result.items()if not user_termination(run)}
 
 
 def registered_points():
@@ -115,6 +116,11 @@ def enqueue(method, original, step):
 
 
 def tick(state):
+    # A user closure also cancels preexisting unstarted pins. Completed scores
+    # remain published; this does not stop any other method or worker.
+    for job in state['jobs']:
+        if job['method']=='V12'and job['status']=='PENDING'and user_termination(OLD/'optimized_labels_IL_20261028/runs/IL_full_seed42'):
+            job.update(status='CANCELLED_BY_USER',end_unix=time.time(),new_inference_started=False)
     # Reconcile an interrupted registration before considering a new point.
     known_roots = {j['root'] for j in state['jobs']}
     for base in (OLD, FOUR):

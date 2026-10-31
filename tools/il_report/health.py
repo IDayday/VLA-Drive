@@ -27,6 +27,16 @@ def read(path, default=None):
         return default
 
 
+def observe_metadata(path):
+    """A corrupt live receipt is an explicit review issue, never a zero/success.
+
+    Strict checkpoint/recovery reads intentionally continue to raise errors.
+    """
+    try:return read(path,{})
+    except json.JSONDecodeError as error:
+        return dict(status='UNREADABLE_METADATA',path=str(path),error=str(error),review_required=True)
+
+
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -187,7 +197,7 @@ def check(root, runs):
     statuses = []
     for run in runs:
         status = run.get('status')
-        protected = run['id'] in ('PHYSICAL', 'DELTA') or status == '已完成'
+        protected = run['id'] in ('PHYSICAL', 'DELTA') or status in ('已完成','用户已终止')
         controller_lock = None
         if run['id'] in ('TIME_RESIDUAL', 'HUBER'):
             path = BASE/f"fresh_loss_IL_20261029/{run['id']}/owner.lock"
@@ -248,7 +258,8 @@ def check(root, runs):
     from .evidence import tail
     for run in rl_registry.get('runs', []):
         status = run['status']
-        protected = status in ('STOPPED_FUTILITY', 'PILOT_COMPLETE_REVIEW_REQUIRED', 'REGISTERED', 'COMPLETE')
+        protected = status in ('STOPPED_FUTILITY', 'PILOT_COMPLETE_REVIEW_REQUIRED', 'REGISTERED', 'COMPLETE',
+                               'COMPLETED_NO_EXTENSION','STOPPED_BY_USER_FOCUS_CHANGE','TERMINATED_BY_USER')
         rank_updates, ages = [], []
         run_root = Path(run['root']) if run.get('root') else None
         if run_root:
@@ -259,11 +270,11 @@ def check(root, runs):
                 if journal.exists():
                     ages.append(time.time()-journal.stat().st_mtime)
         job = Path(run['job']) if run.get('job') else None
-        terminal = read(job/'RESULT.json', {}) if job else {}
+        terminal = observe_metadata(job/'RESULT.json') if job else {}
         if job and not terminal:
-            terminal = read(job/'result.json', {})
+            terminal = observe_metadata(job/'result.json')
         stale = (status == 'TRAINING_DISPATCHED' and len(ages) == 8 and max(ages) > 1800)
-        failed = (terminal.get('status') in ('FAILED', 'FORCED_EXIT_REVIEW_REQUIRED')
+        failed = (terminal.get('status') in ('FAILED', 'FORCED_EXIT_REVIEW_REQUIRED','UNREADABLE_METADATA')
             or terminal.get('returncode', 0) not in (0, None))
         action = ('PRESERVE_NO_RESTART' if protected else 'REVIEW_REQUIRED' if stale or failed
                   else 'OBSERVE_EXISTING_OWNER')
@@ -272,6 +283,7 @@ def check(root, runs):
             observed_rank_updates=rank_updates,
             journal_updates=min(rank_updates) if len(rank_updates) == 8 and all(type(n) is int for n in rank_updates) else None,
             stale_active_warning=stale, terminal_worker_status=terminal.get('status'), action=action,
+            metadata_error=terminal if terminal.get('review_required')else None,
             owner_state=run.get('owner_state')))
     result['automatic_action_failed'] = read(directory/'REPAIR_FAILURE.json')
     cadence = Path('/mnt/project/qwen-world-il-research-20261030/navtest_cadence_20261031')

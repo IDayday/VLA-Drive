@@ -74,6 +74,13 @@ class HealthTests(unittest.TestCase):
         self.assertFalse(health.alive(None))
         self.assertFalse(health.alive(dict(pid=999999999, start_ticks=0)))
 
+    def test_corrupt_live_metadata_is_explicit_and_strict_recovery_still_refuses(self):
+        with tempfile.TemporaryDirectory()as d:
+            p=Path(d)/'RESULT.json';p.write_text('')
+            self.assertEqual(health.observe_metadata(p)['status'],'UNREADABLE_METADATA')
+            self.assertTrue(health.observe_metadata(p)['review_required'])
+            with self.assertRaises(ValueError):health.read(p)
+
     def test_fresh_gpu_journal_does_not_hide_dead_refresh_controller(self):
         with tempfile.TemporaryDirectory() as d:
             base = Path(d)/'assets'; root = Path(d)/'report'

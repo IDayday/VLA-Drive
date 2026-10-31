@@ -127,7 +127,9 @@ def review(root,state):
     queue=read(CADENCE/'STATE.json',{'jobs':[]});policy=read(POLICY)
     terminal=[(r['id'],r['status'])for r in state.get('health',{}).get('rl_runs',[])
               if r['status']in('STOPPED_FUTILITY','COMPLETE','PILOT_COMPLETE_REVIEW_REQUIRED')]
-    context=fingerprint([permission_signature(policy),terminal,
+    il_terminal=[(r['id'],r['status'])for r in state.get('runs',[])
+                 if r.get('status')in('用户已终止','已完成','筛选后未继续')]
+    context=fingerprint([permission_signature(policy),terminal,il_terminal,
                          [(j['method'],j['updates'],j['status'])for j in queue['jobs']]])
     previous=read(folder/'LATEST.json',{})
     if previous.get('context')==context and time.time()-previous.get('observed_unix',0)<180:

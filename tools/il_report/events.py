@@ -4,7 +4,7 @@ from pathlib import Path
 import select
 from .rl_events_reference import OwnerStateEvents, read_object, fingerprint, state_signatures
 
-NAMES = {'STATE.json','SUMMARY.json','COMPLETE.json','SELECTION.json','RESULT.json','report.html',
+NAMES = {'STATE.json','SUMMARY.json','COMPLETE.json','SELECTION.json','RESULT.json','report.html','USER_TERMINATION.json',
          'LATEST.json','FAILURE.json','server_dispatch_policy.json','refresh_request.json'}
 SKIP = {'scenes','checkpoints','weights','images','data','teachers','candidates','candidate_refresh',
         'export','exports','runtime','invocations','assets','upstream','targets','__pycache__'}
@@ -29,6 +29,9 @@ class ILStateEvents(OwnerStateEvents):
             self.save()
 
     def signatures(self, path):
+        if path.name=='USER_TERMINATION.json':
+            data=read_object(path)
+            return {fingerprint(['user_termination',str(path),data.get('at')]):dict(kind='user_experiment_terminated',source=str(path))}if data.get('status')=='TERMINATED_BY_USER'else{}
         if path.name=='report.html':
             if path!=Path('/mnt/project/qwen-world-rl-optimization-20261030/report.html'):return {}
             try:at=path.stat().st_mtime_ns

@@ -92,6 +92,7 @@ def training_job(state, root):
 
 
 def journal_snapshot(evidence, key, root, state, *, target=100000, selected=True):
+    from .lifecycle import user_termination
     root = Path(root)
     rank_rows = [tail(root/f'metrics_rank{rank}.jsonl') for rank in range(8)]
     lasts = [rows[-1]['updates'] if rows else None for rows in rank_rows]
@@ -141,6 +142,7 @@ def journal_snapshot(evidence, key, root, state, *, target=100000, selected=True
     if not count_valid and complete_ranks:
         status='optimizer更新计数待核验'
         common=None
+    if user_termination(root):status='用户已终止'
     speed = statistics.mean(seconds) if len(seconds) >= 8 else None
     eta = ((target-common)*speed/3600 if speed and common is not None and common < target
            and status.startswith('训练更新中') else None)
