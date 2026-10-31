@@ -222,6 +222,9 @@ def render(s, history):
         if health.get('automatic_action_failed'):
             parts.append('<p class="callout">恢复辅助入口失败，需要审阅；不会无限重试。'+escape(health['automatic_action_failed']['error'][-500:])+'</p>')
         parts.append(table(['RL任务','owner登记状态','全8rank日志更新','合法阶段更新','动作'],[[r['id'],r['status'],str(r.get('journal_updates')),str(r.get('committed_registry_updates')),r['action']]for r in health.get('rl_runs',[])])+'</details>')
+        cadence=health.get('navtest_cadence',{})
+        if cadence.get('registration'):
+            parts.append('<details open><summary>每2k有效更新的完整Navtest高并发队列</summary><p>当前仍训练的七组IL，采用2k网格；与已登记检查点至少间隔2k，已有结果或正在评测的点不会重复。每模型最多32个scene shard，同时最多两个模型，空闲卡优先、核查后共享。每条仍为同一scene绑定seed2101的单候选K10shift5，canonical v1.1全12,146场景。评测完成即释放worker，不新增训练seed或best-of-N。</p>'+table(['IL任务','checkpoint更新','实际队列状态','评测记录'],[[j['method'],str(j['updates']),j['status'],link(j['root'],'运行目录')]for j in(cadence.get('state')or{}).get('jobs',[])])+'</details>')
     windows=[]
     for host,row in s.get('policy_host_windows',{}).items():
         from datetime import datetime,timezone

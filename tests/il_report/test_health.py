@@ -74,6 +74,17 @@ class HealthTests(unittest.TestCase):
         self.assertFalse(health.alive(None))
         self.assertFalse(health.alive(dict(pid=999999999, start_ticks=0)))
 
+    def test_fresh_gpu_journal_does_not_hide_dead_refresh_controller(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)/'assets'; root = Path(d)/'report'
+            lock = base/'fresh_loss_IL_20261029/TIME_RESIDUAL/owner.lock'
+            lock.parent.mkdir(parents=True); lock.touch()
+            with patch.object(health, 'BASE', base):
+                result = health.check(root, [dict(id='TIME_RESIDUAL', updates=33000,
+                    status='训练更新中', worker_status='RUNNING', journal_age_seconds=1)])
+            self.assertFalse(result['runs'][0]['controller_owner_lock_held'])
+            self.assertEqual(result['runs'][0]['action'], 'REVIEW_REQUIRED')
+
 
 if __name__ == '__main__':
     unittest.main()

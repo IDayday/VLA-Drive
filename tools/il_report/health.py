@@ -188,11 +188,22 @@ def check(root, runs):
     for run in runs:
         status = run.get('status')
         protected = run['id'] in ('PHYSICAL', 'DELTA') or status == '已完成'
+        controller_lock = None
+        if run['id'] in ('TIME_RESIDUAL', 'HUBER'):
+            path = BASE/f"fresh_loss_IL_20261029/{run['id']}/owner.lock"
+            if path.exists():
+                with path.open('r+') as stream:
+                    try:
+                        fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        controller_lock = False
+                    except BlockingIOError:
+                        controller_lock = True
         issue = not protected and (run.get('worker_status') in ('FAILED', 'FORCED_EXIT_REVIEW_REQUIRED')
-            or (run.get('journal_age_seconds') is not None and run['journal_age_seconds'] > 1800))
+            or (run.get('journal_age_seconds') is not None and run['journal_age_seconds'] > 1800)
+            or controller_lock is False)
         statuses.append(dict(id=run['id'], status=status, updates=run.get('updates'),
             action='REVIEW_REQUIRED' if issue else 'OBSERVE',
-            intentional_stop_preserved=protected))
+            intentional_stop_preserved=protected, controller_owner_lock_held=controller_lock))
     directory = root/'maintenance/huber_recovery_20261031'
     recovery = read(directory/'LAUNCH.json')
     review = read(directory/'REVIEW.json')
@@ -263,6 +274,9 @@ def check(root, runs):
             stale_active_warning=stale, terminal_worker_status=terminal.get('status'), action=action,
             owner_state=run.get('owner_state')))
     result['automatic_action_failed'] = read(directory/'REPAIR_FAILURE.json')
+    cadence = Path('/mnt/project/qwen-world-il-research-20261030/navtest_cadence_20261031')
+    result['navtest_cadence'] = dict(registration=read(cadence/'REGISTRATION.json'),
+        owner=read(cadence/'OWNER.json'), state=read(cadence/'STATE.json'))
     atomic(root/'maintenance/HEALTH_LATEST.json', result)
     return result
 

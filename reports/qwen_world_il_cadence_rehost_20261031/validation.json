@@ -1,0 +1,134 @@
+{
+  "at": 1793408655.6707523,
+  "environment": {
+    "status": "PASS_VERSION_IMPORTS",
+    "stdout": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n[2026-10-31 00:27:01,761] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.\n[2026-10-31 00:27:01,767] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cpu (auto detect)\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n3.10.20 (main, Jun 11 2026, 15:17:37) [GCC 14.3.0] 2.5.1+cu124 12.4 4.57.0 0.16.9\n",
+    "wall_seconds": 21.546143770217896,
+    "source_archive_sha256": "fda71e29f5e75581aff2ab740553690e6c6d018a91819678ec779ce32336b88b",
+    "existing_environments_unchanged": true
+  },
+  "native_stop": {
+    "at": 1793406615.9644315,
+    "checkpoint": "/mnt/project/qwen-world-postcot-20261025/fresh_loss_IL_20261029/TIME_RESIDUAL/runs/IL_full_seed42/checkpoints/update033283",
+    "updates": 33283,
+    "cursor": 1065056,
+    "files_sha256": "49575b04ed860d8cc13f98d2bee389d1c03d57b200f42279d9664c179bd5e38a",
+    "identity_sha256": "22eeaf803e2942b9689d6cd7c6689e1e78bf26d287ee3dd830014eb82aad009d",
+    "all_rank_states_match": true,
+    "old_exact_transport_exited": true,
+    "no_uncommitted_updates_discarded": true
+  },
+  "continuation": {
+    "at": 1793407879.62309,
+    "host": "training-vla-zt3",
+    "resumed_checkpoint": 33283,
+    "observed_rank_updates": [
+      33552,
+      33552,
+      33552,
+      33552,
+      33552,
+      33552,
+      33552,
+      33552
+    ],
+    "zero_skipped_updates": true,
+    "finite_nonzero_gradients": true,
+    "all_native_counts_match": true,
+    "old_shared_host_recent_wall_per_update": 4.696542322635651,
+    "new_host_recent_wall_per_update": 2.502050928771496,
+    "observational_throughput_ratio": 1.877077028540601,
+    "not_an_isolated_hardware_benchmark": true,
+    "encoding_failure_after_first_update_recomputed_from_same_native_boundary": true
+  },
+  "grant_encoding_equivalence": {
+    "at": 1793407103.905095,
+    "grants": [
+      {
+        "task": "qwen_sourceflow_native_20261018",
+        "previous": "/mnt/project/qwen-world-il-research-20261030/maintenance/resources_unbounded_20261031T000015Z/grants/qwen_sourceflow_native_20261018.json",
+        "new": "/mnt/project/qwen-world-il-research-20261030/maintenance/vla3_rehost_20261031/encoding_recovery/qwen_sourceflow_native_20261018_ascii.json",
+        "parsed_JSON_unchanged": true
+      },
+      {
+        "task": "qwen_world_compare_20261029",
+        "previous": "/mnt/project/qwen-world-il-research-20261030/maintenance/resources_unbounded_20261031T000015Z/grants/qwen_world_compare_20261029.json",
+        "new": "/mnt/project/qwen-world-il-research-20261030/maintenance/vla3_rehost_20261031/encoding_recovery/qwen_world_compare_20261029_ascii.json",
+        "parsed_JSON_unchanged": true
+      },
+      {
+        "task": "qwen_world_fresh_loss_IL_20261029",
+        "previous": "/mnt/project/qwen-world-il-research-20261030/maintenance/resources_unbounded_20261031T000015Z/grants/qwen_world_fresh_loss_IL_20261029.json",
+        "new": "/mnt/project/qwen-world-il-research-20261030/maintenance/vla3_rehost_20261031/encoding_recovery/qwen_world_fresh_loss_IL_20261029_ascii.json",
+        "parsed_JSON_unchanged": true
+      },
+      {
+        "task": "qwen_world_optimized_labels_IL_20261028",
+        "previous": "/mnt/project/qwen-world-il-research-20261030/maintenance/resources_unbounded_20261031T000015Z/grants/qwen_world_optimized_labels_IL_20261028.json",
+        "new": "/mnt/project/qwen-world-il-research-20261030/maintenance/vla3_rehost_20261031/encoding_recovery/qwen_world_optimized_labels_IL_20261028_ascii.json",
+        "parsed_JSON_unchanged": true
+      },
+      {
+        "task": "qwen_world_postcot_20261025",
+        "previous": "/mnt/project/qwen-world-il-research-20261030/maintenance/resources_unbounded_20261031T000015Z/grants/qwen_world_postcot_20261025.json",
+        "new": "/mnt/project/qwen-world-il-research-20261030/maintenance/vla3_rehost_20261031/encoding_recovery/qwen_world_postcot_20261025_ascii.json",
+        "parsed_JSON_unchanged": true
+      }
+    ],
+    "old_grants_preserved": true,
+    "algorithm_and_permissions_unchanged": true
+  },
+  "cadence": {
+    "interval_updates": 2000,
+    "initial": "latest eligible available sealed checkpoint",
+    "seed": 2101,
+    "full_population": 12146,
+    "metric": "canonical_NAVSIM_v1.1",
+    "inference": "single_cleanx_K10_shift5",
+    "workers_per_model": 32,
+    "max_concurrent_models": 2,
+    "burst_mode": true,
+    "actual_placement": "verified idle then qualified sharing",
+    "model_batch": 1,
+    "original_actor_and_scorer_unchanged": true,
+    "metadata_only_wakeup_seconds": 600,
+    "no_training_log_polling": true,
+    "no_duplicate_existing_points": true,
+    "raw_completed_and_screened_arms_excluded": true,
+    "native_staging_retired_after_export_and_completed_evaluation": true,
+    "deployment_weights_and_scores_retained": true,
+    "minimum_free_disk_bytes": 536870912000,
+    "all_private_assets_stay_out_of_git": true
+  },
+  "queue": [
+    {
+      "method": "V12",
+      "updates": 56000,
+      "root": "/mnt/project/qwen-world-postcot-20261025/periodic_NAVTEST_V12_056000_20261031T004618Z",
+      "status": "RESOLVED_PRECHILD_RESOURCE_FAILURE",
+      "source": "/mnt/project/VLA-Drive-qwen-world-il-loss-later-navtest-20261030"
+    },
+    {
+      "method": "TIME_RESIDUAL",
+      "updates": 30000,
+      "root": "/mnt/project/qwen-world-postcot-20261025/periodic_NAVTEST_TIME_RESIDUAL_030000_20261031T004619Z",
+      "status": "RUNNING",
+      "source": "/mnt/project/VLA-Drive-qwen-world-il-loss-later-navtest-20261030"
+    },
+    {
+      "method": "V12",
+      "updates": 56000,
+      "root": "/mnt/project/qwen-world-postcot-20261025/periodic_NAVTEST_V12_056000_20261031T004618Z_resource_retry002",
+      "status": "RUNNING",
+      "source": "/mnt/project/VLA-Drive-qwen-world-il-loss-later-navtest-20261030",
+      "operator_sha256": "ba096e80235b8db6191797b2413464a624fee7a7856bba9ef7d819db7fb75c1b"
+    }
+  ],
+  "tests": {
+    "status": "PASS",
+    "count": 23
+  },
+  "actor_sampler_optimizer_loss_source_changed": false,
+  "new_training_variants": 0,
+  "raw_data_uploaded": false
+}

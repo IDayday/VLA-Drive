@@ -259,6 +259,10 @@ def discover_scores(e):
     roots += [p for p in FOUR.iterdir() if p.is_dir() and 'navtest' in p.name.lower()]
     roots += [OLD/'optimized_labels_IL_20261028/NAVTEST']
     roots += [OLD/'fresh_loss_IL_20261029'/arm/'NAVTEST' for arm in ('TIME_RESIDUAL','HUBER','PHYSICAL','DELTA')]
+    # Legacy full-IL owners put one pinned request below each update directory.
+    # Inspect these bounded control levels; never recurse through scene data.
+    roots += [child for root in list(roots) if root.name=='NAVTEST'
+              for child in root.glob('update*') if child.is_dir()]
     watched = set(roots)
     for root in roots:
         if not root.is_dir():
