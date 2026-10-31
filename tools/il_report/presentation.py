@@ -203,7 +203,7 @@ def render(s, history):
         ['原始IL已收敛到约88.6–88.8；更低L1不等于更高PDMS','完整100k与多个中间Test；不是只看DEV','保留原IL作为参照；不因追92分继续无界增加IL预算。'],
         ['V12标签高分尚未完全转化为学生部署收益','同架构标签替换、完整Test及已有几何/分项分析','继续原定100k；在已登记检查点看净PDMS、NC/TTC与EP，不只看标签98分。'],
         ['时间加权早期有效，后续分数有波动','10k筛选结果与15k/16k/22k等完整Test曲线','按原配方继续；有限匹配预算下判断，避免用一个低点断言方法失败。'],
-        ['Huber当前状态需看真实终止收据','上方运行表显示实际更新/失败/日志时效','若故障未解决，原owner需从合法恢复点继续；本报告不会擅自重启训练。'],
+        ['Huber故障与恢复事务','原rank6被SIGKILL；14k完整native已校验，661步日志归入失败尝试','由已审阅恢复入口在空闲八卡继续原100k；每次报告检查真实状态，不能以已启动代替恢复成功。'],
         ['ABCD尚在早期，绝对分数与训练效率不同','同一七项监督、当前更新/step时间、四个早期完整Test','共同5k与较新中间权重已部署补测；各自继续100k，不短训筛组；报告本身不派发GPU。'],
         ['新架构的后置任务能否改善动作仍未证明','辅助损失有梯度，不等于有真实规划收益','先完成IL，再各自固定父模型RL50k；分开报告IL架构收益与RL增益。'],
     ])]
@@ -213,6 +213,15 @@ def render(s, history):
         '<p>五张图是对实际代码的解释。当前旧World与四框架的源版本、辅助任务和在线世界路径均有差异；“借鉴上游设计”不表述为复制完整官方训练。</p>']
     parts.append('<details><summary>架构源码身份 / 文件hash</summary><p>四架构科学源码：<code>'+escape(s['source_audit']['scientific_source'])+'</code></p>'+table(['实际源码','SHA256'],[[link(r['path'],Path(r['path']).name),'<code>'+r['sha256']+'</code>']for r in s['source_audit']['files']])+'</details>')
     parts.append('<details><summary>资源与异常记录</summary><p>当前策略允许的host（不等于实际空闲）：'+escape(', '.join(s['policy_authorized_hosts']))+'</p><p>报告不查询或占用GPU。共享GPU的step耗时只作为当时执行窗口；不能当作独占硬件对照。</p><ul>'+''.join('<li>'+escape(w)+'</li>'for w in s['warnings'])+'</ul></details>')
+    health=s.get('health',{})
+    if health:
+        parts.append('<details open><summary>每次报告同步检查任务健康</summary><p>只恢复经过审阅的基础设施故障，持有owner和rank锁，从合法native checkpoint继续；已完成、筛除、用户终止和需人工审阅的pilot不会自动重启。未知或数值故障保留证据并报警，不改变训练配方。</p>'+table(['IL任务','实际状态','更新','维护动作'],[[r['id'],r['status'],str(r.get('updates')),r['action']]for r in health['runs']]))
+        recovery=health.get('recovery')
+        if recovery:
+            parts.append('<p>Huber恢复入口：'+link(recovery['review'],'审阅收据')+'；恢复边界14,000，原失败尾部661步单独存档并重算。入口状态 '+escape(recovery['status'])+'；实际是否恢复以主运行表新日志为准。</p>')
+        if health.get('automatic_action_failed'):
+            parts.append('<p class="callout">恢复辅助入口失败，需要审阅；不会无限重试。'+escape(health['automatic_action_failed']['error'][-500:])+'</p>')
+        parts.append(table(['RL任务','owner登记状态','合法阶段更新','动作'],[[r['id'],r['status'],str(r.get('committed_registry_updates')),r['action']]for r in health.get('rl_runs',[])])+'</details>')
     windows=[]
     for host,row in s.get('policy_host_windows',{}).items():
         from datetime import datetime,timezone
@@ -220,5 +229,5 @@ def render(s, history):
         windows.append([escape(host),'不限时'if row.get('unbounded')else datetime.fromtimestamp(expiry,timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')if expiry else'由任务独立许可限定',link(row.get('record',''),'授权收据')])
     parts.append('<details><summary>临时资源的实际到期时间</summary>'+table(['host','当前授权到期','来源'],windows)+'</details>')
     parts.append('<p>'+link('reporting/report_snapshot.json','机器可读快照')+' · '+link('reporting/REPORT_CONFIG.json','更新规则')+' · '+link('reporting/OWNER.json','唯一报告owner')+'</p></section></main>')
-    parts.append('<footer>只读研究报告 · 所有主成绩来自完整单轨Test · 本报告不控制训练或选轨</footer><script>'+SCRIPT+'</script></body></html>')
+    parts.append('<footer>所有主成绩来自完整单轨Test · 每次更新执行健康检查与已审阅的有限native恢复 · 不改算法、不选轨</footer><script>'+SCRIPT+'</script></body></html>')
     return ''.join(parts)

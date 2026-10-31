@@ -1,4 +1,4 @@
-"""Read-only IL living report; one owner, atomic artifacts, RL-equivalent cadence."""
+"""IL living report and bounded reviewed maintenance; one owner and atomic artifacts."""
 import argparse
 from datetime import datetime, timezone
 import fcntl
@@ -15,6 +15,7 @@ from .evidence import snapshot
 from .diagrams import architecture_svg, NAMES
 from .presentation import render
 from .events import ILStateEvents
+from .health import check as check_health
 
 DEFAULT_ROOT=Path('/mnt/project/qwen-world-il-research-20261030')
 
@@ -48,7 +49,9 @@ def update_history(root, state):
 def cycle(root):
     with(root/'reporting/render.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
-        state=snapshot(root);history=update_history(root,state)
+        state=snapshot(root)
+        state['health']=check_health(root,state['runs'])
+        history=update_history(root,state)
         for key in NAMES:
             path=root/'figures'/f'architecture_{key}.svg';value=architecture_svg(key)
             if not path.exists()or path.read_text()!=value:atomic(path,value)
@@ -80,7 +83,8 @@ def main():
         event_updates_reset_regular_deadline=False,training_seed=42,inference_seed=2101,
         immediate_event_types=['evaluation_complete','training_stage_complete','important_exception',
                               'stage_selection_complete','resource_authorization_changed'],
-        new_models_or_scores=False,training_control=False,
+        new_models_or_scores=False,training_control='reviewed_native_infrastructure_recovery_only',
+        no_recipe_changes=True,no_restart_stopped_or_completed=True,
         root_sources=['/mnt/project/qwen-world-postcot-20261025','/mnt/project/qwen-world-four-frameworks-20261029'])
     atomic(root/'reporting/REPORT_CONFIG.json',config)
     if not a.watch:
