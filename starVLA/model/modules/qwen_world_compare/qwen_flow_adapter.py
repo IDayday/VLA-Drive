@@ -121,7 +121,8 @@ class QwenFlowAdapter(nn.Module):
 
     def __init__(self, qwen_model, *, time_dim=256, p_tokens=32, r_tokens=16,
                  ego_dim=8, activation_checkpointing=True, qualification=False,
-                 training_queries=True, pack_shared_candidates=True):
+                 training_queries=True, pack_shared_candidates=True,
+                 checkpoint_short_suffix=True):
         super().__init__()
         if not hasattr(qwen_model, 'language_model') or not hasattr(qwen_model, 'visual'):
             raise ValueError('D requires the native multimodal Qwen3VLModel')
@@ -139,6 +140,7 @@ class QwenFlowAdapter(nn.Module):
         self.pre_width = self.post_width = self.hidden_dim
         self.time_dim, self.p_tokens, self.r_tokens, self.ego_dim = time_dim, p_tokens, r_tokens, ego_dim
         self.activation_checkpointing = bool(activation_checkpointing)
+        self.checkpoint_short_suffix = bool(checkpoint_short_suffix)
         self.pack_shared_candidates = bool(pack_shared_candidates)
         self.action_input = nn.Linear(3, self.hidden_dim)
         self.action_output = nn.Linear(self.hidden_dim, 3)
@@ -267,7 +269,8 @@ class QwenFlowAdapter(nn.Module):
             def run_layer(h, *, number=i, parent=prefix):
                 return self._layer(number, h, positions, allowed, parent, time, action_rows,
                                    causal=causal)
-            if self.activation_checkpointing and torch.is_grad_enabled():
+            if (self.activation_checkpointing and torch.is_grad_enabled()
+                    and (prefix_kv is None or self.checkpoint_short_suffix)):
                 hidden, key, value = checkpoint(run_layer, hidden, use_reentrant=False)
             else:
                 hidden, key, value = run_layer(hidden)

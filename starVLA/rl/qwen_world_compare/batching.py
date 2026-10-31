@@ -74,7 +74,7 @@ class BatchBuilder:
         if state['schema']!='four_framework_stateless_batches_v1'or state['bank_hash']!=self.bank.bank_hash or state['candidate_refresh']is not False:raise ValueError('Builder identity changed')
         self.calls=state['calls']
 
-    def build(self,tokens,positions,update):
+    def build(self,tokens,positions,update,*,account=True):
         observations=[self.data.observation(t)for t in tokens]
         teacher=[self.teachers.get(t,source_record_hash=self.data.records[t]['source_record_hash'])for t in tokens]
         teacher_valid=torch.stack([v['future_valid']for v in teacher])
@@ -109,7 +109,8 @@ class BatchBuilder:
                 else:
                     lab.append([record['factor_labels'][k]for k in OFFICIAL_METRIC_NAMES]);mask.append([record['factor_valid'][k]for k in OFFICIAL_METRIC_NAMES]);sc.append(record['canonical_total_score']);sm.append(record['total_valid']);ev.append(record['event_class']);em.append(record['event_valid'])
             labels.append(lab);masks.append(mask);scores.append(sc);score_masks.append(sm);events.append(ev);event_masks.append(em);record_ids.append([None if factual is None else factual.record_id,*pair.record_ids[0]])
-        ns=len(selected);self.calls+=1
+        ns=len(selected)
+        if account:self.calls+=1
         uniform=torch.tensor([float(torch.rand((),generator=scene_generator(update,p,'FM_sigma')))for p in positions])
         return dict(tokens=list(tokens),positions=list(positions),current_inputs=self.processor(observations),ego=torch.tensor([o['proprio']for o in observations]),target=target,action_valid=valid,
             noise=torch.stack([torch.randn(8,3,generator=scene_generator(update,p,'FM_noise'))for p in positions]),
