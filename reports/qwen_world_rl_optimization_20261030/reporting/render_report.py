@@ -450,6 +450,7 @@ def flatten_resources(data: Any) -> list[dict]:
 
 def load_snapshot(root: Path) -> dict:
     warnings, inputs = [], []
+    report_watcher=read_json(root/'reporting'/'OWNER.json',warnings,inputs) or {}
     registration = read_json(root/'REGISTRATION.json', warnings, inputs) or {}
     runs_input = read_json(root/'RUNS.json', warnings, inputs) or {}
     state = read_json(root/'STATE.json', warnings, inputs) or {}
@@ -568,6 +569,12 @@ def load_snapshot(root: Path) -> dict:
     safety_ep_operator_review=read_json(root/'jobs'/'PPO_SAFETY_EP'/'formal_to001000_attempt001'/'PRECHILD_OPERATOR_REVIEW.json',warnings,inputs) or {}
     new_pilot_matched_review=read_json(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json',warnings,inputs) or {}
     completed_pilot_reviews=read_json(root/'analysis'/'COMPLETED_5K_PILOT_REVIEWS_20261031.json',warnings,inputs) or {}
+    safety_process=read_json(root/'analysis'/'SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json',warnings,inputs) or {}
+    safety_directions=read_json(root/'analysis'/'SAFETY_EP_FOCUSED_DIRECTIONS_20261031.json',warnings,inputs) or {}
+    safety_focus_policy=read_json(root/'SAFETY_EP_FOCUSED_RESEARCH_20261031.json',warnings,inputs) or {}
+    safety_focus_stop_input=read_json(root/'owners'/'SAFETY_EP_FOCUS'/'STOPPED_SUMMARY.json',warnings,inputs) or {}
+    safety_focus_stop={key:safety_focus_stop_input.get(key)for key in ('status','at_unix','keep_training','pending','scope_policy','new_cadence_owner')}
+    safety_focus_stop['stopped']=[{**{key:row.get(key)for key in ('arm','status','reason','native_checkpoint','native_transport_exited','optimizer_RNG_cursor_pending_rollout_retained','algorithm_failure_inferred')},'returncode':row.get('result',{}).get('returncode')}for row in safety_focus_stop_input.get('stopped',[])]
     lr_research={key:read_json(root/'analysis'/name,warnings,inputs) or {}for key,name in [('native_audit','RL_LR_NATIVE_AUDIT_20261031.json'),('primary','RL_LR_PRIMARY_RESEARCH_20261031.json')]}
     lr_study={key:read_json(root/path,warnings,inputs) or {}for key,path in {
         'registration':'EXPERIMENT_LR_STUDY_REGISTRATION_20261031.json',
@@ -846,6 +853,8 @@ def load_snapshot(root: Path) -> dict:
                     adaptive_coverage_amendment=adaptive_coverage_amendment,safety_ep_operator_review=safety_ep_operator_review,
                     new_pilot_matched_review=new_pilot_matched_review,
                     completed_pilot_reviews=completed_pilot_reviews,
+                    safety_process=safety_process,safety_directions=safety_directions,
+                    safety_focus=dict(policy=safety_focus_policy,stop_summary=safety_focus_stop),
                     lr_research=lr_research,
                     lr_study=lr_study,
                     preference_research=preference_research,preference_research_path=str(preference_path) if preference_path else None,
@@ -878,7 +887,7 @@ def load_snapshot(root: Path) -> dict:
                 pending_resource_additions=pending_additions,
                 resource_reauthorization_note=reauthorization_note,
                 cispo_prechild_refusal=cispo_refusal,adaptive_stage_one=adaptive_stage,
-                data_audit=data_audit, warnings=warnings, inputs=inputs,
+                report_watcher=report_watcher,data_audit=data_audit, warnings=warnings, inputs=inputs,
                 events=state.get('events', registration.get('events', []))+campaign.get('events',[]))
 
 
@@ -903,6 +912,10 @@ def render(root: Path, snapshot: dict, history: list[dict]) -> str:
     # Reload the external presentation on every read-only cycle. The unique
     # watch owner and all scientific evidence collection stay unchanged.
     import importlib
+    if snapshot.get('report_config',{}).get('presentation')=='safety_ep_focus_v1':
+        import safety_focus_report
+        importlib.reload(safety_focus_report)
+        return safety_focus_report.render_safety_focus_report(root,snapshot,history,sys.modules[__name__])
     import research_report
     importlib.reload(research_report)
     return research_report.render_research_report(root,snapshot,history,sys.modules[__name__])
@@ -934,7 +947,7 @@ def main() -> None:
             'stage_selection_complete','performance_selection_complete','campaign_complete','stage_policy_amended'],
         debounce_seconds=1.0,journal_polling=False,event_updates_reset_regular_deadline=False,
         administrative_event_validation_is_scientific_result=False)
-    config.update(research_continuation_preference='SafetyEP续训到20k按证据复核；四个pilot在5k/10k预注册节点按证据选择延长；Rescue新phase1k/5k独立评测后review；已停止平台期路线不自动复活；单臂故障隔离、不终止整体；TRAIN反馈不等Test；50k仅配置上限，不默认续满',
+    config.update(research_continuation_preference=('当前只保留SafetyEP；其他RL路线按用户研究焦点调整结束，历史资产保留；先分析过程与文献再提出少量方向，未来全部同一IL70基线fresh启动；IL独立研究不受影响；不自动重启历史分叉'if config.get('presentation')=='safety_ep_focus_v1'else 'SafetyEP续训到20k按证据复核；四个pilot在5k/10k预注册节点按证据选择延长；Rescue新phase1k/5k独立评测后review；已停止平台期路线不自动复活；单臂故障隔离、不终止整体；TRAIN反馈不等Test；50k仅配置上限，不默认续满'),
         training_seed=42,inference_seed=2101,multiple_training_seeds_requested=False,
         resource_preference='高效并行使用授权资源，修正运营规划错误后继续研究')
     atomic_json(config_path,config)
@@ -949,6 +962,20 @@ def main() -> None:
         record={'status':'RENDERED','report':str(root/'report.html'),'runs':len(snapshot['runs']),
                 'complete_results':sum(r['publishable_complete'] for r in snapshot['results']),
                 'warnings':snapshot['warnings'],'generated_utc':snapshot['generated_utc']}
+        watcher=snapshot.get('report_watcher',{});old_error=watcher.get('error')
+        error_evidence=None
+        if old_error:
+            error_sha=hashlib.sha256(old_error.encode()).hexdigest()
+            error_evidence=root/'reporting'/'error_history'/(error_sha+'.json')
+            if not error_evidence.exists():atomic_json(error_evidence,dict(schema='report_watcher_historical_error_v1',watcher_pid=watcher.get('pid'),error=old_error,sha256=error_sha,preserved_at=utc()))
+        healthy=watcher.get('status')=='RUNNING'and watcher.get('last_render',{}).get('status')=='RENDERED'
+        atomic_json(root/'reporting'/'WATCHER_HEALTH.json',dict(schema='report_watcher_health_v1',observed_at=utc(),
+            watcher_pid=watcher.get('pid'),watcher_start_ticks=watcher.get('start_ticks'),status=watcher.get('status'),
+            last_actual_watcher_render=watcher.get('last_render'),last_trigger=watcher.get('last_trigger'),
+            artifact_render=record,regular_interval_seconds=watcher.get('interval_seconds'),next_regular_utc=watcher.get('next_regular_utc'),
+            error_classification='HISTORICAL_ERROR_RECOVERED'if healthy and old_error else 'CURRENT_ERROR'if old_error else 'NONE',
+            historical_error_evidence=str(error_evidence)if error_evidence else None,
+            interpretation='The existing long-running watcher retains historical error text in memory; current status and latest successful render determine health. No watcher restart.'))
         print(json.dumps(record,ensure_ascii=False),flush=True)
         return record
     if not args.watch:
@@ -1020,6 +1047,11 @@ def main() -> None:
                 else:
                     record=cycle()
                 owner.update(status='RUNNING',last_render=record,last_read_unix=time.time())
+                if owner.get('error'):
+                    previous_error=owner.pop('error')
+                    recovery_path=root/'reporting'/'error_history'/(hashlib.sha256(previous_error.encode()).hexdigest()+'.json')
+                    if not recovery_path.exists():atomic_json(recovery_path,dict(schema='report_watcher_historical_error_v1',watcher_pid=owner['pid'],error=previous_error,preserved_at=utc()))
+                    owner['historical_error_evidence']=str(recovery_path);owner['recovered_utc']=record['generated_utc']
                 owner['last_trigger']['rendered_utc']=record['generated_utc']
                 owner['event_render_count']=owner.get('event_render_count',0)+(trigger['kind']=='owner_state_event')
             except BaseException as error:

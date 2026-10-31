@@ -16,7 +16,7 @@
   "journal_polling": false,
   "event_updates_reset_regular_deadline": false,
   "administrative_event_validation_is_scientific_result": false,
-  "research_continuation_preference": "SafetyEP续训到20k按证据复核；四个pilot在5k/10k预注册节点按证据选择延长；Rescue新phase1k/5k独立评测后review；已停止平台期路线不自动复活；单臂故障隔离、不终止整体；TRAIN反馈不等Test；50k仅配置上限，不默认续满",
+  "research_continuation_preference": "当前只保留SafetyEP；其他RL路线按用户研究焦点调整结束，历史资产保留；先分析过程与文献再提出少量方向，未来全部同一IL70基线fresh启动；IL独立研究不受影响；不自动重启历史分叉",
   "training_seed": 42,
   "inference_seed": 2101,
   "multiple_training_seeds_requested": false,
@@ -32,7 +32,7 @@
       18000,
       20000
     ],
-    "eligible_scope": "仅已获批准且长训预算>10000的活动任务；pilot不自动加预算，停止路线不复活",
+    "eligible_scope": "当前仅SafetyEP；其它RL路线已按用户焦点调整结束，历史评测资产保留",
     "native_stage_nodes": "主owner20k/35k/50k节点保持；已存在完整summary或在途评测直接复用，禁止重复评分",
     "catchup": "从当前实际存在的完整native checkpoint补可用12k/14k等；不假造缺失checkpoint",
     "TRAIN_cadence_changed": false,
@@ -42,8 +42,14 @@
     "steps": 10,
     "shift": 5,
     "seed": 2101,
-    "owner_activation": "独立CPU owner 2342200 已真实启动；OWNER／LAUNCH／进程start一致，分片与结果读独立STATE",
+    "owner_activation": "当前独立CPU owner 2443723，仅SafetyEP范围；实际状态读独立STATE",
     "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/STATE.json",
     "complete_result_index": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/RESULTS.json"
-  }
+  },
+  "presentation": "safety_ep_focus_v1",
+  "active_RL_arms": [
+    "PPO_SAFETY_EP"
+  ],
+  "focus_policy": "/mnt/project/qwen-world-rl-optimization-20261030/SAFETY_EP_FOCUSED_RESEARCH_20261031.json",
+  "future_trial_initialization": "same pinned IL70;fresh AdamW/RNG42/update0;no native RL10k forks"
 }

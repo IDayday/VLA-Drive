@@ -1,0 +1,46 @@
+{
+  "schema": "report_watcher_health_v1",
+  "observed_at": "2026-10-31 08:42:18 UTC",
+  "watcher_pid": 1859713,
+  "watcher_start_ticks": 1476961373,
+  "status": "RUNNING",
+  "last_actual_watcher_render": {
+    "status": "RENDERED",
+    "report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
+    "runs": 21,
+    "complete_results": 147,
+    "warnings": [],
+    "generated_utc": "2026-10-31 08:42:16 UTC"
+  },
+  "last_trigger": {
+    "kind": "owner_state_event",
+    "at": "2026-10-31 08:42:13 UTC",
+    "events": [
+      {
+        "kind": "report_maintenance_request",
+        "source": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/refresh_request.json",
+        "id": "SAFETY_FOCUS_RENDER_AND_WATCHER_RECOVERY_20261031T0841",
+        "scientific_result": false,
+        "reason": "Safety-only最终24k诊断与few freshIL方向上线；原watcher真实健康验证及历史错误归档"
+      }
+    ],
+    "rendered_utc": "2026-10-31 08:42:16 UTC"
+  },
+  "artifact_render": {
+    "status": "RENDERED",
+    "report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
+    "runs": 21,
+    "complete_results": 147,
+    "warnings": [],
+    "generated_utc": "2026-10-31 08:42:16 UTC"
+  },
+  "regular_interval_seconds": 1800,
+  "next_regular_utc": "2026-10-31 09:00:00 UTC",
+  "error_classification": "HISTORICAL_ERROR_RECOVERED",
+  "historical_error_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/error_history/b1348c4bb94fa660cbea230e7c8faa81024b3b07450de54fbc41a4d27f1df1fd.json",
+  "interpretation": "The existing long-running watcher retains historical error text in memory; current status and latest successful render determine health. No watcher restart.",
+  "verified_original_process": true,
+  "verified_maintenance_trigger": "SAFETY_FOCUS_RENDER_AND_WATCHER_RECOVERY_20261031T0841",
+  "recovery_verified_at_unix": 1793436170.4428716,
+  "extra_watchers_started": false
+}
