@@ -22,4 +22,17 @@ B10k−B7k = **+0.135271 points**. The four point estimates increase, but the la
 
 A13k is also complete: **PDMS80.007834**, versus A9k80.156844 (**−0.149010 points**). All12,146 scenes/invalid0, native parity PASS and all workers exited. This small decrease is a checkpoint point estimate, not an architecture ceiling or final failure.
 
-C12k/D7k are still pending; no partial-scene means are published. Exact existing asset paths, score/protocol/token seals and B history are in `results.json`. Source actor and canonical scoring were not changed for this readout.
+Current completion state is listed below; no partial-scene means are published. Exact existing asset paths, score/protocol/token seals and B history are in `results.json`. Source actor and canonical scoring were not changed for this readout.
+
+
+## Latest completed requested checkpoints
+
+| Architecture | Updates | Full Navtest PDMS |
+|---|---:|---:|
+| A | 13000 | 80.007834 |
+| B | 10000 | 80.692819 |
+| C | 12000 | 85.386918 |
+
+Pending: D_IL_007000. Unequal intermediate budgets do not establish a final architecture ranking.
+
+C12k is newly complete: **PDMS85.386918**, versus C8k68.900082 (**+16.486836 points**). This substantial checkpoint recovery shows why the low8k observation could not establish a ceiling or justify early termination. It does not establish final superiority at a matched100k budget. Native/export parity PASS; all12146 scenes valid and all8owned workers exited.

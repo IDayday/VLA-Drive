@@ -23,7 +23,12 @@ def read(path):
 
 
 def git(*args):
-    return subprocess.check_output(['git', *args], cwd=SOURCE, text=True).strip()
+    for attempt in range(10):
+        result=subprocess.run(['git',*args],cwd=SOURCE,text=True,capture_output=True)
+        if result.returncode==0:return result.stdout.strip()
+        if 'index.lock' in result.stderr and 'File exists' in result.stderr and attempt<9:
+            time.sleep(1);continue
+        raise subprocess.CalledProcessError(result.returncode,['git',*args],output=result.stdout,stderr=result.stderr)
 
 
 def cycle():
@@ -50,8 +55,10 @@ def cycle():
             protocol_sha256=identity['protocol']['sha256'], token_sha256=identity['token_sha256'],
             seed=2101, scenes=12146, invalid_scenes=0, native_export_parity_status='PASS', owned_workers_exited=True))
         changed = True
+    prefix=str(REPORT.relative_to(SOURCE))
+    staged=git('diff','--cached','--name-only').splitlines()
     if changed:
-        if git('diff', '--cached', '--name-only'):
+        if any(not p.startswith(prefix+'/')for p in staged):
             return dict(status='WAITING_FOR_EMPTY_GIT_INDEX', pending=pending)
         data['pending'] = pending; data['updated_unix'] = time.time()
         data['new_complete'].sort(key=lambda r:r['architecture'])
@@ -63,12 +70,17 @@ def cycle():
         text=text.replace('C12k/D7k are still pending; no partial-scene means are published.',
                           'Current completion state is listed below; no partial-scene means are published.')
         path.write_text(text+table)
-        prefix=str(REPORT.relative_to(SOURCE))
+    # A prior coordinator may have written/staged these exact report files
+    # before a transient index-lock failure. Finish that transaction too.
+    if changed or staged or git('diff','--name-only','--',prefix):
+        if any(not p.startswith(prefix+'/')for p in staged):
+            return dict(status='WAITING_FOR_EMPTY_GIT_INDEX',pending=pending)
         git('add','--',prefix)
         staged=git('diff','--cached','--name-only').splitlines()
         if any(not p.startswith(prefix+'/') for p in staged):
             raise RuntimeError('Refusing to commit unrelated staged work')
         git('commit','-m','Publish newly completed full ABCD checkpoint observations')
+        changed=True
     # Also retry a transport-only publication failure without making another commit.
     branch=git('branch','--show-current');head=git('rev-parse','HEAD')
     remote=git('ls-remote','origin','refs/heads/'+branch).split()[0]
@@ -92,8 +104,17 @@ def main():
         atomic(root/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
             source=str(SOURCE),only_reports_committed=True,model_updates=0,new_scores=0))
         deadline=time.monotonic()+6*3600
+        failures=0
         while True:
-            result=cycle();atomic(root/'STATUS.json',result)
+            try:
+                result=cycle();failures=0
+            except subprocess.CalledProcessError as error:
+                failures+=1
+                atomic(root/'STATUS.json',dict(status='PUBLICATION_TRANSPORT_OR_GIT_WAIT',
+                    attempt=failures,error=str(error),stderr=error.stderr,model_calls=0,score_calls=0))
+                if failures>=3:raise
+                time.sleep(60);continue
+            atomic(root/'STATUS.json',result)
             print(json.dumps(result),flush=True)
             if not args.watch or not result['pending']:return
             if time.monotonic()>deadline:
