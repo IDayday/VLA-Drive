@@ -567,6 +567,20 @@ def load_snapshot(root: Path) -> dict:
     noise003_result=read_json(root/'analysis'/'FIXED_THETA_NOISE003_ZERO_PROBE.json',warnings,inputs) or {}
     noise003_scorer_fix=read_json(root/'analysis'/'NOISE003_SCORER_PATH_CPU_FIX_REVIEW_20261031.json',warnings,inputs) or {}
     noise003_registration=read_json(root/'EXPERIMENT_PPO_NOISE03_REGISTRATION.json',warnings,inputs) or {}
+    sampler_matched_reviews={arm:read_json(root/'analysis'/name,warnings,inputs) or {} for arm,name in [('PPO_NOISE03','NOISE03_MATCHED_REVIEW.json'),('PPO_LASTDET','LASTDET_MATCHED_REVIEW.json')]}
+    rescue_study={key:read_json(root/path,warnings,inputs) or {} for key,path in {
+        'registration':'EXPERIMENT_RESCUE_PAIR_REGISTRATION_20261031.json',
+        'deployment':'analysis/RESCUE_PAIR_DEPLOYMENT_20261031.json',
+        'startup':'analysis/RESCUE_PAIR_NATIVE_STARTUP_20261031.json',
+        'early_signal':'analysis/RESCUE_PAIR_EARLY_SIGNAL_20261031.json',
+        'next_decisions':'analysis/ZERO_RESCUE_NEXT_DECISIONS_20261031.json',
+        'bank':'analysis/RESCUE_RETENTION_BANK_20261031.json',
+        'census':'analysis/RESCUE_RETENTION_CENSUS_AUDIT_20261031.json',
+        'matched_review':'analysis/RESCUE_PAIR_MATCHED_REVIEW.json'}.items()}
+    rescue_bank_path=rescue_study['registration'].get('bank')
+    rescue_manifest=read_json(Path(rescue_bank_path),warnings,inputs) or {} if rescue_bank_path else {}
+    rescue_low_scenes=rescue_manifest.get('low_scene_audit',[])
+    rescue_study['persistent_zero_teacher']=(rescue_low_scenes.get('7af4e577726c5be7',{}) if isinstance(rescue_low_scenes,dict) else next((row for row in rescue_low_scenes if row.get('token')=='7af4e577726c5be7'),{}))
     last_step_counter_input=read_json(root/'analysis'/'FINAL_SDE_STEP_COUNTERFACTUAL_DIAGNOSIS_20261031.json',warnings,inputs) or {}
     last_step_counter={key:last_step_counter_input.get(key)for key in ('schema','status','at','new_CPU_official_scores','new_model_forwards','interpretation','selection_scope','approximation','conclusions_zh')}
     last_step_counter['arms']={arm:{'modes':node.get('modes',{})}for arm,node in last_step_counter_input.get('arms',{}).items()}
@@ -801,6 +815,7 @@ def load_snapshot(root: Path) -> dict:
                     safety_ep_continuation_path=str(safety_ep_continuation_path) if safety_ep_continuation_path else None,
                     route_priority_review=route_priority_review,adaptive27k_review=adaptive27k_review,
                     noise003_deployment=noise003_deployment,noise003_attempts=noise003_attempts,noise003_result=noise003_result,noise003_scorer_fix=noise003_scorer_fix,noise003_registration=noise003_registration,last_step_counterfactual=last_step_counter,safety_evidence_review=safety_evidence_review,
+                    sampler_matched_reviews=sampler_matched_reviews,rescue_study=rescue_study,
                     failure_guidance=failure_guidance,primary_research_links=primary_research_links,
                     fixed_theta_probe_registration=fixed_theta_probe_registration,fixed_theta_probe=fixed_theta_probe,
                     fixed_probe_diagnosis=fixed_probe_diagnosis,

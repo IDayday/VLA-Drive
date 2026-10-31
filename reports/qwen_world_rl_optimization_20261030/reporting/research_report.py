@@ -19,6 +19,7 @@ IDEAS={'PPO_FULL':'全量103,288；原始PPO对照','PPO_BATCHSTD':'仅改中心
 IDEAS.update(PPO_MEMORYLR20='仅memory学习率5e−6→2e−5；既有IL知识适配',PPO_SAFETY_EP='仅安全／可行EP分量优势；候选指标条件信用')
 IDEAS.update(PPO_PREF_REPLAY='80%全量＋20%有效偏好场景；采样对照',PPO_PREF_CFM='与Replay同采样＋离线CFM偏好辅助')
 IDEAS.update(PPO_NOISE03='rigorous eta0.1→0.03，mean与diffusion联动；正式5k对照')
+IDEAS.update(PPO_LASTDET='末步确定性；PG与anchor同时改W2[7,8]，RNG消耗亦变',PPO_RESCUE_REPLAY='Safety10k权重新phase；80全量／10低分／10高分',PPO_RESCUE_CFM='与Rescue Replay同设置＋verified positive CFM')
 COLORS.update(PPO_MEMORYLR20='#ea580c',PPO_SAFETY_EP='#059669')
 SHORT.update(PPO_MEMORYLR20='MemoryLR20',PPO_SAFETY_EP='SafetyEP')
 
@@ -135,6 +136,9 @@ def render_research_report(root,snapshot,history,h):
     fixed_probe_complete=editorial.get('fixed_theta_probe',{}).get('status')=='COMPLETE'
     noise003_result=editorial.get('noise003_result',{})
     noise003_matched=matched_noise003_complete(editorial.get('fixed_theta_probe',{}),noise003_result)
+    rescue=editorial.get('rescue_study',{});rescue_registration=rescue.get('registration',{})
+    sampler_reviews=editorial.get('sampler_matched_reviews',{})
+    sampler_pairs=[(arm,key,row)for arm,review in sampler_reviews.items()for key,row in review.get('contrasts',{}).items()if row.get('status')=='COMPLETE']
     def pilot_pair(arm,u=10000):
         value=pilot_review.get('contrasts',{}).get(f'{arm}_u{u:06d}_NAVTEST_minus_PPO_FULL_u{u:06d}_NAVTEST',{})
         return value if value.get('status')=='COMPLETE' else {}
@@ -180,7 +184,7 @@ def render_research_report(root,snapshot,history,h):
             last=max(action.get('completed_scores',[]),key=lambda r:r.get('updates',0),default={})
             if latest.get(arm) and update(latest[arm])>last.get('updates',0):last=latest[arm]
             retired_rows.append([esc(arm),'已实际结束' if confirmed else '停止已决定，待退出证据',number(action.get('sealed_updates')) if confirmed else '待seal',fmt(peak.get('PDMS'),5)+' / '+number(peak.get('updates'))+'更新<small>最近 '+fmt(last.get('PDMS'),5)+' / '+number(last.get('updates'))+'更新</small>','已sealed27k仅做一次完整NAVTEST，再决定是否重启' if arm=='PPO_ADAPTIVE' else '保留已测checkpoint，不追加长训预算'])
-        body+='<div class="note"><b>当前资源优先级：</b>SafetyEP推进20k自然复核；Replay／CFM两臂先到1k／5k；新问题用有限诊断验证。50k是上限，当前没有默认跑满的承诺。</div><h3>本轮平台期路线：停止证据与下一复核点</h3>'+table(['路线','实际决策状态','最终原生更新','本路线最佳／最近完整分','下一步'],retired_rows)
+        body+='<div class="note"><b>当前资源优先级：</b>SafetyEP推进20k自然复核；偏好与采样pilot先到1k／5k；'+('Rescue两臂从最高分Safety10k启动额外5k，验证低分修复与高分保持；'if rescue_registration else '')+'新问题用有限诊断验证。50k是上限，当前没有默认跑满的承诺。</div><h3>本轮平台期路线：停止证据与下一复核点</h3>'+table(['路线','实际决策状态','最终原生更新','本路线最佳／最近完整分','下一步'],retired_rows)
         if priority_review.get('status')=='FOUR_NATIVE_TRAINING_CONTINUATIONS_STOPPED':body+='<p>四条旧线均已return0并保留optimizer／RNG，'+number(priority_review.get('freed_training_slots'))+' 个8rank训练槽位结束，分布在 '+number(priority_review.get('distinct_physical_hosts'))+' 个物理host；不等于32张独占GPU已空闲。Full／Safe直到48.9k／49.96k才停，复核确实来晚了，已耗算力不能回收；不把它写成10k提前止损的节省。</p>'
         body+='<p class="muted">资源去向：Safety最高分主线、偏好采样／辅助损失对照、有限低噪声探针；Adaptive只完成一次已封存27k正式Test，不恢复优化，等新覆盖阶段的结果再决定。'+link(root/'analysis'/'ROUTE_PRIORITY_REVIEW_20261031.json','本轮完整路线与资源决策')+'</p>'
         adaptive27=points.get(('PPO_ADAPTIVE',27000));adaptive_review=editorial.get('adaptive27k_review',{})
@@ -207,6 +211,12 @@ def render_research_report(root,snapshot,history,h):
     elif not pilot_focus:body+='<article class="finding caution">'+evidence('limited','待判断 · 小差需要匹配比较')+'<h3>新增trick的优劣尚需区间支持</h3><p>仅比较同预算、同人口的完整结果；配对区间未完成或跨零时，不宣布算法胜出。</p></article>'
     if not pilot_focus:body+='<article class="finding stop">'+evidence('action','决策 · 低潜力路线释放预算')+'<h3>NFT缺少持续部署收益</h3><p>'+(number(update(nft))+'更新完整分 '+fmt(nft['PDMS'],6)+'，相对IL70 '+signed(nft['PDMS']-base)+'；已测最高仅 '+fmt(nft_best,6)+'。' if nft else '等待完整NFT结果。')+' '+esc(nft_state)+'。</p></article></div>'
     body+='<div class="protocol">统一读数：NAVTEST 12,146场景 · 单候选ODE K10 / shift5 · 训练seed42 / 推理seed2101。固定种子研究，不安排多种子。TRAIN panel与随机训练候选分数另列。</div>'
+    if rescue_registration:
+        rescue_running=[a for a in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM')if runs.get(a,{}).get('worker_receipt_status')=='RUNNING'and h.finite(runs.get(a,{}).get('updates'))]
+        body+='<p class="note"><b>当前新增主问题：采到的好轨迹如何真正被学会，同时保住已有能力？</b>Rescue '+('两臂已有真实原生优化更新'if len(rescue_running)==2 else '已登记，实际启动／更新看路线表')+'。从SafetyEP10k当前权重开始额外phase，以低分verified teacher补学习方向，以高分retention池防遗忘；尚未建立新最佳。'+link(root/'analysis'/'RESCUE_PAIR_NATIVE_STARTUP_20261031.json','8rank启动与warmstart身份')+'</p>'
+    lastdet_first=next((row for arm,key,row in sampler_pairs if arm=='PPO_LASTDET'and '_u001000_'in key),{})
+    if lastdet_first:
+        body+='<p class="alert"><b>LastDet1k的实际负结果：</b>完整Test '+fmt(lastdet_first.get('target_PDMS'),6)+'，相对Full1k '+signed(lastdet_first.get('delta_PDMS'),6)+'，95%区间 '+ci_text(lastdet_first)+'。局部去末噪声反事实改善未转成该训练配方的部署收益；继续既定5k再筛，不把W2视作已证明有效。'+link(root/'analysis'/'LASTDET_MATCHED_REVIEW.json','完整同预算配对与过程诊断')+'</p>'
     if preference_study:
         body+='<h3>结论、假设与实验状态</h3>'+table(['证据等级','现在的判断','下一步怎样验证'],[
             ['明确结论','零分有固定核心，也有换入换出；SafetyEP新高仍伴随NC退化。'+('选定固定theta探针中SDE净损害较大，同时有少量独有修复。' if fixed_probe_complete else ''),'持续集合、相邻修复／新零和安全组件继续分开观察，不能据局部均值全关探索。'],
@@ -254,9 +264,13 @@ def render_research_report(root,snapshot,history,h):
                      '结束于 '+number(completed_no_extension[arm].get('matched_budget_updates'))+'，不再延长' if arm in completed_no_extension else
                      number(run.get('updates'))+' → 20,000自然节点' if arm=='PPO_SAFETY_EP' and safety_continue else '10,000：hold review' if arm=='PPO_SAFETY_EP' and safety_hold else number(run.get('updates'))+' / '+number(run.get('stage_budget_updates')))
         if arm in ('PPO_PREF_REPLAY','PPO_PREF_CFM') and arm not in decisions:next_action='1k／5k完整配对：Replay−Full隔离采样，CFM−Replay隔离辅助；首轮cap5k。'
+        if arm in ('PPO_NOISE03','PPO_LASTDET') and arm not in decisions and run.get('worker_receipt_status')=='RUNNING':next_action='真实恢复训练；首轮1k／5k同预算Full配对，完整证据后选择性延长。'
+        if arm in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM'):
+            native_cell='新phase '+number(run.get('updates'))+' / '+number(run.get('stage_budget_updates'))
+            next_action='额外phase1k／5k：对固定Safety10k查修复／新零与≥0.9保持；CFM−Replay隔离辅助。'
         state_cell=esc(state)+('<small>'+link(root/'owners'/'CAMPAIGN'/'arm_decisions'/f'{arm}.STOPPED.json','实际结束收据')+'</small>' if arm in stop_receipts else '')
         route_rows.append(['<b>'+esc(arm)+'</b><small>'+esc(IDEAS.get(arm,run.get('hypothesis','新登记独立pilot')))+'</small>',
-            fmt(result['PDMS'],4)+'<small>'+number(update(result))+'更新 · 完整Test</small>' if result else '暂无完整Test',
+            fmt(result['PDMS'],4)+'<small>'+('额外phase 'if arm.startswith('PPO_RESCUE_')else '')+number(update(result))+'更新 · 完整Test</small>' if result else '暂无完整Test',
             native_cell,
             state_cell,esc(next_action)])
     body=table(['路线与单因素','最近完整结果','原生日志 / 当前目标','执行决策','依据与下次复核'],route_rows)
@@ -669,7 +683,40 @@ def render_research_report(root,snapshot,history,h):
         body+='<h3>另一个证据层次：末步CPU重构反事实，非新policy rollout</h3><p>'+number(counterfactual.get('new_CPU_official_scores'))+' 次官方CPU重评分、'+number(counterfactual.get('new_model_forwards'))+' 次新模型前向。mu9重构去末innovation但保留drift；det9重构同时去末drift与innovation，保留先前探索前缀；FP32重构误差界保存在来源中。它们不是实际0.03 rollout、不是NAVTEST提升。</p>'+detail('真实SDE0.1 → mu9重构 → det9重构（仅选定TRAIN候选）',table(['各自固定模型','严格可行数','canonical零分数','候选均分：非部署'],cf_rows))
         mechanism=counterfactual.get('terminal_mechanism',{});std=mechanism.get('actual_last_noise_per_coordinate_std',[])
         if len(std)==3:body+='<p>末步实际物理noise std约x '+fmt(std[0],2)+' m、y '+fmt(std[1],2)+' m、heading '+fmt(mechanism.get('std_heading_degrees'),2)+'°，按future pose独立，之后没有model去噪。requested轨迹差分粗糙度不是实际车辆加速度。</p>'
-        body+='<p class="note">重构后的局部均值／可行性改善不等于可以取消探索：持续zero场景7af在mu9／det9下三模型又全部8条为0，原SDE的2／2／1条可行逃逸解全部丢失。NoFinal仍需独立实现／契约和真实训练验证，不能把CPU反事实冒充新训练收益。'+link(root/'analysis'/'FINAL_SDE_STEP_COUNTERFACTUAL_DIAGNOSIS_20261031.json','官方重构反事实评分与误差界')+' · '+link(root/'analysis'/'FINAL_SDE_STEP_DIAGNOSIS_20261031.json','末步物理噪声机制')+'</p>'
+        body+='<p class="note">重构后的局部均值／可行性改善不等于可以取消探索：持续zero场景7af在mu9／det9下三模型又全部8条为0，原SDE的2／2／1条可行逃逸解全部丢失。正式LastDet已有实际训练，其部署结果单列；不能把CPU反事实冒充新训练收益。'+link(root/'analysis'/'FINAL_SDE_STEP_COUNTERFACTUAL_DIAGNOSIS_20261031.json','官方重构反事实评分与误差界')+' · '+link(root/'analysis'/'FINAL_SDE_STEP_DIAGNOSIS_20261031.json','末步物理噪声机制')+'</p>'
+    if sampler_pairs:
+        body+='<h3>采样机制落到训练后：实际完整结果优先</h3>'+table(['完整同预算对照','目标／对照PDMS','ΔPDMS与95%区间','零分修复／新增／高分变零'],[[esc(key),fmt(row.get('target_PDMS'),6)+' / '+fmt(row.get('baseline_PDMS'),6),signed(row.get('delta_PDMS'),6)+'<small>'+ci_text(row)+'</small>',number(row.get('paired',{}).get('repaired_zero'))+' / '+number(row.get('paired',{}).get('new_zero'))+' / '+number(row.get('paired',{}).get('high_to_zero'))]for arm,key,row in sampler_pairs])
+        lastdet_diagnostic=sampler_reviews.get('PPO_LASTDET',{}).get('native_process_diagnostics',{}).get('1000',{})
+        window=lastdet_diagnostic.get('exploration_once_per_collection',{})
+        if window:
+            body+='<p class="note">LastDet1k末64更新的 '+number(lastdet_diagnostic.get('first_inner_collection_rank_rows'))+' 个去重collection-rank组：训练canonical候选均分 '+fmt(window.get('canonical_random_mean',{}).get('mean'),4)+'；zero-PG '+fmt(100*window.get('zero_PG',{}).get('mean',0),2)+'%，安全指标组内有差异 '+fmt(100*window.get('safety_differing',{}).get('mean',0),2)+'%，仅进度有差异 '+fmt(100*window.get('progress_only',{}).get('mean',0),2)+'%。高候选分与缺少安全区分可能掩盖学习信号不足，但这只是局部窗口。相对Full1k的新增零与能力损失需正视；继续既定5k复核。W3→W2同时改变PG／anchor平均权重与后续RNG流，不能单因归咎于去掉末噪声。'+link(root/'analysis'/'LASTDET_MATCHED_REVIEW.json','LastDet配对、原生日志窗口与归因边界')+'</p>'
+    if rescue_registration:
+        bank=rescue.get('bank',{});stats=bank.get('statistics',{});census=rescue.get('census',{});teacher=rescue.get('persistent_zero_teacher',{})
+        body+='<h3>当前重点：Rescue补学习方向，同时保住高分能力</h3><p><b>研究假设：</b>部署零分不等于训练没有正优势；偶尔采到好轨迹也不等于能稳定学会。将真实评分通过的好轨迹作为positive CFM目标，检验能否在现有强策略上修复低分，而不是用更高候选均分替代部署验证。</p>'
+        body+=table(['设计','两臂共享设置／隔离变量'],[
+            ['起点与预算','只加载SafetyEP10k的当前LoRA＋scene／predictive权重，父完整NAVTEST '+fmt(rescue_registration.get('starting_complete_NAVTEST_PDMS'),6)+'；fresh AdamW、fresh RNG42、phase update0，冻结reference仍IL70。首轮额外phase1k／5k，不继承父optimizer／RNG；不是原生不中断续训。'],
+            ['相同训练配方','SafetyEP信用＋finaldet W2[7,8]；80%全量、10%低分、10%高分。Replay隔离数据与新phase；CFM−Replay同额外预算隔离teacher辅助；它不单独隔离W2。'],
+            ['CFM单独增加','verified positive velocity MSE，低池λ1／高池λ0.2。fresh候选严格NC＝DAC＝TTC＝Comfort＝1且score比static高超过1e−6时才升级teacher；每collection选定后四inner固定。teacher不进入on-policy PG；全8候选五项均满分则跳过辅助。'],
+            ['判断是否值得延长','每臂对固定Safety10k看总分与安全／EP配对区间、零分修复／新增、固定父score≥0.9场景保持；CFM对Replay看同phase辅助收益。额外phase不能冒充fresh IL70同预算对照。']])
+        body+='<p>TRAIN-only bank有 '+number(stats.get('low_verified_teachers'))+' 个低分teacher（'+number(stats.get('canonical_SAFETY10k_zero'))+' 个原零分、'+number(stats.get('canonical_positive_low'))+' 个正低分），以及 '+number(stats.get('high_selected'))+' 个高分teacher，覆盖 '+number(stats.get('high_unique_physical_logs'))+' 个eligible物理log／'+number(stats.get('high_selected_joint_strata'))+' 个分层。它们是metric-verified，不是人类最优标签；旧DEV仍属于训练内诊断。</p>'
+        if teacher:body+='<p>持续零分反例7af已有严格四项通过的真实teacher，canonical '+fmt(teacher.get('teacher_score'),6)+'、EP '+fmt(teacher.get('teacher_EP'),6)+'；只证明有可用正向目标，尚未证明部署能学会。'+link(rescue_registration.get('bank'),'teacher manifest与源轨迹身份')+'</p>'
+        if census:body+=detail('曝光与覆盖：候选人口不等于已遍历', '<p>计划 '+number(sum(census.get('exposure_counts',{}).values()))+' 次场景曝光＝8000 full＋1000 low＋1000 high；真实unique场景 '+number(census.get('distinct_scene_tokens_total'))+'。full可采人口103,288不表示已遍历。按token lookup，low／high理论匹配teacher '+number(census.get('aux_roles_for_all_slots',{}).get('low'))+'／'+number(census.get('aux_roles_for_all_slots',{}).get('high'))+' 次，因full中也可遇到bank场景；实际激活还要扣除成功饱和跳过。'+link(root/'analysis'/'RESCUE_RETENTION_CENSUS_AUDIT_20261031.json','固定census')+'</p>')
+        rescue_decisions=rescue.get('next_decisions',{});three_scales=rescue_decisions.get('coverage',{}).get('three_scales',{})
+        if rescue_decisions.get('status')=='COMPLETE'and three_scales:
+            known_low=three_scales.get('known_Safety10k_low_below095',{})
+            body+='<p><b>覆盖仍有明显边界：</b>521teacher已覆盖TRAIN1024五路线全部已观测ever-zero，旧零分恢复场景也可在high池；但Safety10k在该1024面板有 '+number(known_low.get('scenes'))+' 个score&lt;0.95场景，只有 '+number(known_low.get('low_priority_pool'))+' 个进入low优先池。覆盖已知零分不等于已经修复，也不代表103,288全人口的失败已识别。ADAPT的27是纵向观测次数，持续zero为1个scene。'+link(root/'analysis'/'ZERO_RESCUE_NEXT_DECISIONS_20261031.json','覆盖三层口径与下一研究判断')+'</p>'
+        early=next((row for row in rescue.get('early_signal',{}).get('runs',[])if row.get('arm')=='PPO_RESCUE_CFM'),{})
+        if early:
+            collections=early.get('collections',0);rescue_early_metrics=early.get('metrics',{})
+            mode_count=lambda key:round(rescue_early_metrics[key]['mean']*collections)if collections and isinstance(rescue_early_metrics.get(key),dict)and h.finite(rescue_early_metrics[key].get('mean'))else None
+            body+='<p class="note"><b>当前真正验证到的过程：</b>末64更新局部窗口、8rank共 '+number(collections)+' 个collection中，'+number(early.get('teacher_active_collections'))+' 组aux active，其中 '+number(early.get('teacher_active_zero_PG_collections'))+' 组PG为0仍得到teacher监督；'+number(mode_count('rescue_aux_online_upgrade'))+' 组在线升级，low／high '+number(mode_count('rescue_aux_pool_low'))+'／'+number(mode_count('rescue_aux_pool_high'))+'。Replay按设计无aux。此证据确认辅助实际触达了零PG组，尚不代表部署提分；现有gradnorm为联合梯度，不能用scalar loss比例推断CFM／PG梯度占比。'+link(root/'analysis'/'RESCUE_PAIR_EARLY_SIGNAL_20261031.json','原生有界窗口')+'</p>'
+        rescue_review=rescue.get('matched_review',{});rescue_pairs=[(key,row)for key,row in rescue_review.get('contrasts',{}).items()if row.get('scenes')==12146 and h.finite(row.get('delta_PDMS'))and len(row.get('CI95_PDMS',[]))==2]
+        if rescue_pairs:
+            body+=table(['完整NAVTEST对照（额外phase）','目标PDMS／Δ与95%区间','修复／新零／高分变零','固定Safety10k≥0.9子集：Δ与95%区间'],[[esc(key),fmt(row.get('target_PDMS'),6)+' / '+signed(row.get('delta_PDMS'),6)+'<small>'+ci_text(row)+'</small>',number(row.get('zeros',{}).get('repaired'))+' / '+number(row.get('zeros',{}).get('new_zero'))+' / '+number(row.get('zeros',{}).get('high_to_zero')),signed(row.get('fixed_SAFETY10k_high_ge09',{}).get('delta_PDMS'),6)+'<small>'+ci_text(row.get('fixed_SAFETY10k_high_ge09',{}))+'</small>']for key,row in rescue_pairs])
+            body+=detail('完整配对的NC／DAC／TTC／EP分量',table(['对照','分量','Δpp与95%区间'],[[esc(key),esc(metric),signed(value.get('delta_pp'),5)+'<small>'+esc(str(value.get('CI95_pp','UNKNOWN')))+'</small>']for key,row in rescue_pairs for metric,value in row.get('components',{}).items()if metric in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound','ego_progress')]))
+        else:body+='<p class="muted">两臂原生优化进度看路线表；尚无完整Rescue NAVTEST配对，不预填新分数或低分修复率。独立owner异步完成1k／5k完整评测后自动更新。'+link(root/'owners'/'RESCUE_PAIR'/'STATE.json','独立评测owner')+'</p>'
+        body+='<p class="muted">方法关联：<a href="https://arxiv.org/abs/1806.05635">SIL</a>从过去成功经验补学习信号；<a href="https://arxiv.org/abs/1910.00177">AWR</a>通过价值估计加权行为回归。本实验只借鉴“保留并学习已验证好行为”的思想，使用无critic的positive CFM；没有AWR的优势加权似然，也不是精确DPO或完整重做IL。'+link(root/'EXPERIMENT_RESCUE_PAIR_REGISTRATION_20261031.json','正式独立登记')+' · '+link(root/'analysis'/'RESCUE_PAIR_MATCHED_REVIEW.json','完整结果产生后自动读取的配对入口')+'</p>'
+        if rescue_decisions.get('status')=='COMPLETE':body+=detail('后续候选及启动条件：当前均未上线',table(['优先级／方向','当前动作','必须先观察到什么'],[[esc(str(row.get('priority')))+' · '+esc(row.get('method')),esc(row.get('action_now')),esc(row.get('trigger'))]for row in rescue_decisions.get('decisions',[])if row.get('priority',0)>0]))
     examples=scene_research.get('scene_examples',[])
     example_rows=[[esc(row.get('scene','')),esc(row.get('evidence_needed','')),esc(row.get('desired',''))]for row in examples] if examples else [
         ['路口让行／冲突参与者通过','路权、冲突间隙、参与者可见性、可行通行窗口','必要等待不作低效惩罚；区分尚无安全窗口与错过安全窗口。'],
