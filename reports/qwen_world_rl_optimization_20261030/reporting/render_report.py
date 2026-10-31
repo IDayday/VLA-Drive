@@ -538,6 +538,10 @@ def load_snapshot(root: Path) -> dict:
     adaptive_coverage_amendment=read_json(root/'ADAPTIVE_COVERAGE_POLICY_AMENDMENT.json',warnings,inputs) or {}
     safety_ep_operator_review=read_json(root/'jobs'/'PPO_SAFETY_EP'/'formal_to001000_attempt001'/'PRECHILD_OPERATOR_REVIEW.json',warnings,inputs) or {}
     new_pilot_matched_review=read_json(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json',warnings,inputs) or {}
+    preference_path=next((root/'analysis'/name for name in ('TRAIN_PREFERENCE_RESEARCH_20261031.json','SCENE_PREFERENCE_RESEARCH.json') if (root/'analysis'/name).exists()),None)
+    preference_research=read_json(preference_path,warnings,inputs) or {} if preference_path else {}
+    zero_path=next((root/'analysis'/name for name in ('ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS.json','ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS_20261031.json') if (root/'analysis'/name).exists()),None)
+    zero_longitudinal=read_json(zero_path,warnings,inputs) or {} if zero_path else {}
     representation_audit=read_json(root/'analysis'/'REPRESENTATION_TRAINABILITY_AUDIT_20261030.json',warnings,inputs) or {}
     scene_brief=read_json(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json',warnings,inputs) or {}
     scene_information_audit=read_json(root/'analysis'/'SCENARIO_SAFETY_EFFICIENCY_AUDIT_20261030.json',warnings,inputs) or {}
@@ -580,10 +584,25 @@ def load_snapshot(root: Path) -> dict:
     authorization_pointer=read_json(root/'resources'/'LATEST_RESOURCE_AUTHORIZATION.json',warnings,inputs) or {}
     authorization_path=authorization_pointer.get('record')
     authorization=(read_json(Path(authorization_path),warnings,inputs,optional=False) or {}) if authorization_path else {}
+    authorization_request_path=authorization_pointer.get('request') or authorization.get('latest_unbounded_host_permission')
+    authorization_request=read_json(Path(authorization_request_path),warnings,inputs) or {} if authorization_request_path else {}
     activation_path=authorization_pointer.get('activation_receipt')
     activation_input=read_json(Path(activation_path),warnings,inputs) or {} if activation_path else {}
     activation={key:value for key,value in activation_input.items() if key!='hosts'}
-    activation['hosts']={host:{key:value for key,value in entry.items() if key!='error'} for host,entry in activation_input.get('hosts',{}).items()}
+    # Permission-only activation receipts can list host names; they do not
+    # contain an inventory or prove that any model was deployed.
+    latest_activation_hosts=activation_input.get('hosts',{})
+    activation['permission_hosts']=latest_activation_hosts if isinstance(latest_activation_hosts,list) else list(latest_activation_hosts) if isinstance(latest_activation_hosts,dict) else []
+    inventory_receipts=[];inventory_host_entries={}
+    for inventory_path in sorted((root/'resources').glob('*/ACTIVATION_RECEIPT.json'),key=lambda p:p.stat().st_mtime):
+        inventory_receipt=read_json(inventory_path,warnings,inputs) or {}
+        if isinstance(inventory_receipt.get('hosts'),dict):
+            inventory_host_entries.update({host:dict(entry,inventory_evidence=str(inventory_path),inventory_at=inventory_receipt.get('metadata_updated_utc',inventory_receipt.get('at'))) for host,entry in inventory_receipt['hosts'].items() if isinstance(entry,dict)})
+            inventory_receipts.append(str(inventory_path))
+    if isinstance(latest_activation_hosts,dict):
+        inventory_host_entries.update({host:dict(entry,inventory_evidence=activation_path,inventory_at=activation_input.get('metadata_updated_utc',activation_input.get('at'))) for host,entry in latest_activation_hosts.items() if isinstance(entry,dict)})
+    activation['hosts']={host:{key:value for key,value in entry.items() if key!='error'} for host,entry in inventory_host_entries.items()}
+    activation['inventory_receipts']=inventory_receipts
     migration_result_path=authorization_pointer.get('migration_result') or authorization_pointer.get('previous_withdrawal_migration_result')
     migration_result=(read_json(Path(migration_result_path),warnings,inputs,optional=False) or {}) if migration_result_path else {}
     addition_pointer=read_json(root/'resources'/'LATEST_RESOURCE_ADDITION.json',warnings,inputs) or {}
@@ -652,8 +671,9 @@ def load_snapshot(root: Path) -> dict:
             try:return datetime.fromisoformat(value.replace('Z','+00:00')).timestamp()
             except ValueError:pass
         return None
+    finite_window_superseded=bool(authorization.get('previous_finite_expiry_fields_are_historical_only') or authorization_request.get('supersedes_prior_eight_hour_windows'))
     now=time.time();starts=resource_timestamp(authorization.get('starts_unix',authorization.get('starts_utc')))
-    expires=resource_timestamp(authorization.get('expires_unix',authorization.get('expires_utc')))
+    expires=None if finite_window_superseded and not temporary_hosts else resource_timestamp(authorization.get('expires_unix',authorization.get('expires_utc')))
     temporary_active=bool(temporary_hosts and (not finite(starts) or now>=starts) and (not finite(expires) or now<expires))
     current_authorized_hosts=sorted(steady_hosts|(temporary_hosts if temporary_active else set())) if authorization else None
     # The latest explicit grant can supersede an older withdrawal, including a
@@ -662,6 +682,7 @@ def load_snapshot(root: Path) -> dict:
     remaining=current_authorized_hosts if current_authorized_hosts is not None else withdrawal.get('remaining_hosts')
     if isinstance(remaining,list):remaining=[host for host in remaining if host not in withdrawn_hosts]
     inventory_unknown={host for host,entry in activation.get('hosts',{}).items() if entry.get('physical_GPU_count') is None and not entry.get('inventory')}
+    inventory_unknown|=set(remaining or [])-{row['host'] for row in resources}
     active_resources=([row for row in resources if row['host'] in remaining and row['host'] not in withdrawn_hosts and row['host'] not in inventory_unknown]
                       if isinstance(remaining,list) else [row for row in resources if row['host'] not in withdrawn_hosts])
     return dict(generated_utc=utc(), generated_unix=datetime.now(timezone.utc).timestamp(),
@@ -670,6 +691,8 @@ def load_snapshot(root: Path) -> dict:
                 resource_withdrawal=withdrawal,
                 resource_authorization=authorization,resource_authorization_path=authorization_path,
                 resource_authorization_pointer=authorization_pointer,current_authorized_hosts=remaining,
+                resource_authorization_request=authorization_request,resource_authorization_request_path=authorization_request_path,
+                resource_finite_window_superseded=finite_window_superseded,
                 resource_activation=activation,resource_activation_path=activation_path,
                 historical_addition_inventory=historical_addition_inventory,
                 resource_inventory_unknown_hosts=sorted(inventory_unknown&set(remaining or [])),
@@ -704,6 +727,8 @@ def load_snapshot(root: Path) -> dict:
                     pilot_startups=pilot_startups,pilot_registrations=pilot_registrations,
                     adaptive_coverage_amendment=adaptive_coverage_amendment,safety_ep_operator_review=safety_ep_operator_review,
                     new_pilot_matched_review=new_pilot_matched_review,
+                    preference_research=preference_research,preference_research_path=str(preference_path) if preference_path else None,
+                    zero_longitudinal=zero_longitudinal,zero_longitudinal_path=str(zero_path) if zero_path else None,
                     representation_audit=representation_audit,scene_brief_20k=scene_brief,
                     scene_information_audit=scene_information_audit,
                     decisions=decisions,stopped_receipts=stopped_receipts,nft_decision=decisions.get('NFT_FULL',{}),

@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-30 17:14:56 UTC",
+  "generated_utc": "2026-10-31 00:28:58 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": "7 research chapters; 8 scientific figures; operations and hashes folded",
   "training_seed": 42,
@@ -254,6 +254,86 @@
       "scenes": 12146,
       "PDMS": 91.05431708074612,
       "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u010000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_MEMORYLR20",
+      "updates": 1000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.4633189284479,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u001000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 1000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.70760817987055,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u001000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_MEMORYLR20",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.46100706939573,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFE_COMFORT",
+      "updates": 35000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.81620515847517,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u035000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.99026807599043,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_ADAPTIVE",
+      "updates": 20000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.85681760078644,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u020000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_ANCHOR40",
+      "updates": 20000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.68470221422872,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u020000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_FULL",
+      "updates": 35000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.79828611055491,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u035000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_MEMORYLR20",
+      "updates": 10000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.85882252418371,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u010000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 10000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.34989173702405,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json"
     }
   ],
   "stopped": {
@@ -911,22 +991,23 @@
       "training-vlawm-tsinghua-zt3",
       "training-vlawm-tsinghua-zt4",
       "training-vlawm-tsinghua-zt5",
+      "training-vlawm-tsinghua-zt6",
       "training-vlawm-zt",
       "training-vlawm-zt2"
     ],
     "known_inventory_UUIDs": 72,
     "unknown_inventory_hosts": [
-      "training-vla-zt3"
+      "training-vla-zt3",
+      "training-vlawm-tsinghua-zt6"
     ],
     "temporary_window": {
-      "hosts": [
-        "training-vla-zt3",
-        "training-vlawm-tsinghua-zt2"
-      ],
+      "hosts": [],
       "starts_unix": 1793378579.0,
-      "expires_unix": 1793407379.0,
-      "active": true
-    }
+      "expires_unix": null,
+      "active": false
+    },
+    "finite_8h_window_superseded": true,
+    "source_request": "/mnt/project/qwen-world-il-research-20261030/maintenance/resources_unbounded_20261031T000015Z/REQUEST.json"
   },
   "pilots": {
     "PPO_MEMORYLR20": {
@@ -975,10 +1056,1379 @@
     "interpretation": "Explicit phase2 adaptive data policy; do not attribute later results to original35/40/25 recipe"
   },
   "new_pilot_matched_review": {
-    "status": "WAITING_SUMMARIES",
-    "completed_pairs": 0,
+    "status": "COMPLETE",
+    "completed_pairs": 6,
     "target_pairs": 6,
-    "contrasts": {},
+    "contrasts": {
+      "PPO_MEMORYLR20_u001000_NAVTEST_minus_PPO_FULL_u001000_NAVTEST": {
+        "CI95_PDMS": [
+          -0.10902759484834536,
+          0.1793795187887572
+        ],
+        "CI_excludes_zero": false,
+        "G_minus_PDMS": -0.5266997865507972,
+        "G_plus_PDMS": 0.5574818047512988,
+        "baseline": "PPO_FULL_u001000_NAVTEST",
+        "baseline_PDMS": 90.43253691024785,
+        "changed_scores": {
+          "degraded": 4575,
+          "degraded_at_least5_scene_PDMS": 57,
+          "improved": 3681,
+          "improved_at_least5_scene_PDMS": 102,
+          "unchanged_within_epsilon": 3890
+        },
+        "completed_UTC": "2026-10-30T17:47:51.521635+00:00",
+        "delta_PDMS": 0.030782018200501585,
+        "loss_decomposition": {
+          "EP_down_safety_unchanged_Gminus_PDMS": -0.20570376946973684,
+          "EP_down_safety_unchanged_scenes": 4519,
+          "new_safety_violation_Gminus_PDMS": -0.31620791176967805,
+          "new_safety_violation_degraded_scenes": 53
+        },
+        "paired": {
+          "CI95": [
+            -0.0010902759484834536,
+            0.001793795187887572
+          ],
+          "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+          "baseline_high_denominator": 11322,
+          "baseline_nonzero_denominator": 11830,
+          "baseline_zero_denominator": 316,
+          "bootstrap": 2000,
+          "bootstrap_seed": 42,
+          "high_to_zero": 29,
+          "high_to_zero_rate": 0.002561384914326091,
+          "mean_delta": 0.00030782018200501587,
+          "new_zero": 33,
+          "new_zero_rate": 0.0027895181741335586,
+          "physical_groups": 44,
+          "repaired_zero": 31,
+          "repaired_zero_rate": 0.0981012658227848,
+          "safety_transitions": {
+            "drivable_area_compliance": {
+              "baseline_failure": 180,
+              "baseline_pass": 11966,
+              "new_failure": 28,
+              "repaired_failure": 17
+            },
+            "no_at_fault_collisions": {
+              "baseline_failure": 156,
+              "baseline_pass": 11990,
+              "new_failure": 5,
+              "repaired_failure": 15
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failure": 421,
+              "baseline_pass": 11725,
+              "new_failure": 26,
+              "repaired_failure": 64
+            }
+          },
+          "scene_denominator": 12146
+        },
+        "review": {
+          "no_automatic_training_action": true,
+          "recommendation_zh": "总分配对区间跨零；当前不能确认优于FULL，按预注册下一预算观察，不根据点排名推广。",
+          "safety_decrease_CI_excludes_zero": [],
+          "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+        },
+        "safety_metrics": {
+          "comfort": {
+            "CI95_delta_percentage_points": [
+              -0.03710064075362306,
+              0.018388524451836915
+            ],
+            "baseline_mean_percent": 99.98353367363741,
+            "delta_percentage_points": -0.008233163181294254,
+            "target_mean_percent": 99.97530051045612
+          },
+          "drivable_area_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.2327123800536839,
+              0.05378315134239213
+            ],
+            "baseline_failure": 180,
+            "baseline_mean_percent": 98.51803062736704,
+            "baseline_pass": 11966,
+            "delta_percentage_points": -0.09056479499423678,
+            "new_failure": 28,
+            "repaired_failure": 17,
+            "target_mean_percent": 98.42746583237279
+          },
+          "driving_direction_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.041840784189389135,
+              0.08460753959545068
+            ],
+            "baseline_mean_percent": 98.47274822986991,
+            "delta_percentage_points": 0.016466326362588508,
+            "target_mean_percent": 98.48921455623251
+          },
+          "ego_progress": {
+            "CI95_delta_percentage_points": [
+              -0.3102497017431805,
+              -0.028549182156792165
+            ],
+            "baseline_mean_percent": 82.96749756523755,
+            "delta_percentage_points": -0.17015049714777286,
+            "target_mean_percent": 82.79734706808976
+          },
+          "no_at_fault_collisions": {
+            "CI95_delta_percentage_points": [
+              0.019375082588522486,
+              0.13415806850849954
+            ],
+            "baseline_failure": 156,
+            "baseline_mean_percent": 98.77325868598716,
+            "baseline_pass": 11990,
+            "delta_percentage_points": 0.07821505022229541,
+            "new_failure": 5,
+            "repaired_failure": 15,
+            "target_mean_percent": 98.85147373620946
+          },
+          "score": {
+            "CI95_delta_percentage_points": [
+              -0.10902759484834536,
+              0.17937951878875727
+            ],
+            "baseline_mean_percent": 90.43253691024752,
+            "delta_percentage_points": 0.030782018200501575,
+            "target_mean_percent": 90.46331892844803
+          },
+          "time_to_collision_within_bound": {
+            "CI95_delta_percentage_points": [
+              0.10678264103572879,
+              0.5110959190709541
+            ],
+            "baseline_failure": 421,
+            "baseline_mean_percent": 96.53383830067513,
+            "baseline_pass": 11725,
+            "delta_percentage_points": 0.31286020088918165,
+            "new_failure": 26,
+            "repaired_failure": 64,
+            "target_mean_percent": 96.8466985015643
+          }
+        },
+        "status": "COMPLETE",
+        "target": "PPO_MEMORYLR20_u001000_NAVTEST",
+        "target_PDMS": 90.4633189284479
+      },
+      "PPO_MEMORYLR20_u005000_NAVTEST_minus_PPO_FULL_u005000_NAVTEST": {
+        "CI95_PDMS": [
+          -0.32657391432834,
+          0.09721219802742632
+        ],
+        "CI_excludes_zero": false,
+        "G_minus_PDMS": -0.7042537311064517,
+        "G_plus_PDMS": 0.583013584028799,
+        "baseline": "PPO_FULL_u005000_NAVTEST",
+        "baseline_PDMS": 90.58224721647319,
+        "changed_scores": {
+          "degraded": 4170,
+          "degraded_at_least5_scene_PDMS": 113,
+          "improved": 4140,
+          "improved_at_least5_scene_PDMS": 88,
+          "unchanged_within_epsilon": 3836
+        },
+        "completed_UTC": "2026-10-30T19:19:52.953723+00:00",
+        "delta_PDMS": -0.1212401470776527,
+        "loss_decomposition": {
+          "EP_down_safety_unchanged_Gminus_PDMS": -0.1548011551839492,
+          "EP_down_safety_unchanged_scenes": 4063,
+          "new_safety_violation_Gminus_PDMS": -0.5480803820589536,
+          "new_safety_violation_degraded_scenes": 106
+        },
+        "paired": {
+          "CI95": [
+            -0.0032657391432834,
+            0.0009721219802742633
+          ],
+          "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+          "baseline_high_denominator": 11251,
+          "baseline_nonzero_denominator": 11865,
+          "baseline_zero_denominator": 281,
+          "bootstrap": 2000,
+          "bootstrap_seed": 42,
+          "high_to_zero": 40,
+          "high_to_zero_rate": 0.003555239534263621,
+          "mean_delta": -0.001212401470776527,
+          "new_zero": 54,
+          "new_zero_rate": 0.004551201011378002,
+          "physical_groups": 44,
+          "repaired_zero": 39,
+          "repaired_zero_rate": 0.1387900355871886,
+          "safety_transitions": {
+            "drivable_area_compliance": {
+              "baseline_failure": 151,
+              "baseline_pass": 11995,
+              "new_failure": 37,
+              "repaired_failure": 27
+            },
+            "no_at_fault_collisions": {
+              "baseline_failure": 148,
+              "baseline_pass": 11998,
+              "new_failure": 20,
+              "repaired_failure": 16
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failure": 392,
+              "baseline_pass": 11754,
+              "new_failure": 59,
+              "repaired_failure": 38
+            }
+          },
+          "scene_denominator": 12146
+        },
+        "review": {
+          "no_automatic_training_action": true,
+          "recommendation_zh": "总分配对区间跨零；当前不能确认优于FULL，按预注册下一预算观察，不根据点排名推广。",
+          "safety_decrease_CI_excludes_zero": [],
+          "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+        },
+        "safety_metrics": {
+          "comfort": {
+            "CI95_delta_percentage_points": [
+              -0.02635572824919352,
+              0.0
+            ],
+            "baseline_mean_percent": 99.99176683681871,
+            "delta_percentage_points": -0.008233163181294254,
+            "target_mean_percent": 99.98353367363741
+          },
+          "drivable_area_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.26583211645054144,
+              0.09797364851793038
+            ],
+            "baseline_failure": 151,
+            "baseline_mean_percent": 98.75679235962457,
+            "baseline_pass": 11995,
+            "delta_percentage_points": -0.08233163181294254,
+            "new_failure": 37,
+            "repaired_failure": 27,
+            "target_mean_percent": 98.67446072781163
+          },
+          "driving_direction_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.057611091590052455,
+              0.06353368529536366
+            ],
+            "baseline_mean_percent": 98.21752017124979,
+            "delta_percentage_points": 0.004116581590647127,
+            "target_mean_percent": 98.22163675284045
+          },
+          "ego_progress": {
+            "CI95_delta_percentage_points": [
+              -0.24152320788787388,
+              0.19862338215509567
+            ],
+            "baseline_mean_percent": 82.7874166605394,
+            "delta_percentage_points": -0.02500033858337116,
+            "target_mean_percent": 82.76241632195604
+          },
+          "no_at_fault_collisions": {
+            "CI95_delta_percentage_points": [
+              -0.13843698853575215,
+              0.058602866408490044
+            ],
+            "baseline_failure": 148,
+            "baseline_mean_percent": 98.83089082825622,
+            "baseline_pass": 11998,
+            "delta_percentage_points": -0.03704923431582414,
+            "new_failure": 20,
+            "repaired_failure": 16,
+            "target_mean_percent": 98.79384159394039
+          },
+          "score": {
+            "CI95_delta_percentage_points": [
+              -0.3265739143283399,
+              0.09721219802742645
+            ],
+            "baseline_mean_percent": 90.58224721647305,
+            "delta_percentage_points": -0.12124014707765265,
+            "target_mean_percent": 90.46100706939541
+          },
+          "time_to_collision_within_bound": {
+            "CI95_delta_percentage_points": [
+              -0.37162032411915435,
+              0.01646350878271833
+            ],
+            "baseline_failure": 392,
+            "baseline_mean_percent": 96.77260003293266,
+            "baseline_pass": 11754,
+            "delta_percentage_points": -0.17289642680717932,
+            "new_failure": 59,
+            "repaired_failure": 38,
+            "target_mean_percent": 96.59970360612547
+          }
+        },
+        "status": "COMPLETE",
+        "target": "PPO_MEMORYLR20_u005000_NAVTEST",
+        "target_PDMS": 90.46100706939573
+      },
+      "PPO_MEMORYLR20_u010000_NAVTEST_minus_PPO_FULL_u010000_NAVTEST": {
+        "CI95_PDMS": [
+          -0.40031932362100614,
+          0.06806623756595064
+        ],
+        "CI_excludes_zero": false,
+        "G_minus_PDMS": -0.8268467602330534,
+        "G_plus_PDMS": 0.6661811321866166,
+        "baseline": "PPO_FULL_u010000_NAVTEST",
+        "baseline_PDMS": 91.01948815223066,
+        "changed_scores": {
+          "degraded": 2794,
+          "degraded_at_least5_scene_PDMS": 147,
+          "improved": 5542,
+          "improved_at_least5_scene_PDMS": 83,
+          "unchanged_within_epsilon": 3810
+        },
+        "completed_UTC": "2026-10-30T21:15:27.365253+00:00",
+        "delta_PDMS": -0.1606656280464368,
+        "loss_decomposition": {
+          "EP_down_safety_unchanged_Gminus_PDMS": -0.10731960312935461,
+          "EP_down_safety_unchanged_scenes": 2650,
+          "new_safety_violation_Gminus_PDMS": -0.7195271571036989,
+          "new_safety_violation_degraded_scenes": 144
+        },
+        "paired": {
+          "CI95": [
+            -0.0040031932362100614,
+            0.0006806623756595064
+          ],
+          "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+          "baseline_high_denominator": 11426,
+          "baseline_nonzero_denominator": 11903,
+          "baseline_zero_denominator": 243,
+          "bootstrap": 2000,
+          "bootstrap_seed": 42,
+          "high_to_zero": 48,
+          "high_to_zero_rate": 0.004200945212672852,
+          "mean_delta": -0.001606656280464368,
+          "new_zero": 66,
+          "new_zero_rate": 0.005544820633453751,
+          "physical_groups": 44,
+          "repaired_zero": 31,
+          "repaired_zero_rate": 0.12757201646090535,
+          "safety_transitions": {
+            "drivable_area_compliance": {
+              "baseline_failure": 128,
+              "baseline_pass": 12018,
+              "new_failure": 43,
+              "repaired_failure": 25
+            },
+            "no_at_fault_collisions": {
+              "baseline_failure": 133,
+              "baseline_pass": 12013,
+              "new_failure": 24,
+              "repaired_failure": 8
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failure": 357,
+              "baseline_pass": 11789,
+              "new_failure": 91,
+              "repaired_failure": 34
+            }
+          },
+          "scene_denominator": 12146
+        },
+        "review": {
+          "no_automatic_training_action": true,
+          "recommendation_zh": "安全指标存在配对下降证据；优先检查新增failure及效率交换，扩预算前由root审查，不因总分上涨自动推广。",
+          "safety_decrease_CI_excludes_zero": [
+            "no_at_fault_collisions",
+            "time_to_collision_within_bound"
+          ],
+          "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+        },
+        "safety_metrics": {
+          "comfort": {
+            "CI95_delta_percentage_points": [
+              0.0,
+              0.028800513397545708
+            ],
+            "baseline_mean_percent": 99.97530051045612,
+            "delta_percentage_points": 0.008233163181294254,
+            "target_mean_percent": 99.98353367363741
+          },
+          "drivable_area_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.3217157931977354,
+              0.0550133399670727
+            ],
+            "baseline_failure": 128,
+            "baseline_mean_percent": 98.94615511279433,
+            "baseline_pass": 12018,
+            "delta_percentage_points": -0.14819693726329655,
+            "new_failure": 43,
+            "repaired_failure": 25,
+            "target_mean_percent": 98.79795817553104
+          },
+          "driving_direction_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.07108264104539373,
+              0.10255357625784449
+            ],
+            "baseline_mean_percent": 98.35336736374116,
+            "delta_percentage_points": 0.012349744771941378,
+            "target_mean_percent": 98.3657171085131
+          },
+          "ego_progress": {
+            "CI95_delta_percentage_points": [
+              0.08248851262258626,
+              0.5434229515819086
+            ],
+            "baseline_mean_percent": 83.22404940028608,
+            "delta_percentage_points": 0.29871408973735575,
+            "target_mean_percent": 83.52276349002345
+          },
+          "no_at_fault_collisions": {
+            "CI95_delta_percentage_points": [
+              -0.23696469276374468,
+              -0.05278171111746008
+            ],
+            "baseline_failure": 133,
+            "baseline_mean_percent": 98.95438827597562,
+            "baseline_pass": 12013,
+            "delta_percentage_points": -0.13173061090070806,
+            "new_failure": 24,
+            "repaired_failure": 8,
+            "target_mean_percent": 98.82265766507491
+          },
+          "score": {
+            "CI95_delta_percentage_points": [
+              -0.4003193236210059,
+              0.0680662375659508
+            ],
+            "baseline_mean_percent": 91.01948815223028,
+            "delta_percentage_points": -0.16066562804643686,
+            "target_mean_percent": 90.85882252418384
+          },
+          "time_to_collision_within_bound": {
+            "CI95_delta_percentage_points": [
+              -0.7276919936226145,
+              -0.24397818537164015
+            ],
+            "baseline_failure": 357,
+            "baseline_mean_percent": 97.06076074427796,
+            "baseline_pass": 11789,
+            "delta_percentage_points": -0.4692903013337724,
+            "new_failure": 91,
+            "repaired_failure": 34,
+            "target_mean_percent": 96.59147044294419
+          }
+        },
+        "status": "COMPLETE",
+        "target": "PPO_MEMORYLR20_u010000_NAVTEST",
+        "target_PDMS": 90.85882252418371
+      },
+      "PPO_SAFETY_EP_u001000_NAVTEST_minus_PPO_FULL_u001000_NAVTEST": {
+        "CI95_PDMS": [
+          0.1239296395010845,
+          0.4588347341094954
+        ],
+        "CI_excludes_zero": true,
+        "G_minus_PDMS": -0.407973311994107,
+        "G_plus_PDMS": 0.6830445816171792,
+        "baseline": "PPO_FULL_u001000_NAVTEST",
+        "baseline_PDMS": 90.43253691024785,
+        "changed_scores": {
+          "degraded": 2577,
+          "degraded_at_least5_scene_PDMS": 62,
+          "improved": 5644,
+          "improved_at_least5_scene_PDMS": 82,
+          "unchanged_within_epsilon": 3925
+        },
+        "completed_UTC": "2026-10-30T17:58:11.190571+00:00",
+        "delta_PDMS": 0.2750712696230721,
+        "loss_decomposition": {
+          "EP_down_safety_unchanged_Gminus_PDMS": -0.08780349996623019,
+          "EP_down_safety_unchanged_scenes": 2515,
+          "new_safety_violation_Gminus_PDMS": -0.3133088427101316,
+          "new_safety_violation_degraded_scenes": 57
+        },
+        "paired": {
+          "CI95": [
+            0.001239296395010845,
+            0.004588347341094954
+          ],
+          "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+          "baseline_high_denominator": 11322,
+          "baseline_nonzero_denominator": 11830,
+          "baseline_zero_denominator": 316,
+          "bootstrap": 2000,
+          "bootstrap_seed": 42,
+          "high_to_zero": 26,
+          "high_to_zero_rate": 0.0022964140611199434,
+          "mean_delta": 0.002750712696230721,
+          "new_zero": 32,
+          "new_zero_rate": 0.002704987320371936,
+          "physical_groups": 44,
+          "repaired_zero": 30,
+          "repaired_zero_rate": 0.0949367088607595,
+          "safety_transitions": {
+            "drivable_area_compliance": {
+              "baseline_failure": 180,
+              "baseline_pass": 11966,
+              "new_failure": 28,
+              "repaired_failure": 18
+            },
+            "no_at_fault_collisions": {
+              "baseline_failure": 156,
+              "baseline_pass": 11990,
+              "new_failure": 7,
+              "repaired_failure": 14
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failure": 421,
+              "baseline_pass": 11725,
+              "new_failure": 29,
+              "repaired_failure": 46
+            }
+          },
+          "scene_denominator": 12146
+        },
+        "review": {
+          "no_automatic_training_action": true,
+          "recommendation_zh": "同预算总分正差且区间排除零；支持在既定pilot内继续观察持续性。安全无显著下降不等于证明安全。",
+          "safety_decrease_CI_excludes_zero": [],
+          "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+        },
+        "safety_metrics": {
+          "comfort": {
+            "CI95_delta_percentage_points": [
+              -0.11067766711122462,
+              0.01790121846427506
+            ],
+            "baseline_mean_percent": 99.98353367363741,
+            "delta_percentage_points": -0.032932652725177015,
+            "target_mean_percent": 99.95060102091223
+          },
+          "drivable_area_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.24520546994008752,
+              0.11782193180154751
+            ],
+            "baseline_failure": 180,
+            "baseline_mean_percent": 98.51803062736704,
+            "baseline_pass": 11966,
+            "delta_percentage_points": -0.08233163181294254,
+            "new_failure": 28,
+            "repaired_failure": 18,
+            "target_mean_percent": 98.43569899555409
+          },
+          "driving_direction_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.16431467636545855,
+              -0.058085222826100937
+            ],
+            "baseline_mean_percent": 98.47274822986991,
+            "delta_percentage_points": -0.1070311213568253,
+            "target_mean_percent": 98.3657171085131
+          },
+          "ego_progress": {
+            "CI95_delta_percentage_points": [
+              0.40383525018133803,
+              0.7709970319051681
+            ],
+            "baseline_mean_percent": 82.96749756523755,
+            "delta_percentage_points": 0.5787201412056402,
+            "target_mean_percent": 83.54621770644319
+          },
+          "no_at_fault_collisions": {
+            "CI95_delta_percentage_points": [
+              0.0,
+              0.12026328439454263
+            ],
+            "baseline_failure": 156,
+            "baseline_mean_percent": 98.77325868598716,
+            "baseline_pass": 11990,
+            "delta_percentage_points": 0.05351556067841265,
+            "new_failure": 7,
+            "repaired_failure": 14,
+            "target_mean_percent": 98.82677424666556
+          },
+          "score": {
+            "CI95_delta_percentage_points": [
+              0.12392963950108445,
+              0.45883473410949527
+            ],
+            "baseline_mean_percent": 90.43253691024752,
+            "delta_percentage_points": 0.2750712696230721,
+            "target_mean_percent": 90.7076081798706
+          },
+          "time_to_collision_within_bound": {
+            "CI95_delta_percentage_points": [
+              0.008723590176117773,
+              0.29157760098151425
+            ],
+            "baseline_failure": 421,
+            "baseline_mean_percent": 96.53383830067513,
+            "baseline_pass": 11725,
+            "delta_percentage_points": 0.1399637740820023,
+            "new_failure": 29,
+            "repaired_failure": 46,
+            "target_mean_percent": 96.67380207475712
+          }
+        },
+        "status": "COMPLETE",
+        "target": "PPO_SAFETY_EP_u001000_NAVTEST",
+        "target_PDMS": 90.70760817987055
+      },
+      "PPO_SAFETY_EP_u005000_NAVTEST_minus_PPO_FULL_u005000_NAVTEST": {
+        "CI95_PDMS": [
+          0.20335302731309138,
+          0.6070275411879986
+        ],
+        "CI_excludes_zero": true,
+        "G_minus_PDMS": -0.4477219598190011,
+        "G_plus_PDMS": 0.8557428193363428,
+        "baseline": "PPO_FULL_u005000_NAVTEST",
+        "baseline_PDMS": 90.58224721647319,
+        "changed_scores": {
+          "degraded": 2239,
+          "degraded_at_least5_scene_PDMS": 72,
+          "improved": 6042,
+          "improved_at_least5_scene_PDMS": 123,
+          "unchanged_within_epsilon": 3865
+        },
+        "completed_UTC": "2026-10-30T19:46:47.323723+00:00",
+        "delta_PDMS": 0.4080208595173417,
+        "loss_decomposition": {
+          "EP_down_safety_unchanged_Gminus_PDMS": -0.12078346548456773,
+          "EP_down_safety_unchanged_scenes": 2170,
+          "new_safety_violation_Gminus_PDMS": -0.32556630047088425,
+          "new_safety_violation_degraded_scenes": 68
+        },
+        "paired": {
+          "CI95": [
+            0.0020335302731309137,
+            0.006070275411879986
+          ],
+          "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+          "baseline_high_denominator": 11251,
+          "baseline_nonzero_denominator": 11865,
+          "baseline_zero_denominator": 281,
+          "bootstrap": 2000,
+          "bootstrap_seed": 42,
+          "high_to_zero": 20,
+          "high_to_zero_rate": 0.0017776197671318106,
+          "mean_delta": 0.004080208595173417,
+          "new_zero": 28,
+          "new_zero_rate": 0.002359882005899705,
+          "physical_groups": 44,
+          "repaired_zero": 35,
+          "repaired_zero_rate": 0.12455516014234876,
+          "safety_transitions": {
+            "drivable_area_compliance": {
+              "baseline_failure": 151,
+              "baseline_pass": 11995,
+              "new_failure": 20,
+              "repaired_failure": 21
+            },
+            "no_at_fault_collisions": {
+              "baseline_failure": 148,
+              "baseline_pass": 11998,
+              "new_failure": 8,
+              "repaired_failure": 16
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failure": 392,
+              "baseline_pass": 11754,
+              "new_failure": 44,
+              "repaired_failure": 55
+            }
+          },
+          "scene_denominator": 12146
+        },
+        "review": {
+          "no_automatic_training_action": true,
+          "recommendation_zh": "同预算总分正差且区间排除零；支持在既定pilot内继续观察持续性。安全无显著下降不等于证明安全。",
+          "safety_decrease_CI_excludes_zero": [],
+          "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+        },
+        "safety_metrics": {
+          "comfort": {
+            "CI95_delta_percentage_points": [
+              -0.02635572824919352,
+              0.0
+            ],
+            "baseline_mean_percent": 99.99176683681871,
+            "delta_percentage_points": -0.008233163181294254,
+            "target_mean_percent": 99.98353367363741
+          },
+          "drivable_area_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.10661046397434998,
+              0.1476428284801643
+            ],
+            "baseline_failure": 151,
+            "baseline_mean_percent": 98.75679235962457,
+            "baseline_pass": 11995,
+            "delta_percentage_points": 0.008233163181294254,
+            "new_failure": 20,
+            "repaired_failure": 21,
+            "target_mean_percent": 98.76502552280586
+          },
+          "driving_direction_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.023659707136695712,
+              0.06955609644509435
+            ],
+            "baseline_mean_percent": 98.21752017124979,
+            "delta_percentage_points": 0.020582907953235634,
+            "target_mean_percent": 98.23810307920303
+          },
+          "ego_progress": {
+            "CI95_delta_percentage_points": [
+              0.4813375787430618,
+              1.1337714483037251
+            ],
+            "baseline_mean_percent": 82.7874166605394,
+            "delta_percentage_points": 0.8179301390764002,
+            "target_mean_percent": 83.6053467996158
+          },
+          "no_at_fault_collisions": {
+            "CI95_delta_percentage_points": [
+              -0.02299071599399598,
+              0.1480919791108453
+            ],
+            "baseline_failure": 148,
+            "baseline_mean_percent": 98.83089082825622,
+            "baseline_pass": 11998,
+            "delta_percentage_points": 0.05763214226905978,
+            "new_failure": 8,
+            "repaired_failure": 16,
+            "target_mean_percent": 98.88852297052527
+          },
+          "score": {
+            "CI95_delta_percentage_points": [
+              0.20335302731309135,
+              0.6070275411879983
+            ],
+            "baseline_mean_percent": 90.58224721647305,
+            "delta_percentage_points": 0.4080208595173417,
+            "target_mean_percent": 90.9902680759904
+          },
+          "time_to_collision_within_bound": {
+            "CI95_delta_percentage_points": [
+              -0.10590379874103999,
+              0.28390454023766293
+            ],
+            "baseline_failure": 392,
+            "baseline_mean_percent": 96.77260003293266,
+            "baseline_pass": 11754,
+            "delta_percentage_points": 0.09056479499423678,
+            "new_failure": 44,
+            "repaired_failure": 55,
+            "target_mean_percent": 96.86316482792688
+          }
+        },
+        "status": "COMPLETE",
+        "target": "PPO_SAFETY_EP_u005000_NAVTEST",
+        "target_PDMS": 90.99026807599043
+      },
+      "PPO_SAFETY_EP_u010000_NAVTEST_minus_PPO_FULL_u010000_NAVTEST": {
+        "CI95_PDMS": [
+          0.04875789672806739,
+          0.6225692546393999
+        ],
+        "CI_excludes_zero": true,
+        "G_minus_PDMS": -0.7147829062741975,
+        "G_plus_PDMS": 1.045186491068213,
+        "baseline": "PPO_FULL_u010000_NAVTEST",
+        "baseline_PDMS": 91.01948815223066,
+        "changed_scores": {
+          "degraded": 1574,
+          "degraded_at_least5_scene_PDMS": 196,
+          "improved": 6763,
+          "improved_at_least5_scene_PDMS": 186,
+          "unchanged_within_epsilon": 3809
+        },
+        "completed_UTC": "2026-10-30T21:46:47.994009+00:00",
+        "delta_PDMS": 0.3304035847940154,
+        "loss_decomposition": {
+          "EP_down_safety_unchanged_Gminus_PDMS": -0.15541798484403346,
+          "EP_down_safety_unchanged_scenes": 1450,
+          "new_safety_violation_Gminus_PDMS": -0.5511317582488698,
+          "new_safety_violation_degraded_scenes": 118
+        },
+        "paired": {
+          "CI95": [
+            0.0004875789672806739,
+            0.006225692546393999
+          ],
+          "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+          "baseline_high_denominator": 11426,
+          "baseline_nonzero_denominator": 11903,
+          "baseline_zero_denominator": 243,
+          "bootstrap": 2000,
+          "bootstrap_seed": 42,
+          "high_to_zero": 29,
+          "high_to_zero_rate": 0.0025380710659898475,
+          "mean_delta": 0.0033040358479401537,
+          "new_zero": 50,
+          "new_zero_rate": 0.004200621692010418,
+          "physical_groups": 44,
+          "repaired_zero": 37,
+          "repaired_zero_rate": 0.1522633744855967,
+          "safety_transitions": {
+            "drivable_area_compliance": {
+              "baseline_failure": 128,
+              "baseline_pass": 12018,
+              "new_failure": 27,
+              "repaired_failure": 28
+            },
+            "no_at_fault_collisions": {
+              "baseline_failure": 133,
+              "baseline_pass": 12013,
+              "new_failure": 23,
+              "repaired_failure": 11
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failure": 357,
+              "baseline_pass": 11789,
+              "new_failure": 72,
+              "repaired_failure": 51
+            }
+          },
+          "scene_denominator": 12146
+        },
+        "review": {
+          "no_automatic_training_action": true,
+          "recommendation_zh": "安全指标存在配对下降证据；优先检查新增failure及效率交换，扩预算前由root审查，不因总分上涨自动推广。",
+          "safety_decrease_CI_excludes_zero": [
+            "no_at_fault_collisions"
+          ],
+          "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+        },
+        "safety_metrics": {
+          "comfort": {
+            "CI95_delta_percentage_points": [
+              -0.10097492131896592,
+              -0.013527673431805665
+            ],
+            "baseline_mean_percent": 99.97530051045612,
+            "delta_percentage_points": -0.04939897908776551,
+            "target_mean_percent": 99.92590153136835
+          },
+          "drivable_area_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.1658250552649725,
+              0.2498553939501864
+            ],
+            "baseline_failure": 128,
+            "baseline_mean_percent": 98.94615511279433,
+            "baseline_pass": 12018,
+            "delta_percentage_points": 0.008233163181294254,
+            "new_failure": 27,
+            "repaired_failure": 28,
+            "target_mean_percent": 98.95438827597562
+          },
+          "driving_direction_compliance": {
+            "CI95_delta_percentage_points": [
+              -0.13963861604421965,
+              0.06627266925128314
+            ],
+            "baseline_mean_percent": 98.35336736374116,
+            "delta_percentage_points": -0.04116581590647127,
+            "target_mean_percent": 98.31220154783468
+          },
+          "ego_progress": {
+            "CI95_delta_percentage_points": [
+              0.5405911627166059,
+              1.4702355362653996
+            ],
+            "baseline_mean_percent": 83.22404940028608,
+            "delta_percentage_points": 0.9997166256829926,
+            "target_mean_percent": 84.22376602596908
+          },
+          "no_at_fault_collisions": {
+            "CI95_delta_percentage_points": [
+              -0.20679910286593917,
+              -0.008113761188453522
+            ],
+            "baseline_failure": 133,
+            "baseline_mean_percent": 98.95438827597562,
+            "baseline_pass": 12013,
+            "delta_percentage_points": -0.10291453976617818,
+            "new_failure": 23,
+            "repaired_failure": 11,
+            "target_mean_percent": 98.85147373620946
+          },
+          "score": {
+            "CI95_delta_percentage_points": [
+              0.04875789672806744,
+              0.6225692546393998
+            ],
+            "baseline_mean_percent": 91.01948815223028,
+            "delta_percentage_points": 0.3304035847940154,
+            "target_mean_percent": 91.3498917370243
+          },
+          "time_to_collision_within_bound": {
+            "CI95_delta_percentage_points": [
+              -0.4251615384418038,
+              0.07528124381239205
+            ],
+            "baseline_failure": 357,
+            "baseline_mean_percent": 97.06076074427796,
+            "baseline_pass": 11789,
+            "delta_percentage_points": -0.17289642680717932,
+            "new_failure": 72,
+            "repaired_failure": 51,
+            "target_mean_percent": 96.88786431747077
+          }
+        },
+        "status": "COMPLETE",
+        "target": "PPO_SAFETY_EP_u010000_NAVTEST",
+        "target_PDMS": 91.34989173702405
+      }
+    },
     "knowledge_scope_zh": "两个pilot均固定IL70知识基础；MemoryLR20只变适应强度，SafetyEP只分解RL信用，不能推广为知识已充分或场景风险输入已充分。"
+  },
+  "preference_research": {
+    "status": "CPU_DATA_AND_LOSS_READY_NOT_DEPLOYED",
+    "scope": {
+      "GPU_forwards": 0,
+      "NAVTEST_scenes_selected": false,
+      "new_scores": 0,
+      "new_seeds": 0,
+      "runtime_changed": false,
+      "training_registered": false
+    },
+    "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/preferences/TRAIN_METRIC_PREFERENCES_20261031/manifest.json",
+    "summary": {
+      "pairs": 5261,
+      "groups": 3000,
+      "candidates": 24000,
+      "unique_scenes": 1000,
+      "physical_logs": 148,
+      "pair_counts_by_reason": {
+        "allfail_deficit": 27,
+        "feasible_efficiency": 2717,
+        "pass_over_fail": 2517
+      },
+      "pair_counts_by_origin": {
+        "cross_behavior": 1373,
+        "same_collection": 3888
+      },
+      "selection": {
+        "EP_margin": 0.05,
+        "allfail": "pool has no pass witness; lower mean indicator deficit by>=1/6 AND componentwise safety no worse; crossed vectors excluded",
+        "allfail_deficit_margin": 0.16666666666666666,
+        "cap": "one representative per reason per same collection or cross-behavior scene",
+        "context": "signal/queue/yield UNKNOWN unless separately joined; no lowEP=wrong-stop label",
+        "efficiency": "EP gap>=.05, raw progress strictly higher, Comfort no worse",
+        "feasible": "exact NC=DAC=TTC=1",
+        "ties": "no invented direction; no pair for exact metric tie"
+      },
+      "counts_by_arm": {
+        "PPO_FULL": {
+          "actual_zero_PG_groups": 11,
+          "allfail_deficit_tie_groups": 1,
+          "candidates": 8000,
+          "groups": 1000,
+          "sampled_all_failed_groups": 9,
+          "scalar_canonical_tie_groups": 11,
+          "source_groups_with_selected_own_preference": 894,
+          "unsafe_positive_with_feasible_alternative": 80,
+          "zero_PG_groups_with_cross_behavior_preference_witness": 3,
+          "zero_PG_groups_with_own_legal_preference": 2
+        },
+        "PPO_SAFETY_EP": {
+          "actual_zero_PG_groups": 100,
+          "allfail_deficit_tie_groups": 0,
+          "candidates": 8000,
+          "groups": 1000,
+          "sampled_all_failed_groups": 7,
+          "scalar_canonical_tie_groups": 8,
+          "source_groups_with_selected_own_preference": 890,
+          "unsafe_positive_with_feasible_alternative": 0,
+          "zero_PG_groups_with_cross_behavior_preference_witness": 15,
+          "zero_PG_groups_with_own_legal_preference": 0
+        },
+        "PPO_SAFE_COMFORT": {
+          "actual_zero_PG_groups": 95,
+          "allfail_deficit_tie_groups": 0,
+          "candidates": 8000,
+          "groups": 1000,
+          "sampled_all_failed_groups": 6,
+          "scalar_canonical_tie_groups": 10,
+          "source_groups_with_selected_own_preference": 893,
+          "unsafe_positive_with_feasible_alternative": 80,
+          "zero_PG_groups_with_cross_behavior_preference_witness": 13,
+          "zero_PG_groups_with_own_legal_preference": 1
+        }
+      }
+    },
+    "zero_tie_diagnosis": {
+      "by_arm": {
+        "PPO_FULL": {
+          "groups": 1000,
+          "zero_PG_all3pass_EP_tie_below1": 0,
+          "zero_PG_all3pass_and_all_EP1": 8,
+          "zero_PG_allfail": 3,
+          "zero_PG_allfail_cost_tie": 1,
+          "zero_PG_allfail_has_own_deficit_direction": 2,
+          "zero_PG_groups": 11,
+          "zero_PG_with_other_policy_pass_witness": 2,
+          "zero_PG_with_other_policy_strict_safe_EP_improvement_witness": 0
+        },
+        "PPO_SAFETY_EP": {
+          "groups": 1000,
+          "zero_PG_all3pass_EP_tie_below1": 0,
+          "zero_PG_all3pass_and_all_EP1": 100,
+          "zero_PG_allfail": 0,
+          "zero_PG_allfail_cost_tie": 0,
+          "zero_PG_allfail_has_own_deficit_direction": 0,
+          "zero_PG_groups": 100,
+          "zero_PG_with_other_policy_pass_witness": 0,
+          "zero_PG_with_other_policy_strict_safe_EP_improvement_witness": 0
+        },
+        "PPO_SAFE_COMFORT": {
+          "groups": 1000,
+          "zero_PG_all3pass_EP_tie_below1": 0,
+          "zero_PG_all3pass_and_all_EP1": 94,
+          "zero_PG_allfail": 1,
+          "zero_PG_allfail_cost_tie": 0,
+          "zero_PG_allfail_has_own_deficit_direction": 1,
+          "zero_PG_groups": 95,
+          "zero_PG_with_other_policy_pass_witness": 0,
+          "zero_PG_with_other_policy_strict_safe_EP_improvement_witness": 0
+        }
+      },
+      "cautions_zh": [
+        "SafetyEP的100个zeroPG全部三指标+EP饱和；不能算100个失败/停滞场景，也不能用随机方向或额外rollout只为抹平zero比例。三指标通过+EP1仍不是完整交通规则或真实安全证明。",
+        "FULL的3个allfail zero中，有2组canonical0但deficit并不相同；标量GRPO丢失了已有方向，结构化优势/严格leastdeficit偏好能复用这些评分。",
+        "“同scene存在跨behavior偏好对”不等于source自身还能改善：SafetyEP已EP1的zero组没有更高安全EP替代；跨policy数据可教差actor但不证明该zero需更新。",
+        "所有已评分候选同败同cost时，数据没有相对方向；保持无偏好/anchor，并把候选覆盖不足交给另注册的探索或IL知识诊断。Allfail不能推出场景没有安全解。"
+      ],
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN_PREFERENCE_ZERO_TIE_DIAGNOSTIC_20261031.json",
+      "sha256": "4acacfc3f96a0531992455dfc10cd3bb723d3a7f0cd0d2f8251133765a4cff89"
+    }
+  },
+  "zero_longitudinal": {
+    "status": "ODE_LONGITUDINAL_COMPLETE_ROLLOUT_PENDING",
+    "definitions": {
+      "ODE_vs_G8": "single fixed-seed deployment ODE outcome is not equivalent to all8 stochastic training candidates failing",
+      "intermittent": "zero at some but not all observed checkpoints",
+      "low_positive": "0<score<0.5",
+      "new_zero": "first observed positive, latest zero",
+      "persistent": "zero at every observed checkpoint in stated sequence; no claim about unobserved updates",
+      "recovered": "first zero, latest positive",
+      "relapse": "observed zero→positive→zero at any recorded checkpoints",
+      "zero": "official canonical score<=1e-12"
+    },
+    "rollout_analysis_status": "PENDING",
+    "NAVTEST_cross10k": {
+      "arms": [
+        "PPO_FULL",
+        "PPO_SAFE_COMFORT",
+        "PPO_ADAPTIVE",
+        "PPO_SAFETY_EP",
+        "PPO_MEMORYLR20"
+      ],
+      "common_zero_all_arms": 176,
+      "matched_updates": 10000,
+      "not_a_TRAIN_manifest": true,
+      "zero_union_any_arm": 377
+    },
+    "NAVTEST_series": {
+      "PPO_ADAPTIVE": {
+        "observed_updates": [
+          0,
+          1000,
+          5000,
+          10000,
+          20000
+        ],
+        "scenes": 12146,
+        "physical_logs": 44,
+        "sets": {
+          "ever_zero": 656,
+          "intermittent_zero": 489,
+          "latest_zero": 256,
+          "never_zero": 11490,
+          "new_zero_latest_vs_first": 55,
+          "persistent_zero_all_observed": 167,
+          "recovered_latest_vs_first": 364,
+          "relapsed_after_observed_recovery": 76
+        },
+        "persistent_RL_only_zero_count": 180,
+        "adjacent_transitions": [
+          {
+            "from_updates": 0,
+            "new_zero": 31,
+            "recovered": 288,
+            "stayed_zero": 277,
+            "to_updates": 1000,
+            "zero_jaccard": 0.46476510067114096
+          },
+          {
+            "from_updates": 1000,
+            "new_zero": 68,
+            "recovered": 60,
+            "stayed_zero": 248,
+            "to_updates": 5000,
+            "zero_jaccard": 0.6595744680851063
+          },
+          {
+            "from_updates": 5000,
+            "new_zero": 29,
+            "recovered": 73,
+            "stayed_zero": 243,
+            "to_updates": 10000,
+            "zero_jaccard": 0.7043478260869566
+          },
+          {
+            "from_updates": 10000,
+            "new_zero": 41,
+            "recovered": 57,
+            "stayed_zero": 215,
+            "to_updates": 20000,
+            "zero_jaccard": 0.6869009584664537
+          }
+        ]
+      },
+      "PPO_FULL": {
+        "observed_updates": [
+          0,
+          1000,
+          5000,
+          10000,
+          12000,
+          20000,
+          35000
+        ],
+        "scenes": 12146,
+        "physical_logs": 44,
+        "sets": {
+          "ever_zero": 680,
+          "intermittent_zero": 539,
+          "latest_zero": 237,
+          "never_zero": 11466,
+          "new_zero_latest_vs_first": 64,
+          "persistent_zero_all_observed": 141,
+          "recovered_latest_vs_first": 392,
+          "relapsed_after_observed_recovery": 110
+        },
+        "persistent_RL_only_zero_count": 151,
+        "adjacent_transitions": [
+          {
+            "from_updates": 0,
+            "new_zero": 31,
+            "recovered": 280,
+            "stayed_zero": 285,
+            "to_updates": 1000,
+            "zero_jaccard": 0.47818791946308725
+          },
+          {
+            "from_updates": 1000,
+            "new_zero": 51,
+            "recovered": 86,
+            "stayed_zero": 230,
+            "to_updates": 5000,
+            "zero_jaccard": 0.6267029972752044
+          },
+          {
+            "from_updates": 5000,
+            "new_zero": 32,
+            "recovered": 70,
+            "stayed_zero": 211,
+            "to_updates": 10000,
+            "zero_jaccard": 0.6741214057507987
+          },
+          {
+            "from_updates": 10000,
+            "new_zero": 42,
+            "recovered": 40,
+            "stayed_zero": 203,
+            "to_updates": 12000,
+            "zero_jaccard": 0.712280701754386
+          },
+          {
+            "from_updates": 12000,
+            "new_zero": 40,
+            "recovered": 44,
+            "stayed_zero": 201,
+            "to_updates": 20000,
+            "zero_jaccard": 0.7052631578947368
+          },
+          {
+            "from_updates": 20000,
+            "new_zero": 48,
+            "recovered": 52,
+            "stayed_zero": 189,
+            "to_updates": 35000,
+            "zero_jaccard": 0.6539792387543253
+          }
+        ]
+      },
+      "PPO_MEMORYLR20": {
+        "observed_updates": [
+          0,
+          1000,
+          5000,
+          10000
+        ],
+        "scenes": 12146,
+        "physical_logs": 44,
+        "sets": {
+          "ever_zero": 668,
+          "intermittent_zero": 481,
+          "latest_zero": 278,
+          "never_zero": 11478,
+          "new_zero_latest_vs_first": 57,
+          "persistent_zero_all_observed": 187,
+          "recovered_latest_vs_first": 344,
+          "relapsed_after_observed_recovery": 60
+        },
+        "persistent_RL_only_zero_count": 195,
+        "adjacent_transitions": [
+          {
+            "from_updates": 0,
+            "new_zero": 28,
+            "recovered": 275,
+            "stayed_zero": 290,
+            "to_updates": 1000,
+            "zero_jaccard": 0.48903878583473864
+          },
+          {
+            "from_updates": 1000,
+            "new_zero": 71,
+            "recovered": 93,
+            "stayed_zero": 225,
+            "to_updates": 5000,
+            "zero_jaccard": 0.5784061696658098
+          },
+          {
+            "from_updates": 5000,
+            "new_zero": 64,
+            "recovered": 82,
+            "stayed_zero": 214,
+            "to_updates": 10000,
+            "zero_jaccard": 0.5944444444444444
+          }
+        ]
+      },
+      "PPO_SAFETY_EP": {
+        "observed_updates": [
+          0,
+          1000,
+          5000,
+          10000
+        ],
+        "scenes": 12146,
+        "physical_logs": 44,
+        "sets": {
+          "ever_zero": 648,
+          "intermittent_zero": 466,
+          "latest_zero": 256,
+          "never_zero": 11498,
+          "new_zero_latest_vs_first": 38,
+          "persistent_zero_all_observed": 182,
+          "recovered_latest_vs_first": 347,
+          "relapsed_after_observed_recovery": 45
+        },
+        "persistent_RL_only_zero_count": 197,
+        "adjacent_transitions": [
+          {
+            "from_updates": 0,
+            "new_zero": 41,
+            "recovered": 288,
+            "stayed_zero": 277,
+            "to_updates": 1000,
+            "zero_jaccard": 0.4570957095709571
+          },
+          {
+            "from_updates": 1000,
+            "new_zero": 50,
+            "recovered": 94,
+            "stayed_zero": 224,
+            "to_updates": 5000,
+            "zero_jaccard": 0.6086956521739131
+          },
+          {
+            "from_updates": 5000,
+            "new_zero": 37,
+            "recovered": 55,
+            "stayed_zero": 219,
+            "to_updates": 10000,
+            "zero_jaccard": 0.7041800643086816
+          }
+        ]
+      },
+      "PPO_SAFE_COMFORT": {
+        "observed_updates": [
+          0,
+          1000,
+          5000,
+          10000,
+          20000,
+          35000
+        ],
+        "scenes": 12146,
+        "physical_logs": 44,
+        "sets": {
+          "ever_zero": 694,
+          "intermittent_zero": 554,
+          "latest_zero": 249,
+          "never_zero": 11452,
+          "new_zero_latest_vs_first": 82,
+          "persistent_zero_all_observed": 140,
+          "recovered_latest_vs_first": 398,
+          "relapsed_after_observed_recovery": 96
+        },
+        "persistent_RL_only_zero_count": 152,
+        "adjacent_transitions": [
+          {
+            "from_updates": 0,
+            "new_zero": 42,
+            "recovered": 279,
+            "stayed_zero": 286,
+            "to_updates": 1000,
+            "zero_jaccard": 0.471169686985173
+          },
+          {
+            "from_updates": 1000,
+            "new_zero": 43,
+            "recovered": 99,
+            "stayed_zero": 229,
+            "to_updates": 5000,
+            "zero_jaccard": 0.6172506738544474
+          },
+          {
+            "from_updates": 5000,
+            "new_zero": 42,
+            "recovered": 56,
+            "stayed_zero": 216,
+            "to_updates": 10000,
+            "zero_jaccard": 0.6878980891719745
+          },
+          {
+            "from_updates": 10000,
+            "new_zero": 36,
+            "recovered": 52,
+            "stayed_zero": 206,
+            "to_updates": 20000,
+            "zero_jaccard": 0.7006802721088435
+          },
+          {
+            "from_updates": 20000,
+            "new_zero": 70,
+            "recovered": 63,
+            "stayed_zero": 179,
+            "to_updates": 35000,
+            "zero_jaccard": 0.5737179487179487
+          }
+        ]
+      }
+    },
+    "scope": {
+      "NAVTEST_used_for_training_selection": false,
+      "controller_or_frozen_runtime_modified": false,
+      "new_GPU_forwards": 0,
+      "new_scores": 0
+    }
   }
 }

@@ -17,6 +17,8 @@ COLORS=dict(zip(ARMS,['#2563eb','#059669','#7c3aed','#d97706','#64748b','#0891b2
 SHORT={'PPO_FULL':'Full','PPO_BATCHSTD':'BatchStd','PPO_SAFE_COMFORT':'SafeComfort','CISPO_FULL':'CISPO','PPO_HARD':'Hard','PPO_ADAPTIVE':'Adaptive','PPO_ANCHOR40':'Anchor40','NFT_FULL':'NFT'}
 IDEAS={'PPO_FULL':'全量103,288；原始PPO对照','PPO_BATCHSTD':'仅改中心化优势的全局std分母','PPO_SAFE_COMFORT':'安全候选Comfort置1，局部突出EP','CISPO_FULL':'全量数据；仅改策略目标','PPO_HARD':'困难15,171；数据人口对照','PPO_ADAPTIVE':'训练内低分／退化／覆盖再采样','PPO_ANCHOR40':'仅将均值anchor权重β50改为40','NFT_FULL':'纯ODE采样＋NFT目标／EMA'}
 IDEAS.update(PPO_MEMORYLR20='仅memory学习率5e−6→2e−5；既有IL知识适配',PPO_SAFETY_EP='仅安全／可行EP分量优势；候选指标条件信用')
+COLORS.update(PPO_MEMORYLR20='#ea580c',PPO_SAFETY_EP='#059669')
+SHORT.update(PPO_MEMORYLR20='MemoryLR20',PPO_SAFETY_EP='SafetyEP')
 
 
 def update(row):
@@ -97,6 +99,12 @@ def render_research_report(root,snapshot,history,h):
     pilot_registrations=editorial.get('pilot_registrations',{})
     active_pilots={arm for arm,value in pilot_startups.items() if value.get('status')=='ACTUAL_NATIVE_UPDATES_ALL8_FINITE' and len(value.get('rows',[]))==8 and all(row.get('finite') is True for row in value['rows'])}
     adaptive_amendment=editorial.get('adaptive_coverage_amendment',{})
+    pilot_review=editorial.get('new_pilot_matched_review',{})
+    def pilot_pair(arm,u=10000):
+        value=pilot_review.get('contrasts',{}).get(f'{arm}_u{u:06d}_NAVTEST_minus_PPO_FULL_u{u:06d}_NAVTEST',{})
+        return value if value.get('status')=='COMPLETE' else {}
+    safety_pair=pilot_pair('PPO_SAFETY_EP');memory_pair=pilot_pair('PPO_MEMORYLR20')
+    pilot_focus=bool(safety_pair and ('PPO_SAFETY_EP',10000) in points)
     adaptive_analysis=editorial.get('adaptive_process',{})
     budgets=sorted({update(r) for r in test if r.get('arm') in PPO_ARMS})
     budget=max((u for u in budgets if ('PPO_FULL',u) in points and sum((a,u) in points for a in PPO_ARMS)>=3),default=1000)
@@ -124,21 +132,28 @@ def render_research_report(root,snapshot,history,h):
     best_name=best.get('arm') if best else '待完整结果'
     cards=[('本轮已测最佳checkpoint',fmt(best['PDMS'],4) if best else '待评测',esc(best_name)+' · RL '+number(update(best)) if best else ''),
         ('该checkpoint对IL70增益',signed(best['PDMS']-base) if best else '—','历史最佳不等于最新阶段；点差不等于算法因果'),
-        ('匹配对照预算',number(budget),'optimizer updates；不同预算不直接排优劣'),
-        ('NFT执行状态','已停' if stopped else '退出待证实' if decision else '待决策','四个完整阶段点已可判断投入方向')]
+        ('新pilot匹配预算' if pilot_focus else '匹配对照预算',number(10000 if pilot_focus else budget),'optimizer updates；不同预算不直接排优劣'),
+        ('当前关键风险','NC下降' if pilot_focus else '待诊断','SafetyEP10k新增碰撞23／修复11' if pilot_focus else '安全分量与总分分别判断')]
     body='<div class="note"><b>核心研究目标：根据场景信息，平衡安全与驾驶效率。</b>识别何时必须让行、何时存在安全通行窗口，以及何时只是观测信息不足；不是把安全与舒适性作为主要对立轴。SafeComfort是突出EP的局部奖励去干扰，尚未实现真正的场景条件风险权衡。</div><div class="metric-grid">'+''.join('<div class="metric"><span>'+a+'</span><strong>'+b+'</strong><small>'+c+'</small></div>' for a,b,c in cards)+'</div>'
     body+='<p><b>IL与RL两线并行：</b>IL提供并补齐离线驾驶知识基础；RL在固定IL知识基础上强化轨迹行为，不全面重做IL。知识缺口反馈IL；新IL达标后，用相同RL配方另起对照，不热切换正在训练的旧父模型。</p>'
-    body+='<div class="conclusion-grid"><article class="finding success">'+evidence('strong','已确认 · 完整评测与父模型配对')+'<h3>PPO带来收益，增加预算并非单调提升</h3><p>IL70基线 '+fmt(base,6)+'。PPO_FULL在1k提高 +1.639627，配对95%区间 [＋1.214409, ＋2.039287]；10k曾达到91分以上，但20k多条路线回落。保留历史最佳checkpoint，不能默认训练更久就更好。</p></article>'
+    if pilot_focus:
+        sm=safety_pair.get('safety_metrics',{});nc=sm.get('no_at_fault_collisions',{});ep=sm.get('ego_progress',{})
+        body+='<div class="conclusion-grid"><article class="finding success">'+evidence('strong','已确认 · 完整10k同预算配对')+'<h3>SafetyEP达到本轮已测最佳，总分收益有配对支持</h3><p>完整NAVTEST '+fmt(safety_pair.get('target_PDMS'),6)+'，相对Full10k '+signed(safety_pair.get('delta_PDMS'),6)+'，95%区间 '+ci_text(safety_pair)+'。EP提高 '+signed(ep.get('delta_percentage_points'),5)+' pp；这验证了本轮候选指标条件信用分解的阶段收益，尚不是场景风险推理能力的证明。</p></article>'
+        body+='<article class="finding caution">'+evidence('limited','必须同时面对 · 安全交换')+'<h3>总分提升没有解决碰撞偏好冲突</h3><p>SafetyEP10k的NC '+signed(nc.get('delta_percentage_points'),5)+' pp，配对区间低于零；新增失败 '+number(nc.get('new_failure'))+'、修复 '+number(nc.get('repaired_failure'))+'。下一步按同场景通过／冒险候选构建偏好诊断，检查必要等待和可实现效率，不以单一总分覆盖风险。</p></article>'
+        body+='<article class="finding caution">'+evidence('limited','阴性结果 · memory适配强度')+'<h3>单纯提高memory学习率尚无提分证据</h3><p>MemoryLR20完整10k '+fmt(memory_pair.get('target_PDMS'),6)+'，对Full '+signed(memory_pair.get('delta_PDMS'),6)+'，区间 '+ci_text(memory_pair)+'；总分跨零，NC/TTC却有负向配对证据。这不能推出IL知识已充分，也不支持仅靠更大学习率修复风险信息。</p></article></div>'
+        body+='<p class="muted">历史对照仍保留：Full1k相对IL70提高+1.639627；Batch10k早期优势没有持续到20k；NFT与固定Hard已止损。训练预算增加不等于性能单调提高，当前重点转向安全—效率冲突信用和纵向失败集合。</p>'
+    else:
+        body+='<div class="conclusion-grid"><article class="finding success">'+evidence('strong','已确认 · 完整评测与父模型配对')+'<h3>PPO带来收益，增加预算并非单调提升</h3><p>IL70基线 '+fmt(base,6)+'。PPO_FULL在1k提高 +1.639627，配对95%区间 [＋1.214409, ＋2.039287]；保留历史最佳checkpoint，不能默认训练更久就更好。</p></article>'
     batch_pair=contrast(analysis10,'PPO_BATCHSTD','PPO_FULL')
-    if budget>=20000 and ('PPO_FULL',20000) in points and ('PPO_BATCHSTD',20000) in points:
+    if not pilot_focus and budget>=20000 and ('PPO_FULL',20000) in points and ('PPO_BATCHSTD',20000) in points:
         full20=points['PPO_FULL',20000];batch20=points['PPO_BATCHSTD',20000];safe20=points.get(('PPO_SAFE_COMFORT',20000))
         safe_pair20=contrast(analysis20,'PPO_SAFE_COMFORT','PPO_FULL')
         safe_summary=('SAFE20k−FULL '+signed(safe_pair20.get('delta_PDMS'))+'，区间 '+ci_text(safe_pair20)+'，支持该阶段局部改动收益；' if safe_pair20 else 'SAFE20k观察分 '+fmt(safe20['PDMS'],5)+'；' if safe20 else '')
         body+='<article class="finding caution">'+evidence('limited','阶段更新 · 10k不能外推')+'<h3>10k的BatchStd领先未普遍持续</h3><p>10k的+0.134370有配对支持；12k点分低于Full，20k Batch−Full仅 '+signed(batch20['PDMS']-full20['PDMS'])+' 点。'+safe_summary+'这仍不能证明策略已学会按场景平衡安全与效率。</p></article>'
-    elif batch_pair.get('CI_excludes_zero') and batch_pair.get('delta_PDMS',0)>0:
+    elif not pilot_focus and batch_pair.get('CI_excludes_zero') and batch_pair.get('delta_PDMS',0)>0:
         body+='<article class="finding caution">'+evidence('strong','支持 · 单seed物理log配对')+'<h3>BatchStd的10k增益有区间支持</h3><p>相对PPO_FULL '+signed(batch_pair['delta_PDMS'])+' 点，95%区间 '+ci_text(batch_pair)+'。这是本轮固定seed与10k阶段的证据；SAFE−FULL、BATCH−SAFE区间仍跨零，不把数值排名当作普遍算法结论。</p></article>'
-    else:body+='<article class="finding caution">'+evidence('limited','待判断 · 小差需要匹配比较')+'<h3>新增trick的优劣尚需区间支持</h3><p>中心化std、训练Comfort塑形和CISPO只比较同预算、同人口的完整结果。数值领先可以记录；配对区间未完成或跨零时，不宣布算法胜出。</p></article>'
-    body+='<article class="finding stop">'+evidence('action','决策 · 低潜力路线释放预算')+'<h3>NFT缺少持续部署收益</h3><p>'+(number(update(nft))+'更新完整分 '+fmt(nft['PDMS'],6)+'，相对IL70 '+signed(nft['PDMS']-base)+'；已测最高仅 '+fmt(nft_best,6)+'。' if nft else '等待完整NFT结果。')+' '+esc(nft_state)+'。</p></article></div>'
+    elif not pilot_focus:body+='<article class="finding caution">'+evidence('limited','待判断 · 小差需要匹配比较')+'<h3>新增trick的优劣尚需区间支持</h3><p>仅比较同预算、同人口的完整结果；配对区间未完成或跨零时，不宣布算法胜出。</p></article>'
+    if not pilot_focus:body+='<article class="finding stop">'+evidence('action','决策 · 低潜力路线释放预算')+'<h3>NFT缺少持续部署收益</h3><p>'+(number(update(nft))+'更新完整分 '+fmt(nft['PDMS'],6)+'，相对IL70 '+signed(nft['PDMS']-base)+'；已测最高仅 '+fmt(nft_best,6)+'。' if nft else '等待完整NFT结果。')+' '+esc(nft_state)+'。</p></article></div>'
     body+='<div class="protocol">统一读数：NAVTEST 12,146场景 · 单候选ODE K10 / shift5 · 训练seed42 / 推理seed2101。固定种子研究，不安排多种子。TRAIN panel与随机训练候选分数另列。</div>'
     if snapshot.get('warnings'):body+='<div class="alert">'+esc('；'.join(snapshot['warnings']))+'</div>'
     chapter('01','conclusions','现在可以得出的结论','先区分已观察到的提升、尚未证明的算法优势，以及已经决定调整的投入。',body)
@@ -151,6 +166,7 @@ def render_research_report(root,snapshot,history,h):
         status=run.get('owner_receipt',{}).get('status') or run.get('status','未登记')
         if arm in stop_receipts:state='已协作停止';next_action='保留checkpoint、optimizer/RNG与结果；预算转向更高优先研究'
         elif arm in decisions:state='停止决策已下，等待退出收据';next_action='协作保存原生checkpoint，等待退出确认'
+        elif status=='PILOT_COMPLETE_REVIEW_REQUIRED':state='首轮pilot已完成，等待预算复核';next_action='完整同预算总分与安全组件联合判断；新预算以独立决策为准'
         elif status=='WAITING_OWN_TRAIN_FEEDBACK':state='等待自己的TRAIN反馈';next_action='bank就绪后继续；不等待其他臂或Test'
         elif status.startswith('WAITING'):state='等待容量／阶段条件';next_action='按退出事件与容量heartbeat重排'
         elif run.get('job'):
@@ -176,7 +192,10 @@ def render_research_report(root,snapshot,history,h):
     if snapshot.get('resource_inventory_unknown_hosts'):body+='<p class="muted">当前重新授权但物理库存／就绪度未核实的主机：'+esc('、'.join(snapshot['resource_inventory_unknown_hosts']))+'；不填8张可用卡，不将连接失败写成部署完成。</p>'
     temporary=snapshot.get('resource_temporary_window',{})
     reauthorization=snapshot.get('resource_reauthorization_note',{})
-    if reauthorization:
+    if snapshot.get('resource_finite_window_superseded'):
+        request=snapshot.get('resource_authorization_request',{})
+        body+='<p class="muted">最新用户REQUEST已将 '+esc('、'.join(request.get('hosts',[])))+' 改为临时不限时许可，覆盖旧8小时窗口；00:22:59保护线／00:42:59到期仅保留为历史记录。许可不证明连接、库存、空闲或部署就绪。'+link(snapshot.get('resource_authorization_request_path'),'实际用户授权收据')+'</p>'
+    elif reauthorization:
         granted=set(reauthorization.get('hosts',[]))<=set(snapshot.get('current_authorized_hosts') or [])
         try:window_ended=snapshot.get('generated_unix',0)>=datetime.fromisoformat(reauthorization['expires_utc'].replace('Z','+00:00')).timestamp()
         except (KeyError,ValueError):window_ended=False
@@ -185,42 +204,50 @@ def render_research_report(root,snapshot,history,h):
     chapter('02','routes','路线状态：已完成、进行中、停止与下一步','研究预算依据证据调整；控制进程的状态不替代模型更新或评测完成证据。',body)
 
     # 03: matched-budget curves and point deltas sit side by side.
-    series={a:[(update(r),r['PDMS']) for r in test if r.get('arm')==a and update(r)<=budget] for a in ALGO_ARMS}
-    line=curve(root,h,'research_matched_ppo','PPO算法完整NAVTEST：同预算曲线',series,
+    plot_budget=10000 if pilot_focus else budget
+    plot_arms=['PPO_FULL','PPO_MEMORYLR20','PPO_SAFETY_EP'] if pilot_focus else ALGO_ARMS
+    series={a:[(update(r),r['PDMS']) for r in test if r.get('arm')==a and update(r)<=plot_budget] for a in plot_arms}
+    line=curve(root,h,'research_matched_ppo','新pilot完整NAVTEST：同预算曲线' if pilot_focus else 'PPO算法完整NAVTEST：同预算曲线',series,
         caption='纵轴放大用于看路线差异；IL70='+fmt(base,4)+'见首卡总提升。数据路线与NFT分别另图。')
-    paired_source=analysis20 if budget==20000 and analysis20.get('status')=='COMPLETE' else analysis10 if budget==10000 else {}
-    base_row=points.get(('PPO_FULL',budget))
+    paired_source={'contrasts':{arm+'_minus_PPO_FULL':pilot_pair(arm,plot_budget) for arm in plot_arms if arm!='PPO_FULL'}} if pilot_focus else analysis20 if budget==20000 and analysis20.get('status')=='COMPLETE' else analysis10 if budget==10000 else {}
+    base_row=points.get(('PPO_FULL',plot_budget))
     def delta_draw(plt):
         fig,ax=plt.subplots(figsize=(7,3.9),layout='constrained')
-        arms=[a for a in ALGO_ARMS if a!='PPO_FULL' and (a,budget) in points]
+        arms=[a for a in plot_arms if a!='PPO_FULL' and (a,plot_budget) in points]
         for i,arm in enumerate(arms):
-            delta=points[arm,budget]['PDMS']-base_row['PDMS'] if base_row else 0
+            delta=points[arm,plot_budget]['PDMS']-base_row['PDMS'] if base_row else 0
             pair=contrast(paired_source,arm,'PPO_FULL');interval=pair.get('CI95_PDMS',[])
             ax.barh(i,delta,color=COLORS[arm],height=.58,alpha=.85)
             if len(interval)==2:ax.errorbar(delta,i,xerr=[[max(0,delta-interval[0])],[max(0,interval[1]-delta)]],fmt='o',color='#0f172a',capsize=4,ms=3)
             else:ax.text(delta+.012 if delta>=0 else delta-.012,i,f'{delta:+.3f}',va='center',ha='left' if delta>=0 else 'right',fontsize=9)
         ax.set_yticks(range(len(arms)),[SHORT[a] for a in arms]);ax.axvline(0,color='#475569',lw=1)
-        ax.set(xlabel='PDMS points vs PPO_FULL',title=f'Matched {budget//1000}k checkpoint');ax.grid(axis='x',alpha=.18);ax.margins(x=.25)
+        ax.set(xlabel='PDMS points vs PPO_FULL',title=f'Matched {plot_budget//1000}k checkpoint');ax.grid(axis='x',alpha=.18);ax.margins(x=.25)
         return fig
     delta=figure(root,h,'research_matched_deltas','相对PPO_FULL的点差与配对区间',delta_draw,
         '有区间才画误差线；没有误差线表示配对分析尚未完成，不能据条形长度宣布优劣。')
     rows=[]
-    table_budgets=[u for u in (1000,5000,10000,12000,20000) if any((a,u)in points for a in ALGO_ARMS)]
-    for arm in ALGO_ARMS:
+    table_budgets=sorted({update(r) for r in test if r.get('arm') in plot_arms and update(r)<=plot_budget})
+    for arm in plot_arms:
         cells=[]
         for u in table_budgets:
             row=points.get((arm,u));cells.append(fmt(row['PDMS'],6) if row else '—（无完整点）')
         rows.append(['<b>'+esc(arm)+'</b>']+cells)
     body='<div class="plots-two">'+line+delta+'</div>'+table(['完整NAVTEST']+[str(u//1000)+'k' for u in table_budgets],rows)
+    if pilot_focus:
+        old_budgets=sorted({update(r)for r in test if r.get('arm')in ALGO_ARMS})
+        old_rows=[[esc(arm)]+[fmt(points[arm,u]['PDMS'],6)if (arm,u)in points else '—' for u in old_budgets]for arm in ALGO_ARMS]
+        body+=detail('保留原算法路线的完整阶段历史（含35k）',table(['原算法路线']+[str(u//1000)+'k'for u in old_budgets],old_rows)+'<p>历史高点与后续回落均保留，不能把早期名次外推到新预算。</p>')
     if budget>=20000:
         change_rows=[]
         for arm in ALGO_ARMS:
             earlier=points.get((arm,10000));later=points.get((arm,20000))
             if earlier and later:change_rows.append([esc(arm),fmt(earlier['PDMS'],6),fmt(later['PDMS'],6),signed(later['PDMS']-earlier['PDMS'],6)])
-        body+=table(['同一路线','10k完整分','20k完整分','20k−10k：观察点差'],change_rows)+'<p class="note">20k结果不支持把10k的最佳checkpoint优势外推为普遍持续收益。阶段点回落与算法间差异分开解释；20k是否存在可重复的安全—效率改进，需看同预算配对及场景分组，不能只追一个总分。</p>'
+        historical_change=table(['同一路线','10k完整分','20k完整分','20k−10k：观察点差'],change_rows)+'<p class="note">20k结果不支持把10k的最佳checkpoint优势外推为普遍持续收益。阶段点回落与算法间差异分开解释；20k是否存在可重复的安全—效率改进，需看同预算配对及场景分组，不能只追一个总分。</p>'
+        body+=detail('旧路线10k→20k：保留预算非单调证据',historical_change) if pilot_focus else historical_change
     if analysis20.get('status')=='COMPLETE':
         rows20=[[esc(key.replace('_minus_',' − ')),signed(row.get('delta_PDMS')),ci_text(row),verdict(row)]for key,row in analysis20.get('contrasts',{}).items()]
-        body+=table(['20k同预算配对','点差','95%区间：PDMS点','判断'],rows20)+link(editorial.get('matched_20k_path'),'20k完整配对与组件拆解')
+        historical_pairs=table(['20k同预算配对','点差','95%区间：PDMS点','判断'],rows20)+link(editorial.get('matched_20k_path'),'20k完整配对与组件拆解')
+        body+=detail('旧路线20k同预算配对',historical_pairs) if pilot_focus else historical_pairs
     elif budget>=20000:body+='<p class="muted">20k配对分析尚未发布；右图此阶段只画真实点差，不画10k或跨预算区间。</p>'
     if analysis10.get('status')=='COMPLETE':
         paired_rows=[]
@@ -239,8 +266,8 @@ def render_research_report(root,snapshot,history,h):
     def components_draw(plt):
         import numpy as np
         fig,ax=plt.subplots(figsize=(7,3.9),layout='constrained')
-        arms=[a for a in PPO_ARMS if (a,budget) in points]
-        values=np.array([[100*(points[a,budget].get('means',{}).get(m,0)-base_row.get('means',{}).get(m,0)) for m in metrics]for a in arms]) if base_row else np.zeros((len(arms),5))
+        arms=[a for a in plot_arms if (a,plot_budget) in points]
+        values=np.array([[100*(points[a,plot_budget].get('means',{}).get(m,0)-base_row.get('means',{}).get(m,0)) for m in metrics]for a in arms]) if base_row else np.zeros((len(arms),5))
         limit=max(.05,float(abs(values).max())) if values.size else .05
         image=ax.imshow(values,cmap='RdYlGn',vmin=-limit,vmax=limit,aspect='auto')
         ax.set_xticks(range(5),['NC','DAC','TTC','EP','Comfort']);ax.set_yticks(range(len(arms)),[SHORT[a] for a in arms])
@@ -248,7 +275,7 @@ def render_research_report(root,snapshot,history,h):
             for j in range(5):ax.text(j,i,f'{values[i,j]:+.3f}',ha='center',va='center',fontsize=9)
         fig.colorbar(image,ax=ax,label='Percentage points vs Full',shrink=.8)
         return fig
-    heat=figure(root,h,'research_ppo_components','同预算安全、效率与其他评价分量',components_draw,'每格是相对PPO_FULL的均值百分点。Comfort保留为官方评价分量，核心研究问题是场景条件安全—效率权衡。')
+    heat=figure(root,h,'research_ppo_components',str(plot_budget//1000)+'k同预算安全、效率与其他评价分量',components_draw,'每格是相对同预算PPO_FULL的均值百分点。Comfort保留为官方评价分量，核心研究问题是场景条件安全—效率权衡。')
     full_pair=snapshot.get('ppo_full_first_stage_paired_analysis',{});paired=full_pair.get('paired',{})
     def repair_draw(plt):
         fig,axes=plt.subplots(1,2,figsize=(7,3.9),layout='constrained')
@@ -260,6 +287,15 @@ def render_research_report(root,snapshot,history,h):
         return fig
     repairs=figure(root,h,'research_full_repairs','早期收益的组成：少数严重失败修复很重要',repair_draw,'这是已完成1k父模型配对的机制线索，不直接作为10k改动的因果归因。')
     body='<div class="plots-two">'+heat+repairs+'</div>'
+    if pilot_focus:
+        rows=[]
+        for arm in ['PPO_SAFETY_EP','PPO_MEMORYLR20']:
+            row=pilot_pair(arm);cells=[]
+            for metric in ['no_at_fault_collisions','time_to_collision_within_bound','ego_progress']:
+                m=row.get('safety_metrics',{}).get(metric,{});ci=m.get('CI95_delta_percentage_points',[])
+                cells.append(signed(m.get('delta_percentage_points'),5)+'<small>['+', '.join(signed(x,5)for x in ci)+']</small>')
+            rows.append([esc(arm),signed(row.get('delta_PDMS'),6)+'<small>'+ci_text(row)+'</small>']+cells)
+        body+='<h3>10k pilot：效率提升与安全交换要同时解释</h3>'+table(['同10k对Full','ΔPDMS［95%区间］','ΔNC pp［区间］','ΔTTC pp［区间］','ΔEP pp［区间］'],rows)+'<p class="note">SafetyEP提高了可实现进度的信用，但NC新增失败23、修复11；MemoryLR20没有总分优势，NC/TTC有下降证据。不能把“拆了安全分量”当成已经学到安全偏好，也不能把提高memory学习率等同补齐信息。下一步用同场景反例和纵向zero集合定位信用、候选覆盖与表征问题。</p>'
     if analysis20.get('status')=='COMPLETE':
         def metric20(row,metric):
             item=row.get('safety_metrics',{}).get(metric,{});interval=item.get('CI95_delta_percentage_points',[])
@@ -347,6 +383,67 @@ def render_research_report(root,snapshot,history,h):
     adaptive_tenk=points.get(('PPO_ADAPTIVE',10000))
     adaptive_sentence=('Adaptive的10k完整Test为'+fmt(adaptive_tenk['PDMS'],6)+'；' if adaptive_tenk else 'Adaptive的5k Test较Full高0.157064点，但10k尚未完整；')
     body='<h3>新的研究主线：场景条件安全—驾驶效率</h3><p>先审计当前观测能支持哪些风险与交互判断，再定义场景分组、表征诊断与策略判据。不能仅凭低EP把等待判为低效，也不能把所有停滞都解释为安全；已确认风险与信息不足须分开。</p>'
+    body+='<h3>当前要回答的三个问题</h3>'+table(['问题','需要的证据','对应方法与判断边界'],[
+        ['高进度但冒险的轨迹，为何仍得到正向信用？','同一TRAIN场景：通过指标的替代轨迹、冒险候选、EP差、实际优势与anchor贡献','构建安全—效率冲突偏好候选；必要等待与无故停滞分开，不能把高EP自动当优选。'],
+        ['零分是否总是同一批场景？','同一路线跨checkpoint的zero交集／并集、持续率、修复与新生；同时比较不同路线','区分persistent与rotating失败；先对齐完整人口和推理协议，再决定知识补齐、覆盖或稳定性改进。'],
+        ['rollout已经采到好轨迹，却没学进去，还是根本没采到？','每组8候选的通过率、最好候选、优势正负、全失败／同分组和更新后部署表现','拆开候选覆盖与信用分配；全同分PG信号不足不等于总梯度为零，IL anchor仍可更新。']])
+    preference=editorial.get('preference_research',{});longitudinal=editorial.get('zero_longitudinal',{})
+    if preference:
+        summary=preference.get('summary',{});counts=summary.get('pair_counts_by_reason',{})
+        body+='<h3>TRAIN偏好数据与CPU代理损失已准备，尚非已上线实验</h3><p>证据时间 '+esc(preference.get('utc','待记录'))+'；状态 '+esc(preference.get('status','已发布离线研究证据'))+'。既有 '+number(summary.get('unique_scenes'))+' 个共同TRAIN场景、'+number(summary.get('groups'))+'组／'+number(summary.get('candidates'))+'候选，构造 '+number(summary.get('pairs'))+' 对；不新增rollout或评分，不把历史pair混入on-policy GRPO优势。'+link(preference.get('manifest'),'离线偏好manifest')+'</p>'
+        body+=table(['偏好类型','已选pairs','方向与限制'],[
+            ['通过三项指标优于未通过',number(counts.get('pass_over_fail')),'只表示NC=DAC=TTC指标条件优先；不是已知路权／必要等待标签。'],
+            ['通过候选内部比较效率',number(counts.get('feasible_efficiency')),'EP差≥0.05，raw progress更高且Comfort不差；不把所有低EP或停车判错。'],
+            ['整个pool无通过见证时较小deficit',number(counts.get('allfail_deficit')),'混合pool的fail-fail不放此类；要求安全分量逐项不更差，交叉优劣排除。指标缺失成本不是事故严重程度，也不是安全解。']])
+        body+='<p>标记的安全—效率取舍 '+number(summary.get('selected_safety_efficiency_tradeoffs'))+' 对；'+number(summary.get('labels_conflicting_with_canonical_score'))+' 对标签方向与canonical总分相反。其余pair也可显式表达安全与条件效率，不代表大多数总分标签错误。TRAIN身份已核，NAVTEST重叠为0。</p>'
+        rollout_rows=[]
+        for arm,node in summary.get('counts_by_arm',{}).items():
+            rollout_rows.append([esc(arm),number(node.get('groups')),number(node.get('scalar_canonical_tie_groups')),number(node.get('actual_zero_PG_groups')),number(node.get('unsafe_positive_with_feasible_alternative')),number(node.get('zero_PG_groups_with_cross_behavior_preference_witness'))])
+        if rollout_rows:
+            body+=table(['近10k既有TRAIN窗口','组数','canonical同分组','算法实际PG=0组','unsafe正A且有通过替代：候选数','PG=0组有历史跨behavior偏好证据'],rollout_rows)+'<p class="note">SafetyEP在该窗口消除了“unsafe正优势且有通过替代”的候选，但正式10k NC仍下降，说明训练信用修正不等于部署场景偏好已解决。算法PG=0组、canonical同分组与部署zero场景是三种口径；跨behavior证据只支持合法离线样本，不把旧轨迹当新on-policy样本。</p>'
+        tie=preference.get('zero_tie_diagnosis',{})
+        if tie.get('by_arm'):
+            tie_rows=[]
+            for arm,node in tie['by_arm'].items():
+                tie_rows.append([esc(arm),number(node.get('zero_PG_groups')),number(node.get('zero_PG_all3pass_and_all_EP1')),number(node.get('zero_PG_allfail')),number(node.get('zero_PG_allfail_has_own_deficit_direction')),number(node.get('zero_PG_with_other_policy_pass_witness'))])
+            body+='<h3>PG=0的关键拆分：指标饱和成功与全失败不是一回事</h3>'+table(['相同近10k窗口','PG=0组','全8候选三安全通过且EP=1','全8候选均未通过','全失败但本组deficit有方向','别的behavior有通过见证'],tie_rows)+'<p>SafetyEP的100个PG=0组全部属于三指标与EP饱和成功，不是100个失败／停滞场景；没有更高安全EP替代时，不应为抹平zero比例强造梯度。Full的3个全失败PG=0组中，2组仍有指标deficit方向，可研究结构化信用；所有候选同败同cost时则没有数据内相对方向。这里只是窗口诊断，不是persistent总体结论。'+link(tie.get('path'),'逐组可辨识性诊断')+'</p>'
+        recommendations=preference.get('algorithm_recommendations',[])
+        if recommendations:
+            body+=table(['准备研究的方法','优先级','实现／证据边界'],[[esc(node.get('name')),number(node.get('priority')),esc(node.get('scope',''))]for node in recommendations])
+        body+='<p>CPU prototype已检查梯度方向与clean-x／CFM恒等关系；chain logscore或CFM负误差仍是代理分数，不是精确端点DPO likelihood。'+esc(preference.get('limits_zh',''))+' '+link(editorial.get('preference_research_path'),'偏好研究、CPU检查与实施边界')+'</p>'+detail('偏好样本、CPU原型与完整证据','<pre>'+esc(json.dumps(preference,ensure_ascii=False,indent=2))+'</pre>')
+    else:body+='<p class="muted">TRAIN安全—效率冲突偏好manifest与CPU候选方案正在准备；尚不声明偏好训练已注册、已上线或已提分。NAVTEST场景不直接回流为训练名单。</p>'
+    if longitudinal:
+        body+='<h3>纵向zero：同一难点与轮换失败分开统计</h3><p>状态 '+esc(longitudinal.get('status','已发布诊断证据'))+'；证据时间 '+esc(longitudinal.get('at',longitudinal.get('utc','待记录')))+'。persistent只表示在表中列出的观测点全部为零，不代表未观测更新也始终失败；不同路线的观测点数与预算不同，不能直接按持续zero数排算法。</p>'
+        nav_zero=longitudinal.get('NAVTEST_diagnostic_only',{});nav_series=nav_zero.get('series',{})
+        zero_rows=[];transition_rows=[];attribution_rows=[]
+        for arm,node in nav_series.items():
+            sets=node.get('sets',{});observed=node.get('observed_updates',[])
+            zero_rows.append([esc(arm),esc('／'.join(str(u//1000)+'k'for u in observed)),number(sets.get('latest_zero')),number(sets.get('persistent_zero_all_observed')),number(node.get('persistent_RL_only_zero_count')),number(sets.get('intermittent_zero')),number(sets.get('relapsed_after_observed_recovery'))])
+            if node.get('adjacent_transitions'):
+                t=node['adjacent_transitions'][-1]
+                transition_rows.append([esc(arm),number(t.get('from_updates'))+'→'+number(t.get('to_updates')),number(t.get('stayed_zero')),number(t.get('new_zero')),number(t.get('recovered')),fmt(t.get('zero_jaccard'),2,percent=True)+'%'])
+            if node.get('checkpoints'):
+                cp=node['checkpoints'][-1];a=cp.get('zero_attribution',{})
+                attribution_rows.append([esc(arm),number(cp.get('updates')),number(a.get('NC0_only')),number(a.get('DAC0_only')),number(a.get('NC0_and_DAC0')),number(a.get('EP0_among_zero'))])
+        if zero_rows:
+            body+=table(['完整NAVTEST路线','观测更新（0=IL）','最新zero','全部观测点均zero：含IL','全部RL点均zero：不含IL','曾zero但非全部点','观察到修复后再zero'],zero_rows)
+            body+='<p class="note">部署zero是固定seed单候选ODE的canonical零分，不等于训练G8全部失败，也不等于算法PG=0。NAVTEST只作诊断，不导出token名单到训练；持续失败仍需结合TRAIN合法候选与当前可见信息判断原因。</p>'
+            full_sets=nav_series.get('PPO_FULL',{}).get('sets',{})
+            if full_sets:
+                body+='<p><b>观测结论：固定难点与轮换失败同时存在。</b>Full的全部已观测点中，曾zero '+number(full_sets.get('ever_zero'))+' 场景，其中 '+number(full_sets.get('persistent_zero_all_observed'))+' 在全部点都zero、'+number(full_sets.get('intermittent_zero'))+' 为间歇zero；最新仍zero '+number(full_sets.get('latest_zero'))+'，并非始终只有同一批。此分类不能直接归因于知识缺口、采样不足或训练不稳定，需与合法TRAIN rollout的通过见证和实际优势关联。</p>'
+        cross=nav_zero.get('cross_arm10k',{})
+        if cross:body+='<p>同10k跨 '+number(len(cross.get('arms',[])))+' 条路线，全部路线共同zero '+number(cross.get('common_zero_all_arms'))+' 场景，至少一路zero的并集 '+number(cross.get('zero_union_any_arm'))+'。这是同预算场景交集，不能据此断言不可学习或IL知识必然缺失。</p>'
+        if transition_rows:body+=detail('最近相邻观测：失败修复与新生是否抵消',table(['路线','相邻更新','仍zero','新zero','已修复','zero集合Jaccard'],transition_rows))
+        if attribution_rows:body+=detail('最新部署zero的指标归因',table(['路线','更新','仅NC0','仅DAC0','NC0且DAC0','zero中EP0：可重叠'],attribution_rows)+'<p>EP0可能与安全失败重叠，不能相加；canonical零分不自动等于低效停车。</p>')
+        train_series=longitudinal.get('TRAIN1024',{}).get('series',{})
+        if train_series:
+            train_rows=[]
+            for arm,node in train_series.items():
+                sets=node.get('sets',{})
+                train_rows.append([esc(arm),number(len(node.get('observed_updates',[]))),number(sets.get('latest_zero')),number(sets.get('persistent_zero_all_observed')),number(sets.get('intermittent_zero')),number(sets.get('relapsed_after_observed_recovery'))])
+            body+=detail('训练内固定1024 panel的纵向zero（与Test隔开）',table(['TRAIN1024路线','观测点数：含IL','最新zero','全部点zero','间歇zero','修复后复发'],train_rows)+'<p>TRAIN可反馈，旧DEV对全量训练臂不是heldout；不把其持续率当完整NAVTEST结论。</p>')
+        body+='<p>rollout／优势关联状态：'+esc(longitudinal.get('rollout_analysis_status','见原始诊断'))+'。'+link(editorial.get('zero_longitudinal_path'),'完整纵向集合、分层与rollout诊断')+'</p>'
+    else:body+='<p class="muted">纵向zero集合与rollout信号分析正在复用已保存证据；persistent／rotating比例尚待对齐诊断，不先把单阶段零分率当作持续失败。</p>'
     examples=scene_research.get('scene_examples',[])
     example_rows=[[esc(row.get('scene','')),esc(row.get('evidence_needed','')),esc(row.get('desired',''))]for row in examples] if examples else [
         ['路口让行／冲突参与者通过','路权、冲突间隙、参与者可见性、可行通行窗口','必要等待不作低效惩罚；区分尚无安全窗口与错过安全窗口。'],
@@ -399,7 +496,7 @@ def render_research_report(root,snapshot,history,h):
             ['全人口已见场景',number(coverage.get('population_unique_exposed'))+' / 103,288（'+fmt(coverage.get('population_coverage'),2,percent=True)+'%）','选择分布与均匀全量路线不同'],
             ['额外3072中未被RL采样',number(extra.get('never_exposed'))+' / 3,072','称feedback-unseen；并非全部training-unseen'],
             ['正常反馈等待中位数',fmt((timing.get('steady_after1k_gap_median_seconds')or 0)/60,2)+'分钟','墙钟含export/容量/评测，不等于独占GPU成本']])
-        body+='<div class="note">至9k，旧panel占57.83%的实际曝光；8k曾有36.5分钟异常反馈间隔、6次pre-child资源拒绝，不能当作模型/scorer错误。也不应把少量zero-PG组描述为大量零方差浪费。'+link(root/'analysis'/'ADAPTIVE_TRAIN_PROCESS_20261030.json','完整曝光、日志与反馈耗时')+'</div>'
+        body+='<div class="note">至9k，旧panel占57.83%的实际曝光；8k曾有36.5分钟异常反馈间隔、6次pre-child资源拒绝，不能当作模型/scorer错误。旧Full／Adaptive窗口的低zero-PG比例不能外推到SafetyEP，应按算法实际mask与canonical同分分开统计。'+link(root/'analysis'/'ADAPTIVE_TRAIN_PROCESS_20261030.json','完整曝光、日志与反馈耗时')+'</div>'
         replay=adaptive_analysis.get('mixture_replay_summary',{}).get('9000',{})
         if replay:
             replay_rows=[]
@@ -443,7 +540,8 @@ def render_research_report(root,snapshot,history,h):
                 if item:adaptive_rows.append([label,signed(item.get('delta_points'),5),'['+', '.join(signed(v,5)for v in interval)+']' if len(interval)==2 else '待记录'])
             if adaptive_rows:body+='<h3>4096 final：面板特化迹象，尚无广泛增益证据</h3>'+table(['ADAPTIVE−FULL，同人口','PDMS点差','95%区间'],adaptive_rows)+'<p>旧反馈panel有正向配对支持，反馈外3072与全4096区间跨零；新增场景没有明确增益，也不能写成额外场景已退化。后续数据策略应与场景条件安全—效率诊断结合，不能只追反复评测的panel。</p>'
     new_pilots=[arm for arm in display_arms if arm not in ARMS]
-    body+='<h3>两个独立10k pilot：'+('均已全8rank实际训练，梯度有限' if len(active_pilots)>=2 else '已登记执行进度见路线表' if new_pilots else '准备中，尚无启动收据')+'</h3>'+table(['研究问题','唯一主要改动','保持不变／判据'],[
+    pilots_complete=all((arm,10000)in points for arm in ['PPO_MEMORYLR20','PPO_SAFETY_EP'])
+    body+='<h3>两个独立10k pilot：'+('首轮完整评测已完成，后续决策见路线表' if pilots_complete else '均已全8rank实际训练，梯度有限' if len(active_pilots)>=2 else '已登记执行进度见路线表' if new_pilots else '准备中，尚无启动收据')+'</h3>'+table(['研究问题','唯一主要改动','保持不变／判据'],[
         ['给定IL知识能否更充分适配轨迹任务','memory学习率5e−6 → 2e−5','固定IL父模型与RL配方其余项；检验适配强度，不能代表补齐全部驾驶知识。'],
         ['安全与通过候选内效率能否分别分配信用','安全／可行EP分量优势：PPO_SAFETY_EP候选','不叠加memory LR试验；同预算检查新增风险、必要等待和条件效率。']])+'<p>两项由研究主进程实现与注册，实际是否启动看独立登记／worker收据。PPO_SAFETY_EP是待验证的候选指标条件信用分解：通过者内部才分配效率信用，全未通过时用指标缺失成本给安全方向；它没有新增场景输入，也不代表已具备场景风险推理。新IL达标后的RL对照另起实验；现有已封存模型与旧训练不热改。</p>'
     if pilot_startups:
@@ -453,6 +551,9 @@ def render_research_report(root,snapshot,history,h):
             startup_updates=min((row.get('updates',0) for row in value.get('rows',[])),default=None)
             guard=registration.get('lease_guard_UTC');expiry=registration.get('lease_expiry_UTC')
             boundary=('8h临时许可：'+str(guard)+'前保护checkpoint；'+str(expiry)+'到期' if guard else '既有许可主机；按当前有效grant运行')
+            superseded_hosts=snapshot.get('resource_authorization_request',{}).get('hosts',[])
+            if snapshot.get('resource_finite_window_superseded') and runs.get(arm,{}).get('host') in superseded_hosts:
+                boundary='最新REQUEST临时不限时；原8h保护线／到期仅为历史，不代表部署容量已核实'
             pilot_rows.append([esc(arm),'全8rank有限梯度；启动证据 '+number(startup_updates)+' 更新' if arm in active_pilots else esc(value.get('status','待收据')),
                 number(registration.get('pilot_budget_updates'))+' cap<small>1k／5k／10k评审；scheduler '+number(registration.get('native_scheduler_max_updates'))+' 不等于研究已授权跑满</small>',
                 esc(boundary),link(root/f'STARTUP_{arm}_20261030.json','实际启动')+' · '+link(root/f'EXPERIMENT_{arm}_REGISTRATION.json','独立注册')])
@@ -505,8 +606,10 @@ def render_research_report(root,snapshot,history,h):
         ops+='<p>已授权既有节点的库存保留各次独立准入证据，最新指针不覆盖累计库存：</p>'+table(['历史准入库存','覆盖主机'],[[link(item['path'],'库存原件'),esc('、'.join(item['hosts']))]for item in snapshot['historical_addition_inventory']])
     activation=snapshot.get('resource_activation',{})
     if activation.get('hosts'):
-        activation_rows=[[esc(host),esc(entry.get('status','待记录')),number(entry.get('physical_GPU_count')),number(len(entry.get('headroom32GiB_accounted_gpu_indices',[]))),number(entry.get('new_job_deployments'))]for host,entry in activation['hosts'].items()]
-        ops+='<h3>本次8h再授权与准入收据</h3>'+table(['主机','收据状态','物理GPU','32GiB准入合格卡','该步骤新部署'],activation_rows)+'<p>保护checkpoint时间 '+esc(activation.get('checkpoint_guard_utc','待记录'))+'；到期 '+esc(activation.get('expires_utc','待记录'))+'。许可和库存审计不等于部署。'+link(snapshot.get('resource_activation_path'),'实际准入收据，无报告侧host操作')+'</p>'
+        activation_rows=[[esc(host),esc(entry.get('status','待记录')),number(entry.get('physical_GPU_count')),number(len(entry.get('headroom32GiB_accounted_gpu_indices',[]))),esc(entry.get('inventory_at','待记录')),link(entry.get('inventory_evidence'),'库存证据')]for host,entry in activation['hosts'].items()]
+        ops+='<h3>最近可核查库存：与最新权限分开</h3>'+table(['主机','当时收据状态','物理GPU','当时32GiB合格卡','库存证据时间','来源'],activation_rows)+'<p>库存是对应时间的只读快照，不证明当前空闲或新部署。最新许可型ACTIVATED的host列表只表示授权激活，不当作GPU库存。'+link(snapshot.get('resource_activation_path'),'最新授权激活收据，无报告侧host操作')+'</p>'
+    if snapshot.get('resource_finite_window_superseded'):
+        ops+='<p>最新REQUEST明确四exact hosts临时不限时，并覆盖此前8小时窗口。effective grant内残留的旧expires字段标为historical_only，报告不再用它推断当前到期；本页不改变任何worker租约。'+link(snapshot.get('resource_authorization_request_path'),'最新用户REQUEST原文')+'</p>'
     ops+=detail('最近阶段事件','<pre>'+esc(json.dumps(snapshot.get('events',[])[-15:],ensure_ascii=False,indent=2))+'</pre>')
     body=detail('科学身份、人口与防误读规则',identity)+detail('全部完整NAVTEST与原始SUMMARY',table(['路线','更新','PDMS','场景','来源'],test_rows))
     body+=detail('TRAIN诊断与尚未完整的评测进度',table(['路线','人口','更新','已完成 / 应有','完整分数','来源'],evaluation_rows))
