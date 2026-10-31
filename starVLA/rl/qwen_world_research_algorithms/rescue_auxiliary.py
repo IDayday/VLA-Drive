@@ -34,7 +34,8 @@ AUX_PROTOCOL = dict(
     objective='lambda_kind * mean((v_theta((1-sigma)*teacher+sigma*noise,sigma,current_scene)-noise+teacher)^2)',
     velocity='native World clean-x conversion v=(state-pred_x0)/sigma exactly once',
     draws='8 independent sigma U[.2,.8] and Gaussian noise per fresh scene; stateless token/update/rank/seed42; reuse four inners',
-    teacher='one offline same-TRAIN-scene strict NC=DAC=TTC=Comfort=1 verified endpoint; not human optimum or current-policy sample',
+    teacher='static same-TRAIN-scene strict NC=DAC=TTC=Comfort=1 verified endpoint, upgraded only when a fresh strict4 candidate score exceeds static by >1e-6; highest fresh score, earliest index tie; fixed four inners',
+    target_origin='static_teacher or online_upgrade with chain endpoint/scored requested/behavior/cache hashes; verified positive self-imitation CFM, not the AWR algorithm; never target advantages',
     skip='fresh eight NC=DAC=TTC=Comfort=EP=1, or no teacher for fresh token',
     policy_gradient='fresh canonical records only; original SafetyEP kappa0/lambdaEP1 with global64 A_raw population std once',
     anchor='permanent IL70 source mean anchor averaged over W2[7,8], beta50; never step9',
@@ -167,6 +168,54 @@ def positive_cfm_objective(velocity, target):
     return loss
 
 
+@torch.no_grad()
+def select_verified_target(rollout, bank):
+    """Use actually scored fresh evidence to avoid regression to a static label.
+
+    No model call, scoring, RNG or new PG sample. Selection is once/collection;
+    replay recomputes it from the immutable chain/feedback, not current weights.
+    """
+    canonical_components(rollout['records'])
+    row = bank.by_token[rollout['token']]
+    if row['log'] != rollout['log']:
+        raise ValueError('Teacher and fresh physical log differ')
+    target = dict(origin='static_teacher', teacher_id=row['teacher_id'],
+        metrics=copy.deepcopy(row['metrics']), normalized_sha256=row['normalized_sha256'],
+        requested_trajectory_sha256=row['requested_trajectory_sha256'])
+    strict = [i for i, record in enumerate(rollout['records']) if all(record['metrics'][k] == 1 for k in (
+        'no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collision_within_bound', 'comfort'))]
+    best = max(strict, key=lambda i: rollout['records'][i]['metrics']['score']) if strict else None
+    if best is None or rollout['records'][best]['metrics']['score'] <= row['metrics']['score']+1e-6:
+        return bank.clean_teacher(rollout['token']), target
+    record = rollout['records'][best]
+    if (record['token'] != rollout['token'] or record['log'] != rollout['log']
+            or record.get('protocol_sha256') != bank.manifest['protocol_sha256']
+            or record.get('cache', {}).get('sha256') != row['cache_sha256']):
+        raise ValueError('Fresh upgraded target scene/protocol/cache differs from verified bank')
+    clean = rollout['chain'][best, -1].detach().float().cpu().contiguous().clone()
+    requested = np.asarray(record['requested_trajectory'])
+    if clean.shape != (8, 3) or not bool(torch.isfinite(clean).all()) or requested.shape != (8, 3) or not np.isfinite(requested).all():
+        raise ValueError('Invalid fresh upgraded target endpoint')
+    # Both original rollout decoder and this validation use native FP32 element
+    # operations. Allow only conservative FP32 rounding across CPU/CUDA devices;
+    # the actual scored requested bits are separately hashed, never relabelled.
+    decoded = ActionCodec.denorm_odo(clean).numpy().astype(np.float64)
+    requested = np.ascontiguousarray(requested, dtype=np.float64)
+    bound = 8*np.finfo(np.float32).eps*(np.abs(decoded)+np.asarray([66.74, 42., 3.53]))
+    error = np.abs(decoded-requested)
+    if np.any(error > bound):
+        raise ValueError('Fresh clean endpoint is not the actually scored requested target')
+    target = dict(origin='online_upgrade', teacher_id=row['teacher_id'], candidate_index=best,
+        token=rollout['token'], log=rollout['log'],
+        behavior_version=copy.deepcopy(rollout['behavior_version']),
+        cache=copy.deepcopy(record['cache']), protocol_sha256=record['protocol_sha256'],
+        metrics=copy.deepcopy(record['metrics']), normalized_sha256=array_digest(clean.numpy()),
+        requested_trajectory_sha256=array_digest(requested),
+        codec_roundtrip=dict(max_abs_by_dimension=error.max(0).tolist(), bound_by_dimension=bound.max(0).tolist(),
+                             bound_is_not_metric_invariance=True))
+    return clean, target
+
+
 def payload_digest(payload):
     return tensor_digest({k: v for k, v in payload.items() if k != 'material_sha256'})
 
@@ -187,8 +236,9 @@ def attach_rescue_material(actor, rollout, bank, *, enabled, rank=None):
         if row['log'] != rollout['log']:
             raise ValueError('Teacher and fresh physical log differ')
         seed, sigma, noise = stateless_material(p['token'], p['behavior_update'], rank)
-        p.update(teacher=copy.deepcopy(row), selection_seed=seed,
-            clean=bank.clean_teacher(p['token']).to(actor.device),
+        clean, target = select_verified_target(rollout, bank)
+        p.update(teacher=copy.deepcopy(row), target=target, selection_seed=seed,
+            clean=clean.to(actor.device),
             sigma=sigma.to(actor.device), noise=noise.to(actor.device),
             condition_identity=rollout['cond_bg']['identity'], canonical_protocol_sha256=rollout['protocol_sha256'],
             coefficient=1. if row['bank_kind'] == 'low' else .2)
@@ -214,7 +264,7 @@ class RescueCFMLoss(ResearchLoss):
             rescue_aux_skip_saturated=zero+float(p['skip_reason'] == 'fresh_safety_comfort_EP_saturated'),
             rescue_aux_skip_no_teacher=zero+float(p['skip_reason'] == 'no_teacher'),
             rescue_aux_loss=zero, rescue_aux_weighted_loss=zero, rescue_aux_coefficient=zero,
-            rescue_aux_pool_low=zero, rescue_aux_pool_high=zero)
+            rescue_aux_pool_low=zero, rescue_aux_pool_high=zero, rescue_aux_online_upgrade=zero)
         if not p['enabled']:
             return total, metrics
         state, sigma, target = forward_material(p['clean'], p['sigma'], p['noise'])
@@ -224,13 +274,15 @@ class RescueCFMLoss(ResearchLoss):
             velocity = model.action_velocity(state, sigma*1000, condition)
         raw = positive_cfm_objective(velocity, target)
         weighted = p['coefficient']*raw
-        tm = p['teacher']['metrics']; best = max(r['metrics']['score'] for r in rollout['records'])
+        tm = p['target']['metrics']; best = max(r['metrics']['score'] for r in rollout['records'])
         metrics.update(rescue_aux_loss=raw.detach(), rescue_aux_weighted_loss=weighted.detach(),
             rescue_aux_coefficient=zero+p['coefficient'],
             rescue_aux_pool_low=zero+float(p['teacher']['bank_kind'] == 'low'),
             rescue_aux_pool_high=zero+float(p['teacher']['bank_kind'] == 'high'),
             rescue_aux_sigma_min=sigma.min().detach(), rescue_aux_sigma_max=sigma.max().detach(),
             rescue_aux_teacher_score=zero+tm['score'], rescue_aux_teacher_EP=zero+tm['ego_progress'],
+            rescue_aux_online_upgrade=zero+float(p['target']['origin'] == 'online_upgrade'),
+            rescue_aux_static_teacher_score=zero+p['teacher']['metrics']['score'],
             rescue_aux_teacher_minus_fresh_best_score=zero+tm['score']-best)
         return total+weighted, metrics
 
@@ -261,17 +313,18 @@ def validate_rescue_boundary(state, rollout, identity, optimizer=None, scheduler
         if set(p) != base:
             raise ValueError('Skipped rescue group must not retain teacher/aux tensors')
     else:
-        extras = {'teacher', 'selection_seed', 'clean', 'sigma', 'noise', 'condition_identity', 'canonical_protocol_sha256', 'coefficient'}
+        extras = {'teacher', 'target', 'selection_seed', 'clean', 'sigma', 'noise', 'condition_identity', 'canonical_protocol_sha256', 'coefficient'}
         if set(p) != base | extras:
             raise ValueError('Missing or unexpected rescue auxiliary material')
         row = bank.by_token[rollout['token']]
         seed, sigma, noise = stateless_material(p['token'], p['behavior_update'], rank)
-        if (p['teacher'] != row or row['log'] != rollout['log'] or p['selection_seed'] != seed
+        clean, target = select_verified_target(rollout, bank)
+        if (p['target'] != target or p['teacher'] != row or row['log'] != rollout['log'] or p['selection_seed'] != seed
                 or p['condition_identity'] != rollout['cond_bg']['identity']
                 or p['canonical_protocol_sha256'] != rollout['protocol_sha256']
                 or p['coefficient'] != (1. if row['bank_kind'] == 'low' else .2)):
             raise ValueError('Saved rescue teacher/stateless/source identity changed')
-        for key, want in (('clean', bank.clean_teacher(p['token'])), ('sigma', sigma), ('noise', noise)):
+        for key, want in (('clean', clean), ('sigma', sigma), ('noise', noise)):
             value = p[key]
             if (not torch.is_tensor(value) or value.requires_grad or value.dtype != torch.float32
                     or value.shape != want.shape or not torch.equal(value.cpu(), want)):

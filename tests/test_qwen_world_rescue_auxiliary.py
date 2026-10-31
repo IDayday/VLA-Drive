@@ -84,6 +84,9 @@ class Feedback(Service):
         rows = super().score(value)
         for i, row in enumerate(rows):
             m = row['metrics']
+            row['protocol_sha256'] = 'official'
+            row['cache'] = dict(path='/sealed/cache.pkl', sha256=str(self.rank)*64)
+            m['driving_direction_compliance'] = 1.
             if self.rank == 2: m['ego_progress'] = 1.
             if self.rank == 4 and i == 0: m['time_to_collision_within_bound'] = 0.
             if self.rank == 5: m['no_at_fault_collisions'] = 0.
@@ -230,3 +233,49 @@ def test_entry_once_finalizer_keeps_structured_credit_and_no_historical_A(bank, 
     assert out['structured_advantage']['protocol'] == r.STRUCTURED_PROTOCOL and out['rescue_auxiliary']['enabled']
     assert 'advantages' not in out['rescue_auxiliary'] and out['rescue_auxiliary']['teacher']['on_policy_GRPO_eligible'] is False
     with pytest.raises(ValueError, match='once per collection'): runtime.finalize_advantages(out)
+
+
+def test_fresh_verified_upgrade_never_uses_unsafe_or_worse_targets_and_replays_exactly(bank, monkeypatch):
+    monkeypatch.setattr(torch.cuda, 'synchronize', lambda:None)
+    actor, out = collect(bank)
+    # An unsafe EP=1 candidate must not outrank the best strict4 candidate.
+    for idx, ep, ttc in ((5, .95, 1.), (7, 1., .99)):
+        m = out['records'][idx]['metrics']; m.update(ego_progress=ep, time_to_collision_within_bound=ttc)
+        m['score'] = (5*ep+5*ttc+2)/12
+        out['records'][idx]['readouts']['canonical_PDMS'] = m['score']
+    out['rewards'] = canonical_components(out['records'])['canonical_rewards']
+    finalize_safety_efficiency_advantages(out)
+    # Explicit eight identical rank math fixture: same local A and scale as
+    # singleton CPU math, actual world64 count for boundary validation.
+    out['advantage_statistics'].update(normalization_population_candidates=64, normalization_population_groups=8)
+    before_A = out['advantages'].clone(); before_rewards = out['rewards'].clone()
+    calls = len(actor.velocity_steps); r.attach_rescue_material(actor, out, bank, enabled=True, rank=0)
+    p = out['rescue_auxiliary']; selected = p['target']
+    assert len(actor.velocity_steps) == calls and selected['origin'] == 'online_upgrade'
+    assert selected['candidate_index'] == 5 and selected['behavior_version'] == out['behavior_version']
+    assert selected['cache']['sha256'] == bank.by_token['scene0']['cache_sha256']
+    assert selected['metrics']['score'] > p['teacher']['metrics']['score']+1e-6
+    assert torch.equal(p['clean'], out['chain'][5, -1]) and p['coefficient'] == 1.
+    assert torch.equal(out['advantages'], before_A) and torch.equal(out['rewards'], before_rewards)
+    identity = dict(world=8, sha256='run', schema='world_postcot_cleanx_scope_RL_v1', recipe=recipe(bank), projected_condition_identity='condition')
+    state = dict(updates=0, collections=1, next_inner=0, phase='ROLLOUT_COMMITTED', scene_cursor=8, raw_scene_exposures=8, new_candidates=64)
+    loss = r.RescueCFMLoss(recipe(bank)); digest = p['material_sha256']
+    for inner in range(4):
+        r.validate_rescue_boundary(dict(state, updates=inner, next_inner=inner, phase='INNER_COMMITTED' if inner else 'ROLLOUT_COMMITTED'), out, identity, bank=bank, rank=0)
+        total, metrics = loss._policy_loss(actor, out); total.backward(); actor.p.grad = None
+        assert metrics['rescue_aux_online_upgrade'] == 1 and metrics['rescue_aux_teacher_EP'] == pytest.approx(.95)
+        assert r.payload_digest(p) == digest  # chosen before updates, not reselected each inner
+    # Recomputed payload hashes cannot authorize changing candidate identity or
+    # substituting an unscored endpoint. Restore rederives it from chain/records.
+    bad = copy.deepcopy(out); bad['rescue_auxiliary']['target']['candidate_index'] = 7
+    bad['rescue_auxiliary']['material_sha256'] = r.payload_digest(bad['rescue_auxiliary'])
+    with pytest.raises(ValueError, match='identity changed'): r.validate_rescue_boundary(state, bad, identity, bank=bank, rank=0)
+    bad = copy.deepcopy(out); bad['chain'][5, -1, 0, 0] += .1
+    with pytest.raises(ValueError, match='actually scored'): r.validate_rescue_boundary(state, bad, identity, bank=bank, rank=0)
+    # Existing worse fresh rollout retains the stronger static teacher; high
+    # pool likewise never downgrades from its score=1 static teacher.
+    for rank in (0, 1):
+        _, other = collect(bank, rank)
+        clean, target = r.select_verified_target(other, bank)
+        assert target['origin'] == 'static_teacher'
+        assert torch.equal(clean, bank.clean_teacher(f'scene{rank}'))
