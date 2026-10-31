@@ -1,0 +1,86 @@
+{
+  "schema": "NAVTEST_cadence_actual_deployment_v1",
+  "at_unix": 1793418970.2829657,
+  "status": "BOTH_EVALUATIONS_DISPATCHED",
+  "owner": {
+    "pid": 2342200,
+    "role": "CPU NAVTEST observer/dispatcher only; no native training actions",
+    "source_file": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner.py",
+    "source_sha256": "b96dd4450aa5a85ca9be4e46b8028166ac3da42ecdfba0ff31406b08a4acbe30",
+    "start_ticks": 1485735603,
+    "started_at": "2026-10-31T03:52:22.932628+00:00"
+  },
+  "policy": "/mnt/project/qwen-world-rl-optimization-20261030/NAVTEST_CADENCE_POLICY_20261031.json",
+  "points": [
+    {
+      "label": "PPO_SAFETY_EP_u012000_NAVTEST",
+      "updates": 12000,
+      "spec": "/mnt/project/qwen-world-rl-optimization-20261030/evaluation_specs/PPO_SAFETY_EP_u012000_NAVTEST.json",
+      "actual_world": 32,
+      "worker_receipt_counts": {
+        "RUNNING": 32
+      },
+      "hosts": {
+        "training-vlawm-tsinghua-zt6": 8,
+        "training-vla-zt3": 8,
+        "training-vla-zt": 4,
+        "training-vlawm-zt2": 3,
+        "training-vlawm-tsinghua-zt2": 8,
+        "training-vlawm-tsinghua-zt5": 1
+      }
+    },
+    {
+      "label": "PPO_SAFETY_EP_u014000_NAVTEST",
+      "updates": 14000,
+      "spec": "/mnt/project/qwen-world-rl-optimization-20261030/evaluation_specs/PPO_SAFETY_EP_u014000_NAVTEST.json",
+      "actual_world": 25,
+      "worker_receipt_counts": {
+        "RUNNING": 25
+      },
+      "hosts": {
+        "training-vlawm-zt2": 3,
+        "training-vlawm-zt": 7,
+        "training-vlawm-tsinghua-zt5": 7,
+        "training-vlawm-tsinghua-zt3": 8
+      }
+    }
+  ],
+  "requested_max_shards": 32,
+  "max_active_models": 2,
+  "training_jobs_stopped": false,
+  "training_budget_modified": false,
+  "scenes_per_point": 12146,
+  "existing_inflight_layouts_preserved": true,
+  "initial_observation": {
+    "at_unix": 1793418909.814795,
+    "points": [
+      {
+        "label": "PPO_SAFETY_EP_u012000_NAVTEST",
+        "updates": 12000,
+        "spec": "/mnt/project/qwen-world-rl-optimization-20261030/evaluation_specs/PPO_SAFETY_EP_u012000_NAVTEST.json",
+        "actual_world": 32,
+        "worker_receipt_counts": {
+          "RUNNING": 32
+        },
+        "hosts": {
+          "training-vlawm-tsinghua-zt6": 8,
+          "training-vla-zt3": 8,
+          "training-vla-zt": 4,
+          "training-vlawm-zt2": 3,
+          "training-vlawm-tsinghua-zt2": 8,
+          "training-vlawm-tsinghua-zt5": 1
+        }
+      },
+      {
+        "label": "PPO_SAFETY_EP_u014000_NAVTEST",
+        "updates": 14000,
+        "spec": null,
+        "actual_world": null,
+        "worker_receipt_counts": {},
+        "hosts": {}
+      }
+    ]
+  },
+  "total_actual_shards": 57,
+  "same_native_training_continues_at_update": 15376
+}
