@@ -3,14 +3,19 @@ import copy
 import time
 import torch
 from starVLA.model.modules.qwen_sourceflow.action_codec import ActionCodec
+from starVLA.rl.simwam_recipe.contracts import registered_stochastic_steps_for_recipe
 
 
 @torch.no_grad()
-def collect(actor, condition, token, log, service, generator, *, variant, version, progress=None):
+def collect(actor, condition, token, log, service, generator, *, variant, version, progress=None, recipe=None):
+    # Historical callers retain the literal W3 contract. Only an explicit new
+    # runtime passes its complete separately registered W2 recipe.
+    steps=[7,8,9] if recipe is None else registered_stochastic_steps_for_recipe(recipe)
+    if recipe is not None and recipe['variant']!=variant:raise ValueError('Collector recipe/variant mismatch')
     actor._noise_audit=[]
     begin=time.monotonic()
     chain,times,deltas,indices=actor.sample_action_chain(condition,8,generator=generator)
-    if chain.shape!=(8,11,8,3) or indices.tolist()!=[7,8,9] or not torch.isfinite(chain).all():
+    if chain.shape!=(8,11,8,3) or indices.tolist()!=steps or not torch.isfinite(chain).all():
         raise ValueError('Invalid native source chain; no replacement candidates')
     torch.cuda.synchronize();rollout_seconds=time.monotonic()-begin
     if progress:progress('generated',rollout_seconds,8)
@@ -24,7 +29,7 @@ def collect(actor, condition, token, log, service, generator, *, variant, versio
     old=copy.deepcopy(actor._probability_audit['current'])
     sampling_check=None
     if actor.record_sampling_terms:
-        if len(actor.sampling_terms)!=3:raise ValueError('Actual source stochastic sampling window changed')
+        if len(actor.sampling_terms)!=len(steps):raise ValueError('Actual source stochastic sampling window changed')
         errors=[]
         for i,(mean,std) in enumerate(actor.sampling_terms):
             errors.append(dict(step=int(indices[i]),mean_max_abs=float((mean-old['mean'][:,i]).abs().max()),

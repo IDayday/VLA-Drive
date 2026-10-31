@@ -31,6 +31,32 @@ def registered_stochastic_steps(variant):
     raise ValueError('Unknown registered sampler variant: ' + str(variant))
 
 
+LASTDET_SCHEMA = 'final_deterministic_steps78_v1'
+
+
+def registered_stochastic_steps_for_recipe(cfg):
+    """Narrow World W2 registration; all historical variant rules stay intact."""
+    research=cfg.get('research',{})
+    if research.get('arm')=='PPO_LASTDET' or research.get('sampler_ablation') is not None:
+        sample=cfg.get('grpo',{}).get('sample',{})
+        expected=dict(group_size=8,num_inference_steps=10,sde_mode='rigorous',noise_level=.1,
+            train_sde_steps=2,sde_exclude_last_step=True,sde_step_indices=[7,8],
+            merge_sde_window=False,final_action_clip=None,min_std=.001,randn_clip=5.,
+            sample_noise_std=.1,logprob_noise_std=None,anneal_noise=True,
+            logprob_clamp_mode='relative',logprob_clamp_width=7.)
+        if (research.get('arm')!='PPO_LASTDET' or research.get('sampler_ablation')!=LASTDET_SCHEMA
+                or research.get('policy_objective')!='ppo' or research.get('data_policy')!='uniform_full'
+                or cfg.get('variant')!='R_CANONICAL' or cfg.get('model_family')!='QwenWorldPostCoT'
+                or cfg.get('prediction_type')!='x0' or cfg.get('adaptation')!='ATTN_LORA_MEMORY'
+                or cfg.get('action_shape')!=[8,3]
+                or any(research.get(k) is not None for k in ('advantage_normalization','structured_advantage',
+                    'reward_transform','anchor_ablation','memory_lr_ablation','preference_auxiliary','noise_level_ablation'))
+                or any(sample.get(k)!=v for k,v in expected.items())):
+            raise ValueError('W2[7,8] requires the exact independently registered World PPO_LASTDET recipe')
+        return [7,8]
+    return registered_stochastic_steps(cfg['variant'])
+
+
 def require_dispatch():
     p = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     host = socket.gethostname().removesuffix('-worker-0')

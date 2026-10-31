@@ -6,7 +6,7 @@ from the preceding sealed checkpoint, including its RNG and optimizer state.
 import hashlib
 import json
 import torch
-from .contracts import registered_stochastic_steps
+from .contracts import registered_stochastic_steps_for_recipe
 
 PHASES = {'READY', 'COLLECTING', 'ROLLOUT_COMMITTED', 'INNER_COMMITTED', 'COMPLETE'}
 
@@ -97,7 +97,8 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
                     descriptor['identity'] != identity['projected_condition_identity']):
                 raise ValueError('Native frozen condition ancestry mismatch')
             action_dim = 3
-        shapes = {'chain': (8, 11, 8, action_dim), 'old_logp': (8, 3), 'rewards': (1, 8),
+        registered_steps=registered_stochastic_steps_for_recipe(cfg)
+        shapes = {'chain': (8, 11, 8, action_dim), 'old_logp': (8, len(registered_steps)), 'rewards': (1, 8),
                   'advantages': (8,), 'adv_mask': (8,)}
         for k, shape in shapes.items():
             t = rollout[k]
@@ -105,12 +106,14 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
                 raise ValueError('Invalid detached rollout field: ' + k)
         indices = rollout['stoch_idx']
         if torch.is_tensor(indices): indices = indices.tolist()
-        if list(indices) != registered_stochastic_steps(cfg['variant']):
+        if list(indices) != registered_steps:
             raise ValueError('Changed registered stochastic window')
         v = rollout['behavior_version']
         if v['run'] != identity['sha256'] or v['update'] != u - i:
             raise ValueError('Behavior is not the collection-start policy')
         old = rollout['old_probability']['current'] if 'current' in rollout['old_probability'] else rollout['old_probability']
+        if registered_steps==[7,8] and tuple(old['source_clamped_logprob'].shape)!=(8,2,8,3):
+            raise ValueError('W2 probability audit must cover exactly the two stochastic transitions')
         # Restore validates CPU tensors. CPU and CUDA FP32 reduction trees differ
         # by up to 2.384e-7 on the actual eight-rank chain. Payload hashes still
         # enforce exact stored bits; this check only validates their semantics.
