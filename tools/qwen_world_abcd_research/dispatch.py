@@ -9,14 +9,14 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
 def launch(host, source, command, name, *, gpus='', expected_uuids=None,
-           minimum=None, share_minimum=None, lease_slot=None):
+           minimum=None, share_minimum=None, lease_slot=None, worker_source=None):
     if TASK != 'qwen_world_abcd_rl_best_20261031':
         raise ValueError('Explicit WORLD_COMPARE_TASK/ROOT required before importing dispatch')
     directory = ROOT/'jobs'/name
     directory.mkdir(parents=True, exist_ok=True)
     if (directory/'DISPATCH.json').exists():
         raise ValueError('Invocation already dispatched')
-    executor = str(Path(source)/'tools/qwen_world_abcd_research/job_worker.py')
+    executor = str(Path(worker_source or source)/'tools/qwen_world_abcd_research/job_worker.py')
     args = [MODEL_PYTHON, executor, '--receipt-root', str(directory), '--gpus', gpus,
             '--command-json', json.dumps(command), '--cwd', str(source)]
     if expected_uuids is not None:

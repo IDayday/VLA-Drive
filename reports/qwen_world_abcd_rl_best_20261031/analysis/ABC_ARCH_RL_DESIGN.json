@@ -1,0 +1,322 @@
+{
+  "schema": "qwen_world_abcd_ABC_architecture_RL_design_v1",
+  "status": "CPU_IMPLEMENTED_PENDING_ROOT_INTEGRATION",
+  "at_unix": 1793462426.583565,
+  "exact_immutable_reference_source": "/mnt/project/qwen-world-four-frameworks-20261029/runtime/fast_5a2d5b5",
+  "new_worktree": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031",
+  "parent_selection": "/mnt/project/qwen-world-abcd-rl-best-20261031/BEST_PARENT_SELECTION.json",
+  "parent_selection_sha256": "7e6a700dc391c28b5e7bbae077bef4909f1aff6986cab7650f412bf8822efa4e",
+  "objective": {
+    "accepted_by_root": "SafetyEP + unchanged original source PPO/W3",
+    "config": {
+      "research": {
+        "abc_objective": {
+          "schema": "qwen_world_abcd_ABC_SafetyEP_sourcePPO_v1"
+        }
+      }
+    },
+    "equations": {
+      "feasible": "NC==DAC==TTC==1",
+      "cost": "mean(1−NC,1−DAC,1−TTC)",
+      "A_safe": "any feasible: f−mean(f); allfail:mean(cost)−cost",
+      "A_EP": "if>=2feasible:f*(EP−mean_feasibleEP),else0",
+      "A_raw": "A_safe+A_EP",
+      "normalization": "populationstd of all64 fresh rawA inclzeros +1e-8; actual group mask from any nonzero rawA",
+      "feedback": "canonical score remains NC*DAC*(5EP+5TTC+2Comfort)/12,DDC not multiplied"
+    },
+    "loss": "ABCSafetyLoss inheritsSourceLoss; only requires structured protocol then calls original _policy_loss unchanged",
+    "preserved": [
+      "positive-sigma cleanx velocity conversion",
+      "W3[7,8,9] rigorousSDEeta.1 G8",
+      "source relative-clamped dimensionmean transition proxy",
+      "sourcePPO clip.005/advantagecap5",
+      "own selected full architecture IL permanent physical-mean anchor beta50",
+      "LR5e-5 constant,warmup100optimizersteps",
+      "fourinners/8ranks",
+      "current-only observations,singleODE10shift5seed2101deployment"
+    ],
+    "limitations": [
+      "proxy ratio is not exactIS",
+      "successfulEP1 groups can still have Comfort credit differences thatSafety ignores; no new q/Comfort fix bundled",
+      "native scheduler max50k is a ceiling/horizon,not a promise of running50k"
+    ]
+  },
+  "architectures": {
+    "A": {
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_A_IL020000/export",
+      "model_config": {
+        "decision": {
+          "actor_config": {
+            "action_dim": 3,
+            "action_tokens": 8,
+            "activation_checkpointing": true,
+            "dropout": 0.0,
+            "ego_dim": 8,
+            "ffn_dim": 4096,
+            "hidden_dim": 1024,
+            "num_heads": 16,
+            "num_layers": 20
+          },
+          "world_config": {
+            "activation_checkpointing": true,
+            "actor_dim": 1024,
+            "bridge_groups": 4,
+            "ego_dim": 8,
+            "ffn_dim": 1536,
+            "hidden_dim": 384,
+            "num_heads": 6,
+            "num_layers": 20,
+            "post_tokens": 16,
+            "prefix_tokens": 32,
+            "scene_dim": 1024
+          }
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "attention_linear_objects": 160,
+      "LoRA_trainable_numel": 5242880,
+      "by_scope_numel": {
+        "actor_attention": 5242880
+      },
+      "representation_learning": "A: currentQwen and C160 scene provider frozen; training-only W/R removed. Only actor self/cross attentionLoRA adapts how it reads fixedC160 and denoises8x3."
+    },
+    "B": {
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_B_IL016000/export",
+      "model_config": {
+        "decision": {
+          "activation_checkpointing": true,
+          "ego_dim": 8,
+          "ffn_dim": 4096,
+          "hidden_dim": 1024,
+          "num_heads": 16,
+          "num_layers": 20
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "attention_linear_objects": 160,
+      "LoRA_trainable_numel": 5242880,
+      "by_scope_numel": {
+        "shared_P_A_attention": 5242880
+      },
+      "representation_learning": "B: currentQwen/C160 frozen; same160 projectionobjects shared byP32 andA8. LoRA updates both planningprefix and actionpath, currentP must be rebuilt perlogp with gradients; no duplicateP+A trainable count."
+    },
+    "C": {
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_C_IL012000/export",
+      "model_config": {
+        "decision": {
+          "actor_config": {
+            "action_dim": 3,
+            "action_tokens": 8,
+            "activation_checkpointing": true,
+            "dropout": 0.0,
+            "ego_dim": 8,
+            "ffn_dim": 4096,
+            "hidden_dim": 1024,
+            "num_heads": 16,
+            "num_layers": 20
+          },
+          "world_config": {
+            "activation_checkpointing": true,
+            "actor_dim": 1024,
+            "bridge_groups": 4,
+            "ego_dim": 8,
+            "ffn_dim": 1536,
+            "hidden_dim": 384,
+            "num_heads": 6,
+            "num_layers": 20,
+            "post_tokens": 16,
+            "prefix_tokens": 32,
+            "scene_dim": 1024
+          }
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "attention_linear_objects": 328,
+      "LoRA_trainable_numel": 7389184,
+      "by_scope_numel": {
+        "world_KV_bridges": 180224,
+        "world_attention": 1966080,
+        "actor_attention": 5242880
+      },
+      "representation_learning": "C: currentQwen/C160 frozen; actor attention +online20x384Wattention +4groupK/V bridgesLoRA learn. W/KV reconstructed perlogp. Parentlearned worldgate/basequeries/FFNs/input projections remain frozen; do not assumegate still equals its initialization."
+    }
+  },
+  "data_contract": {
+    "actual_TRAIN": 90890,
+    "not_90990": true,
+    "DEV": 1696,
+    "NAVTEST": 12146,
+    "TRAIN_physical_logs": 147,
+    "DEV_physical_logs": 15,
+    "NAVTEST_physical_logs": 44,
+    "root": "/mnt/project/qwen-world-postcot-20261025/data/TRAIN",
+    "old_103288_decomposition": {
+      "legalTRAIN": 90890,
+      "DEV": 1696,
+      "embargoed_same_DEV_physical_logs": 10702
+    },
+    "prohibition": "Removing only1696DEVtokens fromold103288 still leaves10702DEV-logembargoedtokens; never use oldNAVTRAIN reader/panel as newTRAIN.",
+    "stream_manifest": "/mnt/project/qwen-world-abcd-rl-best-20261031/data/FULL_TRAIN_090890.json",
+    "stream_manifest_file_sha256": "d0a54ff7279d247660a08098524be92f455a2ea1eb9c34491ae8b906ab8071f8",
+    "token_order": "original sealedTRAIN token order; source randperm(seed42+epoch),absolute scene cursor and six endepoch padding tokens atworld8",
+    "actor_input": "WorldSceneData.observation returns currentcamera/ego/navigation only; GT/future/cache/evidence only serve scoring or unavailableIL-only losses",
+    "no_future_teacher_or_oldcandidate_bank_dependency": true,
+    "new_observation_cache_copy": false
+  },
+  "reuse_and_required_narrow_changes": {
+    "reuse": [
+      "FourFrameworkRecipeActor cleanx/sampler/logp/reference copy",
+      "identity-safe architectureLoRA installer includingBshared aliases",
+      "FrozenCurrentConditions cache boundary and perlogp B/C prefix autograd",
+      "native world8 transaction/RNG/Adam/innercheckpoint lifecycle",
+      "official realPDMreward and singleODEevaluation"
+    ],
+    "issues": [
+      {
+        "issue": "Oldload_recipe/parentselection forcesfull100kDEV-onlyparent",
+        "resolution": "root commonruntime explicit usercurrentbest ownparent selection; no fabricated100kseal"
+      },
+      {
+        "issue": "B16k andD12knative IL payloads deleted",
+        "resolution": "root explicit validated export-parent freshRL loader; inherit deploymentweights only,freshAdam/RNG42. A20kfullnative/C12kpreservedsnapshot also pinned."
+      },
+      {
+        "issue": "OldWorldRLTokenStream forces15171hardintersection",
+        "resolution": "newdata.FullTRAINTokenStream90890; no mutation ofold class"
+      },
+      {
+        "issue": "Legacycheckpoint save/restore directly import canonicalrawreward validators",
+        "resolution": "root separatecheckpointadapter must pass ABC/D validators through ALL save/restore phases, not just trainloop hooks"
+      },
+      {
+        "issue": "OldRuntime identity training_data_role sayshard15171",
+        "resolution": "root commonidentity bindsnewstream90890 and explicitown architecture scope"
+      },
+      {
+        "issue": "Exportsource inventory differs inD-onlyqwen_flow_adapter",
+        "resolution": "root reviewed singlefile execution-delta receipt; do not broadly disable source/library validation. ABC execution doesnotcallDmodule."
+      },
+      {
+        "issue": "OldRewardService defaults2cache roots",
+        "resolution": "root make_reward_service explicit assetroots/reuse existingcoverage, no assumption15171coverage proves90890"
+      },
+      {
+        "issue": "Oldtraining_dispatch boundary stop imports oldentry.stop",
+        "resolution": "root newrunner must bind its own graceful STOP path/currentresource task; no globalmonkeypatch"
+      },
+      {
+        "issue": "Independent permanent reference deepcopies even frozenQwen/C160 encoder modules not called inABC reference prefix",
+        "resolution": "possible later memory optimization only viaexplicitexecutionreview; do not change childactor now or assertprofilegain"
+      }
+    ]
+  },
+  "algorithm_choice_evidence": {
+    "proven_prior": "OldSafetyEP IL70bestcomplete91.3498917 at10k; parameter-gradient replay shows realcredit rotation,not merely scalar differences",
+    "deferred_FPO": "Atold1k FPO−Safety global−.1200 (CI crosses0),fixedILlow−1.244/TTC−1.578pp; FULLTIME broad-sigma variant stillpending. Do not bundle unproven FPO/time/q/teachers with newarchitecture firstarms.",
+    "architecture_transfer_boundary": "PriorSafety memoryscope52.7M andIL70 are different models/data/parents; no promised score transfer. A/B5.24M andC7.39M adapters measured from their actualpinnedconfigs,not hardcodedoldscope."
+  },
+  "interfaces": {
+    "module": "starVLA.rl.qwen_world_abcd_research.abc",
+    "mixin": "ABCObjectiveMixin",
+    "loss": "ABCSafetyLoss",
+    "config_subfield": "research.abc_objective={schema:qwen_world_abcd_ABC_SafetyEP_sourcePPO_v1}",
+    "hooks": [
+      "load_recipe",
+      "make_actor",
+      "finalize_advantages",
+      "validate_boundary",
+      "validate_ranks",
+      "recipe_identity",
+      "source_files"
+    ],
+    "validator_identity": "base qwen_world_compare_RL_v1 checksum/schema retained; ABC protocol is explicit nested identity field",
+    "base_runtime_owns": [
+      "export/nativeparentloader",
+      "currentbestselection",
+      "fullTRAIN stream construction",
+      "resourcegrant/taskenvironment",
+      "RewardService",
+      "sharedrunner andcheckpoint validation dispatch"
+    ],
+    "data_module": "starVLA.rl.qwen_world_abcd_research.data",
+    "data_class": "FullTRAINTokenStream(manifest,world)",
+    "data_generator": "write_full_train_manifest(output,train_root,partition_path=None,population_path=...)"
+  },
+  "CPU_evidence": {
+    "receipt": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/ABC_CPU_CHECK.json",
+    "receipt_sha256": "12f1246036643ce5e49ab23a9e5a27cac2514f25fe71053f6b3137898532ff7e",
+    "meta_audit": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/ABC_META_SCOPE_AUDIT.json",
+    "source_files": {
+      "starVLA/rl/qwen_world_abcd_research/abc.py": "af848eaca6b4388fc4348a8fffa8077de3d5125dcde6f45bb2b398f8ef30d660",
+      "starVLA/rl/qwen_world_abcd_research/data.py": "7b9c5a9a1e4daf0cf3c99028bc24e42f1f0df45f3b8196d895ef89d661192ca6",
+      "starVLA/rl/qwen_world_abcd_research/__init__.py": "aade3d669c63ef3e0e10e2f8d0d6aae770670309485e29c518deec678a6729e8",
+      "tests/test_qwen_world_abcd_abc.py": "6bc7f22f2ad1bd4e00cb05856580b235634ac5f1f4f0b2032e365a33a8e739de"
+    }
+  },
+  "proposed_evaluation": "root chooses finitegates/budget; report complete ownparentdelta,NC/DAC/TTC/EP/Comfort,zerosrepair/newzero,fixedownparenthigh retention. TRAIN diagnostic must be rebuilt from合法147logs andnotcalledheldout; NAV usedforselection disclosed.",
+  "scope": {
+    "CPU_only": true,
+    "new_model_weights_loaded": false,
+    "meta_decision_instances_only": true,
+    "GPU_dispatch": 0,
+    "new_model_forward": 0,
+    "new_scores": 0,
+    "shared_runner_or_actor_edits": 0,
+    "git_stage": false,
+    "git_commit": false
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "abcd_D_JaT_targeted_CPU_check_v1",
+  "status": "PASS",
+  "created_at": "2026-10-31T15:54:58.791831+00:00",
+  "command": "PYTHONPATH=. /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/world_compare/test_d_jat_objective.py",
+  "passed": 3,
+  "seconds": 16.41,
+  "source_files": {
+    "starVLA/rl/qwen_world_abcd_research/d_objective.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/starVLA/rl/qwen_world_abcd_research/d_objective.py",
+      "sha256": "e8f9fb424fe5a5d3c6d14a0f49c9d2ee1837bca443dc062f94516376611f6f35"
+    },
+    "starVLA/rl/qwen_world_abcd_research/d_entry.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/starVLA/rl/qwen_world_abcd_research/d_entry.py",
+      "sha256": "56a71d11673e7b018443ad62fc8c0cd964c320e9c35764318c19d30323a5263d"
+    },
+    "tests/world_compare/test_d_jat_objective.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/tests/world_compare/test_d_jat_objective.py",
+      "sha256": "daeeee866cb484fe418bc0d205b2e8335882936bef4e63c7bad09ade8a3816a1"
+    }
+  },
+  "coverage": [
+    "joint24 Gaussian logratio vs independent Normal densities and nativeKL math/gradients",
+    "PPO .2 correct clipping sides, frozen old/ref/covariance",
+    "actual tiny native Qwen D/sourceW3 sampling/noisefree clipping sentinel,4real AdamW1e-6updates",
+    "currentC/P prefix rebuilt4times/reference4calls/frozenvisualprefillonce",
+    "allbase/reference bitwise unchanged; only native textattention LoRA trainable",
+    "canonical centered64std and eight mockedrank native save-load/all4inner/poison rejection",
+    "no inf in sealedcfg or objectiveprotocol JSON; tiedA has noPG but nativeILKL active"
+  ],
+  "limitations": [
+    "CPU tiny native Qwen, not full2B GPU qualification",
+    "8rank semantic gather is CPU mocked, not real8processDDP",
+    "runtime unclippednoise shim is owned by root, cfgidentity staysnull"
+  ],
+  "new_GPU": 0,
+  "git_stage": false,
+  "git_commit": false
+}

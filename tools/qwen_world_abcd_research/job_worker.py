@@ -192,6 +192,19 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     if slot=='shared' and not args.share_min_free_mib:
         raise ValueError('The shared slot requires explicit measured sharing admission')
     for index in indices:
+        if slot=='evaluation':
+            # Also hold one legacy namespace for the full child lifetime.
+            # Exclusive IL guardians reserve all three; this closes the
+            # inventory-to-launch race without claiming every free slot.
+            legacy=None
+            for folder in (SHARED_LEASE_ROOT,RESEARCH_LEASE_ROOT,PRIMARY_LEASE_ROOT):
+                candidate=(folder/(mapping[index]+'.lock')).open('a')
+                try:fcntl.flock(candidate,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                except BlockingIOError:
+                    candidate.close();continue
+                legacy=candidate;locks.append(candidate);break
+            if legacy is None:
+                raise ResourceRefused('All legacy namespaces reserved; evaluation must respect exclusive owner')
         lease=({'primary':PRIMARY_LEASE_ROOT,'shared':SHARED_LEASE_ROOT,'research':RESEARCH_LEASE_ROOT,'evaluation':EVALUATION_LEASE_ROOT}[slot]/(mapping[index]+'.lock')).open('a')
         try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError as error:
