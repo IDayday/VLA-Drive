@@ -1,0 +1,199 @@
+{
+  "status": "PASS",
+  "architecture": "C",
+  "IL_update": 26000,
+  "features": {
+    "dino": {
+      "MSE": 0.027484573773108423,
+      "position_mean_MSE": 0.033994780329521745,
+      "zero_MSE": 0.06797830574214458,
+      "cosine": 0.7673119492828846,
+      "valid_queries": 432.0,
+      "scenes": 32,
+      "skill_vs_position_mean": 0.19150606338113996
+    },
+    "wa_pre": {
+      "MSE": 0.12199363554827869,
+      "position_mean_MSE": 0.14670442533679307,
+      "zero_MSE": 0.22205890156328678,
+      "cosine": 0.6719199325889349,
+      "valid_queries": 128.0,
+      "scenes": 32,
+      "skill_vs_position_mean": 0.16843929371445465
+    },
+    "wa_post": {
+      "MSE": 0.11826924420893192,
+      "position_mean_MSE": 0.14803750813007355,
+      "zero_MSE": 0.22343998402357101,
+      "cosine": 0.6864752769470215,
+      "valid_queries": 128.0,
+      "scenes": 8,
+      "skill_vs_position_mean": 0.20108595650627714
+    }
+  },
+  "common_panel_losses": {
+    "x": 0.013097416318487376,
+    "dino": 0.027484573423862457,
+    "wa_pre": 0.12199363252148032,
+    "object": 0.26751885702833533,
+    "future_track": 0.03652516345027834,
+    "wa_post": 0.11826924793422222,
+    "evaluation": 0.516234615817666
+  },
+  "factors": {
+    "NC": {
+      "labels": 24,
+      "not_full_pass_labels": 1,
+      "Brier": 0.024074696004390717,
+      "always_one_Brier": 0.0416666679084301,
+      "BCE": 0.0723591223359108,
+      "soft_target_entropy_floor": 0.0,
+      "excess_BCE": 0.0723591223359108
+    },
+    "DAC": {
+      "labels": 24,
+      "not_full_pass_labels": 1,
+      "Brier": 0.047630831599235535,
+      "always_one_Brier": 0.0416666679084301,
+      "BCE": 0.17131972312927246,
+      "soft_target_entropy_floor": 0.0,
+      "excess_BCE": 0.17131972312927246
+    },
+    "TTC": {
+      "labels": 24,
+      "not_full_pass_labels": 3,
+      "Brier": 0.09537052363157272,
+      "always_one_Brier": 0.125,
+      "BCE": 0.4623326361179352,
+      "soft_target_entropy_floor": 0.0,
+      "excess_BCE": 0.4623326361179352
+    },
+    "EP": {
+      "labels": 24,
+      "not_full_pass_labels": 15,
+      "Brier": 0.08840706199407578,
+      "always_one_Brier": 0.11608719825744629,
+      "BCE": 0.5111032724380493,
+      "soft_target_entropy_floor": 0.2602517306804657,
+      "excess_BCE": 0.2508516013622284
+    },
+    "Comfort": {
+      "labels": 24,
+      "not_full_pass_labels": 1,
+      "Brier": 0.04168621078133583,
+      "always_one_Brier": 0.0416666679084301,
+      "BCE": 0.18709902465343475,
+      "soft_target_entropy_floor": 0.0,
+      "excess_BCE": 0.18709902465343475
+    },
+    "DDC": {
+      "labels": 24,
+      "not_full_pass_labels": 2,
+      "Brier": 0.011623247526586056,
+      "always_one_Brier": 0.02083333395421505,
+      "BCE": 0.10782601684331894,
+      "soft_target_entropy_floor": 0.0577622652053833,
+      "excess_BCE": 0.05006374791264534
+    }
+  },
+  "events": {
+    "NC": {
+      "labels": 24,
+      "events": 1,
+      "accuracy": 0.9583333134651184,
+      "always_none_accuracy": 0.9583333134651184
+    },
+    "DAC": {
+      "labels": 24,
+      "events": 1,
+      "accuracy": 0.9583333134651184,
+      "always_none_accuracy": 0.9583333134651184
+    },
+    "TTC": {
+      "labels": 24,
+      "events": 3,
+      "accuracy": 0.875,
+      "always_none_accuracy": 0.875
+    }
+  },
+  "candidate_sensitivity": [
+    {
+      "R_rms_difference": 0.8370512127876282,
+      "predicted_future_rms_difference": 0.029654111713171005,
+      "candidate_normalized_per_channel_MAE": [
+        0.0009986422955989838,
+        0.012622393667697906,
+        0.01107635349035263
+      ]
+    },
+    {
+      "R_rms_difference": 0.0938301607966423,
+      "predicted_future_rms_difference": 0.014479775913059711,
+      "candidate_normalized_per_channel_MAE": [
+        0.019819356501102448,
+        0.02009628340601921,
+        0.04996912181377411
+      ]
+    },
+    {
+      "R_rms_difference": 0.5234025120735168,
+      "predicted_future_rms_difference": 0.029936376959085464,
+      "candidate_normalized_per_channel_MAE": [
+        0.03920840844511986,
+        0.04414546117186546,
+        0.05165943503379822
+      ]
+    },
+    {
+      "R_rms_difference": 0.10285896062850952,
+      "predicted_future_rms_difference": 0.014623732306063175,
+      "candidate_normalized_per_channel_MAE": [
+        0.0023306310176849365,
+        0.002658989280462265,
+        0.02596355602145195
+      ]
+    },
+    {
+      "R_rms_difference": 0.13706094026565552,
+      "predicted_future_rms_difference": 0.014026780612766743,
+      "candidate_normalized_per_channel_MAE": [
+        2.0675361156463623e-06,
+        0.004017859697341919,
+        0.0024411380290985107
+      ]
+    },
+    {
+      "R_rms_difference": 0.912868320941925,
+      "predicted_future_rms_difference": 0.02756313420832157,
+      "candidate_normalized_per_channel_MAE": [
+        1.3101845979690552e-05,
+        0.012723177671432495,
+        0.017170138657093048
+      ]
+    },
+    {
+      "R_rms_difference": 0.2861330211162567,
+      "predicted_future_rms_difference": 0.017014503479003906,
+      "candidate_normalized_per_channel_MAE": [
+        0.002415921539068222,
+        0.00993979349732399,
+        0.01889575645327568
+      ]
+    },
+    {
+      "R_rms_difference": 1.5311108827590942,
+      "predicted_future_rms_difference": 0.04586422070860863,
+      "candidate_normalized_per_channel_MAE": [
+        0.00045412033796310425,
+        0.017395518720149994,
+        0.028331473469734192
+      ]
+    }
+  ],
+  "wall_seconds": 316.638489196077,
+  "peak_allocated_GiB": 10.439607620239258,
+  "optimizer_updates": 0,
+  "scorer_calls": 0,
+  "parameters_unchanged": true,
+  "limitations": "32 TRAIN scenes and 8 factual post scenes, no independent generalization/rare-event accuracy claim; different training budgets; counterfactual future used only for sensitivity, never paired with recorded future as ground truth."
+}

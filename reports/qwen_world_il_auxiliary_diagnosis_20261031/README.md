@@ -50,7 +50,7 @@
 
 ### A28k已实际完成的中间诊断
 
-[A真实输出](probe_results/A_RESULT.json)已完成，其他三组仍由同一个有限worker继续。模型参数未变、无optimizer更新/新评分。
+[A真实输出](probe_results/A_RESULT.json)已完成，其余三组也已完成，见[四组冻结诊断](probe_results/README.md)。模型参数未变、无optimizer更新/新评分。
 
 | 任务 | 预测MSE | 位置均值MSE | 相对均值误差降低 | 有效场景 |
 |---|---:|---:|---:|---:|
