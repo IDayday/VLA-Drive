@@ -85,3 +85,30 @@ def test_prefetch_exception_and_misordered_cursor_are_not_silently_skipped():
         with pytest.raises(ValueError,match='cursor'):pool.next(2,64)
         with pytest.raises(ValueError,match='bad data'):pool.next(1,32)
     assert builder.calls==0
+
+
+def test_database_reader_is_created_and_closed_on_worker_not_shared():
+    import sqlite3
+    import threading
+    class SQLBuilder(Builder):
+        def __init__(self):
+            super().__init__();self.bank=SimpleNamespace(db=sqlite3.connect(':memory:'))
+            self.bank.db.execute('create table t(v)');self.bank.db.execute('insert into t values(7)')
+            self.thread=threading.get_ident();self.closed=False
+        def state_dict(self):return dict(calls=self.calls,bank_hash='fixed')
+        def build(self,*args,**kwargs):
+            assert self.bank.db.execute('select v from t').fetchone()==(7,)
+            return super().build(*args,**kwargs)
+        def close(self):
+            assert self.thread==threading.get_ident()
+            self.bank.db.close();self.closed=True
+    main=SQLBuilder();made=[]
+    def factory():
+        value=SQLBuilder();made.append(value);return value
+    with pytest.raises(ValueError,match='worker-local'):
+        OrderedUpdatePrefetch(main,request,start_update=1,start_cursor=32)
+    with OrderedUpdatePrefetch(main,request,start_update=1,start_cursor=32,builder_factory=factory)as pool:
+        assert len(pool.next(1,32))==2
+    assert main.calls==2 and made[0].closed and made[0].thread!=threading.get_ident()
+    assert main.bank.db.execute('select v from t').fetchone()==(7,)
+    main.close()

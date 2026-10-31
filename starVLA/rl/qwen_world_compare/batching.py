@@ -74,6 +74,9 @@ class BatchBuilder:
         if state['schema']!='four_framework_stateless_batches_v1'or state['bank_hash']!=self.bank.bank_hash or state['candidate_refresh']is not False:raise ValueError('Builder identity changed')
         self.calls=state['calls']
 
+    def close(self):
+        for reader in(self.teachers,self.bank,self.evidence):reader.close()
+
     def build(self,tokens,positions,update,*,account=True):
         observations=[self.data.observation(t)for t in tokens]
         teacher=[self.teachers.get(t,source_record_hash=self.data.records[t]['source_record_hash'])for t in tokens]
