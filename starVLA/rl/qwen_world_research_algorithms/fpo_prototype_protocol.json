@@ -1,0 +1,73 @@
+{
+  "schema": "world_endpoint_CFM_per_MC_PPO_CPU_protocol_v1",
+  "status": "CPU_PROTOTYPE_ONLY_NOT_REGISTERED",
+  "module": "starVLA.rl.qwen_world_research_algorithms.fpo_prototype",
+  "entry": null,
+  "GPU_dispatch": false,
+  "scientific_hypothesis_zh": "以fresh终点的CFM-loss ratio代理替换随机transition PG，减少学习目标对末SDE创新的依赖；不是精确端点似然，也不自动解决全失败tie。",
+  "primary_sources": [
+    {
+      "url": "https://arxiv.org/abs/2507.21053v2",
+      "sections": "3.2-3.5",
+      "contribution": "on-policy conditional-flow-loss ratio surrogate; sampler agnostic"
+    },
+    {
+      "url": "https://arxiv.org/abs/2602.02481v2",
+      "revision": "2026-10-13",
+      "sections": "equations9,12;4.3/4.4",
+      "contribution": "per-MC-sample ratio; ordinary PPO for this prototype; ASPO not automatically transferred"
+    },
+    {
+      "url": "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/src/flow_model.py#L550",
+      "sha256": "024ff90fce8118cc76a6b2192240278378a3c02bc7dec9aa1b568c218b3363e4",
+      "verified": "velocity target eps-clean; squared element loss; forward_fpo means action_dim"
+    },
+    {
+      "url": "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/finetune_online_rl.py#L1205",
+      "sha256": "548eaa6ced4f87e03d17c73f433b7b4ea99a560459e614149cc25fec62bd46f9",
+      "verified": "chunk-level PPO defaults sum horizon; per-MC group_size1; ordinary PPO branch"
+    }
+  ],
+  "math": {
+    "endpoint": "y = original fresh canonical-scored normalized chain[:, -1], shape[8,8,3]",
+    "flow": "x_sigma = (1-sigma)*y + sigma*eps; target = eps-y; native velocity(state,sigma*1000) converts World clean-x once",
+    "energy": "ell[MC,candidate] = sum_8poses(mean_xyz((v_theta-target)^2))",
+    "units": "sum(all24)/3 = 8*mean(all24); differs from paper unqualified squared L2 norm and Rescue mean24; all units explicitly recorded",
+    "ratio": "rho_i = exp(ell_behavior_old_i - ell_current_i)",
+    "loss": "negative local masked mean across candidate and MC of min(rho_i*A,clip(rho_i,1-e,1+e)*A)",
+    "advantage": "reuse fresh already-finalized SafetyEP candidate A/mask; source A cap5; same A shared across MC, no added baseline shift",
+    "zero": "all A0 still no PG direction; no teacher/history converted into fresh advantage"
+  },
+  "material": {
+    "cache_when": "collection-start CURRENT behavior actor, after fresh canonical scoring/finalization and before first inner optimizer update; no_grad",
+    "not_reference": "permanent IL70 reference is not behavior old and is never called by this prototype",
+    "saved": "original endpoint/request hashes, credit digest, condition, behavior_version, rank, private seed, MC sigma/noise, detached old velocity and energy, payload digest",
+    "fixed_reuse": "exact same MC samples and behavior-old energies across4inners; current differentiable Memory context freshly rebuilt per inner",
+    "batch": "loop MC; each call is original G8 sharing actual scene context, no forced G8xMC materialization",
+    "randomness": "independent stateless schema/token/behavior/rank/42 CPU generator; neither global nor source SDE RNG consumed",
+    "validation": "pure detached-material validator and torchsave/load tests only; future runtime must also retain source boundary/rank/optimizer/scheduler ancestry validators"
+  },
+  "explicitly_absent": [
+    "ASPO or SPO",
+    "Huber or time weighting",
+    "old-energy clamp, STE logratio clamp or silent overflow replacement",
+    "critic, new trainable head or deployment closure change",
+    "reference change, additional teacher loss or replay-data advantage",
+    "entry, runtime injection, actor._loss override or controller changes"
+  ],
+  "unregistered_choices_and_blockers": [
+    "Formal clip_range, MC sample count and sigma distribution must be explicitly chosen; source transition clip.005 and preference beta.1 are unrelated units.",
+    "CPU toy uses MC2/clip.01/sigma[.2,.8] solely for arithmetic and lifecycle tests, not proposed optimal training values.",
+    "Native clean-x velocity divides by sigma: prototype requires strictly positive sigma_min; full paper U[0,1] adaptation and near-zero weighting need an explicit finite protocol.",
+    "Official manipulation recipe additionally includes Huber and clamps; their omission is deliberate scope, so this is not a full official-recipe reproduction.",
+    "A future implementation replaces PG; never add this PG on top of ResearchLoss PG. Anchor extraction/reference/window and same initial/data comparator must be explicitly preserved or registered separately.",
+    "No actual World-policy CFM energy/gradient distribution has been measured by this CPU toy; formal ratio/clip scale is unvalidated.",
+    "Teacher remains necessary when all fresh advantages tie and successful endpoints exist; lack of witnesses remains an exploration/information problem, not fixed by a new ratio."
+  ],
+  "CPU_checks": [
+    "energy unit8 for all-one velocity error; correct positive/negative gradient signs; old energy detached",
+    "independent per-MC clipping differs from clipping exp(mean delta)",
+    "current behavior cache, independent RNG, immutable four-inner material and fresh differentiable Memory",
+    "allA0 yields exactlyzero PG; torchsave/load identity and material corruption rejection"
+  ]
+}
