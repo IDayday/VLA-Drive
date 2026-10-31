@@ -20,4 +20,6 @@ B10k−B7k = **+0.135271 points**. The four point estimates increase, but the la
 | Comfort | 99.415445 |
 | DDC | 97.801745 |
 
-A13k/C12k/D7k are still pending; no partial-scene means are published. Exact existing asset paths, score/protocol/token seals and B history are in `results.json`. Source actor and canonical scoring were not changed for this readout.
+A13k is also complete: **PDMS80.007834**, versus A9k80.156844 (**−0.149010 points**). All12,146 scenes/invalid0, native parity PASS and all workers exited. This small decrease is a checkpoint point estimate, not an architecture ceiling or final failure.
+
+C12k/D7k are still pending; no partial-scene means are published. Exact existing asset paths, score/protocol/token seals and B history are in `results.json`. Source actor and canonical scoring were not changed for this readout.

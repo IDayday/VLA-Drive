@@ -72,11 +72,18 @@ def main():
     parser.add_argument('--source', required=True, type=Path)
     parser.add_argument('--family', required=True, choices=['four', 'world'])
     parser.add_argument('--workers', type=int, choices=[16, 32], default=32)
+    parser.add_argument('--resume', action='store_true')
     args = parser.parse_args(); root = args.root.resolve()
     with (root/'owner.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        if (root/'owner.json').exists():
+        if (root/'owner.json').exists() and not args.resume:
             raise FileExistsError('Existing burst invocation must be reviewed; never duplicate')
+        if args.resume:
+            previous = json.loads((root/'owner.json').read_text())
+            attempt = root/'operator_attempts'/str(previous['pid']); attempt.mkdir(parents=True, exist_ok=False)
+            (attempt/'owner.json').write_bytes((root/'owner.json').read_bytes())
+            if (root/'failure.json').exists():
+                (root/'failure.json').rename(attempt/'failure.json')
         sys.path.insert(0, str(args.source.resolve()))
         if args.family == 'four':
             from tools.qwen_world_compare.interim_owner import InterimRequest as Qualified
@@ -129,10 +136,13 @@ def main():
                         write(receipt/'operator.json', self.resources.launch(receipt/'spec.json', str(self.source)))
                     if route:
                         receipt = Path(self.jobs[name]['receipt_dir'])
-                        deadline = time.monotonic()+30
+                        deadline = time.monotonic()+180
                         while not any((receipt/n).exists() for n in ('RUNNING.json', 'process.json', 'RESULT.json', 'result.json')):
                             if time.monotonic() > deadline:
-                                raise RuntimeError('Unconfirmed worker startup; retain intent and do not redispatch')
+                                write(receipt/'STARTUP_PENDING.json', dict(at=time.time(),
+                                    state='UNCONFIRMED_STARTUP_WAIT', no_redispatch=True,
+                                    reason='Existing durable intent retained; process metadata may be delayed'))
+                                break
                             time.sleep(.1)
                 finally:
                     if getattr(self, 'dispatch_guard', None):
@@ -142,13 +152,27 @@ def main():
         label, pin = next(iter(pins['models'].items()))
         if len(pins['models']) != 1:
             raise ValueError('One fixed checkpoint per burst')
-        directory = root/label; directory.mkdir(exist_ok=False)
+        directory = root/label; directory.mkdir(exist_ok=args.resume)
         request = Burst(directory, pin); request.world = args.workers
         request.burst_attempts = {}; retry_after = {}
-        if pin.get('reuse_export'):
+        if pin.get('reuse_export') and not request.export.exists():
             export = Path(pin['reuse_export'])
             if not (export/'COMPLETE').exists(): raise ValueError('Missing qualified reused export')
             request.export.symlink_to(export, target_is_directory=True)
+        if args.resume:
+            if args.family != 'world':
+                raise ValueError('Only the explicitly reviewed World burst adoption is enabled')
+            for path in sorted((directory/'jobs').glob('*_attempt*/spec.json')):
+                spec = json.loads(path.read_text())
+                if spec['source'] != str(request.source) or spec['source_sha'] != request.source_sha:
+                    raise ValueError('Cross-source adoption requires a separate receipt')
+                logical, number = path.parent.name.rsplit('_attempt', 1)
+                if int(number) > request.burst_attempts.get(logical, 0):
+                    request.burst_attempts[logical] = int(number)
+                    request.jobs[logical] = spec
+            write(root/'OPERATOR_ADOPTION.json', dict(at=time.time(), previous_owner=previous,
+                adopted_jobs=list(request.jobs), completed_shards_not_reexecuted=True,
+                existing_registration_and_scene_identity_preserved=True))
         # The façade changes administrative probing only, no worker imports.
         if args.family == 'world':
             request.resources = Pool(request.resources)

@@ -37,3 +37,9 @@ The cadence controller and burst operators are under `tools/il_report/`; actual 
 ```
 
 Use `--interval-seconds 600` (separate argument) for the actual controller. The controller already has a live owner; inspect `OWNER.json` and its shared lock before any recovery. The actual burst command is stored in each request's `LAUNCH.json`; do not start a duplicate. Live queue: `/mnt/project/qwen-world-il-research-20261030/navtest_cadence_20261031/STATE.json`. Dynamic report: `/mnt/project/qwen-world-il-research-20261030/report.html`.
+
+## Additional executed controller recovery
+
+The first V12 burst adapter stopped after a30s startup-acknowledgement timeout. The worker actually started later; no model or scorer failure occurred. Existing13 completed shards and2 started shards were preserved and adopted from their original specs/results, with the same registration and scene identity. The reviewed `--resume` entry keeps all old operator/failure evidence, creates no duplicate for an already registered shard, and submits only missing shards. Startup waits now tolerate delayed metadata and retain ambiguous intent rather than inventing a model failure. The old immutable operator snapshot is retained; the recovered driver uses a separately hashed snapshot.
+
+TIME30k has completed its full32-way evaluation; the cadence controller has already queued and dispatched TIME34k, proving the next2k-grid scheduling beyond initial startup. V12_56k continues in the same request after operator adoption. Failure/physical cost receipts stay in the asset roots.

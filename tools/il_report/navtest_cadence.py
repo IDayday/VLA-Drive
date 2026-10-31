@@ -146,7 +146,9 @@ def tick(state):
                     reason='Completed evaluator; own redundant full optimizer/model hardlinks only',
                     original_native_files_modified=False, scores_and_deployment_weights_retained=True))
                 shutil.rmtree(checkpoint)
-        elif (root/'failure.json').exists():
+        elif ((root/'failure.json').exists()
+              and (read(root/'failure.json').get('pid') == (job.get('process') or {}).get('pid')
+                   or not alive(job.get('process')))):
             job.update(status='FAILED_REVIEW_REQUIRED', failure=str(root/'failure.json'))
         else:
             receipt = read(root/'LAUNCH.json', {})
