@@ -557,11 +557,29 @@ def load_snapshot(root: Path) -> dict:
     safety_ep_continuation=read_json(safety_ep_continuation_path,warnings,inputs) or {} if safety_ep_continuation_path else {}
     route_priority_review=read_json(root/'analysis'/'ROUTE_PRIORITY_REVIEW_20261031.json',warnings,inputs) or {}
     noise003_deployment=read_json(root/'analysis'/'NOISE003_PROBE_DEPLOYMENT_20261031.json',warnings,inputs) or {}
+    noise003_attempts={}
+    for job in noise003_deployment.get('jobs',[]):
+        folder=Path(job['job']);attempts=sorted(folder.parent.glob('attempt*'));latest=attempts[-1] if attempts else folder
+        receipts={name:read_json(latest/name,warnings,inputs) or {} for name in ('RUNNING.json','RESULT.json') if (latest/name).exists()}
+        terminal=receipts.get('RESULT.json');running=receipts.get('RUNNING.json',{})
+        attempt_state=terminal.get('status','RESULT_RECORDED') if terminal else 'RUNNING' if running.get('child_pid') else 'AWAIT_NATIVE_RECEIPT'
+        noise003_attempts[job['arm']]=dict(job=str(latest),attempt=latest.name,status=attempt_state,receipts=receipts)
     noise003_result=read_json(root/'analysis'/'FIXED_THETA_NOISE003_ZERO_PROBE.json',warnings,inputs) or {}
+    noise003_scorer_fix=read_json(root/'analysis'/'NOISE003_SCORER_PATH_CPU_FIX_REVIEW_20261031.json',warnings,inputs) or {}
+    noise003_registration=read_json(root/'EXPERIMENT_PPO_NOISE03_REGISTRATION.json',warnings,inputs) or {}
+    last_step_counter_input=read_json(root/'analysis'/'FINAL_SDE_STEP_COUNTERFACTUAL_DIAGNOSIS_20261031.json',warnings,inputs) or {}
+    last_step_counter={key:last_step_counter_input.get(key)for key in ('schema','status','at','new_CPU_official_scores','new_model_forwards','interpretation','selection_scope','approximation','conclusions_zh')}
+    last_step_counter['arms']={arm:{'modes':node.get('modes',{})}for arm,node in last_step_counter_input.get('arms',{}).items()}
+    last_step_counter['persistent_witness']={arm:{'modes':node.get('modes',{})}for arm,node in last_step_counter_input.get('focus',{}).get('7af4e577726c5be7',{}).items()}
+    last_step_mechanism_input=read_json(root/'analysis'/'FINAL_SDE_STEP_DIAGNOSIS_20261031.json',warnings,inputs) or {}
+    last_step_counter['terminal_mechanism']=last_step_mechanism_input.get('terminal_mechanism',{})
     safety_evidence_review=read_json(root/'analysis'/'SAFETY_EVIDENCE_REVIEW_20261031.json',warnings,inputs) or {}
     adaptive27k_review=read_json(root/'analysis'/'ADAPTIVE27K_FINITE_REVIEW.json',warnings,inputs) or {}
-    if adaptive27k_review:
+    if adaptive27k_review.get('status')=='COMPLETE':
         extra_entries=evaluation_entries(adaptive27k_review,default_arm='PPO_ADAPTIVE')
+        direct=adaptive27k_review.get('result')
+        if isinstance(direct,dict) and (isinstance(direct.get('evidence'),str) or isinstance(direct.get('evaluation'),str)):
+            extra_entries.append(dict(direct))
         if isinstance(adaptive27k_review.get('summary'),str):extra_entries.append(dict(evidence=adaptive27k_review['summary']))
         for entry in extra_entries:
             entry.update(arm='PPO_ADAPTIVE',cohort='NAVTEST',updates=27000,expected_scenes=12146)
@@ -782,7 +800,7 @@ def load_snapshot(root: Path) -> dict:
                     safety_ep_continuation_pending=safety_ep_continuation_pending,safety_ep_continuation=safety_ep_continuation,
                     safety_ep_continuation_path=str(safety_ep_continuation_path) if safety_ep_continuation_path else None,
                     route_priority_review=route_priority_review,adaptive27k_review=adaptive27k_review,
-                    noise003_deployment=noise003_deployment,noise003_result=noise003_result,safety_evidence_review=safety_evidence_review,
+                    noise003_deployment=noise003_deployment,noise003_attempts=noise003_attempts,noise003_result=noise003_result,noise003_scorer_fix=noise003_scorer_fix,noise003_registration=noise003_registration,last_step_counterfactual=last_step_counter,safety_evidence_review=safety_evidence_review,
                     failure_guidance=failure_guidance,primary_research_links=primary_research_links,
                     fixed_theta_probe_registration=fixed_theta_probe_registration,fixed_theta_probe=fixed_theta_probe,
                     fixed_probe_diagnosis=fixed_probe_diagnosis,

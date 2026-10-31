@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 01:37:24 UTC",
+  "generated_utc": "2026-10-31 02:10:05 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": {
     "main_sections": 7,
@@ -3298,54 +3298,531 @@
     "evidence_kind": "completed_supplemental_analysis",
     "reason": "Homepage real portfolio stops and next review; actual Safety continuation and preference children; fixedtheta tradeoff, primary links, and noise003 first-code-failure guard"
   },
-  "adaptive27k_review": {},
+  "adaptive27k_review": {
+    "status": "COMPLETE",
+    "end_unix": 1793412181.938398,
+    "interpretation": "Own27k versus own20k measures the later coverage-amendment phase; not a matched-update comparison to FULL35k.",
+    "complete_PDMS": 90.40162913657045
+  },
   "safety_evidence_review": {},
   "noise003": {
-    "deployment": {
-      "status": "DISPATCHED",
-      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_probe_noise003_sdeonly_db49222",
-      "at_unix": 1793410422.345381,
-      "jobs": [
-        {
-          "arm": "PPO_ADAPTIVE",
-          "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/LOW_NOISE003_PROBE_20261031/PPO_ADAPTIVE/attempt001",
-          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/PPO_ADAPTIVE",
-          "host": "training-vlawm-zt2",
-          "gpu": 0
+    "status": "COMPLETE",
+    "matched_complete": true,
+    "per_model": {
+      "PPO_ADAPTIVE": {
+        "status": "COMPLETE",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ADAPTIVE/checkpoints/update026000_inner0",
+        "updates": 26000,
+        "count": 15,
+        "diagnostic_noise_level": 0.03,
+        "ODE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 76.00566837025805,
+          "canonical_zero": 18,
+          "feasible": 90
         },
-        {
-          "arm": "PPO_FULL",
-          "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/LOW_NOISE003_PROBE_20261031/PPO_FULL/attempt001",
-          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/PPO_FULL",
-          "host": "training-vlawm-zt2",
-          "gpu": 1
-        },
-        {
-          "arm": "PPO_SAFETY_EP",
-          "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/LOW_NOISE003_PROBE_20261031/PPO_SAFETY_EP/attempt001",
-          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/PPO_SAFETY_EP",
-          "host": "training-vlawm-zt2",
-          "gpu": 2
+        "SDE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 67.27854677879881,
+          "canonical_zero": 30,
+          "feasible": 80
         }
-      ],
-      "new_generated_candidates": 360,
-      "new_scored_candidates": 360,
-      "reused_ODE_candidates": 360,
-      "owner": {
-        "pid": 2287230,
-        "start_ticks": 1484904098,
-        "command": [
-          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
-          "-B",
-          "/mnt/project/qwen-world-rl-optimization-20261030/analysis/probe_noise003_owner.py",
-          "--jobs-spec",
-          "/mnt/project/qwen-world-rl-optimization-20261030/owners/LOW_NOISE003_PROBE_20261031/JOBS.json",
-          "--output",
-          "/mnt/project/qwen-world-rl-optimization-20261030/owners/LOW_NOISE003_PROBE_20261031"
-        ]
+      },
+      "PPO_FULL": {
+        "status": "COMPLETE",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update035000_inner0",
+        "updates": 35000,
+        "count": 15,
+        "diagnostic_noise_level": 0.03,
+        "ODE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 49.33461261272287,
+          "canonical_zero": 50,
+          "feasible": 54
+        },
+        "SDE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 45.28866614979824,
+          "canonical_zero": 58,
+          "feasible": 53
+        }
+      },
+      "PPO_SAFETY_EP": {
+        "status": "COMPLETE",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "updates": 10000,
+        "count": 15,
+        "diagnostic_noise_level": 0.03,
+        "ODE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 61.48332403843751,
+          "canonical_zero": 39,
+          "feasible": 72
+        },
+        "SDE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 54.375837073469576,
+          "canonical_zero": 48,
+          "feasible": 64
+        }
       }
     },
-    "result_status": "COMPLETE_WITH_FAILURES_REQUIRES_REVIEW",
-    "is_formal_training": false
+    "formal_registration": {
+      "schema": "world_single_factor_noise03_formal_pilot_v1",
+      "arm": "PPO_NOISE03",
+      "at_unix": 1793411492.4107041,
+      "reason": "Existing fixed-theta0.1 probe shows material candidate damage and last-step independent physical noise near1.49m/.94m/4.5deg. Test one lower-noise recipe directly on whole NAVTEST; selected15 lower03 diagnostic is not treated as confirmed generalization.",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_NOISE03.yaml",
+      "config_sha256": "b98abd8e9bf5a0a9076b8de97ffa60fde8a18dc4308c82d24730a3348e1410d1",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_noise003_pathfix_7bbd45a",
+      "source_sha": "7bbd45a1c6d740e53018ab469105cafa349f1584",
+      "IL_parent": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "research_budget_updates": 5000,
+      "native_scheduler_max_updates": 50000,
+      "first_reviews": [
+        1000,
+        5000
+      ],
+      "training_seed": 42,
+      "evaluation_seed": 2101,
+      "full_eligible_training_scenes": 103288,
+      "scope": "Only rigorous eta0.1→0.03; linked drift+diffusion change; canonical PPO, anchor50,clip.005,LoRA-memory,sampling/data/inference otherwise same as FULL",
+      "extra_GPU_qualification": false,
+      "resource": "training-vla-zt primary freed by stopped SafeComfort",
+      "historical_pairs_in_PG": false,
+      "status": "FORMAL_DISPATCHED",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_NOISE03/formal_to001000_attempt001"
+    }
+  },
+  "last_step_counterfactual": {
+    "schema": "finite_TRAIN45group_last_SDE_step_counterfactual_canonical_diagnosis_v1",
+    "status": "COMPLETE",
+    "at": "2026-10-31T01:54:57.778771+00:00",
+    "new_CPU_official_scores": 720,
+    "new_model_forwards": 0,
+    "interpretation": "reconstructed counterfactual trajectories with official CPU PDM scores; not actual new-policy rollouts. Conditional mu9/det9 retain stochastic step7/8 prefix and use approximate FP32 inverse of step9; not a fresh deterministic or low-noise policy.",
+    "selection_scope": "same preselected15 TRAIN scenes×3different checkpoints; within checkpoint/root comparisons only, not103288 population or cross-algorithm ranking",
+    "approximation": "Use exact reconstruction formula and FP32 bounds from immutable source registry; official scoring does not remove numerical inverse uncertainty.",
+    "conclusions_zh": [
+      "有限官方CPU评分已完成45组×8×2=720条，0新模型forward/0新训练seed。相同step7/8随机前缀下，移除末innovation的mu9重构候选比原SDE0.1平均PDMS分别高35.4883/21.2385/31.3173（ADAPT/FULL/SAFETY）；这15个选定TRAIN场景中的主要候选质量损失与末step9创新噪声直接相关。",
+      "mu9严格可行候选由原SDE的50/34/36增至93/57/73，原ODE对应90/54/72。上述为不同CP内受控比较；不能跨三条路线排算法高低，也不是NAVTEST或103288总体收益。",
+      "恢复场景bc8：SAFETY10k和ADAPT26k原ODE8均满分。SAFETY的SDE8全零、ADAPT仅1条严格可行；mu9和det9重构均恢复8条满分，隔离出末innovation对已学好行为的破坏。",
+      "长期zero场景7af反向成立：原SDE8提供2/2/1条严格可行候选，mu9与det9重构在三CP全部回到8条canonical零分。因此这个场景的可行发现依赖最终扰动，不能用全部去噪便已解决来表述。",
+      "去末drift+innovation的det9整体接近原ODE；保留drift但去innovation的mu9略更好，仍只属于有限选定样本观察。两者都不是新策略真实rollout，FP32逆运算及decoder保守坐标误差界已随registry保留。",
+      "下一阶段应把探索与部署学习分开：可以保留少量末扰动作TRAIN候选发现，再用已有安全端点偏好去移动ODE输出；或做独立单变量末步确定性训练臂。不能只追求G8非零优势组更多，因为一些优势来自把原本满分行为扰坏。"
+    ],
+    "arms": {
+      "PPO_ADAPTIVE": {
+        "modes": {
+          "ODE8": {
+            "candidates": 120,
+            "PDMS": 76.00566837025806,
+            "canonical_zero": 18,
+            "strictly_feasible": 90,
+            "means": {
+              "score": 76.00566837025806,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 85.0,
+              "time_to_collision_within_bound": 84.16666666666667,
+              "ego_progress": 73.41360408861935,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "SDE01": {
+            "candidates": 120,
+            "PDMS": 41.95813525532495,
+            "canonical_zero": 57,
+            "strictly_feasible": 50,
+            "means": {
+              "score": 41.95813525532495,
+              "no_at_fault_collisions": 86.66666666666667,
+              "drivable_area_compliance": 65.83333333333333,
+              "time_to_collision_within_bound": 75.0,
+              "ego_progress": 45.366191279446525,
+              "comfort": 59.166666666666664,
+              "driving_direction_compliance": 97.91666666666666
+            }
+          },
+          "mu9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 77.44643475819963,
+            "canonical_zero": 17,
+            "strictly_feasible": 93,
+            "means": {
+              "score": 77.44643475819963,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 85.83333333333333,
+              "time_to_collision_within_bound": 88.33333333333333,
+              "ego_progress": 74.03811008634578,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 76.35534030245545,
+            "canonical_zero": 18,
+            "strictly_feasible": 91,
+            "means": {
+              "score": 76.35534030245545,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 85.0,
+              "time_to_collision_within_bound": 84.16666666666667,
+              "ego_progress": 73.41948339255974,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          }
+        }
+      },
+      "PPO_FULL": {
+        "modes": {
+          "ODE8": {
+            "candidates": 120,
+            "PDMS": 49.334612612722836,
+            "canonical_zero": 50,
+            "strictly_feasible": 54,
+            "means": {
+              "score": 49.334612612722836,
+              "no_at_fault_collisions": 78.33333333333333,
+              "drivable_area_compliance": 80.0,
+              "time_to_collision_within_bound": 58.333333333333336,
+              "ego_progress": 50.06973693720148,
+              "comfort": 100.0,
+              "driving_direction_compliance": 99.58333333333333
+            }
+          },
+          "SDE01": {
+            "candidates": 120,
+            "PDMS": 29.73374095784894,
+            "canonical_zero": 73,
+            "strictly_feasible": 34,
+            "means": {
+              "score": 29.73374095784894,
+              "no_at_fault_collisions": 77.08333333333334,
+              "drivable_area_compliance": 60.83333333333333,
+              "time_to_collision_within_bound": 59.166666666666664,
+              "ego_progress": 34.02764496550413,
+              "comfort": 60.83333333333333,
+              "driving_direction_compliance": 95.83333333333334
+            }
+          },
+          "mu9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 50.972257696651,
+            "canonical_zero": 48,
+            "strictly_feasible": 57,
+            "means": {
+              "score": 50.972257696651,
+              "no_at_fault_collisions": 77.5,
+              "drivable_area_compliance": 82.5,
+              "time_to_collision_within_bound": 59.166666666666664,
+              "ego_progress": 50.833418471962425,
+              "comfort": 100.0,
+              "driving_direction_compliance": 99.58333333333333
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 48.50712605106865,
+            "canonical_zero": 51,
+            "strictly_feasible": 53,
+            "means": {
+              "score": 48.50712605106865,
+              "no_at_fault_collisions": 77.5,
+              "drivable_area_compliance": 80.0,
+              "time_to_collision_within_bound": 57.49999999999999,
+              "ego_progress": 49.25043585589809,
+              "comfort": 100.0,
+              "driving_direction_compliance": 99.58333333333333
+            }
+          }
+        }
+      },
+      "PPO_SAFETY_EP": {
+        "modes": {
+          "ODE8": {
+            "candidates": 120,
+            "PDMS": 61.48332403843752,
+            "canonical_zero": 39,
+            "strictly_feasible": 72,
+            "means": {
+              "score": 61.48332403843752,
+              "no_at_fault_collisions": 87.5,
+              "drivable_area_compliance": 80.0,
+              "time_to_collision_within_bound": 73.33333333333333,
+              "ego_progress": 60.55997769225008,
+              "comfort": 94.16666666666667,
+              "driving_direction_compliance": 96.66666666666667
+            }
+          },
+          "SDE01": {
+            "candidates": 120,
+            "PDMS": 31.51315406627258,
+            "canonical_zero": 72,
+            "strictly_feasible": 36,
+            "means": {
+              "score": 31.51315406627258,
+              "no_at_fault_collisions": 81.25,
+              "drivable_area_compliance": 57.49999999999999,
+              "time_to_collision_within_bound": 66.66666666666666,
+              "ego_progress": 34.485872667927794,
+              "comfort": 61.66666666666667,
+              "driving_direction_compliance": 93.75
+            }
+          },
+          "mu9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 62.830411980205504,
+            "canonical_zero": 36,
+            "strictly_feasible": 73,
+            "means": {
+              "score": 62.830411980205504,
+              "no_at_fault_collisions": 89.16666666666667,
+              "drivable_area_compliance": 80.83333333333333,
+              "time_to_collision_within_bound": 73.33333333333333,
+              "ego_progress": 61.95965541915991,
+              "comfort": 94.16666666666667,
+              "driving_direction_compliance": 96.66666666666667
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 61.11631915960669,
+            "canonical_zero": 40,
+            "strictly_feasible": 72,
+            "means": {
+              "score": 61.11631915960669,
+              "no_at_fault_collisions": 86.66666666666667,
+              "drivable_area_compliance": 80.0,
+              "time_to_collision_within_bound": 73.33333333333333,
+              "ego_progress": 60.01249931638938,
+              "comfort": 95.0,
+              "driving_direction_compliance": 96.66666666666667
+            }
+          }
+        }
+      }
+    },
+    "persistent_witness": {
+      "PPO_ADAPTIVE": {
+        "modes": {
+          "ODE8": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 12.5,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "SDE01": {
+            "candidates": 8,
+            "PDMS": 32.87240900608383,
+            "canonical_zero": 4,
+            "strictly_feasible": 2,
+            "means": {
+              "score": 32.87240900608383,
+              "no_at_fault_collisions": 87.5,
+              "drivable_area_compliance": 62.5,
+              "time_to_collision_within_bound": 50.0,
+              "ego_progress": 38.893781614601174,
+              "comfort": 75.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "mu9_reconstructed": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 50.0,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 0.0,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          }
+        }
+      },
+      "PPO_FULL": {
+        "modes": {
+          "ODE8": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 0.0,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "SDE01": {
+            "candidates": 8,
+            "PDMS": 27.520647145392523,
+            "canonical_zero": 5,
+            "strictly_feasible": 2,
+            "means": {
+              "score": 27.520647145392523,
+              "no_at_fault_collisions": 81.25,
+              "drivable_area_compliance": 37.5,
+              "time_to_collision_within_bound": 37.5,
+              "ego_progress": 31.049553148942056,
+              "comfort": 75.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "mu9_reconstructed": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 12.5,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 0.0,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          }
+        }
+      },
+      "PPO_SAFETY_EP": {
+        "modes": {
+          "ODE8": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 0.0,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "SDE01": {
+            "candidates": 8,
+            "PDMS": 12.319521472610619,
+            "canonical_zero": 6,
+            "strictly_feasible": 1,
+            "means": {
+              "score": 12.319521472610619,
+              "no_at_fault_collisions": 81.25,
+              "drivable_area_compliance": 25.0,
+              "time_to_collision_within_bound": 37.5,
+              "ego_progress": 14.881395167369469,
+              "comfort": 75.0,
+              "driving_direction_compliance": 93.75
+            }
+          },
+          "mu9_reconstructed": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 0.0,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 8,
+            "PDMS": 0.0,
+            "canonical_zero": 8,
+            "strictly_feasible": 0,
+            "means": {
+              "score": 0.0,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 0.0,
+              "time_to_collision_within_bound": 0.0,
+              "ego_progress": 0.0,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          }
+        }
+      }
+    },
+    "terminal_mechanism": {
+      "actual_last_noise_per_coordinate_std": [
+        1.4850261066204853,
+        0.9444406191655293,
+        0.07821140194097881
+      ],
+      "explanation_zh": "最后一步将按future-pose独立的米级噪声直接加到绝对轨迹；ActionCodec不平滑、不sin/cos重编码，后面没有model去噪。LQR/环境可能平滑其执行，故requested差分proxy不是实际车辆加速度。",
+      "final_action_clip": null,
+      "last_raw_clip_count": 0,
+      "native_action_codec_affine_scale": [
+        33.37,
+        21.0,
+        1.765
+      ],
+      "no_refinement_after_step9": true,
+      "std_heading_degrees": 4.504556877363468,
+      "theoretical_independent_second_difference_std_xy_m": [
+        3.6409655074225946,
+        2.291287853037893
+      ],
+      "theoretical_requested_acceleration_proxy_std_xy_m_s2": [
+        14.563862029690378,
+        9.165151412151571
+      ]
+    }
   }
 }
