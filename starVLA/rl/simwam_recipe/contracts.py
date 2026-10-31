@@ -44,15 +44,28 @@ def registered_stochastic_steps_for_recipe(cfg):
             merge_sde_window=False,final_action_clip=None,min_std=.001,randn_clip=5.,
             sample_noise_std=.1,logprob_noise_std=None,anneal_noise=True,
             logprob_clamp_mode='relative',logprob_clamp_width=7.)
-        if (research.get('arm')!='PPO_LASTDET' or research.get('sampler_ablation')!=LASTDET_SCHEMA
-                or research.get('policy_objective')!='ppo' or research.get('data_policy')!='uniform_full'
+        common_bad=(research.get('sampler_ablation')!=LASTDET_SCHEMA
+                or research.get('policy_objective')!='ppo'
                 or cfg.get('variant')!='R_CANONICAL' or cfg.get('model_family')!='QwenWorldPostCoT'
                 or cfg.get('prediction_type')!='x0' or cfg.get('adaptation')!='ATTN_LORA_MEMORY'
                 or cfg.get('action_shape')!=[8,3]
-                or any(research.get(k) is not None for k in ('advantage_normalization','structured_advantage',
+                or any(research.get(k) is not None for k in ('advantage_normalization',
                     'reward_transform','anchor_ablation','memory_lr_ablation','preference_auxiliary','noise_level_ablation'))
-                or any(sample.get(k)!=v for k,v in expected.items())):
-            raise ValueError('W2[7,8] requires the exact independently registered World PPO_LASTDET recipe')
+                or any(sample.get(k)!=v for k,v in expected.items()))
+        lastdet=(research.get('arm')=='PPO_LASTDET' and research.get('data_policy')=='uniform_full'
+                 and research.get('structured_advantage') is None and research.get('rescue_auxiliary') is None)
+        rescue_aux=dict(schema='world_verified_positive_CFM_teacher_aux_v1',lambda_low=1.,lambda_high=.2,
+                        sigma_min=.2,sigma_max=.8,stateless_seed=42)
+        rescue=(research.get('arm') in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM')
+                and research.get('data_policy')=='rescue_mixture'
+                and research.get('rescue_distribution')=='full80_low10_high10_static_v1'
+                and research.get('structured_advantage')=='candidate_metric_safety_feasible_EP_global_std_v1'
+                and isinstance(research.get('rescue_manifest'),str)
+                and isinstance(research.get('rescue_manifest_sha256'),str)
+                and len(research['rescue_manifest_sha256'])==64
+                and research.get('rescue_auxiliary')==(rescue_aux if research['arm']=='PPO_RESCUE_CFM' else None))
+        if common_bad or not (lastdet or rescue):
+            raise ValueError('W2[7,8] requires the exact independently registered World PPO_LASTDET or Rescue recipe')
         return [7,8]
     return registered_stochastic_steps(cfg['variant'])
 

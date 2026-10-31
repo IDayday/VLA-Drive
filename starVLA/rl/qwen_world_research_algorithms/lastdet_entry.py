@@ -14,7 +14,7 @@ LASTDET_PROTOCOL=dict(schema=LASTDET_SCHEMA,stochastic_steps=[7,8],deterministic
 
 
 def require_lastdet(cfg):
-    if registered_stochastic_steps_for_recipe(cfg)!=[7,8]:
+    if cfg.get('research',{}).get('arm')!='PPO_LASTDET' or registered_stochastic_steps_for_recipe(cfg)!=[7,8]:
         raise ValueError('Use this entry only for the separately registered PPO_LASTDET')
     return cfg
 
