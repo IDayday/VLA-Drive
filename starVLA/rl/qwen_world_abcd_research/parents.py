@@ -63,7 +63,8 @@ def inspect_parent_export(path):
     # shapes, masks, numerical kernels or denoising formula change.
     meta = copy.deepcopy(meta)
     meta['parent_source_migration'] = dict(
-        differences=differences, added_execution_helper={name:actual[name] for name in added}, checkpoint_short_suffix=True,
+        differences={name:list(pair) for name,pair in differences.items()},
+        added_execution_helper={name:actual[name] for name in added}, checkpoint_short_suffix=True,
         source_original_seals_unchanged=True,
         scope='one reviewed default-True activation-checkpoint execution flag; no model math/parameters change',
     )

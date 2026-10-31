@@ -18,6 +18,7 @@ from starVLA.rl.qwen_world_compare.contracts import (ROOT, TASK, allowed_hosts,
 from starVLA.rl.qwen_world_compare.resources import probe, MODEL_PYTHON, gpu_activity_issue
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from .dispatch import launch, job_state
+from .notify import refresh
 
 SCHEMA = 'ABCD_best_parent_async_evaluation_owner_v1'
 COUNTS = {'DEV': 1696, 'NAVTEST': 12146}
@@ -144,6 +145,10 @@ class EvaluationOwner:
             raise ValueError('Exactly the independent registered four architecture arms required')
         if {row['architecture_id'] for row in value['runs']} != set('ABCD'):
             raise ValueError('Duplicate or missing architecture registration')
+        for cohort, location in value.get('evaluation',{}).get('data_paths',{}).items():
+            manifest = read(Path(location)/'manifest.json',{})
+            if cohort not in COUNTS or manifest.get('cohort')!=cohort or len(manifest.get('tokens',[]))!=COUNTS[cohort]:
+                raise ValueError('Declared evaluation cohort path/count changed: '+str(location))
         for run in value['runs']:
             if file_sha(run['config']) != run['config_sha256']:
                 raise ValueError('Registered scientific config bytes changed')
@@ -156,6 +161,12 @@ class EvaluationOwner:
     def flush(self):
         self.state['heartbeat_unix'] = time.time()
         atomic_json(self.state_path, self.state)
+        signature = fingerprint({k:{'status':v.get('status'),'summary':v.get('summary')}
+            for k,v in self.state.get('evaluations',{}).items()
+            if v.get('status') in ('COMPLETE','FAILED_REVIEW_REQUIRED')})
+        if signature != getattr(self,'_report_signature',None):
+            self._report_signature = signature
+            refresh(self.state_path,'ABCD evaluation milestone or failure')
 
     def receipt(self, node):
         if not node.get('job'):
@@ -388,7 +399,8 @@ class EvaluationOwner:
                         routes.insert(0, route)
                         continue
                     parent = read(Path(run['parent_export'])/'export.json')['IL_parent']
-                    data = str(Path(parent['identity']['config']['data_root'])/entry['cohort'])
+                    data = str(self.registry.get('evaluation',{}).get('data_paths',{}).get(
+                        entry['cohort'],Path(parent['identity']['config']['data_root'])/entry['cohort']))
                     command = [MODEL_PYTHON, '-u', '-m', 'tools.qwen_world_abcd_research.evaluate',
                         '--export', gate['export']['path'], '--output', entry['evaluation'],
                         '--cohort', entry['cohort'], '--data', data, '--rank', str(rank), '--world', str(entry['world']), '--seed', '2101']

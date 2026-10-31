@@ -17,6 +17,7 @@ from starVLA.rl.qwen_world_compare.contracts import ROOT, TASK, allowed_hosts, f
 from starVLA.rl.qwen_world_compare.resources import probe, MODEL_PYTHON, gpu_activity_issue
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from .dispatch import launch, job_state
+from .notify import refresh
 
 
 class Owner:
@@ -31,15 +32,20 @@ class Owner:
             raise ValueError('Exactly the registered four architecture runs required')
         self.state_path = self.directory/'STATE.json'
         self.state = json.loads(self.state_path.read_text()) if self.state_path.exists() else dict(runs={})
+        self.state.update(status='RUNNING')
+        self.state.pop('native_owner_finished_unix',None)
         atomic_json(self.directory/'OWNER.json', dict(pid=os.getpid(),
             start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
             source=str(Path(__file__).resolve()), source_sha256=file_sha(__file__), started_unix=time.time()))
 
     def update(self, arm, **values):
         with self.mutex:
+            previous = self.state['runs'].get(arm,{}).get('status')
             self.state['runs'].setdefault(arm, {}).update(values, heartbeat_unix=time.time())
             self.state['heartbeat_unix'] = time.time()
             atomic_json(self.state_path, self.state)
+            if values.get('status') != previous and values.get('status') in ('FAILED_REVIEW_REQUIRED','STAGE_COMPLETE','COMPLETED_AT_REGISTERED_CAP'):
+                refresh(self.state_path,arm+': '+values['status'])
 
     def stage(self, arm, target):
         with self.mutex:
@@ -94,8 +100,10 @@ class Owner:
                            '--output', run['root'], '--stop-after-update', str(target), '--save-every', '100']
                 if resume:
                     command += ['--resume', resume]
+                    if run.get('execution_migration_receipt'):
+                        command += ['--migration-receipt',run['execution_migration_receipt']]
                 try:
-                    job = launch(route['host'], run['source'], command, name, gpus='0,1,2,3,4,5,6,7',
+                    job = launch(route['host'], run.get('execution_source',run['source']), command, name, gpus='0,1,2,3,4,5,6,7',
                         expected_uuids=[g['uuid'] for g in sample['gpus']],
                         share_minimum=route['minimum_free_MiB'], lease_slot=route['lease_slot'])
                 except Exception:
@@ -156,6 +164,7 @@ class Owner:
     def run(self):
         with ThreadPoolExecutor(max_workers=4) as pool:
             list(pool.map(self.run_arm, self.registry['runs']))
+        self.state['status'] = ('COMPLETED_AT_REGISTERED_CAP' if all(x.get('status')=='COMPLETED_AT_REGISTERED_CAP' for x in self.state['runs'].values()) else 'FINISHED_WITH_REVIEW_REQUIRED')
         self.state['native_owner_finished_unix'] = time.time()
         atomic_json(self.state_path, self.state)
 

@@ -19,7 +19,8 @@ import torch.distributed as dist
 from starVLA.rl.simwam_recipe import checkpoint as source
 from starVLA.rl.simwam_recipe.lora_adapter import adapter_state,restore_adapters
 from starVLA.rl.flow_grpo.transactions import atomic_json
-from starVLA.rl.qwen_world_compare.contracts import file_sha
+from starVLA.rl.qwen_world_compare.contracts import file_sha,fingerprint
+from starVLA.rl.simwam_recipe.lineage import scientific_identity
 from starVLA.rl.qwen_world_compare.recovery_state import validate_boundary as source_boundary,validate_ranks as source_ranks
 
 init_control_group = source.init_control_group
@@ -29,6 +30,42 @@ fatal_device_error = source.fatal_device_error
 EXECUTION_IDENTITY = None
 MIGRATION_RECEIPT = None
 CHECKPOINT_CONTRACT = 'qwen_world_abcd_research_checkpoint_v1'
+MIGRATION_SCHEMA = 'qwen_world_abcd_execution_migration_v1'
+
+
+def validate_execution_migration(receipt,identity,resume,transaction):
+    """Accept only an evidence-bound execution change, retaining the run ID.
+
+    The generic lineage verifier is called by train.py before restore. Recheck
+    its receipt at the checkpoint boundary as well; direct restore callers may
+    not bypass evidence, exact identities, or native lineage binding.
+    """
+    body=dict(receipt);saved=body.pop('sha256',None)
+    old,new=receipt.get('old_identity'),receipt.get('new_identity')
+    if (saved!=fingerprint(body) or receipt.get('schema')!=MIGRATION_SCHEMA
+            or old!=identity or not isinstance(new,dict)):
+        raise ValueError('Wrong new-family execution migration receipt or original run identity')
+    for value in (old,new):
+        payload=dict(value);digest=payload.pop('sha256',None)
+        if (digest!=fingerprint(payload) or value.get('scientific_identity')!=scientific_identity(value)):
+            raise ValueError('Migration identity seal/scientific fields changed')
+    # Be stricter than the generic scientific-key subset: parent/reference,
+    # architecture, data and every other nonexecution field must stay exact.
+    immutable=lambda value:{k:v for k,v in value.items() if k not in ('source_files','execution_identity','sha256')}
+    if (immutable(old)!=immutable(new) or new.get('execution_identity')!=EXECUTION_IDENTITY
+            or new['execution_identity']['fields']['source_files']!=new['source_files']):
+        raise ValueError('Migration changed nonexecution semantics or actual execution identity')
+    evidence=receipt.get('evidence')
+    if not isinstance(evidence,list) or not evidence:
+        raise ValueError('Execution migration requires nonempty tested equivalence evidence')
+    for row in evidence:
+        if (file_sha(row['path'])!=row['sha256']
+                or json.loads(Path(row['path']).read_text()).get('status')!='PASS'):
+            raise ValueError('Execution migration equivalence evidence changed or did not pass')
+    if (file_sha(Path(resume)/'files.json')!=receipt.get('parent_files_sha256')
+            and transaction.get('migration_receipt_sha256')!=saved):
+        raise ValueError('Checkpoint is not the audited native parent or its exact migration lineage')
+    return receipt
 
 
 def _tree(value, transform):
@@ -150,8 +187,8 @@ def restore(path,actor,optimizer,scheduler,generator,identity,*,migration=None,r
     try:
         path=Path(path);complete=json.loads((path/'COMPLETE').read_text())
         if ('.incomplete' in path.name or complete.get('schema')!=2
-                or complete.get('contract')!=CHECKPOINT_CONTRACT or migration is not None):
-            raise ValueError('Unpublished/foreign checkpoint; an explicit new-family audited migration is required')
+                or complete.get('contract')!=CHECKPOINT_CONTRACT):
+            raise ValueError('Unpublished/foreign checkpoint')
         if (complete['world']!=world or identity['world']!=world
                 or file_sha(path/'files.json')!=complete['files_sha256']):
             raise ValueError('Checkpoint publication/rank count changed')
@@ -167,6 +204,8 @@ def restore(path,actor,optimizer,scheduler,generator,identity,*,migration=None,r
             raise ValueError('Rank identity changed')
         summary=validate_boundary(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'])
         transaction=json.loads((path/'transaction.json').read_text())
+        if migration is not None:
+            validate_execution_migration(migration,identity,path,transaction)
         if (transaction.get('schema')!=CHECKPOINT_CONTRACT or summary!=transaction['ranks'][rank]
                 or complete['phase']!=summary['phase']):
             raise ValueError('Committed state/digests changed')

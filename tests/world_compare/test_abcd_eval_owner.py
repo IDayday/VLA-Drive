@@ -51,6 +51,7 @@ def test_evaluation_guard_respects_three_namespace_owner_and_holds_spare(tmp_pat
 
 def test_reentry_keeps_frozen_source_world_and_only_prechild75_requeues(tmp_path, monkeypatch):
     monkeypatch.setattr(E, 'ROOT', tmp_path)
+    monkeypatch.setattr(E, 'refresh', lambda *args:None)
     roots = {key:tmp_path/'leases'/key for key in E.LEASES}
     monkeypatch.setattr(E, 'LEASES', roots)
     source=tmp_path/'frozen_science';parent=tmp_path/'parent'
@@ -61,7 +62,8 @@ def test_reentry_keeps_frozen_source_world_and_only_prechild75_requeues(tmp_path
     owner.state_path=owner.directory/'STATE.json'
     owner.claims_path=tmp_path/'resources/EVALUATION_CLAIMS.json';owner.claims_path.parent.mkdir()
     owner.max_shards=1;owner.max_workers=32;owner.minimum=32768
-    owner.registry=dict(runs=[run], parent_selection='selected.json')
+    owner.registry=dict(runs=[run], parent_selection='selected.json',
+        evaluation={'data_paths':{'NAVTEST':'/canonical/separate/NAVTEST'}})
     gate=dict(export=dict(status='COMPLETE', path='/sealed/export'))
     owner.state=dict(runs={run['id']:{'gates':{'1000':gate}}}, evaluations={})
     for cohort in E.COUNTS:
@@ -78,6 +80,8 @@ def test_reentry_keeps_frozen_source_world_and_only_prechild75_requeues(tmp_path
     samples=[('mockhost',dict(gpus=gpus, owners=[]))]
     owner.dispatch_ranks(samples)
     assert len(calls)==2 and all(call[1]==str(source) for call in calls)
+    nav=next(call[2] for call in calls if call[2][call[2].index('--cohort')+1]=='NAVTEST')
+    assert nav[nav.index('--data')+1]=='/canonical/separate/NAVTEST'
     assert all(call[4]['worker_source']==Path(E.__file__).resolve().parents[2] for call in calls)
     assert all(call[2][call[2].index('--world')+1]=='1' for call in calls)
     # Recreate process memory using only the persisted state; no duplicate work.

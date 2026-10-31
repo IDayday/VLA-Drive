@@ -63,6 +63,86 @@ def parameter_hash(actor,*,trainable):
     return h.hexdigest()
 
 
+def seal_run_identity(value):
+    """Use the same JSON value in memory, its hash, and every saved identity.
+
+    JSON encodes tuples as arrays. Comparing a fresh Python tuple with a saved
+    array falsely rejected otherwise identical 1k resumes. Canonicalization
+    changes no serialized bytes or scientific fields; real source changes
+    still require the explicit migration path below.
+    """
+    value={k:v for k,v in value.items() if k not in ('scientific_identity','execution_identity','sha256')}
+    value=json.loads(json.dumps(value,allow_nan=False))
+    value['scientific_identity']=scientific_identity(value)
+    value['execution_identity']=execution_identity(value['source_files'])
+    value['sha256']=fingerprint(value)
+    return value
+
+
+def prepare_execution_migration_cli():
+    """Prepare exact expected identities from frozen code, without model load.
+
+    Startup still recomputes the full actual actor/condition identity and calls
+    verify_migration against this exact new_identity before restoring anything.
+    Thus unexpected changes fail closed instead of inheriting a guessed ID.
+    """
+    import yaml
+    from starVLA.rl.qwen_world_abcd_research.runtime import ABCDBestRuntime
+    from starVLA.rl.qwen_world_compare.contracts import ROOT as task_root,TASK as task_id
+    p=argparse.ArgumentParser(__doc__)
+    p.add_argument('--prepare-execution-migration',action='store_true',required=True)
+    p.add_argument('--registry',required=True);p.add_argument('--arm',required=True)
+    p.add_argument('--resume',required=True);p.add_argument('--evidence',action='append',required=True)
+    p.add_argument('--output-receipt',required=True)
+    a=p.parse_args()
+    if (task_id!='qwen_world_abcd_rl_best_20261031'
+            or Path(a.registry).resolve()!=(task_root/'RUNS.json').resolve()
+            or Path.cwd().resolve()!=Path(__file__).resolve().parents[2]):
+        raise ValueError('Prepare migration from its frozen execution cwd and explicit ABCD task registry')
+    registry=json.loads(Path(a.registry).read_text())
+    run=next(r for r in registry['runs'] if r['id']==a.arm)
+    resume=Path(a.resume).resolve()
+    if not resume.is_relative_to(Path(run['root']).resolve()/'checkpoints'):
+        raise ValueError('Migration parent must belong to the original registered run')
+    previous=json.loads((Path(run['root'])/'identity.json').read_text())
+    if json.loads((resume/'identity.json').read_text())!=previous:
+        raise ValueError('Migration parent does not retain the exact original run identity')
+    if (file_sha(run['config'])!=run['config_sha256']
+            or yaml.safe_load(Path(run['config']).read_text())!=previous['recipe']):
+        raise ValueError('Config changed; not an execution-only resume')
+    if Path(previous['IL_parent']['export_parent']['path']).resolve()!=Path(run['parent_export']).resolve():
+        raise ValueError('Registered permanent IL parent changed')
+    seal=json.loads((resume/'COMPLETE').read_text())
+    if (seal.get('contract')!=checkpoint.CHECKPOINT_CONTRACT or seal.get('world')!=previous['world']
+            or seal['files_sha256']!=file_sha(resume/'files.json')):
+        raise ValueError('Migration parent is not an intact published native checkpoint')
+    expected=dict(previous)
+    expected['source_files']=ABCDBestRuntime().source_files()
+    current=seal_run_identity(expected)
+    receipt=dict(schema=checkpoint.MIGRATION_SCHEMA,old_identity=previous,new_identity=current,
+        parent_files_sha256=file_sha(resume/'files.json'),
+        evidence=[dict(path=str(Path(x).resolve()),sha256=file_sha(x)) for x in a.evidence],
+        reason='JSON-native parent provenance and exact-identity resume; native state/algorithm unchanged',
+        preparation=dict(source=str(Path.cwd().resolve()),builder_sha256=file_sha(__file__),
+            registry_sha256=file_sha(a.registry),config_sha256=run['config_sha256'],
+            resume=str(resume),created_unix=time.time(),
+            actual_startup_must_recompute_and_match_new_identity=True))
+    receipt['sha256']=fingerprint(receipt)
+    checkpoint.EXECUTION_IDENTITY=current['execution_identity']
+    transaction=json.loads((resume/'transaction.json').read_text())
+    checkpoint.validate_execution_migration(receipt,previous,resume,transaction)
+    output=Path(a.output_receipt)
+    if output.exists():
+        raise FileExistsError('Migration receipts are immutable; choose a new receipt path')
+    atomic_json(output,receipt)
+    verify_migration(output,previous,current,resume)
+    print(json.dumps(dict(status='PREPARED_EXACT_STARTUP_VERIFICATION_REQUIRED',
+        receipt=str(output.resolve()),receipt_sha256=receipt['sha256'],
+        original_run_identity_sha256=previous['sha256'],new_identity_sha256=current['sha256'],
+        execution_identity_sha256=current['execution_identity']['sha256'],
+        inherited_native_updates=seal['updates'],optimizer_RNG_cursor_reset=False)))
+
+
 def source_files():
     roots=['starVLA/rl/simwam_recipe']
     paths=[p for r in roots for p in Path(r).rglob('*.py')]
@@ -139,9 +219,7 @@ def main(runtime=None):
                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
     if hasattr(stream,'identity'):identity['data_stream_identity']=stream.identity
     if explicit_optimizer_groups is not None:identity['actual_optimizer']['parameter_groups']=explicit_optimizer_groups
-    identity['scientific_identity']=scientific_identity(identity)
-    identity['execution_identity']=execution_identity(identity['source_files'])
-    identity['sha256']=fingerprint(identity)
+    identity=seal_run_identity(identity)
     current_identity=identity;migration=None
     if (root/'identity.json').exists():
         previous=json.loads((root/'identity.json').read_text())
@@ -329,4 +407,8 @@ def main(runtime=None):
         if dist.is_initialized():dist.destroy_process_group()
 
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    if '--prepare-execution-migration' in sys.argv:
+        prepare_execution_migration_cli()
+    else:
+        main()
