@@ -1,0 +1,123 @@
+{
+  "arm": "PPO_SAFETY_DATA",
+  "status": "STOPPED_BY_USER_FOCUS_CHANGE",
+  "reason": "\u7528\u6237\u8981\u6c42\u53ea\u4fdd\u7559PPO_SAFETY_EP\u5e76\u7814\u7a76\u5176\u8fc7\u7a0b\uff1b\u65e7native10k\u5206\u652f\u4e0d\u518d\u63a8\u8fdb",
+  "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_DATA/formal_to016000_attempt001",
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_lr_historyfix_20261031",
+  "native_checkpoint": {
+    "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_DATA/checkpoints/update015883_inner3",
+    "updates": 15883,
+    "phase": "INNER_COMMITTED",
+    "next_inner": 3,
+    "files_sha256": "dc4c8bab5af838c9a0933345efd0e060304103fd3e61b434607632159f245d41"
+  },
+  "result": {
+    "status": "EXITED",
+    "host": "training-vlawm-zt",
+    "worker_pid": 2710957,
+    "worker_start_ticks": 1487072292,
+    "start_unix": 1793431923.196494,
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "requested_gpu_uuids": [
+      "GPU-28bb7746-6cd9-30e1-eaf3-023b3dcb9e55",
+      "GPU-015ebf78-d8cb-fc84-ac4c-1032e44185ec",
+      "GPU-5ea67974-566a-d324-591a-dfb1e2fd9880",
+      "GPU-d35db37e-09ab-e67e-eb25-fb83477bd237",
+      "GPU-b959b7cd-fb04-755f-716d-433c0c9027f4",
+      "GPU-3a230600-9d91-7bbb-fc01-7189538907fb",
+      "GPU-0dc01ece-190e-63ad-04f4-4da2dcf0c1d6",
+      "GPU-6ad54b12-1c34-1d8b-2b31-0a4ec20f287a"
+    ],
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc-per-node=8",
+      "-m",
+      "starVLA.rl.qwen_world_research_algorithms.safety_lr_entry",
+      "--config",
+      "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_DATA.yaml",
+      "--manifest",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+      "--output",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_DATA",
+      "--il-checkpoint",
+      "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "--parent-selection",
+      "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+      "--data",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+      "--stop-after-update",
+      "16000",
+      "--resume",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_DATA/checkpoints/update014000_inner0"
+    ],
+    "cwd": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_lr_historyfix_20261031",
+    "shared_headroom_MiB": 32768,
+    "additional_research_slot": false,
+    "evaluation_slot": false,
+    "gpu_uuids": [
+      "GPU-28bb7746-6cd9-30e1-eaf3-023b3dcb9e55",
+      "GPU-015ebf78-d8cb-fc84-ac4c-1032e44185ec",
+      "GPU-5ea67974-566a-d324-591a-dfb1e2fd9880",
+      "GPU-d35db37e-09ab-e67e-eb25-fb83477bd237",
+      "GPU-b959b7cd-fb04-755f-716d-433c0c9027f4",
+      "GPU-3a230600-9d91-7bbb-fc01-7189538907fb",
+      "GPU-0dc01ece-190e-63ad-04f4-4da2dcf0c1d6",
+      "GPU-6ad54b12-1c34-1d8b-2b31-0a4ec20f287a"
+    ],
+    "temporary": false,
+    "guard_unix": 1793406179.0,
+    "deadline_unix": 1793407379.0,
+    "child_pid": 2710969,
+    "child_start_ticks": 1487072336,
+    "known_rank_processes": [
+      {
+        "pid": 2710983,
+        "start_ticks": 1487072461,
+        "pgid": 2710983,
+        "entry": "starVLA.rl.qwen_world_research_algorithms.safety_lr_entry",
+        "usr1_handler": false
+      },
+      {
+        "pid": 2710986,
+        "start_ticks": 1487072461,
+        "pgid": 2710986,
+        "entry": "starVLA.rl.qwen_world_research_algorithms.safety_lr_entry",
+        "usr1_handler": false
+      },
+      {
+        "pid": 2710987,
+        "start_ticks": 1487072461,
+        "pgid": 2710987,
+        "entry": "starVLA.rl.qwen_world_research_algorithms.safety_lr_entry",
+        "usr1_handler": false
+      },
+      {
+        "pid": 2710988,
+        "start_ticks": 1487072461,
+        "pgid": 2710988,
+        "entry": "starVLA.rl.qwen_world_research_algorithms.safety_lr_entry",
+        "usr1_handler": false
+      }
+    ],
+    "returncode": 0,
+    "end_unix": 1793434663.2754297,
+    "migration_required": false
+  },
+  "native_transport_exited": true,
+  "optimizer_RNG_cursor_pending_rollout_retained": true,
+  "training_seed_unchanged": true,
+  "algorithm_failure_inferred": false,
+  "at_unix": 1793435016.35484
+}

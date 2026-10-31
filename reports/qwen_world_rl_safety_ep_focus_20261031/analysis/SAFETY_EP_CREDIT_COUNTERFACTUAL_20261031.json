@@ -1,0 +1,87 @@
+{
+  "schema": "world_SafetyEP_cached_credit_single_factor_CPU_counterfactual_v1",
+  "status": "COMPLETE_CPU_ONLY_NOT_REGISTERED",
+  "at": "2026-10-31T08:20:25.439763+00:00",
+  "window": "SafetyEP10k final500optimizer updates9500..9996; 125 complete globalcollections,8ranks,1000TRAINgroups8000candidates; not wholetraining or22k",
+  "source": {
+    "candidate_npz": "/mnt/project/qwen-world-rl-optimization-20261030/data/preferences/TRAIN_METRIC_PREFERENCES_20261031/candidates.npz",
+    "candidate_npz_sha256": "0b83e37a9b8fcadd0147323a05cdc99b9d745568649148dc201bd87487b4e567",
+    "groups_jsonl_sha256": "3f862f4af7e0642740ac1b043bae81232848df7b4d86eca115b2fee5ff5458c7",
+    "old_advantage_max_abs_recompute_error": 5.616359821121515e-17
+  },
+  "current": {
+    "groups": 1000,
+    "feasible_count_histogram": {
+      "0": 7,
+      "1": 22,
+      "2": 24,
+      "3": 40,
+      "4": 58,
+      "5": 94,
+      "6": 167,
+      "7": 220,
+      "8": 368
+    },
+    "mixed_groups": 625,
+    "allfail": 7,
+    "unsafe_positive": {
+      "0": {
+        "positive_A_unsafe": 5,
+        "positive_A_in_allfail": 5,
+        "positive_A_with_feasible": 0
+      },
+      "0.5": {
+        "positive_A_unsafe": 0,
+        "positive_A_in_allfail": 0,
+        "positive_A_with_feasible": 0
+      },
+      "1": {
+        "positive_A_unsafe": 23,
+        "positive_A_in_allfail": 23,
+        "positive_A_with_feasible": 0
+      }
+    },
+    "mixed_unsafe_positive": 0,
+    "raw_safe_abs_mean": 0.217390625,
+    "raw_EP_abs_mean": 0.040100143574116474,
+    "zeroPG_groups": 100,
+    "zeroPG_saturated": 100,
+    "global8rank_collections": 125,
+    "global_collections_with_all_rank_A0": 0,
+    "active_rank_group_count_histogram": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 4,
+      "6": 19,
+      "7": 50,
+      "8": 52
+    }
+  },
+  "candidate": {
+    "only_change": "lambda_EP(group)=feasible_count/8, A_safe unchanged, globalbatch Astd recomputed, all4innersreuse",
+    "raw_advantage_changed_groups": 447,
+    "raw_advantage_changed_candidates": 2543,
+    "raw_advantage_sign_changes": 21,
+    "current_feasible_negative_A_in_mixed": 104,
+    "candidate_feasible_negative_A_in_mixed": 83,
+    "mixed_unsafe_positive_after": 0,
+    "allfail_A_unchanged_before_global_rescale": true,
+    "allfeasible_A_unchanged_before_global_rescale": true,
+    "raw_EP_abs_mean": 0.03536393221611301,
+    "post_global_std_mean_abs_A": 0.7071496790987815,
+    "original_mean_abs_A": 0.7062069177627563
+  },
+  "interpretation_zh": [
+    "只证明此单变量会改变哪些信用，不证明NC/PDMS改善；安全成本不是事故severity。",
+    "现有mixed组NC.5没有EP正信用。allfail正A必须单列，不把least-cost进步叫安全。",
+    "allfeasible原始A不变但全batch共享std改变会影响其它组绝对尺度，因此也不是严格只动mixed候选有效步长。",
+    "无新增score/model/GPU/journal；候选可先不注册，等待最新Safety过程诊断。",
+    "局部100/1000零PG不等于全局optimizer无PG；这125个完整8rank collection没有一个全rank A0。这里只是A信号，未计后续PPO clip阻塞/梯度抵消。"
+  ],
+  "new_GPU_forwards": 0,
+  "new_scores": 0,
+  "new_seeds": 0
+}

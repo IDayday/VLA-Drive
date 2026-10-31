@@ -1,0 +1,2200 @@
+{
+  "schema": "world_SafetyEP_problem_driven_freshIL_research_directions_v1",
+  "status": "COMPLETE_PROPOSAL_NOT_REGISTERED",
+  "created_at": "2026-10-31T08:34:53.066001+00:00",
+  "focus": {
+    "current_allowed_RL": "PPO_SAFETY_EP only; root ownscooperative停止/撤销其它eval",
+    "other_routes": "stopped/stoprequestedbyuserfocuschange,notalgorithmfailure",
+    "new_pilots_started": false,
+    "new_registrations": false,
+    "new_GPU_work": 0,
+    "all_future_start": "sameIL70,freshAdam/RNG42/update0; noRL10kfork",
+    "historical_LR_study": "nativeforkresultsnotyetavailable; userstoppedfocusnotfutility; preupdatehistoryguardfailuresremainoperational"
+  },
+  "main_points_zh": [
+    "最新24k相对10k整体TTC改善而EP明确下降；固定高8850队列NC/DAC/TTC/EP均负，不能概括为过度追快。优先保护已学安全进度和高分，再修可靠的少量失败信用。",
+    "P0先测真实PG/物理anchor梯度与全局8rank信号，不以技巧数量、loss标量或局部zeroPG决定主因。",
+    "SafetyEP已经实现严格within-feasible EP。有可行候选的组，unsafe不可能因EP获得正A；allfail正A是leastcost方向，需逐NC/DAC/TTC向量审计，不是安全证书。",
+    "新10个窗口1280组中111局部zeroPG=110成功EP1饱和+1allfailcosttie；旧10k125个完整collection无一全rank A0。两种窗口口径不混，均不证明optimizer因zeroPG停摆。",
+    "候选质量不等于ODE学习收益；LastDet1k实测负结果阻止把“去末噪声”直接当改进证据。FPO方向应先隔离PG估计器，后谈采样器。",
+    "成功witness/teacher刷新、参数步长LR、reference约束分别改变不同机制；暂不组合、暂不从RL10k分叉，所有未来对照从同IL70开始。"
+  ],
+  "baseline": {
+    "initialization": "same sealed IL70,current+reference initialtrainable closure; noRL10k weights/nativefork",
+    "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+    "fresh_AdamW": true,
+    "fresh_RNG_seed": 42,
+    "initial_optimizer_updates": 0,
+    "initial_scene_cursor": 0,
+    "data": "full103288 eligible uniform,world8 scenes/collection,G8 candidates/scene,8ranks,4inner reuse",
+    "source_baseline": "SafetyEP with W3 rigorousSDE eta.1 steps7/8/9; originalIL70 physicalclean-x mean anchor beta50",
+    "scope": "52,707,840 = actionLoRA5,242,880 +scene/predictiveMemory47,464,960; Qwenfrozen",
+    "optimizer_groups": "action5e-5/Memory5e-6;100optimizerupdate linearwarmup thenconstant; no secondwarmup across native stage boundaries",
+    "advantage": "fixed kappa0,lambdaEP1; group-centered Safety+within-feasibleEP; onceglobal64A populationstd+1e-8; sourceAclip5",
+    "evaluation": "official fullNAVTEST12146,singleODE10 shift5,seed2101,44physical logs paired2000bootstrap seed42; canonicalmetrics unchanged",
+    "budgets": "proposal only: first5k,1k/5k gates; extend to10k only afterrootreview; later2k cadence onlyifexplicitlyapproved",
+    "control_reuse": "Existing freshIL70 SafetyEP same-update results may be reused if scientific/data/inference identities match; no gratuitous rerun or newtrainingseeds.",
+    "high_retention": "predefine IL70score>=.9 NAVTEST diagnosticcohort; historicalSafety10k>=.9 secondarycohort only. NoNAVTEST trainingtoken selection.",
+    "low_repair": "predefine IL70 zero/positive-low TRAIN diagnosticcohorts; distinguish persistent/intermittent/recovered/relapse and never-resampledunknown",
+    "promotion": "sameupdatePDMS gain with44logCI plus NC/DAC/TTC/EP andhighcohort/newzero review; smallgain ortrainingrewardalone insufficient; formal noninferioritymargins rootmustprespecify",
+    "deployment": "singletrajectoryODE,unchangedparameterclosure; nooracle scorer/reranking/teacher at inference"
+  },
+  "P0_gradient_and_credit_diagnosis": {
+    "priority": "P0_DIAGNOSIS_BEFORE_CHANGING_REFERENCE_OR_STACKING_METHODS",
+    "status": "DESIGN_ONLY_NOT_MEASURED_NO_GPU_RUN",
+    "problem_zh": "候选信用修正不等于更新后策略安全；稀疏成功/局部zeroPG、PPO阻塞、不同rank梯度相消和anchor拉回是不同机制。",
+    "unknown_zh": "真实World同批PG与beta50物理anchor梯度的幅度/夹角尚未知；scalar pg_loss/kl_loss及Adam二阶矩不能完成归因。IL70不刷新的pullback可以是假设，不能先称reference错。",
+    "measurements": [
+      "gPG=(1/8)sum_rank grad(LPG_rank), gAnchor=(1/8)sum_rank grad(50*Lphysical_anchor_rank)，保留实际source local-effective reduction。",
+      "报告||gPG||、||gAnchor||、cos(gPG,gAnchor)、||gPG+gAnchor||，分别全scope/action/Memory；同时记录总gradclip前后与Adam实际参数步长，loss标量不能替代。",
+      "按同一freshbehavior中的mixed/allfail/allpassEPsaturated分层，区分局部贡献与8rank聚合；分层只是诊断，不重分配rank权重。",
+      "记录每inner的正/负A实际clip阻塞、Aclip5触及率、ratio有效权重、global8rank全A0与local0比例；4inner共用同A但ratio/梯度可变。",
+      "若另拆Asafe/AEP梯度，必须保留Atotal真实clip分支与Aclip后的共同系数，不能用不同分支loss假称精确可加分解。"
+    ],
+    "feasible_execution_zh": "先复用已记录字段。若不足，root以后授权的fresh试验在少量正常collection上测量，复用已有forward/行为材料；不额外造GPU资格矩阵，不热改当前Safety。",
+    "CPU_fact": {
+      "groups": 1000,
+      "feasible_count_histogram": {
+        "0": 7,
+        "1": 22,
+        "2": 24,
+        "3": 40,
+        "4": 58,
+        "5": 94,
+        "6": 167,
+        "7": 220,
+        "8": 368
+      },
+      "mixed_groups": 625,
+      "allfail": 7,
+      "unsafe_positive": {
+        "0": {
+          "positive_A_unsafe": 5,
+          "positive_A_in_allfail": 5,
+          "positive_A_with_feasible": 0
+        },
+        "0.5": {
+          "positive_A_unsafe": 0,
+          "positive_A_in_allfail": 0,
+          "positive_A_with_feasible": 0
+        },
+        "1": {
+          "positive_A_unsafe": 23,
+          "positive_A_in_allfail": 23,
+          "positive_A_with_feasible": 0
+        }
+      },
+      "mixed_unsafe_positive": 0,
+      "raw_safe_abs_mean": 0.217390625,
+      "raw_EP_abs_mean": 0.040100143574116474,
+      "zeroPG_groups": 100,
+      "zeroPG_saturated": 100,
+      "global8rank_collections": 125,
+      "global_collections_with_all_rank_A0": 0,
+      "active_rank_group_count_histogram": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 4,
+        "6": 19,
+        "7": 50,
+        "8": 52
+      }
+    },
+    "decision_rules_zh": [
+      "新1280组allfail正unsafe24个（NC0/.5均0），旧10k1000组有5个NC0正A。频率/窗口不同，分别审原向量；不把旧计数或理论NC.5例子伪装最新主因，不一刀切屏蔽leastcost正A。",
+      "若gAnchor明显大且与成功PG方向冲突：才有依据提出独立beta/reference实验；仍须从同IL起点匹配，不能混入LR/teacher/sampler。",
+      "若PG有方向但部署仍zero：优先候选到ODE的成功传递/更新目标，而不是把所有zero解释为探索不足。",
+      "若costtie且没有成功witness：现有数据不含可靠方向；保持anchor、标记缺证，不靠随机优势或降低安全阈值制造梯度。"
+    ],
+    "CPU_fact_window": "SafetyEP10k final500optimizer updates9500..9996; 125 complete globalcollections,8ranks,1000TRAINgroups8000candidates; not wholetraining or22k",
+    "recorded_scalar_guards": {
+      "windows": 10,
+      "rank0_optimizer_updates": 640,
+      "preclip_above1_updates": 0,
+      "Aclip5_candidates": 2,
+      "candidates": 10240,
+      "interpretation_zh": "所查窗口没有总gradnorm>1触发；Aclip5也仅2/10240，不优先修未见的爆炸。总norm不回答PG/anchor夹角或跨rank抵消。"
+    }
+  },
+  "evidence": {
+    "latest_Safety_process": {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json",
+      "status": "COMPLETE",
+      "file_sha256": "151b4980d32a97f51e8b3086e413fb89b9b51dbefff773a36d4c7ea327cced26",
+      "summary_reference": "priority_basis_latest_process; completeoriginalprocesslinkedbySHA,notduplicatedhere"
+    },
+    "historical10k_cached_credit": {
+      "schema": "world_SafetyEP_cached_credit_single_factor_CPU_counterfactual_v1",
+      "status": "COMPLETE_CPU_ONLY_NOT_REGISTERED",
+      "at": "2026-10-31T08:20:25.439763+00:00",
+      "window": "SafetyEP10k final500optimizer updates9500..9996; 125 complete globalcollections,8ranks,1000TRAINgroups8000candidates; not wholetraining or22k",
+      "source": {
+        "candidate_npz": "/mnt/project/qwen-world-rl-optimization-20261030/data/preferences/TRAIN_METRIC_PREFERENCES_20261031/candidates.npz",
+        "candidate_npz_sha256": "0b83e37a9b8fcadd0147323a05cdc99b9d745568649148dc201bd87487b4e567",
+        "groups_jsonl_sha256": "3f862f4af7e0642740ac1b043bae81232848df7b4d86eca115b2fee5ff5458c7",
+        "old_advantage_max_abs_recompute_error": 5.616359821121515e-17
+      },
+      "current": {
+        "groups": 1000,
+        "feasible_count_histogram": {
+          "0": 7,
+          "1": 22,
+          "2": 24,
+          "3": 40,
+          "4": 58,
+          "5": 94,
+          "6": 167,
+          "7": 220,
+          "8": 368
+        },
+        "mixed_groups": 625,
+        "allfail": 7,
+        "unsafe_positive": {
+          "0": {
+            "positive_A_unsafe": 5,
+            "positive_A_in_allfail": 5,
+            "positive_A_with_feasible": 0
+          },
+          "0.5": {
+            "positive_A_unsafe": 0,
+            "positive_A_in_allfail": 0,
+            "positive_A_with_feasible": 0
+          },
+          "1": {
+            "positive_A_unsafe": 23,
+            "positive_A_in_allfail": 23,
+            "positive_A_with_feasible": 0
+          }
+        },
+        "mixed_unsafe_positive": 0,
+        "raw_safe_abs_mean": 0.217390625,
+        "raw_EP_abs_mean": 0.040100143574116474,
+        "zeroPG_groups": 100,
+        "zeroPG_saturated": 100,
+        "global8rank_collections": 125,
+        "global_collections_with_all_rank_A0": 0,
+        "active_rank_group_count_histogram": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 4,
+          "6": 19,
+          "7": 50,
+          "8": 52
+        }
+      },
+      "candidate": {
+        "only_change": "lambda_EP(group)=feasible_count/8, A_safe unchanged, globalbatch Astd recomputed, all4innersreuse",
+        "raw_advantage_changed_groups": 447,
+        "raw_advantage_changed_candidates": 2543,
+        "raw_advantage_sign_changes": 21,
+        "current_feasible_negative_A_in_mixed": 104,
+        "candidate_feasible_negative_A_in_mixed": 83,
+        "mixed_unsafe_positive_after": 0,
+        "allfail_A_unchanged_before_global_rescale": true,
+        "allfeasible_A_unchanged_before_global_rescale": true,
+        "raw_EP_abs_mean": 0.03536393221611301,
+        "post_global_std_mean_abs_A": 0.7071496790987815,
+        "original_mean_abs_A": 0.7062069177627563
+      },
+      "interpretation_zh": [
+        "只证明此单变量会改变哪些信用，不证明NC/PDMS改善；安全成本不是事故severity。",
+        "现有mixed组NC.5没有EP正信用。allfail正A必须单列，不把least-cost进步叫安全。",
+        "allfeasible原始A不变但全batch共享std改变会影响其它组绝对尺度，因此也不是严格只动mixed候选有效步长。",
+        "无新增score/model/GPU/journal；候选可先不注册，等待最新Safety过程诊断。",
+        "局部100/1000零PG不等于全局optimizer无PG；这125个完整8rank collection没有一个全rank A0。这里只是A信号，未计后续PPO clip阻塞/梯度抵消。"
+      ],
+      "new_GPU_forwards": 0,
+      "new_scores": 0,
+      "new_seeds": 0
+    },
+    "historical_zero_observation_scope": {
+      "Safety_updates": [
+        0,
+        1000,
+        5000,
+        10000
+      ],
+      "TRAIN1024": {
+        "observed_updates": [
+          0,
+          1000,
+          5000,
+          10000
+        ],
+        "observations": 4,
+        "scenes": 1024,
+        "persistent_zero_all_observed": {
+          "total": 4,
+          "covered_any_teacher": 4,
+          "covered_low": 4,
+          "covered_high": 0,
+          "missing_count": 0
+        },
+        "ever_zero": {
+          "total": 12,
+          "covered_any_teacher": 12,
+          "covered_low": 9,
+          "covered_high": 3,
+          "missing_count": 0
+        },
+        "latest_zero": {
+          "total": 6,
+          "covered_any_teacher": 6,
+          "covered_low": 6,
+          "covered_high": 0,
+          "missing_count": 0
+        },
+        "latest_score_below095": 483
+      },
+      "warning": "historical4observationsonly; latestPROCESSsupersedes persistentcounts"
+    },
+    "fixedtheta_selected15TRAIN": {
+      "PPO_ADAPTIVE": {
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ADAPTIVE/checkpoints/update026000_inner0",
+        "updates": 26000,
+        "selected_TRAIN_scenes": 15,
+        "per_mode": {
+          "ODE8": {
+            "candidate_count": 120,
+            "mean_PDMS": 76.00566837025805,
+            "canonical_zero": 18,
+            "feasible": 90
+          },
+          "SDE01": {
+            "candidate_count": 120,
+            "mean_PDMS": 41.95813525532495,
+            "canonical_zero": 57,
+            "feasible": 50
+          },
+          "SDE003": {
+            "candidate_count": 120,
+            "mean_PDMS": 67.27854677879881,
+            "canonical_zero": 30,
+            "feasible": 80
+          },
+          "mu9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 77.44643475819963,
+            "canonical_zero": 17,
+            "strictly_feasible": 93,
+            "means": {
+              "score": 77.44643475819963,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 85.83333333333333,
+              "time_to_collision_within_bound": 88.33333333333333,
+              "ego_progress": 74.03811008634578,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 76.35534030245545,
+            "canonical_zero": 18,
+            "strictly_feasible": 91,
+            "means": {
+              "score": 76.35534030245545,
+              "no_at_fault_collisions": 100.0,
+              "drivable_area_compliance": 85.0,
+              "time_to_collision_within_bound": 84.16666666666667,
+              "ego_progress": 73.41948339255974,
+              "comfort": 100.0,
+              "driving_direction_compliance": 100.0
+            }
+          }
+        },
+        "persistent7af": {
+          "ODE8": {
+            "candidate_count": 8,
+            "mean_PDMS": 0.0,
+            "canonical_zero": 8,
+            "feasible": 0
+          },
+          "SDE01": {
+            "candidate_count": 8,
+            "mean_PDMS": 32.87240900608383,
+            "canonical_zero": 4,
+            "feasible": 2
+          },
+          "SDE003": {
+            "candidate_count": 8,
+            "mean_PDMS": 0.0,
+            "canonical_zero": 8,
+            "feasible": 0
+          }
+        }
+      },
+      "PPO_FULL": {
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update035000_inner0",
+        "updates": 35000,
+        "selected_TRAIN_scenes": 15,
+        "per_mode": {
+          "ODE8": {
+            "candidate_count": 120,
+            "mean_PDMS": 49.33461261272287,
+            "canonical_zero": 50,
+            "feasible": 54
+          },
+          "SDE01": {
+            "candidate_count": 120,
+            "mean_PDMS": 29.73374095784895,
+            "canonical_zero": 73,
+            "feasible": 34
+          },
+          "SDE003": {
+            "candidate_count": 120,
+            "mean_PDMS": 45.28866614979824,
+            "canonical_zero": 58,
+            "feasible": 53
+          },
+          "mu9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 50.972257696651,
+            "canonical_zero": 48,
+            "strictly_feasible": 57,
+            "means": {
+              "score": 50.972257696651,
+              "no_at_fault_collisions": 77.5,
+              "drivable_area_compliance": 82.5,
+              "time_to_collision_within_bound": 59.166666666666664,
+              "ego_progress": 50.833418471962425,
+              "comfort": 100.0,
+              "driving_direction_compliance": 99.58333333333333
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 48.50712605106865,
+            "canonical_zero": 51,
+            "strictly_feasible": 53,
+            "means": {
+              "score": 48.50712605106865,
+              "no_at_fault_collisions": 77.5,
+              "drivable_area_compliance": 80.0,
+              "time_to_collision_within_bound": 57.49999999999999,
+              "ego_progress": 49.25043585589809,
+              "comfort": 100.0,
+              "driving_direction_compliance": 99.58333333333333
+            }
+          }
+        },
+        "persistent7af": {
+          "ODE8": {
+            "candidate_count": 8,
+            "mean_PDMS": 0.0,
+            "canonical_zero": 8,
+            "feasible": 0
+          },
+          "SDE01": {
+            "candidate_count": 8,
+            "mean_PDMS": 27.520647145392523,
+            "canonical_zero": 5,
+            "feasible": 2
+          },
+          "SDE003": {
+            "candidate_count": 8,
+            "mean_PDMS": 0.0,
+            "canonical_zero": 8,
+            "feasible": 0
+          }
+        }
+      },
+      "PPO_SAFETY_EP": {
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "updates": 10000,
+        "selected_TRAIN_scenes": 15,
+        "per_mode": {
+          "ODE8": {
+            "candidate_count": 120,
+            "mean_PDMS": 61.48332403843751,
+            "canonical_zero": 39,
+            "feasible": 72
+          },
+          "SDE01": {
+            "candidate_count": 120,
+            "mean_PDMS": 31.513154066272584,
+            "canonical_zero": 72,
+            "feasible": 36
+          },
+          "SDE003": {
+            "candidate_count": 120,
+            "mean_PDMS": 54.375837073469576,
+            "canonical_zero": 48,
+            "feasible": 64
+          },
+          "mu9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 62.830411980205504,
+            "canonical_zero": 36,
+            "strictly_feasible": 73,
+            "means": {
+              "score": 62.830411980205504,
+              "no_at_fault_collisions": 89.16666666666667,
+              "drivable_area_compliance": 80.83333333333333,
+              "time_to_collision_within_bound": 73.33333333333333,
+              "ego_progress": 61.95965541915991,
+              "comfort": 94.16666666666667,
+              "driving_direction_compliance": 96.66666666666667
+            }
+          },
+          "det9_reconstructed": {
+            "candidates": 120,
+            "PDMS": 61.11631915960669,
+            "canonical_zero": 40,
+            "strictly_feasible": 72,
+            "means": {
+              "score": 61.11631915960669,
+              "no_at_fault_collisions": 86.66666666666667,
+              "drivable_area_compliance": 80.0,
+              "time_to_collision_within_bound": 73.33333333333333,
+              "ego_progress": 60.01249931638938,
+              "comfort": 95.0,
+              "driving_direction_compliance": 96.66666666666667
+            }
+          }
+        },
+        "persistent7af": {
+          "ODE8": {
+            "candidate_count": 8,
+            "mean_PDMS": 0.0,
+            "canonical_zero": 8,
+            "feasible": 0
+          },
+          "SDE01": {
+            "candidate_count": 8,
+            "mean_PDMS": 12.319521472610619,
+            "canonical_zero": 6,
+            "feasible": 1
+          },
+          "SDE003": {
+            "candidate_count": 8,
+            "mean_PDMS": 0.0,
+            "canonical_zero": 8,
+            "feasible": 0
+          }
+        }
+      }
+    },
+    "finalnoise_caution_zh": "同θ同root的.03与去末创新总体较好，但7af在.03/mu/det三CP均无成功，.1仍2/2/1可行。应区分发现成功与把成功传给ODE，不能一律压掉探索。mu/det是已评分重构轨迹，不是新policy rollout。",
+    "lastdet_actual1k": {
+      "target_PDMS": 88.87339559951937,
+      "baseline_PDMS": 90.43253691024785,
+      "delta_PDMS": -1.559141310728,
+      "CI95_PDMS": [
+        -1.9613834014996483,
+        -1.1352940047576197
+      ],
+      "matching": {
+        "actual_complete_NAVTEST_only": true,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "evaluation_seed": 2101,
+        "inference": "single ODE10 shift5",
+        "physical_logs": 44,
+        "same_budget_only": true,
+        "scenes": 12146,
+        "training_seed": 42
+      },
+      "zero_transitions": {
+        "baseline_nonzero_denominator": 11830,
+        "baseline_zero_denominator": 316,
+        "high_to_zero": 212,
+        "high_to_zero_rate": 0.018724606959901077,
+        "new_zero": 270,
+        "new_zero_rate": 0.02282333051563821,
+        "repaired_zero": 30,
+        "repaired_zero_rate": 0.0949367088607595
+      },
+      "safety_metrics": {
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            -0.844923987376083,
+            -0.3335128932229353
+          ],
+          "baseline_failure": 156,
+          "baseline_mean_percent": 98.77325868598716,
+          "baseline_pass": 11990,
+          "delta_percentage_points": -0.5763214226905977,
+          "new_failure": 85,
+          "repaired_failure": 12,
+          "target_mean_percent": 98.19693726329656
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -1.9261167926633735,
+            -0.9345029693838179
+          ],
+          "baseline_failure": 180,
+          "baseline_mean_percent": 98.51803062736704,
+          "baseline_pass": 11966,
+          "delta_percentage_points": -1.4325703935452,
+          "new_failure": 194,
+          "repaired_failure": 20,
+          "target_mean_percent": 97.08546023382183
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            -2.0557201790488566,
+            -1.1644582346152488
+          ],
+          "baseline_failure": 421,
+          "baseline_mean_percent": 96.53383830067513,
+          "baseline_pass": 11725,
+          "delta_percentage_points": -1.5725341676272024,
+          "new_failure": 232,
+          "repaired_failure": 41,
+          "target_mean_percent": 94.96130413304792
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            -0.555010680655413,
+            0.3782376113822246
+          ],
+          "baseline_mean_percent": 82.96749756523755,
+          "delta_percentage_points": -0.10691901352708089,
+          "target_mean_percent": 82.86057855171047
+        }
+      },
+      "native_bounded_window": {
+        "update_window": [
+          937,
+          1000
+        ],
+        "first_inner_rank_scene_groups": 128,
+        "zero_PG_fraction": 0.4296875,
+        "all_full_fraction": 0.421875,
+        "all_zero_fraction": 0.0078125,
+        "safety_differing_fraction": 0.0,
+        "progress_only_fraction": 0.5703125,
+        "ppo_blocked_fraction": 0.0001220703125,
+        "gradient_attribution": "UNKNOWN PG/anchor component norms and cosine; native gradient_norm is combined only, scalar losses do not identify those gradients."
+      },
+      "interpretation_zh": "1k此配方实际下降，NC/DAC/TTC配对区间均负。W2候选较好不等于训练获益；43%zeroPG主要成功饱和而非失败；局部clip阻塞很低，不能据此再优先调LLM式clip。W2同时改变PG/anchor窗口和RNG消耗，不能只归因删末噪声。"
+    },
+    "actor_information": {
+      "current_camera_images": [
+        "cam_l0",
+        "cam_f0",
+        "cam_r0"
+      ],
+      "navigation": [
+        "turn left",
+        "go straight",
+        "turn right",
+        "unknown"
+      ],
+      "not_current_actor_inputs": [
+        "structured traffic-light state",
+        "map polygons/route lane ids/route polyline",
+        "object boxes/other-agent velocities",
+        "TTC/headway/official safety score",
+        "future GT poses/tracks/occupancy/post labels"
+      ],
+      "observation_record_metadata_not_exposed_by_observation": [
+        "token",
+        "log",
+        "timestamp",
+        "raw_future_dt_seconds",
+        "timestamp_gap",
+        "requested_GT"
+      ],
+      "proprio_components": [
+        "vx",
+        "vy",
+        "ax",
+        "ay",
+        "driving_command[4]"
+      ],
+      "proprio_dimension": 8,
+      "source": "ResearchSceneData.observation returns only images,proprio,navigation; requested_GT is target-only."
+    },
+    "available_fields": [
+      {
+        "actor_visible": true,
+        "availability": "available_now",
+        "name": "current_ego_speed_acceleration_navigation",
+        "origin": "current proprio/command",
+        "use": "speed/acceleration/navigation strata; do not call this object-relative TTC"
+      },
+      {
+        "actor_visible": "image only; no structured label",
+        "availability": "available_in_raw_current_TRAIN_frame; absent from compact actor record",
+        "name": "current_signal_status",
+        "origin": "raw traffic_lights[(lane_connector_id,is_red)] with is_red=True→RED",
+        "unknown_rule": "missing relevant light entry is UNKNOWN, not green",
+        "use": "join connector id to on-route lane ids and current map geometry; nearby red on another road is not relevant red"
+      },
+      {
+        "actor_visible": "visual cues only",
+        "availability": "available_as_privileged_static_geometry",
+        "name": "current_intersection_or_approach",
+        "origin": "MetricCache.drivable_area_map map types INTERSECTION/LANE_CONNECTOR, ego_state and centerline/route_lane_ids",
+        "use": "in-intersection boolean and ahead distance to route-related intersection; navigation turn alone is not intersection ground truth"
+      },
+      {
+        "actor_visible": "visible image content; no structured boxes or lead velocity input",
+        "availability": "derivable_privileged_current_label",
+        "name": "current_lead_vehicle_or_queue",
+        "origin": "raw current anns gt_boxes/gt_names/gt_velocity_3d or cache observation[0] geometry filtered to t0 tokens",
+        "unknown_rule": "do not use all cache.unique_objects: it includes objects first appearing in future GT",
+        "use": "official coordinate conversion, on-route corridor+heading gate, nearest positive longitudinal gap; retain lead gap/headway/current closing-speed proxy separately"
+      },
+      {
+        "actor_visible": "current three images only",
+        "availability": "no direct verified visibility/occlusion truth label in compact record or canonical feedback",
+        "name": "occlusion_visibility",
+        "not_allowed": "occ_gt_final_path/flow_gt_final_path and future object appearance are not current-visible occlusion labels",
+        "origin": "candidate proxies: current camera calibration/3D box projection, overlap, missing camera flags, manual current-image audit",
+        "use": "explicitly versioned visibility proxy with UNKNOWN category; labels require validation"
+      },
+      {
+        "actor_visible": false,
+        "availability": "not a current actor input; several privileged diagnostic proxies exist",
+        "name": "feasible_progress_opportunity",
+        "origin": "cache fixed PDM reference trajectory/centerline; existing safe rollout candidates records with raw_progress_meters; existing IL/FULL/ADAPT ODE rows",
+        "use": "best observed safe candidate progress is a lower bound on observed opportunity, not a proven optimum. PDM reference is not human routeGT or a certified safe maximum. No extra GPU inference is needed to reuse already-scored candidates."
+      },
+      {
+        "actor_visible": "partially observable via current images/ego/nav",
+        "availability": "composite diagnostic stratum, not an existing oracle field",
+        "name": "low_risk_free_flow",
+        "origin": "current relevant signal, static route/intersection geometry, current lead/crossing geometry, visibility uncertainty",
+        "use": "require explicitly available negative-risk evidence; do not equate absent labels with safety. Future-GT hazard outcomes are a separate validation column."
+      },
+      {
+        "actor_visible": false,
+        "availability": "available_after_candidate_simulation",
+        "name": "official_TTC_outcome",
+        "origin": "time_to_collision_within_bound and official_first_ttc_infraction_seconds",
+        "use": "future trajectory safety outcome, not measured current TTC or actor perception input"
+      },
+      {
+        "actor_visible": false,
+        "availability": "present_in_canonical_v1_metric_cache",
+        "name": "future_GT_tracks",
+        "origin": "MetricCacheProcessor._interpolate_gt_observation samples scenario objects at0..5s then10Hz interpolation",
+        "use": "privileged scorer/outcome analysis only; current-condition labels must restrict to t0 or current raw frame"
+      },
+      {
+        "actor_visible": false,
+        "availability": "requested_GT[8,3] is stored as IL future-trajectory target; cache has reference centerline/route_lane_ids",
+        "name": "future_ego_route_GT",
+        "origin": "raw future poses vs privileged PDM reference route assets",
+        "use": "never rename requested_GT or reference centerline as actor route input; actor gets only coarse command/navigation text"
+      }
+    ],
+    "canonical_semantics": {
+      "TTC_semantics": "candidate future simulated infraction metric/time, not actor current risk estimate",
+      "canonical_EP_is_pair_normalized": true,
+      "canonical_components": [
+        "NC",
+        "DAC",
+        "EP",
+        "TTC",
+        "comfort"
+      ],
+      "existing_margin_status": "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+      "explicit_red_light_compliance_metric_available": false,
+      "normalization": "Official reference+one candidate; safety-masked progress. If maximum masked raw progress<=5m, safe candidates receive EP1. Low meters alone therefore need not mean inefficiency.",
+      "primary_new_focus": "scene-conditioned safety versus progress/efficiency; comfort remains an ancillary recorded metric",
+      "raw_progress_meters_available": true,
+      "red_cache_caveat": "Although PDMObservation class supports red-light polygons, this canonical cache builder uses update_detections_tracks(GT tracks), which does not add signal polygons. Do not infer green from absent red_light tokens. Reference planner uses current traffic lights; canonical feedback has no separate red-light violation field.",
+      "risk_margin_or_probability_available": false,
+      "training_rewards": "R_CANONICAL_X1 collection selects canonical_PDMS; train_reward_source is a separately recorded readout, not proof that active training uses its10/5/2 weights."
+    },
+    "trainability": {
+      "schema": "world_rl_representation_trainability_native_CPU_audit_v1",
+      "status": "COMPLETE",
+      "utc": "2026-10-30T16:40:22.797919+00:00",
+      "arm": "PPO_FULL",
+      "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update020000_inner0",
+      "checkpoint_seal_sha256": "089b8990280c07868bb932810eaff5049fe4663a018441ea7b58a987c13e60d3",
+      "modules": {
+        "action_expert": {
+          "numel": 5242880,
+          "tensors": 320
+        },
+        "scene_provider": {
+          "numel": 37985280,
+          "tensors": 74
+        },
+        "predictive_provider": {
+          "numel": 9479680,
+          "tensors": 64
+        }
+      },
+      "optimizer_groups": [
+        {
+          "name": "action_lora",
+          "lr": 5e-05,
+          "state_tensors": 320,
+          "step_min": 20000,
+          "step_max": 20000,
+          "nonzero_second_moment_tensors": 320,
+          "second_moment_sum": 0.00039561714311804554
+        },
+        {
+          "name": "scene_predictive_memory",
+          "lr": 5e-06,
+          "state_tensors": 138,
+          "step_min": 20000,
+          "step_max": 20000,
+          "nonzero_second_moment_tensors": 138,
+          "second_moment_sum": 0.0002288260629731424
+        }
+      ],
+      "flags": {
+        "qwen_frozen": true,
+        "current_scene_predictive_memory_trainable": true,
+        "reference_IL_memory_frozen": true,
+        "train_only_readout_losses_in_current_RL": false,
+        "current_memory_rebuilt_each_inner": true
+      },
+      "interpretation": "Native stored tensors and nonzero Adam second moments demonstrate actual updates reach memory optimizer state; they do not establish semantic sufficiency, calibrated risk, or PG-only gradient attribution.",
+      "CPU_only": true,
+      "new_model_forward": 0,
+      "new_GPU_work": 0,
+      "checkpoint_mutated": false
+    }
+  },
+  "directions": [
+    {
+      "id": "VERIFIED_SUCCESS_MEMORY",
+      "priority": 1,
+      "title_zh": "第一方向：保留当前run已发现的安全进度与高质量模式",
+      "status": "DESIGN_ONLY_NOT_REGISTERED",
+      "problem_zh": "最新Safety在修复一些旧zero同时制造新zero，高分队列回退；整体TTC改善与高队列TTC/EP退化并存。主要目标是让已获得的安全高进度不被后续更新遗忘，不是继续全面压EP。",
+      "evidence_ids": [
+        "ZERO_RESCUE_NEXT_DECISIONS_20261031.json",
+        "ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS.json",
+        "TRAIN_PREFERENCE_ZERO_TIE_DIAGNOSTIC_20261031.json",
+        "SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json"
+      ],
+      "mechanism_zh": "从本run已真实评分的TRAIN成功轨迹中保存安全/进度见证，用独立小aux replay minibatch重建该scene当前Memory并学习端点；fresh onpolicy采样/A保持原样。覆盖高质量保持与真实zero见证，不把低分一律等同无解。",
+      "hypothesis_zh": "若主要是成功遗忘/轮换zero而非从未见过可行解，成功复用可减少新zero和relapse；无witness场景则不伪造目标。",
+      "single_core_change": "one bounded positive-CFM success-replay objective from CURRENT freshILrun only; unchangedfreshSafetyPG/anchor/sampler/LR",
+      "teacher": {
+        "start": "empty current-run buffer; optionalalready-scoredIL70 initialization wouldbeaseparateexplicitchoice,notoldRL10k",
+        "accept": "TRAINonly,samecanonicalcache/protocol,NC=DAC=TTC=Comfort1; keepactualsingleendpointbestEP/score,notaveragingmultiplemodes",
+        "refresh": "upgrade fromnewrealcanonicalTRAINrollouts orprespecifiedTRAINpanel only; ifcurrentverifiedendpointbetterthenreplace; noNAVTEST-basedteacher choice; samechosenmaterials4inner",
+        "activation": "draw bounded separate historicalscene auxsample; all-freshsuccess-saturation canlimitauxbudget; perstoredscene skipobsolete/invalid and keepbestverified; no-history/no-witnessskip",
+        "loss": "squaredCFMvelocityerror onpositiveendpoint; notDPO/SIL/AWRexactalgorithm; coefficientandfinitebufferbudgetexplicitlyprespecify afterP0",
+        "failure_credit": "retaincurrent mean(c)-c whenallfailcostvaries; noautomatictimingbonus; tie+nowitness remainsnoreliablePGdirection",
+        "condition": "store originalscene/token/cache/frozen-Qwen-feature descriptor; rebuild CURRENT scene/predictiveMemory eachinner; neverreusegraph oroldMemory ascurrent",
+        "known_limit": "beststored isbestOBSERVED,notguaranteedtobebetterthanthe unscoredcurrentpolicy; avoidclaimingautomaticnonregression"
+      },
+      "design": {
+        "common": {
+          "initialization": "same sealed IL70,current+reference initialtrainable closure; noRL10k weights/nativefork",
+          "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+          "fresh_AdamW": true,
+          "fresh_RNG_seed": 42,
+          "initial_optimizer_updates": 0,
+          "initial_scene_cursor": 0,
+          "data": "full103288 eligible uniform,world8 scenes/collection,G8 candidates/scene,8ranks,4inner reuse",
+          "source_baseline": "SafetyEP with W3 rigorousSDE eta.1 steps7/8/9; originalIL70 physicalclean-x mean anchor beta50",
+          "scope": "52,707,840 = actionLoRA5,242,880 +scene/predictiveMemory47,464,960; Qwenfrozen",
+          "optimizer_groups": "action5e-5/Memory5e-6;100optimizerupdate linearwarmup thenconstant; no secondwarmup across native stage boundaries",
+          "advantage": "fixed kappa0,lambdaEP1; group-centered Safety+within-feasibleEP; onceglobal64A populationstd+1e-8; sourceAclip5",
+          "evaluation": "official fullNAVTEST12146,singleODE10 shift5,seed2101,44physical logs paired2000bootstrap seed42; canonicalmetrics unchanged",
+          "budgets": "proposal only: first5k,1k/5k gates; extend to10k only afterrootreview; later2k cadence onlyifexplicitlyapproved",
+          "control_reuse": "Existing freshIL70 SafetyEP same-update results may be reused if scientific/data/inference identities match; no gratuitous rerun or newtrainingseeds.",
+          "high_retention": "predefine IL70score>=.9 NAVTEST diagnosticcohort; historicalSafety10k>=.9 secondarycohort only. NoNAVTEST trainingtoken selection.",
+          "low_repair": "predefine IL70 zero/positive-low TRAIN diagnosticcohorts; distinguish persistent/intermittent/recovered/relapse and never-resampledunknown",
+          "promotion": "sameupdatePDMS gain with44logCI plus NC/DAC/TTC/EP andhighcohort/newzero review; smallgain ortrainingrewardalone insufficient; formal noninferioritymargins rootmustprespecify",
+          "deployment": "singletrajectoryODE,unchangedparameterclosure; nooracle scorer/reranking/teacher at inference"
+        },
+        "arm": "freshIL70 SafetyPG+successmemory versusfreshSafetyPGcontrol; sameuniformscene stream",
+        "not_changed": [
+          "noSafety10kwarmstart",
+          "noW2",
+          "no80/10/10sampler",
+          "noLRchange",
+          "nohistoryAdvantage",
+          "referenceIL70/beta50same"
+        ]
+      },
+      "success_metrics": [
+        "TRAINpredefinedpersistent/rotating/relapsezero repair",
+        "highcohortpreservation/newzero",
+        "same-scene witness retentiongap",
+        "auxenabled/skip/no-bank andcoverage",
+        "actualPG/anchor/auxgradientnorm+cos,notlossmagnitudeonly",
+        "officialODEPDMSsamebudget",
+        "auxactualactivation anddistinctscene exposure/compute,soanunactivatedbufferisnotdeclaredineffective",
+        "nohiddenreplayintoGRPO/nochangefreshstreamRNG"
+      ],
+      "risks_zh": [
+        "成功端点只在记录协议下有效，不是humanoptimum或绝对安全。",
+        "当前run很少重采同scene时buffer覆盖和激活率可能很低；需事实触发，不为生成梯度反复全量扫。",
+        "aux过强会复制旧较低效率或单模态，必须最佳fresh升级/高分饱和skip，并实际测梯度注入。",
+        "旧Rescue同时RLwarmstart/freshAdam/W2/采样变化，不可当该fresh单变量的已完成证据。",
+        "独立历史scene需要额外condition/CFM计算；其数据曝光和算力必须记录，不能装成零成本或on-policy样本。",
+        "当前run只见到很少zero场景或没有安全见证时buffer不能凭空修复；先看实际coverage与激活。"
+      ],
+      "sourceURLs": [
+        "https://arxiv.org/abs/1806.05635",
+        "https://arxiv.org/abs/1910.00177v3",
+        "https://xbpeng.github.io/projects/AWR/index.html",
+        "https://arxiv.org/html/2507.21053v2",
+        "https://arxiv.org/html/2609.25831v2",
+        "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/tree/2f99d85782995f175d5a117eb45356bff34e343a"
+      ],
+      "uniform_sampling_activation_blocker": {
+        "source": "starVLA/rl/qwen_world_research_data/data.py:SceneStream._uniform_order/at",
+        "population": 103288,
+        "fresh_scene_exposures_per_optimizer_update": 2,
+        "first_epoch_optimizer_updates": 51644,
+        "conclusion_zh": "full无放回epoch；50k更新仅100000次freshscene曝光，仍未遍历103288。若只在freshtoken碰巧命中此前成功bank才aux，整个初始预算基本不会激活。1280个诊断token也没有重复。",
+        "required_implementation_zh": "必须显式从bounded成功memory取历史scene作独立aux样本，或另注册有覆盖的采样改变；本首版选择前者，不假称同tokenfreshlookup已实现保持。"
+      },
+      "alternative_not_combined": {
+        "name": "fixed-step CURRENT-run reference refresh onlyifP0 supports",
+        "status": "CONDITIONAL_SEPARATE_SINGLE_FACTOR_NOT_REGISTERED",
+        "hypothesis_zh": "若beta50 IL70物理anchor与新成功PG持续反向且幅度重要，可检验固定时点保留本run已学进度的reference。当前仅是假设，不叫reference错误。",
+        "single_core_change": "replaceanchorreferenceonly atonepredeclaredstep withsamefresh-run completecurrentLoRA+scene/predictiveMemory; noaux/LR/reward/samplerchange",
+        "invariants": "freshIL70update0 origin; currentAdam/RNGcontinuity unchanged; behaviorold forPPO remainsseparate; referencecache synchronized andversioned; bet50physicalpenaltynotLMKL",
+        "protocol": "choosefixedstepbeforelaunch usingTRAINrule/approvedbudget,notTestpeak; sealcomplete52.7mclosure+hash/checkpoint; nooldSafety10kexternalreference",
+        "sources": [
+          "https://arxiv.org/html/2609.25831v2",
+          "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/tree/2f99d85782995f175d5a117eb45356bff34e343a"
+        ]
+      }
+    },
+    {
+      "id": "FLOW_ENDPOINT_RATIO",
+      "priority": 2,
+      "title_zh": "解决更新目标错配：逐MC CFM ratio的普通PPO",
+      "status": "CPU_LOSS_PROTOTYPE_ONLY_FORMAL_SCALE_UNREGISTERED",
+      "problem_zh": "同theta同roots的TRAIN诊断显示末步SDE扰动显著损伤候选，而去末噪声也会丢掉少数逃逸成功；直接W2的LastDet真实学习已负向。应区分探索成功的发现和把成功轨迹学到部署分布。",
+      "evidence_ids": [
+        "FIXED_THETA_ODE_SDE_ZERO_PROBE.json",
+        "FIXED_THETA_NOISE003_ZERO_PROBE.json",
+        "FINAL_SDE_STEP_COUNTERFACTUAL_DIAGNOSIS_20261031.json",
+        "ZERO_RESCUE_NEXT_DECISIONS_20261031.json",
+        "FPO_ENDPOINT_RATIO_CPU_PROTOCOL_20261031.json"
+      ],
+      "mechanism_zh": "以clean端点的CFM误差差替代当前均维transition概率proxy，学习轨迹邻域的flow场；逐MC先ratio再clip避免先平均不同MC导致信号抵消。它使后续探索采样器可独立研究，但首版不打包换采样器。",
+      "hypothesis_zh": "在保留相同W3候选与SafetyA的条件下，端点场更新可能比最后几步transitionPG更有效传递安全高EP模式到ODE部署。",
+      "single_core_change": "replace PG estimator only: rho_im=exp(ell_behavior_old_im-ell_current_im); ordinaryPPOclip perMC; noASPO",
+      "math": {
+        "state": "x_sigma=(1-sigma)*clean_endpoint + sigma*epsilon",
+        "target": "v*=epsilon-clean_endpoint",
+        "World_cleanx_to_velocity": "v_theta=(x_sigma-x0_theta)/sigma, sigma>0",
+        "energy": "sum_8poses(mean_xyz((v_theta-v*)^2)); explicitly8xmean_all24; notoriginalILcleanxL1",
+        "old": "samecollection CURRENT behavior old,notpermanentIL70reference",
+        "reuse": "sigma/noise/oldenergy/cleanendpoint fixed4inners,detached; freshcurrentMemory perinner"
+      },
+      "design": {
+        "common": {
+          "initialization": "same sealed IL70,current+reference initialtrainable closure; noRL10k weights/nativefork",
+          "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+          "fresh_AdamW": true,
+          "fresh_RNG_seed": 42,
+          "initial_optimizer_updates": 0,
+          "initial_scene_cursor": 0,
+          "data": "full103288 eligible uniform,world8 scenes/collection,G8 candidates/scene,8ranks,4inner reuse",
+          "source_baseline": "SafetyEP with W3 rigorousSDE eta.1 steps7/8/9; originalIL70 physicalclean-x mean anchor beta50",
+          "scope": "52,707,840 = actionLoRA5,242,880 +scene/predictiveMemory47,464,960; Qwenfrozen",
+          "optimizer_groups": "action5e-5/Memory5e-6;100optimizerupdate linearwarmup thenconstant; no secondwarmup across native stage boundaries",
+          "advantage": "fixed kappa0,lambdaEP1; group-centered Safety+within-feasibleEP; onceglobal64A populationstd+1e-8; sourceAclip5",
+          "evaluation": "official fullNAVTEST12146,singleODE10 shift5,seed2101,44physical logs paired2000bootstrap seed42; canonicalmetrics unchanged",
+          "budgets": "proposal only: first5k,1k/5k gates; extend to10k only afterrootreview; later2k cadence onlyifexplicitlyapproved",
+          "control_reuse": "Existing freshIL70 SafetyEP same-update results may be reused if scientific/data/inference identities match; no gratuitous rerun or newtrainingseeds.",
+          "high_retention": "predefine IL70score>=.9 NAVTEST diagnosticcohort; historicalSafety10k>=.9 secondarycohort only. NoNAVTEST trainingtoken selection.",
+          "low_repair": "predefine IL70 zero/positive-low TRAIN diagnosticcohorts; distinguish persistent/intermittent/recovered/relapse and never-resampledunknown",
+          "promotion": "sameupdatePDMS gain with44logCI plus NC/DAC/TTC/EP andhighcohort/newzero review; smallgain ortrainingrewardalone insufficient; formal noninferioritymargins rootmustprespecify",
+          "deployment": "singletrajectoryODE,unchangedparameterclosure; nooracle scorer/reranking/teacher at inference"
+        },
+        "arm": "freshIL70 FPO-PPO versus SafetyEP; first matchedW3rollout/data/SafetyA/anchorwindow",
+        "not_changed": [
+          "W3eta.1",
+          "beta50physicalanchor",
+          "referenceIL70",
+          "uniformfull",
+          "LR",
+          "fourinner",
+          "deploymentODE"
+        ],
+        "later_sampler_test": "Onlyif estimator works: separately testODEcollection+FPO againstmatchedFPO-W3 fromsameIL; donotclaim firsttest alreadyfullysampleraligned"
+      },
+      "blockers_zh": [
+        "正式MC数、sigma分布与近零sigma权重、clip/energy尺度需要明确；不能把sourceclip.005或LLMclip.2不校量纲直接当最优。",
+        "CPU原型无World真实CFM能量/梯度分布证明；数值clamp/Huber若需加入必须显式注册，不能悄悄复制论文全部tricks。",
+        "PG应替换不叠加；原physicalanchor单独保留，不把ILreference当behaviorold。"
+      ],
+      "success_metrics": [
+        "samebudget officialODEPDMS/NC/DAC/TTC/EP",
+        "positivewitness learnedunderODE notonlySDEcandidate mean",
+        "CFMratio tails/perMCclipping/effectivegradient",
+        "highcohort/newzero",
+        "costperupdate/forwardbudget"
+      ],
+      "risks_zh": [
+        "CFM ratio是代理，不是精确endpointlikelihood/IS/KL。",
+        "allA0仍无PG方向；无成功支持时还需witness或可靠failcredit。",
+        "机器人微调支持普通PPO对照，不支持默认搬ASPO；多MC增加计算量且可能放大outlier。"
+      ],
+      "sourceURLs": [
+        "https://arxiv.org/html/2507.21053v2",
+        "https://arxiv.org/html/2602.02481v2#S3",
+        "https://arxiv.org/html/2602.02481v2#A3.SS6",
+        "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py",
+        "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/src/flow_model.py#L550",
+        "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/finetune_online_rl.py#L1205"
+      ],
+      "existing_CPU_protocol": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FPO_ENDPOINT_RATIO_CPU_PROTOCOL_20261031.json"
+    },
+    {
+      "id": "FAILURE_CREDIT_WHEN_IDENTIFIABLE",
+      "priority": 3,
+      "title_zh": "条件方向：少量全失败组的可辨识信用与见证缺口",
+      "status": "LOW_FREQUENCY_CPU_AUDIT_FIRST_NOT_REGISTERED",
+      "problem_zh": "真正失败且costtie只占最新所查1280组的1组；另外7allfail组已有leastcost方向。不能把110个成功EP1零PG当作失败，也不能把不存在的NC.5正A当主因。",
+      "mechanism_zh": "先逐candidate核NC/DAC/TTC向量与几何/违规时刻，把可比较的违例改善与不可比较的风险权衡分开。只有出现可靠的新排序信息才改变全fail credit；已有costvar保留原fallback。",
+      "hypothesis_zh": "若被覆盖的persistent失败确实被scalar门控/等cost抹去方向，可靠细粒度credit可减少该类zero；如果根本没有见证或现有指标完全同败，则需要成功经验/条件信息而非伪造adv。",
+      "single_core_change": "futureonly: changeallfailcreditforonevalidatedevent/metric-Pareto distinction; mixed/allfeasibleAsafe+AEP unchanged; noextraexplorationorLRchange",
+      "trigger_zh": "必须先确认足够TRAIN曝光与事件/metric可比较性；目前该类仅1/1280，优先级低于高队列保持。crossed安全向量不强排，NC.5/NC0正A仅可解释相对leastcost、不能称安全。",
+      "evidence_ids": [
+        "SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json",
+        "TRAIN_PREFERENCE_ZERO_TIE_DIAGNOSTIC_20261031.json"
+      ],
+      "design": {
+        "common": {
+          "initialization": "same sealed IL70,current+reference initialtrainable closure; noRL10k weights/nativefork",
+          "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+          "fresh_AdamW": true,
+          "fresh_RNG_seed": 42,
+          "initial_optimizer_updates": 0,
+          "initial_scene_cursor": 0,
+          "data": "full103288 eligible uniform,world8 scenes/collection,G8 candidates/scene,8ranks,4inner reuse",
+          "source_baseline": "SafetyEP with W3 rigorousSDE eta.1 steps7/8/9; originalIL70 physicalclean-x mean anchor beta50",
+          "scope": "52,707,840 = actionLoRA5,242,880 +scene/predictiveMemory47,464,960; Qwenfrozen",
+          "optimizer_groups": "action5e-5/Memory5e-6;100optimizerupdate linearwarmup thenconstant; no secondwarmup across native stage boundaries",
+          "advantage": "fixed kappa0,lambdaEP1; group-centered Safety+within-feasibleEP; onceglobal64A populationstd+1e-8; sourceAclip5",
+          "evaluation": "official fullNAVTEST12146,singleODE10 shift5,seed2101,44physical logs paired2000bootstrap seed42; canonicalmetrics unchanged",
+          "budgets": "proposal only: first5k,1k/5k gates; extend to10k only afterrootreview; later2k cadence onlyifexplicitlyapproved",
+          "control_reuse": "Existing freshIL70 SafetyEP same-update results may be reused if scientific/data/inference identities match; no gratuitous rerun or newtrainingseeds.",
+          "high_retention": "predefine IL70score>=.9 NAVTEST diagnosticcohort; historicalSafety10k>=.9 secondarycohort only. NoNAVTEST trainingtoken selection.",
+          "low_repair": "predefine IL70 zero/positive-low TRAIN diagnosticcohorts; distinguish persistent/intermittent/recovered/relapse and never-resampledunknown",
+          "promotion": "sameupdatePDMS gain with44logCI plus NC/DAC/TTC/EP andhighcohort/newzero review; smallgain ortrainingrewardalone insufficient; formal noninferioritymargins rootmustprespecify",
+          "deployment": "singletrajectoryODE,unchangedparameterclosure; nooracle scorer/reranking/teacher at inference"
+        },
+        "arm": "onlyafterTRAINevidence: freshIL70 SafetyEP oneallfailcredit factorversuscontrol",
+        "tie_rule": "ifnowitness/noadditionalvalidinformation retainzeroPG+anchor,notrandomdirection",
+        "no_scope_expansion": "noQcritic/noGTfutureinput/nodefaultnewGPUresampling/noGLMtokentricks"
+      },
+      "risks_zh": [
+        "平均deficit不是碰撞severity；自定义NC优先级也是目标选择，非经验证物理风险。",
+        "奖励更晚违规可能学会延迟撞击或无故停车，需事件和进度机会共同核对。",
+        "低频机制即使修复全部样例也可能几乎不提高全局分数；不为填资源注册。"
+      ],
+      "success_metrics": [
+        "actualactivatedgroupfraction",
+        "candidate-pair ordering validatedagainstsourcevectors",
+        "fixedTRAINpersistentzero repair notsaturatedsuccessupdates",
+        "newzero/highcohort safety/EP",
+        "samebudget officialPDMS"
+      ],
+      "sourceURLs": [
+        "https://arxiv.org/abs/1705.10528",
+        "https://arxiv.org/html/2609.25831v2",
+        "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/tree/2f99d85782995f175d5a117eb45356bff34e343a",
+        "https://arxiv.org/abs/1806.05635"
+      ]
+    },
+    {
+      "id": "VISIBLE_CONDITION_GROUNDING",
+      "priority": 4,
+      "title_zh": "有条件推进：保住当前可见的场景条件表征",
+      "status": "CPU_LABEL_AND_INFORMATION_AUDIT_BEFORE_ANY_PILOT",
+      "problem_zh": "actor只有三路当前图像、vx/vy/ax/ay和粗导航；没有结构化红灯、车道/route几何、邻车速度或历史。Memory实际训练，但RL不再调用IL的object/future/post辅助任务，可能发生语义漂移，尚未被证明。",
+      "evidence_ids": [
+        "SCENARIO_SAFETY_EFFICIENCY_AUDIT_20261030.json",
+        "REPRESENTATION_TRAINABILITY_AUDIT_20261030.json",
+        "SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json"
+      ],
+      "mechanism_zh": "先确认危险/必要等待类别能否从现有图像+ego/nav分辨。若IL可分而Safety高分退化后不可分，可提出训练期小条件监督保持Memory语义，推理输入和部署参数闭包不变。",
+      "hypothesis_zh": "若失败集中在本来可见的相关信号/队列且Memory辨识能力随RL下降，保留这部分语义可帮助同一policy在可见条件下平衡效率与安全。",
+      "single_core_change": "conditionalfuturepilot: one train-only current-condition supervision loss onexistingMemory; noextraactororacleinput/noQwenunfreeze",
+      "first_diagnostic": {
+        "labels": "relevantcurrentred joinedto currentrouteconnector or currentlead/queuegeometry; restrictobjects tot0;UNKNOWNnotgreen",
+        "exclusions": [
+          "futureGTvelocity/occupancy asactorinput",
+          "absentcachelighttokens interpretedgreen",
+          "coarsenavigation alone calledintersectiontruth",
+          "lowscore/EP0 alone calledunnecessaryparking"
+        ],
+        "validation": "currentimageaudit andsmallcapacityreadout onpredefinedTRAINlogstrata; quantifylabelcoverage/conflicts andILvsSafetyreadoutquality; noGPUruninthisproposal"
+      },
+      "trigger_zh": "必须先有当前标签可信覆盖+可见性证据+IL到Safety语义下降证据；若单帧本身不可辨，训练监督不能创造观测，是否增加历史/传感信息应另做架构/IL协同研究，不作为同closure RL小trick。",
+      "design": {
+        "common": {
+          "initialization": "same sealed IL70,current+reference initialtrainable closure; noRL10k weights/nativefork",
+          "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+          "fresh_AdamW": true,
+          "fresh_RNG_seed": 42,
+          "initial_optimizer_updates": 0,
+          "initial_scene_cursor": 0,
+          "data": "full103288 eligible uniform,world8 scenes/collection,G8 candidates/scene,8ranks,4inner reuse",
+          "source_baseline": "SafetyEP with W3 rigorousSDE eta.1 steps7/8/9; originalIL70 physicalclean-x mean anchor beta50",
+          "scope": "52,707,840 = actionLoRA5,242,880 +scene/predictiveMemory47,464,960; Qwenfrozen",
+          "optimizer_groups": "action5e-5/Memory5e-6;100optimizerupdate linearwarmup thenconstant; no secondwarmup across native stage boundaries",
+          "advantage": "fixed kappa0,lambdaEP1; group-centered Safety+within-feasibleEP; onceglobal64A populationstd+1e-8; sourceAclip5",
+          "evaluation": "official fullNAVTEST12146,singleODE10 shift5,seed2101,44physical logs paired2000bootstrap seed42; canonicalmetrics unchanged",
+          "budgets": "proposal only: first5k,1k/5k gates; extend to10k only afterrootreview; later2k cadence onlyifexplicitlyapproved",
+          "control_reuse": "Existing freshIL70 SafetyEP same-update results may be reused if scientific/data/inference identities match; no gratuitous rerun or newtrainingseeds.",
+          "high_retention": "predefine IL70score>=.9 NAVTEST diagnosticcohort; historicalSafety10k>=.9 secondarycohort only. NoNAVTEST trainingtoken selection.",
+          "low_repair": "predefine IL70 zero/positive-low TRAIN diagnosticcohorts; distinguish persistent/intermittent/recovered/relapse and never-resampledunknown",
+          "promotion": "sameupdatePDMS gain with44logCI plus NC/DAC/TTC/EP andhighcohort/newzero review; smallgain ortrainingrewardalone insufficient; formal noninferioritymargins rootmustprespecify",
+          "deployment": "singletrajectoryODE,unchangedparameterclosure; nooracle scorer/reranking/teacher at inference"
+        },
+        "arm": "futurefreshIL70 SafetyEP+oneconditionaux versusfreshSafetyEP; conditionheadtrainonlyandremovedatdeploy",
+        "scope_note": "Any train-onlyreadoutparams andcompute mustbeexplicitlycounted; existing52.7mMemory/actionremainpolicyclosure; noILknowledgepipeline restart"
+      },
+      "success_metrics": [
+        "currentrelevant-conditionlabel calibration/discrimination",
+        "necessarywaitvsverifiedsafeprogress opportunity strata",
+        "samebudgetNC/DAC/TTC+EP/newzero/highretention",
+        "PG/anchor/auxgradientcos",
+        "unchangeddeploymentinputs/noprivilegedleak"
+      ],
+      "risks_zh": [
+        "没有真实on-route signal/map输入时，privileged标签与可见观测可能不一致。",
+        "frozenQwen没保留的小目标线索不能靠Memory一定找回；当前更新到Memory不是表征充分证明。",
+        "aux只是训练监督，不是oraclecritic或已学会场景风险推理；不借IL方向名义重新训整套感知。"
+      ],
+      "sourceURLs": [
+        "https://arxiv.org/abs/1710.06542",
+        "https://arxiv.org/abs/1912.12294"
+      ]
+    }
+  ],
+  "priority_basis_latest_process": {
+    "latest_updates": 24000,
+    "latest_PDMS": 91.14697422983254,
+    "baseline10k_PDMS": 91.34989173702405,
+    "latest_vs10k": {
+      "component_metric_deltas": {
+        "comfort": {
+          "CI95_pp": [
+            -0.16103982921892773,
+            -0.008486335884206117
+          ],
+          "delta_pp": -0.08233163181294254
+        },
+        "drivable_area_compliance": {
+          "CI95_pp": [
+            -0.3462571642210993,
+            0.017777690841034602
+          ],
+          "delta_pp": -0.15643010044459082
+        },
+        "driving_direction_compliance": {
+          "CI95_pp": [
+            -0.18674457538849204,
+            0.0470315144148511
+          ],
+          "delta_pp": -0.061748723859706894
+        },
+        "ego_progress": {
+          "CI95_pp": [
+            -0.8199696463435789,
+            -0.3042572392478741
+          ],
+          "delta_pp": -0.5520182127192035
+        },
+        "no_at_fault_collisions": {
+          "CI95_pp": [
+            -0.11766620781107696,
+            0.164826114088038
+          ],
+          "delta_pp": 0.024699489543882756
+        },
+        "score": {
+          "CI95_pp": [
+            -0.42343111915525533,
+            0.022833460230111468
+          ],
+          "delta_pp": -0.20291750719174229
+        },
+        "time_to_collision_within_bound": {
+          "CI95_pp": [
+            0.1414086048479526,
+            0.6163678121616313
+          ],
+          "delta_pp": 0.34579285361435863
+        }
+      },
+      "high_score_accounting": {
+        "contributions": {
+          "Comfort": -0.022598870056497175,
+          "DAC": -0.3118494117484206,
+          "EP": -0.20405668111817127,
+          "NC": -0.0637256480266857,
+          "TTC": -0.16478342749529185
+        },
+        "method": "exact5-component Shapley for canonical product/additive formula",
+        "note": "Additive accounting of paired metric changes including interactions,not causal gradient attribution",
+        "total_delta": -0.7670140384450677,
+        "units": "PDMS points"
+      },
+      "score_accounting": {
+        "contributions": {
+          "Comfort": -0.013721938635490424,
+          "DAC": -0.12038079121069296,
+          "EP": -0.21655424996503714,
+          "NC": 0.0036591169468281892,
+          "TTC": 0.1440803556726494
+        },
+        "method": "exact5-component Shapley for canonical product/additive formula",
+        "note": "Additive accounting of paired metric changes including interactions,not causal gradient attribution",
+        "total_delta": -0.20291750719174229,
+        "units": "PDMS points"
+      },
+      "updates": 24000,
+      "vs10k_CI95": [
+        -0.42343111915525533,
+        0.022833460230111468
+      ],
+      "vs10k_PDMS_delta": -0.20291750719174229
+    },
+    "latest_high10k_retention": {
+      "CI95_PDMS": [
+        -1.018054398342197,
+        -0.5645526469141435
+      ],
+      "cohort_definition": "fixed Safety10k score>=.9",
+      "cohort_size": 8850,
+      "components": {
+        "comfort": {
+          "CI95_pp": [
+            -0.23073313548989124,
+            -0.0455009752721081
+          ],
+          "delta_pp": -0.13559322033898305
+        },
+        "drivable_area_compliance": {
+          "CI95_pp": [
+            -0.6150549921093855,
+            -0.24357529184161192
+          ],
+          "delta_pp": -0.4067796610169492
+        },
+        "driving_direction_compliance": {
+          "CI95_pp": [
+            -0.2435211278514008,
+            0.07395345158875165
+          ],
+          "delta_pp": -0.07344632768361581
+        },
+        "ego_progress": {
+          "CI95_pp": [
+            -0.9486793399565933,
+            -0.5255031396238222
+          ],
+          "delta_pp": -0.7176698504602524
+        },
+        "no_at_fault_collisions": {
+          "CI95_pp": [
+            -0.18410923795730733,
+            -0.016060925279500735
+          ],
+          "delta_pp": -0.0903954802259887
+        },
+        "score": {
+          "CI95_pp": [
+            -1.018054398342197,
+            -0.5645526469141435
+          ],
+          "delta_pp": -0.7670140384450677
+        },
+        "time_to_collision_within_bound": {
+          "CI95_pp": [
+            -0.5735939292432511,
+            -0.2776772494898824
+          ],
+          "delta_pp": -0.4180790960451978
+        }
+      },
+      "delta_PDMS": -0.7670140384450677,
+      "drops_ge10pp": 94,
+      "gains_ge10pp": 0,
+      "high_to_zero": 44,
+      "target_PDMS": 96.11732468197808,
+      "target_zero": 44,
+      "threshold": 0.9,
+      "updates": 24000
+    },
+    "secondary22k": {
+      "component_metric_deltas": {
+        "comfort": {
+          "CI95_pp": [
+            -0.02083507525083612,
+            0.08125464573848591
+          ],
+          "delta_pp": 0.024699489543882756
+        },
+        "drivable_area_compliance": {
+          "CI95_pp": [
+            -0.16771613034605426,
+            0.12212912041046563
+          ],
+          "delta_pp": -0.016466326362588508
+        },
+        "driving_direction_compliance": {
+          "CI95_pp": [
+            -0.3024964571274379,
+            -0.02640642577784608
+          ],
+          "delta_pp": -0.14819693726329655
+        },
+        "ego_progress": {
+          "CI95_pp": [
+            -0.9763274441914191,
+            -0.43762896475486546
+          ],
+          "delta_pp": -0.7192744710055106
+        },
+        "no_at_fault_collisions": {
+          "CI95_pp": [
+            0.003033225485316082,
+            0.21286301928408605
+          ],
+          "delta_pp": 0.09468137658488392
+        },
+        "score": {
+          "CI95_pp": [
+            -0.3599057260256009,
+            0.06301956798019154
+          ],
+          "delta_pp": -0.1602666662437873
+        },
+        "time_to_collision_within_bound": {
+          "CI95_pp": [
+            0.0755126184996567,
+            0.638986792148556
+          ],
+          "delta_pp": 0.3210933640704759
+        }
+      },
+      "high_score_accounting": {
+        "contributions": {
+          "Comfort": -0.003766478342749529,
+          "DAC": -0.19989301468601064,
+          "EP": -0.3441613057530329,
+          "NC": -0.06704916082976252,
+          "TTC": -0.15301318267419958
+        },
+        "method": "exact5-component Shapley for canonical product/additive formula",
+        "note": "Additive accounting of paired metric changes including interactions,not causal gradient attribution",
+        "total_delta": -0.7678831422857547,
+        "units": "PDMS points"
+      },
+      "score_accounting": {
+        "contributions": {
+          "Comfort": 0.004116581590647127,
+          "DAC": -0.017322220476565318,
+          "EP": -0.3206338918131551,
+          "NC": 0.027777266453200777,
+          "TTC": 0.14579559800208572
+        },
+        "method": "exact5-component Shapley for canonical product/additive formula",
+        "note": "Additive accounting of paired metric changes including interactions,not causal gradient attribution",
+        "total_delta": -0.1602666662437873,
+        "units": "PDMS points"
+      },
+      "updates": 22000,
+      "vs10k_CI95": [
+        -0.3599057260256009,
+        0.06301956798019154
+      ],
+      "vs10k_PDMS_delta": -0.1602666662437873
+    },
+    "zero_longitudinal": {
+      "all_observations_persistent": 133,
+      "by_physical_log": [
+        {
+          "ever": 15,
+          "latest_zero": 7,
+          "log": "2021.05.25.14.16.10_veh-35",
+          "persistent": 4,
+          "scenes": 510
+        },
+        {
+          "ever": 0,
+          "latest_zero": 0,
+          "log": "2021.05.25.14.24.08_veh-25",
+          "persistent": 0,
+          "scenes": 164
+        },
+        {
+          "ever": 0,
+          "latest_zero": 0,
+          "log": "2021.05.25.14.26.37_veh-27",
+          "persistent": 0,
+          "scenes": 25
+        },
+        {
+          "ever": 12,
+          "latest_zero": 2,
+          "log": "2021.05.25.15.59.03_veh-30",
+          "persistent": 1,
+          "scenes": 257
+        },
+        {
+          "ever": 0,
+          "latest_zero": 0,
+          "log": "2021.05.25.16.37.23_veh-25",
+          "persistent": 0,
+          "scenes": 58
+        },
+        {
+          "ever": 1,
+          "latest_zero": 0,
+          "log": "2021.05.25.17.54.41_veh-35",
+          "persistent": 0,
+          "scenes": 271
+        },
+        {
+          "ever": 0,
+          "latest_zero": 0,
+          "log": "2021.05.25.18.38.25_veh-25",
+          "persistent": 0,
+          "scenes": 23
+        },
+        {
+          "ever": 5,
+          "latest_zero": 4,
+          "log": "2021.06.03.12.02.06_veh-35",
+          "persistent": 1,
+          "scenes": 165
+        },
+        {
+          "ever": 5,
+          "latest_zero": 1,
+          "log": "2021.06.03.13.55.17_veh-35",
+          "persistent": 0,
+          "scenes": 379
+        },
+        {
+          "ever": 1,
+          "latest_zero": 0,
+          "log": "2021.06.03.17.06.58_veh-35",
+          "persistent": 0,
+          "scenes": 189
+        },
+        {
+          "ever": 4,
+          "latest_zero": 3,
+          "log": "2021.06.03.18.47.39_veh-35",
+          "persistent": 1,
+          "scenes": 215
+        },
+        {
+          "ever": 8,
+          "latest_zero": 1,
+          "log": "2021.06.28.13.53.26_veh-26",
+          "persistent": 1,
+          "scenes": 92
+        },
+        {
+          "ever": 4,
+          "latest_zero": 2,
+          "log": "2021.06.28.15.02.02_veh-38",
+          "persistent": 0,
+          "scenes": 156
+        },
+        {
+          "ever": 0,
+          "latest_zero": 0,
+          "log": "2021.06.28.15.10.57_veh-16",
+          "persistent": 0,
+          "scenes": 34
+        },
+        {
+          "ever": 11,
+          "latest_zero": 6,
+          "log": "2021.06.28.16.29.11_veh-38",
+          "persistent": 4,
+          "scenes": 423
+        },
+        {
+          "ever": 0,
+          "latest_zero": 0,
+          "log": "2021.06.28.16.57.59_veh-26",
+          "persistent": 0,
+          "scenes": 156
+        },
+        {
+          "ever": 12,
+          "latest_zero": 1,
+          "log": "2021.06.28.18.03.27_veh-14",
+          "persistent": 1,
+          "scenes": 162
+        },
+        {
+          "ever": 18,
+          "latest_zero": 7,
+          "log": "2021.06.28.20.24.43_veh-38",
+          "persistent": 2,
+          "scenes": 641
+        },
+        {
+          "ever": 3,
+          "latest_zero": 2,
+          "log": "2021.06.28.21.16.05_veh-14",
+          "persistent": 1,
+          "scenes": 74
+        },
+        {
+          "ever": 0,
+          "latest_zero": 0,
+          "log": "2021.06.28.21.47.53_veh-35",
+          "persistent": 0,
+          "scenes": 70
+        },
+        {
+          "ever": 5,
+          "latest_zero": 4,
+          "log": "2021.08.16.14.23.37_veh-45",
+          "persistent": 2,
+          "scenes": 77
+        },
+        {
+          "ever": 9,
+          "latest_zero": 1,
+          "log": "2021.08.30.13.45.25_veh-40",
+          "persistent": 0,
+          "scenes": 259
+        },
+        {
+          "ever": 23,
+          "latest_zero": 15,
+          "log": "2021.08.30.14.54.34_veh-40",
+          "persistent": 8,
+          "scenes": 190
+        },
+        {
+          "ever": 10,
+          "latest_zero": 4,
+          "log": "2021.08.30.16.16.44_veh-40",
+          "persistent": 2,
+          "scenes": 340
+        },
+        {
+          "ever": 10,
+          "latest_zero": 4,
+          "log": "2021.09.09.14.18.22_veh-48",
+          "persistent": 2,
+          "scenes": 427
+        },
+        {
+          "ever": 8,
+          "latest_zero": 2,
+          "log": "2021.09.09.17.18.51_veh-48",
+          "persistent": 0,
+          "scenes": 404
+        },
+        {
+          "ever": 10,
+          "latest_zero": 4,
+          "log": "2021.09.09.18.04.06_veh-40",
+          "persistent": 4,
+          "scenes": 175
+        },
+        {
+          "ever": 8,
+          "latest_zero": 6,
+          "log": "2021.09.09.18.29.25_veh-39",
+          "persistent": 4,
+          "scenes": 215
+        },
+        {
+          "ever": 23,
+          "latest_zero": 10,
+          "log": "2021.09.16.13.53.10_veh-42",
+          "persistent": 3,
+          "scenes": 352
+        },
+        {
+          "ever": 29,
+          "latest_zero": 13,
+          "log": "2021.09.16.14.39.34_veh-42",
+          "persistent": 3,
+          "scenes": 516
+        },
+        {
+          "ever": 4,
+          "latest_zero": 1,
+          "log": "2021.09.16.15.12.03_veh-42",
+          "persistent": 0,
+          "scenes": 144
+        },
+        {
+          "ever": 10,
+          "latest_zero": 7,
+          "log": "2021.09.16.15.47.30_veh-45",
+          "persistent": 1,
+          "scenes": 87
+        },
+        {
+          "ever": 2,
+          "latest_zero": 0,
+          "log": "2021.09.16.16.20.27_veh-08",
+          "persistent": 0,
+          "scenes": 39
+        },
+        {
+          "ever": 6,
+          "latest_zero": 2,
+          "log": "2021.09.16.17.40.09_veh-45",
+          "persistent": 0,
+          "scenes": 106
+        },
+        {
+          "ever": 23,
+          "latest_zero": 10,
+          "log": "2021.09.16.19.12.04_veh-42",
+          "persistent": 3,
+          "scenes": 191
+        },
+        {
+          "ever": 37,
+          "latest_zero": 27,
+          "log": "2021.09.16.19.27.01_veh-45",
+          "persistent": 13,
+          "scenes": 625
+        },
+        {
+          "ever": 29,
+          "latest_zero": 23,
+          "log": "2021.09.16.19.49.00_veh-42",
+          "persistent": 15,
+          "scenes": 284
+        },
+        {
+          "ever": 3,
+          "latest_zero": 3,
+          "log": "2021.09.16.21.13.37_veh-42",
+          "persistent": 0,
+          "scenes": 16
+        },
+        {
+          "ever": 33,
+          "latest_zero": 23,
+          "log": "2021.09.29.14.44.26_veh-28",
+          "persistent": 12,
+          "scenes": 453
+        },
+        {
+          "ever": 9,
+          "latest_zero": 4,
+          "log": "2021.09.29.15.23.04_veh-28",
+          "persistent": 4,
+          "scenes": 182
+        },
+        {
+          "ever": 24,
+          "latest_zero": 10,
+          "log": "2021.09.29.18.19.40_veh-28",
+          "persistent": 8,
+          "scenes": 438
+        },
+        {
+          "ever": 17,
+          "latest_zero": 11,
+          "log": "2021.09.29.19.02.14_veh-28",
+          "persistent": 7,
+          "scenes": 648
+        },
+        {
+          "ever": 54,
+          "latest_zero": 22,
+          "log": "2021.10.06.07.26.10_veh-52",
+          "persistent": 9,
+          "scenes": 985
+        },
+        {
+          "ever": 48,
+          "latest_zero": 28,
+          "log": "2021.10.06.08.16.17_veh-52",
+          "persistent": 17,
+          "scenes": 929
+        }
+      ],
+      "ever_zero": 533,
+      "intermittent": 400,
+      "interpretation": "persistent only over explicitly observed deploymentODE checkpoints; missing evaluations are not zeros; unequal sequence lengths are not comparable",
+      "latest_zero": 270,
+      "never_zero": 11613,
+      "new_zero_relative_first": 81,
+      "observed_updates": [
+        1000,
+        5000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000,
+        22000,
+        24000
+      ],
+      "post10k": {
+        "ever": 464,
+        "latest_new_zero_relative10k": 65,
+        "latest_repaired_relative10k": 51,
+        "observed_updates": [
+          10000,
+          12000,
+          14000,
+          16000,
+          18000,
+          20000,
+          22000,
+          24000
+        ],
+        "persistent": 144
+      },
+      "recovered_at_least_once": 379,
+      "recovered_relative_first": 129,
+      "relapsed_scenes": 206,
+      "scene_count": 12146,
+      "transitions": [
+        {
+          "new_zero": 50,
+          "persistent_from_previous": 224,
+          "previous_updates": 1000,
+          "previous_zero": 318,
+          "repaired_zero": 94,
+          "updates": 5000,
+          "zero": 274
+        },
+        {
+          "new_zero": 37,
+          "persistent_from_previous": 219,
+          "previous_updates": 5000,
+          "previous_zero": 274,
+          "repaired_zero": 55,
+          "updates": 10000,
+          "zero": 256
+        },
+        {
+          "new_zero": 59,
+          "persistent_from_previous": 209,
+          "previous_updates": 10000,
+          "previous_zero": 256,
+          "repaired_zero": 47,
+          "updates": 12000,
+          "zero": 268
+        },
+        {
+          "new_zero": 48,
+          "persistent_from_previous": 223,
+          "previous_updates": 12000,
+          "previous_zero": 268,
+          "repaired_zero": 45,
+          "updates": 14000,
+          "zero": 271
+        },
+        {
+          "new_zero": 64,
+          "persistent_from_previous": 221,
+          "previous_updates": 14000,
+          "previous_zero": 271,
+          "repaired_zero": 50,
+          "updates": 16000,
+          "zero": 285
+        },
+        {
+          "new_zero": 95,
+          "persistent_from_previous": 230,
+          "previous_updates": 16000,
+          "previous_zero": 285,
+          "repaired_zero": 55,
+          "updates": 18000,
+          "zero": 325
+        },
+        {
+          "new_zero": 50,
+          "persistent_from_previous": 224,
+          "previous_updates": 18000,
+          "previous_zero": 325,
+          "repaired_zero": 101,
+          "updates": 20000,
+          "zero": 274
+        },
+        {
+          "new_zero": 39,
+          "persistent_from_previous": 206,
+          "previous_updates": 20000,
+          "previous_zero": 274,
+          "repaired_zero": 68,
+          "updates": 22000,
+          "zero": 245
+        },
+        {
+          "new_zero": 67,
+          "persistent_from_previous": 203,
+          "previous_updates": 22000,
+          "previous_zero": 245,
+          "repaired_zero": 42,
+          "updates": 24000,
+          "zero": 270
+        }
+      ],
+      "zero_epsilon": 1e-12
+    },
+    "rollout_aggregate": {
+      "PG_active_groups": 1169,
+      "PG_zero_groups": 111,
+      "all_fail_groups": 8,
+      "allfail_tie_extra_information": {
+        "ND_time_fraction_varied": 1,
+        "groups": 1,
+        "raw_progress_varied": 1
+      },
+      "candidates": 10240,
+      "canonical_all8zero_groups": 1,
+      "categories": {
+        "all_fail_cost_tie": {
+          "fraction": 0.00078125,
+          "groups": 1,
+          "mean_abs_normalized_A": 0.0,
+          "mean_abs_raw_A": 0.0,
+          "strict_feasible_candidate_fraction": 0.0
+        },
+        "all_fail_cost_varied": {
+          "fraction": 0.00546875,
+          "groups": 7,
+          "mean_abs_normalized_A": 0.4720064912523542,
+          "mean_abs_raw_A": 0.15029761904761904,
+          "strict_feasible_candidate_fraction": 0.0
+        },
+        "all_feasible_EP1_saturated": {
+          "fraction": 0.0859375,
+          "groups": 110,
+          "mean_abs_normalized_A": 0.0,
+          "mean_abs_raw_A": 0.0,
+          "strict_feasible_candidate_fraction": 1.0
+        },
+        "all_feasible_equal_EP_below1_tie": {
+          "fraction": 0.0,
+          "groups": 0,
+          "mean_abs_normalized_A": null,
+          "mean_abs_raw_A": null,
+          "strict_feasible_candidate_fraction": null
+        },
+        "all_feasible_progress_only": {
+          "fraction": 0.2828125,
+          "groups": 362,
+          "mean_abs_normalized_A": 0.22915593677713755,
+          "mean_abs_raw_A": 0.07082690890524336,
+          "strict_feasible_candidate_fraction": 1.0
+        },
+        "mixed_feasible_failed": {
+          "fraction": 0.625,
+          "groups": 800,
+          "mean_abs_normalized_A": 1.0245968163243289,
+          "mean_abs_raw_A": 0.3533263104651212,
+          "strict_feasible_candidate_fraction": 0.69265625
+        }
+      },
+      "feasible_groups": 1272,
+      "fractions_derived": {
+        "PG_zero": 0.08671875,
+        "advantage_cap5_candidates": 0.0001953125,
+        "allfail_cost_tie": 0.00078125,
+        "mixed": 0.625,
+        "mixed_with_negative_feasible": 0.15375,
+        "positive_unsafe_candidates": 0.00234375,
+        "successful_EP1_saturation": 0.0859375
+      },
+      "groups": 1280,
+      "negative_feasible": {
+        "all_feasible_progress_groups": 362,
+        "candidates": 1400,
+        "groups": 485,
+        "mixed_group_by_feasible_count": {
+          "1": {
+            "any_negative_feasible": 0,
+            "groups": 22
+          },
+          "2": {
+            "any_negative_feasible": 0,
+            "groups": 24
+          },
+          "3": {
+            "any_negative_feasible": 0,
+            "groups": 49
+          },
+          "4": {
+            "any_negative_feasible": 0,
+            "groups": 93
+          },
+          "5": {
+            "any_negative_feasible": 0,
+            "groups": 114
+          },
+          "6": {
+            "any_negative_feasible": 21,
+            "groups": 212
+          },
+          "7": {
+            "any_negative_feasible": 102,
+            "groups": 286
+          }
+        },
+        "mixed_groups": 123
+      },
+      "normalized_A_clip5_candidates": 2,
+      "normalized_std": {
+        "maximum": 0.4339114305751192,
+        "median": 0.34217419630878865,
+        "minimum": 0.1745280252808736
+      },
+      "positive_unsafe": {
+        "DAC0_candidates": 2,
+        "NC05_candidates": 0,
+        "NC0_candidates": 0,
+        "TTC0_candidates": 22,
+        "all_fail_group_candidates": 24,
+        "candidates": 24,
+        "groups": 7,
+        "mixed_group_candidates": 0
+      },
+      "sampler_vs_deployment": {
+        "exact_theta_ODE_pair_in_this_native_window": false,
+        "reason": "behavior update precedes milestone and most scenes are not evaluated at same theta; do not equate G8allfail with deployment0",
+        "status": "UNKNOWN_WITHOUT_EXACT_THETA_ODE"
+      },
+      "successful_credit_saturation_groups": 110,
+      "unique_TRAIN_tokens": 1280
+    },
+    "rollout_sampling_limits": {
+      "TRAIN_groups_perpoint": 128,
+      "all_ranks_per_collection_preserved": true,
+      "candidates_pergroup": 8,
+      "collections_perpoint": 16,
+      "full_source_sampler": "uniformResumableEpochSampler permutation; only current48000-ish scene exposures of103288,not full traversal; counters not multiplied again by4inner",
+      "not_full_training_population_estimator": true,
+      "optimizer_updates_perpoint": 64,
+      "ranks": 8,
+      "repeated_TRAIN_group_tokens_in_windows": 0,
+      "total_groups": 1280,
+      "unique_sampled_TRAIN_tokens": 1280,
+      "windows": 10
+    },
+    "interpretation_zh": "总体修复部分旧zero/TTC提升，与固定高队列各项回退可并存；高cohort为条件选择指标不是无偏总体估计。Shapley仅账面分解不是梯度因果。"
+  },
+  "deferred_single_factor_controls": [
+    {
+      "id": "CREDIT_COVERAGE_GATE",
+      "priority": "LOW_COST_CONDITIONAL_ONLY",
+      "title_zh": "低成本：按同组可行覆盖度调节EP信用",
+      "status": "CPU_COUNTERFACTUAL_NOT_PRIORITY_GIVEN_EP_DECLINE",
+      "problem_zh": "SafetyEP虽已阻止mixed unsafe获得EP正信用，但少数可行候选与多数失败共存时，低EP可行轨迹可能同时被安全项奖励、被EP项拉低。它是否是新NC退化主因尚未知。",
+      "evidence_ids": [
+        "SAFETY_EP_CREDIT_COUNTERFACTUAL_20261031.json",
+        "SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json"
+      ],
+      "mechanism_zh": "只在当前组可行覆盖弱时降低EP竞争，保留先获得更多可行解的信用。p=fmean来自已评分候选，是局部采样覆盖proxy，不是已校准场景风险概率或新增actor输入。",
+      "hypothesis_zh": "若弱可行组的EP压力妨碍安全模式巩固，lambdaEP=p可能改善NC/DAC/TTC和新zero，同时allfeasible组仍保留效率学习。",
+      "single_core_change": "Araw=Asafe + p_group*AEP, p_group=(1/8)sum f; same onceglobal64std+eps; allothermath unchanged",
+      "already_done_not_new_zh": "原Safety已严格within-feasibleEP；本方向只改变组条件系数，不重复注册原有gate，也不全局提高EP权重。",
+      "CPU_effect": {
+        "only_change": "lambda_EP(group)=feasible_count/8, A_safe unchanged, globalbatch Astd recomputed, all4innersreuse",
+        "raw_advantage_changed_groups": 447,
+        "raw_advantage_changed_candidates": 2543,
+        "raw_advantage_sign_changes": 21,
+        "current_feasible_negative_A_in_mixed": 104,
+        "candidate_feasible_negative_A_in_mixed": 83,
+        "mixed_unsafe_positive_after": 0,
+        "allfail_A_unchanged_before_global_rescale": true,
+        "allfeasible_A_unchanged_before_global_rescale": true,
+        "raw_EP_abs_mean": 0.03536393221611301,
+        "post_global_std_mean_abs_A": 0.7071496790987815,
+        "original_mean_abs_A": 0.7062069177627563
+      },
+      "scale_caution_zh": "447/1000组数值变化，但只有21/8000个A正负号变化；未必主瓶颈。allfeasible/allfail原始A未变，共享globalstd仍使绝对尺度联动。",
+      "design": {
+        "common": {
+          "initialization": "same sealed IL70,current+reference initialtrainable closure; noRL10k weights/nativefork",
+          "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+          "fresh_AdamW": true,
+          "fresh_RNG_seed": 42,
+          "initial_optimizer_updates": 0,
+          "initial_scene_cursor": 0,
+          "data": "full103288 eligible uniform,world8 scenes/collection,G8 candidates/scene,8ranks,4inner reuse",
+          "source_baseline": "SafetyEP with W3 rigorousSDE eta.1 steps7/8/9; originalIL70 physicalclean-x mean anchor beta50",
+          "scope": "52,707,840 = actionLoRA5,242,880 +scene/predictiveMemory47,464,960; Qwenfrozen",
+          "optimizer_groups": "action5e-5/Memory5e-6;100optimizerupdate linearwarmup thenconstant; no secondwarmup across native stage boundaries",
+          "advantage": "fixed kappa0,lambdaEP1; group-centered Safety+within-feasibleEP; onceglobal64A populationstd+1e-8; sourceAclip5",
+          "evaluation": "official fullNAVTEST12146,singleODE10 shift5,seed2101,44physical logs paired2000bootstrap seed42; canonicalmetrics unchanged",
+          "budgets": "proposal only: first5k,1k/5k gates; extend to10k only afterrootreview; later2k cadence onlyifexplicitlyapproved",
+          "control_reuse": "Existing freshIL70 SafetyEP same-update results may be reused if scientific/data/inference identities match; no gratuitous rerun or newtrainingseeds.",
+          "high_retention": "predefine IL70score>=.9 NAVTEST diagnosticcohort; historicalSafety10k>=.9 secondarycohort only. NoNAVTEST trainingtoken selection.",
+          "low_repair": "predefine IL70 zero/positive-low TRAIN diagnosticcohorts; distinguish persistent/intermittent/recovered/relapse and never-resampledunknown",
+          "promotion": "sameupdatePDMS gain with44logCI plus NC/DAC/TTC/EP andhighcohort/newzero review; smallgain ortrainingrewardalone insufficient; formal noninferioritymargins rootmustprespecify",
+          "deployment": "singletrajectoryODE,unchangedparameterclosure; nooracle scorer/reranking/teacher at inference"
+        },
+        "arm": "one proposedfreshIL70 SafetyEP credit-gate versus exactfreshSafetyEPcontrol",
+        "not_changed": [
+          "canonicalreward",
+          "samplerW3",
+          "dataorder",
+          "referenceIL70",
+          "beta50",
+          "LR/scheduler",
+          "scope",
+          "noCFM/teacher"
+        ],
+        "first_go": "P0及最新PROCESS支持weak-feasible类值得优先才注册"
+      },
+      "success_metrics": [
+        "canonicalPDMS samebudget pairedCI",
+        "NC/DAC/TTC repair/newfailure",
+        "fixedhighcohort retention/newzero",
+        "EP/rawprogress withinverifiedfeasible opportunities",
+        "PG/anchor gradcos andglobalbatchscale/clip"
+      ],
+      "risks_zh": [
+        "p由8样本估计，受SDE噪声影响且并非真实可行率。",
+        "降EP压力可能强化保守停滞；低EP不能直接判无故停车，须有同场景strictsafe更高进度见证。",
+        "原平均deficit allfail排序完全没修；不能拿此门控掩盖该审计。"
+      ],
+      "sourceURLs": [
+        "https://arxiv.org/abs/1705.10528",
+        "https://arxiv.org/html/2609.25831v2",
+        "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/tree/2f99d85782995f175d5a117eb45356bff34e343a",
+        "https://arxiv.org/abs/2508.08221v3"
+      ],
+      "attribution_zh": "本工程自定义的可行覆盖门控，非上述论文原算法；安全理论保证不迁移。",
+      "trigger_zh": "仅当未来同批梯度与条件分层证明弱可行组EP竞争是主要安全损失时再考虑；当前整体EP已回退，不能默认进一步压EP。"
+    },
+    {
+      "id": "FRESH_LR_CONTROL",
+      "status": "DEFERRED_NOT_REGISTERED",
+      "problem_zh": "当前100opt warmup后constant确实未衰减；这不是已证退化根因。",
+      "design": "IfP0 showsoverlarge lateupdates: freshIL70constant baseline versusoneexplicitgroup-relative schedule withsame100optwarmup,source50kidentityandregistereddecayhorizon; noRL10kfork/Adamresetconfound/nootherchange",
+      "cautions": [
+        "LRchangesphysicalPGandanchorupdatestogether,notteacherrefresh",
+        "action/memory10:1ratioretained; vendorabsoluteeta_minwouldalterratio",
+        "paperRun-then-Walkchangesreward/ref/LR,notcausalLRproof",
+        "adaptiveflowchangeproxyisnottrueKL"
+      ],
+      "sourceURLs": [
+        "https://arxiv.org/html/2609.25831v2#A3",
+        "https://arxiv.org/html/2602.02481v2#A3.SS3"
+      ],
+      "primary_inventory": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RL_LR_PRIMARY_RESEARCH_20261031.json"
+    },
+    {
+      "id": "FAIL_CREDIT_PRIORITY_AUDIT",
+      "status": "CPU_RECORD_REVIEW_FIRST",
+      "fact": "old10k7allfailgroups contain28positiveunsafe candidates,5NC0; exactNCvsDAC/TTCtradeoffrequiresoriginalcanonicalvectors",
+      "caution": "mean deficit isnotcrashseverity. costvar alreadyhasdirection; extraeventtiming onlyaddedonecosttie distinction intheolderADAPT170allzeroexample,notSafety-specificproof.",
+      "potential_followup": "OnlyiflatestSafetyfailureconcentration supportsit: oneexplicitallfail component-priority/verifiedPareto-creditchange,keepingwithin-feasibleEP andallotherrecipe; no blanketunsafeA ban",
+      "sourceURLs": [
+        "https://arxiv.org/abs/1705.10528",
+        "https://arxiv.org/html/2609.25831v2",
+        "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/tree/2f99d85782995f175d5a117eb45356bff34e343a"
+      ]
+    },
+    {
+      "id": "REFERENCE_OR_BETA",
+      "status": "DEFER_UNTIL_P0_GRADIENT_EVIDENCE",
+      "caution": "IL70physicalmeananchor isnotLMtokenKL. Scalar kl_loss cannotshow wrongreference/pullback; do notrefreshreference orremoveanchorwithoutmatchedgradientandhighretentionevidence."
+    }
+  ],
+  "LLM_to_flow_transfer": {
+    "methods_transfer": [
+      "controlledsinglefactorablation",
+      "groupcentering/globalnormalizationdiagnostics",
+      "positive/negativeeffectiveclipmaskanalysis",
+      "recorddata/model/sampleridentities"
+    ],
+    "not_automatic": [
+      "LLMtokenlosslevel/lengthpenalty",
+      "tokenclipnumerics copiedto24Ddimensionmeantransitionproxy",
+      "sequenceIS/entropy interpretations appliedtoW3transition averages",
+      "removeKLrecommendation appliedtophysicalILanchor",
+      "dynamicresamplingtoavoidall0 appliedtosuccessEP1saturation"
+    ],
+    "current_implementation": "source likelihood isclamped dimension-mean transitionproxy,ratio[8,W3],notexactendpoint/fullchainIS; global64A normalization present; beta50isphysicalclean-x anchor",
+    "sourceURLs": [
+      "https://arxiv.org/abs/2508.08221v3",
+      "https://arxiv.org/html/2602.02481v2#S3",
+      "https://arxiv.org/html/2602.02481v2#A3.SS6",
+      "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py",
+      "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/src/flow_model.py#L550",
+      "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/finetune_online_rl.py#L1205"
+    ]
+  },
+  "sources": [
+    {
+      "id": "FPO",
+      "title": "Flow Matching Policy Gradients",
+      "version": "2507.21053v2",
+      "sourceURLs": [
+        "https://arxiv.org/html/2507.21053v2"
+      ],
+      "supported_claim_zh": "用CFM损失差构建policy-ratio代理，避免计算flow的精确likelihood；可与组相对优势兼容，采样器选择与更新目标可解耦。",
+      "limits_zh": "代理不是端点精确likelihood或精确IS；无优势差异仍无PG方向，也不自动保证ODE部署提升。"
+    },
+    {
+      "id": "FPO_PLUS_PLUS",
+      "title": "Flow Policy Gradients for Robot Control",
+      "version": "2602.02481v2,2026-10-13",
+      "sourceURLs": [
+        "https://arxiv.org/html/2602.02481v2#S3",
+        "https://arxiv.org/html/2602.02481v2#A3.SS6",
+        "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py",
+        "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/src/flow_model.py#L550",
+        "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/finetune_online_rl.py#L1205"
+      ],
+      "official_commit": "8f460e4415a2a6debfbeb689093f5e36140bd178",
+      "supported_claim_zh": "逐MC-sample分别构造ratio再clip；机器人微调中普通PPO分支优于直接迁移ASPO的若干任务。文中也诊断额外去噪噪声使低成功率基座更难收到成功反馈。",
+      "limits_zh": "这是机器人环境实证而非World驾驶保证；自适应LR实验用噪声预测变化代理，不是真实policy KL；不能据此搬数值clip或原样叠全部组件。"
+    },
+    {
+      "id": "SIL",
+      "title": "Self-Imitation Learning",
+      "version": "1806.05635v1",
+      "sourceURLs": [
+        "https://arxiv.org/abs/1806.05635"
+      ],
+      "supported_claim_zh": "过去的成功经验可辅助后续学习，稀少成功不必在下一批失败后完全丢失。",
+      "limits_zh": "原SIL是off-policy actor-critic/return-gap算法；本文提议verified-positive CFM只借成功复用动机，不冒称原SIL。"
+    },
+    {
+      "id": "AWR",
+      "title": "Advantage-Weighted Regression",
+      "version": "1910.00177v3",
+      "sourceURLs": [
+        "https://arxiv.org/abs/1910.00177v3",
+        "https://xbpeng.github.io/projects/AWR/index.html"
+      ],
+      "supported_claim_zh": "回放经验可用于独立的加权监督policy更新；这是与on-policy PG不同的利用历史经验途径。",
+      "limits_zh": "AWR包含value拟合与优势加权；没有value的positive CFM不是AWR，历史trajectory绝不能伪装为当前GRPO样本。"
+    },
+    {
+      "id": "CPO",
+      "title": "Constrained Policy Optimization",
+      "version": "1705.10528v1",
+      "sourceURLs": [
+        "https://arxiv.org/abs/1705.10528"
+      ],
+      "supported_claim_zh": "安全约束与任务回报可分别表达，标量回报上升本身不足以证明安全约束改善。",
+      "limits_zh": "其约束/信赖域假设不能直接移植为本工程的逐候选安全保证；下述lambda门控不是CPO，不宣称其理论保证。"
+    },
+    {
+      "id": "RUN_THEN_WALK",
+      "title": "Sometimes You Gotta Run Before You Can Walk",
+      "version": "2609.25831v2,2026-10-07",
+      "sourceURLs": [
+        "https://arxiv.org/html/2609.25831v2",
+        "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/tree/2f99d85782995f175d5a117eb45356bff34e343a"
+      ],
+      "official_commit": "2f99d85782995f175d5a117eb45356bff34e343a",
+      "supported_claim_zh": "驾驶中进度发现与安全修复存在不同优化阶段；有效更新仍需要当前采样支持中的安全进度候选。",
+      "limits_zh": "原方案同时更换reward/reference/阶段LR，不能归因为某一个组件；其Walk gate可允许NC=.5，和本Safety严格NC=DAC=TTC1不同；不建议照搬进度优先放松安全。"
+    },
+    {
+      "id": "ASYMMETRIC",
+      "title": "Asymmetric Actor Critic for Image-Based Robot Learning",
+      "version": "1710.06542v1",
+      "sourceURLs": [
+        "https://arxiv.org/abs/1710.06542"
+      ],
+      "supported_claim_zh": "训练期privileged信息与推理期图像输入可以严格分离；训练监督的可用性不代表actor推理时观测到真值。",
+      "limits_zh": "原文是full-state critic，本文若做训练期条件监督只是借鉴信息分离，不声称已实现该actor-critic。"
+    },
+    {
+      "id": "LBC",
+      "title": "Learning by Cheating",
+      "version": "1912.12294v1",
+      "sourceURLs": [
+        "https://arxiv.org/abs/1912.12294"
+      ],
+      "supported_claim_zh": "驾驶teacher可在训练时使用privileged场景信息，student仍以视觉推理。",
+      "limits_zh": "它不证明单帧可恢复被遮挡目标或真实邻车速度；本任务不据此新增推理真值输入或重做整套IL。"
+    },
+    {
+      "id": "TRICKS",
+      "title": "Part I: Tricks or Traps? A Deep Dive into RL for LLM Reasoning",
+      "version": "2508.08221v3",
+      "sourceURLs": [
+        "https://arxiv.org/abs/2508.08221v3"
+      ],
+      "supported_claim_zh": "统一配置逐项隔离检验是应迁移的研究方法，基座/数据变化会影响技巧是否有效。",
+      "limits_zh": "LLM token/sequence likelihood、长度与离散entropy的数值经验不能直接当连续flow transition/CFM ratio配方。"
+    }
+  ],
+  "input_evidence": {
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_CREDIT_COUNTERFACTUAL_20261031.json": {
+      "file_sha256": "8183d63867a7d1c28053dec2ff99f0536248f979ed0d82fa41ec6cb12284d938",
+      "status": "COMPLETE_CPU_ONLY_NOT_REGISTERED"
+    },
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ZERO_RESCUE_NEXT_DECISIONS_20261031.json": {
+      "file_sha256": "17d4aa84954bb25e9fd463d1fe9bd58519faa73825492c23df1da570541121e1",
+      "status": "COMPLETE"
+    },
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN_PREFERENCE_ZERO_TIE_DIAGNOSTIC_20261031.json": {
+      "file_sha256": "4acacfc3f96a0531992455dfc10cd3bb723d3a7f0cd0d2f8251133765a4cff89",
+      "status": "COMPLETE"
+    },
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SCENARIO_SAFETY_EFFICIENCY_AUDIT_20261030.json": {
+      "file_sha256": "4c15d82c5db8852016f23a27bfec57d10b73b164589581643c051d156881446a",
+      "status": null
+    },
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RL_LR_NATIVE_AUDIT_20261031.json": {
+      "file_sha256": "3dbf21cf2521918b7d44462fa27c476cda9a48d6fdb954ac08ab775a96df8f86",
+      "status": "COMPLETE"
+    },
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RL_LR_PRIMARY_RESEARCH_20261031.json": {
+      "file_sha256": "294a3be70d014f60ed55c5736ad444ea157092576384161f22405ce12fceeee8",
+      "status": "COMPLETE"
+    },
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json": {
+      "file_sha256": "151b4980d32a97f51e8b3086e413fb89b9b51dbefff773a36d4c7ea327cced26",
+      "status": "COMPLETE"
+    }
+  },
+  "sourceURLs": [
+    "https://arxiv.org/html/2507.21053v2",
+    "https://arxiv.org/html/2602.02481v2#S3",
+    "https://arxiv.org/html/2602.02481v2#A3.SS6",
+    "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py",
+    "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/src/flow_model.py#L550",
+    "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/manipulation_experiments/finetune_online_rl.py#L1205",
+    "https://arxiv.org/abs/1806.05635",
+    "https://arxiv.org/abs/1910.00177v3",
+    "https://xbpeng.github.io/projects/AWR/index.html",
+    "https://arxiv.org/abs/1705.10528",
+    "https://arxiv.org/html/2609.25831v2",
+    "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk/tree/2f99d85782995f175d5a117eb45356bff34e343a",
+    "https://arxiv.org/abs/1710.06542",
+    "https://arxiv.org/abs/1912.12294",
+    "https://arxiv.org/abs/2508.08221v3"
+  ],
+  "limitations_zh": [
+    "文献与CPU反事实产生假设，不构成新算法收益证明。",
+    "TRAIN反馈面板非heldout；固定15场景探针是条件选中小cohort，不能估103k人口收益。",
+    "paired44logCI只反映固定训练/eval seed下场景log不确定性，不是多seed训练方差；不追加种子。",
+    "不从NAVTEST失败名单生成训练bank；未来设计只用TRAIN当前材料。",
+    "所有新pilot须root整合后安排，本文件不执行训练/评测/停止。"
+  ],
+  "builder": {
+    "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/build_safety_ep_focused_directions_20261031.py",
+    "sha256": "a92d58a4fba0c63fb031d7671bcb174b45b059b2d7abc599c48447f75044dc1e"
+  },
+  "sha256": "80453e82aae446906f476635029aa4496514e501950f968f4bd1e1686462e1ab"
+}
