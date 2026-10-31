@@ -6,7 +6,7 @@ import traceback
 from pathlib import Path
 
 from .fpo_training import (
-    PROTOCOL,FPOTrainingLoss,validate_recipe,attach_material,validate_boundary,validate_ranks,scale_diagnostic,
+    PROTOCOL,protocol_for_recipe,FPOTrainingLoss,validate_recipe,attach_material,validate_boundary,validate_ranks,scale_diagnostic,
 )
 from .safety_efficiency import finalize_safety_efficiency_advantages,STRUCTURED_PROTOCOL
 from starVLA.rl.simwam_recipe import checkpoint
@@ -29,12 +29,12 @@ class FPORuntimeMixin:
         error=None
         try:
             rank=int(os.environ.get('RANK',0))
-            attach_material(self.actor,rollout,rank=rank)
+            attach_material(self.actor,rollout,rank=rank,cfg=self.cfg)
             if rollout['behavior_version']['update']==0:
                 p=Path(self.args.output)/f'initial_FPO_scale_rank{rank}.json'
                 if not p.exists():
                     tmp=p.with_name(p.name+'.tmp.'+str(os.getpid()))
-                    tmp.write_text(json.dumps(scale_diagnostic(rollout),ensure_ascii=False,indent=2,allow_nan=False)+'\n')
+                    tmp.write_text(json.dumps(scale_diagnostic(rollout,self.cfg),ensure_ascii=False,indent=2,allow_nan=False)+'\n')
                     os.replace(tmp,p)
         except Exception:error=traceback.format_exc()
         checkpoint.check_errors(error)
@@ -51,7 +51,7 @@ class FPORuntimeMixin:
 
     def recipe_identity(self,cfg,args,condition_sha):
         identity=super().recipe_identity(cfg,args,condition_sha)
-        identity.update(fpo_protocol=copy.deepcopy(PROTOCOL),structured_advantage_protocol=copy.deepcopy(STRUCTURED_PROTOCOL))
+        identity.update(fpo_protocol=protocol_for_recipe(cfg),structured_advantage_protocol=copy.deepcopy(STRUCTURED_PROTOCOL))
         return identity
 
 

@@ -24,6 +24,8 @@ SCHEMA='world_endpoint_CFM_per_MC_PPO_v1'
 ARM='PPO_SAFETY_FPO'
 CONFIG=dict(schema=SCHEMA,mc_samples=2,sigma_min=.2,sigma_max=.8,
             clip_range=.01,stateless_seed=42,energy_reduction='mean_xyz_then_sum_8poses')
+FULLTIME_ARM='PPO_FPO_FULLTIME'
+FULLTIME_CONFIG=dict(CONFIG,sigma_max=1.0)
 PROTOCOL=dict(**CONFIG,
     target='state=(1-sigma)*clean_endpoint+sigma*eps; target_velocity=eps-clean_endpoint',
     energy='ell[MC,G] = sum_horizon8 mean_xyz squared_velocity_error = 8*mean_all24',
@@ -40,12 +42,41 @@ PROTOCOL=dict(**CONFIG,
     interpretation='pre-registered firstcandidate scale .01, not an optimum or copiedLLM tokenclip')
 
 
+def settings_for_recipe(cfg=None):
+    """Default retains the first pilot exactly; only the new upper-bound arm.
+
+    Keep the private seed namespace/draw ordering common across both arms.
+    Only the affine map from the same uniform draw to sigma changes.
+    """
+    value=CONFIG if cfg is None else cfg['research']['fpo']
+    if value!=CONFIG and value!=FULLTIME_CONFIG:
+        raise ValueError('Only original FPO or explicit sigma_max1.0 settings allowed')
+    return copy.deepcopy(value)
+
+
+def protocol_for_recipe(cfg=None):
+    settings=settings_for_recipe(cfg)
+    protocol=copy.deepcopy(PROTOCOL)
+    protocol.update(settings)
+    if settings==FULLTIME_CONFIG:
+        protocol['sigma']='independent Uniform[.2,1.0) perMC/candidate; upper-range extension, still truncated below.2, not fullpaper U[0,1] ELBO equivalence'
+    return protocol
+
+
+def _settings_from_protocol(protocol):
+    for settings in (CONFIG,FULLTIME_CONFIG):
+        if protocol==protocol_for_recipe({'research':{'fpo':settings}}):
+            return settings
+    raise ValueError('Unsupported FPO material protocol')
+
+
 def validate_recipe(cfg):
     validate_safety_efficiency_recipe(cfg)
     r=cfg['research'];s=cfg['grpo']['sample'];t=cfg['grpo']['train']
-    if (r.get('arm')!=ARM or r.get('policy_objective')!='ppo'
+    expected={ARM:CONFIG,FULLTIME_ARM:FULLTIME_CONFIG}.get(r.get('arm'))
+    if (expected is None or r.get('policy_objective')!='ppo'
         or r.get('data_policy')!='uniform_full' or r.get('structured_advantage')!=STRUCTURED_SCHEMA
-        or r.get('fpo')!=CONFIG or cfg.get('seed')!=42 or cfg.get('world_size')!=8
+        or r.get('fpo')!=expected or cfg.get('seed')!=42 or cfg.get('world_size')!=8
         or cfg.get('max_steps')!=50000 or cfg.get('lr_scheduler_type')!='constant'
         or cfg.get('action_shape')!=[8,3] or cfg.get('learning_rate')!=5e-5
         or cfg.get('memory_learning_rate')!=5e-6
@@ -58,12 +89,14 @@ def validate_recipe(cfg):
     return cfg
 
 
-def _draws(rollout,rank):
-    key=dict(schema=SCHEMA,token=rollout['token'],behavior=rollout['behavior_version'],rank=rank,seed=42)
+def _draws(rollout,rank,cfg=None):
+    settings=settings_for_recipe(cfg)
+    key=dict(schema=SCHEMA,token=rollout['token'],behavior=rollout['behavior_version'],rank=rank,seed=settings['stateless_seed'])
     seed=int.from_bytes(hashlib.sha256(json.dumps(key,sort_keys=True,separators=(',',':')).encode()).digest()[:8],'big')&((1<<63)-1)
     gen=torch.Generator(device='cpu').manual_seed(seed)
-    sigma=.2+.6*torch.rand(2,8,generator=gen,dtype=torch.float32)
-    noise=torch.randn(2,8,8,3,generator=gen,dtype=torch.float32)
+    width=.6 if settings==CONFIG else settings['sigma_max']-settings['sigma_min']
+    sigma=settings['sigma_min']+width*torch.rand(settings['mc_samples'],8,generator=gen,dtype=torch.float32)
+    noise=torch.randn(settings['mc_samples'],8,8,3,generator=gen,dtype=torch.float32)
     return seed,sigma,noise
 
 
@@ -71,17 +104,18 @@ def material_digest(p):return tensor_digest({k:v for k,v in p.items() if k!='mat
 
 
 @torch.no_grad()
-def attach_material(actor,rollout,*,rank):
+def attach_material(actor,rollout,*,rank,cfg=None):
     if 'fpo' in rollout:raise ValueError('Finalize FPO material exactly once per fresh collection')
-    clean,evidence=_fresh_evidence(rollout);seed,sigma,noise=_draws(rollout,rank)
+    settings=settings_for_recipe(cfg);protocol=protocol_for_recipe(cfg)
+    clean,evidence=_fresh_evidence(rollout);seed,sigma,noise=_draws(rollout,rank,cfg)
     clean,sigma,noise=(x.to(actor.device) for x in (clean,sigma,noise))
     velocities=[];energies=[]
     with actor._context_call(rollout['cond_bg']) as cond:
-        for j in range(CONFIG['mc_samples']):
+        for j in range(settings['mc_samples']):
             state,target=_state(clean,sigma[j],noise[j])
             v=actor.action_velocity(state,sigma[j]*1000,cond,use_ref=False)
             velocities.append(v.detach().float().clone());energies.append(cfm_energy(v,target).detach().clone())
-    p=dict(protocol=copy.deepcopy(PROTOCOL),token=rollout['token'],log=rollout['log'],rank=rank,
+    p=dict(protocol=protocol,token=rollout['token'],log=rollout['log'],rank=rank,
         behavior_version=copy.deepcopy(rollout['behavior_version']),condition=copy.deepcopy(rollout['cond_bg']),
         seed=seed,evidence=evidence,clean=clean,sigma=sigma,noise=noise,
         behavior_velocity=torch.stack(velocities),old_energy=torch.stack(energies))
@@ -90,11 +124,12 @@ def attach_material(actor,rollout,*,rank):
     return rollout
 
 
-def validate_material(rollout,*,rank):
-    p=rollout.get('fpo',{});clean,evidence=_fresh_evidence(rollout);seed,sigma,noise=_draws(rollout,rank)
+def validate_material(rollout,*,rank,cfg=None):
+    settings=settings_for_recipe(cfg);protocol=protocol_for_recipe(cfg)
+    p=rollout.get('fpo',{});clean,evidence=_fresh_evidence(rollout);seed,sigma,noise=_draws(rollout,rank,cfg)
     keys={'protocol','token','log','rank','behavior_version','condition','seed','evidence',
           'clean','sigma','noise','behavior_velocity','old_energy','material_sha256'}
-    if (set(p)!=keys or p.get('protocol')!=PROTOCOL or p.get('token')!=rollout['token']
+    if (set(p)!=keys or p.get('protocol')!=protocol or p.get('token')!=rollout['token']
         or p.get('log')!=rollout['log'] or p.get('rank')!=rank
         or p.get('behavior_version')!=rollout['behavior_version']
         or tensor_digest(p.get('condition'))!=tensor_digest(rollout['cond_bg'])
@@ -106,38 +141,41 @@ def validate_material(rollout,*,rank):
         if (not torch.is_tensor(v) or v.requires_grad or v.dtype!=torch.float32
             or v.shape!=want.shape or not torch.equal(v.cpu(),want)):
             raise ValueError('FPO fresh endpoint/private draw changed: '+k)
-    for k,shape in [('behavior_velocity',(2,8,8,3)),('old_energy',(2,8))]:
+    for k,shape in [('behavior_velocity',(settings['mc_samples'],8,8,3)),('old_energy',(settings['mc_samples'],8))]:
         v=p[k]
         if (not torch.is_tensor(v) or v.requires_grad or v.dtype!=torch.float32
             or tuple(v.shape)!=shape or not bool(torch.isfinite(v).all())):
             raise ValueError('FPO old behavior must be finite/detached: '+k)
-    for j in range(2):
+    for j in range(settings['mc_samples']):
         _,target=_state(clean,sigma[j],noise[j]);want=cfm_energy(p['behavior_velocity'][j].cpu(),target)
         if not torch.allclose(p['old_energy'][j].cpu(),want,atol=1e-6,rtol=3e-6):
             raise ValueError('FPO old velocity/energy mathematical audit differs')
     return p
 
 
-def scale_diagnostic(rollout):
+def scale_diagnostic(rollout,cfg=None):
+    settings=settings_for_recipe(cfg);protocol=protocol_for_recipe(cfg)
     p=rollout['fpo'];e=p['old_energy'].float();v=p['behavior_velocity'].float()
-    return dict(schema='world_FPO_actual_collection_scale_v1',protocol=PROTOCOL,
+    if p['protocol']!=protocol:raise ValueError('Scale diagnostic FPO config/material mismatch')
+    return dict(schema='world_FPO_actual_collection_scale_v1',protocol=protocol,
         token=p['token'],rank=p['rank'],behavior=p['behavior_version'],material_sha256=p['material_sha256'],
         old_energy_min=float(e.min()),old_energy_max=float(e.max()),old_energy_mean=float(e.mean()),
         old_energy_p95=float(torch.quantile(e.flatten(),.95)),velocity_rms=float(v.square().mean().sqrt()),
         sigma_min=float(p['sigma'].min()),sigma_max=float(p['sigma'].max()),
-        clip_log_band=[math.log(1-.01),math.log(1+.01)],
+        clip_log_band=[math.log(1-settings['clip_range']),math.log(1+settings['clip_range'])],
         diagnostic_only=True,World_gradient_scale_known_from_this=False,
         interpretation='actual existingcollection CFMcache,notextraqualification; finiteenergy isnotproofgradientorperformance')
 
 
 def validate_boundary(state,rollout,identity,optimizer=None,scheduler=None,*,rank=None,legacy=False):
     validate_recipe(identity['recipe'])
-    if identity.get('fpo_protocol')!=PROTOCOL:raise ValueError('Missing/changed explicit FPO identity')
+    protocol=protocol_for_recipe(identity['recipe'])
+    if identity.get('fpo_protocol')!=protocol:raise ValueError('Missing/changed explicit FPO identity')
     s=validate_safety_efficiency_boundary(state,rollout,identity,optimizer,scheduler,legacy=legacy)
     rank=int(os.environ.get('RANK',0)) if rank is None else rank
-    s.update(fpo_schema=SCHEMA,fpo_protocol=copy.deepcopy(PROTOCOL),fpo_rank=rank)
+    s.update(fpo_schema=SCHEMA,fpo_protocol=protocol,fpo_rank=rank)
     if s['pending']:
-        p=validate_material(rollout,rank=rank)
+        p=validate_material(rollout,rank=rank,cfg=identity['recipe'])
         s.update(fpo_material_sha256=p['material_sha256'],fpo_behavior_update=p['behavior_version']['update'],
                  fpo_old_energy_shape=list(p['old_energy'].shape),fpo_material_rank=p['rank'])
     return s
@@ -145,10 +183,12 @@ def validate_boundary(state,rollout,identity,optimizer=None,scheduler=None,*,ran
 
 def validate_ranks(summaries):
     validate_safety_efficiency_ranks(summaries)
+    protocol=summaries[0].get('fpo_protocol')
+    settings=_settings_from_protocol(protocol)
     for rank,s in enumerate(summaries):
-        if s.get('fpo_schema')!=SCHEMA or s.get('fpo_protocol')!=PROTOCOL or s.get('fpo_rank')!=rank:
+        if s.get('fpo_schema')!=SCHEMA or s.get('fpo_protocol')!=protocol or s.get('fpo_rank')!=rank:
             raise ValueError('FPO rank protocol mismatch')
-        if s['pending'] and (s.get('fpo_material_rank')!=rank or s.get('fpo_old_energy_shape')!=[2,8]
+        if s['pending'] and (s.get('fpo_material_rank')!=rank or s.get('fpo_old_energy_shape')!=[settings['mc_samples'],8]
             or s.get('fpo_behavior_update')!=s['updates']-s['next_inner']
             or len(s.get('fpo_material_sha256',''))!=64):
             raise ValueError('FPO rank/MC/behavior boundary mismatch')
@@ -180,17 +220,19 @@ def _physical_anchor(model,rollout,beta):
 class FPOTrainingLoss(ResearchLoss):
     def __init__(self,cfg):
         validate_recipe(cfg);super().__init__(cfg);self.fpo_cfg=copy.deepcopy(cfg)
+        self.fpo_settings=settings_for_recipe(cfg);self.fpo_protocol=protocol_for_recipe(cfg)
 
     def _policy_loss(self,model,rollout):
         p=rollout['fpo']
-        if p['protocol']!=PROTOCOL:raise ValueError('Wrong FPO training material protocol')
+        if p['protocol']!=self.fpo_protocol:raise ValueError('Wrong FPO training material protocol')
         current=[]
         with model._context_call(rollout['cond_bg']) as cond:
-            for j in range(2):
+            for j in range(self.fpo_settings['mc_samples']):
                 state,target=_state(p['clean'],p['sigma'][j],p['noise'][j])
                 current.append(cfm_energy(model.action_velocity(state,p['sigma'][j]*1000,cond,use_ref=False),target))
         current=torch.stack(current)
-        pg,metrics=per_mc_ppo_objective(current,p['old_energy'],rollout['advantages'],rollout['adv_mask'],clip_range=.01)
+        clip=self.fpo_settings['clip_range']
+        pg,metrics=per_mc_ppo_objective(current,p['old_energy'],rollout['advantages'],rollout['adv_mask'],clip_range=clip)
         delta=p['old_energy']-current
         error=torch.expm1(delta).abs().max().detach()
         fresh=getattr(model,'_fpo_expect_fresh_material',None)==p['material_sha256']
@@ -201,7 +243,7 @@ class FPOTrainingLoss(ResearchLoss):
         ratio=delta.exp().detach().T
         adv=rollout['advantages'].detach().clamp(-5,5)[:,None].expand_as(ratio)
         eligible=rollout['adv_mask'].detach().bool()[:,None].expand_as(ratio)&adv.ne(0)
-        blocked=((adv>0)&(ratio>1.01))|((adv<0)&(ratio<.99))
+        blocked=((adv>0)&(ratio>1+clip))|((adv<0)&(ratio<1-clip))
         for name,population in [('positive',eligible&adv.gt(0)),('negative',eligible&adv.lt(0)),('eligible',eligible)]:
             metrics['fpo_'+name+'_PPO_blocked_fraction']=(blocked&population).sum().float()/population.sum().clamp_min(1)
         anchor,extra=_physical_anchor(model,rollout,self._effective_kl_beta(model))
