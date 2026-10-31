@@ -36,7 +36,9 @@ def protocol_identity(repo):
 def initialize(spec):
     global SPEC
     SPEC = spec
-    root = Path(spec['repo']).resolve() / 'navsim_v1.1/navsim'
+    # Compare real paths on both sides when an immutable runtime links its
+    # unchanged scorer tree to a frozen base.
+    root = (Path(spec['repo']).resolve() / 'navsim_v1.1/navsim').resolve()
     os.environ['CUDA_VISIBLE_DEVICES'] = ''
     for key in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS'):
         os.environ[key] = '1'
