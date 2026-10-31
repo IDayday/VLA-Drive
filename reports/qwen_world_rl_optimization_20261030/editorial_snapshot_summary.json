@@ -1,769 +1,182 @@
 {
-  "schema": "qwen_world_SafetyEP_focused_editorial_snapshot_v1",
-  "generated_utc": "2026-10-31 08:42:16 UTC",
-  "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
-  "presentation": "safety_ep_focus_v1",
-  "layout": {
-    "main_sections": 6,
-    "scientific_figures": 3
+  "schema": "world_RL_living_report_editorial_snapshot_v2",
+  "captured_unix": 1793450930.509147,
+  "live_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
+  "report_is_historical_snapshot": true,
+  "target_PDMS": 92,
+  "best_complete_NAVTEST": {
+    "arm": "PPO_SAFETY_EP",
+    "updates": 10000,
+    "PDMS": 91.349891737
   },
-  "active_RL_arms": [
-    "PPO_SAFETY_EP"
-  ],
-  "future_trials": "same pinned IL70;freshAdamW/RNG42/update0;proposal only,no new GPU trials",
-  "Safety_complete_NAVTEST": [
+  "target_achieved": false,
+  "active_registered_runs": [
     {
+      "id": "PPO_SAFETY_SUCCESS_MEMORY",
+      "status": "TRAINING_DISPATCHED",
+      "host": "training-vlawm-zt",
+      "lease": "primary",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_SUCCESS_MEMORY/formal_to005000_attempt001",
+      "research_budget_updates": 10000,
+      "stage_budget_updates": 5000,
+      "completed_updates": 1000
+    },
+    {
+      "id": "PPO_SAFETY_FPO",
+      "status": "TRAINING_DISPATCHED",
+      "host": "training-vlawm-tsinghua-zt5",
+      "lease": "primary",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_FPO/formal_to005000_attempt001",
+      "research_budget_updates": 10000,
+      "stage_budget_updates": 5000,
+      "completed_updates": 1000
+    },
+    {
+      "id": "PPO_FPO_FULLTIME",
+      "status": "TRAINING_DISPATCHED",
+      "host": "training-vlawm-zt",
+      "lease": "research",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fpo_fulltime_20261031",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_FPO_FULLTIME/formal_to005000_attempt001",
+      "research_budget_updates": 5000,
+      "stage_budget_updates": 5000,
+      "completed_updates": 1000
+    },
+    {
+      "id": "PPO_SAFETY_FEASIBLE_SCORE",
+      "status": "TRAINING_DISPATCHED",
+      "host": "training-vlawm-tsinghua-zt3",
+      "lease": "research",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/feasible_score_6dc988d",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_FEASIBLE_SCORE/formal_to001000_attempt001",
+      "research_budget_updates": 5000,
+      "stage_budget_updates": 1000,
+      "completed_updates": 0
+    }
+  ],
+  "complete_new_1k_NAVTEST": {
+    "PPO_SAFETY_SUCCESS_MEMORY_u001000_NAVTEST": {
+      "PDMS": 90.59887715956735,
       "updates": 1000,
-      "PDMS": 90.70760817987055,
-      "means": {
-        "score": 0.9070760817987055,
-        "no_at_fault_collisions": 0.9882677424666557,
-        "drivable_area_compliance": 0.9843569899555409,
-        "time_to_collision_within_bound": 0.9667380207475712,
-        "ego_progress": 0.8354621770644339,
-        "comfort": 0.9995060102091223,
-        "driving_direction_compliance": 0.983657171085131
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u001000_NAVTEST/SUMMARY.json"
+      "ge92": false,
+      "ge94": false,
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_SUCCESS_MEMORY_u001000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "3384b71b2113df554b862209b38d4df3bb196ac78b6dd445d45e5f81ba21ea2f",
+        "summary_seal": "c8f1414e8175340c708bd4627c7ab94693174b0d7a8e3d96b2f1b76bd2bf8ecb",
+        "identity_seal": "ff00b2de8dfcd4974d2bd4af449ce3cc2eac86d29d7bd03b4bbef32c3805dfc8",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_SUCCESS_MEMORY_u001000_NAVTEST.npz",
+        "cache_sha256": "d5a1c9774120dd74afe56d02dcfe24b5c86e46673a10fd2c5017d27856d1ddf7",
+        "cache_reused": false
+      }
     },
-    {
-      "updates": 5000,
-      "PDMS": 90.99026807599043,
-      "means": {
-        "score": 0.9099026807599043,
-        "no_at_fault_collisions": 0.9888852297052527,
-        "drivable_area_compliance": 0.9876502552280586,
-        "time_to_collision_within_bound": 0.9686316482792688,
-        "ego_progress": 0.8360534679961579,
-        "comfort": 0.9998353367363741,
-        "driving_direction_compliance": 0.9823810307920303
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u005000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 10000,
-      "PDMS": 91.34989173702405,
-      "means": {
-        "score": 0.9134989173702405,
-        "no_at_fault_collisions": 0.9885147373620945,
-        "drivable_area_compliance": 0.9895438827597562,
-        "time_to_collision_within_bound": 0.9688786431747077,
-        "ego_progress": 0.8422376602596913,
-        "comfort": 0.9992590153136836,
-        "driving_direction_compliance": 0.9831220154783468
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 20000,
-      "PDMS": 90.86547930770594,
-      "means": {
-        "score": 0.9086547930770594,
-        "no_at_fault_collisions": 0.989173390416598,
-        "drivable_area_compliance": 0.987073933805368,
-        "time_to_collision_within_bound": 0.971266260497283,
-        "ego_progress": 0.8313938806982801,
-        "comfort": 0.9990120204182447,
-        "driving_direction_compliance": 0.9829985180306273
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u020000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 12000,
-      "PDMS": 90.88994717236211,
-      "means": {
-        "score": 0.9088994717236211,
-        "no_at_fault_collisions": 0.9890498929688787,
-        "drivable_area_compliance": 0.9879795817553104,
-        "time_to_collision_within_bound": 0.9701959492837148,
-        "ego_progress": 0.8322769316269122,
-        "comfort": 0.9990943520500576,
-        "driving_direction_compliance": 0.982092870080685
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u012000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 14000,
-      "PDMS": 91.10662196446827,
-      "means": {
-        "score": 0.9110662196446828,
-        "no_at_fault_collisions": 0.9890087271529722,
-        "drivable_area_compliance": 0.9876502552280586,
-        "time_to_collision_within_bound": 0.9711839288654701,
-        "ego_progress": 0.8363171744423478,
-        "comfort": 0.9996706734727482,
-        "driving_direction_compliance": 0.9824221966079367
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u014000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 16000,
-      "PDMS": 91.21475039180305,
-      "means": {
-        "score": 0.9121475039180306,
-        "no_at_fault_collisions": 0.9876090894121522,
-        "drivable_area_compliance": 0.9878972501234975,
-        "time_to_collision_within_bound": 0.9650913881113123,
-        "ego_progress": 0.8453127110005026,
-        "comfort": 0.9991766836818706,
-        "driving_direction_compliance": 0.9818870410011526
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u016000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 18000,
-      "PDMS": 90.92927646571185,
-      "means": {
-        "score": 0.9092927646571185,
-        "no_at_fault_collisions": 0.9843569899555409,
-        "drivable_area_compliance": 0.9878972501234975,
-        "time_to_collision_within_bound": 0.9580931994072123,
-        "ego_progress": 0.846718453001865,
-        "comfort": 0.9995883418409353,
-        "driving_direction_compliance": 0.9784291124650091
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u018000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 22000,
-      "PDMS": 91.1896250707805,
-      "means": {
-        "score": 0.9118962507078049,
-        "no_at_fault_collisions": 0.9894615511279433,
-        "drivable_area_compliance": 0.9893792194961304,
-        "time_to_collision_within_bound": 0.9720895768154125,
-        "ego_progress": 0.8350449155496344,
-        "comfort": 0.9995060102091223,
-        "driving_direction_compliance": 0.9816400461057139
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u022000_NAVTEST/SUMMARY.json"
-    },
-    {
-      "updates": 24000,
-      "PDMS": 91.14697422983254,
-      "means": {
-        "score": 0.9114697422983253,
-        "no_at_fault_collisions": 0.9887617322575334,
-        "drivable_area_compliance": 0.9879795817553104,
-        "time_to_collision_within_bound": 0.9723365717108513,
-        "ego_progress": 0.8367174781324974,
-        "comfort": 0.9984356989955541,
-        "driving_direction_compliance": 0.9825045282397498
-      },
-      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u024000_NAVTEST/SUMMARY.json"
-    }
-  ],
-  "focus_policy_status": "ACTIVE_SAFETY_EP_ONLY",
-  "user_focus_stops": [
-    {
-      "arm": "PPO_SAFETY_LRLOW",
-      "status": "STOPPED_BY_USER_FOCUS_CHANGE",
-      "reason": "用户要求只保留PPO_SAFETY_EP并研究其过程；旧native10k分支不再推进",
-      "native_checkpoint": {
-        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRLOW/checkpoints/update015706_inner2",
-        "updates": 15706,
-        "phase": "INNER_COMMITTED",
-        "next_inner": 2,
-        "files_sha256": "475f6143fac5020063628ef1fa4f513e7f90f5bfbc2593e9dcd1f1c77c96297f"
-      },
-      "native_transport_exited": true,
-      "optimizer_RNG_cursor_pending_rollout_retained": true,
-      "algorithm_failure_inferred": false,
-      "returncode": 0
-    },
-    {
-      "arm": "PPO_SAFETY_LRCOS",
-      "status": "STOPPED_BY_USER_FOCUS_CHANGE",
-      "reason": "用户要求只保留PPO_SAFETY_EP并研究其过程；旧native10k分支不再推进",
-      "native_checkpoint": {
-        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRCOS/checkpoints/update015838_inner2",
-        "updates": 15838,
-        "phase": "INNER_COMMITTED",
-        "next_inner": 2,
-        "files_sha256": "1301179a38a6558ecc0e530a348ec5ea6e767e4a986f7172a72bbb481a36c087"
-      },
-      "native_transport_exited": true,
-      "optimizer_RNG_cursor_pending_rollout_retained": true,
-      "algorithm_failure_inferred": false,
-      "returncode": 0
-    },
-    {
-      "arm": "PPO_SAFETY_DATA",
-      "status": "STOPPED_BY_USER_FOCUS_CHANGE",
-      "reason": "用户要求只保留PPO_SAFETY_EP并研究其过程；旧native10k分支不再推进",
-      "native_checkpoint": {
-        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_DATA/checkpoints/update015883_inner3",
-        "updates": 15883,
-        "phase": "INNER_COMMITTED",
-        "next_inner": 3,
-        "files_sha256": "dc4c8bab5af838c9a0933345efd0e060304103fd3e61b434607632159f245d41"
-      },
-      "native_transport_exited": true,
-      "optimizer_RNG_cursor_pending_rollout_retained": true,
-      "algorithm_failure_inferred": false,
-      "returncode": 0
-    },
-    {
-      "arm": "PPO_SAFETY_LRDATA",
-      "status": "STOPPED_BY_USER_FOCUS_CHANGE",
-      "reason": "用户要求只保留PPO_SAFETY_EP并研究其过程；旧native10k分支不再推进",
-      "native_checkpoint": {
-        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/LR_HISTORYFIX_8a18226/PPO_SAFETY_LRDATA/checkpoints/update014457_inner1",
-        "updates": 14457,
-        "phase": "INNER_COMMITTED",
-        "next_inner": 1,
-        "files_sha256": "13b45098a017e59072168367277e04d832b94667c6dd93fad85d23014611fc55"
-      },
-      "native_transport_exited": true,
-      "optimizer_RNG_cursor_pending_rollout_retained": true,
-      "algorithm_failure_inferred": false,
-      "returncode": 0
-    }
-  ],
-  "zero_longitudinal": {
-    "observed_updates": [
-      1000,
-      5000,
-      10000,
-      12000,
-      14000,
-      16000,
-      18000,
-      20000,
-      22000,
-      24000
-    ],
-    "all_observations_persistent": 133,
-    "ever_zero": 533,
-    "intermittent": 400,
-    "relapsed_scenes": 206,
-    "latest_zero": 270,
-    "post10k": {
-      "ever": 464,
-      "latest_new_zero_relative10k": 65,
-      "latest_repaired_relative10k": 51,
-      "observed_updates": [
-        10000,
-        12000,
-        14000,
-        16000,
-        18000,
-        20000,
-        22000,
-        24000
-      ],
-      "persistent": 144
+    "PPO_SAFETY_FPO_u001000_NAVTEST": {
+      "PDMS": 90.58759841030894,
+      "updates": 1000,
+      "ge92": false,
+      "ge94": false,
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_FPO_u001000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "cf28cdf7495dcdcbbb8913aa6ccb740790cdb1d266933eee4ee360dd0d16f0a4",
+        "summary_seal": "66c7c71793b0b0797edde9babc82ca8908e40e3f3dbb67b67a6fffc1b5729df2",
+        "identity_seal": "cb3d2acb9cbc157c6a1f914c00cbe4a61739088ecff43b77f8140453a20f7bf0",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_FPO_u001000_NAVTEST.npz",
+        "cache_sha256": "043772361e5d46265705952c2f9b3df3f75bb73f2eec280f0e1c48aea6065bc8",
+        "cache_reused": false
+      }
     }
   },
-  "high10k_latest": {
+  "matched_review_progress": {
+    "complete_NAVTEST_contrasts": 5,
+    "complete_TRAIN_contrasts": 5,
+    "expected_each": 15,
+    "complete_new_NAVTEST_models": 2,
+    "expected_new_models": 6
+  },
+  "learning": "one trainingseed42; allfuture scores must be official full12146NAVTEST singleODE10shift5seed2101; TRAIN panel is notheldout",
+  "substantive_findings": [
+    "Safety gains partly from centered normalization and changed safety/progress credit; not uniformly safer",
+    "Actual same-theta comparison changes Memory gradients as well as action LoRA; BF16 separate gradients are not bitwise linear",
+    "P1 andFPO1k total scores below samebudgetSafety; FPO fixedILhigh improves butNAV ILlow regresses",
+    "Third onefactorFPO\u03c3upper1 is active, no completedNAVTEST yet",
+    "OriginalSafety longrun exited0 at31318inner2 after root manual20k/30k allocation review; predeclared35k result not observed",
+    "Fourth fresh q=(5EP+2Comfort)/7 learner actual8rank updates; cap5k gates1/5k",
+    "TRAINzeroaudit distinguishes unexposed, allfail costties, positive stochastic witness butfailedODE, and changingzero population",
+    "DACoccupancy tie-credit remainsCPU-only; noGPUperformanceclaim"
+  ],
+  "generated_utc": "2026-10-31 12:47:16 UTC",
+  "original_SafetyEP_closure": {
+    "schema": "world_root_manual_evidence_allocation_decision_v1",
+    "arm": "PPO_SAFETY_EP",
+    "disposition": "STOP_FUTILITY",
+    "created_unix": 1793450100.7898824,
+    "status": "COOPERATIVE_STOP_REQUESTED",
+    "reason": "Root allocation review: repeated10k-to20k and10k-to30k fullNAV PDMS regressions with paired44-log CI upper<0; at30k no clear NC/DAC/TTC gain, EP lower1.0466pp. Retain best10k and stop this constant-LR continuation to prioritize fresh algorithms toward92.",
+    "decision_type": "manual post-hoc allocation review under user instruction to stop unpromising long runs; NOT satisfaction of original predeclared35k guard",
+    "former35k_review_superseded": true,
+    "observed_gate": 30000,
+    "best_native_updates": 10000,
+    "best_PDMS": 91.34989173702405,
+    "latest_complete_PDMS": 90.99903837095002,
+    "delta_PDMS": -0.35085336607415085,
     "CI95_PDMS": [
-      -1.018054398342197,
-      -0.5645526469141435
+      -0.5945526025665363,
+      -0.14014120342976286
     ],
-    "cohort_definition": "fixed Safety10k score>=.9",
-    "cohort_size": 8850,
-    "components": {
-      "comfort": {
-        "CI95_pp": [
-          -0.23073313548989124,
-          -0.0455009752721081
-        ],
-        "delta_pp": -0.13559322033898305
-      },
-      "drivable_area_compliance": {
-        "CI95_pp": [
-          -0.6150549921093855,
-          -0.24357529184161192
-        ],
-        "delta_pp": -0.4067796610169492
-      },
-      "driving_direction_compliance": {
-        "CI95_pp": [
-          -0.2435211278514008,
-          0.07395345158875165
-        ],
-        "delta_pp": -0.07344632768361581
-      },
-      "ego_progress": {
-        "CI95_pp": [
-          -0.9486793399565933,
-          -0.5255031396238222
-        ],
-        "delta_pp": -0.7176698504602524
-      },
-      "no_at_fault_collisions": {
-        "CI95_pp": [
-          -0.18410923795730733,
-          -0.016060925279500735
-        ],
-        "delta_pp": -0.0903954802259887
-      },
-      "score": {
-        "CI95_pp": [
-          -1.018054398342197,
-          -0.5645526469141435
-        ],
-        "delta_pp": -0.7670140384450677
-      },
-      "time_to_collision_within_bound": {
-        "CI95_pp": [
-          -0.5735939292432511,
-          -0.2776772494898824
-        ],
-        "delta_pp": -0.4180790960451978
-      }
+    "evidence": [
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_30K_PROGRESS_REVIEW_20261031.json",
+      "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_EVIDENCE_REVIEW/GATE_020000.json",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u030000_NAVTEST/SUMMARY.json"
+    ],
+    "evidence_sha256": {
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_30K_PROGRESS_REVIEW_20261031.json": "4084859e59c1615c70fddeca21d87251b2205443d39e829c04ef5e455c0e71db",
+      "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_EVIDENCE_REVIEW/GATE_020000.json": "97cea871712e9f96b707408e41ac456c95f86b4f31257015b034359f65aa71b0",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u030000_NAVTEST/SUMMARY.json": "a69cdd67aa826f0c7ed24dbc1d198da6989f5d5fb7a2239ef39d5a43d21ff787"
     },
-    "delta_PDMS": -0.7670140384450677,
-    "drops_ge10pp": 94,
-    "gains_ge10pp": 0,
-    "high_to_zero": 44,
-    "target_PDMS": 96.11732468197808,
-    "target_zero": 44,
-    "threshold": 0.9,
-    "updates": 24000
+    "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP",
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_EP.yaml",
+    "config_sha256": "20320947b698df80d604255c7b336b3f5a75abbac61edfe68a4b067cfd3aa674",
+    "current_job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to035000_attempt002",
+    "job_launch_sha256": "27a71c4c57807e22646811ed752e0eeb9f2c6cf62c576a613a3c1b41cfe84727",
+    "stop_mode": "cooperative native checkpoint retaining fullAdam/RNG/cursor/pendingrollout; source50k is ceiling",
+    "native_signals": 0,
+    "algorithm_family_rejected": false,
+    "independent_IL_changed": false,
+    "new_fresh_trials_changed": false,
+    "existing32shard28k_evaluation_preserved": true,
+    "new_training_authorized": false,
+    "Test_selection_used": true,
+    "NAVTEST_used_for_training_scene_selection": false
   },
-  "cohort_accounting_latest": {
-    "baseline_updates": 10000,
-    "cohorts": {
-      "fixed10k_high_ge09": {
-        "contribution_to_global_PDMS_delta": -0.5588732290662646,
-        "delta_PDMS_within_cohort": -0.7670140384450677,
-        "new_zero": 44,
-        "repaired_zero": 0,
-        "scenes": 8850
-      },
-      "fixed10k_positive_below09": {
-        "contribution_to_global_PDMS_delta": 0.008852644725418041,
-        "delta_PDMS_within_cohort": 0.03536981014306827,
-        "new_zero": 21,
-        "repaired_zero": 0,
-        "scenes": 3040
-      },
-      "fixed10k_zero": {
-        "contribution_to_global_PDMS_delta": 0.3471030771491041,
-        "delta_PDMS_within_cohort": 16.468413965050853,
-        "new_zero": 0,
-        "repaired_zero": 51,
-        "scenes": 256
-      }
-    },
-    "total_PDMS_delta": -0.20291750719174229,
-    "updates": 24000
-  },
-  "rollout_summary": {
-    "groups": 1280,
-    "candidates": 10240,
-    "PG_zero_groups": 111,
-    "successful_credit_saturation_groups": 110,
-    "all_fail_groups": 8,
-    "canonical_all8zero_groups": 1
-  },
-  "focused_directions": [
-    {
-      "id": "VERIFIED_SUCCESS_MEMORY",
-      "priority": 1,
-      "title_zh": "第一方向：保留当前run已发现的安全进度与高质量模式",
-      "status": "DESIGN_ONLY_NOT_REGISTERED",
-      "single_core_change": "one bounded positive-CFM success-replay objective from CURRENT freshILrun only; unchangedfreshSafetyPG/anchor/sampler/LR"
-    },
-    {
-      "id": "FLOW_ENDPOINT_RATIO",
-      "priority": 2,
-      "title_zh": "解决更新目标错配：逐MC CFM ratio的普通PPO",
-      "status": "CPU_LOSS_PROTOTYPE_ONLY_FORMAL_SCALE_UNREGISTERED",
-      "single_core_change": "replace PG estimator only: rho_im=exp(ell_behavior_old_im-ell_current_im); ordinaryPPOclip perMC; noASPO"
-    },
-    {
-      "id": "FAILURE_CREDIT_WHEN_IDENTIFIABLE",
-      "priority": 3,
-      "title_zh": "条件方向：少量全失败组的可辨识信用与见证缺口",
-      "status": "LOW_FREQUENCY_CPU_AUDIT_FIRST_NOT_REGISTERED",
-      "single_core_change": "futureonly: changeallfailcreditforonevalidatedevent/metric-Pareto distinction; mixed/allfeasibleAsafe+AEP unchanged; noextraexplorationorLRchange"
-    },
-    {
-      "id": "VISIBLE_CONDITION_GROUNDING",
-      "priority": 4,
-      "title_zh": "有条件推进：保住当前可见的场景条件表征",
-      "status": "CPU_LABEL_AND_INFORMATION_AUDIT_BEFORE_ANY_PILOT",
-      "single_core_change": "conditionalfuturepilot: one train-only current-condition supervision loss onexistingMemory; noextraactororacleinput/noQwenunfreeze"
-    }
-  ],
-  "directions_seal": "80453e82aae446906f476635029aa4496514e501950f968f4bd1e1686462e1ab",
-  "hypotheses_are_not_causal_conclusions": true,
-  "historical_complete_NAVTEST": {
-    "NFT_FULL": [
-      {
-        "updates": 1000,
-        "PDMS": 88.76282705735342,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/NFT_FULL_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 88.83565202273977,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/NFT_FULL_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 88.75750882005109,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/NFT_FULL_u010000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 20000,
-        "PDMS": 88.72132182098154,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/NFT_FULL_u020000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_FULL": [
-      {
-        "updates": 1000,
-        "PDMS": 90.43253691024785,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.58224721647319,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 91.01948815223066,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 12000,
-        "PDMS": 90.66092757632998,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u012000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 20000,
-        "PDMS": 90.79733531090675,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u020000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 35000,
-        "PDMS": 90.79828611055491,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u035000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_ADAPTIVE": [
-      {
-        "updates": 1000,
-        "PDMS": 90.32274973270987,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.73931139174515,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 90.81917046555932,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u010000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 20000,
-        "PDMS": 90.85681760078644,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u020000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 27000,
-        "PDMS": 90.40162913657045,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u027000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_HARD": [
-      {
-        "updates": 1000,
-        "PDMS": 90.37963115544241,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_HARD_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.85443574324304,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_HARD_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 90.73559499508066,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_HARD_u010000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "CISPO_FULL": [
-      {
-        "updates": 1000,
-        "PDMS": 90.48458442536861,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/CISPO_FULL_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.55702867405029,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/CISPO_FULL_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 90.93040007592748,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/CISPO_FULL_u010000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 20000,
-        "PDMS": 90.80126754458996,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/CISPO_FULL_u020000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_BATCHSTD": [
-      {
-        "updates": 1000,
-        "PDMS": 90.53321285214939,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_BATCHSTD_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.5816311696196,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_BATCHSTD_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 91.15385857902778,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_BATCHSTD_u010000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 12000,
-        "PDMS": 90.62109463674528,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_BATCHSTD_u012000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 20000,
-        "PDMS": 90.81258213537441,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_BATCHSTD_u020000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_SAFE_COMFORT": [
-      {
-        "updates": 1000,
-        "PDMS": 90.45746312778724,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.66825731961067,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 91.07013032146756,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u010000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 20000,
-        "PDMS": 90.95077020362523,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u020000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 35000,
-        "PDMS": 90.81620515847517,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u035000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_ANCHOR40": [
-      {
-        "updates": 1000,
-        "PDMS": 90.55744212936303,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.46391417206263,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 91.05431708074612,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u010000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 20000,
-        "PDMS": 90.68470221422872,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u020000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_MEMORYLR20": [
-      {
-        "updates": 1000,
-        "PDMS": 90.4633189284479,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.46100706939573,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u005000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 10000,
-        "PDMS": 90.85882252418371,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u010000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_PREF_REPLAY": [
-      {
-        "updates": 1000,
-        "PDMS": 90.37317415544773,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_REPLAY_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.54610697219195,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_REPLAY_u005000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_PREF_CFM": [
-      {
-        "updates": 1000,
-        "PDMS": 90.39363672039357,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.39983099079379,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u005000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_LASTDET": [
-      {
-        "updates": 1000,
-        "PDMS": 88.87339559951937,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_LASTDET_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 88.72017794897997,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_LASTDET_u005000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_NOISE03": [
-      {
-        "updates": 1000,
-        "PDMS": 89.00062813755586,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_NOISE03_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 90.14266867648708,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_NOISE03_u005000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_RESCUE_REPLAY": [
-      {
-        "updates": 1000,
-        "PDMS": 90.12293237323514,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 88.01667850294396,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_RESCUE_CFM": [
-      {
-        "updates": 1000,
-        "PDMS": 90.00854847562158,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_CFM_u001000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 5000,
-        "PDMS": 87.84041829657772,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_CFM_u005000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_SAFETY_DATA": [
-      {
-        "updates": 12000,
-        "PDMS": 90.94896542131083,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u012000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 14000,
-        "PDMS": 91.08105265326283,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u014000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_SAFETY_LRCOS": [
-      {
-        "updates": 12000,
-        "PDMS": 90.82003334799182,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u012000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 14000,
-        "PDMS": 91.05254280072845,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u014000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_SAFETY_LRDATA": [
-      {
-        "updates": 12000,
-        "PDMS": 91.0709378946058,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRDATA_u012000_NAVTEST/SUMMARY.json"
-      }
-    ],
-    "PPO_SAFETY_LRLOW": [
-      {
-        "updates": 12000,
-        "PDMS": 91.04153469704774,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u012000_NAVTEST/SUMMARY.json"
-      },
-      {
-        "updates": 14000,
-        "PDMS": 91.0770796561419,
-        "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u014000_NAVTEST/SUMMARY.json"
-      }
-    ]
-  },
-  "watcher_health": {
-    "schema": "report_watcher_health_v1",
-    "observed_at": "2026-10-31 08:42:18 UTC",
-    "watcher_pid": 1859713,
-    "watcher_start_ticks": 1476961373,
-    "status": "RUNNING",
-    "last_actual_watcher_render": {
-      "status": "RENDERED",
-      "report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
-      "runs": 21,
-      "complete_results": 147,
-      "warnings": [],
-      "generated_utc": "2026-10-31 08:42:16 UTC"
-    },
-    "last_trigger": {
-      "kind": "owner_state_event",
-      "at": "2026-10-31 08:42:13 UTC",
-      "events": [
-        {
-          "kind": "report_maintenance_request",
-          "source": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/refresh_request.json",
-          "id": "SAFETY_FOCUS_RENDER_AND_WATCHER_RECOVERY_20261031T0841",
-          "scientific_result": false,
-          "reason": "Safety-only最终24k诊断与few freshIL方向上线；原watcher真实健康验证及历史错误归档"
-        }
-      ],
-      "rendered_utc": "2026-10-31 08:42:16 UTC"
-    },
-    "artifact_render": {
-      "status": "RENDERED",
-      "report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
-      "runs": 21,
-      "complete_results": 147,
-      "warnings": [],
-      "generated_utc": "2026-10-31 08:42:16 UTC"
-    },
-    "regular_interval_seconds": 1800,
-    "next_regular_utc": "2026-10-31 09:00:00 UTC",
-    "error_classification": "HISTORICAL_ERROR_RECOVERED",
-    "historical_error_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/error_history/b1348c4bb94fa660cbea230e7c8faa81024b3b07450de54fbc41a4d27f1df1fd.json",
-    "interpretation": "The existing long-running watcher retains historical error text in memory; current status and latest successful render determine health. No watcher restart.",
-    "verified_original_process": true,
-    "verified_maintenance_trigger": "SAFETY_FOCUS_RENDER_AND_WATCHER_RECOVERY_20261031T0841",
-    "recovery_verified_at_unix": 1793436170.4428716,
-    "extra_watchers_started": false
+  "latest_complete_original_SafetyEP_PDMS": 90.99903837095002,
+  "active_new_native": 4,
+  "mirror_files_sha256": {
+    "reporting/render_report.py": "f0252693f3dadf74f2fad0c5ac19192d3ad51fbc24171fae9e53374511aa19ba",
+    "reporting/safety_focus_report.py": "da97f0b4fcb9ac1d40f6c6afcc83018ca8472985f4a84031220ddb3a683dd47d",
+    "reporting/REPORT_CONFIG.json": "8bd765052ef216a766b5b49a3acef297211e6f400dbe5fead999b5a30d3cd20d",
+    "reporting/READONLY_RL_STATUS.json": "baa8504b5a0286aa866bde4ec9bb768b1a56dcfcc3c8397bbecb4f06da367109",
+    "report.html": "2ffac97803615bda0781229f336362c35bb651ec6db839abd00d780b2ddff62b",
+    "reporting/figures/safety_focus_score.svg": "70a7d3d3290063371e7d64a8fab1cb6412939e1a4ef0d5cb895ad27cefca4833",
+    "reporting/figures/safety_focus_score.png": "8cdfcb00ad821acb8547e23544b9a620680d7f29098fe80bf02fbf401d5243c1",
+    "reporting/figures/safety_focus_score.pdf": "5e816a7dfc8b9b16a32d92fb22bf7482d066ad3442adf98f68d42ab68c7ea1a3",
+    "reporting/figures/safety_focus_components.svg": "39da45bd64cf12455d529d4a5f246f936d2565541dcefab8df545a432de51d1d",
+    "reporting/figures/safety_focus_components.png": "68f92fbb71b618e26955fa92bf7830c8c92d922a0904874b2c12614b518c6c85",
+    "reporting/figures/safety_focus_components.pdf": "209ef5495e5cde0509f9f6138535da787669c56ef9e059f6cd6de37073618d8f",
+    "reporting/figures/safety_focus_zeros.svg": "0c7a82a8456e846e778a1944a5faad0328ca6eff0a2938be326c57e78b5b6592",
+    "reporting/figures/safety_focus_zeros.png": "eb20cda40885318c21015a2c17f92b9ec3148a5920f46483da698f45554f43d8",
+    "reporting/figures/safety_focus_zeros.pdf": "84b44d019da843e95021757d252216fe5602dcc32d62fee243a977db9b20b3ce",
+    "reporting/figures/safety_policy_case_safe_ep_gain.svg": "1972fed43b8a0fe3bfe6a0d3a58810dca1f128ab59c2b597055e2ce19b9cb68a",
+    "reporting/figures/safety_policy_case_safe_ep_gain.png": "a24ec4b16c33e7dde8e37f9ac8a3dcb52ff6ec12f2853481652cac302b9e63d2",
+    "reporting/figures/safety_policy_case_zero_repair.svg": "abecfa0bb59ea06205f551bba1660d2cb646df7f078c77fcc1712f2e90e83990",
+    "reporting/figures/safety_policy_case_zero_repair.png": "c672dd3d0e9be988abee215a829e81ad431f7c9ae65379a1648cbe5420d49efa",
+    "reporting/figures/safety_policy_case_high_to_zero.svg": "872b49820a73f13f259f5074feb56d66c52f8edc18926c368d73f9fc83df5f06",
+    "reporting/figures/safety_policy_case_high_to_zero.png": "63ea34e1f733a3b407a9a23d1483f9f6362b071aee652b7f9d8c15775c46029e",
+    "reporting/figures/safety_policy_case_persistent_zero.svg": "54b863d330ef1bb61e2c3f2d4f7b7bb38d684b86185f2b47505e8bfb557543e8",
+    "reporting/figures/safety_policy_case_persistent_zero.png": "adbb04c3ab18694e25ebfd46c3aa5584a39437aeb4ca605ed50bbaf01a928d87"
   }
 }

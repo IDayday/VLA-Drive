@@ -1,0 +1,266 @@
+{
+  "schema": "report_readonly_RL_status_v1",
+  "observed_utc": "2026-10-31 12:47:16 UTC",
+  "controllers": {
+    "CAMPAIGN": {
+      "pid": 2484126,
+      "start_ticks": 1488231785,
+      "exact_process_alive": false,
+      "state_status": "COMPLETE_WITH_RESEARCH_STOPS",
+      "state_updated_at": "2026-10-31T12:35:14.705740+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/STATE.json"
+    },
+    "SAFETY_FRESH_PAIR": {
+      "pid": 2484987,
+      "start_ticks": 1488254371,
+      "exact_process_alive": true,
+      "state_status": "RUNNING_FRESH_IL70_SAFETY_PAIR",
+      "state_updated_at": "2026-10-31T11:40:24.308454+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR/STATE.json"
+    },
+    "FPO_FULLTIME": {
+      "pid": 2511001,
+      "start_ticks": 1488727054,
+      "exact_process_alive": true,
+      "state_status": "RUNNING_FINITE_FRESH_TRIAL",
+      "state_updated_at": "2026-10-31T12:45:44.051832+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/FPO_FULLTIME/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/FPO_FULLTIME/STATE.json"
+    },
+    "SAFETY_FRESH_PAIR_FUTILITY_GUARD": {
+      "pid": 2492686,
+      "start_ticks": 1488399481,
+      "exact_process_alive": true,
+      "state_status": "WATCHING_ACTUAL_COMPLETE_EVIDENCE",
+      "state_updated_at": "2026-10-31T12:45:44.047606+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR_FUTILITY_GUARD/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR_FUTILITY_GUARD/STATE.json"
+    },
+    "NAVTEST_CADENCE": {
+      "pid": 2485049,
+      "start_ticks": 1488255364,
+      "exact_process_alive": true,
+      "state_status": "WATCHING",
+      "state_updated_at": "2026-10-31T12:45:44.056900+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/STATE.json"
+    },
+    "SAFETY_EVIDENCE_REVIEW": {
+      "pid": 2515089,
+      "start_ticks": 1488801775,
+      "exact_process_alive": false,
+      "state_status": "COMPLETE_SUPERSEDED_BY_ROOT_30K_ALLOCATION",
+      "state_updated_at": "2026-10-31T06:28:24.992197+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_EVIDENCE_REVIEW/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_EVIDENCE_REVIEW/STATE.json"
+    },
+    "SAFETY28_EXPORT_RECOVERY": {
+      "pid": 2516763,
+      "start_ticks": 1488819454,
+      "exact_process_alive": false,
+      "state_status": "COMPLETE_ONE_LABEL_RECOVERY",
+      "state_updated_at": "2026-10-31T12:42:18.541736+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY28_EXPORT_RECOVERY/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY28_EXPORT_RECOVERY/STATE.json"
+    },
+    "SAFETY_FEASIBLE_SCORE": {
+      "pid": 2523473,
+      "start_ticks": 1488910340,
+      "exact_process_alive": true,
+      "state_status": "RUNNING_FINITE_FRESH_TRIAL",
+      "state_updated_at": "2026-10-31T12:41:30.456707+00:00",
+      "observed_utc": "2026-10-31 12:47:12 UTC",
+      "OWNER": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FEASIBLE_SCORE/OWNER.json",
+      "STATE": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FEASIBLE_SCORE/STATE.json"
+    }
+  },
+  "learners": {
+    "PPO_SAFETY_EP": {
+      "host": "training-vlawm-tsinghua-zt3",
+      "worker_status": "EXITED",
+      "journal_updates": 31318,
+      "journal_ranks": 8,
+      "published_native_progress": {
+        "updates": 31318,
+        "collections": 7830,
+        "raw_scene_exposures": 62640,
+        "new_candidates": 501120,
+        "next_inner": 2,
+        "phase": "INNER_COMMITTED",
+        "RL_updates_local": 28326,
+        "anchor_only_updates_local": 2992,
+        "scene_cursor": 62640,
+        "seconds_rollout": 9147.864628574112,
+        "seconds_scoring_wait": 1133.0019025749061,
+        "seconds_scoring_cpu": 508.54016360943206,
+        "seconds_old_probability": 2408.9693330880255,
+        "seconds_update": 33867.83918960113,
+        "status": "PAUSED",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update031318_inner2",
+        "host": "training-vlawm-tsinghua-zt3",
+        "invocation": "869a21dfb7444087925f1a05b75ca093",
+        "invocation_start_update": 28000,
+        "wall_seconds_this_invocation": 6311.085216427222
+      },
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to035000_attempt002"
+    },
+    "PPO_SAFETY_SUCCESS_MEMORY": {
+      "host": "training-vlawm-zt",
+      "worker_status": "RUNNING",
+      "journal_updates": 4560,
+      "journal_ranks": 8,
+      "published_native_progress": {
+        "updates": 4500,
+        "collections": 1125,
+        "raw_scene_exposures": 9000,
+        "new_candidates": 72000,
+        "next_inner": 0,
+        "phase": "READY",
+        "RL_updates_local": 4100,
+        "anchor_only_updates_local": 400,
+        "scene_cursor": 9000,
+        "seconds_rollout": 1181.7587835863233,
+        "seconds_scoring_wait": 157.81249350309372,
+        "seconds_scoring_cpu": 70.06311964988708,
+        "seconds_old_probability": 312.3999449275434,
+        "seconds_update": 4472.721354722977,
+        "success_memory_summary": {
+          "schema": "world_online_verified_success_memory_v1",
+          "rank": 0,
+          "collections": 1125,
+          "bank_size": 1024,
+          "bank_distinct_tokens": 1024,
+          "bank_EP_bins": {
+            "ge075_lt09": 251,
+            "ge05_lt075": 122,
+            "ge1": 478,
+            "ge09_lt1": 173
+          },
+          "lifetime_winner_EP_bins": {
+            "ge1": 510,
+            "ge075_lt09": 273,
+            "ge05_lt075": 129,
+            "ge09_lt1": 180
+          },
+          "verified_winners_seen": 1092,
+          "below_EP_threshold_groups": 8,
+          "no_strict_success_groups": 25,
+          "evictions": 68,
+          "skip_counts": {
+            "period_not_due": 844
+          },
+          "selected_aux_collections": 281,
+          "selected_distinct_aux_scenes": 204,
+          "completed_aux_optimizer_updates": 1124,
+          "completed_distinct_aux_scenes": 204,
+          "RNG_sha256": "b3fd91c5a1f47b2f4a43adef0d2e70e1e17518596ab5fd4ec00798849018c940",
+          "ordered_bank_ids_sha256": "3aaff4f8ebc601945a80b120ef78bfde77eb2d7533b0f33f451088d534ef0bc1",
+          "pending_aux_sha256": null,
+          "exposure_units": "selection once percollection;actual completed CFM updates account for saved next_inner;lowEP skipped by threshold is not a driving failure"
+        },
+        "status": "RUNNING",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_SUCCESS_MEMORY/checkpoints/update004500_inner0",
+        "host": "training-vlawm-zt",
+        "invocation": "202ced855d584fa2bc6bbabfefa14f9f",
+        "invocation_start_update": 1000,
+        "wall_seconds_this_invocation": 5300.178932521492
+      },
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_SUCCESS_MEMORY/formal_to005000_attempt001"
+    },
+    "PPO_SAFETY_FPO": {
+      "host": "training-vlawm-tsinghua-zt5",
+      "worker_status": "RUNNING",
+      "journal_updates": 3661,
+      "journal_ranks": 8,
+      "published_native_progress": {
+        "updates": 3500,
+        "collections": 875,
+        "raw_scene_exposures": 7000,
+        "new_candidates": 56000,
+        "next_inner": 0,
+        "phase": "READY",
+        "RL_updates_local": 3208,
+        "anchor_only_updates_local": 292,
+        "scene_cursor": 7000,
+        "seconds_rollout": 859.6061735681724,
+        "seconds_scoring_wait": 122.29745263978839,
+        "seconds_scoring_cpu": 54.83578241732903,
+        "seconds_old_probability": 229.34091021982022,
+        "seconds_update": 4643.506732846843,
+        "status": "RUNNING",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_FPO/checkpoints/update003500_inner0",
+        "host": "training-vlawm-tsinghua-zt5",
+        "invocation": "d4d644d3623b4de8a2b4d04209b289be",
+        "invocation_start_update": 1000,
+        "wall_seconds_this_invocation": 4683.106231960934
+      },
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_FPO/formal_to005000_attempt001"
+    },
+    "PPO_FPO_FULLTIME": {
+      "host": "training-vlawm-zt",
+      "worker_status": "RUNNING",
+      "journal_updates": 1008,
+      "journal_ranks": 8,
+      "published_native_progress": {
+        "updates": 1000,
+        "collections": 250,
+        "raw_scene_exposures": 2000,
+        "new_candidates": 16000,
+        "next_inner": 0,
+        "phase": "READY",
+        "RL_updates_local": 940,
+        "anchor_only_updates_local": 60,
+        "scene_cursor": 2000,
+        "seconds_rollout": 277.6703764013946,
+        "seconds_scoring_wait": 38.16071826592088,
+        "seconds_scoring_cpu": 16.091741356998682,
+        "seconds_old_probability": 72.67907499708235,
+        "seconds_update": 1477.6274419669062,
+        "status": "PAUSED",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FPO_FULLTIME_128a843/PPO_FPO_FULLTIME/checkpoints/update001000_inner0",
+        "host": "training-vlawm-zt",
+        "invocation": "22027dd73df345f89bf20270b0b09589",
+        "invocation_start_update": 0,
+        "wall_seconds_this_invocation": 2065.4199530575424
+      },
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_FPO_FULLTIME/formal_to005000_attempt001"
+    },
+    "PPO_SAFETY_FEASIBLE_SCORE": {
+      "host": "training-vlawm-tsinghua-zt3",
+      "worker_status": "RUNNING",
+      "journal_updates": 144,
+      "journal_ranks": 8,
+      "published_native_progress": {},
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_FEASIBLE_SCORE/formal_to001000_attempt001"
+    }
+  },
+  "latest_complete_NAVTEST": {
+    "PPO_SAFETY_EP": {
+      "updates": 30000,
+      "PDMS": 90.99903837095002,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u030000_NAVTEST/SUMMARY.json"
+    },
+    "PPO_SAFETY_FEASIBLE_SCORE": null,
+    "PPO_SAFETY_FPO": {
+      "updates": 1000,
+      "PDMS": 90.58759841030873,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_FPO_u001000_NAVTEST/SUMMARY.json"
+    },
+    "PPO_FPO_FULLTIME": null,
+    "PPO_SAFETY_SUCCESS_MEMORY": {
+      "updates": 1000,
+      "PDMS": 90.59887715956741,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_SUCCESS_MEMORY_u001000_NAVTEST/SUMMARY.json"
+    }
+  },
+  "GPU_or_owner_mutations": false
+}

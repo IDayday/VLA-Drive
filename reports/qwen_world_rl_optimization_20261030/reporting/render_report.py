@@ -253,6 +253,26 @@ def run_snapshot(run: dict, warnings: list, inputs: list, *, registry_mtime: flo
     return snapshot
 
 
+def readonly_controller_status(root: Path, warnings: list, inputs: list) -> dict:
+    """Local CPU owner identity only; no SSH, signals or controller mutations."""
+    scopes=['CAMPAIGN','SAFETY_FRESH_PAIR','FPO_FULLTIME','SAFETY_FRESH_PAIR_FUTILITY_GUARD',
+            'NAVTEST_CADENCE','SAFETY_EVIDENCE_REVIEW','SAFETY28_EXPORT_RECOVERY','SAFETY_FEASIBLE_SCORE']
+    result={}
+    for scope in scopes:
+        folder=root/'owners'/scope
+        owner=read_json(folder/'OWNER.json',warnings,inputs) or {}
+        state=read_json(folder/'STATE.json',warnings,inputs) or {}
+        alive=False
+        try:
+            stat=Path(f"/proc/{owner['pid']}/stat").read_text().split()
+            alive=int(stat[21])==int(owner['start_ticks'])and stat[2]not in('Z','X')
+        except(OSError,ValueError,KeyError,IndexError):pass
+        result[scope]=dict(pid=owner.get('pid'),start_ticks=owner.get('start_ticks'),
+            exact_process_alive=alive,state_status=state.get('status'),state_updated_at=state.get('updated_at'),
+            observed_utc=utc(),OWNER=str(folder/'OWNER.json'),STATE=str(folder/'STATE.json'))
+    return result
+
+
 def evaluation_entries(document: Any, *, default_arm: str | None = None) -> list[dict]:
     """Expand controller results/stage nodes without treating progress as scores."""
     entries=[]
@@ -268,14 +288,14 @@ def evaluation_entries(document: Any, *, default_arm: str | None = None) -> list
             entry.setdefault('label',spec.get('label'))
             entry.setdefault('cohort',spec.get('cohort'))
             entry['summary']=summary
-            if default_arm:entry.setdefault('arm',default_arm)
+            if default_arm and not entry.get('label'):entry.setdefault('arm',default_arm)
             entries.append(entry)
         if (value.get('cohort') in ('TRAIN_DIAGNOSTIC','NAVTEST','DEV','RL_DEV')
                 and isinstance(value.get('label'),str) and isinstance(value.get('output'),str)):
             entry=dict(label=value['label'],cohort=value['cohort'],evaluation=value['output'],
                        evidence=str(Path(value['output'])/'SUMMARY.json'),status='PENDING',
                        manifest=value.get('manifest'),evaluation_spec=value)
-            if default_arm:entry['arm']=default_arm
+            if default_arm and not entry.get('label'):entry['arm']=default_arm
             entries.append(entry)
         for key,node in value.items():
             if key not in ('summary','command','error','traceback'):walk(node)
@@ -336,6 +356,15 @@ def normalize_result(row: dict, warnings: list, inputs: list) -> dict:
         if result.get('expected_scenes') is None and isinstance(manifest,str):
             value=read_json(Path(manifest),warnings,inputs)
             if isinstance(value,dict):result['expected_scenes']=value.get('count',len(value.get('tokens',[])))
+    # A shared multi-arm owner is visited once for each run. Its current run is
+    # only an administrative context, never the scientific identity of all its
+    # summaries. The sealed evaluation's standard label is authoritative.
+    evaluation_name=Path(result['evaluation']).name if isinstance(result.get('evaluation'),str)else ''
+    prefix,separator,suffix=evaluation_name.rpartition('_u')
+    update_token=suffix.split('_',1)[0]
+    if separator and len(update_token)==6 and update_token.isdigit():
+        result['arm_identity_default_overridden']=bool(result.get('arm')and result['arm']!=prefix)
+        result.update(arm=prefix,label=evaluation_name,arm_identity_source='sealed_summary_evaluation_label')
     label=result.get('label')
     if not result.get('arm'):
         if isinstance(label,str) and '_u' in label:
@@ -451,11 +480,14 @@ def flatten_resources(data: Any) -> list[dict]:
 def load_snapshot(root: Path) -> dict:
     warnings, inputs = [], []
     report_watcher=read_json(root/'reporting'/'OWNER.json',warnings,inputs) or {}
+    controller_status=readonly_controller_status(root,warnings,inputs)
     registration = read_json(root/'REGISTRATION.json', warnings, inputs) or {}
     runs_input = read_json(root/'RUNS.json', warnings, inputs) or {}
     state = read_json(root/'STATE.json', warnings, inputs) or {}
     campaign = read_json(root/'owners'/'CAMPAIGN'/'STATE.json',warnings,inputs) or {}
     lr_study_state=read_json(root/'owners'/'LR_STUDY'/'STATE.json',warnings,inputs) or {}
+    fresh_pair_state=read_json(root/'owners'/'SAFETY_FRESH_PAIR'/'STATE.json',warnings,inputs) or {}
+    fulltime_state=read_json(root/'owners'/'FPO_FULLTIME'/'STATE.json',warnings,inputs) or {}
     run_map = {}
     # RUNS is the live dispatch registry. A historical STATE.runs must never
     # restore old output paths/hosts/status over its newer dispatch records.
@@ -466,6 +498,10 @@ def load_snapshot(root: Path) -> dict:
     for arm,node in lr_study_state.get('runs',{}).items():
         run_map[arm]={**run_map.get(arm,{}),**node,'id':arm,'root':node.get('run_root')or run_map.get(arm,{}).get('root')}
         if node.get('stage_target_updates'):run_map[arm]['stage_budget_updates']=node['stage_target_updates']
+    for trial_state in (fresh_pair_state,fulltime_state):
+        for arm,node in trial_state.get('runs',{}).items():
+            run_map[arm]={**run_map.get(arm,{}),**node,'id':arm,'root':node.get('run_root')or run_map.get(arm,{}).get('root')}
+            if node.get('stage_target_updates'):run_map[arm]['stage_budget_updates']=node['stage_target_updates']
     # The campaign's current owner state is dynamic; registration identity
     # remains sourced from RUNS, while newer stage fields may advance here.
     for record in object_rows(campaign.get('runs',[]),'runs'):
@@ -478,6 +514,7 @@ def load_snapshot(root: Path) -> dict:
     result_rows = object_rows(registration.get('results', []), 'results')+object_rows(state.get('results', []), 'results')+object_rows(results_input, 'results')
     result_rows += evaluation_entries(campaign)
     result_rows += evaluation_entries(lr_study_state)
+    result_rows += evaluation_entries(fresh_pair_state)+evaluation_entries(fulltime_state)
     baseline_spec=read_json(root/'IL_BASELINE_EVALUATION.json',warnings,inputs)
     if baseline_spec:result_rows+=evaluation_entries(baseline_spec)
     train4096_state=read_json(root/'owners'/'TRAIN4096'/'STATE.json',warnings,inputs) or {}
@@ -503,6 +540,25 @@ def load_snapshot(root: Path) -> dict:
             worker_status=receipt.get('status','PENDING');job_counts[worker_status]=job_counts.get(worker_status,0)+1
         cadence_evaluations[label]={key:node.get(key)for key in ('arm','updates','status','checkpoint','summary')}
         cadence_evaluations[label].update(world=spec.get('world'),worker_counts=job_counts,spec=spec)
+    # A reviewed independent recovery supersedes one stale failure in the live
+    # cadence's memory. Read its real spec/results without editing that owner.
+    recovery28=read_json(root/'owners'/'SAFETY28_EXPORT_RECOVERY'/'STATE.json',warnings,inputs) or {}
+    result_rows+=evaluation_entries(recovery28)
+    label28='PPO_SAFETY_EP_u028000_NAVTEST'
+    spec28=read_json(root/'evaluation_specs'/(label28+'.json'),warnings,inputs) or {}
+    if spec28:
+        result_rows+=evaluation_entries(spec28)
+        recovered=recovery28.get('evaluations',{}).get(label28,{})
+        counts={}
+        for job in spec28.get('jobs',[]):
+            folder=Path(job);terminal_path=folder/'RESULT.json'
+            receipt=read_json(terminal_path if terminal_path.exists()else folder/'RUNNING.json',warnings,inputs) or {}
+            state28=('COMPLETE'if receipt.get('returncode')==0 else receipt.get('status','PENDING'))
+            counts[state28]=counts.get(state28,0)+1
+        cadence_evaluations[label28]=dict(arm='PPO_SAFETY_EP',updates=28000,
+            status=recovered.get('status','RECOVERY_PUBLISHED_SPEC'),checkpoint=spec28.get('rl_checkpoint'),
+            summary=recovered.get('summary'),world=spec28.get('world'),worker_counts=counts,spec=spec28,
+            superseded_historical_failure=True,recovery_owner=str(root/'owners'/'SAFETY28_EXPORT_RECOVERY'))
     cadence=dict(status='ACTIVE'if cadence_alive and cadence_state.get('status')not in ('FAILED','STOPPED','COMPLETE')else cadence_state.get('status','AWAITING_OWNER_RECEIPT'),
         owner=cadence_owner,launch=cadence_launch,identity_matches=cadence_identity,process_matches=cadence_alive,
         approved_arms=cadence_state.get('approved_arms',{}),evaluations=cadence_evaluations,policy=cadence_policy,updated_at=cadence_state.get('updated_at'))
@@ -510,9 +566,10 @@ def load_snapshot(root: Path) -> dict:
     for run in runs:
         owner=run.get('owner_receipt',{})
         if isinstance(owner,dict):
+            shared=isinstance(owner.get('runs'),dict)and len(owner['runs'])>1
             for row in object_rows(owner.get('results',[]),'results'):
-                result_rows.append(dict(arm=run['id'],**row) if 'arm' not in row else row)
-            result_rows+=evaluation_entries(owner,default_arm=run['id'])
+                result_rows.append(dict(arm=run['id'],**row) if not shared and 'arm'not in row and not row.get('label')else row)
+            result_rows+=evaluation_entries(owner,default_arm=None if shared else run['id'])
     results = [normalize_result(v, warnings, inputs) for v in result_rows]
     result_map = {}
     for row in results:
@@ -570,7 +627,40 @@ def load_snapshot(root: Path) -> dict:
     new_pilot_matched_review=read_json(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json',warnings,inputs) or {}
     completed_pilot_reviews=read_json(root/'analysis'/'COMPLETED_5K_PILOT_REVIEWS_20261031.json',warnings,inputs) or {}
     safety_process=read_json(root/'analysis'/'SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json',warnings,inputs) or {}
+    safety_30k_review=read_json(root/'analysis'/'SAFETY_EP_30K_PROGRESS_REVIEW_20261031.json',warnings,inputs) or {}
     safety_directions=read_json(root/'analysis'/'SAFETY_EP_FOCUSED_DIRECTIONS_20261031.json',warnings,inputs) or {}
+    safety_mechanism=read_json(root/'analysis'/'SAFETY_EP_VS_PPO_MECHANISM_20261031.json',warnings,inputs) or {}
+    flow_direct_proximal=read_json(root/'analysis'/'FLOW_DIRECT_PROXIMAL_RESEARCH_20261031.json',warnings,inputs) or {}
+    frozen_lr_review=read_json(root/'analysis'/'FROZEN_LR_EXISTING_EVIDENCE_REVIEW_20261031.json',warnings,inputs) or {}
+    llm_trick_transfer=read_json(root/'analysis'/'LLM_RL_TRICK_TRANSFER_CHECK_20261031.json',warnings,inputs) or {}
+    safety_gradient_probe=read_json(root/'analysis'/'SAFETY_EP_NATIVE28K_GRADIENT_PROBE_20261031'/'SUMMARY.json',warnings,inputs) or {}
+    safety_credit_gradient=read_json(root/'analysis'/'SAFETY_CREDIT_GRADIENT_REPLAY_INTERPRETATION_20261031.json',warnings,inputs) or {}
+    safety_policy_cases=read_json(root/'analysis'/'SAFETY_EP_POLICY_CASES_20261031.json',warnings,inputs) or {}
+    safety_normalization=read_json(root/'analysis'/'SAFETY_NORMALIZATION_EXISTING_ABLATION_20261031.json',warnings,inputs) or {}
+    safety_fresh_pair={key:read_json(root/path,warnings,inputs) or {}for key,path in {
+        'policy':'SAFETY_RL_92_TARGET_POLICY_20261031.json',
+        'registration':'EXPERIMENT_SAFETY_FRESH_PAIR_REGISTRATION_20261031.json',
+        'startup':'analysis/SAFETY_FRESH_PAIR_NATIVE_STARTUP_20261031.json',
+        'process_early':'analysis/SAFETY_FRESH_PAIR_PROCESS_EARLY_20261031.json',
+        'owner':'owners/SAFETY_FRESH_PAIR/OWNER.json',
+        'launch':'owners/SAFETY_FRESH_PAIR/LAUNCH.json',
+        'matched_review':'analysis/SAFETY_FRESH_PAIR_MATCHED_REVIEW_20261031.json'}.items()}
+    safety_fresh_pair['state']=fresh_pair_state
+    fpo_fulltime={key:read_json(root/path,warnings,inputs) or {}for key,path in {
+        'registration':'EXPERIMENT_FPO_FULLTIME_REGISTRATION_20261031.json',
+        'owner':'owners/FPO_FULLTIME/OWNER.json',
+        'launch':'owners/FPO_FULLTIME/LAUNCH.json',
+        'matched_review':'analysis/FPO_FULLTIME_MATCHED_REVIEW_20261031.json',
+        'time_coverage':'analysis/FPO_TIME_COVERAGE_DESIGN_20261031.json'}.items()}
+    fpo_fulltime['state']=fulltime_state
+    feasible_score={key:read_json(root/path,warnings,inputs) or {}for key,path in {
+        'registration':'EXPERIMENT_SAFETY_FEASIBLE_SCORE_REGISTRATION_20261031.json',
+        'owner':'owners/SAFETY_FEASIBLE_SCORE/OWNER.json',
+        'state':'owners/SAFETY_FEASIBLE_SCORE/STATE.json',
+        'matched_review':'analysis/SAFETY_FEASIBLE_SCORE_MATCHED_REVIEW_20261031.json'}.items()}
+    train_zero_support=read_json(root/'analysis'/'SAFETY_TRAIN_ZERO_SUPPORT_AUDIT_20261031.json',warnings,inputs) or {}
+    dac_tie_counterfactual=read_json(root/'analysis'/'SAFETY_DAC_TIE_COUNTERFACTUAL_20261031.json',warnings,inputs) or {}
+    safety_fresh_pair['futility_guard']={key:read_json(root/'owners'/'SAFETY_FRESH_PAIR_FUTILITY_GUARD'/name,warnings,inputs) or {}for key,name in [('owner','OWNER.json'),('launch','LAUNCH.json'),('state','STATE.json'),('policy','POLICY.json')]}
     safety_focus_policy=read_json(root/'SAFETY_EP_FOCUSED_RESEARCH_20261031.json',warnings,inputs) or {}
     safety_focus_stop_input=read_json(root/'owners'/'SAFETY_EP_FOCUS'/'STOPPED_SUMMARY.json',warnings,inputs) or {}
     safety_focus_stop={key:safety_focus_stop_input.get(key)for key in ('status','at_unix','keep_training','pending','scope_policy','new_cadence_owner')}
@@ -853,8 +943,13 @@ def load_snapshot(root: Path) -> dict:
                     adaptive_coverage_amendment=adaptive_coverage_amendment,safety_ep_operator_review=safety_ep_operator_review,
                     new_pilot_matched_review=new_pilot_matched_review,
                     completed_pilot_reviews=completed_pilot_reviews,
-                    safety_process=safety_process,safety_directions=safety_directions,
+                    safety_process=safety_process,safety_directions=safety_directions,safety_30k_review=safety_30k_review,
+                    safety_mechanism=safety_mechanism,safety_gradient_probe=safety_gradient_probe,safety_fresh_pair=safety_fresh_pair,fpo_fulltime=fpo_fulltime,feasible_score=feasible_score,train_zero_support=train_zero_support,dac_tie_counterfactual=dac_tie_counterfactual,
+                    readonly_controller_status=controller_status,
+                    llm_trick_transfer=llm_trick_transfer,
+                    safety_credit_gradient=safety_credit_gradient,safety_policy_cases=safety_policy_cases,safety_normalization=safety_normalization,
                     safety_focus=dict(policy=safety_focus_policy,stop_summary=safety_focus_stop),
+                    flow_direct_proximal=flow_direct_proximal,frozen_lr_review=frozen_lr_review,
                     lr_research=lr_research,
                     lr_study=lr_study,
                     preference_research=preference_research,preference_research_path=str(preference_path) if preference_path else None,
@@ -947,7 +1042,7 @@ def main() -> None:
             'stage_selection_complete','performance_selection_complete','campaign_complete','stage_policy_amended'],
         debounce_seconds=1.0,journal_polling=False,event_updates_reset_regular_deadline=False,
         administrative_event_validation_is_scientific_result=False)
-    config.update(research_continuation_preference=('当前只保留SafetyEP；其他RL路线按用户研究焦点调整结束，历史资产保留；先分析过程与文献再提出少量方向，未来全部同一IL70基线fresh启动；IL独立研究不受影响；不自动重启历史分叉'if config.get('presentation')=='safety_ep_focus_v1'else 'SafetyEP续训到20k按证据复核；四个pilot在5k/10k预注册节点按证据选择延长；Rescue新phase1k/5k独立评测后review；已停止平台期路线不自动复活；单臂故障隔离、不终止整体；TRAIN反馈不等Test；50k仅配置上限，不默认续满'),
+    config.update(research_continuation_preference=('目标完整NAVTEST≥92，不限定SafetyEP结构；原Safety恒定LR长训已按root20k/30k事后算力分配停止，保留10k最佳及全部原生状态；继续SuccessMemory与Flow endpoint-CFM ratio两条同IL70 fresh研究（1k/5k/10k复核、10k上限），另追加sigma时间覆盖和可行内质量信用q两项独立对照（各1k/5k、5k上限）；旧停止路线不复活，50k配置不自动授权；IL独立研究不受影响'if config.get('presentation')=='safety_ep_focus_v1'else 'SafetyEP续训到20k按证据复核；四个pilot在5k/10k预注册节点按证据选择延长；Rescue新phase1k/5k独立评测后review；已停止平台期路线不自动复活；单臂故障隔离、不终止整体；TRAIN反馈不等Test；50k仅配置上限，不默认续满'),
         training_seed=42,inference_seed=2101,multiple_training_seeds_requested=False,
         resource_preference='高效并行使用授权资源，修正运营规划错误后继续研究')
     atomic_json(config_path,config)
@@ -958,6 +1053,13 @@ def main() -> None:
             history=update_history(root,snapshot)
             document=render(root,snapshot,history)
             atomic_json(root/'reporting'/'report_snapshot.json',snapshot)
+            active={'PPO_SAFETY_EP','PPO_SAFETY_SUCCESS_MEMORY','PPO_SAFETY_FPO','PPO_FPO_FULLTIME','PPO_SAFETY_FEASIBLE_SCORE'}
+            atomic_json(root/'reporting'/'READONLY_RL_STATUS.json',dict(schema='report_readonly_RL_status_v1',observed_utc=snapshot['generated_utc'],
+                controllers=snapshot.get('editorial_analysis',{}).get('readonly_controller_status',{}),
+                learners={r['id']:dict(host=r.get('host'),worker_status=r.get('worker_receipt_status'),journal_updates=r.get('updates'),
+                    journal_ranks=r.get('journal_ranks'),published_native_progress=r.get('progress_receipt'),job=r.get('job'))for r in snapshot['runs']if r['id']in active},
+                latest_complete_NAVTEST={arm:max((dict(updates=r.get('updates'),PDMS=r.get('PDMS'),evidence=r.get('evidence'))for r in snapshot['results']if r.get('arm')==arm and r.get('cohort')=='NAVTEST'and r.get('publishable_complete')),key=lambda r:r.get('updates')or 0,default=None)for arm in active},
+                GPU_or_owner_mutations=False))
             atomic_text(root/'report.html',document)
         record={'status':'RENDERED','report':str(root/'report.html'),'runs':len(snapshot['runs']),
                 'complete_results':sum(r['publishable_complete'] for r in snapshot['results']),

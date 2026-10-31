@@ -16,7 +16,7 @@
   "journal_polling": false,
   "event_updates_reset_regular_deadline": false,
   "administrative_event_validation_is_scientific_result": false,
-  "research_continuation_preference": "当前只保留SafetyEP；其他RL路线按用户研究焦点调整结束，历史资产保留；先分析过程与文献再提出少量方向，未来全部同一IL70基线fresh启动；IL独立研究不受影响；不自动重启历史分叉",
+  "research_continuation_preference": "目标完整NAVTEST≥92，不限定SafetyEP结构；原Safety恒定LR长训已按root20k/30k事后算力分配停止，保留10k最佳及全部原生状态；继续SuccessMemory与Flow endpoint-CFM ratio两条同IL70 fresh研究（1k/5k/10k复核、10k上限），另追加sigma时间覆盖和可行内质量信用q两项独立对照（各1k/5k、5k上限）；旧停止路线不复活，50k配置不自动授权；IL独立研究不受影响",
   "training_seed": 42,
   "inference_seed": 2101,
   "multiple_training_seeds_requested": false,
@@ -50,6 +50,6 @@
   "active_RL_arms": [
     "PPO_SAFETY_EP"
   ],
-  "focus_policy": "/mnt/project/qwen-world-rl-optimization-20261030/SAFETY_EP_FOCUSED_RESEARCH_20261031.json",
+  "focus_policy": "/mnt/project/qwen-world-rl-optimization-20261030/SAFETY_RL_92_TARGET_POLICY_20261031.json",
   "future_trial_initialization": "same pinned IL70;fresh AdamW/RNG42/update0;no native RL10k forks"
 }
