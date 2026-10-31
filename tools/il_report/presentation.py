@@ -212,7 +212,12 @@ def render(s, history):
         '<p>报告读取封存SUMMARY/identity、运行收据、每rank最多64条日志尾部。常规每1800秒更新；仅阶段完成、完整新评测、重要异常、选择结果与资源授权事件即时刷新。每步progress不会触发渲染，事件更新不延后原半小时deadline。</p>',
         '<p>五张图是对实际代码的解释。当前旧World与四框架的源版本、辅助任务和在线世界路径均有差异；“借鉴上游设计”不表述为复制完整官方训练。</p>']
     parts.append('<details><summary>架构源码身份 / 文件hash</summary><p>四架构科学源码：<code>'+escape(s['source_audit']['scientific_source'])+'</code></p>'+table(['实际源码','SHA256'],[[link(r['path'],Path(r['path']).name),'<code>'+r['sha256']+'</code>']for r in s['source_audit']['files']])+'</details>')
-    parts.append('<details><summary>资源与异常记录</summary><p>当前策略允许的host（不等于实际空闲）：'+escape(', '.join(s['policy_authorized_hosts']))+'</p><p>报告不查询或占用GPU。共享GPU的step耗时只作为当时执行窗口；不能当作独占硬件对照。</p><ul>'+''.join('<li>'+escape(w)+'</li>'for w in s['warnings'])+'</ul></details>')
+    parts.append('<details><summary>资源与异常记录</summary><p>当前策略允许的host（不等于实际空闲）：'+escape(', '.join(s['policy_authorized_hosts']))+'</p><p>报告只读查询资源，不分配GPU；共享GPU的step耗时不能当作独占硬件对照。</p><ul>'+''.join('<li>'+escape(w)+'</li>'for w in s['warnings'])+'</ul></details>')
+    resource=s.get('resource_review',{})
+    if resource:
+        decision=resource.get('decision',{})
+        parts.append('<details open><summary>阶段报告同步审阅资源分配</summary><p>先回填已登记队列，再安排自然阶段落点，最后才考虑有收益证据的单任务迁移；不暂停全部任务、不重启已筛除任务。显存空余不等于资源空闲，未知占用与未释放租约均排除。</p>'+table(['节点','最小空余显存GiB','CPU负载/可用核','无占用且无租约GPU','本次判断'],[[escape(r['host']),fmt(r['free_GiB_min'],1),fmt(r['cpu_load_per_allowed_cpu'],2),escape(str(r['idle_gpus'])),escape(r['decision'])]for r in decision.get('hosts',[])]))
+        parts.append('<p>核实空闲卡 '+str(len(decision.get('verified_idle_physical_gpus',[])))+'；待评测权重 '+str(decision.get('pending_models','未知'))+'；本次 native 暂停/迁移 '+str(resource.get('native_jobs_paused',0))+'/'+str(resource.get('native_jobs_migrated',0))+'。动作：'+escape('; '.join(resource.get('actions',[]))or'维持当前分配；无须为调整而搬迁。')+'</p><p>'+escape(decision.get('unchanged_reason',''))+'</p><p>'+escape(resource.get('status',''))+' '+escape(str(resource.get('error','')))+' '+link(resource.get('receipt',''),'实际资源审阅收据')+'</p></details>')
     health=s.get('health',{})
     if health:
         parts.append('<details open><summary>每次报告同步检查任务健康</summary><p>只恢复经过审阅的基础设施故障，持有owner和rank锁，从合法native checkpoint继续；已完成、筛除、用户终止和需人工审阅的pilot不会自动重启。未知或数值故障保留证据并报警，不改变训练配方。</p>'+table(['IL任务','实际状态','更新','维护动作'],[[r['id'],r['status'],str(r.get('updates')),r['action']]for r in health['runs']]))

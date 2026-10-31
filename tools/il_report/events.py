@@ -4,7 +4,7 @@ from pathlib import Path
 import select
 from .rl_events_reference import OwnerStateEvents, read_object, fingerprint, state_signatures
 
-NAMES = {'STATE.json','SUMMARY.json','COMPLETE.json','SELECTION.json','RESULT.json',
+NAMES = {'STATE.json','SUMMARY.json','COMPLETE.json','SELECTION.json','RESULT.json','report.html',
          'LATEST.json','FAILURE.json','server_dispatch_policy.json','refresh_request.json'}
 SKIP = {'scenes','checkpoints','weights','images','data','teachers','candidates','candidate_refresh',
         'export','exports','runtime','invocations','assets','upstream','targets','__pycache__'}
@@ -29,6 +29,11 @@ class ILStateEvents(OwnerStateEvents):
             self.save()
 
     def signatures(self, path):
+        if path.name=='report.html':
+            if path!=Path('/mnt/project/qwen-world-rl-optimization-20261030/report.html'):return {}
+            try:at=path.stat().st_mtime_ns
+            except FileNotFoundError:return {}
+            return {fingerprint(['RL_report',at]):dict(kind='RL_phase_report_resource_review',source=str(path))}
         if path.name=='server_dispatch_policy.json':
             data=read_object(path)
             value={key:data.get(key)for key in ('allowed_hosts','global_dispatch_prohibitions','pending_resource_additions')}

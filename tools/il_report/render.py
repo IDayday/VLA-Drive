@@ -16,6 +16,7 @@ from .diagrams import architecture_svg, NAMES
 from .presentation import render
 from .events import ILStateEvents
 from .health import check as check_health
+from .resource_review import review as review_resources
 
 DEFAULT_ROOT=Path('/mnt/project/qwen-world-il-research-20261030')
 
@@ -51,10 +52,11 @@ def cycle(root):
         fcntl.flock(lock,fcntl.LOCK_EX)
         state=snapshot(root)
         state['health']=check_health(root,state['runs'])
+        state['resource_review']=review_resources(root,state)
         state.update(read_only=False,evidence_read_only=True,
-                     maintenance_scope='reviewed_native_infrastructure_recovery_only')
+                     maintenance_scope='reviewed_infrastructure_recovery_and_existing_queue_backfill')
         rl=Path('/mnt/project/qwen-world-rl-optimization-20261030')
-        state['watch_directories']+=sorted(str(p)for p in [rl,*list((rl/'owners').glob('*'))]
+        state['watch_directories']+=sorted(str(p)for p in [rl,rl/'reporting',*list((rl/'owners').glob('*'))]
                                            if p.is_dir()and str(p)not in state['watch_directories'])
         history=update_history(root,state)
         for key in NAMES:
@@ -88,8 +90,9 @@ def main():
         event_updates_reset_regular_deadline=False,training_seed=42,inference_seed=2101,
         immediate_event_types=['evaluation_complete','training_stage_complete','important_exception',
                               'stage_selection_complete','resource_authorization_changed'],
-        new_models_or_scores=False,training_control='reviewed_native_infrastructure_recovery_only',
+        new_models_or_scores=False,training_control='reviewed_recovery_and_existing_queue_backfill; no_native_rebalance_signals',
         no_recipe_changes=True,no_restart_stopped_or_completed=True,
+        resource_review='every_phase_report; queue_backfill_then_natural_boundary_then_reviewed_single_migration',
         root_sources=['/mnt/project/qwen-world-postcot-20261025','/mnt/project/qwen-world-four-frameworks-20261029'])
     atomic(root/'reporting/REPORT_CONFIG.json',config)
     if not a.watch:

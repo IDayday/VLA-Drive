@@ -6,7 +6,9 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
+import threading
 import time
 import uuid
 
@@ -214,7 +216,12 @@ def main():
     with (ROOT/'owner.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         owner = dict(pid=os.getpid(), start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
-            status='RUNNING', at=time.time(), interval_seconds=args.interval_seconds)
+            status='RUNNING', at=time.time(), interval_seconds=args.interval_seconds,
+            resource_review_wakeup='SIGUSR1_CPU_owner_only')
+        wake=threading.Event();stop=threading.Event()
+        signal.signal(signal.SIGUSR1,lambda *_:wake.set())
+        def stopped(*_):stop.set();wake.set()
+        signal.signal(signal.SIGTERM,stopped);signal.signal(signal.SIGINT,stopped)
         atomic(ROOT/'OWNER.json', owner)
         atomic(ROOT/'REGISTRATION.json', dict(interval_updates=2000, initial='latest eligible available sealed checkpoint',
             seed=2101, full_population=12146, metric='canonical_NAVSIM_v1.1', inference='single_cleanx_K10_shift5',
@@ -224,7 +231,8 @@ def main():
             native_staging_retired_after_export_and_completed_evaluation=True, deployment_weights_and_scores_retained=True,
             minimum_free_disk_bytes=500*1024**3, all_private_assets_stay_out_of_git=True))
         state = read(ROOT/'STATE.json', dict(jobs=[]))
-        while True:
+        while not stop.is_set():
+            wake.clear()
             try:
                 tick(state)
             except Exception:
@@ -233,7 +241,9 @@ def main():
                     no_scientific_worker_killed=True, no_blind_retry=True))
                 raise
             if args.once: break
-            time.sleep(args.interval_seconds)
+            wake.wait(args.interval_seconds)
+        owner.update(status='STOPPED',ended_unix=time.time(),scientific_children_signalled=False)
+        atomic(ROOT/'OWNER.json',owner)
 
 
 if __name__ == '__main__':

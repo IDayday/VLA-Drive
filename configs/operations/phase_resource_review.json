@@ -1,0 +1,19 @@
+{
+  "schema": "phase_resource_review_policy_v1",
+  "applies_to": ["IL", "RL", "evaluation", "candidate_construction"],
+  "required_on_every_phase_report": true,
+  "regular_interval_seconds": 1800,
+  "priority": ["backfill_registered_queue", "place_next_natural_stage", "measured_single_native_migration"],
+  "pause_all_jobs_for_rebalance": false,
+  "max_native_migrations_per_regular_review": 1,
+  "same_job_migration_cooldown_seconds": 3600,
+  "minimum_projected_time_saved_over_migration_cost": 3,
+  "exceptions": ["resource_authorization_withdrawal", "reviewed_infrastructure_failure"],
+  "preserve": ["scientific_recipe", "budget", "seed", "run_identity", "optimizer", "RNG", "data_cursor", "pending_rollout", "inner_index"],
+  "automatic_actions": ["read_only_inventory", "publish_review_receipt", "wake_existing_authorized_evaluation_queue"],
+  "automatic_native_migration": false,
+  "automatic_concurrency_increase": false,
+  "restart_stopped_or_screened_experiments": false,
+  "inspect": ["current_authorization", "physical_GPU_UUID", "visible_processes", "leases", "memory", "CPU", "RAM", "queue", "recent_completion"],
+  "report": ["released_capacity", "actual_backfill", "actions", "unchanged_reason", "migration_cost", "impact_on_existing_jobs"]
+}
