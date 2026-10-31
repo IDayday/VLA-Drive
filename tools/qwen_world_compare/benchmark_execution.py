@@ -15,7 +15,7 @@ import time
 
 import torch
 from starVLA.model.modules.qwen_world_compare.factory import build_model
-from starVLA.model.modules.qwen_world_compare.execution import short_stream_checkpointing
+from starVLA.model.modules.qwen_world_compare.execution import checkpoint_flags,apply_checkpoint_policy
 from starVLA.model.modules.qwen_world_postcot.teacher_targets import TeacherCacheReader
 from starVLA.model.modules.qwen_world_postcot.candidate_bank import CandidateBank
 from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
@@ -47,7 +47,8 @@ def compare_gradients(model,reference):
 
 def main():
     parser=argparse.ArgumentParser(__doc__);parser.add_argument('--snapshot',required=True);parser.add_argument('--output',required=True)
-    parser.add_argument('--repeats',type=int,default=4);args=parser.parse_args()
+    parser.add_argument('--repeats',type=int,default=4)
+    parser.add_argument('--checkpoint-policy',choices=('short_off','all_off'),default='short_off');args=parser.parse_args()
     root=Path(args.output);root.mkdir(parents=True,exist_ok=True)
     if(root/'RESULT.json').exists():raise FileExistsError('Completed qualification cannot be repeated in place')
     snapshot=json.loads(Path(args.snapshot).read_text());identity=snapshot['identity'];cfg=identity['config'];arch=cfg['architecture_id']
@@ -92,13 +93,15 @@ def main():
     model.to(device).train();model.configure_stage(False)
     if arch!='D':model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     if any(p.dtype!=torch.float32 for p in model.parameters()):raise TypeError('Parameter storage precision changed')
+    source_flags=checkpoint_flags(model)
     version={name:p._version for name,p in model.named_parameters()}
     setup=time.perf_counter()-tick
     rows=[];reference=None;losses={};grad=None;reference_rng=None;rng_ok=True
     # Warm both paths. Alternate subsequent windows to limit occupancy drift.
     order=[True,False]+[enabled for _ in range(args.repeats)for enabled in(True,False)]
     for index,enabled in enumerate(order):
-        short_stream_checkpointing(model,enabled);model.zero_grad(set_to_none=True)
+        execution=apply_checkpoint_policy(model,'source'if enabled else args.checkpoint_policy,source_flags)
+        model.zero_grad(set_to_none=True)
         torch.cuda.synchronize();torch.cuda.reset_peak_memory_stats();cpu_rng=torch.get_rng_state().clone();cuda_rng=torch.cuda.get_rng_state().clone()
         start=time.perf_counter();sums={}
         for batch in batches:
@@ -108,7 +111,7 @@ def main():
         torch.cuda.synchronize();elapsed=time.perf_counter()-start
         unchanged=torch.equal(cpu_rng,torch.get_rng_state())and torch.equal(cuda_rng,torch.cuda.get_rng_state());rng_ok&=unchanged
         values={k:float(v)for k,v in sums.items()}
-        row=dict(iteration=index,variant='source_checkpoint_all'if enabled else'retain_short_graphs',warmup=index<2,
+        row=dict(iteration=index,variant='source_checkpoint_all'if enabled else'retain_short_graphs'if args.checkpoint_policy=='short_off'else'retain_all_graphs',warmup=index<2,
             forward_backward_wall_seconds=elapsed,peak_allocated_GiB=torch.cuda.max_memory_allocated()/2**30,
             loss_components=values,RNG_unchanged=unchanged)
         rows.append(row);print(json.dumps(row),flush=True)
@@ -119,11 +122,13 @@ def main():
             if grad['missing_gradient_mismatch']or grad['relative_L2']>1e-5:raise ValueError('Full real-model gradients are not equivalent: '+str(grad))
             if any(abs(values[k]-losses[k])>1e-6 for k in losses):raise ValueError('Loss component changed')
     if not rng_ok or any(p._version!=version[name]for name,p in model.named_parameters()):raise ValueError('RNG or parameter state mutated')
+    target_variant='retain_short_graphs'if args.checkpoint_policy=='short_off'else'retain_all_graphs'
     means={variant:statistics.median(r['forward_backward_wall_seconds']for r in rows if not r['warmup']and r['variant']==variant)
-           for variant in('source_checkpoint_all','retain_short_graphs')}
+           for variant in('source_checkpoint_all',target_variant)}
     write(root/'RESULT.json',dict(status='PASS',architecture_id=arch,model_sha256=snapshot['model_sha256'],
         snapshot=str(args.snapshot),model_setup_seconds=setup,rows=rows,medians=means,
-        observed_rank_slice_speedup=means['source_checkpoint_all']/means['retain_short_graphs'],
+        observed_rank_slice_speedup=means['source_checkpoint_all']/means[target_variant],
+        checkpoint_policy=execution,
         gradient_comparison=grad,parameter_and_gradient_dtype='float32',forward_autocast='bfloat16',
         global32_denominators_scaled_for_one_rank=True,native_micro_accum_preserved=True,
         optimizer_updates=0,scorer_calls=0,formal_training_source_modified=False,
