@@ -1,0 +1,50 @@
+[
+  {
+    "architecture": "A",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-c",
+      "import torch,runpy,sys;torch.cuda.set_device(0);torch.cuda.set_per_process_memory_fraction(.60);sys.argv=[\"benchmark_execution\"]+['--snapshot', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/inputs/A/SNAPSHOT.json', '--output', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/all_graphs/A', '--repeats', '4', '--checkpoint-policy', 'all_off'];runpy.run_module(\"tools.qwen_world_compare.benchmark_execution\",run_name=\"__main__\")"
+    ],
+    "returncode": 0,
+    "start": 1793454013.3328187,
+    "end": 1793454148.4617238,
+    "allocator_cap_fraction": 0.6
+  },
+  {
+    "architecture": "B",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-c",
+      "import torch,runpy,sys;torch.cuda.set_device(0);torch.cuda.set_per_process_memory_fraction(.60);sys.argv=[\"benchmark_execution\"]+['--snapshot', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/inputs/B/SNAPSHOT.json', '--output', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/all_graphs/B', '--repeats', '4', '--checkpoint-policy', 'all_off'];runpy.run_module(\"tools.qwen_world_compare.benchmark_execution\",run_name=\"__main__\")"
+    ],
+    "returncode": 0,
+    "start": 1793454148.4742594,
+    "end": 1793454272.0088024,
+    "allocator_cap_fraction": 0.6
+  },
+  {
+    "architecture": "C",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-c",
+      "import torch,runpy,sys;torch.cuda.set_device(0);torch.cuda.set_per_process_memory_fraction(.60);sys.argv=[\"benchmark_execution\"]+['--snapshot', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/inputs/C/SNAPSHOT.json', '--output', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/all_graphs/C', '--repeats', '4', '--checkpoint-policy', 'all_off'];runpy.run_module(\"tools.qwen_world_compare.benchmark_execution\",run_name=\"__main__\")"
+    ],
+    "returncode": 0,
+    "start": 1793454272.0318506,
+    "end": 1793454397.9658308,
+    "allocator_cap_fraction": 0.6
+  },
+  {
+    "architecture": "D",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-c",
+      "import torch,runpy,sys;torch.cuda.set_device(0);torch.cuda.set_per_process_memory_fraction(.60);sys.argv=[\"benchmark_execution\"]+['--snapshot', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/inputs/D/SNAPSHOT.json', '--output', '/mnt/project/qwen-world-four-frameworks-20261029/performance_20261031/all_graphs/D', '--repeats', '4', '--checkpoint-policy', 'all_off'];runpy.run_module(\"tools.qwen_world_compare.benchmark_execution\",run_name=\"__main__\")"
+    ],
+    "returncode": 0,
+    "start": 1793454397.9697115,
+    "end": 1793454534.9751837,
+    "allocator_cap_fraction": 0.6
+  }
+]

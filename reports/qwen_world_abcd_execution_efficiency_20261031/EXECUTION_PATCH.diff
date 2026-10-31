@@ -1,0 +1,241 @@
+diff --git a/starVLA/model/modules/qwen_world_compare/execution.py b/starVLA/model/modules/qwen_world_compare/execution.py
+new file mode 100644
+index 0000000..f87fb10
+--- /dev/null
++++ b/starVLA/model/modules/qwen_world_compare/execution.py
+@@ -0,0 +1,15 @@
++"""Execution-only tradeoff: keep long Qwen checkpointing, retain short graphs.
++
++No tensor, precision, objective, mask or candidate selection is changed. Flags
++are ordinary execution attributes and do not introduce checkpoint parameters.
++"""
++def short_stream_checkpointing(model,enabled):
++    architecture=model.architecture_id;decision=model.decision
++    if architecture in('A','C'):
++        decision.actor.activation_checkpointing=bool(enabled)
++        decision.world_stream.activation_checkpointing=bool(enabled)
++    elif architecture=='B':decision.activation_checkpointing=bool(enabled)
++    elif architecture=='D':decision.checkpoint_short_suffix=bool(enabled)
++    else:raise ValueError('Unknown architecture')
++    return dict(architecture=architecture,short_stream_checkpointing=bool(enabled),
++                long_Qwen_checkpointing_unchanged=True,parameters_and_precision_unchanged=True)
+diff --git a/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py b/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py
+index 663cccc..704935b 100644
+--- a/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py
++++ b/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py
+@@ -121,7 +121,8 @@ class QwenFlowAdapter(nn.Module):
+ 
+     def __init__(self, qwen_model, *, time_dim=256, p_tokens=32, r_tokens=16,
+                  ego_dim=8, activation_checkpointing=True, qualification=False,
+-                 training_queries=True, pack_shared_candidates=True):
++                 training_queries=True, pack_shared_candidates=True,
++                 checkpoint_short_suffix=True):
+         super().__init__()
+         if not hasattr(qwen_model, 'language_model') or not hasattr(qwen_model, 'visual'):
+             raise ValueError('D requires the native multimodal Qwen3VLModel')
+@@ -139,6 +140,7 @@ class QwenFlowAdapter(nn.Module):
+         self.pre_width = self.post_width = self.hidden_dim
+         self.time_dim, self.p_tokens, self.r_tokens, self.ego_dim = time_dim, p_tokens, r_tokens, ego_dim
+         self.activation_checkpointing = bool(activation_checkpointing)
++        self.checkpoint_short_suffix = bool(checkpoint_short_suffix)
+         self.pack_shared_candidates = bool(pack_shared_candidates)
+         self.action_input = nn.Linear(3, self.hidden_dim)
+         self.action_output = nn.Linear(self.hidden_dim, 3)
+@@ -267,7 +269,8 @@ class QwenFlowAdapter(nn.Module):
+             def run_layer(h, *, number=i, parent=prefix):
+                 return self._layer(number, h, positions, allowed, parent, time, action_rows,
+                                    causal=causal)
+-            if self.activation_checkpointing and torch.is_grad_enabled():
++            if (self.activation_checkpointing and torch.is_grad_enabled()
++                    and (prefix_kv is None or self.checkpoint_short_suffix)):
+                 hidden, key, value = checkpoint(run_layer, hidden, use_reentrant=False)
+             else:
+                 hidden, key, value = run_layer(hidden)
+diff --git a/starVLA/rl/qwen_world_compare/batching.py b/starVLA/rl/qwen_world_compare/batching.py
+index 1730cd1..170ce21 100644
+--- a/starVLA/rl/qwen_world_compare/batching.py
++++ b/starVLA/rl/qwen_world_compare/batching.py
+@@ -74,7 +74,10 @@ class BatchBuilder:
+         if state['schema']!='four_framework_stateless_batches_v1'or state['bank_hash']!=self.bank.bank_hash or state['candidate_refresh']is not False:raise ValueError('Builder identity changed')
+         self.calls=state['calls']
+ 
+-    def build(self,tokens,positions,update):
++    def close(self):
++        for reader in(self.teachers,self.bank,self.evidence):reader.close()
++
++    def build(self,tokens,positions,update,*,account=True):
+         observations=[self.data.observation(t)for t in tokens]
+         teacher=[self.teachers.get(t,source_record_hash=self.data.records[t]['source_record_hash'])for t in tokens]
+         teacher_valid=torch.stack([v['future_valid']for v in teacher])
+@@ -109,7 +112,8 @@ class BatchBuilder:
+                 else:
+                     lab.append([record['factor_labels'][k]for k in OFFICIAL_METRIC_NAMES]);mask.append([record['factor_valid'][k]for k in OFFICIAL_METRIC_NAMES]);sc.append(record['canonical_total_score']);sm.append(record['total_valid']);ev.append(record['event_class']);em.append(record['event_valid'])
+             labels.append(lab);masks.append(mask);scores.append(sc);score_masks.append(sm);events.append(ev);event_masks.append(em);record_ids.append([None if factual is None else factual.record_id,*pair.record_ids[0]])
+-        ns=len(selected);self.calls+=1
++        ns=len(selected)
++        if account:self.calls+=1
+         uniform=torch.tensor([float(torch.rand((),generator=scene_generator(update,p,'FM_sigma')))for p in positions])
+         return dict(tokens=list(tokens),positions=list(positions),current_inputs=self.processor(observations),ego=torch.tensor([o['proprio']for o in observations]),target=target,action_valid=valid,
+             noise=torch.stack([torch.randn(8,3,generator=scene_generator(update,p,'FM_noise'))for p in positions]),
+diff --git a/starVLA/rl/qwen_world_compare/prefetch.py b/starVLA/rl/qwen_world_compare/prefetch.py
+new file mode 100644
+index 0000000..ff486f0
+--- /dev/null
++++ b/starVLA/rl/qwen_world_compare/prefetch.py
+@@ -0,0 +1,70 @@
++"""Ordered CPU-only fixed-bank IL prefetch; counters commit on consumption.
++
++The worker builds deterministic immutable observations/targets, never Qwen or
++policy features. Unconsumed futures do not advance the checkpoint cursor/calls.
++Only one worker owns the cache readers; there is no concurrent builder access.
++"""
++from concurrent.futures import ThreadPoolExecutor
++import sqlite3
++
++
++class OrderedUpdatePrefetch:
++    def __init__(self,builder,request,*,start_update,start_cursor,depth=2,scenes_per_update=32,builder_factory=None):
++        if depth not in(1,2):raise ValueError('Bounded depth1 or2 required')
++        # Candidate/evidence SQLite connections belong to their creating
++        # thread. Build independent read-only readers inside the worker; never
++        # disable SQLite's ownership check or share mutable reader caches.
++        if builder_factory is None and any(isinstance(getattr(getattr(builder,name,None),'db',None),sqlite3.Connection)
++                for name in('bank','evidence')):
++            raise ValueError('Database-backed prefetch requires a worker-local builder_factory')
++        self.builder,self.request=builder,request
++        self.builder_factory=builder_factory;self.worker_builder=None
++        self.update,self.cursor=start_update,start_cursor
++        self.depth,self.scenes=depth,scenes_per_update
++        self.pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='fixed_IL_CPU_prefetch')
++        self.pending={};self.closed=False;self.consumed_updates=0
++        self._fill()
++
++    def _build(self,update,cursor):
++        builder=self.builder
++        if self.builder_factory is not None:
++            if self.worker_builder is None:
++                self.worker_builder=self.builder_factory()
++                expected={k:v for k,v in builder.state_dict().items()if k!='calls'}
++                actual={k:v for k,v in self.worker_builder.state_dict().items()if k!='calls'}
++                if expected!=actual:raise ValueError('Worker builder fixed-bank identity mismatch')
++            builder=self.worker_builder
++        return [builder.build(tokens,positions,update,account=False)
++                for tokens,positions in self.request(update,cursor)]
++
++    def _fill(self):
++        for offset in range(self.depth):
++            update=self.update+offset
++            if update not in self.pending:
++                self.pending[update]=self.pool.submit(self._build,update,self.cursor+offset*self.scenes)
++
++    def next(self,update,cursor):
++        if self.closed or(update,cursor)!=(self.update,self.cursor):raise ValueError('Prefetch cursor/order mismatch')
++        batches=self.pending.pop(update).result() # Exceptions reach the normal distributed data-error path.
++        self.builder.calls+=len(batches)
++        self.update+=1;self.cursor+=self.scenes;self.consumed_updates+=1
++        self._fill();return batches
++
++    def close(self):
++        if self.closed:return
++        self.closed=True
++        for future in self.pending.values():future.cancel()
++        # Dispose connections on their creating thread after any active build.
++        try:
++            if self.builder_factory is not None:
++                self.pool.submit(self._close_worker).result()
++        finally:
++            self.pool.shutdown(wait=True,cancel_futures=True)
++            self.pending.clear()
++
++    def _close_worker(self):
++        if self.worker_builder is not None:
++            self.worker_builder.close();self.worker_builder=None
++
++    def __enter__(self):return self
++    def __exit__(self,*_):self.close()
+diff --git a/tools/qwen_world_compare/train_il.py b/tools/qwen_world_compare/train_il.py
+index 0e0f572..5f34e4a 100644
+--- a/tools/qwen_world_compare/train_il.py
++++ b/tools/qwen_world_compare/train_il.py
+@@ -99,10 +99,14 @@ def main():
+     p.add_argument('--stop-after',type=int);p.add_argument('--evidence-override');p.add_argument('--profile-no-save',action='store_true');p.add_argument('--backend',choices=['zero2','ddp']);p.add_argument('--micro-batch',type=int)
+     p.add_argument('--qualification-save-at',type=int,nargs='*',default=[])
+     p.add_argument('--profile-dir');p.add_argument('--profile-steps',type=int,default=0)
++    p.add_argument('--retain-short-graphs',action='store_true')
++    p.add_argument('--cpu-prefetch-depth',type=int,choices=(0,1,2),default=0)
+     a=p.parse_args();cfg=load_config(a.config);host=require_dispatch(admit_long_job=not a.qualification)
+     world=int(os.environ.get('WORLD_SIZE',1));rank=int(os.environ.get('RANK',0));local=int(os.environ.get('LOCAL_RANK',0))
+     if not a.qualification and (world!=8 or a.stop_after or a.evidence_override or a.profile_no_save or a.joint):raise ValueError('Formal IL preserves all100k/scenes/tasks/stages')
+     if a.qualification and not(a.stop_after and 1<=a.stop_after<=20):raise ValueError('Qualification requires a finite1..20update window')
++    if (a.retain_short_graphs or a.cpu_prefetch_depth)and not a.qualification:
++        raise ValueError('Execution tuning requires qualification before an explicit native migration; formal source remains unchanged')
+     if a.profile_no_save and (not a.qualification or a.resume):raise ValueError('Disposable profile cannot recover/formally train')
+     if a.qualification_save_at and(not a.qualification or a.profile_no_save):raise ValueError('Extra checkpoint boundaries are qualification-only')
+     backend=a.backend or cfg['execution']['backend']
+@@ -123,6 +127,9 @@ def main():
+     micro=a.micro_batch or cfg['execution']['micro_batch'];accum=32//(world*micro)
+     if world*micro*accum!=32:raise ValueError('Microbatch topology changes global32')
+     model=build_model(cfg).to(device)
++    if a.retain_short_graphs:
++        from starVLA.model.modules.qwen_world_compare.execution import short_stream_checkpointing
++        short_stream_checkpointing(model,False)
+     if cfg['architecture_id']!='D'and cfg['execution']['activation_checkpointing']:model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
+     groups=parameter_groups(model,cfg);opt=cfg['il']['optimizer']
+     # ZeRO2 replaces param_groups entries with flattened master tensors. Bind
+@@ -137,6 +144,8 @@ def main():
+     else:engine=ProfileDDPEngine(model,optimizer,scheduler,accum)
+     qcfg=model.decision.qwen_model.config.to_dict()if cfg['architecture_id']=='D'else model.qwen.model.config.to_dict()
+     identity=cp.canonical_identity(dict(schema='qwen_world_compare_IL_v1',architecture_id=cfg['architecture_id'],config=cfg,model_config=cfg['model'],qwen_config=qcfg,world=world,qualification=a.qualification,uses_rl=False,uses_metric_supervision=True,train_heads=True,source_files=source_files(),initialization=qwen_identity,parameter_roles=model.parameter_roles(),optimizer_ordered_parameter_groups=group_contract,data_sha256=data.sha,teacher_identity_sha256=file_sha(Path(cfg['teacher_cache'])/'IDENTITY.json'),candidate_bank_hash=bank.bank_hash,evidence_identity=evidence.manifest['identity'],evidence_manifest_sha256=file_sha(evidence.root/'MANIFEST.json'),target_manifest_sha256=file_sha(tracks.root/'manifest.json'),execution=dict(backend=backend,micro=micro,accum=accum,ds=ds),joint_override=a.joint))
++    if a.retain_short_graphs or a.cpu_prefetch_depth:
++        identity['execution']['qualification_tuning']=dict(retain_short_graphs=a.retain_short_graphs,cpu_prefetch_depth=a.cpu_prefetch_depth)
+     def publish():
+         p=out/'IDENTITY.json'
+         if p.exists()and json.loads(p.read_text())!=identity:raise ValueError('Existing run identity mismatch')
+@@ -146,6 +155,22 @@ def main():
+     if a.resume:state=cp.restore(a.resume,engine,identity,builder);last=a.resume
+     start=state['updates'];limit=a.stop_after if a.qualification else 100000
+     qualified_tokens=evidence.manifest['scenes']
++    prefetch=None
++    if a.cpu_prefetch_depth:
++        from starVLA.rl.qwen_world_compare.prefetch import OrderedUpdatePrefetch
++        def worker_builder():
++            return BatchBuilder(WorldSceneData(Path(cfg['data_root'])/'TRAIN'),QwenObservationProcessor(cfg['qwen_path']),
++                TeacherCacheReader(cfg['teacher_cache'],expected_cohort='TRAIN'),CandidateBank(cfg['candidate_bank'],allowed_splits=('TRAIN',)),
++                FutureTrackStore(Path(cfg['target_root'])/'TRAIN'),EvidenceBank(a.evidence_override or cfg['evidence_root']))
++        def requests(update,cursor):
++            result=[]
++            for m in range(accum):
++                positions=[rank*(32//world)+m*micro+j for j in range(micro)]
++                tokens=[qualified_tokens[(cursor+i)%len(qualified_tokens)]if a.qualification else data.tokens[data.index(cursor+i)]for i in positions]
++                result.append((tokens,positions))
++            return result
++        prefetch=OrderedUpdatePrefetch(builder,requests,start_update=start,start_cursor=state['cursor'],
++            depth=a.cpu_prefetch_depth,builder_factory=worker_builder)
+     gradient_audit=GradientRolesAudit(model)if a.qualification and not a.profile_no_save else None
+     profiler=None
+     if a.profile_dir:
+@@ -161,10 +186,12 @@ def main():
+                 if not interface and not state['qwen_optimizer_initialized']:initialize_joint_optimizer(engine,state)
+                 batches=[];err=None
+                 try:
+-                    for m in range(accum):
+-                        positions=[rank*(32//world)+m*micro+j for j in range(micro)]
+-                        tokens=[qualified_tokens[(state['cursor']+i)%len(qualified_tokens)]if a.qualification else data.tokens[data.index(state['cursor']+i)]for i in positions]
+-                        batches.append(builder.build(tokens,positions,state['updates']))
++                    if prefetch is not None:batches=prefetch.next(state['updates'],state['cursor'])
++                    else:
++                        for m in range(accum):
++                            positions=[rank*(32//world)+m*micro+j for j in range(micro)]
++                            tokens=[qualified_tokens[(state['cursor']+i)%len(qualified_tokens)]if a.qualification else data.tokens[data.index(state['cursor']+i)]for i in positions]
++                            batches.append(builder.build(tokens,positions,state['updates']))
+                 except Exception as exc:err=repr(exc)
+                 consistent_cpu_data_error(err,device);data_seconds=time.monotonic()-tick
+                 den=update_denominators(batches,device);weights=dict(cfg['il']['loss_weights']);ramp=min(1.,(state['updates']+1)/1000)
+@@ -197,6 +224,7 @@ def main():
+     except BaseException:
+         cp.atomic_json(out/f'FAILURE_rank{rank}.json',dict(error=traceback.format_exc(),state=state,last_complete_checkpoint=last));raise
+     finally:
++        if prefetch is not None:prefetch.close()
+         if profiler is not None:profiler.__exit__(*sys.exc_info())
+         bank.close();teacher.close();dist.destroy_process_group()
+ 

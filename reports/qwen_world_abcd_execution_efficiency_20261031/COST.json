@@ -1,0 +1,39 @@
+{
+  "groups": {
+    "short_graph_benchmark": {
+      "commands": 4,
+      "summed_command_wall_seconds": 524.8127112388611,
+      "nominal_rank_GPU_worker_hours": 0.14578130867746142,
+      "rank_GPUs_per_command": 1,
+      "exclusive_GPU_hours": false,
+      "actual_GPU_busy_hours": null,
+      "includes_initialization_and_saving": true
+    },
+    "all_graph_benchmark": {
+      "commands": 4,
+      "summed_command_wall_seconds": 521.6029005050659,
+      "nominal_rank_GPU_worker_hours": 0.14488969458474052,
+      "rank_GPUs_per_command": 1,
+      "exclusive_GPU_hours": false,
+      "actual_GPU_busy_hours": null,
+      "includes_initialization_and_saving": true
+    },
+    "native_8rank_qualification": {
+      "commands": 8,
+      "summed_command_wall_seconds": 2436.0686736106873,
+      "nominal_rank_GPU_worker_hours": 5.413485941357083,
+      "rank_GPUs_per_command": 8,
+      "exclusive_GPU_hours": false,
+      "actual_GPU_busy_hours": null,
+      "includes_initialization_and_saving": true
+    }
+  },
+  "native_8rank_updates": 16,
+  "native_8rank_scene_exposures": 512,
+  "earlier_native_4rank_updates": 16,
+  "earlier_native_4rank_scene_exposures": 512,
+  "rank_slice_benchmark_optimizer_updates": 0,
+  "scorer_calls_in_engineering_qualification": 0,
+  "qualification_data_excluded_from_formal_budget": true,
+  "note": "Shared worker duration measures allocation-associated wall, not dedicated device compute. The earlier 4-rank D test cost is separate; runtime timestamps for that full job are not reconstructed here. Formal saves/migration overhead remain in invocation receipts."
+}

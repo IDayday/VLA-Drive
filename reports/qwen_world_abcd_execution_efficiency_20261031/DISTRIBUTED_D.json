@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "world": 4,
+  "logical_global_scene_batch": 32,
+  "effective_updates": 8,
+  "actual_optimizer_updates_and_native_states_compared": true,
+  "sample_cursor_loss_RNG_builder_exact": true,
+  "native_payloads": [
+    {
+      "file": "native/mp_rank_00_model_states.pt",
+      "serialized_bytes_identical": true,
+      "full_native_state_equivalent": true
+    },
+    {
+      "file": "native/zero_pp_rank_3_mp_rank_00_optim_states.pt",
+      "serialized_bytes_identical": true,
+      "full_native_state_equivalent": true
+    },
+    {
+      "file": "native/zero_pp_rank_0_mp_rank_00_optim_states.pt",
+      "serialized_bytes_identical": true,
+      "full_native_state_equivalent": true
+    },
+    {
+      "file": "native/zero_pp_rank_1_mp_rank_00_optim_states.pt",
+      "serialized_bytes_identical": true,
+      "full_native_state_equivalent": true
+    },
+    {
+      "file": "native/zero_pp_rank_2_mp_rank_00_optim_states.pt",
+      "serialized_bytes_identical": true,
+      "full_native_state_equivalent": true
+    }
+  ],
+  "raw_max_rank_step_wall_seconds": {
+    "baseline": [
+      29.797655817121267,
+      17.043762570247054,
+      16.135959373787045,
+      16.30113140679896,
+      15.55099243670702,
+      16.00534399971366,
+      19.79747753404081,
+      24.9489608630538
+    ],
+    "optimized": [
+      62.47237514704466,
+      9.927157323807478,
+      9.716350166127086,
+      9.664624512195587,
+      9.089391261339188,
+      9.517805080860853,
+      9.476291650906205,
+      9.67488175071776
+    ]
+  },
+  "discard_first_updates": 2,
+  "median_max_rank_wall_seconds": {
+    "baseline": 16.218545390293002,
+    "optimized": 9.59121479652822
+  },
+  "observed_end_to_end_speedup": 1.6909792695043917,
+  "caveat": "Finite qualification on shared GPUs, fresh generic initialization, four ranks with global32. Not an eight-rank production speedup, trained-parent migration or long-run ETA."
+}

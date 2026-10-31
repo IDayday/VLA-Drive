@@ -1,0 +1,583 @@
+diff --git a/starVLA/model/modules/qwen_world_compare/execution.py b/starVLA/model/modules/qwen_world_compare/execution.py
+new file mode 100644
+index 0000000..90a033a
+--- /dev/null
++++ b/starVLA/model/modules/qwen_world_compare/execution.py
+@@ -0,0 +1,33 @@
++"""Execution-only tradeoff: keep long Qwen checkpointing, retain short graphs.
++
++No tensor, precision, objective, mask or candidate selection is changed. Flags
++are ordinary execution attributes and do not introduce checkpoint parameters.
++"""
++def short_stream_checkpointing(model,enabled):
++    architecture=model.architecture_id;decision=model.decision
++    if architecture in('A','C'):
++        decision.actor.activation_checkpointing=bool(enabled)
++        decision.world_stream.activation_checkpointing=bool(enabled)
++    elif architecture=='B':decision.activation_checkpointing=bool(enabled)
++    elif architecture=='D':decision.checkpoint_short_suffix=bool(enabled)
++    else:raise ValueError('Unknown architecture')
++    return dict(architecture=architecture,short_stream_checkpointing=bool(enabled),
++                long_Qwen_checkpointing_unchanged=True,parameters_and_precision_unchanged=True)
++
++
++def checkpoint_flags(model):
++    """Only execution booleans; neither a weight nor an optimizer setting."""
++    names=('activation_checkpointing','checkpoint_short_suffix','gradient_checkpointing')
++    return {(name,attr):getattr(module,attr)for name,module in model.named_modules()
++            for attr in names if isinstance(getattr(module,attr,None),bool)}
++
++
++def apply_checkpoint_policy(model,policy,source_flags):
++    if policy not in('source','short_off','all_off'):raise ValueError('Unknown graph-retention policy')
++    modules=dict(model.named_modules())
++    for (name,attr),value in source_flags.items():setattr(modules[name],attr,value)
++    if policy=='short_off':short_stream_checkpointing(model,False)
++    elif policy=='all_off':
++        for name,attr in source_flags:setattr(modules[name],attr,False)
++    return dict(policy=policy,flags={name+':'+attr:getattr(modules[name],attr)for name,attr in source_flags},
++        parameters_and_precision_unchanged=True)
+diff --git a/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py b/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py
+index 663cccc..704935b 100644
+--- a/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py
++++ b/starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py
+@@ -121,7 +121,8 @@ class QwenFlowAdapter(nn.Module):
+ 
+     def __init__(self, qwen_model, *, time_dim=256, p_tokens=32, r_tokens=16,
+                  ego_dim=8, activation_checkpointing=True, qualification=False,
+-                 training_queries=True, pack_shared_candidates=True):
++                 training_queries=True, pack_shared_candidates=True,
++                 checkpoint_short_suffix=True):
+         super().__init__()
+         if not hasattr(qwen_model, 'language_model') or not hasattr(qwen_model, 'visual'):
+             raise ValueError('D requires the native multimodal Qwen3VLModel')
+@@ -139,6 +140,7 @@ class QwenFlowAdapter(nn.Module):
+         self.pre_width = self.post_width = self.hidden_dim
+         self.time_dim, self.p_tokens, self.r_tokens, self.ego_dim = time_dim, p_tokens, r_tokens, ego_dim
+         self.activation_checkpointing = bool(activation_checkpointing)
++        self.checkpoint_short_suffix = bool(checkpoint_short_suffix)
+         self.pack_shared_candidates = bool(pack_shared_candidates)
+         self.action_input = nn.Linear(3, self.hidden_dim)
+         self.action_output = nn.Linear(self.hidden_dim, 3)
+@@ -267,7 +269,8 @@ class QwenFlowAdapter(nn.Module):
+             def run_layer(h, *, number=i, parent=prefix):
+                 return self._layer(number, h, positions, allowed, parent, time, action_rows,
+                                    causal=causal)
+-            if self.activation_checkpointing and torch.is_grad_enabled():
++            if (self.activation_checkpointing and torch.is_grad_enabled()
++                    and (prefix_kv is None or self.checkpoint_short_suffix)):
+                 hidden, key, value = checkpoint(run_layer, hidden, use_reentrant=False)
+             else:
+                 hidden, key, value = run_layer(hidden)
+diff --git a/starVLA/rl/qwen_world_compare/batching.py b/starVLA/rl/qwen_world_compare/batching.py
+index 1730cd1..170ce21 100644
+--- a/starVLA/rl/qwen_world_compare/batching.py
++++ b/starVLA/rl/qwen_world_compare/batching.py
+@@ -74,7 +74,10 @@ class BatchBuilder:
+         if state['schema']!='four_framework_stateless_batches_v1'or state['bank_hash']!=self.bank.bank_hash or state['candidate_refresh']is not False:raise ValueError('Builder identity changed')
+         self.calls=state['calls']
+ 
+-    def build(self,tokens,positions,update):
++    def close(self):
++        for reader in(self.teachers,self.bank,self.evidence):reader.close()
++
++    def build(self,tokens,positions,update,*,account=True):
+         observations=[self.data.observation(t)for t in tokens]
+         teacher=[self.teachers.get(t,source_record_hash=self.data.records[t]['source_record_hash'])for t in tokens]
+         teacher_valid=torch.stack([v['future_valid']for v in teacher])
+@@ -109,7 +112,8 @@ class BatchBuilder:
+                 else:
+                     lab.append([record['factor_labels'][k]for k in OFFICIAL_METRIC_NAMES]);mask.append([record['factor_valid'][k]for k in OFFICIAL_METRIC_NAMES]);sc.append(record['canonical_total_score']);sm.append(record['total_valid']);ev.append(record['event_class']);em.append(record['event_valid'])
+             labels.append(lab);masks.append(mask);scores.append(sc);score_masks.append(sm);events.append(ev);event_masks.append(em);record_ids.append([None if factual is None else factual.record_id,*pair.record_ids[0]])
+-        ns=len(selected);self.calls+=1
++        ns=len(selected)
++        if account:self.calls+=1
+         uniform=torch.tensor([float(torch.rand((),generator=scene_generator(update,p,'FM_sigma')))for p in positions])
+         return dict(tokens=list(tokens),positions=list(positions),current_inputs=self.processor(observations),ego=torch.tensor([o['proprio']for o in observations]),target=target,action_valid=valid,
+             noise=torch.stack([torch.randn(8,3,generator=scene_generator(update,p,'FM_noise'))for p in positions]),
+diff --git a/starVLA/rl/qwen_world_compare/execution_migration.py b/starVLA/rl/qwen_world_compare/execution_migration.py
+new file mode 100644
+index 0000000..bc5d25c
+--- /dev/null
++++ b/starVLA/rl/qwen_world_compare/execution_migration.py
+@@ -0,0 +1,86 @@
++"""Explicit lossless execution lineage; scientific identities remain strict.
++
++The original native loader validates the OLD identity and every optimizer/RNG
++shard. Only the named execution patch may differ. New checkpoints publish a new
++identity; no old checkpoint/COMPLETE/rank state is edited to spoof compatibility.
++"""
++import copy
++import json
++from pathlib import Path
++from .contracts import fingerprint,file_sha
++
++
++SCHEMA='world_compare_execution_handoff_v1'
++ALLOWED_PATCH={
++    'starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py',
++    'starVLA/model/modules/qwen_world_compare/execution.py',
++    'starVLA/rl/qwen_world_compare/batching.py',
++    'starVLA/rl/qwen_world_compare/prefetch.py',
++    'starVLA/rl/qwen_world_compare/execution_migration.py',
++    'tools/qwen_world_compare/train_il.py',
++    'tools/qwen_world_compare/benchmark_execution.py',
++    'tools/qwen_world_compare/qualify_prefetch.py',
++    'tools/qwen_world_compare/analyze_execution_pair.py',
++    'tools/qwen_world_compare/prepare_execution_handoff.py',
++    # Reuse the already qualified operations source fcd43eb; these files do
++    # not implement actor/loss/optimizer mathematics.
++    'tools/qwen_world_compare/campaign.py',
++    'tools/qwen_world_compare/dispatch.py',
++    'tools/qwen_world_compare/profile.py',
++    'tools/qwen_world_compare/qualify.py',
++    'tools/qwen_world_compare/qualify_rl.py',
++    'starVLA/rl/qwen_world_compare/profiling.py',
++}
++
++
++def scientific_identity(value):
++    value=copy.deepcopy(value);value.pop('source_files',None)
++    value['execution'].pop('execution_tuning',None)
++    # Qualification does not get authority to alter scientific fields.
++    value.pop('qualification',None)
++    return value
++
++
++def validate_patch(before,after,*,qualification=False):
++    if scientific_identity(before)!=scientific_identity(after):
++        raise ValueError('Execution patch changed scientific/model/data/optimizer/precision identity')
++    if not qualification and before['qualification']!=after['qualification']:
++        raise ValueError('Qualification weights cannot become formal initialization')
++    old,new=before['source_files'],after['source_files']
++    changes={name:dict(before=old.get(name),after=new.get(name))for name in set(old)|set(new)if old.get(name)!=new.get(name)}
++    if not changes or not set(changes).issubset(ALLOWED_PATCH):
++        raise ValueError('Unapproved imported dependency changed: '+repr(sorted(set(changes)-ALLOWED_PATCH)))
++    if any(row['after']is None for row in changes.values()):raise ValueError('Execution migration cannot delete an imported dependency')
++    return dict(sorted(changes.items()))
++
++
++def validate_receipt(path,new_identity,*,resume=None):
++    path=Path(path);value=json.loads(path.read_text());body=dict(value);seal=body.pop('sha256',None)
++    if seal!=fingerprint(body)or value.get('schema')!=SCHEMA or value.get('status')!='PASS':
++        raise ValueError('Unsealed/unqualified execution handoff')
++    if new_identity!=value['new_identity']:raise ValueError('Execution receipt does not bind this exact runtime identity')
++    parent=Path(value['parent_checkpoint'])
++    old=json.loads((parent/'identity.json').read_text())
++    if (old!=value['old_identity']or file_sha(parent/'COMPLETE')!=value['parent_COMPLETE_sha256']
++            or file_sha(parent/'files.json')!=value['parent_inventory_sha256']):
++        raise ValueError('Pinned original native recovery boundary changed')
++    if validate_patch(old,new_identity)!=value['changes']:raise ValueError('Execution patch differs from reviewed receipt')
++    if new_identity['qualification']or new_identity['world']!=8:raise ValueError('Formal handoff preserves eight-rank formal ancestry')
++    for proof in value['proofs']:
++        p=Path(proof['path']);actual=json.loads(p.read_text())
++        if file_sha(p)!=proof['sha256']or actual.get('status')!='PASS':raise ValueError('Equivalence proof changed')
++    if not value['proofs']:raise ValueError('No actual equivalence evidence')
++    if resume is not None:
++        actual=json.loads((Path(resume)/'identity.json').read_text())
++        if actual not in(old,new_identity):raise ValueError('Resume checkpoint is outside this exact execution lineage')
++        if actual==old and Path(resume).resolve()!=parent.resolve():raise ValueError('First handoff must restore the pinned committed boundary')
++    return value
++
++
++def restore(path,engine,new_identity,builder,receipt):
++    from starVLA.rl.qwen_world_postcot import checkpoint as cp
++    value=validate_receipt(receipt,new_identity,resume=path)
++    actual=json.loads((Path(path)/'identity.json').read_text())
++    # Keep native strict identity, tensor keys/dtypes, Adam/scheduler counters,
++    # rank RNG and builder progress checks. No strict=False or field skipping.
++    return cp.restore(path,engine,actual,builder)
+diff --git a/starVLA/rl/qwen_world_compare/prefetch.py b/starVLA/rl/qwen_world_compare/prefetch.py
+new file mode 100644
+index 0000000..c5e1894
+--- /dev/null
++++ b/starVLA/rl/qwen_world_compare/prefetch.py
+@@ -0,0 +1,90 @@
++"""Ordered CPU-only fixed-bank IL prefetch; counters commit on consumption.
++
++The worker builds deterministic immutable observations/targets, never Qwen or
++policy features. Unconsumed futures do not advance the checkpoint cursor/calls.
++Only one worker owns the cache readers; there is no concurrent builder access.
++"""
++from concurrent.futures import ThreadPoolExecutor
++import sqlite3
++import time
++
++
++class OrderedUpdatePrefetch:
++    def __init__(self,builder,request,*,start_update,start_cursor,depth=2,scenes_per_update=32,builder_factory=None):
++        if depth not in(1,2):raise ValueError('Bounded depth1 or2 required')
++        # Candidate/evidence SQLite connections belong to their creating
++        # thread. Build independent read-only readers inside the worker; never
++        # disable SQLite's ownership check or share mutable reader caches.
++        if builder_factory is None and any(isinstance(getattr(getattr(builder,name,None),'db',None),sqlite3.Connection)
++                for name in('bank','evidence')):
++            raise ValueError('Database-backed prefetch requires a worker-local builder_factory')
++        self.builder,self.request=builder,request
++        self.builder_factory=builder_factory;self.worker_builder=None
++        self.update,self.cursor=start_update,start_cursor
++        self.depth,self.scenes=depth,scenes_per_update
++        self.pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='fixed_IL_CPU_prefetch')
++        self.pending={};self.closed=False;self.consumed_updates=0
++        self.prepared_updates=0;self.failed_preparations=0;self.preparation_seconds=0.;self.attempted_microbatches=0
++        self._fill()
++
++    def _build(self,update,cursor):
++        start=time.perf_counter()
++        try:return self._build_update(update,cursor)
++        except BaseException:
++            self.failed_preparations+=1;raise
++        finally:self.preparation_seconds+=time.perf_counter()-start
++
++    def _build_update(self,update,cursor):
++        builder=self.builder
++        if self.builder_factory is not None:
++            if self.worker_builder is None:
++                self.worker_builder=self.builder_factory()
++                expected={k:v for k,v in builder.state_dict().items()if k!='calls'}
++                actual={k:v for k,v in self.worker_builder.state_dict().items()if k!='calls'}
++                if expected!=actual:raise ValueError('Worker builder fixed-bank identity mismatch')
++            builder=self.worker_builder
++        result=[]
++        for tokens,positions in self.request(update,cursor):
++            self.attempted_microbatches+=1
++            result.append(builder.build(tokens,positions,update,account=False))
++        self.prepared_updates+=1
++        return result
++
++    def _fill(self):
++        for offset in range(self.depth):
++            update=self.update+offset
++            if update not in self.pending:
++                self.pending[update]=self.pool.submit(self._build,update,self.cursor+offset*self.scenes)
++
++    def next(self,update,cursor):
++        if self.closed or(update,cursor)!=(self.update,self.cursor):raise ValueError('Prefetch cursor/order mismatch')
++        batches=self.pending.pop(update).result() # Exceptions reach the normal distributed data-error path.
++        self.builder.calls+=len(batches)
++        self.update+=1;self.cursor+=self.scenes;self.consumed_updates+=1
++        self._fill();return batches
++
++    def close(self):
++        if self.closed:return
++        self.closed=True
++        for future in self.pending.values():future.cancel()
++        # Dispose connections on their creating thread after any active build.
++        try:
++            if self.builder_factory is not None:
++                self.pool.submit(self._close_worker).result()
++        finally:
++            self.pool.shutdown(wait=True,cancel_futures=True)
++            self.pending.clear()
++
++    def _close_worker(self):
++        if self.worker_builder is not None:
++            self.worker_builder.close();self.worker_builder=None
++
++    def statistics(self):
++        return dict(consumed_updates=self.consumed_updates,prepared_updates=self.prepared_updates,
++            unconsumed_prepared_updates=self.prepared_updates-self.consumed_updates,
++            attempted_microbatches=self.attempted_microbatches,failed_preparations=self.failed_preparations,
++            CPU_reader_worker_seconds=self.preparation_seconds,
++            semantics='Physical CPU-only preparation includes unconsumed work; only consumption advances native builder/data progress.')
++
++    def __enter__(self):return self
++    def __exit__(self,*_):self.close()
+diff --git a/tools/qwen_world_compare/prepare_execution_handoff.py b/tools/qwen_world_compare/prepare_execution_handoff.py
+new file mode 100644
+index 0000000..109f693
+--- /dev/null
++++ b/tools/qwen_world_compare/prepare_execution_handoff.py
+@@ -0,0 +1,134 @@
++"""Pin an original COMPLETE boundary and publish a qualified execution receipt.
++
++Hardlinks preserve native model/Adam/RNG files without copying large tensors.
++The original checkpoint, seal, identity and metrics are never rewritten.
++"""
++import argparse
++import copy
++import fcntl
++import json
++import os
++from pathlib import Path
++import subprocess
++from starVLA.rl.qwen_world_compare.contracts import file_sha,fingerprint
++from starVLA.rl.qwen_world_compare.execution_migration import SCHEMA,validate_patch
++from starVLA.rl.qwen_world_compare.loading import inspect_IL_checkpoint
++from starVLA.rl.qwen_world_postcot.checkpoint import atomic_json
++from tools.qwen_world_compare.train_il import source_files
++
++
++def adopt_campaign(root,source,proof_root,output):
++    """Metadata-only owner adoption. Existing native workers are untouched."""
++    from tools.qwen_world_compare.campaign import make_plan,expected_source_files
++    root,source,output=map(Path,(root,source,output));directory=root/'campaign'
++    with(directory/'owner.lock').open('a')as lock:
++        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
++        old=json.loads((root/'RUNS.json').read_text());state=json.loads((directory/'STATE.json').read_text())
++        plan=make_plan(source/'configs/qwen_world_compare/campaign.yaml',source)
++        full=expected_source_files(source);train=source_files();proofs={}
++        for key in('root','common','data_paths','stages','IL_updates','RL_updates','IL_DEV_updates','RL_DEV_updates',
++                    'inference','train_seed','evaluation_seed','DEV_count','NAVTEST_count','logical_IL_scene_exposures_per_arm',
++                    'logical_RL_fresh_rollouts_per_arm','logical_RL_scene_exposures_per_arm','logical_RL_candidates_per_arm'):
++            if plan[key]!=old['plan'][key]:raise ValueError('Campaign scientific plan changed: '+key)
++        for arch in 'ABCD':
++            proof=Path(proof_root)/arch/'COMPARISON.json';value=json.loads(proof.read_text())
++            if(value.get('status')!='PASS'or value.get('architecture_id')!=arch or value.get('world')!=8
++                or value.get('source_files')!=train or value.get('actual_optimizer_updates_and_native_states_compared')is not True):
++                raise ValueError('Missing actual source-bound native continuation: '+arch)
++            arm=plan['architectures'][arch];previous=old['plan']['architectures'][arch]
++            for key in('config_sha256','IL','RL','selection_IL','selection_RL'):
++                if arm[key]!=previous[key]:raise ValueError('Campaign arm changed: '+arch+'/'+key)
++            prior=Path(previous['qualification']);accept=json.loads(prior.read_text())
++            if accept['status']!='PASS'or accept['source_files']!=old['source_files']:raise ValueError('Original qualification changed')
++            passed=dict(status='PASS',architecture_id=arch,source_files=full,config_sha256=arm['config_sha256'],
++                formal_initialized_from_qualification=False,validation_kind='original_qualification_plus_exact_native_execution_continuation',
++                original_qualification=dict(path=str(prior),sha256=file_sha(prior)),
++                native_equivalence=dict(path=str(proof.resolve()),sha256=file_sha(proof)))
++            target=Path(arm['qualification']);target.parent.mkdir(parents=True,exist_ok=True)
++            if target.exists()and json.loads(target.read_text())!=passed:raise ValueError('Refusing to overwrite qualification lineage')
++            atomic_json(target,passed);proofs[arch]=passed['native_equivalence']
++        if state['plan_sha256']!=old['plan']['sha256']or state['source_files']!=old['source_files']:
++            raise ValueError('Old owner state is not the archived campaign')
++        output.mkdir(parents=True,exist_ok=False)
++        for name,path in [('RUNS',root/'RUNS.json'),('STATE',directory/'STATE.json'),('OWNER',directory/'OWNER.json')]:
++            (output/(name+'_BEFORE.json')).write_bytes(path.read_bytes())
++        state['plan_sha256']=plan['sha256'];state['source_files']=full
++        registry=dict(schema='qwen_world_compare_IL_handoff_registry_v1',architectures={a:dict(status='HOLD')for a in 'ABCD'})
++        atomic_json(directory/'IL_EXECUTION_HANDOFFS.json',registry)
++        atomic_json(root/'RUNS.json',dict(plan=plan,source_files=full,source_files_sha256=fingerprint(full)))
++        atomic_json(directory/'STATE.json',state)
++        atomic_json(output/'COMPLETE.json',dict(status='PASS',kind='metadata_only_existing_native_workers_preserved',
++            old_source=old['plan']['source'],new_source=str(source),proofs=proofs,plan_sha256=plan['sha256']))
++        print(json.dumps(dict(status='PASS',existing_native_workers_preserved=True,receipt=str(output/'COMPLETE.json'))))
++
++
++def activate(root,arch,receipt,host,lease_slot,minimum):
++    from starVLA.rl.qwen_world_compare.execution_migration import validate_receipt
++    receipt=Path(receipt).resolve();value=json.loads(receipt.read_text());validate_receipt(receipt,value['new_identity'])
++    if value['architecture_id']!=arch:raise ValueError('Another architecture owns this receipt')
++    from starVLA.rl.qwen_world_compare.resources import probe,allowed_hosts
++    if host not in allowed_hosts(admit_long_job=True):raise PermissionError('Host permission withdrawn')
++    devices=probe(host);registry=Path(root)/'campaign/IL_EXECUTION_HANDOFFS.json'
++    with registry.with_suffix('.lock').open('a')as lock:
++        fcntl.flock(lock,fcntl.LOCK_EX)
++        table=json.loads(registry.read_text())
++        if table['architectures'][arch]['status']!='HOLD':raise ValueError('Do not replace an active handoff')
++        table['architectures'][arch]=dict(status='ACTIVE',receipt=str(receipt),receipt_file_sha256=file_sha(receipt),
++            host=host,uuids=[g['uuid']for g in devices['gpus']],lease_slot=lease_slot,share_min_free_mib=minimum)
++        atomic_json(registry,table)
++    print(json.dumps(dict(status='ACTIVE',architecture=arch,host=host,receipt=str(receipt))))
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint');p.add_argument('--output')
++    p.add_argument('--checkpoint-policy',choices=('short_off','all_off'))
++    p.add_argument('--cpu-prefetch-depth',type=int,choices=(1,2),default=2)
++    p.add_argument('--proof',action='append')
++    p.add_argument('--adopt-campaign');p.add_argument('--native-proof-root')
++    p.add_argument('--activate-architecture',choices=list('ABCD'));p.add_argument('--root');p.add_argument('--receipt');p.add_argument('--host')
++    p.add_argument('--lease-slot',choices=('primary','shared'),default='shared');p.add_argument('--share-min-free-mib',type=int,default=40000)
++    a=p.parse_args();source=Path(__file__).resolve().parents[2]
++    if a.adopt_campaign:
++        if not a.native_proof_root or not a.output:raise ValueError('Adoption requires actual native proofs and an archive directory')
++        return adopt_campaign(a.adopt_campaign,source,a.native_proof_root,a.output)
++    if a.activate_architecture:
++        return activate(a.root,a.activate_architecture,a.receipt,a.host,a.lease_slot,a.share_min_free_mib)
++    if not(a.checkpoint and a.output and a.checkpoint_policy and a.proof):raise ValueError('Pinning needs parent, execution policy and actual equivalence proofs')
++    out=Path(a.output)
++    if (out/'MIGRATION.json').exists():raise FileExistsError('Do not replace a published handoff')
++    info=inspect_IL_checkpoint(a.checkpoint,verify_files='inventory');old=info['identity']
++    if old['qualification']or old['world']!=8:raise ValueError('Only original formal native boundaries can migrate')
++    if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=source,text=True).strip():
++        raise ValueError('Execution source has uncommitted tracked changes')
++    new=copy.deepcopy(old);new['source_files']=source_files()
++    new['execution']['execution_tuning']=dict(checkpoint_policy=a.checkpoint_policy,cpu_prefetch_depth=a.cpu_prefetch_depth)
++    changes=validate_patch(old,new);proofs=[]
++    for path in a.proof:
++        path=Path(path).resolve();value=json.loads(path.read_text())
++        if value.get('status')!='PASS':raise ValueError('Actual qualification is incomplete/failed: '+str(path))
++        proofs.append(dict(path=str(path),sha256=file_sha(path)))
++    # A source-bound eight-rank continuation is mandatory, in addition to the
++    # per-architecture real-model gradient and CPU data tests.
++    native=[json.loads(Path(x['path']).read_text())for x in proofs]
++    if not any(v.get('world')==8 and v.get('architecture_id')==old['architecture_id']and v.get('actual_optimizer_updates_and_native_states_compared')is True
++               and v.get('source_files')==new['source_files']for v in native):
++        raise ValueError('No eight-rank native continuation proof for this exact source')
++    original=Path(info['path']);parent=out/'PARENT';parent.mkdir(parents=True,exist_ok=False)
++    names=set(info['files'])|{'identity.json','files.json','COMPLETE'}
++    for name in sorted(names):
++        src=original/name;dst=parent/name
++        if not src.resolve().is_relative_to(original.resolve()):raise ValueError('Escaping native path')
++        dst.parent.mkdir(parents=True,exist_ok=True);os.link(src,dst)
++    receipt=dict(schema=SCHEMA,status='PASS',architecture_id=old['architecture_id'],
++        parent_checkpoint=str(parent.resolve()),original_parent_checkpoint=str(original),
++        parent_COMPLETE_sha256=file_sha(parent/'COMPLETE'),parent_inventory_sha256=file_sha(parent/'files.json'),
++        old_identity=old,new_identity=new,changes=changes,proofs=proofs,
++        execution_source=str(source),execution_git_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip(),
++        qualification_weights_used_as_formal_initialization=False,
++        preserved=['parameters','Adam_FP32','scheduler','RNG_all_ranks','builder','scene_cursor','effective_updates'],
++        budgets_and_objectives_unchanged=True)
++    receipt['sha256']=fingerprint(receipt);atomic_json(out/'MIGRATION.json',receipt)
++    print(json.dumps(dict(receipt=str(out/'MIGRATION.json'),parent=str(parent),updates=info['seal']['updates'],sha256=receipt['sha256'])))
++
++
++if __name__=='__main__':main()
+diff --git a/tools/qwen_world_compare/train_il.py b/tools/qwen_world_compare/train_il.py
+index 0e0f572..3144a78 100644
+--- a/tools/qwen_world_compare/train_il.py
++++ b/tools/qwen_world_compare/train_il.py
+@@ -1,5 +1,6 @@
+ """Complete100k shared-objective IL; finite qualification never initializes it."""
+ import argparse
++import copy
+ from datetime import timedelta
+ import fcntl
+ import json
+@@ -99,10 +100,24 @@ def main():
+     p.add_argument('--stop-after',type=int);p.add_argument('--evidence-override');p.add_argument('--profile-no-save',action='store_true');p.add_argument('--backend',choices=['zero2','ddp']);p.add_argument('--micro-batch',type=int)
+     p.add_argument('--qualification-save-at',type=int,nargs='*',default=[])
+     p.add_argument('--profile-dir');p.add_argument('--profile-steps',type=int,default=0)
++    p.add_argument('--retain-short-graphs',action='store_true')
++    p.add_argument('--checkpoint-policy',choices=('source','short_off','all_off'),default='source')
++    p.add_argument('--cpu-prefetch-depth',type=int,choices=(0,1,2),default=0)
++    p.add_argument('--execution-receipt')
++    p.add_argument('--qualification-parent')
+     a=p.parse_args();cfg=load_config(a.config);host=require_dispatch(admit_long_job=not a.qualification)
+     world=int(os.environ.get('WORLD_SIZE',1));rank=int(os.environ.get('RANK',0));local=int(os.environ.get('LOCAL_RANK',0))
+     if not a.qualification and (world!=8 or a.stop_after or a.evidence_override or a.profile_no_save or a.joint):raise ValueError('Formal IL preserves all100k/scenes/tasks/stages')
+     if a.qualification and not(a.stop_after and 1<=a.stop_after<=20):raise ValueError('Qualification requires a finite1..20update window')
++    if a.retain_short_graphs:
++        if a.checkpoint_policy!='source':raise ValueError('Specify one checkpoint execution option')
++        a.checkpoint_policy='short_off'
++    tuning=a.checkpoint_policy!='source'or bool(a.cpu_prefetch_depth)
++    if tuning and not a.qualification and not a.execution_receipt:
++        raise ValueError('Formal execution tuning requires an explicit qualified native migration receipt')
++    if a.execution_receipt and(a.qualification or not a.resume):raise ValueError('Formal migration needs exact native resume')
++    if a.qualification_parent and(not a.qualification or a.resume or a.joint or world!=8):
++        raise ValueError('Native continuation qualification requires eight ranks, original stage and separate output')
+     if a.profile_no_save and (not a.qualification or a.resume):raise ValueError('Disposable profile cannot recover/formally train')
+     if a.qualification_save_at and(not a.qualification or a.profile_no_save):raise ValueError('Extra checkpoint boundaries are qualification-only')
+     backend=a.backend or cfg['execution']['backend']
+@@ -122,8 +137,15 @@ def main():
+     builder=BatchBuilder(data,processor,teacher,bank,tracks,evidence)
+     micro=a.micro_batch or cfg['execution']['micro_batch'];accum=32//(world*micro)
+     if world*micro*accum!=32:raise ValueError('Microbatch topology changes global32')
+-    model=build_model(cfg).to(device)
++    native_parent=a.resume or a.qualification_parent
++    parent_config=(json.loads((Path(native_parent)/'identity.json').read_text())['qwen_config']if native_parent else None)
++    # Exact native restoration loads every model tensor below. Avoid first
++    # loading unused generic weights; construction never replaces native data.
++    model=build_model(cfg,checkpoint_config=copy.deepcopy(parent_config)).to(device)
+     if cfg['architecture_id']!='D'and cfg['execution']['activation_checkpointing']:model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
++    if a.checkpoint_policy!='source':
++        from starVLA.model.modules.qwen_world_compare.execution import checkpoint_flags,apply_checkpoint_policy
++        apply_checkpoint_policy(model,a.checkpoint_policy,checkpoint_flags(model))
+     groups=parameter_groups(model,cfg);opt=cfg['il']['optimizer']
+     # ZeRO2 replaces param_groups entries with flattened master tensors. Bind
+     # logical model names/shapes before handing those same groups to the engine.
+@@ -137,15 +159,59 @@ def main():
+     else:engine=ProfileDDPEngine(model,optimizer,scheduler,accum)
+     qcfg=model.decision.qwen_model.config.to_dict()if cfg['architecture_id']=='D'else model.qwen.model.config.to_dict()
+     identity=cp.canonical_identity(dict(schema='qwen_world_compare_IL_v1',architecture_id=cfg['architecture_id'],config=cfg,model_config=cfg['model'],qwen_config=qcfg,world=world,qualification=a.qualification,uses_rl=False,uses_metric_supervision=True,train_heads=True,source_files=source_files(),initialization=qwen_identity,parameter_roles=model.parameter_roles(),optimizer_ordered_parameter_groups=group_contract,data_sha256=data.sha,teacher_identity_sha256=file_sha(Path(cfg['teacher_cache'])/'IDENTITY.json'),candidate_bank_hash=bank.bank_hash,evidence_identity=evidence.manifest['identity'],evidence_manifest_sha256=file_sha(evidence.root/'MANIFEST.json'),target_manifest_sha256=file_sha(tracks.root/'manifest.json'),execution=dict(backend=backend,micro=micro,accum=accum,ds=ds),joint_override=a.joint))
++    if tuning:
++        identity['execution']['execution_tuning']=dict(checkpoint_policy=a.checkpoint_policy,cpu_prefetch_depth=a.cpu_prefetch_depth)
++    migration=None
++    if a.execution_receipt:
++        from starVLA.rl.qwen_world_compare.execution_migration import validate_receipt
++        migration=cp._rank_zero_call(lambda:validate_receipt(a.execution_receipt,identity,resume=a.resume))
+     def publish():
+         p=out/'IDENTITY.json'
+-        if p.exists()and json.loads(p.read_text())!=identity:raise ValueError('Existing run identity mismatch')
++        if p.exists()and json.loads(p.read_text())!=identity:
++            previous=json.loads(p.read_text())
++            if migration is None or previous!=migration['old_identity']:raise ValueError('Existing run identity mismatch')
++            archive=out/'execution_lineage'/migration['sha256'];archive.mkdir(parents=True,exist_ok=True)
++            cp.atomic_json(archive/'PREVIOUS_IDENTITY.json',previous)
++            cp.atomic_json(archive/'MIGRATION.json',migration)
+         cp.atomic_json(p,identity)
+-    cp._rank_zero_call(publish)
+     state=dict(updates=0,cursor=0,phase='joint'if a.joint else'interface',qwen_optimizer_initialized=a.joint);last=None
+-    if a.resume:state=cp.restore(a.resume,engine,identity,builder);last=a.resume
+-    start=state['updates'];limit=a.stop_after if a.qualification else 100000
++    if a.resume:
++        if a.execution_receipt:
++            from starVLA.rl.qwen_world_compare.execution_migration import restore
++            state=restore(a.resume,engine,identity,builder,a.execution_receipt)
++        else:state=cp.restore(a.resume,engine,identity,builder)
++        last=a.resume
++    if a.qualification_parent:
++        from starVLA.rl.qwen_world_compare.execution_migration import validate_patch
++        parent=json.loads((Path(a.qualification_parent)/'identity.json').read_text())
++        validate_patch(parent,identity,qualification=True)
++        state=cp.restore(a.qualification_parent,engine,parent,builder);last=a.qualification_parent
++    cp._rank_zero_call(publish)
++    start=state['updates'];limit=(start+a.stop_after if a.qualification_parent else a.stop_after)if a.qualification else 100000
++    first_handoff=bool(migration and json.loads((Path(a.resume)/'identity.json').read_text())==migration['old_identity'])
++    if first_handoff:
++        cp.atomic_json(out/f'EXECUTION_RESTORE_rank{rank}.json',dict(status='RESTORED',updates=start,cursor=state['cursor'],
++            parent=a.resume,migration_sha256=migration['sha256'],optimizer_global_steps=int(engine.global_steps),
++            builder=builder.state_dict(),lr=[g['lr']for g in optimizer.param_groups],native_full_state_loader=True))
+     qualified_tokens=evidence.manifest['scenes']
++    prefetch=None
++    if a.cpu_prefetch_depth:
++        from starVLA.rl.qwen_world_compare.prefetch import OrderedUpdatePrefetch
++        def worker_builder():
++            # Ownership of CPU observation/teacher/track readers transfers to
++            # this sole worker. Only SQLite readers need worker-local creation;
++            # duplicating all immutable manifests added ~40s startup per rank.
++            return BatchBuilder(data,processor,teacher,CandidateBank(cfg['candidate_bank'],allowed_splits=('TRAIN',)),
++                tracks,EvidenceBank(a.evidence_override or cfg['evidence_root']))
++        def requests(update,cursor):
++            result=[]
++            for m in range(accum):
++                positions=[rank*(32//world)+m*micro+j for j in range(micro)]
++                tokens=[qualified_tokens[(cursor+i)%len(qualified_tokens)]if a.qualification and not a.qualification_parent else data.tokens[data.index(cursor+i)]for i in positions]
++                result.append((tokens,positions))
++            return result
++        prefetch=OrderedUpdatePrefetch(builder,requests,start_update=start,start_cursor=state['cursor'],
++            depth=a.cpu_prefetch_depth,builder_factory=worker_builder)
+     gradient_audit=GradientRolesAudit(model)if a.qualification and not a.profile_no_save else None
+     profiler=None
+     if a.profile_dir:
+@@ -161,10 +227,12 @@ def main():
+                 if not interface and not state['qwen_optimizer_initialized']:initialize_joint_optimizer(engine,state)
+                 batches=[];err=None
+                 try:
+-                    for m in range(accum):
+-                        positions=[rank*(32//world)+m*micro+j for j in range(micro)]
+-                        tokens=[qualified_tokens[(state['cursor']+i)%len(qualified_tokens)]if a.qualification else data.tokens[data.index(state['cursor']+i)]for i in positions]
+-                        batches.append(builder.build(tokens,positions,state['updates']))
++                    if prefetch is not None:batches=prefetch.next(state['updates'],state['cursor'])
++                    else:
++                        for m in range(accum):
++                            positions=[rank*(32//world)+m*micro+j for j in range(micro)]
++                            tokens=[qualified_tokens[(state['cursor']+i)%len(qualified_tokens)]if a.qualification and not a.qualification_parent else data.tokens[data.index(state['cursor']+i)]for i in positions]
++                            batches.append(builder.build(tokens,positions,state['updates']))
+                 except Exception as exc:err=repr(exc)
+                 consistent_cpu_data_error(err,device);data_seconds=time.monotonic()-tick
+                 den=update_denominators(batches,device);weights=dict(cfg['il']['loss_weights']);ramp=min(1.,(state['updates']+1)/1000)
+@@ -186,10 +254,12 @@ def main():
+                 if profiler is not None:profiler.step(update=state['updates'],scenes=32,wall_seconds=elapsed,data_wait_seconds=data_seconds,optimizer_seconds=None)
+                 if rank==0 and(state['updates']<=5 or state['updates']%20==0):print(json.dumps(row),flush=True)
+                 requested=torch.tensor(int(STOP or boundary_stop_due(host)),device=device);dist.all_reduce(requested,op=dist.ReduceOp.MAX);terminal=state['updates']==limit or bool(requested)
+-                if not a.profile_no_save and(terminal or state['updates']%1000==0 or state['updates']in a.qualification_save_at):
++                handoff_boundary=first_handoff and state['updates']==start+2
++                if not a.profile_no_save and(terminal or handoff_boundary or state['updates']%1000==0 or state['updates']in a.qualification_save_at):
+                     st=time.monotonic();last=cp.save(out,engine,state,identity,builder)
+                     if rank==0:
+                         cp.atomic_json(out/'progress.json',dict(state,status='COMPLETE'if state['updates']==100000 else'STOPPED'if terminal else'RUNNING',checkpoint=last,save_seconds=time.monotonic()-st));cp.retain_rolling(out,2)
++                        if handoff_boundary:cp.atomic_json(out/'EXECUTION_HANDOFF_COMPLETE.json',dict(status='PASS',from_updates=start,updates=state['updates'],checkpoint=last,migration_sha256=migration['sha256']))
+                 if terminal:break
+         if rank==0:cp.atomic_json(out/'INVOCATION_COMPLETE.json',dict(updates=state['updates'],invocation_start_update=start,qualification=a.qualification,checkpoint=last,profile_no_save=a.profile_no_save))
+         if gradient_audit is not None:
+@@ -197,6 +267,9 @@ def main():
+     except BaseException:
+         cp.atomic_json(out/f'FAILURE_rank{rank}.json',dict(error=traceback.format_exc(),state=state,last_complete_checkpoint=last));raise
+     finally:
++        if prefetch is not None:
++            prefetch.close()
++            cp.atomic_json(out/f'CPU_PREFETCH_start{start:06d}_pid{os.getpid()}_rank{rank}.json',prefetch.statistics())
+         if profiler is not None:profiler.__exit__(*sys.exc_info())
+         bank.close();teacher.close();dist.destroy_process_group()
+ 
