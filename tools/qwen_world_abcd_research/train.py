@@ -31,6 +31,7 @@ from starVLA.rl.simwam_recipe.reward_readouts import RewardService
 from starVLA.rl.simwam_recipe.collection import collect,finalize_advantages,exploration_summary
 from starVLA.rl.simwam_recipe.data_stream import make_scene_stream
 from starVLA.rl.qwen_world_abcd_research import checkpoint
+from starVLA.rl.qwen_world_abcd_research.identity import canonical_json_identity
 from starVLA.rl.qwen_world_compare.recovery_state import boundary_phase,rollout_digest,validate_boundary,validate_ranks
 from starVLA.rl.simwam_recipe.invocation import Invocation
 from starVLA.rl.simwam_recipe.lineage import scientific_identity,execution_identity,verify_migration
@@ -139,6 +140,9 @@ def main(runtime=None):
                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
     if hasattr(stream,'identity'):identity['data_stream_identity']=stream.identity
     if explicit_optimizer_groups is not None:identity['actual_optimizer']['parameter_groups']=explicit_optimizer_groups
+    # Parent export source-diff tuples become lists on disk. The unchanged
+    # recipe must compare against its persisted JSON value, not Python types.
+    identity=canonical_json_identity(identity)
     identity['scientific_identity']=scientific_identity(identity)
     identity['execution_identity']=execution_identity(identity['source_files'])
     identity['sha256']=fingerprint(identity)

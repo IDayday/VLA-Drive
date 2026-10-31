@@ -94,6 +94,8 @@ class Owner:
                            '--output', run['root'], '--stop-after-update', str(target), '--save-every', '100']
                 if resume:
                     command += ['--resume', resume]
+                    if run.get('execution_migration_receipt'):
+                        command += ['--migration-receipt', run['execution_migration_receipt']]
                 try:
                     job = launch(route['host'], run['source'], command, name, gpus='0,1,2,3,4,5,6,7',
                         expected_uuids=[g['uuid'] for g in sample['gpus']],

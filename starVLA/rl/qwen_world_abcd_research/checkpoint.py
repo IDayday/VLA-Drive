@@ -21,6 +21,7 @@ from starVLA.rl.simwam_recipe.lora_adapter import adapter_state,restore_adapters
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.qwen_world_compare.contracts import file_sha
 from starVLA.rl.qwen_world_compare.recovery_state import validate_boundary as source_boundary,validate_ranks as source_ranks
+from .identity import validate_execution_receipt
 
 init_control_group = source.init_control_group
 gather = source.gather
@@ -150,8 +151,10 @@ def restore(path,actor,optimizer,scheduler,generator,identity,*,migration=None,r
     try:
         path=Path(path);complete=json.loads((path/'COMPLETE').read_text())
         if ('.incomplete' in path.name or complete.get('schema')!=2
-                or complete.get('contract')!=CHECKPOINT_CONTRACT or migration is not None):
+                or complete.get('contract')!=CHECKPOINT_CONTRACT):
             raise ValueError('Unpublished/foreign checkpoint; an explicit new-family audited migration is required')
+        if migration is not None:
+            validate_execution_receipt(migration,identity,EXECUTION_IDENTITY,path)
         if (complete['world']!=world or identity['world']!=world
                 or file_sha(path/'files.json')!=complete['files_sha256']):
             raise ValueError('Checkpoint publication/rank count changed')
