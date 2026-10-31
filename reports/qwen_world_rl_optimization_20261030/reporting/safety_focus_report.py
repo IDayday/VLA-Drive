@@ -1,4 +1,4 @@
-"""SafetyEP-focused read-only presentation; historical trials stay in an appendix."""
+"""Current-first RL presentation with expandable mechanism and history."""
 from __future__ import annotations
 
 import json
@@ -81,7 +81,7 @@ def render_safety_focus_report(root,snapshot,history,h):
     if export28 and 28000 not in by_update:
         if export28.get('superseded_historical_failure'):body+=detail('28k已独立恢复评测：旧失败不覆盖新部署', '<p>首次CPU导出写入失败与残留.building均已保留归档；root已quarantine未发布残留并发布正式export与'+number(export28.get('world'))+'rank评测spec。当前独立恢复状态 '+esc(export28.get('status'))+'，worker收据 '+esc(export28.get('worker_counts'))+'。同CP／同v3 scorer／同推理协议，旧cadence的FAILED历史不覆盖新恢复；完整SUMMARY出来前不补分数。</p><p>'+link(root/'owners'/'SAFETY28_EXPORT_RECOVERY'/'STATE.json','独立恢复状态')+' · '+link(root/'evaluation_specs'/'PPO_SAFETY_EP_u028000_NAVTEST.json','实际评测spec')+' · '+link(root/'analysis'/'SAFETY28K_EXPORT_FAILURE_READONLY_20261031.json','历史失败只读诊断')+'</p>')
         else:body+=detail('28k评测缺口：CPU导出故障与科学成绩分开', '<p>28k导出先遇到PyTorch输出写入失败，随后被残留未发布.building目录拒绝；当前评测状态 '+esc(export28.get('status'))+'。未有完整分数不补点，不把导出故障解释为算法失败；30k完整结果独立展示。修复／重试由root负责，报告仅只读记录。</p><p>'+link(root/'analysis'/'SAFETY28K_EXPORT_FAILURE_READONLY_20261031.json','输出写入失败、原生seal与最小恢复接口')+'</p>')
-    section('focus','SafetyEP：现在知道什么，下一步研究什么','以92+为目标；阶段收益、机制证据与新算法验证分别呈现。',body)
+    section('focus','SafetyEP历史对照：收益与长训停止依据','以92+为目标；阶段收益、机制证据与新算法验证分别呈现。',body)
 
     def score_plot(plt):
         fig,ax=plt.subplots(figsize=(7,3.8),layout='constrained')
@@ -148,7 +148,7 @@ def render_safety_focus_report(root,snapshot,history,h):
     if proximal.get('status')=='COMPLETE_CPU_RESEARCH_ONLY':
         body+=detail('保留为后续研究：Flow直接proximal／条件KL，目前不追加GPU', '<p>两个有界8rank窗口里，按有效候选步加权的PPO阻断率为2.82%／2.34%；有正负不对称，但尚未证明是主要瓶颈。条件Gaussian KL可以用于测量与候选门控；官方实现的mean logp／mean KL也不能当全文全密度重要性比。当前保留CPU原型与单位方案，优先等待已运行P1／FPO的完整结果。</p><p>'+link(root/'analysis'/'FLOW_DIRECT_PROXIMAL_RESEARCH_20261031.json','primary文献、实际窗口与暂缓决定')+'</p>')
     if editorial.get('llm_trick_transfer',{}).get('status')=='COMPLETE_LITERATURE_TO_IMPLEMENTATION_REVIEW':body+=detail('LLM RL技巧迁移：保留机制边界', '<p>恒定LR配warmup有论文先例；LLM不使用token KL不能推出删除这里的物理轨迹anchor。JustRL未单独证明batch-level std，因此不把它当三篇共享结论直接套用，而以本任务已有归一化、梯度与同预算评测作迁移依据。'+link(root/'analysis'/'LLM_RL_TRICK_TRANSFER_CHECK_20261031.json','primary文献与实际实现复核')+'</p>')
-    section('next','只提出少量下一步：统一IL基线fresh验证','先讲清问题、机制、单变量和失败判据，再分配新的训练预算。',body)
+    section('next','实验设计、文献与完整配对分析','当前四组实验的详细实现、研究依据与阶段统计。',body)
 
     historical=[]
     for arm,other in sorted(runs.items()):
@@ -180,8 +180,15 @@ def render_safety_focus_report(root,snapshot,history,h):
     if snapshot.get('warnings'):body+='<p class="warning">'+esc('；'.join(snapshot['warnings']))+'</p>'
     section('archive','历史方法与原始证据','保留已有工作与结果，首页不再被历史路线淹没。',body)
     css='''*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#172b43;font:15px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif}header{background:#123248;color:#fff;padding:36px max(22px,calc((100vw - 1300px)/2));border-bottom:4px solid #10b981}h1{font-size:30px;margin:8px 0}header p{color:#c3d8e5;max-width:1000px}nav{position:sticky;top:0;background:#fffffff5;z-index:2;border-bottom:1px solid #dce6ef;display:flex;gap:25px;padding:12px max(22px,calc((100vw - 1300px)/2));overflow:auto;white-space:nowrap}nav a{font-size:13px;color:#36596d}main{max-width:1344px;margin:auto;padding:24px 22px 40px}section{background:#fff;border:1px solid #dce6ef;border-radius:13px;padding:28px 30px;margin-bottom:25px;scroll-margin-top:64px}h2{font-size:23px;margin:0}h3{font-size:17px;margin:18px 0 8px}.deck,.muted{color:#64768a;font-size:13px}.deck{margin:4px 0 20px}p{margin:11px 0}.notice,.callout{background:#eef8f4;border-left:3px solid #10b981;padding:14px 18px;border-radius:8px}.warning{background:#fff1e9;padding:14px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0}.cards article{background:#f3f7fb;border:1px solid #e1e9f0;border-radius:10px;padding:17px}.cards span,small{display:block;color:#65788d;font-size:12px}.cards strong{display:block;font-size:28px;margin:5px 0;color:#123e51}.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;margin:20px 0;align-items:start}.callout{background:#f6f8fb;border-left:0}.callout h3{margin-top:0}figure{margin:0;background:#fbfcfe;border:1px solid #e2e9f0;border-radius:10px;padding:15px;min-width:0}figcaption{font-size:14px;font-weight:600}figure svg{width:100%;height:auto}.figure-note,.downloads{font-size:12px;color:#64768a}.table-wrap{overflow:auto;border:1px solid #e2e9f0;border-radius:10px;margin:17px 0}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:12px;text-align:left;vertical-align:top;border-bottom:1px solid #e7edf3;overflow-wrap:anywhere}th{font-size:12px;background:#f0f5f9;color:#426075;white-space:nowrap}tr:last-child td{border-bottom:0}details{border:1px solid #dce6ef;border-radius:10px;padding:15px 18px;margin:13px 0}summary{cursor:pointer;font-size:14px;font-weight:600;color:#35566c}details[open] summary{margin-bottom:17px}a{color:#1979aa;text-decoration:none}a:hover{text-decoration:underline}.protocol,footer{color:#64768a;font-size:12px}footer{text-align:center;padding:10px 20px 30px}pre{font-size:11px;white-space:pre-wrap;background:#f5f7fa;padding:14px;max-height:330px;overflow:auto}@media(max-width:950px){.two{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}section{padding:22px}h1{font-size:26px}}@media(max-width:550px){main{padding:15px 9px}section{padding:18px 14px}.cards{gap:9px}.cards article{padding:12px}.cards strong{font-size:23px}}'''
-    nav=[('focus','当前结论'),('trajectory','完整曲线'),('failures','zero与保持'),('learning','学习过程'),('next','少量下一步'),('archive','历史与证据')]
-    return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：SafetyEP机制与92+研究</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · SAFETY-EP</small><h1>从SafetyEP实证出发，推进92+研究</h1><p>核对原PPO与SafetyEP机制，跟踪安全、驾驶效率、zero修复与高分保持；新算法统一从同IL70 fresh启动。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(chapters)+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
+    import importlib
+    import current_research_report
+    importlib.reload(current_research_report)
+    front=current_research_report.build_current_sections(root,snapshot,h)
+    css+=current_research_report.CSS
+    titles=['SafetyEP历史收益与停止依据','历史对照曲线与分量归因','零分场景与高分保持诊断','信用分配、真实梯度与策略案例','四组实验的完整设计、文献与配对分析','已结束路线与原始证据']
+    background='<section id="background"><h2>机制、场景诊断与历史资料</h2><p class="deck">当前工作与最新结果已在前方汇总；需要追溯方法、证据或历史路线时再展开。</p>'+''.join('<details class="background-chapter"><summary>'+title+'</summary>'+chapter+'</details>'for title,chapter in zip(titles,chapters))+'</section>'
+    nav=[('current','当前实验与进度'),('current-results','最新评测结果'),('current-analysis','结论与下一步'),('background','机制与历史资料')]
+    return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：当前实验、评测与研究进展</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · RL RESEARCH</small><h1>RL研究进展：当前实验、评测与结论</h1><p>四组同IL70实验并行推进，目标完整NAVTEST达到92。先看当前在做什么、已评测到哪里，以及结果支持什么判断。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(front)+background+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
 
 
 def _matched_mechanism_tables(mechanism,h,link,normalization=None):

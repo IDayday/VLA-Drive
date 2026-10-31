@@ -22,7 +22,7 @@
   "multiple_training_seeds_requested": false,
   "resource_preference": "高效并行使用授权资源，修正运营规划错误后继续研究",
   "long_run_NAVTEST_cadence": {
-    "status": "ACTIVE",
+    "status": "POLICY_RETAINED_NO_ACTIVE_RUN_ABOVE_10K",
     "after_native_updates": 10000,
     "every_updates": 2000,
     "example_updates": [
@@ -32,7 +32,7 @@
       18000,
       20000
     ],
-    "eligible_scope": "当前仅SafetyEP；其它RL路线已按用户焦点调整结束，历史评测资产保留",
+    "eligible_scope": "所有获准超过10k的RL任务；当前四组登记上限为5k或10k，暂没有超过10k的活动训练",
     "native_stage_nodes": "主owner20k/35k/50k节点保持；已存在完整summary或在途评测直接复用，禁止重复评分",
     "catchup": "从当前实际存在的完整native checkpoint补可用12k/14k等；不假造缺失checkpoint",
     "TRAIN_cadence_changed": false,
@@ -42,14 +42,24 @@
     "steps": 10,
     "shift": 5,
     "seed": 2101,
-    "owner_activation": "当前独立CPU owner 2443723，仅SafetyEP范围；实际状态读独立STATE",
+    "owner_activation": "读取实际owners/NAVTEST_CADENCE/OWNER.json；已停止的原Safety长训不自动恢复",
     "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/STATE.json",
     "complete_result_index": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/RESULTS.json"
   },
   "presentation": "safety_ep_focus_v1",
   "active_RL_arms": [
-    "PPO_SAFETY_EP"
+    "PPO_SAFETY_SUCCESS_MEMORY",
+    "PPO_SAFETY_FPO",
+    "PPO_FPO_FULLTIME",
+    "PPO_SAFETY_FEASIBLE_SCORE"
   ],
   "focus_policy": "/mnt/project/qwen-world-rl-optimization-20261030/SAFETY_RL_92_TARGET_POLICY_20261031.json",
-  "future_trial_initialization": "same pinned IL70;fresh AdamW/RNG42/update0;no native RL10k forks"
+  "future_trial_initialization": "same pinned IL70;fresh AdamW/RNG42/update0;no native RL10k forks",
+  "page_order": [
+    "current",
+    "current-results",
+    "current-analysis",
+    "background"
+  ],
+  "presentation_priority": "当前四组实验目的与进度→最新完整评测与同预算对照→当前判断与下一步→折叠历史机制与证据"
 }

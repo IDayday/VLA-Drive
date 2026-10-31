@@ -1,6 +1,6 @@
 {
   "schema": "world_RL_living_report_editorial_snapshot_v2",
-  "captured_unix": 1793450930.509147,
+  "captured_unix": 1793454793.5932302,
   "live_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "report_is_historical_snapshot": true,
   "target_PDMS": 92,
@@ -13,47 +13,43 @@
   "active_registered_runs": [
     {
       "id": "PPO_SAFETY_SUCCESS_MEMORY",
-      "status": "TRAINING_DISPATCHED",
+      "updates": 6975,
+      "journal_ranks": 8,
+      "status": "RUNNING_FRESH_IL70_SAFETY_PAIR",
       "host": "training-vlawm-zt",
-      "lease": "primary",
-      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
-      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_SUCCESS_MEMORY/formal_to005000_attempt001",
       "research_budget_updates": 10000,
-      "stage_budget_updates": 5000,
-      "completed_updates": 1000
+      "stage_budget_updates": 10000,
+      "worker_receipt_status": "RUNNING"
     },
     {
       "id": "PPO_SAFETY_FPO",
-      "status": "TRAINING_DISPATCHED",
+      "updates": 5629,
+      "journal_ranks": 8,
+      "status": "RUNNING_FRESH_IL70_SAFETY_PAIR",
       "host": "training-vlawm-tsinghua-zt5",
-      "lease": "primary",
-      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
-      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_FPO/formal_to005000_attempt001",
       "research_budget_updates": 10000,
-      "stage_budget_updates": 5000,
-      "completed_updates": 1000
+      "stage_budget_updates": 10000,
+      "worker_receipt_status": "RUNNING"
     },
     {
       "id": "PPO_FPO_FULLTIME",
-      "status": "TRAINING_DISPATCHED",
+      "updates": 2907,
+      "journal_ranks": 8,
+      "status": "TRAINING",
       "host": "training-vlawm-zt",
-      "lease": "research",
-      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fpo_fulltime_20261031",
-      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_FPO_FULLTIME/formal_to005000_attempt001",
       "research_budget_updates": 5000,
       "stage_budget_updates": 5000,
-      "completed_updates": 1000
+      "worker_receipt_status": "RUNNING"
     },
     {
       "id": "PPO_SAFETY_FEASIBLE_SCORE",
-      "status": "TRAINING_DISPATCHED",
+      "updates": 2077,
+      "journal_ranks": 8,
+      "status": "RUNNING_FINITE_FRESH_TRIAL",
       "host": "training-vlawm-tsinghua-zt3",
-      "lease": "research",
-      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/feasible_score_6dc988d",
-      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_FEASIBLE_SCORE/formal_to001000_attempt001",
       "research_budget_updates": 5000,
-      "stage_budget_updates": 1000,
-      "completed_updates": 0
+      "stage_budget_updates": 5000,
+      "worker_receipt_status": "RUNNING"
     }
   ],
   "complete_new_1k_NAVTEST": {
@@ -106,7 +102,7 @@
     "TRAINzeroaudit distinguishes unexposed, allfail costties, positive stochastic witness butfailedODE, and changingzero population",
     "DACoccupancy tie-credit remainsCPU-only; noGPUperformanceclaim"
   ],
-  "generated_utc": "2026-10-31 12:47:16 UTC",
+  "generated_utc": "2026-10-31 13:52:55 UTC",
   "original_SafetyEP_closure": {
     "schema": "world_root_manual_evidence_allocation_decision_v1",
     "arm": "PPO_SAFETY_EP",
@@ -156,27 +152,48 @@
   "latest_complete_original_SafetyEP_PDMS": 90.99903837095002,
   "active_new_native": 4,
   "mirror_files_sha256": {
-    "reporting/render_report.py": "f0252693f3dadf74f2fad0c5ac19192d3ad51fbc24171fae9e53374511aa19ba",
-    "reporting/safety_focus_report.py": "da97f0b4fcb9ac1d40f6c6afcc83018ca8472985f4a84031220ddb3a683dd47d",
-    "reporting/REPORT_CONFIG.json": "8bd765052ef216a766b5b49a3acef297211e6f400dbe5fead999b5a30d3cd20d",
-    "reporting/READONLY_RL_STATUS.json": "baa8504b5a0286aa866bde4ec9bb768b1a56dcfcc3c8397bbecb4f06da367109",
-    "report.html": "2ffac97803615bda0781229f336362c35bb651ec6db839abd00d780b2ddff62b",
-    "reporting/figures/safety_focus_score.svg": "70a7d3d3290063371e7d64a8fab1cb6412939e1a4ef0d5cb895ad27cefca4833",
-    "reporting/figures/safety_focus_score.png": "8cdfcb00ad821acb8547e23544b9a620680d7f29098fe80bf02fbf401d5243c1",
-    "reporting/figures/safety_focus_score.pdf": "5e816a7dfc8b9b16a32d92fb22bf7482d066ad3442adf98f68d42ab68c7ea1a3",
+    "report.html": "a139242bbf6c459e315caa290e314e81771f74c8e66c50c02ef5b1aea3f71062",
+    "reporting/current_research_report.py": "5eda1dbfcac5a583bf947193a9ad553f32aeccc50a1713d4ec0d97dd282cb8e7",
+    "reporting/safety_focus_report.py": "271f35988a5b2af06eb4f82984ad8c26b6a639750aaa3a812b58e49884874adc",
+    "reporting/REPORT_CONFIG.json": "caa0a2eae527d1d0722dd882cb1bfd89ff60818bd14b5bde58e79ee86c3ac949",
+    "reporting/READONLY_RL_STATUS.json": "2b36f982484d4f8447f349f716502b0e4e9a8a8596f773909710cb871de61592",
+    "reporting/CURRENT_FIRST_LAYOUT_CHECK_20261031.json": "56180ad3b55b498f14fb242674b243c313d237c005e487898c3665d42c71512a",
+    "reporting/figures/current_research_score.svg": "fe97bb0ae6901dd6e41a379dc96f611e680efefbcb179f8838a049fa8cb9a0d7",
+    "reporting/figures/current_research_score.png": "8927781db8616e8257a4e2abfe9488ba75270656c2ee45fc1e02260bc505a8fd",
+    "reporting/figures/current_research_score.pdf": "a8149940e240f859ec2ebf780906cec013a3f65fe4219bdeb9f79c6400fc359c",
+    "reporting/figures/current_research_delta.svg": "59ab9ca99bd66e880886b26a9b9c06e59ac74a082bdbf072f3ad8856e29dcd38",
+    "reporting/figures/current_research_delta.png": "0ded60d3ca20a97bcb74764568a79ad3b08afabfbb4da272dd6e985753fda735",
+    "reporting/figures/current_research_delta.pdf": "75007e7bf844e83ba2a132ca101ccad16a041e64a2d1ec5837c012c4a2a7f1c0",
+    "reporting/figures/safety_focus_score.svg": "2436da297bd96495d0be0f87260eaed941014a0e8d924e8a23683de775e723ea",
+    "reporting/figures/safety_focus_score.png": "d90122013393242b11152a4ed1f7ba731061b2e7da0c75f39a14016308e11382",
+    "reporting/figures/safety_focus_score.pdf": "fe1cd885fca27ea74788315d40ea7b1ca4cc5b3a4fa5b05523f8a09eaaa9534e",
     "reporting/figures/safety_focus_components.svg": "39da45bd64cf12455d529d4a5f246f936d2565541dcefab8df545a432de51d1d",
     "reporting/figures/safety_focus_components.png": "68f92fbb71b618e26955fa92bf7830c8c92d922a0904874b2c12614b518c6c85",
     "reporting/figures/safety_focus_components.pdf": "209ef5495e5cde0509f9f6138535da787669c56ef9e059f6cd6de37073618d8f",
     "reporting/figures/safety_focus_zeros.svg": "0c7a82a8456e846e778a1944a5faad0328ca6eff0a2938be326c57e78b5b6592",
     "reporting/figures/safety_focus_zeros.png": "eb20cda40885318c21015a2c17f92b9ec3148a5920f46483da698f45554f43d8",
-    "reporting/figures/safety_focus_zeros.pdf": "84b44d019da843e95021757d252216fe5602dcc32d62fee243a977db9b20b3ce",
-    "reporting/figures/safety_policy_case_safe_ep_gain.svg": "1972fed43b8a0fe3bfe6a0d3a58810dca1f128ab59c2b597055e2ce19b9cb68a",
-    "reporting/figures/safety_policy_case_safe_ep_gain.png": "a24ec4b16c33e7dde8e37f9ac8a3dcb52ff6ec12f2853481652cac302b9e63d2",
-    "reporting/figures/safety_policy_case_zero_repair.svg": "abecfa0bb59ea06205f551bba1660d2cb646df7f078c77fcc1712f2e90e83990",
-    "reporting/figures/safety_policy_case_zero_repair.png": "c672dd3d0e9be988abee215a829e81ad431f7c9ae65379a1648cbe5420d49efa",
-    "reporting/figures/safety_policy_case_high_to_zero.svg": "872b49820a73f13f259f5074feb56d66c52f8edc18926c368d73f9fc83df5f06",
-    "reporting/figures/safety_policy_case_high_to_zero.png": "63ea34e1f733a3b407a9a23d1483f9f6362b071aee652b7f9d8c15775c46029e",
-    "reporting/figures/safety_policy_case_persistent_zero.svg": "54b863d330ef1bb61e2c3f2d4f7b7bb38d684b86185f2b47505e8bfb557543e8",
-    "reporting/figures/safety_policy_case_persistent_zero.png": "adbb04c3ab18694e25ebfd46c3aa5584a39437aeb4ca605ed50bbaf01a928d87"
-  }
+    "reporting/figures/safety_focus_zeros.pdf": "84b44d019da843e95021757d252216fe5602dcc32d62fee243a977db9b20b3ce"
+  },
+  "page_order": [
+    "current",
+    "current-results",
+    "current-analysis",
+    "background"
+  ],
+  "presentation": "current_research_first_v1",
+  "layout_check": {
+    "status": "PASS",
+    "visible_h2": [
+      "\u5f53\u524d\u6b63\u5728\u8fdb\u884c\u7684\u56db\u7ec4\u5b9e\u9a8c",
+      "\u6700\u65b0\u8bc4\u6d4b\u7ed3\u679c\uff1a\u5b8c\u6574\u5206\u6570\u4e0e\u540c\u9884\u7b97\u5bf9\u7167",
+      "\u5f53\u524d\u5224\u65ad\u4e0e\u63a5\u4e0b\u6765\u7684\u8bc4\u6d4b\u91cd\u70b9",
+      "\u673a\u5236\u3001\u573a\u666f\u8bca\u65ad\u4e0e\u5386\u53f2\u8d44\u6599"
+    ],
+    "active_experiment_cards": 4,
+    "broken_links": [],
+    "historical_sections_collapsed": 6,
+    "GPU_or_training_mutations": false
+  },
+  "publishable_complete_results": 162,
+  "layout_update_scope": "presentation andread-only metadata only; no native/scorer/controller changes"
 }
