@@ -77,10 +77,11 @@ def prepare_lower_noise(root,output,baseline_manifests):
             if sha(Path(old['rl_checkpoint'])/name)!=expected:raise ValueError('Pinned native metadata changed')
         body=copy.deepcopy(old);body.pop('sha256')
         body['sampling']['noise_level']=.03
+        body['sampling']['ODE8_source']='reuse sealed baseline chain/feedback; no ODE forward or scoring'
         body.update(diagnostic_noise_level=.03,required_output=str(output/arm),
             diagnostic_delta='Only actor.grpo_noise_level .1 -> .03 in the rigorous sampler; native recipe and theta unchanged',
             baseline_probe=dict(manifest=str(source),manifest_sha256=old['sha256'],manifest_file_sha256=sha(source),
-                output=str(folder),identity_sha256=identity['sha256'],summary_file_sha256=sha(folder/'SUMMARY.json'),
+                output=str(folder),identity_sha256=identity['sha256'],canonical_protocol_sha256=identity['protocol']['sha256'],summary_file_sha256=sha(folder/'SUMMARY.json'),
                 scene_file_sha256={t:sha(folder/'scenes'/f'{t}.json') for t in tokens}))
         manifest=output/(arm+'.json');value=sealed(body)
         if manifest.exists() and read_sealed(manifest)!=value:raise FileExistsError('Immutable lower-noise manifest exists')
@@ -92,7 +93,9 @@ def prepare_lower_noise(root,output,baseline_manifests):
     result=sealed(dict(schema=SCHEMA+'_registration',status='PREPARED_NOT_DISPATCHED',at=time.time(),
         diagnostic_noise_level=.03,baseline_registration=str(baseline/'REGISTRATION.json'),
         baseline_registration_file_sha256=sha(baseline/'REGISTRATION.json'),TRAIN_unique_scenes=len(tokens),arms=plans,
-        total_diagnostic_candidates=len(tokens)*16*len(plans),canonical_single_ODE_reused=True,
+        total_diagnostic_candidates=len(tokens)*8*len(plans),new_generated_candidates=len(tokens)*8*len(plans),
+        new_scored_candidates=len(tokens)*8*len(plans),reused_ODE_candidates=len(tokens)*8*len(plans),
+        paired_population_candidates_including_reuse=len(tokens)*16*len(plans),canonical_single_ODE_reused=True,
         same_theta_same8roots_same_raw_innovations=True,NAVTEST_tokens_included=False,training_seed_unchanged=42))
     if not (output/'REGISTRATION.json').exists():atomic(output/'REGISTRATION.json',result)
     return read_sealed(output/'REGISTRATION.json')
@@ -181,26 +184,51 @@ def configure_diagnostic_noise(actor,level):
         mean_correction_ratio=(level/.1)**2,native_recipe_unmodified=True)
 
 
-def compare_baseline_pairing(manifest,token,ode,audit):
-    baseline=manifest.get('baseline_probe')
-    if not baseline:return None
+def single_sde_reusing_baseline(actor,condition,manifest,token):
+    """Exactly one new SDE8 call; reuse sealed ODE8 and canonical B1 evidence."""
+    baseline=manifest['baseline_probe']
     import numpy as np
     import torch
+    from starVLA.rl.simwam_recipe.contracts import seed_for
     folder=Path(baseline['output']);path=folder/'scenes'/f'{token}.json'
     if sha(path)!=baseline['scene_file_sha256'][token]:raise ValueError('Baseline probe scene changed')
     row=read_sealed(path)
     if row['identity']!=baseline['identity_sha256']:raise ValueError('Baseline probe identity changed')
+    if len(row.get('ODE8',[]))!=8 or not row.get('canonical_single_ODE'):
+        raise ValueError('Lower-noise probe requires sealed ODE8 feedback and canonical B1; never regenerate them')
+    arrays=folder/row['arrays']['path']
+    if sha(arrays)!=row['arrays']['sha256']:raise ValueError('Baseline probe arrays changed')
+    with np.load(arrays,allow_pickle=False) as old:
+        ode=torch.from_numpy(old['ODE_chain'].copy())
+        prior=torch.from_numpy(old['prior'].copy())
+        innovations=torch.from_numpy(old['innovations'].copy())
+    seed=seed_for('TRAIN_fixed_theta_ODE_SDE_probe',42,token)
+    generator=torch.Generator(device='cpu').manual_seed(seed);initial=generator.get_state().clone()
+    original=actor._randn;observed=[]
+    def capture(shape,device,dtype,generator):
+        value=original(shape,device,dtype,generator);observed.append(value.detach().cpu().clone());return value
+    try:
+        actor._randn=capture
+        sde,times,deltas,indices=actor.sample_action_chain(condition,8,deterministic=False,generator=generator)
+    finally:del actor._randn
+    if (sde.shape!=(8,11,8,3) or len(observed)!=4 or indices.tolist()!=[7,8,9]
+            or not torch.equal(observed[0],prior) or not torch.equal(torch.stack(observed[1:]),innovations)
+            or not torch.equal(sde[:,0].cpu(),prior) or not torch.equal(sde[:,:8].cpu(),ode[:,:8])):
+        raise ValueError('Single new SDE call changed roots/innovations/pre7 relative to sealed baseline')
+    audit=dict(seed=seed,CPU_generator_state_sha256=tensor_hash(initial)['sha256'],
+        root_bit_identical=True,pre_SDE_prefix_bit_identical=True,
+        prior=tensor_hash(observed[0]),innovations=[dict(step=k,raw=tensor_hash(v),
+            clipped=tensor_hash(v.clamp(-actor.grpo_randn_clip,actor.grpo_randn_clip)))
+            for k,v in zip([7,8,9],observed[1:])])
     if (row['pairing']['prior']!=audit['prior']
             or row['pairing']['CPU_generator_state_sha256']!=audit['CPU_generator_state_sha256']
             or row['pairing']['innovations']!=audit['innovations']):
         raise ValueError('Lower-noise call must preserve all8 roots and all raw/clipped innovations')
-    arrays=folder/row['arrays']['path']
-    if sha(arrays)!=row['arrays']['sha256']:raise ValueError('Baseline probe arrays changed')
-    with np.load(arrays,allow_pickle=False) as old:
-        if not torch.equal(ode.cpu(),torch.from_numpy(old['ODE_chain'])):
-            raise ValueError('Lower-noise diagnostic changed deterministic ODE chain')
-    return dict(baseline_identity_sha256=baseline['identity_sha256'],baseline_scene_file_sha256=sha(path),
-        same8_roots=True,same_raw_clipped_innovations=True,ODE_chain_bit_identical=True)
+    cross=dict(baseline_identity_sha256=baseline['identity_sha256'],baseline_scene_file_sha256=sha(path),
+        same8_roots=True,same_raw_clipped_innovations=True,pre7_prefix_bit_identical=True,
+        ODE_chain_reused_without_forward=True,ODE_chain_bit_identical=True,
+        new_generated_candidates=8,new_scored_candidates=8,reused_ODE_candidates=8)
+    return ode,sde,dict(SDE8=observed),audit,cross,row
 
 
 def paired_chains(actor,condition,token):
@@ -307,11 +335,16 @@ def run(args):
     conditions=MemoryLearningConditions(model,data,parent['model_sha256'],actor)
     object.__setattr__(actor,'conditions',conditions);actor.eval().requires_grad_(False);model.eval().requires_grad_(False)
     service=RewardService(Path.cwd(),workers=1,cache_roots=roots)
+    if m.get('baseline_probe') and m['baseline_probe']['canonical_protocol_sha256']!=service.protocol['sha256']:
+        raise ValueError('Sealed reused feedback must retain the exact current canonical protocol')
     source_files=[Path(__file__),Path('starVLA/rl/qwen_world_postcot/scope_actor.py'),Path('starVLA/rl/qwen_world_postcot/rl_actor.py'),
         Path('starVLA/rl/qwen_world_postcot/scope_conditions.py'),Path('starVLA/rl/simwam_recipe/vendor/action_math.py'),
         Path('starVLA/model/modules/qwen_world_postcot/flow.py')]
     identity=sealed(dict(schema=SCHEMA,manifest_sha256=m['sha256'],checkpoint=m['rl_checkpoint'],updates=m['updates'],
         diagnostic_noise_level=args.diagnostic_noise_level,actor_noise_override=noise_audit,
+        new_generated_candidates_per_scene=8 if args.diagnostic_noise_level==.03 else 16,
+        new_scored_candidates_per_scene=8 if args.diagnostic_noise_level==.03 else 16,
+        reused_ODE_candidates_per_scene=8 if args.diagnostic_noise_level==.03 else 0,
         no_training=True,qualification=False,protocol=service.protocol,source={str(p):sha(p) for p in source_files},
         actor_and_deployment_share_current_head_memory=True,Qwen_features_once_per_scene=True,
         prior_pairing='restore private CPU generator before source sampler calls',
@@ -335,14 +368,17 @@ def run(args):
                     if sha(out/row['arrays']['path'])!=row['arrays']['sha256']:raise ValueError('Changed cached probe arrays')
                     state['reused']+=1;continue
                 cond=conditions.get(token,actor.device);tick=time.monotonic()
-                ode,sde,draws,audit=paired_chains(actor,cond,token)
-                cross_level=compare_baseline_pairing(m,token,ode,audit)
-                requested=ActionCodec.denorm_odo(torch.cat([ode[:,-1],sde[:,-1]])).cpu().numpy()
+                if args.diagnostic_noise_level==.03:
+                    ode,sde,draws,audit,cross_level,baseline_row=single_sde_reusing_baseline(actor,cond,m,token)
+                    requested=ActionCodec.denorm_odo(sde[:,-1]).cpu().numpy()
+                else:
+                    ode,sde,draws,audit=paired_chains(actor,cond,token);cross_level=None;baseline_row=None
+                    requested=ActionCodec.denorm_odo(torch.cat([ode[:,-1],sde[:,-1]])).cpu().numpy()
                 if not np.isfinite(requested).all():raise FloatingPointError('Nonfinite diagnostic trajectory')
                 records=service.score((token,m['token_logs'][token],requested))
-                if len(records)!=16:raise ValueError('Partial scorer response')
+                if len(records)!=len(requested):raise ValueError('Partial scorer response')
                 for i,r in enumerate(records):validate_feedback(r,token=token,log=m['token_logs'][token],requested=requested[i],protocol_sha256=service.protocol['sha256'])
-                canonical=canonical_cached(m,token,service.protocol['sha256'])
+                canonical=baseline_row['canonical_single_ODE'] if baseline_row else canonical_cached(m,token,service.protocol['sha256'])
                 if canonical is None:
                     # Exactly model.predict's native B1 body, reuse already encoded current features.
                     from starVLA.rl.simwam_recipe.contracts import seed_for
@@ -358,7 +394,8 @@ def run(args):
                 row=sealed(dict(token=token,log=m['token_logs'][token],identity=identity['sha256'],status='OK',
                     selection_labels=m['selection_labels'].get(token,{}),pairing=audit,
                     cross_level_pairing=cross_level,
-                    ODE8=[json_feedback(x) for x in records[:8]],SDE8=[json_feedback(x) for x in records[8:]],
+                    ODE8=baseline_row['ODE8'] if baseline_row else [json_feedback(x) for x in records[:8]],
+                    SDE8=[json_feedback(x) for x in (records if baseline_row else records[8:])],
                     canonical_single_ODE=canonical,arrays=dict(path='scenes/'+filename,sha256=sha(out/'scenes'/filename)),seconds=time.monotonic()-tick))
                 atomic(dest,row);state['new']+=1;atomic(statepath,state)
             else:state['status']='COMPLETE'
@@ -396,6 +433,9 @@ def summarize(output):
             ODE_feasible_SDE_not=sum(feasible(o) and not feasible(s) for o,s in zip(ode,sde))))
     result=sealed(dict(schema=SCHEMA+'_summary',status='COMPLETE',identity_sha256=identity['sha256'],checkpoint=identity['checkpoint'],updates=identity['updates'],
         diagnostic_noise_level=identity.get('diagnostic_noise_level',.1),actor_noise_override=identity.get('actor_noise_override'),
+        new_scored_candidates=identity.get('new_scored_candidates_per_scene',16)*len(rows),
+        new_generated_candidates=identity.get('new_generated_candidates_per_scene',16)*len(rows),
+        reused_ODE_candidates=identity.get('reused_ODE_candidates_per_scene',0)*len(rows),
         cross_level_pairing_verified=(all(r.get('cross_level_pairing',{}).get('ODE_chain_bit_identical',False) for r in rows)
                                      if identity.get('diagnostic_noise_level',.1)==.03 else None),
         count=len(rows),ODE8=describe([r for row in rows for r in row['ODE8']]),SDE8=describe([r for row in rows for r in row['SDE8']]),

@@ -7,7 +7,9 @@ import subprocess
 import pytest
 import torch
 
-from tools.qwen_world_research.probe_zero_rollouts import configure_diagnostic_noise,paired_chains
+from tools.qwen_world_research.probe_zero_rollouts import (
+    configure_diagnostic_noise,paired_chains,single_sde_reusing_baseline,sealed,sha,
+)
 from tools.qwen_world_research.freeze_overlay import freeze_overlay
 from starVLA.rl.simwam_recipe.vendor.action_math import ActionGRPOMixin
 from starVLA.rl.simwam_recipe.vendor.scheduler_continuous import WanContinuousFlowMatchScheduler
@@ -69,3 +71,26 @@ def test_overlay_uses_fixed_git_bytes_links_unchanged_tree_and_never_overwrites(
     assert result['copied_regular_files']==2 and len(result['expanded_directories'])==2
     meta=json.loads((out/'FROZEN_SOURCE.json').read_text());assert meta['commit']==commit and meta['base']['commit']==base_commit
     with pytest.raises(FileExistsError):freeze_overlay(repo,base,commit,out)
+
+
+def test_lower03_calls_only_SDE_and_reuses_sealed_ODE_feedback_and_B1(tmp_path):
+    import numpy as np
+    baseline=Toy();condition=dict(context=torch.zeros(8,1,1));token='cpu-scene'
+    ode,sde,draws,audit=paired_chains(baseline,condition,token)
+    folder=tmp_path/'baseline';(folder/'scenes').mkdir(parents=True)
+    arrays=folder/'scenes'/f'{token}.npz'
+    np.savez_compressed(arrays,ODE_chain=ode.numpy(),SDE_chain=sde.numpy(),prior=draws['SDE8'][0].numpy(),
+                        innovations=torch.stack(draws['SDE8'][1:]).numpy())
+    row=sealed(dict(identity='baseline-identity',pairing=audit,arrays=dict(path='scenes/'+arrays.name,sha256=sha(arrays)),
+                    ODE8=[dict(reused_index=i) for i in range(8)],canonical_single_ODE=dict(reused_B1=True)))
+    path=folder/'scenes'/f'{token}.json';path.write_text(json.dumps(row))
+    manifest=dict(baseline_probe=dict(output=str(folder),identity_sha256='baseline-identity',scene_file_sha256={token:sha(path)}))
+    actor=Toy();configure_diagnostic_noise(actor,.03);calls=[];original=actor.sample_action_chain
+    def sample(*args,**kwargs):
+        calls.append(kwargs.get('deterministic'));return original(*args,**kwargs)
+    actor.sample_action_chain=sample
+    reused,new,observed,new_audit,cross,old=single_sde_reusing_baseline(actor,condition,manifest,token)
+    assert calls==[False] and torch.equal(reused,ode) and not torch.equal(new,sde)
+    assert torch.equal(new[:,:8],ode[:,:8]) and new_audit==audit
+    assert cross['new_scored_candidates']==8 and cross['reused_ODE_candidates']==8
+    assert old['ODE8']==row['ODE8'] and old['canonical_single_ODE']==row['canonical_single_ODE']
