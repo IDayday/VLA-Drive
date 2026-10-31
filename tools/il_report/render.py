@@ -51,6 +51,11 @@ def cycle(root):
         fcntl.flock(lock,fcntl.LOCK_EX)
         state=snapshot(root)
         state['health']=check_health(root,state['runs'])
+        state.update(read_only=False,evidence_read_only=True,
+                     maintenance_scope='reviewed_native_infrastructure_recovery_only')
+        rl=Path('/mnt/project/qwen-world-rl-optimization-20261030')
+        state['watch_directories']+=sorted(str(p)for p in [rl,*list((rl/'owners').glob('*'))]
+                                           if p.is_dir()and str(p)not in state['watch_directories'])
         history=update_history(root,state)
         for key in NAMES:
             path=root/'figures'/f'architecture_{key}.svg';value=architecture_svg(key)

@@ -221,7 +221,7 @@ def render(s, history):
             parts.append('<p>Huber恢复入口：'+link(recovery['review'],'审阅收据')+'；恢复边界14,000，原失败尾部661步单独存档并重算。入口状态 '+escape(recovery['status'])+'；实际是否恢复以主运行表新日志为准。</p>')
         if health.get('automatic_action_failed'):
             parts.append('<p class="callout">恢复辅助入口失败，需要审阅；不会无限重试。'+escape(health['automatic_action_failed']['error'][-500:])+'</p>')
-        parts.append(table(['RL任务','owner登记状态','合法阶段更新','动作'],[[r['id'],r['status'],str(r.get('committed_registry_updates')),r['action']]for r in health.get('rl_runs',[])])+'</details>')
+        parts.append(table(['RL任务','owner登记状态','全8rank日志更新','合法阶段更新','动作'],[[r['id'],r['status'],str(r.get('journal_updates')),str(r.get('committed_registry_updates')),r['action']]for r in health.get('rl_runs',[])])+'</details>')
     windows=[]
     for host,row in s.get('policy_host_windows',{}).items():
         from datetime import datetime,timezone

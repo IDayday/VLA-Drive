@@ -234,12 +234,33 @@ def check(root, runs):
             observed['status'] = '恢复初始化 / 等待新的真实optimizer更新'
     rl_registry = read('/mnt/project/qwen-world-rl-optimization-20261030/RUNS.json', {})
     result['rl_runs'] = []
+    from .evidence import tail
     for run in rl_registry.get('runs', []):
         status = run['status']
         protected = status in ('STOPPED_FUTILITY', 'PILOT_COMPLETE_REVIEW_REQUIRED', 'REGISTERED', 'COMPLETE')
+        rank_updates, ages = [], []
+        run_root = Path(run['root']) if run.get('root') else None
+        if run_root:
+            for rank in range(8):
+                journal = run_root/f'metrics_rank{rank}.jsonl'
+                rows = tail(journal, limit=1)
+                rank_updates.append(rows[-1].get('updates') if rows else None)
+                if journal.exists():
+                    ages.append(time.time()-journal.stat().st_mtime)
+        job = Path(run['job']) if run.get('job') else None
+        terminal = read(job/'RESULT.json', {}) if job else {}
+        if job and not terminal:
+            terminal = read(job/'result.json', {})
+        stale = (status == 'TRAINING_DISPATCHED' and len(ages) == 8 and max(ages) > 1800)
+        failed = (terminal.get('status') in ('FAILED', 'FORCED_EXIT_REVIEW_REQUIRED')
+            or terminal.get('returncode', 0) not in (0, None))
+        action = ('PRESERVE_NO_RESTART' if protected else 'REVIEW_REQUIRED' if stale or failed
+                  else 'OBSERVE_EXISTING_OWNER')
         result['rl_runs'].append(dict(id=run['id'], status=status, host=run.get('host'),
             committed_registry_updates=run.get('completed_updates'),
-            action='PRESERVE_NO_RESTART' if protected else 'OBSERVE_EXISTING_OWNER',
+            observed_rank_updates=rank_updates,
+            journal_updates=min(rank_updates) if len(rank_updates) == 8 and all(type(n) is int for n in rank_updates) else None,
+            stale_active_warning=stale, terminal_worker_status=terminal.get('status'), action=action,
             owner_state=run.get('owner_state')))
     result['automatic_action_failed'] = read(directory/'REPAIR_FAILURE.json')
     atomic(root/'maintenance/HEALTH_LATEST.json', result)

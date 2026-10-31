@@ -231,5 +231,362 @@
       "tsinghua-zt6 GPU2"
     ]
   },
-  "evaluation_request": "/mnt/project/qwen-world-four-frameworks-20261029/reallocated_NAVTEST_20261031T001000Z/PINNED.json"
+  "evaluation_request": "/mnt/project/qwen-world-four-frameworks-20261029/reallocated_NAVTEST_20261031T001000Z/PINNED.json",
+  "latest_health": {
+    "schema": "world_report_health_v1",
+    "checked_unix": 1793405710.7264297,
+    "runs": [
+      {
+        "id": "RAW",
+        "status": "\u5df2\u5b8c\u6210",
+        "updates": 100000,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": true
+      },
+      {
+        "id": "V12",
+        "status": "\u8bad\u7ec3\u66f4\u65b0\u4e2d\uff08\u65e5\u5fd7\u65b0\u9c9c\uff09",
+        "updates": 56581,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": false
+      },
+      {
+        "id": "PHYSICAL",
+        "status": "\u7b5b\u9009\u540e\u672a\u7ee7\u7eed",
+        "updates": 10000,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": true
+      },
+      {
+        "id": "TIME_RESIDUAL",
+        "status": "\u8bad\u7ec3\u66f4\u65b0\u4e2d\uff08\u65e5\u5fd7\u65b0\u9c9c\uff09",
+        "updates": 33114,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": false
+      },
+      {
+        "id": "DELTA",
+        "status": "\u7b5b\u9009\u540e\u672a\u7ee7\u7eed",
+        "updates": 10000,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": true
+      },
+      {
+        "id": "HUBER",
+        "status": "\u8bad\u7ec3\u66f4\u65b0\u4e2d\uff08\u65e5\u5fd7\u65b0\u9c9c\uff09",
+        "updates": 14087,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": false
+      },
+      {
+        "id": "ARCH_A",
+        "status": "\u8bad\u7ec3\u66f4\u65b0\u4e2d\uff08\u65e5\u5fd7\u65b0\u9c9c\uff09",
+        "updates": 13911,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": false
+      },
+      {
+        "id": "ARCH_B",
+        "status": "\u8bad\u7ec3\u66f4\u65b0\u4e2d\uff08\u65e5\u5fd7\u65b0\u9c9c\uff09",
+        "updates": 10989,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": false
+      },
+      {
+        "id": "ARCH_C",
+        "status": "\u8bad\u7ec3\u66f4\u65b0\u4e2d\uff08\u65e5\u5fd7\u65b0\u9c9c\uff09",
+        "updates": 12438,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": false
+      },
+      {
+        "id": "ARCH_D",
+        "status": "\u8bad\u7ec3\u66f4\u65b0\u4e2d\uff08\u65e5\u5fd7\u65b0\u9c9c\uff09",
+        "updates": 7889,
+        "action": "OBSERVE",
+        "intentional_stop_preserved": false
+      }
+    ],
+    "recovery": {
+      "pid": 2244118,
+      "start_ticks": 1484381004,
+      "status": "OWNER_LAUNCHED_AWAIT_NATIVE_UPDATES",
+      "at": 1793405196.8765543,
+      "source": "/mnt/project/VLA-Drive-qwen-world-time-owner-adoption-20261029",
+      "scientific_source": "/mnt/project/VLA-Drive-qwen-world-loss-from-init-20261029",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_postcot.fresh_loss_owner",
+        "--arm",
+        "HUBER",
+        "--runtime-source",
+        "/mnt/project/VLA-Drive-qwen-world-loss-from-init-20261029",
+        "--recover-owner"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-postcot-20261025/fresh_loss_IL_20261029/HUBER/runs/IL_full_seed42/checkpoints/update014000",
+      "target_updates": 100000,
+      "retry_limit": 1,
+      "review": "/mnt/project/qwen-world-il-research-20261030/maintenance/huber_recovery_20261031/REVIEW.json"
+    },
+    "recovery_process_alive": true,
+    "policy": "Only reviewed native infrastructure recovery; no auto restart of stopped/completed/pilot-review arms",
+    "scientific_source_modified": false,
+    "huber_new_native_updates_confirmed": true,
+    "rl_runs": [
+      {
+        "id": "PPO_HARD",
+        "status": "STOPPED_FUTILITY",
+        "host": "training-vlawm-tsinghua-zt5",
+        "committed_registry_updates": 13774,
+        "observed_rank_updates": [
+          13774,
+          13774,
+          13774,
+          13774,
+          13774,
+          13774,
+          13774,
+          13774
+        ],
+        "journal_updates": 13774,
+        "stale_active_warning": false,
+        "terminal_worker_status": "EXITED",
+        "action": "PRESERVE_NO_RESTART",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_HARD/STATE.json"
+      },
+      {
+        "id": "PPO_FULL",
+        "status": "TRAINING_DISPATCHED",
+        "host": "training-vlawm-zt",
+        "committed_registry_updates": 35000,
+        "observed_rank_updates": [
+          45844,
+          45844,
+          45844,
+          45844,
+          45844,
+          45844,
+          45844,
+          45844
+        ],
+        "journal_updates": 45844,
+        "stale_active_warning": false,
+        "terminal_worker_status": null,
+        "action": "OBSERVE_EXISTING_OWNER",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_FULL/STATE.json"
+      },
+      {
+        "id": "PPO_ADAPTIVE",
+        "status": "TRAINING_DISPATCHED",
+        "host": "training-vlawm-tsinghua-zt",
+        "committed_registry_updates": 26000,
+        "observed_rank_updates": [
+          26000,
+          26000,
+          26000,
+          26000,
+          26000,
+          26000,
+          26000,
+          26000
+        ],
+        "journal_updates": 26000,
+        "stale_active_warning": false,
+        "terminal_worker_status": null,
+        "action": "OBSERVE_EXISTING_OWNER",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_ADAPTIVE/STATE.json"
+      },
+      {
+        "id": "CISPO_FULL",
+        "status": "STOPPED_FUTILITY",
+        "host": "training-vlawm-tsinghua-zt5",
+        "committed_registry_updates": 26910,
+        "observed_rank_updates": [
+          26910,
+          26910,
+          26910,
+          26910,
+          26910,
+          26910,
+          26910,
+          26910
+        ],
+        "journal_updates": 26910,
+        "stale_active_warning": false,
+        "terminal_worker_status": "EXITED",
+        "action": "PRESERVE_NO_RESTART",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CISPO_FULL/STATE.json"
+      },
+      {
+        "id": "NFT_FULL",
+        "status": "STOPPED_FUTILITY",
+        "host": "training-vla-zt",
+        "committed_registry_updates": 28580,
+        "observed_rank_updates": [
+          28580,
+          28580,
+          28580,
+          28580,
+          28580,
+          28580,
+          28580,
+          28580
+        ],
+        "journal_updates": 28580,
+        "stale_active_warning": false,
+        "terminal_worker_status": "EXITED",
+        "action": "PRESERVE_NO_RESTART",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NFT_FULL/STATE.json"
+      },
+      {
+        "id": "PPO_HELDOUT",
+        "status": "REGISTERED",
+        "host": null,
+        "committed_registry_updates": null,
+        "observed_rank_updates": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "journal_updates": null,
+        "stale_active_warning": false,
+        "terminal_worker_status": null,
+        "action": "PRESERVE_NO_RESTART",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_HELDOUT/STATE.json"
+      },
+      {
+        "id": "PPO_BATCHSTD",
+        "status": "STOPPED_FUTILITY",
+        "host": "training-vlawm-zt",
+        "committed_registry_updates": 25329,
+        "observed_rank_updates": [
+          25329,
+          25329,
+          25329,
+          25329,
+          25329,
+          25329,
+          25329,
+          25329
+        ],
+        "journal_updates": 25329,
+        "stale_active_warning": false,
+        "terminal_worker_status": "EXITED",
+        "action": "PRESERVE_NO_RESTART",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_BATCHSTD/STATE.json"
+      },
+      {
+        "id": "PPO_SAFE_COMFORT",
+        "status": "TRAINING_DISPATCHED",
+        "host": "training-vla-zt",
+        "committed_registry_updates": 35000,
+        "observed_rank_updates": [
+          47599,
+          47599,
+          47599,
+          47599,
+          47599,
+          47599,
+          47599,
+          47599
+        ],
+        "journal_updates": 47599,
+        "stale_active_warning": false,
+        "terminal_worker_status": null,
+        "action": "OBSERVE_EXISTING_OWNER",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_SAFE_COMFORT/STATE.json"
+      },
+      {
+        "id": "PPO_ANCHOR40",
+        "status": "TRAINING_DISPATCHED",
+        "host": "training-vla-zt",
+        "committed_registry_updates": 20000,
+        "observed_rank_updates": [
+          31300,
+          31300,
+          31300,
+          31300,
+          31300,
+          31300,
+          31300,
+          31300
+        ],
+        "journal_updates": 31300,
+        "stale_active_warning": false,
+        "terminal_worker_status": null,
+        "action": "OBSERVE_EXISTING_OWNER",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_ANCHOR40/STATE.json"
+      },
+      {
+        "id": "PPO_MEMORYLR20",
+        "status": "PILOT_COMPLETE_REVIEW_REQUIRED",
+        "host": "training-vlawm-tsinghua-zt2",
+        "committed_registry_updates": 10000,
+        "observed_rank_updates": [
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000
+        ],
+        "journal_updates": 10000,
+        "stale_active_warning": false,
+        "terminal_worker_status": "EXITED",
+        "action": "PRESERVE_NO_RESTART",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_MEMORYLR20/STATE.json"
+      },
+      {
+        "id": "PPO_SAFETY_EP",
+        "status": "PILOT_COMPLETE_REVIEW_REQUIRED",
+        "host": "training-vlawm-zt",
+        "committed_registry_updates": 10000,
+        "observed_rank_updates": [
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000
+        ],
+        "journal_updates": 10000,
+        "stale_active_warning": false,
+        "terminal_worker_status": "EXITED",
+        "action": "PRESERVE_NO_RESTART",
+        "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_SAFETY_EP/STATE.json"
+      }
+    ],
+    "automatic_action_failed": null
+  },
+  "watch_adoption": {
+    "pid": 2247594,
+    "start_ticks": 1484424268,
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "-m",
+      "tools.il_report.render",
+      "--watch",
+      "--interval",
+      "1800",
+      "--root",
+      "/mnt/project/qwen-world-il-research-20261030"
+    ],
+    "source": "/mnt/project/VLA-Drive-qwen-world-report-health-recovery-20261031",
+    "source_sha": "25467bef9e22a26cee0fbf859ce3876c42f3f528",
+    "previous_owner": 2103801,
+    "previous_next_regular_unix": 1793406661.1808758,
+    "scientific_workers_signalled": false
+  }
 }
