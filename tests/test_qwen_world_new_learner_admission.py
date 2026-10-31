@@ -9,6 +9,7 @@ from tools.qwen_world_research import job_worker
     'starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry',
     'starVLA.rl.qwen_world_research_algorithms.preference_entry',
     'starVLA.rl.qwen_world_research_algorithms.lastdet_entry',
+    'starVLA.rl.qwen_world_research_algorithms.rescue_entry',
 ])
 def test_new_learner_passes_exact_slot_validation_before_gpu_admission(monkeypatch,tmp_path,slot,module):
     command=['python','-m',module]
