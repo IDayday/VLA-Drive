@@ -1,0 +1,126 @@
+{
+  "migration": {
+    "status": "PASS",
+    "at": 1793436039.9756148,
+    "host": "training-vla-zt",
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "native_checkpoint_boundary": 10671,
+    "actual_updates": 10703,
+    "fresh_effective_updates": 32,
+    "old_median_s": 9.600330482935533,
+    "new_median_s": 7.2141576912254095,
+    "observed_speedup": 1.330762494228873,
+    "comparison": "Different wall windows, not isolated paired benchmark",
+    "other_native_jobs_stopped": 0,
+    "source_budget_batch_and_seed_changed": false
+  },
+  "continuity": {
+    "status": "PASS",
+    "at": 1793436025.330614,
+    "boundary": 10671,
+    "ranks": [
+      {
+        "rank": 0,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      },
+      {
+        "rank": 1,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      },
+      {
+        "rank": 2,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      },
+      {
+        "rank": 3,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      },
+      {
+        "rank": 4,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      },
+      {
+        "rank": 5,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      },
+      {
+        "rank": 6,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      },
+      {
+        "rank": 7,
+        "first_resumed_update": 10672,
+        "last_update": 10701,
+        "cursor_continuity": true,
+        "LR_continuity": true,
+        "optimizer_count_continuity": true,
+        "skipped_updates": 0
+      }
+    ],
+    "scientific_source": "formal_fdaff80",
+    "world": 8,
+    "global_batch": 32,
+    "max_updates": 100000
+  },
+  "reservation": {
+    "status": "HELD_FOR_D_INVOCATION",
+    "pid": 2450029,
+    "start_ticks": 1487446378,
+    "at": 1793436040.160631,
+    "host": "training-vla-zt",
+    "native_signals": 0,
+    "invocation": "/mnt/project/qwen-world-four-frameworks-20261029/jobs/four_2d09eefdb4_D_IL_resume010671_attempt001",
+    "release_file": "/mnt/project/qwen-world-four-frameworks-20261029/resources/D_to_idle_vla_20261031/RELEASE_RESERVATION"
+  },
+  "reservation_source_sha256": "957a48aa90bc3e6067f104869a1ce277ed175f3f0ada284133df8c88e5fa4e4e",
+  "asset_root": "/mnt/project/qwen-world-four-frameworks-20261029/resources/D_to_idle_vla_20261031",
+  "training_math_changed": false,
+  "tests": {
+    "command": "/usr/bin/python3 -m unittest discover -s tests/il_report",
+    "passed": 32
+  }
+}
