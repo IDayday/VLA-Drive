@@ -20,6 +20,7 @@ import time
 from starVLA.rl.qwen_world_postcot.contracts import authorization,require_dispatch,file_sha
 
 REGISTERED_LEARNERS = (
+    'starVLA.rl.qwen_world_research_algorithms.safety_lr_entry',
     'tools.qwen_world_research.train',
     'starVLA.rl.qwen_world_research_algorithms.train_nft',
     'starVLA.rl.qwen_world_research_algorithms.batchstd_entry',

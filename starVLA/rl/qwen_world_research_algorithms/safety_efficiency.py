@@ -169,8 +169,14 @@ def finalize_safety_efficiency_advantages(rollout):
 def validate_safety_efficiency_recipe(cfg):
     """Allow this fixed pilot only, with no simultaneous research transforms."""
     r = cfg.get('research', {})
+    registered_data = r.get('data_policy') == 'uniform_full' or (
+        r.get('arm') in ('PPO_SAFETY_DATA','PPO_SAFETY_LRDATA')
+        and r.get('data_policy') == 'static_rescue_retention'
+        and r.get('sampling_distribution') == 'full80_low10_high10_static_v1'
+        and r.get('native_fork',{}).get('schema') == 'world_Safety10k_exact_native_LR_fork_v1'
+        and r.get('lr_schedule',{}).get('schema') == 'world_native_fork_relative_LR_v1')
     if (r.get('structured_advantage') != STRUCTURED_SCHEMA
-            or r.get('policy_objective') != 'ppo' or r.get('data_policy') != 'uniform_full'
+            or r.get('policy_objective') != 'ppo' or not registered_data
             or any(r.get(k) is not None for k in (
                 'advantage_normalization', 'reward_transform', 'anchor_ablation', 'memory_lr_ablation'))):
         raise ValueError('Register a separate canonical PPO/full-data safety-efficiency pilot')

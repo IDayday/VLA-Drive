@@ -183,7 +183,12 @@ def main(runtime=None):
                RL_updates_local=0,anchor_only_updates_local=0,scene_cursor=0,
                seconds_rollout=0.,seconds_scoring_wait=0.,seconds_scoring_cpu=0.,seconds_old_probability=0.,seconds_update=0.)
     rollout=None
-    if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,migration=migration,**checkpoint_validation)
+    if a.resume:
+        state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,migration=migration,**checkpoint_validation)
+    elif runtime is not None and hasattr(runtime,'initialize_training_state'):
+        # An explicitly registered scientific fork may inherit a complete
+        # parent's Adam/RNG/cursor before publishing its own new run identity.
+        state,rollout=runtime.initialize_training_state(actor,optimizer,scheduler,generator,identity)
     if rollout is not None and 'chain_identity' not in rollout:rollout['chain_identity']=rollout_digest(rollout)
     invocation=Invocation(root,rank,state,identity,a.resume)
     invocation.record.update(process_start_unix=process_started_unix,preparation_seconds=time.monotonic()-process_started)
@@ -270,7 +275,10 @@ def main(runtime=None):
             if not all_ok(error,device):
                 raise ValueError('Invalid LoRA gradient; last sealed boundary retained')
             if cfg['gradient_clipping_effective']>0:torch.nn.utils.clip_grad_norm_(trainable,cfg['gradient_clipping_effective'])
-            lr=optimizer.param_groups[0]['lr'];optimizer.step();scheduler.step()
+            lr=optimizer.param_groups[0]['lr']
+            group_lrs_used=({g['name']:g['lr'] for g in optimizer.param_groups}
+                            if explicit_optimizer_groups is not None else None)
+            optimizer.step();scheduler.step()
             torch.cuda.synchronize();elapsed=time.monotonic()-begin
             state['updates']+=1;state['next_inner']+=1;state['seconds_update']+=elapsed
             state['RL_updates_local']+=int(bool(rollout['adv_mask'].any()))
@@ -283,6 +291,7 @@ def main(runtime=None):
                      source_clamp_hit_rate=current['source_clamp_hit_rate'],seconds_update=elapsed,
                      metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
             if explicit_optimizer_groups is not None:
+                row['optimizer_group_lrs_used']=group_lrs_used
                 row['optimizer_group_lrs']={g['name']:g['lr'] for g in optimizer.param_groups}
             journal.write(json.dumps(row,allow_nan=False)+'\n')
             if state['next_inner']==4:rollout=None;state['next_inner']=0

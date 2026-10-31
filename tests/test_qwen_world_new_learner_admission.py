@@ -6,6 +6,7 @@ from tools.qwen_world_research import job_worker
 
 @pytest.mark.parametrize('slot',['--primary-shared-training','--research-shared-slot'])
 @pytest.mark.parametrize('module',[
+    'starVLA.rl.qwen_world_research_algorithms.safety_lr_entry',
     'starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry',
     'starVLA.rl.qwen_world_research_algorithms.preference_entry',
     'starVLA.rl.qwen_world_research_algorithms.lastdet_entry',

@@ -32,7 +32,7 @@ def validate_recipe(cfg):
     research = cfg.get('research', {})
     if (research.get('schema') != SCHEMA or research.get('campaign_root') != str(CAMPAIGN)
             or research.get('policy_objective') not in ('ppo', 'cispo', 'nft')
-            or research.get('data_policy') not in ('hard', 'uniform_full', 'uniform_world_train', 'adaptive', 'preference_mixture', 'rescue_mixture')
+            or research.get('data_policy') not in ('hard', 'uniform_full', 'uniform_world_train', 'adaptive', 'preference_mixture', 'rescue_mixture', 'static_rescue_retention')
             or cfg.get('adaptation') != MEMORY or cfg.get('seed') != 42
             or cfg.get('world_size') != 8 or cfg.get('action_shape') != [8, 3]):
         raise ValueError('Unregistered World research scope, algorithm, population, or seed')
@@ -50,6 +50,14 @@ def validate_recipe(cfg):
             or research.get('warmstart',{}).get('schema')!='world_verified_RL_weights_only_warmstart_v1'
             or not research.get('rescue_manifest_sha256')):
         raise ValueError('Register rescue/retention as an explicit warmstarted SafetyEP study')
+    if research.get('data_policy')=='static_rescue_retention' and (
+            research.get('arm') not in ('PPO_SAFETY_DATA','PPO_SAFETY_LRDATA')
+            or research.get('sampling_distribution')!='full80_low10_high10_static_v1'
+            or research.get('structured_advantage')!='candidate_metric_safety_feasible_EP_global_std_v1'
+            or research.get('native_fork',{}).get('schema')!='world_Safety10k_exact_native_LR_fork_v1'
+            or research.get('lr_schedule',{}).get('schema')!='world_native_fork_relative_LR_v1'
+            or research.get('policy_objective')!='ppo'):
+        raise ValueError('Static rescue/retention requires its registered native Safety LR/data study')
     base = expected_scope_recipe(MEMORY)
     permitted_top = {'research', 'max_steps', 'evaluate_updates', 'save_every_optimizer_updates',
                      'learning_rate', 'memory_learning_rate', 'lr_scheduler_type', 'reference_observation', 'data_order'}
