@@ -57,9 +57,18 @@ def validate_recipe(cfg):
                         or research['data_policy'] != 'uniform_full'
                         or any(research.get(k) is not None for k in (
                             'advantage_normalization', 'reward_transform', 'anchor_ablation',
-                            'memory_lr_ablation', 'preference_auxiliary'))):
+                            'memory_lr_ablation', 'preference_auxiliary', 'sampler_ablation'))):
                     raise ValueError('Register rigorous eta0.03 as a separate canonical full PPO arm')
                 expected['sample']['noise_level'] = .03
+            if research.get('sampler_ablation') == 'final_deterministic_steps78_v1':
+                if (research.get('arm') != 'PPO_LASTDET' or research['policy_objective'] != 'ppo'
+                        or research['data_policy'] != 'uniform_full'
+                        or any(research.get(k) is not None for k in (
+                            'advantage_normalization', 'reward_transform', 'anchor_ablation',
+                            'memory_lr_ablation', 'preference_auxiliary', 'noise_level_ablation'))):
+                    raise ValueError('Register deterministic final step as a separate canonical full PPO arm')
+                expected['sample'].update(train_sde_steps=2, sde_exclude_last_step=True,
+                                          sde_step_indices=[7, 8])
             if research.get('anchor_ablation') == 'raw_batchstd_beta40_v1':
                 if (research.get('arm') != 'PPO_ANCHOR40' or research['policy_objective'] != 'ppo'
                         or research['data_policy'] != 'uniform_full'

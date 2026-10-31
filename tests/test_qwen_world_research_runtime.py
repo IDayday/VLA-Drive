@@ -40,3 +40,15 @@ def test_lower_rigorous_noise_requires_its_own_single_factor_registration():
     for field in ('reward_transform','advantage_normalization','anchor_ablation','memory_lr_ablation','preference_auxiliary'):
         changed=copy.deepcopy(cfg);changed['research'][field]='unregistered combination'
         with pytest.raises(ValueError):validate_recipe(changed)
+
+
+def test_final_deterministic_recipe_keeps_eta_and_the_first_two_exploration_steps():
+    cfg=config()
+    cfg['research'].update(arm='PPO_LASTDET',sampler_ablation='final_deterministic_steps78_v1')
+    cfg['grpo']['sample'].update(train_sde_steps=2,sde_exclude_last_step=True,sde_step_indices=[7,8])
+    assert validate_recipe(cfg)==cfg
+    assert cfg['grpo']['sample']['noise_level']==.1
+    changed=copy.deepcopy(cfg);changed['grpo']['sample']['sde_step_indices']=[6,7,8]
+    with pytest.raises(ValueError):validate_recipe(changed)
+    changed=copy.deepcopy(cfg);changed['research']['noise_level_ablation']='rigorous_eta003_v1'
+    with pytest.raises(ValueError):validate_recipe(changed)

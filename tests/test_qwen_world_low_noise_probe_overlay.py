@@ -33,6 +33,24 @@ class Toy(ActionGRPOMixin):
     def action_velocity(self,x,time,cond,use_ref=False):return x*.17+.03
 
 
+def test_final_deterministic_keeps_step7_8_paths_and_removes_only_last_stochastic_transition():
+    baseline, candidate = Toy(), Toy()
+    candidate.grpo_train_sde_steps=2;candidate.grpo_sde_step_indices=[7,8]
+    candidate.grpo_sde_exclude_last_step=True
+    assert candidate._stoch_step_indices(10)==[7,8]
+    condition=dict(context=torch.zeros(8,1,1))
+    generator=torch.Generator().manual_seed(42);initial=generator.get_state()
+    full,_,_,full_steps=baseline.sample_action_chain(condition,8,deterministic=False,generator=generator)
+    generator.set_state(initial)
+    lastdet,times,deltas,steps=candidate.sample_action_chain(condition,8,deterministic=False,generator=generator)
+    assert full_steps.tolist()==[7,8,9] and steps.tolist()==[7,8]
+    assert torch.equal(full[:,:10],lastdet[:,:10])
+    time=times[9].expand(8)
+    expected=lastdet[:,9]+candidate.action_velocity(lastdet[:,9],time,condition)*deltas[9]
+    torch.testing.assert_close(lastdet[:,-1],expected,rtol=0,atol=0)
+    assert not torch.equal(full[:,-1],lastdet[:,-1])
+
+
 def test_lower_noise_changes_only_rigorous_field_and_preserves_roots_prefix_and_ODE():
     a,b=Toy(),Toy();audit=configure_diagnostic_noise(b,.03)
     assert b.grpo_noise_level==.03 and b.grpo_sample_noise_std==b.grpo_logprob_noise_std==.1

@@ -160,12 +160,13 @@ def main(runtime=None):
                 dest=execution/'source'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(rel,dest)
     except Exception:error=traceback.format_exc()
     checkpoint.check_errors(error)
+    from starVLA.rl.simwam_recipe.execution_sources import snapshot_roots, checked_module_path
+    module_roots=snapshot_roots(Path.cwd())
     modules={}
     for name,module in list(sys.modules.items()):
         path=getattr(module,'__file__',None)
         if path and name.startswith(('starVLA.','scripts.analysis.simwam_recipe','scripts.analysis.fm_transfer')) and Path(path).is_file():
-            path=Path(path).resolve()
-            if not path.is_relative_to(Path.cwd().resolve()):raise ValueError('Imported project module from outside the execution snapshot: '+str(path))
+            path=checked_module_path(name,path,module_roots)
             modules[name]=dict(path=str(path),sha256=file_sha(path))
     atomic_json(execution/f'runtime_modules_rank{rank}.json',modules)
     # PyTorch rebuilds reduction buckets after the first backward when unused

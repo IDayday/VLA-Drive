@@ -52,7 +52,8 @@ def source_files():
     paths = []
     for root in ['starVLA/model/modules/qwen_world_postcot', 'starVLA/model/modules/qwen_sourceflow',
                  'starVLA/rl/qwen_world_postcot', 'starVLA/rl/qwen_sourceflow',
-                 'starVLA/rl/simwam_recipe', 'starVLA/rl/fm_transfer']:
+                 'starVLA/rl/simwam_recipe', 'starVLA/rl/simwam_recipe/vendor',
+                 'starVLA/rl/fm_transfer']:
         paths.extend(Path(root).rglob('*.py'))
     paths += [Path(name) for name in ['tools/qwen_world_postcot/train_rl.py',
         'scripts/analysis/simwam_recipe/train.py', 'starVLA/rl/flow_grpo/transactions.py',

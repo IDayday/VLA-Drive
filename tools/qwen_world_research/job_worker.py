@@ -26,6 +26,7 @@ REGISTERED_LEARNERS = (
     'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry',
     'starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry',
     'starVLA.rl.qwen_world_research_algorithms.preference_entry',
+    'starVLA.rl.qwen_world_research_algorithms.lastdet_entry',
 )
 
 REGISTERED_EVALUATORS = (
