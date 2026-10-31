@@ -25,6 +25,12 @@ REGISTERED_LEARNERS = (
     'starVLA.rl.qwen_world_research_algorithms.batchstd_entry',
     'starVLA.rl.qwen_world_research_algorithms.safe_comfort_entry',
     'starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry',
+    'starVLA.rl.qwen_world_research_algorithms.preference_entry',
+)
+
+REGISTERED_EVALUATORS = (
+    'tools.qwen_world_research.evaluate',
+    'tools.qwen_world_research.probe_zero_rollouts',
 )
 
 def write(path,value):
@@ -151,7 +157,7 @@ def _known_owners(rows,mapping,indices):
                            'tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_scope_rl',
                            'tools.qwen_world_postcot.train_selected_parent_rl','tools.qwen_world_compare.train_il',
                            'tools.qwen_world_compare.train_rl','tools.qwen_world_compare.evaluate',
-                           'tools.qwen_world_research.evaluate'}|set(REGISTERED_LEARNERS)
+                           }|set(REGISTERED_LEARNERS)|set(REGISTERED_EVALUATORS)
         entry=args[args.index('-m')+1] if '-m' in args else None
         output=args[args.index('--output')+1] if '--output' in args else None
         if entry not in permitted_entries or not output or not output.startswith(allowed_roots):
@@ -234,7 +240,7 @@ def main():
         raise ValueError('Additional research slot requires its exact learner and at least32768MiB measured headroom')
     if args.evaluation_shared_slot and (args.primary_shared_training or args.research_shared_slot
             or not args.share_min_free_mib or args.share_min_free_mib<20480
-            or 'tools.qwen_world_research.evaluate' not in command):
+            or not any(entry in command for entry in REGISTERED_EVALUATORS)):
         raise ValueError('Evaluation slot requires its exact module and at least20480MiB measured headroom')
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')

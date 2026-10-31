@@ -239,7 +239,7 @@ def wait_transport_exit(job):
 
 
 def _eval_routes(root,*,maximum,rank0_extra=True):
-    hosts=allowed_hosts();preference=['training-vlawm-tsinghua-zt2','training-vlawm-zt2','training-vlawm-zt','training-vla-zt','training-vlawm-tsinghua-zt4',
+    hosts=allowed_hosts();preference=['training-vlawm-tsinghua-zt6','training-vlawm-tsinghua-zt2','training-vlawm-zt2','training-vlawm-zt','training-vla-zt','training-vlawm-tsinghua-zt4',
         'training-vlawm-tsinghua-zt','training-rl-zt2','training-vlawm-tsinghua-zt5','training-vlawm-tsinghua-zt3','training-vla-zt3']
     def read(host):
         try:return host,probe(host)

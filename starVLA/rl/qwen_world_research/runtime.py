@@ -32,10 +32,16 @@ def validate_recipe(cfg):
     research = cfg.get('research', {})
     if (research.get('schema') != SCHEMA or research.get('campaign_root') != str(CAMPAIGN)
             or research.get('policy_objective') not in ('ppo', 'cispo', 'nft')
-            or research.get('data_policy') not in ('hard', 'uniform_full', 'uniform_world_train', 'adaptive')
+            or research.get('data_policy') not in ('hard', 'uniform_full', 'uniform_world_train', 'adaptive', 'preference_mixture')
             or cfg.get('adaptation') != MEMORY or cfg.get('seed') != 42
             or cfg.get('world_size') != 8 or cfg.get('action_shape') != [8, 3]):
         raise ValueError('Unregistered World research scope, algorithm, population, or seed')
+    if research.get('data_policy')=='preference_mixture' and (
+            research.get('arm') not in ('PPO_PREF_REPLAY','PPO_PREF_CFM')
+            or research.get('preference_distribution')!='full80_pref20_static_v1'
+            or research.get('policy_objective')!='ppo'
+            or not research.get('preference_manifest_sha256')):
+        raise ValueError('Register preference mixture as its own full-population PPO study')
     base = expected_scope_recipe(MEMORY)
     permitted_top = {'research', 'max_steps', 'evaluate_updates', 'save_every_optimizer_updates',
                      'learning_rate', 'memory_learning_rate', 'lr_scheduler_type', 'reference_observation', 'data_order'}
