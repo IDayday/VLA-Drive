@@ -20,5 +20,28 @@
   "training_seed": 42,
   "inference_seed": 2101,
   "multiple_training_seeds_requested": false,
-  "resource_preference": "高效并行使用授权资源，修正运营规划错误后继续研究"
+  "resource_preference": "高效并行使用授权资源，修正运营规划错误后继续研究",
+  "long_run_NAVTEST_cadence": {
+    "status": "REQUESTED_AWAITING_OWNER_RECEIPT",
+    "after_native_updates": 10000,
+    "every_updates": 2000,
+    "example_updates": [
+      12000,
+      14000,
+      16000,
+      18000,
+      20000
+    ],
+    "eligible_scope": "仅已获批准且长训预算>10000的活动任务；pilot不自动加预算，停止路线不复活",
+    "native_stage_nodes": "主owner20k/35k/50k节点保持；已存在完整summary或在途评测直接复用，禁止重复评分",
+    "catchup": "从当前实际存在的完整native checkpoint补可用12k/14k等；不假造缺失checkpoint",
+    "TRAIN_cadence_changed": false,
+    "cohort": "NAVTEST",
+    "expected_scenes": 12146,
+    "sampler": "single_candidate_ODE",
+    "steps": 10,
+    "shift": 5,
+    "seed": 2101,
+    "owner_activation": "等待实际独立CPU owner启动和补评派发证据；尚未标ACTIVE"
+  }
 }

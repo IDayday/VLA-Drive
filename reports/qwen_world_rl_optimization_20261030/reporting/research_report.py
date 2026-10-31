@@ -285,6 +285,9 @@ def render_research_report(root,snapshot,history,h):
     if safety_continue:body+='<p class="note">SafetyEP最高分路线已恢复高优先续训，先到20k自然复核节点，偏好实验并行；后续35k／50k按新证据决策，50k仅配置上限，不默认跑满。NC下降持续跟踪，不单独作为停训条件；原10k hold仅保留为历史。实际新child与更新状态见上表。'+link(editorial.get('safety_ep_continuation_path') or root/'reporting'/'SAFETY_EP_CONTINUATION_PENDING_20261031.json','最新续训决策／执行证据')+'</p>'
     elif safety_hold:body+='<p class="muted">SafetyEP保留10k新高与NC交换证据，当前hold review，优先检验偏好干预。'+link(root/'analysis'/'SAFETY_EP_10K_REVIEW_20261031.json','SafetyEP10k复核决定')+'</p>'
     if editorial.get('safety_evidence_review'):body+='<p class="muted">有限CPU证据评审已启动：20k提出建议；35k若两个节点均未刷新10k、总分差95%区间上界低于0且NC／DAC／TTC无明确改善，才按登记条件协作停止。不因单个安全指标下降或预算上限强停。'+link(root/'analysis'/'SAFETY_EVIDENCE_REVIEW_20261031.json','Safety证据评审状态')+'</p>'
+    cadence=snapshot.get('report_config',{}).get('long_run_NAVTEST_cadence',{})
+    if cadence:
+        body+='<p class="note"><b>新增完整NAVTEST节奏：10k后每2k（12／14／16／18／20k…）。</b>仅适用于已获准长训、预算超过10k的活动任务；5k／10k pilot不自动获得延长，停止路线不复活。原生训练／预算复核节点仍保留，但不再等同完整Test的唯一频次；旧20／35／50k评测与已在途／已完成结果复用，避免重复评分。从实际存在的完整native checkpoint补评可用节点，不补造缺失权重。TRAIN频次不改；仍是单候选ODE K10／shift5／seed2101、12,146场景。独立owner与补评执行状态：'+esc(cadence.get('owner_activation','待实际启动收据'))+'。</p>'
     resources=snapshot.get('active_resources',[]);uuids={r.get('uuid') for r in resources if r.get('uuid')}
     body+='<p class="muted">最新可核查资源身份：'+number(len(snapshot.get('current_authorized_hosts') or []))+'许可主机 / '+number(len(uuids))+'已登记GPU UUID，来源含库存快照与native child启动回执；授权、准入合格和实际部署分开记录，UUID不等于当前空闲。运营细节见折叠附录。</p>'
     if snapshot.get('resource_inventory_unknown_hosts'):body+='<p class="muted">当前重新授权但物理库存／就绪度未核实的主机：'+esc('、'.join(snapshot['resource_inventory_unknown_hosts']))+'；不填8张可用卡，不将连接失败写成部署完成。</p>'
