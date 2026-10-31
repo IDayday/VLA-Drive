@@ -1,0 +1,67 @@
+{
+  "schema": "world_canonical_feasible_quality_runtime_handoff_v1",
+  "status": "CPU_READY_FOR_ROOT_REVIEW_NOT_REGISTERED_OR_DEPLOYED_BY_AGENT",
+  "created_at": "2026-10-31T12:39:07.036910+00:00",
+  "arm": "PPO_SAFETY_FEASIBLE_SCORE",
+  "entry": "starVLA.rl.qwen_world_research_algorithms.safety_feasible_score_entry",
+  "structured_advantage_schema": "candidate_metric_safety_feasible_canonical_quality_global_std_v1",
+  "one_change": "within-feasible quality EP ->(5EP+2Comfort)/7; retains range[0,1] and strictpreclamp feasible>unsafe ordering",
+  "initialization": "same pinnedIL70 freshAdam/RNG42/update0; noRLfork/teacher/newhead",
+  "config_template": {
+    "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PPO_SAFETY_FEASIBLE_SCORE_CONFIG_TEMPLATE_20261031.json",
+    "sha256": "114dec9c807d931385e82109d00a18380540bdefa9f6a81e39aeacbb60414251",
+    "format": "full JSON recipe (valid YAML1.2); only research.arm and structured_advantage differ from originalSafetyconfig"
+  },
+  "files": {
+    "starVLA/rl/qwen_world_research_algorithms/safety_feasible_score.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/safety_feasible_score.py",
+      "sha256": "a6c53859c58d269d1372ba52bf406c1849620657402ae00f32a8b7521072453c"
+    },
+    "starVLA/rl/qwen_world_research_algorithms/safety_feasible_score_entry.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/safety_feasible_score_entry.py",
+      "sha256": "fe61b35c39375d72b90f85b49e98e608a18a6051b6a4857466e205aafe31ae68"
+    },
+    "tests/test_qwen_world_safety_feasible_score.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tests/test_qwen_world_safety_feasible_score.py",
+      "sha256": "2343e6739472254df8b73bce8c02b27c63860ce31d44a3548a503454142df33c"
+    }
+  },
+  "CPU_check": {
+    "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_FEASIBLE_SCORE_CPU_CHECK_20261031.json",
+    "sha256": "a44500d072e5b124360d0a892f2a7ee257c51081a8af7628dff86b3c2ebcbdce",
+    "passed": 3,
+    "seconds": 6.85
+  },
+  "research": {
+    "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_ZERO_CREDIT_RESEARCH_NEXT_20261031.json",
+    "sha256": "07727124729e2f2d9c5bd198279bf4dfec255f0b92e2167a866c24a2f3d31437"
+  },
+  "unchanged": [
+    "Safety feasibility NC=DAC=TTC1",
+    "allfail original mean(c)-c",
+    "raw canonical rewards and records/scorer",
+    "global64 populationstd rule/4inner fixedA/source Acap5",
+    "source PPO.005/W3eta.1/source beta50 physicalmean IL70 anchor",
+    "scope52.7M/action5e-5 Memory5e-6/100warmup constant/eligible103288 uniform"
+  ],
+  "limitations": [
+    "EP credit strength5/7 ratherthan1; not simply addingC",
+    "allfail costties remainzero",
+    "canonical stochasticComfort credit may punish SDEjitter with noODEgain",
+    "new parameter-gradient amplitude/direction is not proven by A statistics",
+    "common positive normalization preserves raw strict order, cap5maytie butnotreverse"
+  ],
+  "integration": {
+    "runtime_or_legacy_safety_edits": false,
+    "source_contract": "source recovery structure validator + independent newA/C/protocol/rank semantics; old pendingA never reinterpreted",
+    "uses_default_ResearchLoss": true,
+    "root_actions": "root handles worker whitelist/config/registration/sourcefreeze/GPUdispatch/genericowner"
+  },
+  "scope": {
+    "agent_registered": false,
+    "agent_GPU": 0,
+    "git_stage": false,
+    "git_commit": false,
+    "ready_source_now_frozen_for_root_handoff": true
+  }
+}

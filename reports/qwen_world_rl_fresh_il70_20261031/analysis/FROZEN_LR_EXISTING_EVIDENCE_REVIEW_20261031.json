@@ -1,0 +1,5440 @@
+{
+  "schema": "world_stopped_LR_data_completed_evidence_review_v1",
+  "status": "COMPLETE_FINITE_EXISTING_POINTS_ONLY",
+  "created_at": "2026-10-31T10:56:10.420261+00:00",
+  "observed_points": [
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "updates": 12000,
+      "additional_updates_since10k": 2000,
+      "PDMS": 91.04153469704774,
+      "zero": 261,
+      "means": {
+        "score": 0.9104153469704773,
+        "no_at_fault_collisions": 0.9888440638893463,
+        "drivable_area_compliance": 0.9888028980734398,
+        "time_to_collision_within_bound": 0.971348592129096,
+        "ego_progress": 0.8338152739034377,
+        "comfort": 0.9989296887864317,
+        "driving_direction_compliance": 0.9822163675284045
+      },
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u012000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "e93c39995fa01bf0b8b539fb29225b1d58474790909040edd8b28af007a05897",
+        "summary_seal": "1be8f8bb7d83e51a2ede331736e0e7dc2a432826ec2f9437700087d76b00f045",
+        "identity_seal": "cc28e995383d8c6508a26401bf17acb2a7128d1fc527f52d0b7ed25cd5cc0a2b",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRLOW_u012000_NAVTEST.npz",
+        "cache_sha256": "7f9b4da6775ff75a280f480d647517c9c39fea96666d1b915ff71d4c4318e780",
+        "cache_reused": true
+      },
+      "exceeds_Safety10k_peak": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.36113273616658,
+        "IL70_PDMS": 96.7605914710253,
+        "delta_PDMS": -1.3994587348587118,
+        "CI95_PDMS": [
+          -1.6915043577809403,
+          -1.1210645129448829
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -1.3994587348587118,
+            "CI95_pp": [
+              -1.6915043577809403,
+              -1.1210645129448829
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.2579092159559835,
+            "CI95_pp": [
+              -0.40599599143645876,
+              -0.1254938798406864
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.21779000458505274,
+            "CI95_pp": [
+              -0.41954520103236276,
+              -0.06480504263360629
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.8138468592388812,
+            "CI95_pp": [
+              -1.1555697283181678,
+              -0.4941101739875813
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -2.0313281988741134,
+            "CI95_pp": [
+              -2.511089630795681,
+              -1.4893367557601924
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.14901421366345713,
+            "CI95_pp": [
+              -0.26166866437580355,
+              -0.05545573629544325
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.2751031636863824,
+            "CI95_pp": [
+              -0.49371952120585194,
+              -0.09737828092032841
+            ]
+          }
+        },
+        "target_below09": 928,
+        "target_zero": 41,
+        "definition": "fixed originalIL70 score>=.9; conditionaldiagnostic,notTRAINselection"
+      },
+      "vs_samebudget_Safety": {
+        "delta_PDMS": 0.1515875246857374,
+        "CI95_PDMS": [
+          0.0235119416945343,
+          0.2792449266460123
+        ],
+        "NC": {
+          "delta_pp": -0.020582907953235634,
+          "CI95_pp": [
+            -0.08010807385143806,
+            0.03677595362676367
+          ]
+        },
+        "DAC": {
+          "delta_pp": 0.08233163181294254,
+          "CI95_pp": [
+            -0.046287731740506696,
+            0.20565545201634627
+          ]
+        },
+        "TTC": {
+          "delta_pp": 0.11526428453811956,
+          "CI95_pp": [
+            -0.07711626517283655,
+            0.3230290125089187
+          ]
+        },
+        "EP": {
+          "delta_pp": 0.15383422765236934,
+          "CI95_pp": [
+            0.02029443924592751,
+            0.28959886799975687
+          ]
+        }
+      },
+      "vs_Safety10k": {
+        "delta_PDMS": -0.3083570399767629,
+        "CI95_PDMS": [
+          -0.45525560064434883,
+          -0.16273557667361044
+        ]
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "updates": 14000,
+      "additional_updates_since10k": 4000,
+      "PDMS": 91.0770796561419,
+      "zero": 257,
+      "means": {
+        "score": 0.910770796561419,
+        "no_at_fault_collisions": 0.9888852297052527,
+        "drivable_area_compliance": 0.9890498929688787,
+        "time_to_collision_within_bound": 0.9706899390745924,
+        "ego_progress": 0.8345857753762937,
+        "comfort": 0.9990120204182447,
+        "driving_direction_compliance": 0.9820517042647785
+      },
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u014000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "fb6a776e295eab294d8accba51ae3dcb01b74146387b03330ef550511b12ff91",
+        "summary_seal": "445f7ed7f009ea1afddc044be40b5e8cacfcc653df8c8fb2624c2a0b0306434f",
+        "identity_seal": "251b1af17e474491965fd03e27151508b8f41a739a4a6c4a0f33e93e500a2fbf",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRLOW_u014000_NAVTEST.npz",
+        "cache_sha256": "516c0bcd4f349a9df64428dc4454b39d76dafaee8bbc82d0016785becc04b00b",
+        "cache_reused": true
+      },
+      "exceeds_Safety10k_peak": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.31123608654156,
+        "IL70_PDMS": 96.7605914710253,
+        "delta_PDMS": -1.4493553844837186,
+        "CI95_PDMS": [
+          -1.7492051484084283,
+          -1.1552657093417007
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -1.4493553844837186,
+            "CI95_pp": [
+              -1.7492051484084283,
+              -1.1552657093417007
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.2579092159559835,
+            "CI95_pp": [
+              -0.4215690164908254,
+              -0.11846331787674062
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.2865657955066483,
+            "CI95_pp": [
+              -0.48605138785879975,
+              -0.125547702620725
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.8482347546996791,
+            "CI95_pp": [
+              -1.1986012565718431,
+              -0.5197996089292923
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -2.0249912079512047,
+            "CI95_pp": [
+              -2.50286013104517,
+              -1.5040077360226278
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.1375515818431912,
+            "CI95_pp": [
+              -0.25119408785997066,
+              -0.04396764725686637
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.32095369096744614,
+            "CI95_pp": [
+              -0.5791405662429935,
+              -0.10247905194457714
+            ]
+          }
+        },
+        "target_below09": 866,
+        "target_zero": 47,
+        "definition": "fixed originalIL70 score>=.9; conditionaldiagnostic,notTRAINselection"
+      },
+      "vs_samebudget_Safety": {
+        "delta_PDMS": -0.02954230832594816,
+        "CI95_PDMS": [
+          -0.17201886722032053,
+          0.12066647274055568
+        ],
+        "NC": {
+          "delta_pp": -0.012349744771941378,
+          "CI95_pp": [
+            -0.10717553119600941,
+            0.09287692428097148
+          ]
+        },
+        "DAC": {
+          "delta_pp": 0.1399637740820023,
+          "CI95_pp": [
+            0.04299412661792694,
+            0.25010885875451466
+          ]
+        },
+        "TTC": {
+          "delta_pp": -0.04939897908776551,
+          "CI95_pp": [
+            -0.1984902351174364,
+            0.08045483916796839
+          ]
+        },
+        "EP": {
+          "delta_pp": -0.17313990660544717,
+          "CI95_pp": [
+            -0.34134238396021926,
+            0.00894921428383676
+          ]
+        }
+      },
+      "vs_Safety10k": {
+        "delta_PDMS": -0.2728120808819648,
+        "CI95_PDMS": [
+          -0.4784772403428295,
+          -0.06979782581220323
+        ]
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "updates": 12000,
+      "additional_updates_since10k": 2000,
+      "PDMS": 90.82003334799182,
+      "zero": 279,
+      "means": {
+        "score": 0.9082003334799182,
+        "no_at_fault_collisions": 0.9889675613370656,
+        "drivable_area_compliance": 0.9871562654371809,
+        "time_to_collision_within_bound": 0.9706899390745924,
+        "ego_progress": 0.8314055208278032,
+        "comfort": 0.99860036225918,
+        "driving_direction_compliance": 0.9822163675284045
+      },
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u012000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "6219178d6d484c71f9caa5813c91253fb3b5c3a08f149c80c5b339a6d4642bcc",
+        "summary_seal": "a21d02a0ddfb02a89f22a9c81628fee3ae6cb111b449b8dfa2c419fb4895310c",
+        "identity_seal": "da1f5b9807b3136342cdec2771dc83bd5e110007c2aa8840e09607c498a9bd34",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRCOS_u012000_NAVTEST.npz",
+        "cache_sha256": "d28c292e0c2651cd138e6a452d4a26bf3afe388e7c0e2de58d974751268f0027",
+        "cache_reused": true
+      },
+      "exceeds_Safety10k_peak": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.10165675095496,
+        "IL70_PDMS": 96.7605914710253,
+        "delta_PDMS": -1.6589347200703188,
+        "CI95_PDMS": [
+          -2.0070595431173843,
+          -1.2911973007368427
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -1.6589347200703188,
+            "CI95_pp": [
+              -2.0070595431173843,
+              -1.2911973007368427
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.28083447959651536,
+            "CI95_pp": [
+              -0.4450256499556685,
+              -0.13810309798920228
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.3782668500687758,
+            "CI95_pp": [
+              -0.6099749286589492,
+              -0.16235395998346636
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.8826226501604768,
+            "CI95_pp": [
+              -1.2685139212913805,
+              -0.5464669564753576
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -2.3468720305988433,
+            "CI95_pp": [
+              -2.9201559985291063,
+              -1.713471468815337
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.16047684548372307,
+            "CI95_pp": [
+              -0.2581159621778755,
+              -0.07484133018569226
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.29229711141678133,
+            "CI95_pp": [
+              -0.5737280978332722,
+              -0.06897371010041618
+            ]
+          }
+        },
+        "target_below09": 1001,
+        "target_zero": 57,
+        "definition": "fixed originalIL70 score>=.9; conditionaldiagnostic,notTRAINselection"
+      },
+      "vs_samebudget_Safety": {
+        "delta_PDMS": -0.06991382437038633,
+        "CI95_PDMS": [
+          -0.21600547935110756,
+          0.05366506299063199
+        ],
+        "NC": {
+          "delta_pp": -0.008233163181294254,
+          "CI95_pp": [
+            -0.10283597852272208,
+            0.06303106767380807
+          ]
+        },
+        "DAC": {
+          "delta_pp": -0.08233163181294254,
+          "CI95_pp": [
+            -0.1829695981598381,
+            0.0
+          ]
+        },
+        "TTC": {
+          "delta_pp": 0.04939897908776551,
+          "CI95_pp": [
+            -0.07605478294470097,
+            0.15853206324069488
+          ]
+        },
+        "EP": {
+          "delta_pp": -0.0871410799110987,
+          "CI95_pp": [
+            -0.24278198013061558,
+            0.04562439654055045
+          ]
+        }
+      },
+      "vs_Safety10k": {
+        "delta_PDMS": -0.5298583890328867,
+        "CI95_PDMS": [
+          -0.7907728372932471,
+          -0.28487851559400695
+        ]
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "updates": 14000,
+      "additional_updates_since10k": 4000,
+      "PDMS": 91.05254280072845,
+      "zero": 262,
+      "means": {
+        "score": 0.9105254280072845,
+        "no_at_fault_collisions": 0.9891322246006916,
+        "drivable_area_compliance": 0.9883089082825621,
+        "time_to_collision_within_bound": 0.9701136176519018,
+        "ego_progress": 0.8356021604084667,
+        "comfort": 0.9994236785773094,
+        "driving_direction_compliance": 0.9816812119216203
+      },
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u014000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "7f2dec0b413517d7318865db149f8b1678657e9b140a197ab011c48e9e55e100",
+        "summary_seal": "c55bc6d14b363ce4f4305d7cd7d2bbf830d228268e94f49a653ea5e4186e93ee",
+        "identity_seal": "43f24b2f4f78bfc8a76c81d80bf4c8b98fa9eed533ba3709ab4dd5888f859d01",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRCOS_u014000_NAVTEST.npz",
+        "cache_sha256": "c57b148e44cde5d267896a16b766564af1b3cb5aa415c13ef60b7725e2fb5ce4",
+        "cache_reused": true
+      },
+      "exceeds_Safety10k_peak": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.27294706670227,
+        "IL70_PDMS": 96.7605914710253,
+        "delta_PDMS": -1.4876444043230126,
+        "CI95_PDMS": [
+          -1.8252446971830443,
+          -1.1666185217633334
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -1.4876444043230126,
+            "CI95_pp": [
+              -1.8252446971830443,
+              -1.1666185217633334
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.2235213204951857,
+            "CI95_pp": [
+              -0.40173872943838956,
+              -0.08733324581398298
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.3782668500687758,
+            "CI95_pp": [
+              -0.6180202011364279,
+              -0.1860662978839461
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.8482347546996791,
+            "CI95_pp": [
+              -1.1939259037830348,
+              -0.5445896365771818
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -2.025183801003383,
+            "CI95_pp": [
+              -2.5599633287772625,
+              -1.4531699437293757
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.08023842274186153,
+            "CI95_pp": [
+              -0.15552445366204046,
+              -0.02110951244004864
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.3725355341586428,
+            "CI95_pp": [
+              -0.6511644734949554,
+              -0.13619239004489403
+            ]
+          }
+        },
+        "target_below09": 854,
+        "target_zero": 52,
+        "definition": "fixed originalIL70 score>=.9; conditionaldiagnostic,notTRAINselection"
+      },
+      "vs_samebudget_Safety": {
+        "delta_PDMS": -0.054079163740159746,
+        "CI95_PDMS": [
+          -0.1778163635013837,
+          0.07451347181016243
+        ],
+        "NC": {
+          "delta_pp": 0.012349744771941378,
+          "CI95_pp": [
+            -0.04955961421818378,
+            0.07541713202786253
+          ]
+        },
+        "DAC": {
+          "delta_pp": 0.06586530545035403,
+          "CI95_pp": [
+            -0.019594080092151446,
+            0.1704588678140998
+          ]
+        },
+        "TTC": {
+          "delta_pp": -0.1070311213568253,
+          "CI95_pp": [
+            -0.25152666849785893,
+            0.007699930287159735
+          ]
+        },
+        "EP": {
+          "delta_pp": -0.0715014033880548,
+          "CI95_pp": [
+            -0.18946280081032088,
+            0.0664141920803834
+          ]
+        }
+      },
+      "vs_Safety10k": {
+        "delta_PDMS": -0.2973489362961764,
+        "CI95_PDMS": [
+          -0.5376111874485024,
+          -0.06626136664823992
+        ]
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_DATA",
+      "updates": 12000,
+      "additional_updates_since10k": 2000,
+      "PDMS": 90.94896542131083,
+      "zero": 293,
+      "means": {
+        "score": 0.9094896542131083,
+        "no_at_fault_collisions": 0.987856084307591,
+        "drivable_area_compliance": 0.987073933805368,
+        "time_to_collision_within_bound": 0.9658323727976289,
+        "ego_progress": 0.840005726389519,
+        "comfort": 0.9984356989955541,
+        "driving_direction_compliance": 0.9818458751852461
+      },
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u012000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "7d1a5efc8c4fb0613d7afad036865088ecf9a681b68edbed417f8f7b9d8d98ee",
+        "summary_seal": "016405a8510732a323b86675119ac1beb274b78ddd7b48517795ce321c557954",
+        "identity_seal": "b9210e9f6247674f800b4193733b8c79176fa45847da3d98c61daed0f9507f18",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_DATA_u012000_NAVTEST.npz",
+        "cache_sha256": "016e0f62e6aab6995ef8a21eec6b655260eb6889073cc473df155c84c17b43a4",
+        "cache_reused": true
+      },
+      "exceeds_Safety10k_peak": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.49496002737718,
+        "IL70_PDMS": 96.7605914710253,
+        "delta_PDMS": -1.265631443648104,
+        "CI95_PDMS": [
+          -1.55362110424917,
+          -0.9998664726942644
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -1.265631443648104,
+            "CI95_pp": [
+              -1.55362110424917,
+              -0.9998664726942644
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.2579092159559835,
+            "CI95_pp": [
+              -0.40086764301993844,
+              -0.13772844472337117
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.32095369096744614,
+            "CI95_pp": [
+              -0.5243379956715416,
+              -0.15812018492546462
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.8138468592388812,
+            "CI95_pp": [
+              -1.1336264722319216,
+              -0.513278470768562
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -1.5267405908443996,
+            "CI95_pp": [
+              -1.9077236530085526,
+              -1.1234017237939804
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.21779000458505274,
+            "CI95_pp": [
+              -0.3908979236941034,
+              -0.07906635648500551
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.30375974323704724,
+            "CI95_pp": [
+              -0.5339876355748884,
+              -0.11028762840609568
+            ]
+          }
+        },
+        "target_below09": 679,
+        "target_zero": 50,
+        "definition": "fixed originalIL70 score>=.9; conditionaldiagnostic,notTRAINselection"
+      },
+      "vs_samebudget_Safety": {
+        "delta_PDMS": 0.05901824894897474,
+        "CI95_PDMS": [
+          -0.18647655283494927,
+          0.2850272219813802
+        ],
+        "NC": {
+          "delta_pp": -0.11938086612876668,
+          "CI95_pp": [
+            -0.24803252531663447,
+            -0.017396086818536948
+          ]
+        },
+        "DAC": {
+          "delta_pp": -0.09056479499423678,
+          "CI95_pp": [
+            -0.2638578922817711,
+            0.07395542817966837
+          ]
+        },
+        "TTC": {
+          "delta_pp": -0.43635764860859544,
+          "CI95_pp": [
+            -0.7620434247290385,
+            -0.16408474341029958
+          ]
+        },
+        "EP": {
+          "delta_pp": 0.7728794762602158,
+          "CI95_pp": [
+            0.4289819439962564,
+            1.1146681281905495
+          ]
+        }
+      },
+      "vs_Safety10k": {
+        "delta_PDMS": -0.4009263157135256,
+        "CI95_PDMS": [
+          -0.6147003393912918,
+          -0.19225828729789202
+        ]
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_DATA",
+      "updates": 14000,
+      "additional_updates_since10k": 4000,
+      "PDMS": 91.08105265326283,
+      "zero": 297,
+      "means": {
+        "score": 0.9108105265326283,
+        "no_at_fault_collisions": 0.9868681047258356,
+        "drivable_area_compliance": 0.9877325868598715,
+        "time_to_collision_within_bound": 0.9638564136341182,
+        "ego_progress": 0.8438880327966916,
+        "comfort": 0.9992590153136836,
+        "driving_direction_compliance": 0.9820105384488721
+      },
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u014000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "2d26f2eb215ccc80da3560a85b834e963dc6a48f3d548ced0a0da5ca28487f19",
+        "summary_seal": "84f41c8b0a0dd509a645d21583d88fccecd6e083f1a151a70346f828f9aec5a9",
+        "identity_seal": "305d92bb2e1105ca8f6d668017f8ac84050a40ad1b96a957a9494ab7a796a796",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_DATA_u014000_NAVTEST.npz",
+        "cache_sha256": "e9ebb506b112167642e6a539bb2bdc04eb356bb60daf5c1707285ec08aa0eb61",
+        "cache_reused": true
+      },
+      "exceeds_Safety10k_peak": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.69863384410385,
+        "IL70_PDMS": 96.7605914710253,
+        "delta_PDMS": -1.0619576269214357,
+        "CI95_PDMS": [
+          -1.3419652621404083,
+          -0.8025321905008931
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -1.0619576269214357,
+            "CI95_pp": [
+              -1.3419652621404083,
+              -0.8025321905008931
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.2579092159559835,
+            "CI95_pp": [
+              -0.40296237095977183,
+              -0.1385769756224615
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.26364053186611647,
+            "CI95_pp": [
+              -0.4341420959734464,
+              -0.12127444570194179
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.9284731774415406,
+            "CI95_pp": [
+              -1.2969477045979285,
+              -0.5949072398555986
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -1.0425084834285028,
+            "CI95_pp": [
+              -1.5217322985169701,
+              -0.5095852625872976
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.09170105456212746,
+            "CI95_pp": [
+              -0.18412809755263695,
+              -0.021425461655921987
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.24071526822558462,
+            "CI95_pp": [
+              -0.47359706160916315,
+              -0.05312708561427724
+            ]
+          }
+        },
+        "target_below09": 700,
+        "target_zero": 45,
+        "definition": "fixed originalIL70 score>=.9; conditionaldiagnostic,notTRAINselection"
+      },
+      "vs_samebudget_Safety": {
+        "delta_PDMS": -0.025569311205611883,
+        "CI95_PDMS": [
+          -0.3230751848345815,
+          0.2114664914318278
+        ],
+        "NC": {
+          "delta_pp": -0.2140622427136506,
+          "CI95_pp": [
+            -0.3683920282873106,
+            -0.08362085466230154
+          ]
+        },
+        "DAC": {
+          "delta_pp": 0.008233163181294254,
+          "CI95_pp": [
+            -0.18184902695367222,
+            0.171917239344746
+          ]
+        },
+        "TTC": {
+          "delta_pp": -0.7327515231351885,
+          "CI95_pp": [
+            -1.0962603241810764,
+            -0.44597339625557064
+          ]
+        },
+        "EP": {
+          "delta_pp": 0.7570858354343637,
+          "CI95_pp": [
+            0.41672499479753294,
+            1.040842893696226
+          ]
+        }
+      },
+      "vs_Safety10k": {
+        "delta_PDMS": -0.26883908376162857,
+        "CI95_PDMS": [
+          -0.5558158427248795,
+          -0.021123985909578744
+        ]
+      }
+    },
+    {
+      "arm": "PPO_SAFETY_LRDATA",
+      "updates": 12000,
+      "additional_updates_since10k": 2000,
+      "PDMS": 91.0709378946058,
+      "zero": 264,
+      "means": {
+        "score": 0.9107093789460581,
+        "no_at_fault_collisions": 0.9884324057302816,
+        "drivable_area_compliance": 0.9889675613370656,
+        "time_to_collision_within_bound": 0.9690433064383336,
+        "ego_progress": 0.8364320897850904,
+        "comfort": 0.9993413469454965,
+        "driving_direction_compliance": 0.9806932323398649
+      },
+      "provenance": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRDATA_u012000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "a93ce88b46e86d7397ac9e73e34d4e9ee5eae42713b56f1e14584c5c50ddca2c",
+        "summary_seal": "41b5a3c6cc4e4d442e5e3a86e1105a04fd000b6ee6787633cfeb2597bf81b740",
+        "identity_seal": "70e84a988b2a4cd8c1af9ce4654ebae266bf616443296365290e90b255f41547",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRDATA_u012000_NAVTEST.npz",
+        "cache_sha256": "e414ed72081116332160a0281c65b3df8cd80c57e43678f57c0d38fea96fe329",
+        "cache_reused": true
+      },
+      "exceeds_Safety10k_peak": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.41061136337868,
+        "IL70_PDMS": 96.7605914710253,
+        "delta_PDMS": -1.349980107646615,
+        "CI95_PDMS": [
+          -1.6582305400245172,
+          -1.044994373150868
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -1.349980107646615,
+            "CI95_pp": [
+              -1.6582305400245172,
+              -1.044994373150868
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.26937184777624945,
+            "CI95_pp": [
+              -0.41675326254281786,
+              -0.1383516491198639
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.24071526822558462,
+            "CI95_pp": [
+              -0.4943187673734957,
+              -0.06099049431192387
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.8826226501604768,
+            "CI95_pp": [
+              -1.266701408701608,
+              -0.5339719468622823
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -1.8300485444591656,
+            "CI95_pp": [
+              -2.3025995487439204,
+              -1.3336722465534894
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.09170105456212746,
+            "CI95_pp": [
+              -0.19097650913894876,
+              -0.012594387675263335
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.4642365887207703,
+            "CI95_pp": [
+              -0.8049007932886744,
+              -0.17863100312365912
+            ]
+          }
+        },
+        "target_below09": 826,
+        "target_zero": 44,
+        "definition": "fixed originalIL70 score>=.9; conditionaldiagnostic,notTRAINselection"
+      },
+      "vs_samebudget_Safety": {
+        "delta_PDMS": 0.18099072224404386,
+        "CI95_PDMS": [
+          -0.014864006471775442,
+          0.36221985773718257
+        ],
+        "NC": {
+          "delta_pp": -0.061748723859706894,
+          "CI95_pp": [
+            -0.16895628597416157,
+            0.02324192330869773
+          ]
+        },
+        "DAC": {
+          "delta_pp": 0.09879795817553103,
+          "CI95_pp": [
+            -0.08509725265496162,
+            0.2677797517936257
+          ]
+        },
+        "TTC": {
+          "delta_pp": -0.11526428453811956,
+          "CI95_pp": [
+            -0.3283482666198191,
+            0.07035817747087554
+          ]
+        },
+        "EP": {
+          "delta_pp": 0.41551581581754776,
+          "CI95_pp": [
+            0.21117704875906557,
+            0.6150093974033165
+          ]
+        }
+      },
+      "vs_Safety10k": {
+        "delta_PDMS": -0.2789538424184565,
+        "CI95_PDMS": [
+          -0.4428250233635663,
+          -0.13172016554679797
+        ]
+      }
+    }
+  ],
+  "missing_unobserved_points": [
+    {
+      "arm": "PPO_SAFETY_LRDATA",
+      "updates": 14000,
+      "status": "NO_ACTUAL_COMPLETE_RESULT_DO_NOT_WAIT_OR_RESUME",
+      "not_imputed": true
+    }
+  ],
+  "contrasts": {
+    "PPO_SAFETY_LRLOW_u012000_minus_SAFETY_same_updates": {
+      "target": "PPO_SAFETY_LRLOW_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u012000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.04153469704774,
+      "baseline_PDMS": 90.88994717236211,
+      "delta_PDMS": 0.1515875246857374,
+      "CI95_PDMS": [
+        0.0235119416945343,
+        0.2792449266460123
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": 0.1515875246857374,
+          "CI95_pp": [
+            0.0235119416945343,
+            0.2792449266460123
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.020582907953235634,
+          "CI95_pp": [
+            -0.08010807385143806,
+            0.03677595362676367
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": 0.08233163181294254,
+          "CI95_pp": [
+            -0.046287731740506696,
+            0.20565545201634627
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": 0.11526428453811956,
+          "CI95_pp": [
+            -0.07711626517283655,
+            0.3230290125089187
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": 0.15383422765236934,
+          "CI95_pp": [
+            0.02029443924592751,
+            0.28959886799975687
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.016466326362588508,
+          "CI95_pp": [
+            -0.058470129162325093,
+            0.02165657708771727
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": 0.012349744771941378,
+          "CI95_pp": [
+            -0.05877567897955318,
+            0.07613140540325146
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 268,
+        "target": 261,
+        "repaired": 34,
+        "new_zero": 27,
+        "high_to_zero": 14,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 139,
+            "target_failed": 141,
+            "repaired": 8,
+            "new_failure": 10
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 146,
+            "target_failed": 136,
+            "repaired": 27,
+            "new_failure": 17
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 362,
+            "target_failed": 348,
+            "repaired": 49,
+            "new_failure": 35
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.575740367194363,
+        "G_minus_PDMS": 0.42415284250862556,
+        "improved": 4279,
+        "degraded": 3732,
+        "unchanged": 4135
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": 0.3198330522396973,
+            "CI95_pp": [
+              0.16438979424414704,
+              0.48362050970212456
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.011299435028248588,
+            "CI95_pp": [
+              -0.03719213242898589,
+              0.0
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.1807909604519774,
+            "CI95_pp": [
+              0.025012413346661804,
+              0.34594930370590765
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.2824858757062147,
+            "CI95_pp": [
+              0.11797062025629844,
+              0.477265115575318
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.25912474910408717,
+            "CI95_pp": [
+              0.10253875369956086,
+              0.43624434396039746
+            ]
+          },
+          "comfort": {
+            "delta_pp": 0.0,
+            "CI95_pp": [
+              -0.07593158670922448,
+              0.08972775661842271
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": 0.011299435028248588,
+            "CI95_pp": [
+              -0.06747484246956369,
+              0.07831357319172629
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.27815407716862,
+          "remaining_ge09": 8528,
+          "below09": 322,
+          "zero": 27
+        },
+        "baseline": {
+          "PDMS": 95.95832102492892,
+          "remaining_ge09": 8399,
+          "below09": 451,
+          "zero": 42
+        },
+        "zeros": {
+          "baseline": 42,
+          "target": 27,
+          "repaired": 21,
+          "new_zero": 6,
+          "high_to_zero": 5,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 9,
+              "target_failed": 10,
+              "repaired": 1,
+              "new_failure": 2
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 33,
+              "target_failed": 17,
+              "repaired": 20,
+              "new_failure": 4
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 61,
+              "target_failed": 36,
+              "repaired": 34,
+              "new_failure": 9
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "e93c39995fa01bf0b8b539fb29225b1d58474790909040edd8b28af007a05897",
+          "summary_seal": "1be8f8bb7d83e51a2ede331736e0e7dc2a432826ec2f9437700087d76b00f045",
+          "identity_seal": "cc28e995383d8c6508a26401bf17acb2a7128d1fc527f52d0b7ed25cd5cc0a2b",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRLOW_u012000_NAVTEST.npz",
+          "cache_sha256": "7f9b4da6775ff75a280f480d647517c9c39fea96666d1b915ff71d4c4318e780",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "9abd36e8e68d85e91861b094a29079b2743ec27e88e51822ee8c9c5f4a7f35b7",
+          "summary_seal": "af6fa06afba546452cd59894454e2515f68dd6704ecf92319efb11cb7e94dde7",
+          "identity_seal": "587e4b8d24c9b0ce8871d30280c34cc97fb835539ad91bffe2936d4dd7606084",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u012000_NAVTEST.npz",
+          "cache_sha256": "722ce65cd6e8289bbc11d1c9098794151096b8ec1c8b576861a04315cc58f30a",
+          "cache_reused": false
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:20:35.837545+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.36113273616658,
+        "baseline_PDMS": 95.22549749403856,
+        "delta_PDMS": 0.13563524212801178,
+        "CI95_PDMS": [
+          0.016946030248456707,
+          0.24925786203703384
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": 0.13563524212801178,
+            "CI95_pp": [
+              0.016946030248456707,
+              0.24925786203703384
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.011462631820265932,
+            "CI95_pp": [
+              -0.037263030766484836,
+              0.0
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.04585052728106373,
+            "CI95_pp": [
+              -0.048135072959473994,
+              0.13891115258540634
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.11462631820265932,
+            "CI95_pp": [
+              -0.014099470915415697,
+              0.2494505560863286
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.1696327883516117,
+            "CI95_pp": [
+              0.0509090703785057,
+              0.30563696165794046
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.04585052728106373,
+            "CI95_pp": [
+              -0.09317279725778511,
+              -0.010316351424181315
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": 0.005731315910132966,
+            "CI95_pp": [
+              -0.07474139941286444,
+              0.07327019569081991
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 44,
+          "target": 41,
+          "repaired": 11,
+          "new_zero": 8,
+          "high_to_zero": 6,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 22,
+              "target_failed": 23,
+              "repaired": 1,
+              "new_failure": 2
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 23,
+              "target_failed": 19,
+              "repaired": 10,
+              "new_failure": 6
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 81,
+              "target_failed": 71,
+              "repaired": 21,
+              "new_failure": 11
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRLOW_u012000_minus_SAFETY_same_updates"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRLOW_u012000_minus_fixed_SAFETY10k": {
+      "target": "PPO_SAFETY_LRLOW_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.04153469704774,
+      "baseline_PDMS": 91.34989173702405,
+      "delta_PDMS": -0.3083570399767629,
+      "CI95_PDMS": [
+        -0.45525560064434883,
+        -0.16273557667361044
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.3083570399767629,
+          "CI95_pp": [
+            -0.45525560064434883,
+            -0.16273557667361044
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": 0.032932652725177015,
+          "CI95_pp": [
+            -0.05738018214443353,
+            0.13347059988009202
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.07409846863164828,
+          "CI95_pp": [
+            -0.19390415382364362,
+            0.023865205383142973
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": 0.24699489543882758,
+          "CI95_pp": [
+            0.0520381765342507,
+            0.4798977792957315
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.8422386356253763,
+          "CI95_pp": [
+            -1.0887291899168383,
+            -0.6077782336542707
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.032932652725177015,
+          "CI95_pp": [
+            -0.07323455331517639,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.09056479499423678,
+          "CI95_pp": [
+            -0.18581604363435916,
+            -0.004690058812547736
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 256,
+        "target": 261,
+        "repaired": 32,
+        "new_zero": 37,
+        "high_to_zero": 27,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 145,
+            "target_failed": 141,
+            "repaired": 21,
+            "new_failure": 17
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 127,
+            "target_failed": 136,
+            "repaired": 12,
+            "new_failure": 21
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 378,
+            "target_failed": 348,
+            "repaired": 70,
+            "new_failure": 40
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.5050182082539162,
+        "G_minus_PDMS": 0.8133752482306793,
+        "improved": 3382,
+        "degraded": 4652,
+        "unchanged": 4112
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.6061846432545375,
+            "CI95_pp": [
+              -0.7985116487971747,
+              -0.447233700193647
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.11299435028248588,
+            "CI95_pp": [
+              -0.1961232436759728,
+              -0.03608084560238469
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.192090395480226,
+            "CI95_pp": [
+              -0.3693427033835983,
+              -0.06783946749480213
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.4067796610169492,
+            "CI95_pp": [
+              -0.5779947181421898,
+              -0.25432004385217133
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.6774420138673871,
+            "CI95_pp": [
+              -0.8562231211619448,
+              -0.5170095213936711
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.05649717514124294,
+            "CI95_pp": [
+              -0.1083974967168412,
+              -0.0134459787172603
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.12429378531073447,
+            "CI95_pp": [
+              -0.23933694969981398,
+              -0.02399361240172638
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.27815407716862,
+          "remaining_ge09": 8528,
+          "below09": 322,
+          "zero": 27
+        },
+        "baseline": {
+          "PDMS": 96.88433872042317,
+          "remaining_ge09": 8850,
+          "below09": 0,
+          "zero": 0
+        },
+        "zeros": {
+          "baseline": 0,
+          "target": 27,
+          "repaired": 0,
+          "new_zero": 27,
+          "high_to_zero": 27,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 0,
+              "target_failed": 10,
+              "repaired": 0,
+              "new_failure": 10
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 0,
+              "target_failed": 17,
+              "repaired": 0,
+              "new_failure": 17
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 0,
+              "target_failed": 36,
+              "repaired": 0,
+              "new_failure": 36
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "e93c39995fa01bf0b8b539fb29225b1d58474790909040edd8b28af007a05897",
+          "summary_seal": "1be8f8bb7d83e51a2ede331736e0e7dc2a432826ec2f9437700087d76b00f045",
+          "identity_seal": "cc28e995383d8c6508a26401bf17acb2a7128d1fc527f52d0b7ed25cd5cc0a2b",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRLOW_u012000_NAVTEST.npz",
+          "cache_sha256": "7f9b4da6775ff75a280f480d647517c9c39fea96666d1b915ff71d4c4318e780",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:20:35.865232+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.36113273616658,
+        "baseline_PDMS": 95.92740390322095,
+        "delta_PDMS": -0.5662711670543732,
+        "CI95_PDMS": [
+          -0.7291327552094318,
+          -0.410193166640358
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.5662711670543732,
+            "CI95_pp": [
+              -0.7291327552094318,
+              -0.410193166640358
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.11462631820265932,
+            "CI95_pp": [
+              -0.1991775404531735,
+              -0.03801855743051068
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.12608895002292525,
+            "CI95_pp": [
+              -0.2682076212331662,
+              -0.03403377739535863
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.19486474094452086,
+            "CI95_pp": [
+              -0.34989977315105864,
+              -0.04589928437937019
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.9005455281198582,
+            "CI95_pp": [
+              -1.074134538237,
+              -0.7223643425974294
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.04585052728106373,
+            "CI95_pp": [
+              -0.09933203246384832,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.12608895002292525,
+            "CI95_pp": [
+              -0.24827266682974133,
+              -0.019641797187871127
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 20,
+          "target": 41,
+          "repaired": 0,
+          "new_zero": 21,
+          "high_to_zero": 19,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 13,
+              "target_failed": 23,
+              "repaired": 0,
+              "new_failure": 10
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 8,
+              "target_failed": 19,
+              "repaired": 0,
+              "new_failure": 11
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 54,
+              "target_failed": 71,
+              "repaired": 9,
+              "new_failure": 26
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRLOW_u012000_minus_fixed_SAFETY10k"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRLOW_u014000_minus_SAFETY_same_updates": {
+      "target": "PPO_SAFETY_LRLOW_u014000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u014000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.0770796561419,
+      "baseline_PDMS": 91.10662196446827,
+      "delta_PDMS": -0.02954230832594816,
+      "CI95_PDMS": [
+        -0.17201886722032053,
+        0.12066647274055568
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.02954230832594816,
+          "CI95_pp": [
+            -0.17201886722032053,
+            0.12066647274055568
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.012349744771941378,
+          "CI95_pp": [
+            -0.10717553119600941,
+            0.09287692428097148
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": 0.1399637740820023,
+          "CI95_pp": [
+            0.04299412661792694,
+            0.25010885875451466
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -0.04939897908776551,
+          "CI95_pp": [
+            -0.1984902351174364,
+            0.08045483916796839
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.17313990660544717,
+          "CI95_pp": [
+            -0.34134238396021926,
+            0.00894921428383676
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.06586530545035403,
+          "CI95_pp": [
+            -0.12522595492507707,
+            -0.018298781082113198
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.03704923431582414,
+          "CI95_pp": [
+            -0.12314886784034937,
+            0.037226150429029575
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 271,
+        "target": 257,
+        "repaired": 45,
+        "new_zero": 31,
+        "high_to_zero": 18,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 139,
+            "target_failed": 141,
+            "repaired": 13,
+            "new_failure": 15
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 150,
+            "target_failed": 133,
+            "repaired": 35,
+            "new_failure": 18
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 350,
+            "target_failed": 356,
+            "repaired": 41,
+            "new_failure": 47
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.5905470133673828,
+        "G_minus_PDMS": 0.6200893216933311,
+        "improved": 3559,
+        "degraded": 4527,
+        "unchanged": 4060
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": 0.2552360871417338,
+            "CI95_pp": [
+              0.13323449695056414,
+              0.3833306272572049
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": 0.011299435028248588,
+            "CI95_pp": [
+              -0.045817615252168736,
+              0.07223255548349464
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.21468926553672316,
+            "CI95_pp": [
+              0.10338210780202349,
+              0.3371316982250486
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.21468926553672316,
+            "CI95_pp": [
+              0.08564472572016818,
+              0.34526128643309967
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.11087169388592383,
+            "CI95_pp": [
+              -0.031463805003406106,
+              0.27647965479064096
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.04519774011299435,
+            "CI95_pp": [
+              -0.08937529895153393,
+              -0.010392768736148491
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.022598870056497175,
+            "CI95_pp": [
+              -0.12011716553216568,
+              0.06590683879812811
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.19236765685253,
+          "remaining_ge09": 8574,
+          "below09": 276,
+          "zero": 32
+        },
+        "baseline": {
+          "PDMS": 95.93713156971081,
+          "remaining_ge09": 8492,
+          "below09": 358,
+          "zero": 52
+        },
+        "zeros": {
+          "baseline": 52,
+          "target": 32,
+          "repaired": 25,
+          "new_zero": 5,
+          "high_to_zero": 4,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 10,
+              "target_failed": 9,
+              "repaired": 4,
+              "new_failure": 3
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 42,
+              "target_failed": 23,
+              "repaired": 21,
+              "new_failure": 2
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 59,
+              "target_failed": 40,
+              "repaired": 28,
+              "new_failure": 9
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "fb6a776e295eab294d8accba51ae3dcb01b74146387b03330ef550511b12ff91",
+          "summary_seal": "445f7ed7f009ea1afddc044be40b5e8cacfcc653df8c8fb2624c2a0b0306434f",
+          "identity_seal": "251b1af17e474491965fd03e27151508b8f41a739a4a6c4a0f33e93e500a2fbf",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRLOW_u014000_NAVTEST.npz",
+          "cache_sha256": "516c0bcd4f349a9df64428dc4454b39d76dafaee8bbc82d0016785becc04b00b",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "947273f5c4b465627fd5e0a74de0dd44a4ad2885e9ec335c1e5a236230afdc1a",
+          "summary_seal": "603881bc1600c79662164ec74cd763f593fa616f021f23e46357c9f37f816c75",
+          "identity_seal": "32d5fba0c38482afbaec3db588eefacce497b2309b7f9b44d2db3a3dc673699a",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u014000_NAVTEST.npz",
+          "cache_sha256": "d17117b85f4e4fc54da0831696a9fa80c2553262c6fe79a958751a2b2e0d8035",
+          "cache_reused": false
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T08:05:24.476226+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.31123608654156,
+        "baseline_PDMS": 95.28814681914372,
+        "delta_PDMS": 0.0230892673978292,
+        "CI95_PDMS": [
+          -0.10362714107651534,
+          0.1526761785499072
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": 0.0230892673978292,
+            "CI95_pp": [
+              -0.10362714107651534,
+              0.1526761785499072
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.0343878954607978,
+            "CI95_pp": [
+              -0.10379437642606971,
+              0.029975091915022463
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.10316368638239339,
+            "CI95_pp": [
+              0.025703141938721995,
+              0.18318336335080584
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.0343878954607978,
+            "CI95_pp": [
+              -0.072184515185478,
+              0.13590617625902288
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.0729672346321883,
+            "CI95_pp": [
+              -0.22068317847197033,
+              0.08712628673365304
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.09170105456212746,
+            "CI95_pp": [
+              -0.16935384355815694,
+              -0.024903632573180956
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.02865657955066483,
+            "CI95_pp": [
+              -0.12775101852125834,
+              0.06064327365984807
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 53,
+          "target": 47,
+          "repaired": 14,
+          "new_zero": 8,
+          "high_to_zero": 5,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 20,
+              "target_failed": 23,
+              "repaired": 2,
+              "new_failure": 5
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 34,
+              "target_failed": 25,
+              "repaired": 12,
+              "new_failure": 3
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 77,
+              "target_failed": 74,
+              "repaired": 20,
+              "new_failure": 17
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRLOW_u014000_minus_SAFETY_same_updates"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRLOW_u014000_minus_fixed_SAFETY10k": {
+      "target": "PPO_SAFETY_LRLOW_u014000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.0770796561419,
+      "baseline_PDMS": 91.34989173702405,
+      "delta_PDMS": -0.2728120808819648,
+      "CI95_PDMS": [
+        -0.4784772403428295,
+        -0.06979782581220323
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.2728120808819648,
+          "CI95_pp": [
+            -0.4784772403428295,
+            -0.06979782581220323
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": 0.03704923431582414,
+          "CI95_pp": [
+            -0.0767554024092622,
+            0.16718157182844576
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.04939897908776551,
+          "CI95_pp": [
+            -0.22256174877095103,
+            0.0960698833353516
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": 0.18112958998847356,
+          "CI95_pp": [
+            -0.022262927360376505,
+            0.3968325269894853
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.7651884883396051,
+          "CI95_pp": [
+            -1.0115326828665554,
+            -0.5365869010640396
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.024699489543882756,
+          "CI95_pp": [
+            -0.06146989935220529,
+            0.009187292622082675
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.1070311213568253,
+          "CI95_pp": [
+            -0.23612010259988628,
+            -0.004798963754246672
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 256,
+        "target": 257,
+        "repaired": 40,
+        "new_zero": 41,
+        "high_to_zero": 32,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 145,
+            "target_failed": 141,
+            "repaired": 19,
+            "new_failure": 15
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 127,
+            "target_failed": 133,
+            "repaired": 21,
+            "new_failure": 27
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 378,
+            "target_failed": 356,
+            "repaired": 69,
+            "new_failure": 47
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.5435568864295008,
+        "G_minus_PDMS": 0.8163689673114656,
+        "improved": 2667,
+        "degraded": 5418,
+        "unchanged": 4061
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.6919710635706201,
+            "CI95_pp": [
+              -0.9135801327885767,
+              -0.4932704194077305
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.1016949152542373,
+            "CI95_pp": [
+              -0.1860423623451076,
+              -0.02727279275126409
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.2598870056497175,
+            "CI95_pp": [
+              -0.459283182797714,
+              -0.11017477409592341
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.4519774011299435,
+            "CI95_pp": [
+              -0.6297073475540557,
+              -0.27709946462718316
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.7635554113265505,
+            "CI95_pp": [
+              -0.954727804197251,
+              -0.5888313036662577
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.04519774011299435,
+            "CI95_pp": [
+              -0.08937529895153393,
+              -0.010392768736148491
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.1694915254237288,
+            "CI95_pp": [
+              -0.33047573368190253,
+              -0.03074879105916443
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.19236765685253,
+          "remaining_ge09": 8574,
+          "below09": 276,
+          "zero": 32
+        },
+        "baseline": {
+          "PDMS": 96.88433872042317,
+          "remaining_ge09": 8850,
+          "below09": 0,
+          "zero": 0
+        },
+        "zeros": {
+          "baseline": 0,
+          "target": 32,
+          "repaired": 0,
+          "new_zero": 32,
+          "high_to_zero": 32,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 0,
+              "target_failed": 9,
+              "repaired": 0,
+              "new_failure": 9
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 0,
+              "target_failed": 23,
+              "repaired": 0,
+              "new_failure": 23
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 0,
+              "target_failed": 40,
+              "repaired": 0,
+              "new_failure": 40
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "fb6a776e295eab294d8accba51ae3dcb01b74146387b03330ef550511b12ff91",
+          "summary_seal": "445f7ed7f009ea1afddc044be40b5e8cacfcc653df8c8fb2624c2a0b0306434f",
+          "identity_seal": "251b1af17e474491965fd03e27151508b8f41a739a4a6c4a0f33e93e500a2fbf",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRLOW_u014000_NAVTEST.npz",
+          "cache_sha256": "516c0bcd4f349a9df64428dc4454b39d76dafaee8bbc82d0016785becc04b00b",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T08:05:24.503572+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.31123608654156,
+        "baseline_PDMS": 95.92740390322095,
+        "delta_PDMS": -0.6161678166793801,
+        "CI95_PDMS": [
+          -0.8117416207995807,
+          -0.41718416284723325
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.6161678166793801,
+            "CI95_pp": [
+              -0.8117416207995807,
+              -0.41718416284723325
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.11462631820265932,
+            "CI95_pp": [
+              -0.21194416176613168,
+              -0.026007066988145842
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.19486474094452086,
+            "CI95_pp": [
+              -0.3695318253011087,
+              -0.07297586679779265
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.22925263640531865,
+            "CI95_pp": [
+              -0.4292734605103193,
+              -0.04591710810684343
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.8942085371969497,
+            "CI95_pp": [
+              -1.0993185632833091,
+              -0.7031657662380587
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.0343878954607978,
+            "CI95_pp": [
+              -0.08413378887089479,
+              0.012602041824794427
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.17193947730398898,
+            "CI95_pp": [
+              -0.33505313974216827,
+              -0.031131996213204585
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 20,
+          "target": 47,
+          "repaired": 2,
+          "new_zero": 29,
+          "high_to_zero": 27,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 13,
+              "target_failed": 23,
+              "repaired": 1,
+              "new_failure": 11
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 8,
+              "target_failed": 25,
+              "repaired": 1,
+              "new_failure": 18
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 54,
+              "target_failed": 74,
+              "repaired": 11,
+              "new_failure": 31
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRLOW_u014000_minus_fixed_SAFETY10k"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRCOS_u012000_minus_SAFETY_same_updates": {
+      "target": "PPO_SAFETY_LRCOS_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u012000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 90.82003334799182,
+      "baseline_PDMS": 90.88994717236211,
+      "delta_PDMS": -0.06991382437038633,
+      "CI95_PDMS": [
+        -0.21600547935110756,
+        0.05366506299063199
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.06991382437038633,
+          "CI95_pp": [
+            -0.21600547935110756,
+            0.05366506299063199
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.008233163181294254,
+          "CI95_pp": [
+            -0.10283597852272208,
+            0.06303106767380807
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.08233163181294254,
+          "CI95_pp": [
+            -0.1829695981598381,
+            0.0
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": 0.04939897908776551,
+          "CI95_pp": [
+            -0.07605478294470097,
+            0.15853206324069488
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.0871410799110987,
+          "CI95_pp": [
+            -0.24278198013061558,
+            0.04562439654055045
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.04939897908776551,
+          "CI95_pp": [
+            -0.09603449578516768,
+            -0.008286742503857655
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": 0.012349744771941378,
+          "CI95_pp": [
+            -0.07272953124148189,
+            0.08579082088178273
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 268,
+        "target": 279,
+        "repaired": 17,
+        "new_zero": 28,
+        "high_to_zero": 17,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 139,
+            "target_failed": 140,
+            "repaired": 7,
+            "new_failure": 8
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 146,
+            "target_failed": 156,
+            "repaired": 10,
+            "new_failure": 20
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 362,
+            "target_failed": 356,
+            "repaired": 25,
+            "new_failure": 19
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.2867420765110217,
+        "G_minus_PDMS": 0.35665590088140803,
+        "improved": 4089,
+        "degraded": 3857,
+        "unchanged": 4200
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.09951994419820705,
+            "CI95_pp": [
+              -0.23692954608610756,
+              0.008324640786242241
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.022598870056497175,
+            "CI95_pp": [
+              -0.07676131249006293,
+              0.0
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.1016949152542373,
+            "CI95_pp": [
+              -0.22861687992316318,
+              -0.011096844192421955
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.022598870056497175,
+            "CI95_pp": [
+              -0.07680135944289715,
+              0.11382346301007587
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.08743543669716572,
+            "CI95_pp": [
+              -0.21974157162236294,
+              0.02144313310833965
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.05649717514124294,
+            "CI95_pp": [
+              -0.12159262492444906,
+              0.010367472335531319
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.022598870056497175,
+            "CI95_pp": [
+              -0.13810383704278467,
+              0.06700994067190157
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 95.85880108073071,
+          "remaining_ge09": 8390,
+          "below09": 460,
+          "zero": 53
+        },
+        "baseline": {
+          "PDMS": 95.95832102492892,
+          "remaining_ge09": 8399,
+          "below09": 451,
+          "zero": 42
+        },
+        "zeros": {
+          "baseline": 42,
+          "target": 53,
+          "repaired": 4,
+          "new_zero": 15,
+          "high_to_zero": 14,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 9,
+              "target_failed": 11,
+              "repaired": 0,
+              "new_failure": 2
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 33,
+              "target_failed": 42,
+              "repaired": 4,
+              "new_failure": 13
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 61,
+              "target_failed": 59,
+              "repaired": 13,
+              "new_failure": 11
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6219178d6d484c71f9caa5813c91253fb3b5c3a08f149c80c5b339a6d4642bcc",
+          "summary_seal": "a21d02a0ddfb02a89f22a9c81628fee3ae6cb111b449b8dfa2c419fb4895310c",
+          "identity_seal": "da1f5b9807b3136342cdec2771dc83bd5e110007c2aa8840e09607c498a9bd34",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRCOS_u012000_NAVTEST.npz",
+          "cache_sha256": "d28c292e0c2651cd138e6a452d4a26bf3afe388e7c0e2de58d974751268f0027",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "9abd36e8e68d85e91861b094a29079b2743ec27e88e51822ee8c9c5f4a7f35b7",
+          "summary_seal": "af6fa06afba546452cd59894454e2515f68dd6704ecf92319efb11cb7e94dde7",
+          "identity_seal": "587e4b8d24c9b0ce8871d30280c34cc97fb835539ad91bffe2936d4dd7606084",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u012000_NAVTEST.npz",
+          "cache_sha256": "722ce65cd6e8289bbc11d1c9098794151096b8ec1c8b576861a04315cc58f30a",
+          "cache_reused": false
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:03:41.191613+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.10165675095496,
+        "baseline_PDMS": 95.22549749403856,
+        "delta_PDMS": -0.12384074308359538,
+        "CI95_PDMS": [
+          -0.24416244254545358,
+          -0.02044586811802893
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.12384074308359538,
+            "CI95_pp": [
+              -0.24416244254545358,
+              -0.02044586811802893
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.0343878954607978,
+            "CI95_pp": [
+              -0.08907193596196862,
+              0.0
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.11462631820265932,
+            "CI95_pp": [
+              -0.21910987191519316,
+              -0.02990415720521519
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.04585052728106373,
+            "CI95_pp": [
+              -0.060248767351575284,
+              0.13824331207122795
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.14591104337311855,
+            "CI95_pp": [
+              -0.25169808996238585,
+              -0.04748318284903943
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.05731315910132966,
+            "CI95_pp": [
+              -0.10606106025383695,
+              -0.01225216660425319
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.011462631820265932,
+            "CI95_pp": [
+              -0.11658023384439713,
+              0.07476351335948216
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 44,
+          "target": 57,
+          "repaired": 2,
+          "new_zero": 15,
+          "high_to_zero": 14,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 22,
+              "target_failed": 25,
+              "repaired": 0,
+              "new_failure": 3
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 23,
+              "target_failed": 33,
+              "repaired": 2,
+              "new_failure": 12
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 81,
+              "target_failed": 77,
+              "repaired": 13,
+              "new_failure": 9
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRCOS_u012000_minus_SAFETY_same_updates"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRCOS_u012000_minus_fixed_SAFETY10k": {
+      "target": "PPO_SAFETY_LRCOS_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 90.82003334799182,
+      "baseline_PDMS": 91.34989173702405,
+      "delta_PDMS": -0.5298583890328867,
+      "CI95_PDMS": [
+        -0.7907728372932471,
+        -0.28487851559400695
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.5298583890328867,
+          "CI95_pp": [
+            -0.7907728372932471,
+            -0.28487851559400695
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": 0.04528239749711839,
+          "CI95_pp": [
+            -0.05700428698213568,
+            0.15444301696703266
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.23876173225753336,
+          "CI95_pp": [
+            -0.43474880736646426,
+            -0.05933235210201771
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": 0.18112958998847356,
+          "CI95_pp": [
+            -0.15318066270298664,
+            0.5157988060603617
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -1.0832139431888443,
+          "CI95_pp": [
+            -1.4707754557241475,
+            -0.7351319341876138
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.06586530545035403,
+          "CI95_pp": [
+            -0.11993988394218177,
+            -0.0175208887596925
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.09056479499423678,
+          "CI95_pp": [
+            -0.2592094153667821,
+            0.0640527841954449
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 256,
+        "target": 279,
+        "repaired": 45,
+        "new_zero": 68,
+        "high_to_zero": 53,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 145,
+            "target_failed": 140,
+            "repaired": 25,
+            "new_failure": 20
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 127,
+            "target_failed": 156,
+            "repaired": 20,
+            "new_failure": 49
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 378,
+            "target_failed": 356,
+            "repaired": 88,
+            "new_failure": 66
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.7318468645197017,
+        "G_minus_PDMS": 1.2617052535525883,
+        "improved": 3653,
+        "degraded": 4456,
+        "unchanged": 4037
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -1.0255376396924418,
+            "CI95_pp": [
+              -1.3113431003705172,
+              -0.7680441735023579
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.12429378531073447,
+            "CI95_pp": [
+              -0.2281032412965186,
+              -0.036760619458198376
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.47457627118644063,
+            "CI95_pp": [
+              -0.7420749417552615,
+              -0.24602549664135784
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.6666666666666667,
+            "CI95_pp": [
+              -0.9617678982648107,
+              -0.4197571115236681
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -1.02400219966864,
+            "CI95_pp": [
+              -1.337296201640405,
+              -0.741723466130858
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.11299435028248588,
+            "CI95_pp": [
+              -0.20121738495489064,
+              -0.04351381788098511
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.1581920903954802,
+            "CI95_pp": [
+              -0.3802726349143922,
+              0.02603201627030591
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 95.85880108073071,
+          "remaining_ge09": 8390,
+          "below09": 460,
+          "zero": 53
+        },
+        "baseline": {
+          "PDMS": 96.88433872042317,
+          "remaining_ge09": 8850,
+          "below09": 0,
+          "zero": 0
+        },
+        "zeros": {
+          "baseline": 0,
+          "target": 53,
+          "repaired": 0,
+          "new_zero": 53,
+          "high_to_zero": 53,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 0,
+              "target_failed": 11,
+              "repaired": 0,
+              "new_failure": 11
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 0,
+              "target_failed": 42,
+              "repaired": 0,
+              "new_failure": 42
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 0,
+              "target_failed": 59,
+              "repaired": 0,
+              "new_failure": 59
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6219178d6d484c71f9caa5813c91253fb3b5c3a08f149c80c5b339a6d4642bcc",
+          "summary_seal": "a21d02a0ddfb02a89f22a9c81628fee3ae6cb111b449b8dfa2c419fb4895310c",
+          "identity_seal": "da1f5b9807b3136342cdec2771dc83bd5e110007c2aa8840e09607c498a9bd34",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRCOS_u012000_NAVTEST.npz",
+          "cache_sha256": "d28c292e0c2651cd138e6a452d4a26bf3afe388e7c0e2de58d974751268f0027",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:03:41.220367+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.10165675095496,
+        "baseline_PDMS": 95.92740390322095,
+        "delta_PDMS": -0.8257471522659805,
+        "CI95_PDMS": [
+          -1.0805773916596848,
+          -0.5834371888911267
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.8257471522659805,
+            "CI95_pp": [
+              -1.0805773916596848,
+              -0.5834371888911267
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.1375515818431912,
+            "CI95_pp": [
+              -0.24553685889110796,
+              -0.04855848421423368
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.2865657955066483,
+            "CI95_pp": [
+              -0.4853806987455272,
+              -0.11771118895024729
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.26364053186611647,
+            "CI95_pp": [
+              -0.5349916413190384,
+              -0.00998463901689848
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -1.2160893598445885,
+            "CI95_pp": [
+              -1.5358921358556845,
+              -0.9252918179440993
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.05731315910132966,
+            "CI95_pp": [
+              -0.11034092294705747,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.14328289775332415,
+            "CI95_pp": [
+              -0.35671157593984665,
+              0.044889526940262825
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 20,
+          "target": 57,
+          "repaired": 2,
+          "new_zero": 39,
+          "high_to_zero": 37,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 13,
+              "target_failed": 25,
+              "repaired": 0,
+              "new_failure": 12
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 8,
+              "target_failed": 33,
+              "repaired": 2,
+              "new_failure": 27
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 54,
+              "target_failed": 77,
+              "repaired": 16,
+              "new_failure": 39
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRCOS_u012000_minus_fixed_SAFETY10k"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRCOS_u014000_minus_SAFETY_same_updates": {
+      "target": "PPO_SAFETY_LRCOS_u014000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u014000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.05254280072845,
+      "baseline_PDMS": 91.10662196446827,
+      "delta_PDMS": -0.054079163740159746,
+      "CI95_PDMS": [
+        -0.1778163635013837,
+        0.07451347181016243
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.054079163740159746,
+          "CI95_pp": [
+            -0.1778163635013837,
+            0.07451347181016243
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": 0.012349744771941378,
+          "CI95_pp": [
+            -0.04955961421818378,
+            0.07541713202786253
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": 0.06586530545035403,
+          "CI95_pp": [
+            -0.019594080092151446,
+            0.1704588678140998
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -0.1070311213568253,
+          "CI95_pp": [
+            -0.25152666849785893,
+            0.007699930287159735
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.0715014033880548,
+          "CI95_pp": [
+            -0.18946280081032088,
+            0.0664141920803834
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.024699489543882756,
+          "CI95_pp": [
+            -0.055275540735579616,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.07409846863164828,
+          "CI95_pp": [
+            -0.14229874743609922,
+            -0.012660089601833692
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 271,
+        "target": 262,
+        "repaired": 27,
+        "new_zero": 18,
+        "high_to_zero": 10,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 139,
+            "target_failed": 138,
+            "repaired": 7,
+            "new_failure": 6
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 150,
+            "target_failed": 142,
+            "repaired": 21,
+            "new_failure": 13
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 350,
+            "target_failed": 363,
+            "repaired": 18,
+            "new_failure": 31
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.3318839982654961,
+        "G_minus_PDMS": 0.3859631620056559,
+        "improved": 3419,
+        "degraded": 4564,
+        "unchanged": 4163
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": 0.03201285028970236,
+            "CI95_pp": [
+              -0.08373731289512715,
+              0.1431876111153128
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": 0.022598870056497175,
+            "CI95_pp": [
+              0.0,
+              0.06237885669735862
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.05649717514124294,
+            "CI95_pp": [
+              -0.030792895903872953,
+              0.15467860019383028
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.022598870056497175,
+            "CI95_pp": [
+              -0.1923925144200486,
+              0.12381985500819788
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.020333665554042795,
+            "CI95_pp": [
+              -0.07042903190233234,
+              0.11976826382502181
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.022598870056497175,
+            "CI95_pp": [
+              -0.05547835420983221,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.0847457627118644,
+            "CI95_pp": [
+              -0.1548016558175227,
+              -0.018675022382620997
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 95.9691444200005,
+          "remaining_ge09": 8516,
+          "below09": 334,
+          "zero": 45
+        },
+        "baseline": {
+          "PDMS": 95.93713156971081,
+          "remaining_ge09": 8492,
+          "below09": 358,
+          "zero": 52
+        },
+        "zeros": {
+          "baseline": 52,
+          "target": 45,
+          "repaired": 12,
+          "new_zero": 5,
+          "high_to_zero": 5,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 10,
+              "target_failed": 8,
+              "repaired": 2,
+              "new_failure": 0
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 42,
+              "target_failed": 37,
+              "repaired": 10,
+              "new_failure": 5
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 59,
+              "target_failed": 61,
+              "repaired": 11,
+              "new_failure": 13
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "7f2dec0b413517d7318865db149f8b1678657e9b140a197ab011c48e9e55e100",
+          "summary_seal": "c55bc6d14b363ce4f4305d7cd7d2bbf830d228268e94f49a653ea5e4186e93ee",
+          "identity_seal": "43f24b2f4f78bfc8a76c81d80bf4c8b98fa9eed533ba3709ab4dd5888f859d01",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRCOS_u014000_NAVTEST.npz",
+          "cache_sha256": "c57b148e44cde5d267896a16b766564af1b3cb5aa415c13ef60b7725e2fb5ce4",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "947273f5c4b465627fd5e0a74de0dd44a4ad2885e9ec335c1e5a236230afdc1a",
+          "summary_seal": "603881bc1600c79662164ec74cd763f593fa616f021f23e46357c9f37f816c75",
+          "identity_seal": "32d5fba0c38482afbaec3db588eefacce497b2309b7f9b44d2db3a3dc673699a",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u014000_NAVTEST.npz",
+          "cache_sha256": "d17117b85f4e4fc54da0831696a9fa80c2553262c6fe79a958751a2b2e0d8035",
+          "cache_reused": false
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:51:20.262107+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.27294706670227,
+        "baseline_PDMS": 95.28814681914372,
+        "delta_PDMS": -0.015199752441464846,
+        "CI95_PDMS": [
+          -0.0784874021689837,
+          0.05097094855338268
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.015199752441464846,
+            "CI95_pp": [
+              -0.0784874021689837,
+              0.05097094855338268
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": 0.0,
+            "CI95_pp": [
+              -0.034539482262974014,
+              0.03556430820079808
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.011462631820265932,
+            "CI95_pp": [
+              -0.03631023300674801,
+              0.06094337406015023
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.0343878954607978,
+            "CI95_pp": [
+              -0.044688743776561374,
+              0.12429225532623488
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.07315982768436659,
+            "CI95_pp": [
+              -0.1440183560518373,
+              -0.0005239634877031199
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.0343878954607978,
+            "CI95_pp": [
+              -0.07662122379024137,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.08023842274186153,
+            "CI95_pp": [
+              -0.15508306175916067,
+              -0.00664154346276389
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 53,
+          "target": 52,
+          "repaired": 5,
+          "new_zero": 4,
+          "high_to_zero": 3,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 20,
+              "target_failed": 20,
+              "repaired": 1,
+              "new_failure": 1
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 34,
+              "target_failed": 33,
+              "repaired": 4,
+              "new_failure": 3
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 77,
+              "target_failed": 74,
+              "repaired": 8,
+              "new_failure": 5
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRCOS_u014000_minus_SAFETY_same_updates"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRCOS_u014000_minus_fixed_SAFETY10k": {
+      "target": "PPO_SAFETY_LRCOS_u014000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.05254280072845,
+      "baseline_PDMS": 91.34989173702405,
+      "delta_PDMS": -0.2973489362961764,
+      "CI95_PDMS": [
+        -0.5376111874485024,
+        -0.06626136664823992
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.2973489362961764,
+          "CI95_pp": [
+            -0.5376111874485024,
+            -0.06626136664823992
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": 0.061748723859706894,
+          "CI95_pp": [
+            -0.04452839427415853,
+            0.17403894843293746
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.12349744771941379,
+          "CI95_pp": [
+            -0.310204665729535,
+            0.04135388689432054
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": 0.12349744771941379,
+          "CI95_pp": [
+            -0.13715317966025498,
+            0.3873742026451076
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.6635499851222126,
+          "CI95_pp": [
+            -0.9773027979053316,
+            -0.38733819450121265
+          ]
+        },
+        "comfort": {
+          "delta_pp": 0.016466326362588508,
+          "CI95_pp": [
+            0.0,
+            0.046719860475164125
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.14408035567264943,
+          "CI95_pp": [
+            -0.27837396485305876,
+            -0.03306003737932193
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 256,
+        "target": 262,
+        "repaired": 51,
+        "new_zero": 57,
+        "high_to_zero": 45,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 145,
+            "target_failed": 138,
+            "repaired": 24,
+            "new_failure": 17
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 127,
+            "target_failed": 142,
+            "repaired": 27,
+            "new_failure": 42
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 378,
+            "target_failed": 363,
+            "repaired": 82,
+            "new_failure": 67
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.7463830862705493,
+        "G_minus_PDMS": 1.0437320225667257,
+        "improved": 3275,
+        "degraded": 4885,
+        "unchanged": 3986
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.9151943004226516,
+            "CI95_pp": [
+              -1.164559718761914,
+              -0.6751699473870816
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.0903954802259887,
+            "CI95_pp": [
+              -0.17868868206372762,
+              -0.019816035861556204
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.4180790960451978,
+            "CI95_pp": [
+              -0.6554318159927343,
+              -0.22253084151092303
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.6892655367231638,
+            "CI95_pp": [
+              -0.9654300657843291,
+              -0.43952079272582933
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.8540934396584315,
+            "CI95_pp": [
+              -1.1033463764933764,
+              -0.63687246938183
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.022598870056497175,
+            "CI95_pp": [
+              -0.05547835420983221,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.23163841807909608,
+            "CI95_pp": [
+              -0.41508914708881195,
+              -0.07004739492730801
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 95.9691444200005,
+          "remaining_ge09": 8516,
+          "below09": 334,
+          "zero": 45
+        },
+        "baseline": {
+          "PDMS": 96.88433872042317,
+          "remaining_ge09": 8850,
+          "below09": 0,
+          "zero": 0
+        },
+        "zeros": {
+          "baseline": 0,
+          "target": 45,
+          "repaired": 0,
+          "new_zero": 45,
+          "high_to_zero": 45,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 0,
+              "target_failed": 8,
+              "repaired": 0,
+              "new_failure": 8
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 0,
+              "target_failed": 37,
+              "repaired": 0,
+              "new_failure": 37
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 0,
+              "target_failed": 61,
+              "repaired": 0,
+              "new_failure": 61
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "7f2dec0b413517d7318865db149f8b1678657e9b140a197ab011c48e9e55e100",
+          "summary_seal": "c55bc6d14b363ce4f4305d7cd7d2bbf830d228268e94f49a653ea5e4186e93ee",
+          "identity_seal": "43f24b2f4f78bfc8a76c81d80bf4c8b98fa9eed533ba3709ab4dd5888f859d01",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRCOS_u014000_NAVTEST.npz",
+          "cache_sha256": "c57b148e44cde5d267896a16b766564af1b3cb5aa415c13ef60b7725e2fb5ce4",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:51:20.290963+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.27294706670227,
+        "baseline_PDMS": 95.92740390322095,
+        "delta_PDMS": -0.6544568365186743,
+        "CI95_PDMS": [
+          -0.9036048917768882,
+          -0.41661262058549864
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.6544568365186743,
+            "CI95_pp": [
+              -0.9036048917768882,
+              -0.41661262058549864
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.08023842274186153,
+            "CI95_pp": [
+              -0.19305030316136984,
+              0.021265454252483197
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.2865657955066483,
+            "CI95_pp": [
+              -0.4995063661796529,
+              -0.12692694379480712
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.22925263640531865,
+            "CI95_pp": [
+              -0.45576711507159895,
+              0.0
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.894401130249128,
+            "CI95_pp": [
+              -1.1717350599785628,
+              -0.6384775400956997
+            ]
+          },
+          "comfort": {
+            "delta_pp": 0.022925263640531865,
+            "CI95_pp": [
+              0.0,
+              0.06422216870506921
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.2235213204951857,
+            "CI95_pp": [
+              -0.40758334976467464,
+              -0.06044268530046037
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 20,
+          "target": 52,
+          "repaired": 6,
+          "new_zero": 38,
+          "high_to_zero": 36,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 13,
+              "target_failed": 20,
+              "repaired": 3,
+              "new_failure": 10
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 8,
+              "target_failed": 33,
+              "repaired": 3,
+              "new_failure": 28
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 54,
+              "target_failed": 74,
+              "repaired": 17,
+              "new_failure": 37
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRCOS_u014000_minus_fixed_SAFETY10k"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_DATA_u012000_minus_SAFETY_same_updates": {
+      "target": "PPO_SAFETY_DATA_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u012000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 90.94896542131083,
+      "baseline_PDMS": 90.88994717236211,
+      "delta_PDMS": 0.05901824894897474,
+      "CI95_PDMS": [
+        -0.18647655283494927,
+        0.2850272219813802
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": 0.05901824894897474,
+          "CI95_pp": [
+            -0.18647655283494927,
+            0.2850272219813802
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.11938086612876668,
+          "CI95_pp": [
+            -0.24803252531663447,
+            -0.017396086818536948
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.09056479499423678,
+          "CI95_pp": [
+            -0.2638578922817711,
+            0.07395542817966837
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -0.43635764860859544,
+          "CI95_pp": [
+            -0.7620434247290385,
+            -0.16408474341029958
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": 0.7728794762602158,
+          "CI95_pp": [
+            0.4289819439962564,
+            1.1146681281905495
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.06586530545035403,
+          "CI95_pp": [
+            -0.13325387643415626,
+            -0.00769199371835245
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.024699489543882756,
+          "CI95_pp": [
+            -0.10377058994384598,
+            0.03889592121229626
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 268,
+        "target": 293,
+        "repaired": 42,
+        "new_zero": 67,
+        "high_to_zero": 36,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 139,
+            "target_failed": 153,
+            "repaired": 15,
+            "new_failure": 29
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 146,
+            "target_failed": 157,
+            "repaired": 28,
+            "new_failure": 39
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 362,
+            "target_failed": 415,
+            "repaired": 45,
+            "new_failure": 98
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 1.0343928007013516,
+        "G_minus_PDMS": 0.9753745517523769,
+        "improved": 4174,
+        "degraded": 3989,
+        "unchanged": 3983
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.1080872205062183,
+            "CI95_pp": [
+              -0.350267228730487,
+              0.12416657786964348
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.03389830508474576,
+            "CI95_pp": [
+              -0.08699105148079474,
+              0.011385923305795607
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.0903954802259887,
+            "CI95_pp": [
+              -0.2965575549359435,
+              0.10282119168192136
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.24858757062146894,
+            "CI95_pp": [
+              -0.5334614163966522,
+              0.009651088133111226
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.18804829790372038,
+            "CI95_pp": [
+              -0.10944946875274716,
+              0.4611867529941858
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.0903954802259887,
+            "CI95_pp": [
+              -0.1733539502167639,
+              -0.021145672906566545
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.011299435028248588,
+            "CI95_pp": [
+              -0.102308466440812,
+              0.06084272969836221
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 95.85023380442273,
+          "remaining_ge09": 8584,
+          "below09": 266,
+          "zero": 53
+        },
+        "baseline": {
+          "PDMS": 95.95832102492892,
+          "remaining_ge09": 8399,
+          "below09": 451,
+          "zero": 42
+        },
+        "zeros": {
+          "baseline": 42,
+          "target": 53,
+          "repaired": 19,
+          "new_zero": 30,
+          "high_to_zero": 27,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 9,
+              "target_failed": 12,
+              "repaired": 2,
+              "new_failure": 5
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 33,
+              "target_failed": 41,
+              "repaired": 17,
+              "new_failure": 25
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 61,
+              "target_failed": 83,
+              "repaired": 24,
+              "new_failure": 46
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "7d1a5efc8c4fb0613d7afad036865088ecf9a681b68edbed417f8f7b9d8d98ee",
+          "summary_seal": "016405a8510732a323b86675119ac1beb274b78ddd7b48517795ce321c557954",
+          "identity_seal": "b9210e9f6247674f800b4193733b8c79176fa45847da3d98c61daed0f9507f18",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_DATA_u012000_NAVTEST.npz",
+          "cache_sha256": "016e0f62e6aab6995ef8a21eec6b655260eb6889073cc473df155c84c17b43a4",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "9abd36e8e68d85e91861b094a29079b2743ec27e88e51822ee8c9c5f4a7f35b7",
+          "summary_seal": "af6fa06afba546452cd59894454e2515f68dd6704ecf92319efb11cb7e94dde7",
+          "identity_seal": "587e4b8d24c9b0ce8871d30280c34cc97fb835539ad91bffe2936d4dd7606084",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u012000_NAVTEST.npz",
+          "cache_sha256": "722ce65cd6e8289bbc11d1c9098794151096b8ec1c8b576861a04315cc58f30a",
+          "cache_reused": false
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:01:22.453272+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.49496002737718,
+        "baseline_PDMS": 95.22549749403856,
+        "delta_PDMS": 0.26946253333861947,
+        "CI95_PDMS": [
+          0.06310207471298587,
+          0.45580492280471224
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": 0.26946253333861947,
+            "CI95_pp": [
+              0.06310207471298587,
+              0.45580492280471224
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.011462631820265932,
+            "CI95_pp": [
+              -0.08527954077797603,
+              0.054274445680063746
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.05731315910132966,
+            "CI95_pp": [
+              -0.1898008171672706,
+              0.05571046160588962
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.11462631820265932,
+            "CI95_pp": [
+              -0.07228622066761212,
+              0.29208643505485193
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.6742203963813251,
+            "CI95_pp": [
+              0.39140568362961287,
+              0.9546180858991092
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.11462631820265932,
+            "CI95_pp": [
+              -0.21216006011069682,
+              -0.026265534277664437
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.022925263640531865,
+            "CI95_pp": [
+              -0.1071033007822894,
+              0.04623195510680898
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 44,
+          "target": 50,
+          "repaired": 16,
+          "new_zero": 22,
+          "high_to_zero": 20,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 22,
+              "target_failed": 23,
+              "repaired": 4,
+              "new_failure": 5
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 23,
+              "target_failed": 28,
+              "repaired": 12,
+              "new_failure": 17
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 81,
+              "target_failed": 71,
+              "repaired": 26,
+              "new_failure": 16
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_DATA_u012000_minus_SAFETY_same_updates"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_DATA_u012000_minus_fixed_SAFETY10k": {
+      "target": "PPO_SAFETY_DATA_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 90.94896542131083,
+      "baseline_PDMS": 91.34989173702405,
+      "delta_PDMS": -0.4009263157135256,
+      "CI95_PDMS": [
+        -0.6147003393912918,
+        -0.19225828729789202
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.4009263157135256,
+          "CI95_pp": [
+            -0.6147003393912918,
+            -0.19225828729789202
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.06586530545035403,
+          "CI95_pp": [
+            -0.1661279486773381,
+            0.030757104336980978
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.24699489543882758,
+          "CI95_pp": [
+            -0.43537524858987664,
+            -0.07095280165429553
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -0.30462703770788735,
+          "CI95_pp": [
+            -0.5834595551142873,
+            -0.046786043472004546
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.22319338701752978,
+          "CI95_pp": [
+            -0.4395895397302442,
+            -0.026441419631513224
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.08233163181294254,
+          "CI95_pp": [
+            -0.1685655972158157,
+            -0.008444097649589958
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.1276140293100609,
+          "CI95_pp": [
+            -0.26296637370133136,
+            -0.01901808710237769
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 256,
+        "target": 293,
+        "repaired": 41,
+        "new_zero": 78,
+        "high_to_zero": 53,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 145,
+            "target_failed": 153,
+            "repaired": 18,
+            "new_failure": 26
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 127,
+            "target_failed": 157,
+            "repaired": 23,
+            "new_failure": 53
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 378,
+            "target_failed": 415,
+            "repaired": 55,
+            "new_failure": 92
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.6693504547037475,
+        "G_minus_PDMS": 1.0702767704172733,
+        "improved": 4052,
+        "degraded": 4086,
+        "unchanged": 4008
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -1.034104916000453,
+            "CI95_pp": [
+              -1.316071427970452,
+              -0.7752686476444876
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.13559322033898305,
+            "CI95_pp": [
+              -0.22600223740916367,
+              -0.05557257766662113
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.46327683615819215,
+            "CI95_pp": [
+              -0.7030430984274898,
+              -0.27295018717701863
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.9378531073446328,
+            "CI95_pp": [
+              -1.3121469558089276,
+              -0.6124271608537615
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.7485184650677539,
+            "CI95_pp": [
+              -1.0377747094215097,
+              -0.49262725837430815
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.14689265536723162,
+            "CI95_pp": [
+              -0.2790432699145258,
+              -0.043851178784737974
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.14689265536723162,
+            "CI95_pp": [
+              -0.3107835625867261,
+              -0.01741567027611336
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 95.85023380442273,
+          "remaining_ge09": 8584,
+          "below09": 266,
+          "zero": 53
+        },
+        "baseline": {
+          "PDMS": 96.88433872042317,
+          "remaining_ge09": 8850,
+          "below09": 0,
+          "zero": 0
+        },
+        "zeros": {
+          "baseline": 0,
+          "target": 53,
+          "repaired": 0,
+          "new_zero": 53,
+          "high_to_zero": 53,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 0,
+              "target_failed": 12,
+              "repaired": 0,
+              "new_failure": 12
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 0,
+              "target_failed": 41,
+              "repaired": 0,
+              "new_failure": 41
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 0,
+              "target_failed": 83,
+              "repaired": 0,
+              "new_failure": 83
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "7d1a5efc8c4fb0613d7afad036865088ecf9a681b68edbed417f8f7b9d8d98ee",
+          "summary_seal": "016405a8510732a323b86675119ac1beb274b78ddd7b48517795ce321c557954",
+          "identity_seal": "b9210e9f6247674f800b4193733b8c79176fa45847da3d98c61daed0f9507f18",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_DATA_u012000_NAVTEST.npz",
+          "cache_sha256": "016e0f62e6aab6995ef8a21eec6b655260eb6889073cc473df155c84c17b43a4",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:01:22.481783+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.49496002737718,
+        "baseline_PDMS": 95.92740390322095,
+        "delta_PDMS": -0.43244387584376537,
+        "CI95_PDMS": [
+          -0.6559899266549479,
+          -0.2346284968632936
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.43244387584376537,
+            "CI95_pp": [
+              -0.6559899266549479,
+              -0.2346284968632936
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.11462631820265932,
+            "CI95_pp": [
+              -0.2111060100745706,
+              -0.026572342001223125
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.22925263640531865,
+            "CI95_pp": [
+              -0.4059385354886027,
+              -0.09618074820704192
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.19486474094452086,
+            "CI95_pp": [
+              -0.3846208262591964,
+              0.0
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.3959579200901448,
+            "CI95_pp": [
+              -0.6426297641291283,
+              -0.1901937757953749
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.11462631820265932,
+            "CI95_pp": [
+              -0.23221774770122697,
+              -0.01162865402331681
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.15474552957359008,
+            "CI95_pp": [
+              -0.32023696464032525,
+              -0.02301608928718441
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 20,
+          "target": 50,
+          "repaired": 6,
+          "new_zero": 36,
+          "high_to_zero": 33,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 13,
+              "target_failed": 23,
+              "repaired": 3,
+              "new_failure": 13
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 8,
+              "target_failed": 28,
+              "repaired": 3,
+              "new_failure": 23
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 54,
+              "target_failed": 71,
+              "repaired": 16,
+              "new_failure": 33
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_DATA_u012000_minus_fixed_SAFETY10k"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_DATA_u014000_minus_SAFETY_same_updates": {
+      "target": "PPO_SAFETY_DATA_u014000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u014000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.08105265326283,
+      "baseline_PDMS": 91.10662196446827,
+      "delta_PDMS": -0.025569311205611883,
+      "CI95_PDMS": [
+        -0.3230751848345815,
+        0.2114664914318278
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.025569311205611883,
+          "CI95_pp": [
+            -0.3230751848345815,
+            0.2114664914318278
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.2140622427136506,
+          "CI95_pp": [
+            -0.3683920282873106,
+            -0.08362085466230154
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": 0.008233163181294254,
+          "CI95_pp": [
+            -0.18184902695367222,
+            0.171917239344746
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -0.7327515231351885,
+          "CI95_pp": [
+            -1.0962603241810764,
+            -0.44597339625557064
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": 0.7570858354343637,
+          "CI95_pp": [
+            0.41672499479753294,
+            1.040842893696226
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.04116581590647127,
+          "CI95_pp": [
+            -0.09273927008576312,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.04116581590647127,
+          "CI95_pp": [
+            -0.12347344453782755,
+            0.03085630681441502
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 271,
+        "target": 297,
+        "repaired": 40,
+        "new_zero": 66,
+        "high_to_zero": 30,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 139,
+            "target_failed": 165,
+            "repaired": 8,
+            "new_failure": 34
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 150,
+            "target_failed": 149,
+            "repaired": 33,
+            "new_failure": 32
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 350,
+            "target_failed": 439,
+            "repaired": 37,
+            "new_failure": 126
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.902421734493793,
+        "G_minus_PDMS": 0.9279910456994047,
+        "improved": 6026,
+        "degraded": 2048,
+        "unchanged": 4072
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": 0.17620005536679084,
+            "CI95_pp": [
+              -0.07485057975740923,
+              0.38937042012500456
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": 0.011299435028248588,
+            "CI95_pp": [
+              -0.06586667971010332,
+              0.08887114691097568
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.06779661016949153,
+            "CI95_pp": [
+              -0.12932311154240314,
+              0.24941342218723017
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.4858757062146893,
+            "CI95_pp": [
+              -0.8314611683244971,
+              -0.1922549699750846
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.8341795679085465,
+            "CI95_pp": [
+              0.584946779717591,
+              1.0529712142137908
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.03389830508474576,
+            "CI95_pp": [
+              -0.08768379460962754,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": 0.04519774011299435,
+            "CI95_pp": [
+              -0.03867564991045073,
+              0.13315971115542605
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.1133316250776,
+          "remaining_ge09": 8561,
+          "below09": 289,
+          "zero": 45
+        },
+        "baseline": {
+          "PDMS": 95.93713156971081,
+          "remaining_ge09": 8492,
+          "below09": 358,
+          "zero": 52
+        },
+        "zeros": {
+          "baseline": 52,
+          "target": 45,
+          "repaired": 26,
+          "new_zero": 19,
+          "high_to_zero": 18,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 10,
+              "target_failed": 9,
+              "repaired": 5,
+              "new_failure": 4
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 42,
+              "target_failed": 36,
+              "repaired": 21,
+              "new_failure": 15
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 59,
+              "target_failed": 102,
+              "repaired": 24,
+              "new_failure": 67
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "2d26f2eb215ccc80da3560a85b834e963dc6a48f3d548ced0a0da5ca28487f19",
+          "summary_seal": "84f41c8b0a0dd509a645d21583d88fccecd6e083f1a151a70346f828f9aec5a9",
+          "identity_seal": "305d92bb2e1105ca8f6d668017f8ac84050a40ad1b96a957a9494ab7a796a796",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_DATA_u014000_NAVTEST.npz",
+          "cache_sha256": "e9ebb506b112167642e6a539bb2bdc04eb356bb60daf5c1707285ec08aa0eb61",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "947273f5c4b465627fd5e0a74de0dd44a4ad2885e9ec335c1e5a236230afdc1a",
+          "summary_seal": "603881bc1600c79662164ec74cd763f593fa616f021f23e46357c9f37f816c75",
+          "identity_seal": "32d5fba0c38482afbaec3db588eefacce497b2309b7f9b44d2db3a3dc673699a",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u014000_NAVTEST.npz",
+          "cache_sha256": "d17117b85f4e4fc54da0831696a9fa80c2553262c6fe79a958751a2b2e0d8035",
+          "cache_reused": false
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:48:49.285398+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.69863384410385,
+        "baseline_PDMS": 95.28814681914372,
+        "delta_PDMS": 0.41048702496011186,
+        "CI95_PDMS": [
+          0.22622423015984838,
+          0.5941025544997215
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": 0.41048702496011186,
+            "CI95_pp": [
+              0.22622423015984838,
+              0.5941025544997215
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.0343878954607978,
+            "CI95_pp": [
+              -0.1338930125995524,
+              0.05347193473177617
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.12608895002292525,
+            "CI95_pp": [
+              0.011350547898147439,
+              0.2645715177081427
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.04585052728106373,
+            "CI95_pp": [
+              -0.2535162676474293,
+              0.1986230023625627
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.9095154898905136,
+            "CI95_pp": [
+              0.7147486841495867,
+              1.094826682076669
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.04585052728106373,
+            "CI95_pp": [
+              -0.10798522277743153,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": 0.05158184319119669,
+            "CI95_pp": [
+              -0.033796003157696194,
+              0.13736972765706418
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 53,
+          "target": 45,
+          "repaired": 20,
+          "new_zero": 12,
+          "high_to_zero": 8,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 20,
+              "target_failed": 23,
+              "repaired": 4,
+              "new_failure": 7
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 34,
+              "target_failed": 23,
+              "repaired": 16,
+              "new_failure": 5
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 77,
+              "target_failed": 81,
+              "repaired": 22,
+              "new_failure": 26
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_DATA_u014000_minus_SAFETY_same_updates"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_DATA_u014000_minus_fixed_SAFETY10k": {
+      "target": "PPO_SAFETY_DATA_u014000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.08105265326283,
+      "baseline_PDMS": 91.34989173702405,
+      "delta_PDMS": -0.26883908376162857,
+      "CI95_PDMS": [
+        -0.5558158427248795,
+        -0.021123985909578744
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.26883908376162857,
+          "CI95_pp": [
+            -0.5558158427248795,
+            -0.021123985909578744
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.16466326362588507,
+          "CI95_pp": [
+            -0.2868098142499815,
+            -0.06346681179745882
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.18112958998847356,
+          "CI95_pp": [
+            -0.34901649166208204,
+            -0.045124118202919186
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -0.5022229540589495,
+          "CI95_pp": [
+            -0.8565623788554436,
+            -0.2069124714673913
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": 0.16503725370020586,
+          "CI95_pp": [
+            -0.2265406382879136,
+            0.5466034507743278
+          ]
+        },
+        "comfort": {
+          "delta_pp": 0.0,
+          "CI95_pp": [
+            -0.03276330190418721,
+            0.036656400390046646
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.11114770294747241,
+          "CI95_pp": [
+            -0.24268426523899042,
+            0.0078499060082125
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 256,
+        "target": 297,
+        "repaired": 33,
+        "new_zero": 74,
+        "high_to_zero": 45,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 145,
+            "target_failed": 165,
+            "repaired": 9,
+            "new_failure": 29
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 127,
+            "target_failed": 149,
+            "repaired": 24,
+            "new_failure": 46
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 378,
+            "target_failed": 439,
+            "repaired": 50,
+            "new_failure": 111
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.8066038535347897,
+        "G_minus_PDMS": 1.0754429372964183,
+        "improved": 5181,
+        "degraded": 2900,
+        "unchanged": 4065
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.771007095345563,
+            "CI95_pp": [
+              -1.0277007912791183,
+              -0.5533963942176989
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.1016949152542373,
+            "CI95_pp": [
+              -0.18352669580922545,
+              -0.03658325147857879
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.4067796610169492,
+            "CI95_pp": [
+              -0.5955116366068253,
+              -0.25160850983891425
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -1.152542372881356,
+            "CI95_pp": [
+              -1.5958161851784285,
+              -0.7875426785200296
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.040247537303927446,
+            "CI95_pp": [
+              -0.26149144474237007,
+              0.15383545470326665
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.03389830508474576,
+            "CI95_pp": [
+              -0.08768379460962754,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.1016949152542373,
+            "CI95_pp": [
+              -0.2768302667394095,
+              0.040043883207832025
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.1133316250776,
+          "remaining_ge09": 8561,
+          "below09": 289,
+          "zero": 45
+        },
+        "baseline": {
+          "PDMS": 96.88433872042317,
+          "remaining_ge09": 8850,
+          "below09": 0,
+          "zero": 0
+        },
+        "zeros": {
+          "baseline": 0,
+          "target": 45,
+          "repaired": 0,
+          "new_zero": 45,
+          "high_to_zero": 45,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 0,
+              "target_failed": 9,
+              "repaired": 0,
+              "new_failure": 9
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 0,
+              "target_failed": 36,
+              "repaired": 0,
+              "new_failure": 36
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 0,
+              "target_failed": 102,
+              "repaired": 0,
+              "new_failure": 102
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u014000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "2d26f2eb215ccc80da3560a85b834e963dc6a48f3d548ced0a0da5ca28487f19",
+          "summary_seal": "84f41c8b0a0dd509a645d21583d88fccecd6e083f1a151a70346f828f9aec5a9",
+          "identity_seal": "305d92bb2e1105ca8f6d668017f8ac84050a40ad1b96a957a9494ab7a796a796",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_DATA_u014000_NAVTEST.npz",
+          "cache_sha256": "e9ebb506b112167642e6a539bb2bdc04eb356bb60daf5c1707285ec08aa0eb61",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:48:49.313240+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.69863384410385,
+        "baseline_PDMS": 95.92740390322095,
+        "delta_PDMS": -0.22877005911709736,
+        "CI95_PDMS": [
+          -0.4026438201621986,
+          -0.0602583030637315
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.22877005911709736,
+            "CI95_pp": [
+              -0.4026438201621986,
+              -0.0602583030637315
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.11462631820265932,
+            "CI95_pp": [
+              -0.19285010068121133,
+              -0.04836255941235786
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.17193947730398898,
+            "CI95_pp": [
+              -0.29603607805456245,
+              -0.07028036622679146
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.30949105914718017,
+            "CI95_pp": [
+              -0.5274941619301842,
+              -0.09683555763500194
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.08827418732575225,
+            "CI95_pp": [
+              -0.10975436839534622,
+              0.2727556109877766
+            ]
+          },
+          "comfort": {
+            "delta_pp": 0.011462631820265932,
+            "CI95_pp": [
+              -0.025029569277603365,
+              0.05792861928118777
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.09170105456212746,
+            "CI95_pp": [
+              -0.25469504331358567,
+              0.05072691855133281
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 20,
+          "target": 45,
+          "repaired": 3,
+          "new_zero": 28,
+          "high_to_zero": 25,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 13,
+              "target_failed": 23,
+              "repaired": 0,
+              "new_failure": 10
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 8,
+              "target_failed": 23,
+              "repaired": 3,
+              "new_failure": 18
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 54,
+              "target_failed": 81,
+              "repaired": 15,
+              "new_failure": 42
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_DATA_u014000_minus_fixed_SAFETY10k"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRDATA_u012000_minus_SAFETY_same_updates": {
+      "target": "PPO_SAFETY_LRDATA_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u012000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.0709378946058,
+      "baseline_PDMS": 90.88994717236211,
+      "delta_PDMS": 0.18099072224404386,
+      "CI95_PDMS": [
+        -0.014864006471775442,
+        0.36221985773718257
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": 0.18099072224404386,
+          "CI95_pp": [
+            -0.014864006471775442,
+            0.36221985773718257
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.061748723859706894,
+          "CI95_pp": [
+            -0.16895628597416157,
+            0.02324192330869773
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": 0.09879795817553103,
+          "CI95_pp": [
+            -0.08509725265496162,
+            0.2677797517936257
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -0.11526428453811956,
+          "CI95_pp": [
+            -0.3283482666198191,
+            0.07035817747087554
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": 0.41551581581754776,
+          "CI95_pp": [
+            0.21117704875906557,
+            0.6150093974033165
+          ]
+        },
+        "comfort": {
+          "delta_pp": 0.024699489543882756,
+          "CI95_pp": [
+            -0.01938646875401746,
+            0.08000730773509905
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.1399637740820023,
+          "CI95_pp": [
+            -0.2930629514393179,
+            -0.019879572138732197
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 268,
+        "target": 264,
+        "repaired": 48,
+        "new_zero": 44,
+        "high_to_zero": 24,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 139,
+            "target_failed": 146,
+            "repaired": 10,
+            "new_failure": 17
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 146,
+            "target_failed": 134,
+            "repaired": 39,
+            "new_failure": 27
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 362,
+            "target_failed": 376,
+            "repaired": 50,
+            "new_failure": 64
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.8335390428538654,
+        "G_minus_PDMS": 0.6525483206098217,
+        "improved": 4149,
+        "degraded": 3938,
+        "unchanged": 4059
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": 0.30000634912122515,
+            "CI95_pp": [
+              0.09008988027731767,
+              0.5236169956795023
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.011299435028248588,
+            "CI95_pp": [
+              -0.05111518429983495,
+              0.024253086348199053
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.14689265536723162,
+            "CI95_pp": [
+              -0.05493298359732789,
+              0.3599683765948009
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.1581920903954802,
+            "CI95_pp": [
+              -0.030438373844773322,
+              0.36247763135756833
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.3674728650095845,
+            "CI95_pp": [
+              0.15226485350761196,
+              0.58635935502761
+            ]
+          },
+          "comfort": {
+            "delta_pp": 0.011299435028248588,
+            "CI95_pp": [
+              -0.07178836829243519,
+              0.10522040837698943
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.1581920903954802,
+            "CI95_pp": [
+              -0.33012786526996113,
+              -0.016125743618369236
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.25832737405014,
+          "remaining_ge09": 8610,
+          "below09": 240,
+          "zero": 30
+        },
+        "baseline": {
+          "PDMS": 95.95832102492892,
+          "remaining_ge09": 8399,
+          "below09": 451,
+          "zero": 42
+        },
+        "zeros": {
+          "baseline": 42,
+          "target": 30,
+          "repaired": 27,
+          "new_zero": 15,
+          "high_to_zero": 12,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 9,
+              "target_failed": 10,
+              "repaired": 2,
+              "new_failure": 3
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 33,
+              "target_failed": 20,
+              "repaired": 25,
+              "new_failure": 12
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 61,
+              "target_failed": 47,
+              "repaired": 33,
+              "new_failure": 19
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRDATA_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "a93ce88b46e86d7397ac9e73e34d4e9ee5eae42713b56f1e14584c5c50ddca2c",
+          "summary_seal": "41b5a3c6cc4e4d442e5e3a86e1105a04fd000b6ee6787633cfeb2597bf81b740",
+          "identity_seal": "70e84a988b2a4cd8c1af9ce4654ebae266bf616443296365290e90b255f41547",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRDATA_u012000_NAVTEST.npz",
+          "cache_sha256": "e414ed72081116332160a0281c65b3df8cd80c57e43678f57c0d38fea96fe329",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "9abd36e8e68d85e91861b094a29079b2743ec27e88e51822ee8c9c5f4a7f35b7",
+          "summary_seal": "af6fa06afba546452cd59894454e2515f68dd6704ecf92319efb11cb7e94dde7",
+          "identity_seal": "587e4b8d24c9b0ce8871d30280c34cc97fb835539ad91bffe2936d4dd7606084",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u012000_NAVTEST.npz",
+          "cache_sha256": "722ce65cd6e8289bbc11d1c9098794151096b8ec1c8b576861a04315cc58f30a",
+          "cache_reused": false
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:17:06.091165+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.41061136337868,
+        "baseline_PDMS": 95.22549749403856,
+        "delta_PDMS": 0.18511386934010884,
+        "CI95_PDMS": [
+          0.02448412934809258,
+          0.3305076246666748
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": 0.18511386934010884,
+            "CI95_pp": [
+              0.02448412934809258,
+              0.3305076246666748
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.022925263640531865,
+            "CI95_pp": [
+              -0.060008254431212354,
+              0.0
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": 0.022925263640531865,
+            "CI95_pp": [
+              -0.12095523950878334,
+              0.14642543196102917
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.04585052728106373,
+            "CI95_pp": [
+              -0.10275394501920061,
+              0.1922490265030567
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": 0.3709124427665595,
+            "CI95_pp": [
+              0.18146495335294038,
+              0.5600539943556915
+            ]
+          },
+          "comfort": {
+            "delta_pp": 0.011462631820265932,
+            "CI95_pp": [
+              -0.03649940715189541,
+              0.06851054934318182
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.18340210912425492,
+            "CI95_pp": [
+              -0.35638448252242416,
+              -0.032785633018726175
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 44,
+          "target": 44,
+          "repaired": 14,
+          "new_zero": 14,
+          "high_to_zero": 12,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 22,
+              "target_failed": 24,
+              "repaired": 1,
+              "new_failure": 3
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 23,
+              "target_failed": 21,
+              "repaired": 13,
+              "new_failure": 11
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 81,
+              "target_failed": 77,
+              "repaired": 22,
+              "new_failure": 18
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRDATA_u012000_minus_SAFETY_same_updates"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    },
+    "PPO_SAFETY_LRDATA_u012000_minus_fixed_SAFETY10k": {
+      "target": "PPO_SAFETY_LRDATA_u012000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 12146,
+      "physical_logs": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "valid_bootstrap_draws": 2000,
+      "target_PDMS": 91.0709378946058,
+      "baseline_PDMS": 91.34989173702405,
+      "delta_PDMS": -0.2789538424184565,
+      "CI95_PDMS": [
+        -0.4428250233635663,
+        -0.13172016554679797
+      ],
+      "metrics": {
+        "score": {
+          "delta_pp": -0.2789538424184565,
+          "CI95_pp": [
+            -0.4428250233635663,
+            -0.13172016554679797
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -0.008233163181294254,
+          "CI95_pp": [
+            -0.10694926429837746,
+            0.09004635708692242
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -0.05763214226905978,
+          "CI95_pp": [
+            -0.23080816068182813,
+            0.08822459590138763
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": 0.016466326362588508,
+          "CI95_pp": [
+            -0.16719525620956027,
+            0.21741577594210387
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -0.580557047460198,
+          "CI95_pp": [
+            -0.8099847474296474,
+            -0.3832195337431411
+          ]
+        },
+        "comfort": {
+          "delta_pp": 0.008233163181294254,
+          "CI95_pp": [
+            -0.026491590124895305,
+            0.05499079538637629
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": -0.24287831384818048,
+          "CI95_pp": [
+            -0.4540180761560196,
+            -0.07970889081158071
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 256,
+        "target": 264,
+        "repaired": 33,
+        "new_zero": 41,
+        "high_to_zero": 30,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline_failed": 145,
+            "target_failed": 146,
+            "repaired": 15,
+            "new_failure": 16
+          },
+          "drivable_area_compliance": {
+            "baseline_failed": 127,
+            "target_failed": 134,
+            "repaired": 18,
+            "new_failure": 25
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failed": 378,
+            "target_failed": 376,
+            "repaired": 55,
+            "new_failure": 53
+          }
+        }
+      },
+      "gain_loss": {
+        "G_plus_PDMS": 0.4892609353033598,
+        "G_minus_PDMS": 0.7682147777218163,
+        "improved": 2938,
+        "degraded": 5124,
+        "unchanged": 4084
+      },
+      "fixed_SAFETY10k_high_ge09": {
+        "definition": "fixed parent Safety10k canonical score>=.9",
+        "scenes": 8850,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.6260113463730097,
+            "CI95_pp": [
+              -0.8490964193996278,
+              -0.4290786192005883
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.11299435028248588,
+            "CI95_pp": [
+              -0.19975918727183437,
+              -0.03513446983701227
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.22598870056497175,
+            "CI95_pp": [
+              -0.4463531854096837,
+              -0.0775786122273967
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.5310734463276836,
+            "CI95_pp": [
+              -0.7304778338855894,
+              -0.337827972359121
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.5690938979618898,
+            "CI95_pp": [
+              -0.7898730761770546,
+              -0.383899014085535
+            ]
+          },
+          "comfort": {
+            "delta_pp": -0.04519774011299435,
+            "CI95_pp": [
+              -0.10177743127983775,
+              0.0
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.29378531073446323,
+            "CI95_pp": [
+              -0.558671105923731,
+              -0.09118281655365854
+            ]
+          }
+        },
+        "target": {
+          "PDMS": 96.25832737405014,
+          "remaining_ge09": 8610,
+          "below09": 240,
+          "zero": 30
+        },
+        "baseline": {
+          "PDMS": 96.88433872042317,
+          "remaining_ge09": 8850,
+          "below09": 0,
+          "zero": 0
+        },
+        "zeros": {
+          "baseline": 0,
+          "target": 30,
+          "repaired": 0,
+          "new_zero": 30,
+          "high_to_zero": 30,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 0,
+              "target_failed": 10,
+              "repaired": 0,
+              "new_failure": 10
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 0,
+              "target_failed": 20,
+              "repaired": 0,
+              "new_failure": 20
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 0,
+              "target_failed": 47,
+              "repaired": 0,
+              "new_failure": 47
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRDATA_u012000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "a93ce88b46e86d7397ac9e73e34d4e9ee5eae42713b56f1e14584c5c50ddca2c",
+          "summary_seal": "41b5a3c6cc4e4d442e5e3a86e1105a04fd000b6ee6787633cfeb2597bf81b740",
+          "identity_seal": "70e84a988b2a4cd8c1af9ce4654ebae266bf616443296365290e90b255f41547",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_LRDATA_u012000_NAVTEST.npz",
+          "cache_sha256": "e414ed72081116332160a0281c65b3df8cd80c57e43678f57c0d38fea96fe329",
+          "cache_reused": false
+        },
+        "baseline": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        }
+      },
+      "matched_tokens_context_protocol_cache_hashes": true,
+      "completed_at": "2026-10-31T07:17:06.119524+00:00",
+      "status": "COMPLETE_EXISTING_RESULT_REUSED",
+      "overall_bootstrap_recomputed": false,
+      "fixed_IL70_high_ge09": {
+        "scenes": 8724,
+        "target_PDMS": 95.41061136337868,
+        "baseline_PDMS": 95.92740390322095,
+        "delta_PDMS": -0.516792539842276,
+        "CI95_PDMS": [
+          -0.7081870787300918,
+          -0.33680833175241537
+        ],
+        "metrics": {
+          "score": {
+            "delta_pp": -0.516792539842276,
+            "CI95_pp": [
+              -0.7081870787300918,
+              -0.33680833175241537
+            ]
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.12608895002292525,
+            "CI95_pp": [
+              -0.21590064827856928,
+              -0.04987391404413367
+            ]
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.14901421366345713,
+            "CI95_pp": [
+              -0.338608231630642,
+              -0.028928134344703583
+            ]
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.26364053186611647,
+            "CI95_pp": [
+              -0.4842908860104845,
+              -0.07289750738294495
+            ]
+          },
+          "ego_progress": {
+            "delta_pp": -0.6992658737049106,
+            "CI95_pp": [
+              -0.904959398047838,
+              -0.5116689666327653
+            ]
+          },
+          "comfort": {
+            "delta_pp": 0.011462631820265932,
+            "CI95_pp": [
+              -0.03642711079002063,
+              0.07666787066511958
+            ]
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.31522237505731315,
+            "CI95_pp": [
+              -0.582208163983865,
+              -0.10488451567458751
+            ]
+          }
+        },
+        "zeros": {
+          "baseline": 20,
+          "target": 44,
+          "repaired": 0,
+          "new_zero": 24,
+          "high_to_zero": 22,
+          "components": {
+            "no_at_fault_collisions": {
+              "baseline_failed": 13,
+              "target_failed": 24,
+              "repaired": 0,
+              "new_failure": 11
+            },
+            "drivable_area_compliance": {
+              "baseline_failed": 8,
+              "target_failed": 21,
+              "repaired": 0,
+              "new_failure": 13
+            },
+            "time_to_collision_within_bound": {
+              "baseline_failed": 54,
+              "target_failed": 77,
+              "repaired": 10,
+              "new_failure": 33
+            }
+          }
+        },
+        "valid_bootstrap_draws": 2000,
+        "definition": "fixed originalIL70score>=.9,comparetargetvsdeclaredbaselinewithincohort"
+      },
+      "existing_pair_source": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+        "file_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+        "key": "PPO_SAFETY_LRDATA_u012000_minus_fixed_SAFETY10k"
+      },
+      "budget_interpretation": "sameupdatesisolatesregisteredpost10k change; fixed10k ispeakretention comparison withdifferenttrainingbudget"
+    }
+  },
+  "conclusions_zh": [
+    "七个现成完整12/14k结果中没有超过Safety10k峰91.3498917370；本集合最高DATA14k91.0810526533。未完成LRDATA14k不补点、不等待标签、不恢复评测。",
+    "LOW12k相对同预算Safety +.151588，CI[+.023512,+.279245]，是有限低步长保留收益证据；14k−.029542且CI跨0，未持续为14k总分优势；两点相对10k峰均明确下降。",
+    "COS12/14k相对Safety均为小负差且CI跨0，没有cosine更优证据；已观测区间分别只走到cosinecontinuation的20%/40%，不能伪装完整10k schedule结论。",
+    "DATA12/14k EP相对同预算Safety +.772879/+.757086，但NC和TTC均有明确负向CI；不能只按总分或EP认定80/10/10可安全迁移。",
+    "LRDATA12k相对Safety +.180991但CI跨0，未超过10k峰；14k缺失使持续性与后期交互未知。",
+    "原四臂停止原因是用户改焦点，不能改标算法失败。它们是同Safety10k exact-nativeAdam/RNG/cursor fork，samebudget对照可解释post10k干预；不是freshIL学习率从0开始的完整检验，也不是旧weights-onlyRescue。"
+  ],
+  "fresh_schedule_design": {
+    "recommendation": "OPTIONAL_SINGLE_FACTOR_LATER_NOT_REGISTERED_NOT_RESTART_OLD_ARMS",
+    "strength": "limitedtransientLOW12kevidence,notnewbestornotcosineproof",
+    "priority": "currentfreshSuccessMemory/FPOandP0gradientdiagnosisremainpriority; noextrapolationto92",
+    "if_authorized": "sameIL70freshAdam/RNG42/update0,uniformfull/W3/SafetyA/IL70anchor unchanged; onegroup-relativeLRamplitude/schedulechangeonly; matchedcomplete1k/5k/10kSafetycontrol",
+    "avoid": [
+      "RL10kforkcalledfreshtraining",
+      "repeatoldstoppedGPUjobs",
+      "claimLOW12kgainpersistentat14k",
+      "combine80/10/10withoutNC/TTCguard",
+      "mixreference/teacherrefreshwithLRchange"
+    ],
+    "measured_future": "bothgrouplrs/clock, actualPG-anchor gradientnorm+cos/update,canonicalPDMS+safety/EP+fixedILhighretention+repaired/newzero",
+    "effect_scale": "LOW.2 action1e-5/Memory1e-6 onlyafterglobal10k inthishistory; freshwarmup+lowfrom0remainsuntested"
+  },
+  "best_in_review": {
+    "arm": "PPO_SAFETY_DATA",
+    "updates": 14000,
+    "PDMS": 91.08105265326283,
+    "exceeds_historical_Safety10k_peak": false
+  },
+  "comparisons": {
+    "controls": "samebudgetSafety12/14; fixedSafety10kpeakseparately",
+    "all_complete_scenes": 12146,
+    "physical_logs": 44,
+    "bootstrap": 2000,
+    "seed": 42,
+    "evaluation_seed": 2101,
+    "inference": "singleODE10shift5",
+    "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "fixed_IL_high_count": 8724,
+    "source_LR_review_status": "STOPPED_BY_USER_FOCUS_CHANGE_WITH_PARTIAL_RESULTS",
+    "alltokens_logs_protocol_cachehashesmatched": true,
+    "uncertainty": "singletrainingseed,conditionalILhighcohort,exploratorycomparisonsnotmultiplicitycorrected"
+  },
+  "provenance": {
+    "prior_pair_review": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/LR_STUDY_MATCHED_REVIEW_20261031.json",
+    "prior_pair_review_sha256": "2a6dcdc725d4d16f029710b04c88568642a018127556389169cf55481666e2ee",
+    "IL70": {
+      "summary_path": "/mnt/project/qwen-world-postcot-20261025/IL_late_checkpoints_NAVTEST_20261029T0310Z/WORLD_IL_070000/SUMMARY.json",
+      "summary_file_sha256": "6a18c5e58acb4c29d31d10f1852638b47fbadc1a8419630d324eba6c4996e436",
+      "summary_seal": "65db5cea99e5350bbe567d1dabb05645fdd025e3233638634443985444947814",
+      "identity_path": "/mnt/project/qwen-world-postcot-20261025/IL_late_checkpoints_NAVTEST_20261029T0310Z/WORLD_IL_070000/evaluation/identity.json",
+      "identity_file_sha256": "f3c4df2db4f7732f39447a4fe5f316b0e626d3f06e2bba7d1e8a1674a96844c3",
+      "identity_seal": "4ce3d1dbf6a7d21ae250549813e0b24953e8792a02f9e9fa8cec6da4a0f820aa",
+      "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/IL70_NAVTEST.npz",
+      "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/IL70_NAVTEST.json",
+      "npz_sha256": "24d2330af23d1299010ad5bd11710a986285f1a3b164870207a25df181de1a02",
+      "scene_raw_hash_inventory_sha256": "661fd6400d8daebaeda4bc1fbaf1e5ea2bb401323c380f30e42d61ace0a1965a"
+    },
+    "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/review_frozen_lr_existing_evidence_20261031.py",
+    "script_sha256": "a16db5359b2bac909abb90db5fe172bbb83b3466001dd15446c58c4db1b50e71",
+    "registration": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_LR_STUDY_REGISTRATION_20261031.json"
+  },
+  "scope": {
+    "CPU_only": true,
+    "new_GPU_forwards": 0,
+    "new_scores": 0,
+    "oldwholepopulationbootstrap_reused": true,
+    "originalscene_population_rescans": 0,
+    "training_resumed": false,
+    "evaluation_dispatched": false,
+    "stopped_source_or_review_mutated": false,
+    "git_stage": false,
+    "git_commit": false
+  },
+  "sha256": "836cc0c854f1e599ac40c1837fc48b140acbc6702bf4f265399458c9c2d32b19"
+}

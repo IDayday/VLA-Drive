@@ -1,0 +1,54 @@
+{
+  "schema": "Safety28k_export_readonly_failure_diagnosis_v1",
+  "status": "DIAGNOSED_CPU_EXPORT_FAILURE_NO_RETRY_PERFORMED",
+  "observed_at": "2026-10-31T12:25:44.432968+00:00",
+  "label": "PPO_SAFETY_EP_u028000_NAVTEST",
+  "evidence": {
+    "state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/STATE.json",
+    "node_status": "FAILED_REQUIRES_REVIEW",
+    "failed_at": "2026-10-31T10:53:14.778225+00:00",
+    "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner_v2.py\", line 296, in evaluate\n    summary=CampaignOwner.run_evaluation(self,label,node['checkpoint'],cohort='NAVTEST',node=node)\n  File \"/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/campaign_owner.py\", line 358, in run_evaluation\n    spec = self.dispatcher.dispatch_evaluation(**arguments)\n  File \"/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner_v2.py\", line 201, in dispatch_evaluation\n    with (logroot/'export.log').open('ab',buffering=0) as log:subprocess.run(cmd,cwd=V3,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/subprocess.py\", line 526, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['/mnt/project/flow-safe-improvement-20261013/venv/bin/python', '-m', 'tools.qwen_world_research.evaluate', '--export-only', '--parent-checkpoint', '/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT', '--rl-checkpoint', '/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update028000_inner0', '--export', '/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/exports/PPO_SAFETY_EP_u028000_NAVTEST', '--output', '/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u028000_NAVTEST']' returned non-zero exit status 1.\n",
+    "log": "/mnt/project/qwen-world-rl-optimization-20261030/exports/PPO_SAFETY_EP_u028000_NAVTEST/export.log",
+    "log_sha256": "a2037be02348a28610b951f1fab2d888140fcd1f60c0565c41552f53bed5d445"
+  },
+  "failure_sequence": [
+    "torch.save(model.state_dict(),staging/model.pt) failed writing output archive; PytorchStreamWriter file write failed/unexpected pos",
+    "subsequent invocation passed to staging.mkdir(exist_ok=False), rejected leftover .building with FileExistsError"
+  ],
+  "source_locations": [
+    "runtime/v3_4e61823bb3a8/starVLA/rl/qwen_world_postcot/deployment.py:155",
+    "runtime/v3_4e61823bb3a8/starVLA/rl/qwen_world_postcot/deployment.py:156"
+  ],
+  "staging": {
+    "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/exports/PPO_SAFETY_EP_u028000_NAVTEST.building",
+    "model_bytes": 10965120,
+    "COMPLETE_exists": false,
+    "published_export_exists": false
+  },
+  "checkpoint": {
+    "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update028000_inner0",
+    "COMPLETE": {
+      "schema": 2,
+      "phase": "READY",
+      "world": 8,
+      "updates": 28000,
+      "next_inner": 0,
+      "files_sha256": "875915403e121457edcca2fd1fe3501ce104dec6d467ec70badc6b14ca7666fe"
+    },
+    "full_checkpoint_rehashed_by_this_diagnosis": false
+  },
+  "interpretation": "Output serialization/stale-unpublished staging failure, not scorer execution or evidence of a bad scientific checkpoint. Input validation precedes staging in actual source. Exact historical filesystem cause of first write failure unknown.",
+  "recovery_proposal": [
+    "Preserve error/log/seals and atomically quarantine only the incomplete unpublished .building; do not delete/modify native checkpoint or a COMPLETE export",
+    "Use same label/checkpoint and CadenceOwner.evaluate(label), keeping its dispatch locks/UUID/claims/scorer unchanged",
+    "Existing observer skips FAILED nodes and has no retry RPC; root-controlled CPU-only adoption/reconciliation required. Do not edit live STATE behind owner memory."
+  ],
+  "actions": {
+    "GPU_generation": 0,
+    "scoring": 0,
+    "weights_loaded": false,
+    "owner_or_state_changed": false,
+    "filesystem_repair": false,
+    "retry": false
+  }
+}

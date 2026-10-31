@@ -1,0 +1,30 @@
+{
+  "schema": "world_same_theta_Safety_PPO_credit_gradient_replay_v1",
+  "host": "training-vlawm-zt",
+  "world": 8,
+  "status": "RUNNING",
+  "source_probe": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_GRADIENT_PROBE_20261031",
+  "source_protocol_sha256": "0dae2eaf5d0b94e7f5f09f20548e2171f066e7608e252ede4ead66dedd0771cd",
+  "source_summary_sha256": "74bd3fa8f2b381c2d5825583b6bbd2f63b0c3998a8f6569a9ad3025fdfd36664",
+  "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update028000_inner0",
+  "native_updates": 28000,
+  "native_files_sha256": "875915403e121457edcca2fd1fe3501ce104dec6d467ec70badc6b14ca7666fe",
+  "policy_sha256": "48f75056ad7b79eca5296b419cf63b2d943d074a3eaa556e3bf77909a9499879",
+  "panel_sha256": "f6f0c8671a3623b70473f12b6de8f75feb083cd00febec2525da09ef36ec3a1f",
+  "groups": 24,
+  "candidates": 192,
+  "optimizer_steps": 0,
+  "newly_generated_candidates": 0,
+  "new_reward_scores": 0,
+  "reference": "original complete IL70",
+  "training_basis": "counterfactual credit at Safety theta28k on its original scored G8; not a trained PPO policy comparison",
+  "PPO_normalization": "source FP64 offset group center / population std of all64 RAW canonical rewards +1e-8; source tie mask",
+  "Safety_split": "total normalized A cap5 and total-A PPO branch shared; zero-total cap gain0; EP objective exact complement",
+  "gradient_units": "8rank equal-mean raw objective parameter gradients before Adam/preconditioning/global clipping",
+  "limitations": [
+    "fixed24 TRAIN groups, not population estimates or causal final-score evidence",
+    "source transition ratio is clamped dimension-mean proxy, not exact importance sampling",
+    "separate BF16 component backward sums can differ from fused native backward (~0.34% observed elsewhere); no bitexact gradient claim",
+    "no optimizer or stochastic sampling/scoring service is constructed; five-component sum is not an update"
+  ]
+}

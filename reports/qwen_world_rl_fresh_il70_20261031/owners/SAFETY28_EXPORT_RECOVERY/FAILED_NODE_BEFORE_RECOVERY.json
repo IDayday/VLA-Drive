@@ -1,0 +1,13 @@
+{
+  "arm": "PPO_SAFETY_EP",
+  "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update028000_inner0",
+  "checkpoint_complete_sha256": "44880610ff9c53083618307aee0ca9ba91fb17f1172d9ef6c1f438d8ee0d8d60",
+  "discovered_at": "2026-10-31T09:41:25.906351+00:00",
+  "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner_v2.py\", line 296, in evaluate\n    summary=CampaignOwner.run_evaluation(self,label,node['checkpoint'],cohort='NAVTEST',node=node)\n  File \"/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/campaign_owner.py\", line 358, in run_evaluation\n    spec = self.dispatcher.dispatch_evaluation(**arguments)\n  File \"/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner_v2.py\", line 201, in dispatch_evaluation\n    with (logroot/'export.log').open('ab',buffering=0) as log:subprocess.run(cmd,cwd=V3,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/subprocess.py\", line 526, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['/mnt/project/flow-safe-improvement-20261013/venv/bin/python', '-m', 'tools.qwen_world_research.evaluate', '--export-only', '--parent-checkpoint', '/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT', '--rl-checkpoint', '/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update028000_inner0', '--export', '/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/exports/PPO_SAFETY_EP_u028000_NAVTEST', '--output', '/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u028000_NAVTEST']' returned non-zero exit status 1.\n",
+  "failed_at": "2026-10-31T10:53:14.778225+00:00",
+  "native_identity_sha256": "a95502b8694bd2b3f1a046417e788868afa70566e3753d7ea6d3bae3e29680ff",
+  "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP",
+  "status": "FAILED_REQUIRES_REVIEW",
+  "training_source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+  "updates": 28000
+}

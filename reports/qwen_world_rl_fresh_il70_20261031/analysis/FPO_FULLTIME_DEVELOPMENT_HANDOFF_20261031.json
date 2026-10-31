@@ -1,0 +1,109 @@
+{
+  "schema": "world_FPO_upper_time_extension_development_handoff_v1",
+  "status": "CPU_IMPLEMENTATION_READY_NOT_REGISTERED_OR_DEPLOYED",
+  "created_at": "2026-10-31T11:58:20.762464+00:00",
+  "entry": "starVLA.rl.qwen_world_research_algorithms.fpo_entry",
+  "arm": "PPO_FPO_FULLTIME",
+  "changed_factor": {
+    "research.fpo.sigma_max": {
+      "baseline": 0.8,
+      "candidate": 1.0
+    }
+  },
+  "files": {
+    "starVLA/rl/qwen_world_research_algorithms/fpo_training.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/fpo_training.py",
+      "sha256": "7c2ee6e87f923e91b593e06306e963a904ff7e81df3098dec3779a9cb0c0d38c"
+    },
+    "starVLA/rl/qwen_world_research_algorithms/fpo_entry.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/fpo_entry.py",
+      "sha256": "25ee3541a541f0798226229b514c3b789a3fa299e6533ec63dbae8762a8a787f"
+    },
+    "tests/test_qwen_world_fpo_fulltime.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tests/test_qwen_world_fpo_fulltime.py",
+      "sha256": "752ef34aac1414a3d0309e347690be6e672e4c11b773070ed0450ce9c2995dfe"
+    }
+  },
+  "config": {
+    "schema": "world_endpoint_CFM_per_MC_PPO_v1",
+    "mc_samples": 2,
+    "sigma_min": 0.2,
+    "sigma_max": 1.0,
+    "clip_range": 0.01,
+    "stateless_seed": 42,
+    "energy_reduction": "mean_xyz_then_sum_8poses"
+  },
+  "unchanged": [
+    "fresh IL70/current+reference ancestry",
+    "fresh Adam/seed42/update0",
+    "Safety structured A/global64std",
+    "full103288 uniform",
+    "W3 rigorous eta.1 source rollout",
+    "beta50 IL70 physical W3 mean anchor",
+    "action LR5e-5/Memory5e-6/warmup100/constant",
+    "M2/clip.01/sigma_min.2/CFM energy units/4inners",
+    "private seed-key algorithm/draw order and unchanged sourceSDE RNG protocol; actual cross-arm draws not claimed equal"
+  ],
+  "integration": {
+    "runtime_or_controller_edits_required": false,
+    "entry_worker_whitelist_unchanged": true,
+    "config_binding": "protocol_for_recipe(cfg); explicit cfg through attach_material/validate_material/_draws/scale_diagnostic; boundary binds identity.recipe; all8 ranks require identical allowed protocol",
+    "old_API": "CONFIG/PROTOCOL/ARM and cfg=None defaults unchanged; fpo_entry.PROTOCOL alias retained; synthetic same-behavior-key draw compatibility does not imply actual cross-arm CRN",
+    "recovery": "new sigma material cannot restore under original .8 recipe/protocol; selected pair of arm and range strictly checked"
+  },
+  "tests": {
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_qwen_world_fpo_training.py tests/test_qwen_world_fpo_fulltime.py",
+    "passed": 7,
+    "old_tests_passed": 5,
+    "new_tests_passed": 2,
+    "seconds": 6.52,
+    "new_checks": [
+      "original default sigma/noise identical to explicit old formula from same seed",
+      "only registered new arm accepts max1.0; wrong-arm/range/min/MC rejected",
+      "new same uniform/noise mapping covers >.8 without global RNG consumption",
+      "actual runtime writes selected range scale/identity",
+      "8rank native torchsave/load validates all4 inner boundaries; mixed protocol and redigested sigma pollution rejected",
+      "actual new loss finite/nonzero gradients and fixed materials through4inner"
+    ]
+  },
+  "hypothesis_zh": "扩展CFM sigma上界，为World部署早期高噪声阶段增加训练支撑，检验困难场景信用是否受时间截断限制；不是已证明收益。",
+  "time_distribution": {
+    "old": "Uniform[.2,.8)",
+    "new": "Uniform[.2,1.0)",
+    "new_mass_above08": 0.25,
+    "relative_density_in_old_interval": 0.75,
+    "lower_sigma_retained": 0.2,
+    "limitations": [
+      "continuous MC does not guarantee exact deployment-node samples, including sigma1",
+      "still excludes sigma<.2; not full-paper U[0,1] objective or exact endpoint likelihood",
+      "expansion also reallocates weight in old interval; cannot attribute solely to hitting six nodes",
+      "M2 unchanged; finite-MC gradient/ratio scale may change and needs native observed metrics",
+      "Private seed key includes behavior.run and adapter_sha256; different scientific/source identities and later theta cause different real cross-arm seeds. Exact uniform/noise equality was tested only for the same synthetic behavior key, not full common-random-number control in live arms."
+    ]
+  },
+  "primary_sources": [
+    {
+      "url": "https://arxiv.org/html/2507.21053v2",
+      "location": "Sec3.4/AppendixA MonteCarlo timestep integration",
+      "finding": "full noise-time integration supports coverage hypothesis, not guarantee transfer"
+    },
+    {
+      "url": "https://arxiv.org/html/2602.02481v2",
+      "location": "ordinary perMC PPO ratio / CFM implementation"
+    },
+    {
+      "url": "https://github.com/amazon-far/fpo-control/blob/8f460e4415a2a6debfbeb689093f5e36140bd178/isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py#L174",
+      "finding": "official variant samples uniform base then inverseBetaCDF and scales to[.005,.995] to avoid boundaries; our .2..1 range is an explicit different local contrast"
+    }
+  ],
+  "scope": {
+    "CPU_only": true,
+    "new_GPU": 0,
+    "old_live_frozen_source_edited": false,
+    "registered": false,
+    "dispatched": false,
+    "git_stage": false,
+    "git_commit": false
+  },
+  "sha256": "d3ad006eb8ea46afe534b4abcf77537238b1644d66c0ba64b59636e175df22fa"
+}

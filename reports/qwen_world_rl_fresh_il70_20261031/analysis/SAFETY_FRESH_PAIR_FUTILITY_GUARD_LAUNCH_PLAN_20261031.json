@@ -1,0 +1,54 @@
+{
+  "schema": "freshSafety_evidence_guard_launch_plan_v1",
+  "status": "READY_FOR_ROOT_REVIEW_NOT_STARTED",
+  "started": false,
+  "at": "2026-10-31T11:14:35.223342+00:00",
+  "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evidence_futility_guard.py",
+  "bindings": {
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evidence_futility_guard.py": "b9d38176449794df4eb96d1c648d4bbb1ffc67e82ce91b4120587366052b9fe1",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safety_fresh_pair_owner.py": "8c38cecef19c334d0bb1e042358d4b138fb001c240f7375410a6196cb5550ca3",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safety_fresh_pair_review.py": "26d6f00d5d005e22475e83104573465550cdf53921b8b130615eed93224dd2c8",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner_v2.py": "0a36d568437ccc38556eff885627c09b9546055a399e45aafdb3513868786017"
+  },
+  "arms": {
+    "PPO_SAFETY_SUCCESS_MEMORY": {
+      "id": "PPO_SAFETY_SUCCESS_MEMORY",
+      "module": "starVLA.rl.qwen_world_research_algorithms.success_memory_entry",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_SUCCESS_MEMORY",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_SUCCESS_MEMORY.yaml",
+      "config_sha256": "b1f51b430277e655fde689286e35e2f86e32233b038ee523f3c1f032f6c2c800",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "native_identity_sha256": "f41c32acb419e8efbc8672c363958793296609d4bad0755afe2af6108019bab6",
+      "registration_file_sha256": "3496de4bcadb2422280522b83e0562646b08c1078c49bd51ca53817e7fa865a2",
+      "registration_seal": "51e513f593469f9ce3544078a1955f9f9d00847c8ca030222d1b2667b306b670"
+    },
+    "PPO_SAFETY_FPO": {
+      "id": "PPO_SAFETY_FPO",
+      "module": "starVLA.rl.qwen_world_research_algorithms.fpo_entry",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_FPO",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_FPO.yaml",
+      "config_sha256": "ebf4f867b296b0a957eb8756fd905f789d77104cbcae3d96ad6ad968db9450ad",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "native_identity_sha256": "2b9d3aae084f02b1e9d3f7f3acf69feff313556e49227324f6651395ff69152d",
+      "registration_file_sha256": "3496de4bcadb2422280522b83e0562646b08c1078c49bd51ca53817e7fa865a2",
+      "registration_seal": "51e513f593469f9ce3544078a1955f9f9d00847c8ca030222d1b2667b306b670"
+    }
+  },
+  "policy": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR_FUTILITY_GUARD/POLICY.json",
+  "policy_sha256": "30ff7fe8f47cd4fe28fb6a2e3ac2755bd17a3cc62d422ccb799994877e7494ba",
+  "owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR_FUTILITY_GUARD/OWNER.json",
+  "launch": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR_FUTILITY_GUARD/LAUNCH.json",
+  "state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR_FUTILITY_GUARD/STATE.json",
+  "max_hours": 24,
+  "launch_argv": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evidence_futility_guard.py",
+    "--launch"
+  ],
+  "no_GPU_or_evaldispatch": true,
+  "cooperative_stop_only": true,
+  "first1k_no_stop": true,
+  "root_registration": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_SAFETY_FRESH_PAIR_REGISTRATION_20261031.json"
+}

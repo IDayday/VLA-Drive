@@ -1,0 +1,80 @@
+{
+  "schema": "world_LLM_RL_trick_transfer_check_v1",
+  "status": "COMPLETE_LITERATURE_TO_IMPLEMENTATION_REVIEW",
+  "at_unix": 1793449693.8313348,
+  "sources": [
+    {
+      "title": "Part I: Tricks or Traps?",
+      "url": "https://arxiv.org/html/2508.08221v3",
+      "version_date": "2025-10-27",
+      "location": "3.1;4.1-4.3",
+      "finding": "Uses learning rate1e-6; base/aligned and data dependent results; normalization and clipping are conditional choices, not universal bundles."
+    },
+    {
+      "title": "The Art of Scaling Reinforcement Learning Compute for LLMs / ScaleRL",
+      "url": "https://arxiv.org/html/2510.13786v1",
+      "version_date": "2025-10-15",
+      "location": "3.2;4;A.3",
+      "finding": "Constant5e-7 with100step linear warmup. FP32 LM logits address inference/trainer probability mismatch; initial ablation raises asymptote. Effective-batch filtering and no-positive resampling also tested; LOO asymptotes often similar. Their fit presumes stable scaling trajectories."
+    },
+    {
+      "title": "JustRL",
+      "url": "https://arxiv.org/html/2512.16649v1",
+      "version_date": "2025-12-18",
+      "location": "3.1 Table2",
+      "finding": "Constant1e-6, rollout8, clip[.8,1.28], noKLloss/entropy regularizer, one stage on two distilled reasoning models. Table labels advantage estimator GRPO; paper does not independently isolate batch-standard-deviation normalization."
+    }
+  ],
+  "implementation": {
+    "original_SafetyEP": "action5e-5 / scene-memory5e-6, warmup100 thenconstant; AdamW(.9,.95),eps1e-8; G8/8ranks/4inner; PPOproxyclip.005; full103288 withoutreplacement",
+    "new_trials": "SuccessMemory and FPO and FPO-upper1 preserve these LRs/schedule and freshIL70 origin; FPO energy proxy has its separately registeredclip.01",
+    "already_high_precision": "FP32 latent/state, velocity conversion, probability storage/computation; FP64 advantage statistics; BF16 action forward and frozenQwen prefill; FP32 memory residual",
+    "measured_probability_match": "native28k credit replay24groups current/behavior_old logp bitidentical at firstinner; no initial PPO blocking. Does not test late-inner mismatch or full-FP32 gradient improvement",
+    "measured_noncollapse": "8rank weighted PPO blocked2.8197% at10k and2.3438% at24k; componentgradient probes do not support anchor overpoweringPG in measured windows",
+    "observation_gradient": "Qwenprefill frozen; scene/predictive memory trainable and rebuilt everyinner. Same-theta real replay confirms Memory gradient direction changes with credit; not action-head-only training"
+  },
+  "decisions": [
+    {
+      "technique": "learning-rate schedule",
+      "judgment": "already considered, constant+warmup has direct paper precedent; no assumption cosine always better",
+      "next": "Use completed matched LR/data evidence; prior LOW12k transient positive but not14k, no oldarm revival. A future freshIL LR comparison must use same algorithm and report actual effective group LRs."
+    },
+    {
+      "technique": "FP32 LM head",
+      "judgment": "no trainable text-output LM head in this trajectoryRL; cannot transplant reported .52\u2192.61 gain",
+      "next": "A flow-head precision variant only if real endpoint/ratio/gradient evidence warrants it; current probability path is already FP32."
+    },
+    {
+      "technique": "batch std",
+      "judgment": "implemented but the population matters",
+      "next": "OriginalPPO raw-reward globalstd differs from centered-A globalstd; BATCHSTD10k gain+.13437 versusFull exists; do not attribute allSafetygain to safetycredit."
+    },
+    {
+      "technique": "Clip-Higher/CISPO/GSPO",
+      "judgment": "fixed8x3 action trajectories lack variable text-length token aggregation issue; currentratio is dimension-mean/clamped transition proxy",
+      "next": "Do not copy token clipping magnitude or call geometric-mean proxy exact endpoint IS. Prior blockedfraction does not indicate clipping collapse."
+    },
+    {
+      "technique": "No KL",
+      "judgment": "no tokenKL here; beta50 physical mean anchor has a different object/scale",
+      "next": "Keep anchor unless measured gradient/evaluation comparison supports a change; paper noKL is not evidence to remove physicalanchor."
+    },
+    {
+      "technique": "No-positive-resampling / zero-variance filtering",
+      "judgment": "Safety already masks exactlyzero structuredA; filtering does not create success support",
+      "next": "Currentuniform firstepoch neverrevisits eachtrainingtoken before~51.6kupdates. Excluding previouslyeasy cases would not activate withinmostcurrent budgets; explicit independent replay/dataexposure needed."
+    },
+    {
+      "technique": "predictable sigmoid ceiling",
+      "judgment": "originalSafety peaks10k and later regresses;3fresharms have atmostonecompletegate",
+      "next": "No ceiling extrapolation or92prediction from this trace; use actualcompletegates and finite evidence review."
+    }
+  ],
+  "scope": {
+    "GPU_jobs": 0,
+    "new_rollouts": 0,
+    "training_changes": 0,
+    "old_arms_restarted": 0
+  },
+  "interpretation": "Paper observations motivate mechanistic tests; they do not establish driving-task effect sizes or one shared recipe across all three papers."
+}

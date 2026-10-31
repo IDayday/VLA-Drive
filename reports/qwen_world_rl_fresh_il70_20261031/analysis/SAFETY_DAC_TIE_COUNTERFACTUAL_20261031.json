@@ -1,0 +1,539 @@
+{
+  "schema": "world_Safety_DAC_tie_counterfactual_audit_v1",
+  "status": "COMPLETE_CPU_COUNTERFACTUAL_NOT_REGISTERED",
+  "at_unix": 1793450375.583346,
+  "protocol": {
+    "schema": "world_DAC_only_allfail_cost_tie_raw_counterfactual_v1",
+    "eligibility": "all8 NC==1,TTC==1,DAC==0; allfail; coarse deficit cost tie; original raw SafetyA exactly0",
+    "field": "records[candidate].non_drivable_body_by_time",
+    "shape": "8 candidates x41 Boolean samples, t=0,.1,...,4.0seconds",
+    "dense_cost": "mean Boolean non-drivable over indices1:41; fraction0..1, not distance/risk probability",
+    "replacement": "A_tie=mean(dense_cost)-dense_cost, offset-centered in FP64",
+    "other_groups": "original raw advantages retained bit-for-bit; missing fields never filled with zero",
+    "t0": "reported separately, not silently added as an eligibility change; review initially-invalid scenes before any future deployment",
+    "interpretation": "a relative reduction of failed DAC occupancy, not canonical success or a safety certificate",
+    "normalization": "raw replacement only; any new global64 std changes other normalized advantages by a shared scale",
+    "scope": "CPU-only mathematical prototype; no actual training update or new scoring"
+  },
+  "source_files": {
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/dac_tie_counterfactual.py": "058765627734f655bdf203b0113522fe5d520ffb7f0601ba5cfc85a2cdfaf9f1",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tests/test_qwen_world_dac_tie_counterfactual.py": "053f060ddee515d5042b492bc358af775a1d91274cd01dd31b7e7b86c3d3eae0"
+  },
+  "CPU_sanity": {
+    "command": "python -m pytest -q tests/test_qwen_world_dac_tie_counterfactual.py",
+    "passed": 3,
+    "tested": [
+      "exact subtype-only raw replacement and input nonmutation",
+      "missing actual field retains old A,not inventedzero",
+      "reject float margins/incomplete time axis",
+      "complete64 versus analytical variance agreement and shared rescaling",
+      "constant occupancy stays tie; t0invalid explicitly reported"
+    ]
+  },
+  "actual_window_coverage": {
+    "windows": 10,
+    "groups": 1280,
+    "allfail_groups": 8,
+    "allfail_cost_tie_groups": 1,
+    "explicit_DAC_only_tie_groups": 1,
+    "eligible_groups_with_verified_8x41_field": 1,
+    "eligible_groups_missing_field": 0,
+    "unrelated_groups_not_41step_extracted_here": true,
+    "inventory": [
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u001000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u005000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u010000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u012000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 1,
+        "complete_41step_fields_read_here": 1,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u014000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u016000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u018000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u020000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u022000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u024000_rollouts.npz",
+        "groups": 128,
+        "eligible_groups": 0,
+        "complete_41step_fields_read_here": 0,
+        "not_eligible_fields_not_assumed": true
+      }
+    ],
+    "additional_targeted_229a_group_count": 1,
+    "full_journal_scan": false
+  },
+  "actual_window_counterfactual": {
+    "token": "269fe201f95150c7",
+    "behavior": {
+      "run": "6e1ec64b695e9496d6c1623fe095ba2adfc38570d570eb97dc32eee7042a8dfb",
+      "update": 11952,
+      "adapter_sha256": "750e4b9f4c10a66bb7f4a9e468bc2fc87afcf32be6f4a6c85cb00af0800f44b9"
+    },
+    "window_target": 12000,
+    "source": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection002989/rank0.pt",
+    "source_sha256": "cff28da96c18f3307a40f5b3988c48e38534c91e0e92dc09d909bd1e2b9b3964",
+    "component_subtype": "all8 NC=TTC1,DAC0,EP0;no strict-feasible candidate",
+    "dense_cost": [
+      0.35,
+      0.275,
+      0.1,
+      0.05,
+      0.275,
+      0.175,
+      0.525,
+      0.125
+    ],
+    "A_tie": [
+      -0.11562499999999996,
+      -0.04062500000000001,
+      0.13437500000000002,
+      0.184375,
+      -0.04062500000000001,
+      0.059375000000000025,
+      -0.290625,
+      0.10937500000000001
+    ],
+    "t0_all_drivable": true,
+    "original_raw_A": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_saved_mask": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "raw_A_source_unchanged_other7groups": true,
+    "normalized_A_counterfactual": [
+      -0.3431270122528076,
+      -0.12055813521146774,
+      0.39876922965049744,
+      0.5471484661102295,
+      -0.12055813521146774,
+      0.17620034515857697,
+      -0.862454354763031,
+      0.3245795965194702
+    ],
+    "global64_normalization_effect": {
+      "original_std": 0.33304085681014006,
+      "counterfactual_std": 0.33697434672643434,
+      "unchanged_raw_normalized_scale": 0.9883270348684496,
+      "original_cap5_hits": 0,
+      "counterfactual_cap5_hits": 0
+    },
+    "original_complete64_raw": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.27946336640265335,
+        -0.625,
+        -0.625,
+        0.43072179831419866,
+        0.22503152895619807,
+        0.3557976503327006,
+        0.5839856559942492,
+        -0.625
+      ],
+      [
+        -0.875,
+        0.1687538984839882,
+        0.10993002423105286,
+        0.03387195003104165,
+        0.1312394505668349,
+        0.11062090693332688,
+        0.17054943271294015,
+        0.15003433704081542
+      ],
+      [
+        0.125,
+        -0.875,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125
+      ],
+      [
+        0.004088406867750659,
+        -0.07420534457776354,
+        -0.27052743599880824,
+        0.2550004761147456,
+        0.015959433439464564,
+        -0.008990881975060629,
+        0.021217170364032444,
+        0.05745817576563913
+      ],
+      [
+        0.34210647803801414,
+        0.2655503370536538,
+        0.3472270464043599,
+        0.18448919718840623,
+        -0.75,
+        -0.75,
+        0.15815498771999986,
+        0.2024719535955662
+      ],
+      [
+        -0.06408116015698369,
+        0.3665277597411773,
+        -0.12661243640786737,
+        -0.12661243640786737,
+        -0.12661243640786737,
+        -0.003998450059304298,
+        0.07788098880334458,
+        0.003508170895368229
+      ],
+      [
+        0.24784976043440352,
+        0.27024482488705015,
+        0.27024482488705015,
+        0.27024482488705015,
+        -0.75,
+        0.17117094001739597,
+        0.27024482488705015,
+        -0.75
+      ]
+    ],
+    "counterfactual_complete64_raw": [
+      [
+        -0.11562499999999996,
+        -0.04062500000000001,
+        0.13437500000000002,
+        0.184375,
+        -0.04062500000000001,
+        0.059375000000000025,
+        -0.290625,
+        0.10937500000000001
+      ],
+      [
+        0.27946336640265335,
+        -0.625,
+        -0.625,
+        0.43072179831419866,
+        0.22503152895619807,
+        0.3557976503327006,
+        0.5839856559942492,
+        -0.625
+      ],
+      [
+        -0.875,
+        0.1687538984839882,
+        0.10993002423105286,
+        0.03387195003104165,
+        0.1312394505668349,
+        0.11062090693332688,
+        0.17054943271294015,
+        0.15003433704081542
+      ],
+      [
+        0.125,
+        -0.875,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125
+      ],
+      [
+        0.004088406867750659,
+        -0.07420534457776354,
+        -0.27052743599880824,
+        0.2550004761147456,
+        0.015959433439464564,
+        -0.008990881975060629,
+        0.021217170364032444,
+        0.05745817576563913
+      ],
+      [
+        0.34210647803801414,
+        0.2655503370536538,
+        0.3472270464043599,
+        0.18448919718840623,
+        -0.75,
+        -0.75,
+        0.15815498771999986,
+        0.2024719535955662
+      ],
+      [
+        -0.06408116015698369,
+        0.3665277597411773,
+        -0.12661243640786737,
+        -0.12661243640786737,
+        -0.12661243640786737,
+        -0.003998450059304298,
+        0.07788098880334458,
+        0.003508170895368229
+      ],
+      [
+        0.24784976043440352,
+        0.27024482488705015,
+        0.27024482488705015,
+        0.27024482488705015,
+        -0.75,
+        0.17117094001739597,
+        0.27024482488705015,
+        -0.75
+      ]
+    ],
+    "analytical_variance_increment": {
+      "method": "centered-source analytical variance increment; other56 not imputed",
+      "original_std": 0.33304085681014,
+      "counterfactual_std": 0.33697434672643434,
+      "variance_increment": 0.0026354980468750004,
+      "unchanged_raw_normalized_scale": 0.9883270348684495
+    },
+    "canonical_scores_unchanged": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "all_other_source_material_unchanged": true
+  },
+  "targeted_229a_counterfactual": {
+    "token": "229a59137a705430",
+    "behavior": {
+      "run": "6e1ec64b695e9496d6c1623fe095ba2adfc38570d570eb97dc32eee7042a8dfb",
+      "update": 10632,
+      "adapter_sha256": "3aaf05c3e160ee15f571d2bfb0e1e85d196400965dd7824a0758098db2abae75"
+    },
+    "source": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection002659/rank7.pt",
+    "source_sha256": "8c686ef7ac3602b36b98899de4c6ac96af4df206d35beb2db633002403d3dff8",
+    "source_bytes": 116369,
+    "dense_cost": [
+      0.75,
+      0.875,
+      0.85,
+      0.775,
+      0.175,
+      0.3,
+      0.85,
+      0.75
+    ],
+    "A_tie": [
+      -0.08437499999999999,
+      -0.20937499999999998,
+      -0.18437499999999996,
+      -0.10937500000000001,
+      0.490625,
+      0.36562500000000003,
+      -0.18437499999999996,
+      -0.08437499999999999
+    ],
+    "t0_all_drivable": true,
+    "first_non_drivable_seconds": [
+      1.1,
+      0.6000000000000001,
+      0.5,
+      1.0,
+      3.4000000000000004,
+      2.9000000000000004,
+      0.7000000000000001,
+      1.1
+    ],
+    "canonical_scores_unchanged": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_saved_mask": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_raw_A": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "normalized_A_counterfactual_new64std": [
+      -0.2463981658220291,
+      -0.6114324927330017,
+      -0.538425624370575,
+      -0.3194050192832947,
+      1.4327596426010132,
+      1.067725419998169,
+      -0.538425624370575,
+      -0.2463981658220291
+    ],
+    "normalized_A_counterfactual_held_oldstd": [
+      -0.25526708364486694,
+      -0.6334405541419983,
+      -0.5578058362007141,
+      -0.33090177178382874,
+      1.4843307733535767,
+      1.1061573028564453,
+      -0.5578058362007141,
+      -0.25526708364486694
+    ],
+    "global64_normalization_effect": {
+      "method": "centered-source analytical variance increment; other56 not imputed",
+      "original_std": 0.33053614896287314,
+      "counterfactual_std": 0.3424335520478121,
+      "variance_increment": 0.008006591796874999,
+      "unchanged_raw_normalized_scale": 0.9652563171267722
+    },
+    "new_group_cap5_hits": 0,
+    "other56_original_cap_hits": "UNAVAILABLE_NOT_IMPUTED",
+    "proof_scope": "Other56 raw candidates were not reread: standard deviation is analytical under original group-centered mean0; not a fabricated full64 payload.",
+    "ranking_low_to_high_cost": [
+      4,
+      5,
+      0,
+      7,
+      3,
+      2,
+      6,
+      1
+    ],
+    "raw_progress_diagnostic_only": [
+      4.3752039396192295,
+      7.533628172320139,
+      2.7294062975348545,
+      4.213581373740645,
+      1.9873368109929004,
+      1.5316461816744997,
+      1.3975091409717244,
+      4.967952816422759
+    ],
+    "boundary_distance": {
+      "status": "UNAVAILABLE_NOT_EXTRACTED",
+      "source_status": "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+    }
+  },
+  "invariants": {
+    "feasible_group_raw_A_unchanged": true,
+    "mixed_group_raw_A_unchanged": true,
+    "allfail_non_tie_raw_A_unchanged": true,
+    "other_component_allfail_ties_raw_A_unchanged": true,
+    "raw_progress_used_as_credit": false,
+    "boundary_distance_or_fake_margin_used": false,
+    "old_canonical_reward_unchanged": true,
+    "strict_feasible_labels_unchanged": true,
+    "safe_beats_fail_within_group_guard": "dense override never runs in any group containing a strict-feasible candidate",
+    "no_safety_guarantee": "All candidates remain DAC0/canonical0; less occupancy or later violation is not a successful/safe teacher."
+  },
+  "normalization_interpretation": {
+    "raw": "Only eligible tie rawA changes. Other source rawA is bitexact, not its normalized magnitude.",
+    "global_std": "If standard global64 whitening is retained, newly nonzero variance increases std and rescales all unchanged groups down; old masks unchanged outside tie, new tie activates.",
+    "held_old_std": "Shown only for229a as an explicit diagnostic contrast; no runtime implements either choice here.",
+    "gradient": "No actual parameter gradient,innerclip,Adam update or outcome is measured. Shared parameters can still change high-score behavior even though those raw advantages were untouched."
+  },
+  "next_activation_conditions": [
+    "Root scientific review of one bounded recipe,not global rollout",
+    "Retain canonical reward and all Safety credit outside the explicit eligible subtype",
+    "If future fields missing,unavailable rather than manufactured direction",
+    "Initially invalid t0 must be reviewed separately; both actual groups here t0valid",
+    "Measure actual activation frequency,globalstd multiplier,PG/anchor gradients,matched PDMS/zeros and fixedhigh retention before considering scale"
+  ],
+  "conclusions_zh": [
+    "1280\u65e2\u6709\u7a97\u53e3\u7ec4\u91cc\u4ec51\u7ec4\u7b26\u5408\u660e\u786eDAC-only allfail costtie\uff1b\u52a0\u5355\u72ec229a\u51712\u4e2a\u5b9e\u9645native\u7ec4\u6709\u771f\u5b9e8x41\u5b57\u6bb5\uff0c\u4e0d\u80fd\u79f0dense\u4fe1\u53f7\u4e0d\u8db3\u662f\u5168\u5c40\u4e3b\u74f6\u9888\u3002",
+    "229a\u7684\u540e40\u65f6\u523b\u8d8a\u754c\u5360\u6bd417.5%\u201387.5%\uff0cA_tie=\u5747\u503c\u2212\u5360\u6bd4\u80fd\u4ea7\u751f\u771f\u5b9e\u533a\u5206\uff0c\u4f468\u6761canonical\u4ecd\u51680\uff0crawprogress\u548c\u672a\u63d0\u53d6\u8fb9\u754c\u8ddd\u79bb\u5747\u672a\u8fdb\u4fe1\u7528\u3002",
+    "\u5176\u4f59feasible/mixed/allfail\u975etie\u7ec4rawA\u539f\u6837\u4fdd\u7559\uff1b\u82e5\u6309\u539f\u6cd5\u91cd\u7b97global64std\uff0c\u5176\u4ed6\u7ec4normalizedA\u4f1a\u5171\u540c\u7f29\u653e\uff0c\u9700\u660e\u786e\u91cf\u5316\u800c\u4e0d\u662f\u58f0\u79f0\u5b8c\u5168\u65e0\u5f71\u54cd\u3002",
+    "\u8fd9\u53ea\u662f\u5df2\u6709\u5019\u9009\u7684\u6570\u5b66\u53cd\u4e8b\u5b9e\uff0c\u6ca1\u6709\u65b0\u5019\u9009/\u65b0\u8bc4\u5206/\u53c2\u6570\u66f4\u65b0\uff1b\u5c1a\u672a\u6ce8\u518c\u6216\u6d3e\u53d1GPU\u3002"
+  ],
+  "scope": {
+    "CPU_only": true,
+    "new_native_small_payload_reads": 2,
+    "new_model_forwards": 0,
+    "new_scores": 0,
+    "optimizer_steps": 0,
+    "GPU_dispatch": 0,
+    "running_or_frozen_source_changes": 0,
+    "registration_changes": 0,
+    "git_stage": false,
+    "git_commit": false
+  }
+}

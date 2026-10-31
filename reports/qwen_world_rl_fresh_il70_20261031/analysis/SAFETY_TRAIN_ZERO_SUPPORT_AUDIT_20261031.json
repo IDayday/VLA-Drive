@@ -1,0 +1,4948 @@
+{
+  "schema": "world_Safety_TRAIN_zero_candidate_support_audit_v1",
+  "status": "COMPLETE_CPU_EXISTING_DATA",
+  "at_unix": 1793449927.2040117,
+  "cohort": {
+    "name": "fixedTRAIN1024",
+    "not_heldout": true,
+    "train_feedback_allowed": true,
+    "physical_logs": 162,
+    "NAVTEST_IDs_included": false,
+    "NAVTEST_training_selection": false
+  },
+  "definitions": {
+    "zero_epsilon": 1e-12,
+    "observed_updates": [
+      0,
+      1000,
+      5000,
+      10000,
+      20000
+    ],
+    "persistent": "zero at every one of these discrete observations, not every unobserved theta",
+    "recurrent": "zero at least twice but not all observations",
+    "new_zero": "positive at immediately preceding observation,zero now; may be relapse",
+    "strict_same_checkpoint": "same token + exact native checkpoint path/update + same scorer/current observations; a near-update window is not aligned",
+    "native_PG0": "saved advantages*saved mask allzero; this is PG-credit zero, not the total loss including IL anchor",
+    "diagnostic_signal": "nonzero raw locked Safety formula on a probe group, not an actual global64-normalized training loss or measured parameter gradient"
+  },
+  "longitudinal": {
+    "points": [
+      {
+        "updates": 0,
+        "scenes": 1024,
+        "zero_count": 9,
+        "zero_components": {
+          "no_at_fault_collisions": 2,
+          "drivable_area_compliance": 7,
+          "time_to_collision_within_bound": 3
+        },
+        "exact_native_training_G8_matches": 0,
+        "exact_native_training_G8_unavailable": 9,
+        "same_checkpoint_diagnostic_probe_matches": 0,
+        "evidence": {
+          "bank": "/mnt/project/qwen-world-rl-optimization-20261030/banks/IL70_TRAIN_001024.json",
+          "bank_sha256": "47d4953679b71a091c06f2b1a61f0bb548c901b80c1f4d4b441617e76182d60c",
+          "policy_sha256": "202cf5b4ba1ee87e0b5994741f31f1e58c75bf220531f47d35ee13520da99482",
+          "evaluation_identity_sha256": "b6a63fbd4d65d183273b6672ef4702df2f05b2425542fe33bc3cc0ae67634fb2"
+        }
+      },
+      {
+        "updates": 1000,
+        "scenes": 1024,
+        "zero_count": 6,
+        "zero_components": {
+          "no_at_fault_collisions": 2,
+          "drivable_area_compliance": 4,
+          "time_to_collision_within_bound": 3
+        },
+        "exact_native_training_G8_matches": 0,
+        "exact_native_training_G8_unavailable": 6,
+        "same_checkpoint_diagnostic_probe_matches": 0,
+        "evidence": {
+          "bank": "/mnt/project/qwen-world-rl-optimization-20261030/banks/PPO_SAFETY_EP_u001000_TRAIN1024.json",
+          "bank_sha256": "0cb1740f0c9ad530e9819bc454754f52e850fd2481afa61d30fec69fc4cc9201",
+          "policy_sha256": "63f4178b1d167008ff4aa35c8e0e070280a44a1c6dce8f36378d652b97a8dfde",
+          "evaluation_identity_sha256": "74397fe88678f51dfac052c3715a0d8a2a377e70e80f3abadcbedb54a67f1c5c"
+        }
+      },
+      {
+        "updates": 5000,
+        "scenes": 1024,
+        "zero_count": 6,
+        "zero_components": {
+          "no_at_fault_collisions": 2,
+          "drivable_area_compliance": 4,
+          "time_to_collision_within_bound": 3
+        },
+        "exact_native_training_G8_matches": 0,
+        "exact_native_training_G8_unavailable": 6,
+        "same_checkpoint_diagnostic_probe_matches": 0,
+        "evidence": {
+          "bank": "/mnt/project/qwen-world-rl-optimization-20261030/banks/PPO_SAFETY_EP_u005000_TRAIN1024.json",
+          "bank_sha256": "d12a4962ac21f4c05a71e9be820fb0ca4fa8b26eea767975b3afe085bf0495c7",
+          "policy_sha256": "e5fc296f01efcde8866a08e7dcc9c7b053bf162148636ea96b008e77f672a7b3",
+          "evaluation_identity_sha256": "dd497a1fe3b42464db65ff19a58b673db904e0f7e3e532f25db584365d94e753"
+        }
+      },
+      {
+        "updates": 10000,
+        "scenes": 1024,
+        "zero_count": 6,
+        "zero_components": {
+          "no_at_fault_collisions": 3,
+          "drivable_area_compliance": 3,
+          "time_to_collision_within_bound": 4
+        },
+        "exact_native_training_G8_matches": 0,
+        "exact_native_training_G8_unavailable": 6,
+        "same_checkpoint_diagnostic_probe_matches": 6,
+        "evidence": {
+          "bank": "/mnt/project/qwen-world-rl-optimization-20261030/banks/PPO_SAFETY_EP_u010000_TRAIN1024.json",
+          "bank_sha256": "b629ef97d301508ef099669c21310591dcce877c3679110e19b997f22749d960",
+          "policy_sha256": "f2ba6004fd5eaa93c7fd394b9fe351fdb175781aa7b47f199644c622ec4d5ad4",
+          "evaluation_identity_sha256": "b3dd69c013a9c381122883b6bb706524b7c4f7d50d2534fc972fb42f15df2618"
+        }
+      },
+      {
+        "updates": 20000,
+        "scenes": 1024,
+        "zero_count": 5,
+        "zero_components": {
+          "no_at_fault_collisions": 2,
+          "drivable_area_compliance": 3,
+          "time_to_collision_within_bound": 3
+        },
+        "exact_native_training_G8_matches": 0,
+        "exact_native_training_G8_unavailable": 5,
+        "same_checkpoint_diagnostic_probe_matches": 0,
+        "evidence": {
+          "bank": "/mnt/project/qwen-world-rl-optimization-20261030/banks/PPO_SAFETY_EP_u020000_TRAIN1024.json",
+          "bank_sha256": "b3eb0f5ffea084e1f9bd6fc658e16d679d3ae0225ab34e249f4ff6c226e8d98e",
+          "policy_sha256": "d6d9fb80f6a3cd9e8709649064c97cc8e5d317feafa45c7e346168c3c66616fa",
+          "evaluation_identity_sha256": "344d5b55f6647f461c90592d94f03733ed1e619dfacbb0172a54b55343e8f98f"
+        }
+      }
+    ],
+    "transitions": [
+      {
+        "from_update": 0,
+        "to_update": 1000,
+        "repaired": 4,
+        "new_zero": 1,
+        "retained_zero": 5
+      },
+      {
+        "from_update": 1000,
+        "to_update": 5000,
+        "repaired": 0,
+        "new_zero": 0,
+        "retained_zero": 6
+      },
+      {
+        "from_update": 5000,
+        "to_update": 10000,
+        "repaired": 2,
+        "new_zero": 2,
+        "retained_zero": 4
+      },
+      {
+        "from_update": 10000,
+        "to_update": 20000,
+        "repaired": 2,
+        "new_zero": 1,
+        "retained_zero": 4
+      }
+    ],
+    "ever_zero": 12,
+    "persistent": 4,
+    "recurrent_nonpersistent": 2,
+    "single_observation_zero": 6,
+    "latest_zero": 5,
+    "latest_new": 1,
+    "latest_relapse": 1,
+    "new_zero_relative_IL": 3
+  },
+  "native_stream_exposure": {
+    "immutable_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+    "manifest_sha256": "37c9a0b1dd9105e632b2f447056ab987e5cf0d17a671f25e07fdec88ea6d2a3b",
+    "eligible_count": 103288,
+    "uniform_seed": 42,
+    "once_without_replacement_epoch": true,
+    "epoch_optimizer_updates": 51644,
+    "audited_sealed_prefix": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update030500_inner0",
+    "audited_updates": 30500,
+    "source_identity_sha256": "6e1ec64b695e9496d6c1623fe095ba2adfc38570d570eb97dc32eee7042a8dfb",
+    "prefix_seal_sha256": "0e7f9ebe21e7592d9af38c66b69c4d81494cf5a48393cb9fb7a22c6225c586e4",
+    "everzero_tokens_with_native_candidate_history": 7,
+    "everzero_tokens_not_yet_exposed": 5,
+    "persistent_with_native_history": 3,
+    "persistent_not_yet_exposed": 1,
+    "historical_candidate_groups_with_strict_feasible": 6,
+    "historical_PG_credit_active": 6,
+    "historical_allfail_cost_tie_PG0": 1,
+    "ILzero_recovered_at1k_before_first_token_training": 4,
+    "inference": "Late first exposure is an exposure opportunity, not proof direct replay is necessary: four original IL-zero scenes already recovered at1k before their own first training exposure."
+  },
+  "exact_alignment": {
+    "native_training_zero_evaluation_instances": 32,
+    "exact_native_training_G8_join_count": 0,
+    "native_candidate_unavailable_is_not_failure": true,
+    "exact_same_checkpoint_diagnostic_update": 10000,
+    "diagnostic_zero_tokens": 6,
+    "probe_identities": [
+      {
+        "name": "ODE8_SDE01",
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP/identity.json",
+        "sha256": "8dff31da4a7ea308487b33b107e7035b81a51614873d8ecd52e9e526da1b6bff",
+        "native_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "updates": 10000
+      },
+      {
+        "name": "SDE003",
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/attempt003/PPO_SAFETY_EP/identity.json",
+        "sha256": "8b185cce518f78b86585c9befae537b7ce6381b6bd47fcfe3ad1e0eba1d2e785",
+        "native_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "updates": 10000
+      }
+    ],
+    "same_checkpoint_probe_summary": {
+      "ODE8": {
+        "groups": 6,
+        "with_strict_feasible": 0,
+        "with_any_canonical_positive": 2,
+        "all_canonical_zero": 4,
+        "all_strict_fail": 6,
+        "allfail_cost_tie": 5,
+        "with_nonzero_diagnostic_formula_signal": 1
+      },
+      "SDE_eta01": {
+        "groups": 6,
+        "with_strict_feasible": 3,
+        "with_any_canonical_positive": 5,
+        "all_canonical_zero": 1,
+        "all_strict_fail": 3,
+        "allfail_cost_tie": 1,
+        "with_nonzero_diagnostic_formula_signal": 5
+      },
+      "SDE_eta003": {
+        "groups": 6,
+        "with_strict_feasible": 2,
+        "with_any_canonical_positive": 3,
+        "all_canonical_zero": 3,
+        "all_strict_fail": 4,
+        "allfail_cost_tie": 3,
+        "with_nonzero_diagnostic_formula_signal": 3
+      }
+    },
+    "strict_feasible_union_across_actual_ODE_and_SDE_variants": 4,
+    "excluded": [
+      "near-gate behavior windows9936..9996 cannot stand in for theta10000",
+      "native28kP0 has no completeTRAIN1024bank at28k, so no fabricated zero join",
+      "mu9/det9 reconstructed counterfactuals are not actual policy rollout groups",
+      "no cross-theta candidate group is treated as contemporary support"
+    ]
+  },
+  "TRAIN_only_scene_details": [
+    {
+      "token": "10b907a5bb8459e8",
+      "log": "2021.10.06.17.08.46_veh-28_01298_01548",
+      "physical_log": "2021.10.06.17.08.46_veh-28",
+      "classification": "SINGLE_OBSERVED_ZERO",
+      "zero_observed_updates": [
+        10000
+      ],
+      "zero_pattern": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "scores_by_update": {
+        "0": 0.8727084937572287,
+        "1000": 0.8611035678952058,
+        "5000": 0.859014417891122,
+        "10000": 0.0,
+        "20000": 0.4405307290176199
+      },
+      "zero_relative_IL_new": true,
+      "relapse": false,
+      "latest_zero": false,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "10b907a5bb8459e8",
+        "stream_position": 69891,
+        "expected_first_behavior_update": 34944,
+        "expected_collection": 8737,
+        "expected_rank": 3,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "UNAVAILABLE_NOT_YET_IN_COMMITTED_UNIFORM_PREFIX",
+        "candidate_group": null
+      },
+      "same_checkpoint_10k_diagnostic": {
+        "token": "10b907a5bb8459e8",
+        "checkpoint_update": 10000,
+        "canonical_single_ODE_score": 0.0,
+        "native_training_candidate_at_exact_checkpoint": "UNAVAILABLE",
+        "diagnostic_candidates": {
+          "ODE8": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.43511240058874967,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.3333333333333333,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              -0.041666666666666664,
+              -0.041666666666666664,
+              -0.041666666666666664,
+              -0.041666666666666664,
+              -0.041666666666666664,
+              -0.041666666666666664,
+              0.29166666666666663,
+              -0.041666666666666664
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                0.6442697614129992
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              19.27246849024155,
+              19.22490286528113,
+              18.982944439713343,
+              19.45842460122237,
+              19.301149732550343,
+              19.20401542432419,
+              19.34333546093096,
+              19.24285957789207
+            ],
+            "first_collision_seconds": [
+              2.5,
+              2.5,
+              2.4000000000000004,
+              2.5,
+              2.4000000000000004,
+              2.4000000000000004,
+              null,
+              2.4000000000000004
+            ],
+            "first_TTC_seconds": [
+              3.6,
+              3.6,
+              3.5,
+              3.7,
+              3.7,
+              3.6,
+              3.7,
+              3.6
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta01": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.23624035972979315,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.3333333333333333,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              0.25,
+              -0.08333333333333331,
+              -0.08333333333333331,
+              -0.08333333333333331,
+              -0.08333333333333331,
+              -0.08333333333333331,
+              0.25,
+              -0.08333333333333331
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                0.0,
+                1.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                0.5669768633515035
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              21.71852165877518,
+              22.943178598689308,
+              19.68974037841008,
+              14.349465027097771,
+              18.953639924123458,
+              18.01431407149707,
+              17.02271986557534,
+              12.862081708947159
+            ],
+            "first_collision_seconds": [
+              1.8,
+              1.1,
+              1.7000000000000002,
+              1.5,
+              2.1,
+              1.1,
+              null,
+              2.8000000000000003
+            ],
+            "first_TTC_seconds": [
+              null,
+              1.0,
+              1.5,
+              1.3,
+              2.5,
+              1.0,
+              3.2,
+              1.7000000000000002
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta003": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.8611297043120726,
+              0.0,
+              0.43252196356321626,
+              0.0,
+              0.0,
+              0.0,
+              0.4262606219780231,
+              0.0
+            ],
+            "feasible_count": 1,
+            "sampled_all_fail": false,
+            "cost_range": 0.6666666666666666,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              0.875,
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                1.0,
+                1.0,
+                0.666711290348974
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                0.638052712551719
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                0.6230254927472555
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              20.01711226757901,
+              20.37443115609164,
+              19.15667690747504,
+              17.9790019990945,
+              19.239819096082563,
+              18.88123479088749,
+              18.705504788073725,
+              17.337427068609593
+            ],
+            "first_collision_seconds": [
+              null,
+              1.6,
+              null,
+              1.8,
+              1.9000000000000001,
+              1.7000000000000002,
+              null,
+              2.5
+            ],
+            "first_TTC_seconds": [
+              null,
+              1.4000000000000001,
+              3.6,
+              3.2,
+              null,
+              1.5,
+              3.4000000000000004,
+              3.1
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          }
+        },
+        "evidence": [
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP/scenes/10b907a5bb8459e8.json",
+            "sha256": "7cb915249c319ffe47d411c802146fb0001fe60f9919e58d2313802d7b90d861"
+          },
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/attempt003/PPO_SAFETY_EP/scenes/10b907a5bb8459e8.json",
+            "sha256": "0a0c63e758e9accf99f3ab6b10ae532dfd2610e08bf01ac035fb78fcc1845d90"
+          }
+        ]
+      }
+    },
+    {
+      "token": "1272e5dd70b55395",
+      "log": "2021.09.15.14.00.15_veh-28_01274_01543",
+      "physical_log": "2021.09.15.14.00.15_veh-28",
+      "classification": "SINGLE_OBSERVED_ZERO",
+      "zero_observed_updates": [
+        0
+      ],
+      "zero_pattern": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 0.9056849183874656,
+        "5000": 0.8970609555090903,
+        "10000": 0.8926595459556711,
+        "20000": 0.8923490646776907
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": false,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "1272e5dd70b55395",
+        "stream_position": 10632,
+        "expected_first_behavior_update": 5316,
+        "expected_collection": 1330,
+        "expected_rank": 0,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "EXISTING_NATIVE_BEHAVIOR_HISTORY_REUSED",
+        "candidate_group": {
+          "feasible_count": 4,
+          "canonical_all_zero": false,
+          "sampled_all_fail": false,
+          "cost_range": 0.3333333333333333,
+          "cost_tie": false,
+          "saved_actual_advantages": [
+            -1.4340890645980835,
+            1.689452886581421,
+            1.2571337223052979,
+            1.4556505680084229,
+            1.3341193199157715,
+            -1.4340890645980835,
+            -1.4340890645980835,
+            -1.4340890645980835
+          ],
+          "saved_actual_mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "positive_actual_A_candidates": 4,
+          "actual_credit_PG0": false,
+          "canonical_scores": [
+            0.0,
+            0.7969099043612736,
+            0.734105935684851,
+            0.9296115854538362,
+            0.7452898013368126,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "candidate_NC_DAC_TTC": [
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "first_infraction_times": {
+            "official_first_at_fault_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "official_first_ttc_infraction_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "raw_progress_range_m": 5.254050483849582,
+          "parameter_gradient_measured": false
+        },
+        "evidence": {
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ZERO_ROLLOUT_CACHE/PPO_SAFETY_EP.jsonl",
+          "original_payload": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection001330/rank0.pt",
+          "old_normalized_origin": "saved_train_behavior_CPU_only"
+        }
+      },
+      "same_checkpoint_10k_diagnostic": null
+    },
+    {
+      "token": "229a59137a705430",
+      "log": "2021.09.14.15.03.51_veh-45_00178_00336",
+      "physical_log": "2021.09.14.15.03.51_veh-45",
+      "classification": "PERSISTENT_ALL_OBSERVED",
+      "zero_observed_updates": [
+        0,
+        1000,
+        5000,
+        10000,
+        20000
+      ],
+      "zero_pattern": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 0.0,
+        "5000": 0.0,
+        "10000": 0.0,
+        "20000": 0.0
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": true,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "229a59137a705430",
+        "stream_position": 21271,
+        "expected_first_behavior_update": 10632,
+        "expected_collection": 2659,
+        "expected_rank": 7,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "NATIVE_BEHAVIOR_HISTORY_NEW_BOUNDED_CPU_READ",
+        "candidate_group": {
+          "canonical_all_zero": true,
+          "canonical_scores": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "feasible_count": 0,
+          "sampled_all_fail": true,
+          "cost_range": 0.0,
+          "cost_tie": true,
+          "diagnostic_locked_formula_A_raw": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "has_nonzero_locked_formula_signal": false,
+          "candidate_NC_DAC_TTC_EP": [
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          ],
+          "raw_progress_meters": [
+            4.3752039396192295,
+            7.533628172320139,
+            2.7294062975348545,
+            4.213581373740645,
+            1.9873368109929004,
+            1.5316461816744997,
+            1.3975091409717244,
+            4.967952816422759
+          ],
+          "first_collision_seconds": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "first_TTC_seconds": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "non_drivable": [
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.75,
+              "first_non_drivable_seconds": 1.1
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.875,
+              "first_non_drivable_seconds": 0.6000000000000001
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.85,
+              "first_non_drivable_seconds": 0.5
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.775,
+              "first_non_drivable_seconds": 1.0
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.175,
+              "first_non_drivable_seconds": 3.4000000000000004
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.3,
+              "first_non_drivable_seconds": 2.9000000000000004
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.85,
+              "first_non_drivable_seconds": 0.7000000000000001
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.75,
+              "first_non_drivable_seconds": 1.1
+            }
+          ],
+          "available_fine_grained_fields": [
+            "non_drivable_body_by_time",
+            "raw_progress_meters",
+            "geometric_margins_status"
+          ],
+          "geometric_margins_status": [
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+          ],
+          "saved_actual_advantages": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "saved_actual_mask": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_actual_A_candidates": 0,
+          "actual_credit_PG0": true,
+          "parameter_gradient_measured": false
+        },
+        "evidence": {
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection002659/rank7.pt",
+          "sha256": "8c686ef7ac3602b36b98899de4c6ac96af4df206d35beb2db633002403d3dff8",
+          "bytes": 116369,
+          "behavior": {
+            "run": "6e1ec64b695e9496d6c1623fe095ba2adfc38570d570eb97dc32eee7042a8dfb",
+            "update": 10632,
+            "adapter_sha256": "3aaf05c3e160ee15f571d2bfb0e1e85d196400965dd7824a0758098db2abae75"
+          }
+        }
+      },
+      "same_checkpoint_10k_diagnostic": {
+        "token": "229a59137a705430",
+        "checkpoint_update": 10000,
+        "canonical_single_ODE_score": 0.0,
+        "native_training_candidate_at_exact_checkpoint": "UNAVAILABLE",
+        "diagnostic_candidates": {
+          "ODE8": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              4.0097547899172845,
+              4.208736122850336,
+              4.033085680577418,
+              4.023153947586945,
+              3.950398626784434,
+              4.023007574111606,
+              3.8921460104220813,
+              3.929178544006973
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta01": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              4.772838881614554,
+              5.228179401870019,
+              4.271624738574555,
+              3.862128956512503,
+              4.621366542210591,
+              3.829621282528681,
+              2.1599166464651773,
+              3.195468033638111
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.75,
+                "first_non_drivable_seconds": 1.1
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.5,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.575,
+                "first_non_drivable_seconds": 1.8
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.375,
+                "first_non_drivable_seconds": 1.5
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.7,
+                "first_non_drivable_seconds": 1.3
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.275,
+                "first_non_drivable_seconds": 1.8
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.85,
+                "first_non_drivable_seconds": 0.7000000000000001
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.825,
+                "first_non_drivable_seconds": 0.8
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta003": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              3.9945082126969744,
+              4.324476280165079,
+              4.056250591012233,
+              4.002093783011738,
+              4.100259483595956,
+              3.7947531947253452,
+              3.5287425851611864,
+              3.487066438991935
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.75,
+                "first_non_drivable_seconds": 1.1
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.775,
+                "first_non_drivable_seconds": 1.0
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.775,
+                "first_non_drivable_seconds": 1.0
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.55,
+                "first_non_drivable_seconds": 1.2000000000000002
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.825,
+                "first_non_drivable_seconds": 0.8
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.8,
+                "first_non_drivable_seconds": 0.9
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          }
+        },
+        "evidence": [
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP/scenes/229a59137a705430.json",
+            "sha256": "7e8ed2383d95afc0270a8b1f1e1c6901ca2f5a5848ca63bb55a6ded44a155b37"
+          },
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/attempt003/PPO_SAFETY_EP/scenes/229a59137a705430.json",
+            "sha256": "f8f0bd7f6a07b3495bae6cb202da1823fb734f58a884f3d9d8a3ea79eddf8453"
+          }
+        ]
+      }
+    },
+    {
+      "token": "52d32357358c5556",
+      "log": "2021.10.01.19.16.42_veh-28_03307_03808",
+      "physical_log": "2021.10.01.19.16.42_veh-28",
+      "classification": "SINGLE_OBSERVED_ZERO",
+      "zero_observed_updates": [
+        0
+      ],
+      "zero_pattern": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 1.0,
+        "5000": 1.0,
+        "10000": 1.0,
+        "20000": 1.0
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": false,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "52d32357358c5556",
+        "stream_position": 17234,
+        "expected_first_behavior_update": 8616,
+        "expected_collection": 2155,
+        "expected_rank": 2,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "EXISTING_NATIVE_BEHAVIOR_HISTORY_REUSED",
+        "candidate_group": {
+          "feasible_count": 2,
+          "canonical_all_zero": false,
+          "sampled_all_fail": false,
+          "cost_range": 0.6666666666666666,
+          "cost_tie": false,
+          "saved_actual_advantages": [
+            -0.6423566341400146,
+            -0.6423566341400146,
+            -0.6423566341400146,
+            1.927069902420044,
+            -0.6423566341400146,
+            1.927069902420044,
+            -0.6423566341400146,
+            -0.6423566341400146
+          ],
+          "saved_actual_mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "positive_actual_A_candidates": 2,
+          "actual_credit_PG0": false,
+          "canonical_scores": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.3663219373101631,
+            0.8333333333333334,
+            0.0,
+            0.0
+          ],
+          "candidate_NC_DAC_TTC": [
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "first_infraction_times": {
+            "official_first_at_fault_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "official_first_ttc_infraction_seconds": [
+              4.0,
+              null,
+              null,
+              null,
+              3.7,
+              null,
+              null,
+              null
+            ]
+          },
+          "raw_progress_range_m": 7.809154400675034,
+          "parameter_gradient_measured": false
+        },
+        "evidence": {
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ZERO_ROLLOUT_CACHE/PPO_SAFETY_EP.jsonl",
+          "original_payload": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection002155/rank2.pt",
+          "old_normalized_origin": "saved_train_behavior_CPU_only"
+        }
+      },
+      "same_checkpoint_10k_diagnostic": null
+    },
+    {
+      "token": "591bc8b041155fca",
+      "log": "2021.08.31.11.47.30_veh-40_00393_00847",
+      "physical_log": "2021.08.31.11.47.30_veh-40",
+      "classification": "RECURRENT_INTERMITTENT",
+      "zero_observed_updates": [
+        1000,
+        5000
+      ],
+      "zero_pattern": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      "scores_by_update": {
+        "0": 0.8927006991847509,
+        "1000": 0.0,
+        "5000": 0.0,
+        "10000": 0.8904225773254312,
+        "20000": 0.8905993763496632
+      },
+      "zero_relative_IL_new": true,
+      "relapse": false,
+      "latest_zero": false,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "591bc8b041155fca",
+        "stream_position": 95162,
+        "expected_first_behavior_update": 47580,
+        "expected_collection": 11896,
+        "expected_rank": 2,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "UNAVAILABLE_NOT_YET_IN_COMMITTED_UNIFORM_PREFIX",
+        "candidate_group": null
+      },
+      "same_checkpoint_10k_diagnostic": null
+    },
+    {
+      "token": "7af4e577726c5be7",
+      "log": "2021.10.01.17.52.06_veh-28_01441_01573",
+      "physical_log": "2021.10.01.17.52.06_veh-28",
+      "classification": "PERSISTENT_ALL_OBSERVED",
+      "zero_observed_updates": [
+        0,
+        1000,
+        5000,
+        10000,
+        20000
+      ],
+      "zero_pattern": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 0.0,
+        "5000": 0.0,
+        "10000": 0.0,
+        "20000": 0.0
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": true,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "7af4e577726c5be7",
+        "stream_position": 16088,
+        "expected_first_behavior_update": 8044,
+        "expected_collection": 2012,
+        "expected_rank": 0,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "EXISTING_NATIVE_BEHAVIOR_HISTORY_REUSED",
+        "candidate_group": {
+          "feasible_count": 2,
+          "canonical_all_zero": false,
+          "sampled_all_fail": false,
+          "cost_range": 1.0,
+          "cost_tie": false,
+          "saved_actual_advantages": [
+            -0.6230695247650146,
+            -0.6230695247650146,
+            -0.6230695247650146,
+            -0.6230695247650146,
+            -0.6230695247650146,
+            1.9681874513626099,
+            -0.6230695247650146,
+            1.7702298164367676
+          ],
+          "saved_actual_mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "positive_actual_A_candidates": 2,
+          "actual_credit_PG0": false,
+          "canonical_scores": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.9172925022995969,
+            0.48338459446959775,
+            0.8841973546932121
+          ],
+          "candidate_NC_DAC_TTC": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.5,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "first_infraction_times": {
+            "official_first_at_fault_collision_seconds": [
+              1.9000000000000001,
+              null,
+              null,
+              4.0,
+              null,
+              null,
+              null,
+              null
+            ],
+            "official_first_ttc_infraction_seconds": [
+              1.4000000000000001,
+              3.8000000000000003,
+              null,
+              3.1,
+              null,
+              null,
+              2.3000000000000003,
+              null
+            ]
+          },
+          "raw_progress_range_m": 3.8395001202670187,
+          "parameter_gradient_measured": false
+        },
+        "evidence": {
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ZERO_ROLLOUT_CACHE/PPO_SAFETY_EP.jsonl",
+          "original_payload": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection002012/rank0.pt",
+          "old_normalized_origin": "saved_train_behavior_CPU_only"
+        }
+      },
+      "same_checkpoint_10k_diagnostic": {
+        "token": "7af4e577726c5be7",
+        "checkpoint_update": 10000,
+        "canonical_single_ODE_score": 0.0,
+        "native_training_candidate_at_exact_checkpoint": "UNAVAILABLE",
+        "diagnostic_candidates": {
+          "ODE8": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              16.07400896819697,
+              15.98051202152913,
+              16.181754744583003,
+              16.007589597947877,
+              15.997628766634442,
+              16.059125005364912,
+              15.99732887554331,
+              15.94782034066369
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              3.4000000000000004,
+              3.5,
+              3.4000000000000004,
+              3.5,
+              3.5,
+              3.4000000000000004,
+              3.5,
+              3.5
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta01": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.8917435967053834,
+              0.0,
+              0.09381812110346609,
+              0.0
+            ],
+            "feasible_count": 1,
+            "sampled_all_fail": false,
+            "cost_range": 1.0,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              0.875,
+              -0.125,
+              -0.125,
+              -0.125
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0,
+                0.7401846320929203
+              ],
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.5,
+                1.0,
+                0.0,
+                0.4503269812966372
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              16.425203822326516,
+              16.575037756640725,
+              15.806163637375754,
+              17.152288546526314,
+              14.275437491841096,
+              17.333238454811656,
+              17.370300310646307,
+              15.730081487855543
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              2.0,
+              4.0,
+              null
+            ],
+            "first_TTC_seconds": [
+              3.3000000000000003,
+              3.9000000000000004,
+              null,
+              3.2,
+              null,
+              1.4000000000000001,
+              3.3000000000000003,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.075,
+                "first_non_drivable_seconds": 1.9000000000000001
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.1,
+                "first_non_drivable_seconds": 3.4000000000000004
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.025,
+                "first_non_drivable_seconds": 4.0
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.025,
+                "first_non_drivable_seconds": 1.9000000000000001
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.025,
+                "first_non_drivable_seconds": 3.5
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.3,
+                "first_non_drivable_seconds": 2.2
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta003": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              16.256048094023164,
+              16.18722227694512,
+              16.069403063529244,
+              16.3948655501817,
+              15.560666980584983,
+              16.45534505565807,
+              16.593296671151165,
+              16.034861747078914
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              3.4000000000000004,
+              3.7,
+              4.0,
+              3.4000000000000004,
+              3.6,
+              3.4000000000000004,
+              3.4000000000000004,
+              3.7
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.175,
+                "first_non_drivable_seconds": 2.3000000000000003
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.7
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.125,
+                "first_non_drivable_seconds": 3.1
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.2,
+                "first_non_drivable_seconds": 2.1
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.225,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.15,
+                "first_non_drivable_seconds": 2.8000000000000003
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.125,
+                "first_non_drivable_seconds": 2.2
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.275,
+                "first_non_drivable_seconds": 2.4000000000000004
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          }
+        },
+        "evidence": [
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP/scenes/7af4e577726c5be7.json",
+            "sha256": "44dcffaa00c06ff0ec4564ef822f17d9db75c1e5d517c40965acb30d44ea5be6"
+          },
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/attempt003/PPO_SAFETY_EP/scenes/7af4e577726c5be7.json",
+            "sha256": "5940eb4f5c32603d899aa24e265832260f8d6089cbb54b15cd401a318e554a9a"
+          }
+        ]
+      }
+    },
+    {
+      "token": "7ea2193a05855e74",
+      "log": "2021.06.09.18.23.43_veh-35_03967_05057",
+      "physical_log": "2021.06.09.18.23.43_veh-35",
+      "classification": "SINGLE_OBSERVED_ZERO",
+      "zero_observed_updates": [
+        0
+      ],
+      "zero_pattern": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 1.0,
+        "5000": 1.0,
+        "10000": 1.0,
+        "20000": 1.0
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": false,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "7ea2193a05855e74",
+        "stream_position": 83185,
+        "expected_first_behavior_update": 41592,
+        "expected_collection": 10399,
+        "expected_rank": 1,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "UNAVAILABLE_NOT_YET_IN_COMMITTED_UNIFORM_PREFIX",
+        "candidate_group": null
+      },
+      "same_checkpoint_10k_diagnostic": null
+    },
+    {
+      "token": "8f7772f52b6e511a",
+      "log": "2021.06.09.12.51.31_veh-35_03229_03360",
+      "physical_log": "2021.06.09.12.51.31_veh-35",
+      "classification": "SINGLE_OBSERVED_ZERO",
+      "zero_observed_updates": [
+        0
+      ],
+      "zero_pattern": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 0.8666062671154683,
+        "5000": 0.862581676645691,
+        "10000": 0.8749440078545915,
+        "20000": 0.8707353054287746
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": false,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "8f7772f52b6e511a",
+        "stream_position": 53989,
+        "expected_first_behavior_update": 26992,
+        "expected_collection": 6749,
+        "expected_rank": 5,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "NATIVE_BEHAVIOR_HISTORY_NEW_BOUNDED_CPU_READ",
+        "candidate_group": {
+          "canonical_all_zero": false,
+          "canonical_scores": [
+            0.0,
+            0.7307256804557033,
+            0.0,
+            0.0,
+            0.9092127962987565,
+            0.7403167967832779,
+            0.892352559608486,
+            0.9533006983107746
+          ],
+          "feasible_count": 5,
+          "sampled_all_fail": false,
+          "cost_range": 0.3333333333333333,
+          "cost_tie": false,
+          "diagnostic_locked_formula_A_raw": [
+            -0.625,
+            0.3403055379943288,
+            -0.625,
+            -0.625,
+            0.36867461601765644,
+            0.3633242171805075,
+            0.32821004796100745,
+            0.4744855808464999
+          ],
+          "has_nonzero_locked_formula_signal": true,
+          "candidate_NC_DAC_TTC_EP": [
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              0.7537416330936879
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              0.7821107111170156
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              0.7767603122798666
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              0.7416461430603666
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              0.887921675945859
+            ]
+          ],
+          "raw_progress_meters": [
+            16.028847565941962,
+            13.646001878870731,
+            13.999285526742977,
+            14.043527375294122,
+            14.159605579410968,
+            14.06274008946215,
+            13.427020901207197,
+            16.075244256464185
+          ],
+          "first_collision_seconds": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "first_TTC_seconds": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "non_drivable": [
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.5,
+              "first_non_drivable_seconds": 0.9
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.075,
+              "first_non_drivable_seconds": 3.8000000000000003
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.85,
+              "first_non_drivable_seconds": 0.7000000000000001
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            }
+          ],
+          "available_fine_grained_fields": [
+            "non_drivable_body_by_time",
+            "raw_progress_meters",
+            "geometric_margins_status"
+          ],
+          "geometric_margins_status": [
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+          ],
+          "saved_actual_advantages": [
+            -2.0703284740448,
+            1.1272706985473633,
+            -2.0703284740448,
+            -2.0703284740448,
+            1.221243977546692,
+            1.203520655632019,
+            1.087204098701477,
+            1.57174551486969
+          ],
+          "saved_actual_mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "positive_actual_A_candidates": 5,
+          "actual_credit_PG0": false,
+          "parameter_gradient_measured": false
+        },
+        "evidence": {
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection006749/rank5.pt",
+          "sha256": "5de890faccae296fd9772158006ad3c9f40e7753f127f84860092e6b4e877d1c",
+          "bytes": 112081,
+          "behavior": {
+            "run": "6e1ec64b695e9496d6c1623fe095ba2adfc38570d570eb97dc32eee7042a8dfb",
+            "update": 26992,
+            "adapter_sha256": "5e667800852cc975b3b9c18d67c58ef30fd911b7ece83c5fed3674d25e3c8671"
+          }
+        }
+      },
+      "same_checkpoint_10k_diagnostic": null
+    },
+    {
+      "token": "b4a9f2b8d40754bb",
+      "log": "2021.10.01.17.52.06_veh-28_00748_00952",
+      "physical_log": "2021.10.01.17.52.06_veh-28",
+      "classification": "RECURRENT_INTERMITTENT",
+      "zero_observed_updates": [
+        0,
+        1000,
+        5000,
+        20000
+      ],
+      "zero_pattern": [
+        true,
+        true,
+        true,
+        false,
+        true
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 0.0,
+        "5000": 0.0,
+        "10000": 1.0,
+        "20000": 0.0
+      },
+      "zero_relative_IL_new": false,
+      "relapse": true,
+      "latest_zero": true,
+      "latest_new_relative_previous": true,
+      "native_training_history": {
+        "token": "b4a9f2b8d40754bb",
+        "stream_position": 16683,
+        "expected_first_behavior_update": 8340,
+        "expected_collection": 2086,
+        "expected_rank": 3,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "EXISTING_NATIVE_BEHAVIOR_HISTORY_REUSED",
+        "candidate_group": {
+          "feasible_count": 1,
+          "canonical_all_zero": false,
+          "sampled_all_fail": false,
+          "cost_range": 1.0,
+          "cost_tie": false,
+          "saved_actual_advantages": [
+            -0.2930073142051697,
+            -0.2930073142051697,
+            -0.2930073142051697,
+            -0.2930073142051697,
+            2.051051378250122,
+            -0.2930073142051697,
+            -0.2930073142051697,
+            -0.2930073142051697
+          ],
+          "saved_actual_mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "positive_actual_A_candidates": 1,
+          "actual_credit_PG0": false,
+          "canonical_scores": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.8333333333333334,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "candidate_NC_DAC_TTC": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "first_infraction_times": {
+            "official_first_at_fault_collision_seconds": [
+              3.0,
+              3.4000000000000004,
+              3.3000000000000003,
+              2.9000000000000004,
+              null,
+              3.3000000000000003,
+              null,
+              null
+            ],
+            "official_first_ttc_infraction_seconds": [
+              2.6,
+              3.1,
+              3.0,
+              2.5,
+              null,
+              3.0,
+              null,
+              4.0
+            ]
+          },
+          "raw_progress_range_m": 5.669568717915478,
+          "parameter_gradient_measured": false
+        },
+        "evidence": {
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ZERO_ROLLOUT_CACHE/PPO_SAFETY_EP.jsonl",
+          "original_payload": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection002086/rank3.pt",
+          "old_normalized_origin": "saved_train_behavior_CPU_only"
+        }
+      },
+      "same_checkpoint_10k_diagnostic": null
+    },
+    {
+      "token": "c07b74469f425799",
+      "log": "2021.09.15.15.34.53_veh-28_01820_02314",
+      "physical_log": "2021.09.15.15.34.53_veh-28",
+      "classification": "PERSISTENT_ALL_OBSERVED",
+      "zero_observed_updates": [
+        0,
+        1000,
+        5000,
+        10000,
+        20000
+      ],
+      "zero_pattern": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 0.0,
+        "5000": 0.0,
+        "10000": 0.0,
+        "20000": 0.0
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": true,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "c07b74469f425799",
+        "stream_position": 30585,
+        "expected_first_behavior_update": 15292,
+        "expected_collection": 3824,
+        "expected_rank": 1,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "NATIVE_BEHAVIOR_HISTORY_NEW_BOUNDED_CPU_READ",
+        "candidate_group": {
+          "canonical_all_zero": false,
+          "canonical_scores": [
+            0.0,
+            0.5833333333333334,
+            0.4166666666666667,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "feasible_count": 1,
+          "sampled_all_fail": false,
+          "cost_range": 0.6666666666666666,
+          "cost_tie": false,
+          "diagnostic_locked_formula_A_raw": [
+            -0.125,
+            -0.125,
+            -0.125,
+            0.875,
+            -0.125,
+            -0.125,
+            -0.125,
+            -0.125
+          ],
+          "has_nonzero_locked_formula_signal": true,
+          "candidate_NC_DAC_TTC_EP": [
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "raw_progress_meters": [
+            2.449780614291395,
+            0.1176531816927735,
+            0.0,
+            0.0,
+            1.2196440305277179,
+            0.5719762304005638,
+            0.506261524526602,
+            2.733956115666569
+          ],
+          "first_collision_seconds": [
+            3.7,
+            null,
+            null,
+            null,
+            3.9000000000000004,
+            3.8000000000000003,
+            3.8000000000000003,
+            3.8000000000000003
+          ],
+          "first_TTC_seconds": [
+            2.8000000000000003,
+            3.0,
+            3.2,
+            null,
+            3.2,
+            2.9000000000000004,
+            3.2,
+            2.9000000000000004
+          ],
+          "non_drivable": [
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            },
+            {
+              "t0_non_drivable": false,
+              "non_drivable_fraction_after_t0": 0.0,
+              "first_non_drivable_seconds": null
+            }
+          ],
+          "available_fine_grained_fields": [
+            "non_drivable_body_by_time",
+            "raw_progress_meters",
+            "geometric_margins_status"
+          ],
+          "geometric_margins_status": [
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+            "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+          ],
+          "saved_actual_advantages": [
+            -0.38226160407066345,
+            -0.38226160407066345,
+            -0.38226160407066345,
+            2.6758313179016113,
+            -0.38226160407066345,
+            -0.38226160407066345,
+            -0.38226160407066345,
+            -0.38226160407066345
+          ],
+          "saved_actual_mask": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "positive_actual_A_candidates": 1,
+          "actual_credit_PG0": false,
+          "parameter_gradient_measured": false
+        },
+        "evidence": {
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection003824/rank1.pt",
+          "sha256": "bf960df92d58881a01403a0eb89fc0e1efaaa41ab73347fd1cb7b2696151fdb1",
+          "bytes": 112657,
+          "behavior": {
+            "run": "6e1ec64b695e9496d6c1623fe095ba2adfc38570d570eb97dc32eee7042a8dfb",
+            "update": 15292,
+            "adapter_sha256": "f4efc53de631c80918b263c9174239b5e01fc4777f6e5dd9aedab4d089b8e4fa"
+          }
+        }
+      },
+      "same_checkpoint_10k_diagnostic": {
+        "token": "c07b74469f425799",
+        "checkpoint_update": 10000,
+        "canonical_single_ODE_score": 0.0,
+        "native_training_candidate_at_exact_checkpoint": "UNAVAILABLE",
+        "diagnostic_candidates": {
+          "ODE8": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              3.2557030684840065,
+              3.284989973335435,
+              3.1323251796992473,
+              3.2172771559701445,
+              3.1323263205334513,
+              3.2341580858504564,
+              3.064204317563565,
+              3.1122041380648966
+            ],
+            "first_collision_seconds": [
+              3.7,
+              3.7,
+              3.7,
+              3.7,
+              3.7,
+              3.7,
+              3.7,
+              3.7
+            ],
+            "first_TTC_seconds": [
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta01": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.4166666666666667,
+              0.0,
+              0.0,
+              0.4166666666666667,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.3333333333333333,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              0.24999999999999997,
+              -0.08333333333333334,
+              -0.08333333333333334,
+              0.24999999999999997,
+              -0.08333333333333334,
+              -0.08333333333333334,
+              -0.08333333333333334,
+              -0.08333333333333334
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              8.247416128928812,
+              7.172075001884483,
+              2.3381378918011784,
+              5.215507704380816,
+              3.436680088880671,
+              4.522407032880292,
+              3.6713188094492146,
+              3.556668927516192
+            ],
+            "first_collision_seconds": [
+              null,
+              3.6,
+              3.6,
+              null,
+              3.7,
+              3.9000000000000004,
+              3.8000000000000003,
+              4.0
+            ],
+            "first_TTC_seconds": [
+              2.9000000000000004,
+              2.9000000000000004,
+              2.9000000000000004,
+              2.9000000000000004,
+              2.8000000000000003,
+              2.9000000000000004,
+              2.8000000000000003,
+              2.9000000000000004
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta003": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              4.683432850032855,
+              4.411104435937062,
+              3.04189996568784,
+              3.969143546973932,
+              3.387788836276499,
+              3.56502202318568,
+              3.3198187874956666,
+              3.2283703471231
+            ],
+            "first_collision_seconds": [
+              3.8000000000000003,
+              3.7,
+              3.7,
+              3.8000000000000003,
+              3.7,
+              3.8000000000000003,
+              3.7,
+              3.7
+            ],
+            "first_TTC_seconds": [
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003,
+              2.8000000000000003
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          }
+        },
+        "evidence": [
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP/scenes/c07b74469f425799.json",
+            "sha256": "bfbc5c77dfc6ed00c614aa37e1bef7b124f20c0c6ea7177d19e79e50036c928c"
+          },
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/attempt003/PPO_SAFETY_EP/scenes/c07b74469f425799.json",
+            "sha256": "65a6b7505f5eef786b828d9cc603bb127ae1997b04df63294fb1a18570c8a398"
+          }
+        ]
+      }
+    },
+    {
+      "token": "cfb033a99b845acb",
+      "log": "2021.08.31.11.47.30_veh-40_01146_01347",
+      "physical_log": "2021.08.31.11.47.30_veh-40",
+      "classification": "PERSISTENT_ALL_OBSERVED",
+      "zero_observed_updates": [
+        0,
+        1000,
+        5000,
+        10000,
+        20000
+      ],
+      "zero_pattern": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scores_by_update": {
+        "0": 0.0,
+        "1000": 0.0,
+        "5000": 0.0,
+        "10000": 0.0,
+        "20000": 0.0
+      },
+      "zero_relative_IL_new": false,
+      "relapse": false,
+      "latest_zero": true,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "cfb033a99b845acb",
+        "stream_position": 91406,
+        "expected_first_behavior_update": 45700,
+        "expected_collection": 11426,
+        "expected_rank": 6,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "UNAVAILABLE_NOT_YET_IN_COMMITTED_UNIFORM_PREFIX",
+        "candidate_group": null
+      },
+      "same_checkpoint_10k_diagnostic": {
+        "token": "cfb033a99b845acb",
+        "checkpoint_update": 10000,
+        "canonical_single_ODE_score": 0.0,
+        "native_training_candidate_at_exact_checkpoint": "UNAVAILABLE",
+        "diagnostic_candidates": {
+          "ODE8": {
+            "canonical_all_zero": true,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              28.35027512242023,
+              28.232028723299535,
+              28.095025638962824,
+              28.17104520109858,
+              28.26571909428887,
+              28.23231110315524,
+              28.08747494148932,
+              28.15367937758623
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.1,
+                "first_non_drivable_seconds": 3.7
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.125,
+                "first_non_drivable_seconds": 3.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.125,
+                "first_non_drivable_seconds": 3.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.125,
+                "first_non_drivable_seconds": 3.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.1,
+                "first_non_drivable_seconds": 3.7
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.125,
+                "first_non_drivable_seconds": 3.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.125,
+                "first_non_drivable_seconds": 3.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.175,
+                "first_non_drivable_seconds": 3.0
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta01": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.7109439700268662,
+              0.0,
+              0.0,
+              0.7372918883808418,
+              0.0,
+              0.0,
+              0.8758914359585633,
+              0.0
+            ],
+            "feasible_count": 3,
+            "sampled_all_fail": false,
+            "cost_range": 0.3333333333333333,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              0.605297025904795,
+              -0.375,
+              -0.375,
+              0.6685320299543366,
+              -0.375,
+              -0.375,
+              0.6011709441408684,
+              -0.375
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                1.0,
+                1.0,
+                0.7062655280644787
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0,
+                0.7695005321140204
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0,
+                0.7021394463005521
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              29.071232267500307,
+              29.31793432801679,
+              27.606249209382014,
+              31.674105290623018,
+              26.01124312608374,
+              29.72647319647554,
+              28.901394895368426,
+              23.245116740363315
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.175,
+                "first_non_drivable_seconds": 3.0
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.875,
+                "first_non_drivable_seconds": 0.6000000000000001
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.675,
+                "first_non_drivable_seconds": 1.4000000000000001
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.375,
+                "first_non_drivable_seconds": 2.6
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.4,
+                "first_non_drivable_seconds": 2.5
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta003": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.8727336245606333,
+              0.0,
+              0.0,
+              0.8775663423807126,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "feasible_count": 2,
+            "sampled_all_fail": false,
+            "cost_range": 0.3333333333333333,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              0.744200738615905,
+              -0.25,
+              -0.25,
+              0.755799261384095,
+              -0.25,
+              -0.25,
+              -0.25,
+              -0.25
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                1.0,
+                1.0,
+                0.6945606989455202
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0,
+                0.7061592217137103
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "raw_progress_meters": [
+              28.589439241439464,
+              28.597549060603143,
+              28.089304058662123,
+              29.066856495935795,
+              27.64703776822435,
+              28.760397952757444,
+              28.400018921828618,
+              26.741088892532133
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.1,
+                "first_non_drivable_seconds": 3.7
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.45,
+                "first_non_drivable_seconds": 1.9000000000000001
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.575,
+                "first_non_drivable_seconds": 1.8
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.3,
+                "first_non_drivable_seconds": 2.9000000000000004
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.1,
+                "first_non_drivable_seconds": 3.7
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.325,
+                "first_non_drivable_seconds": 2.8000000000000003
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          }
+        },
+        "evidence": [
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP/scenes/cfb033a99b845acb.json",
+            "sha256": "7cff4701a27dd2e7505c28ddeb8c2b46985f4fd6d0ab135397c4be7ca8dffff8"
+          },
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/attempt003/PPO_SAFETY_EP/scenes/cfb033a99b845acb.json",
+            "sha256": "5d4a05edad5759f59ba390b3dbb38e6dd99b3a2e0b105103062141fefb25e2b0"
+          }
+        ]
+      }
+    },
+    {
+      "token": "e01fd97234b25376",
+      "log": "2021.06.14.13.27.42_veh-35_04704_04782",
+      "physical_log": "2021.06.14.13.27.42_veh-35",
+      "classification": "SINGLE_OBSERVED_ZERO",
+      "zero_observed_updates": [
+        10000
+      ],
+      "zero_pattern": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "scores_by_update": {
+        "0": 1.0,
+        "1000": 1.0,
+        "5000": 1.0,
+        "10000": 0.0,
+        "20000": 0.5833333333333334
+      },
+      "zero_relative_IL_new": true,
+      "relapse": false,
+      "latest_zero": false,
+      "latest_new_relative_previous": false,
+      "native_training_history": {
+        "token": "e01fd97234b25376",
+        "stream_position": 87618,
+        "expected_first_behavior_update": 43808,
+        "expected_collection": 10953,
+        "expected_rank": 2,
+        "exact_checkpoint_zero_evaluation_matches": [],
+        "theta_alignment": "Training history at its logged behavior theta only; never imputed as candidate support at a different evaluation checkpoint.",
+        "status": "UNAVAILABLE_NOT_YET_IN_COMMITTED_UNIFORM_PREFIX",
+        "candidate_group": null
+      },
+      "same_checkpoint_10k_diagnostic": {
+        "token": "e01fd97234b25376",
+        "checkpoint_update": 10000,
+        "canonical_single_ODE_score": 0.0,
+        "native_training_candidate_at_exact_checkpoint": "UNAVAILABLE",
+        "diagnostic_candidates": {
+          "ODE8": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.0,
+            "cost_tie": true,
+            "diagnostic_locked_formula_A_raw": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "has_nonzero_locked_formula_signal": false,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ]
+            ],
+            "raw_progress_meters": [
+              20.23048837958669,
+              20.54736354749656,
+              20.27668048139909,
+              20.23385676613207,
+              20.173049583471645,
+              20.475875362557545,
+              20.273745805830735,
+              20.403376481722077
+            ],
+            "first_collision_seconds": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              3.3000000000000003,
+              3.5,
+              3.4000000000000004,
+              3.3000000000000003,
+              3.3000000000000003,
+              3.5,
+              3.3000000000000003,
+              3.4000000000000004
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta01": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334,
+              1.0
+            ],
+            "feasible_count": 1,
+            "sampled_all_fail": false,
+            "cost_range": 0.6666666666666666,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              -0.125,
+              0.875
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ]
+            ],
+            "raw_progress_meters": [
+              18.95752670622639,
+              19.38591094312482,
+              19.23231426248927,
+              19.44883450983246,
+              16.033098781259632,
+              19.22638586137476,
+              20.44685015235536,
+              21.199626557519018
+            ],
+            "first_collision_seconds": [
+              3.3000000000000003,
+              4.0,
+              3.9000000000000004,
+              3.5,
+              null,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              2.6,
+              3.3000000000000003,
+              3.3000000000000003,
+              2.9000000000000004,
+              2.4000000000000004,
+              3.3000000000000003,
+              3.5,
+              null
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          },
+          "SDE_eta003": {
+            "canonical_all_zero": false,
+            "canonical_scores": [
+              0.0,
+              0.5833333333333334,
+              0.0,
+              0.0,
+              0.0,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334
+            ],
+            "feasible_count": 0,
+            "sampled_all_fail": true,
+            "cost_range": 0.3333333333333333,
+            "cost_tie": false,
+            "diagnostic_locked_formula_A_raw": [
+              -0.16666666666666666,
+              0.16666666666666666,
+              -0.16666666666666666,
+              -0.16666666666666666,
+              -0.16666666666666666,
+              0.16666666666666666,
+              0.16666666666666666,
+              0.16666666666666666
+            ],
+            "has_nonzero_locked_formula_signal": true,
+            "candidate_NC_DAC_TTC_EP": [
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0,
+                1.0
+              ]
+            ],
+            "raw_progress_meters": [
+              19.918517896822657,
+              20.2329944995977,
+              20.03198966893811,
+              19.949770808800615,
+              19.153222257257163,
+              20.16181944849948,
+              20.316549413151378,
+              20.65714547494376
+            ],
+            "first_collision_seconds": [
+              3.9000000000000004,
+              null,
+              4.0,
+              3.9000000000000004,
+              3.6,
+              null,
+              null,
+              null
+            ],
+            "first_TTC_seconds": [
+              3.1,
+              3.4000000000000004,
+              3.3000000000000003,
+              3.2,
+              2.9000000000000004,
+              3.3000000000000003,
+              3.4000000000000004,
+              3.6
+            ],
+            "non_drivable": [
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              },
+              {
+                "t0_non_drivable": false,
+                "non_drivable_fraction_after_t0": 0.0,
+                "first_non_drivable_seconds": null
+              }
+            ],
+            "available_fine_grained_fields": [
+              "non_drivable_body_by_time",
+              "raw_progress_meters",
+              "geometric_margins_status"
+            ],
+            "geometric_margins_status": [
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY",
+              "NOT_YET_EXTRACTED_NOT_OFFICIAL_RISK_PROBABILITY"
+            ],
+            "actual_training_group": false,
+            "parameter_gradient_measured": false,
+            "PG0_interpretation": "raw formula identifiability only; no actual global64 normalization,oldlogp,clip,anchor or optimizer update was replayed"
+          }
+        },
+        "evidence": [
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP/scenes/e01fd97234b25376.json",
+            "sha256": "14a83fdfe0e70e99140921172450c7fd45e401115a06ae2dcb2dbe45b62f22e2"
+          },
+          {
+            "path": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/attempt003/PPO_SAFETY_EP/scenes/e01fd97234b25376.json",
+            "sha256": "d81bd283be4f41a2001b6a7966722c1608169007cfab72d2300f9cebc4eb02a4"
+          }
+        ]
+      }
+    }
+  ],
+  "next_minimal_experiments": [
+    {
+      "priority": 1,
+      "status": "DESIGN_ONLY_NOT_REGISTERED",
+      "change": "Data-only bounded early/repeated exposure of TRAIN-diagnostic zeros, leaving SafetyPG/anchor/LR/sampler fixed",
+      "evidence": "Five everzero tokens and one persistent token have not yet entered the audited30.5k prefix; zero tokens first appear at5.3k\u201347.6k, outside many1k/5k pilots.",
+      "concrete_candidate": "At most5% TRAIN-only zero-feedback revisits with95% full103288 uniform coverage,8distinct/rank group and bounded per-token repeats; compare against exact same freshIL70 uniform control. Preseal the stage and use current TRAIN labels only.",
+      "protection": "Require full heldoutNAV PDMS and fixedhigh retention; do not use NAV IDs for selection. This is a hypothesis and can overfit the small TRAIN diagnostic pool.",
+      "alternative": "An even narrower first test front-loads each fixed IL-zero TRAIN scene once into early collections, without extra repeats; it tests exposure before changing credit."
+    },
+    {
+      "priority": 2,
+      "status": "CURRENT_SUCCESS_MEMORY_PILOT_RELEVANT_DO_NOT_DUPLICATE",
+      "change": "Use metric-verified current-run successful endpoints when deployment remains zero",
+      "evidence": "At exactSafety10k,3/6zero scenes have strict-feasible SDE.1 witnesses; union across actual.1/.03 probes4/6. Persistent7af has a same-theta SDE witness while B1/ODE8 allzero.",
+      "condition": "Inspect actual existingP1 discovery/auxactivation on these TRAIN scenes when they enter its own run; no oldSafety teacher import or on-policy-A fabrication. NonzeroA alone is not a measured parameter-gradient guarantee."
+    },
+    {
+      "priority": 3,
+      "status": "CONDITIONAL_NARROW_TIE_ONLY",
+      "change": "A conservative DAC-deficit tie-break auxiliary only for all8fail+equalcost+no feasible witness",
+      "evidence": "229a actualtrain10632 has NC/TTC1,DAC0 throughout,canonical0,A/mask0,while ND occupancy and first infraction vary; exact10k probe also has equalcost/no witness.",
+      "condition": "t0 must be initially valid; reduce offroad occupancy without worsening NC/TTC,comfort or materially sacrificing progress. Later violation/further progress never equals safe success; canonical score stays unchanged.",
+      "priority_limit": "Only one observed native persistent-zero cost-tie group supports this here, so it cannot be claimed the dominant global bottleneck."
+    },
+    {
+      "priority": 4,
+      "status": "IF_NEEDED_LATER_ROOT_AUTHORIZATION",
+      "change": "A small paired candidate panel at a currently evaluated checkpoint",
+      "evidence": "No native training group exactly joins any of33zero-evaluation instances;20kzero scenes lack same-theta candidate probes.",
+      "condition": "Only if choosing between missing-discovery and missing-update hypotheses requires it; reuse sealed CP and existing scores,do not launch now."
+    }
+  ],
+  "scope": {
+    "GPU_use": 0,
+    "new_model_forward": 0,
+    "new_scores": 0,
+    "optimizer_steps": 0,
+    "process_signals": 0,
+    "training_or_owner_source_edits": 0,
+    "registration_changes": 0,
+    "git_commit": false,
+    "new_native_payload_CPU_reads": 3,
+    "new_native_payload_paths": [
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection002659/rank7.pt",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection006749/rank5.pt",
+      "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/behavior/collection003824/rank1.pt"
+    ],
+    "existing_normalized_history_reused": 4,
+    "no_full_journal_scan": true,
+    "no_large_optimizer_or_model_file_load": true
+  },
+  "conclusions_zh": [
+    "\u96f6\u5206\u5e76\u975e\u5168\u56fa\u5b9a\uff1aIL/1k/5k/10k/20k\u96f6\u52069/6/6/6/5\uff0cunion12\uff1b4\u4e2a\u5168\u70b9persistent\u30012\u4e2a\u91cd\u590d\u4f46\u975e\u6301\u7eed\u30016\u4e2a\u4ec5\u4e00\u6b21\u3002\u6700\u65b0\u65b0\u589e1\u4e2a\u5b9e\u9645\u662f\u590d\u53d1\u3002",
+    "\u4e25\u683c\u5bf9\u9f50\u540e\uff0c\u5b9e\u9645native\u8bad\u7ec3\u5019\u9009\u4e0e33\u4e2a\u95e8\u69db\u96f6\u5206\u89c2\u6d4b\u6ca1\u6709\u540ctoken\u540ctheta\u4ea4\u96c6\uff0c\u4e0d\u80fd\u628a\u9644\u8fd1\u7a97\u53e3\u6216\u5386\u53f2\u6210\u529f\u8bef\u5f53\u5f53\u524d\u5019\u9009\u3002\u5df2\u670910k\u56fa\u5b9atheta\u8bca\u65ad\u8986\u76d6\u8be5\u70b9\u5168\u90e86\u4e2a\u96f6\u5206\uff0c\u5355\u72ec\u4f5c\u4e3a\u8bca\u65ad\u5019\u9009\u8bc1\u636e\u3002",
+    "10k\u96f6\u52066\u573a\u666f\u4e2d\uff0cODE8\u65e0\u4e25\u683c\u53ef\u884c\uff0cSDE.1\u67093\u573a\u666f\u5b58\u5728\u4e25\u683c\u53ef\u884c\uff1b\u52a0\u5165\u5df2\u5b8c\u6210.03\u8bca\u65ad\u540e\u8054\u54084\u573a\u666f\u6709\u771f\u5b9e\u6210\u529fwitness\uff0c\u4ecd\u4e0d\u80fd\u4fdd\u8bc1\u90e8\u7f72ODE\u4f1a\u5b66\u4f1a\u3002",
+    "\u5b9e\u9645\u5386\u53f2\u8bad\u7ec37\u4e2a\u5df2\u66dd\u5149everzero\u573a\u666f\u4e2d\uff0c6\u4e2a\u6709\u53ef\u884c\u5019\u9009/\u6b63A\uff0c\u53e61\u4e2a229a\u5168fail\u4e14costtie\u5bfc\u81f4PG0\u3002\u5176\u4ed65\u4e2a\u5c1a\u672a\u66dd\u5149\uff0c\u5fc5\u987bunavailable\u800c\u975eallfail\u3002",
+    "\u4e0b\u4e00\u6b65\u5e94\u533a\u5206\u66dd\u5149\u3001\u53d1\u73b0\u6210\u529f\u540e\u7684\u90e8\u7f72\u8f6c\u79fb\u3001\u5168fail\u6210\u672c\u5e73\u5c40\u4e09\u7c7b\uff1b\u4f18\u5148\u6709\u9650\u6570\u636e\u66dd\u5149\u6216\u5229\u7528\u5f53\u524dP1\u5df2\u6709\u6210\u529f\u8bb0\u5fc6\uff0c\u4e0d\u628adense\u5931\u8d25\u4fe1\u53f7\u9ed8\u8ba4\u94fa\u5168\u91cf\u3002"
+  ]
+}

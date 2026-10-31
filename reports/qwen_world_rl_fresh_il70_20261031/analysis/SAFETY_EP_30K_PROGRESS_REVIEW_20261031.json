@@ -1,0 +1,83 @@
+{
+  "schema": "world_SafetyEP_30k_descriptive_progress_review_v1",
+  "status": "COMPLETE",
+  "at": "2026-10-31T12:31:30.434215+00:00",
+  "comparison": {
+    "target": "PPO_SAFETY_EP_u030000_NAVTEST",
+    "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+    "target_PDMS": 90.99903837095002,
+    "baseline_PDMS": 91.34989173702405,
+    "metrics": {
+      "score": {
+        "delta_pp": -0.35085336607415085,
+        "CI95_pp": [
+          -0.5945526025665363,
+          -0.14014120342976286
+        ],
+        "clear_improvement": false
+      },
+      "no_at_fault_collisions": {
+        "delta_pp": 0.016466326362588508,
+        "CI95_pp": [
+          -0.10644350211719768,
+          0.15335279989511807
+        ],
+        "clear_improvement": false
+      },
+      "drivable_area_compliance": {
+        "delta_pp": 0.04939897908776551,
+        "CI95_pp": [
+          -0.13689483068719036,
+          0.2177365367064176
+        ],
+        "clear_improvement": false
+      },
+      "time_to_collision_within_bound": {
+        "delta_pp": 0.2140622427136506,
+        "CI95_pp": [
+          -0.05163981236780655,
+          0.4814726281409453
+        ],
+        "clear_improvement": false
+      },
+      "ego_progress": {
+        "delta_pp": -1.0466371480745706,
+        "CI95_pp": [
+          -1.3081829968425738,
+          -0.7998460728217074
+        ],
+        "clear_improvement": false
+      },
+      "comfort": {
+        "delta_pp": -0.16466326362588507,
+        "CI95_pp": [
+          -0.3656498969038473,
+          -0.009075625715595614
+        ],
+        "clear_improvement": false
+      },
+      "driving_direction_compliance": {
+        "delta_pp": -0.004116581590647127,
+        "CI95_pp": [
+          -0.09103216502749573,
+          0.08302332276338563
+        ],
+        "clear_improvement": false
+      }
+    },
+    "physical_logs": 44,
+    "scenes": 12146,
+    "bootstrap": 2000,
+    "seed": 42,
+    "estimator": "resample44 physical logs, scene-weighted ratio of sums; same draws all metrics",
+    "uncertainty": "fixed training/evaluation seed; physical-log variability, not across-seed uncertainty; component CIs unadjusted, used conservatively to protect any clear safety gain"
+  },
+  "interpretation": "30k remains below10k. Same one trainingseed, physical-log uncertainty only. This descriptive review does not alter the existing20k/35k conjunctive allocation rule or training budget.",
+  "new_training": 0,
+  "new_scores": 0,
+  "signals": 0,
+  "provenance": {
+    "current": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u030000_NAVTEST/SUMMARY.json",
+    "baseline": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json"
+  }
+}

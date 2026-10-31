@@ -1,0 +1,70 @@
+{
+  "schema": "world_Safety_credit_replay_launch_plan_v1",
+  "status": "READY_ROOT_REVIEW_NOT_DISPATCHED",
+  "at_unix": 1793445702.1649053,
+  "integration_source": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030",
+  "requires_new_frozen_source": true,
+  "never_modify_old_frozen_sources": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/runtime/gradient_probe_788ab9c",
+    "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8"
+  ],
+  "entry": "tools.qwen_world_research.safety_component_probe",
+  "command": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "-m",
+    "torch.distributed.run",
+    "--standalone",
+    "--nproc-per-node=8",
+    "-m",
+    "tools.qwen_world_research.safety_component_probe",
+    "--config",
+    "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_EP.yaml",
+    "--manifest",
+    "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+    "--output",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031",
+    "--il-checkpoint",
+    "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+    "--parent-selection",
+    "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+    "--data",
+    "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+    "--rl-checkpoint",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update028000_inner0",
+    "--panel",
+    "/mnt/project/qwen-world-rl-optimization-20261030/data/panels/TRAIN_DIAGNOSTIC_001024.json",
+    "--credit-replay",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_GRADIENT_PROBE_20261031"
+  ],
+  "output": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031",
+  "source_files": {
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/safety_credit_gradient_probe.py": "ab33059f8b84bfc7cd290aa6b5bcfbaa3c32a2ab6cebdb0819c8c7754ab3ee19",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/safety_component_probe.py": "219ecc3e63858aa53d9d8d39f6826bdd97618f2c404eae153eb50af7ee85c98b",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tests/test_qwen_world_safety_credit_gradient_probe.py": "76d4f4f0d9913fc209d4e63da310ac7f377137ea707cf2467189ccab3c6dce28"
+  },
+  "CPU_check": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_CREDIT_REPLAY_CPU_CHECK_20261031.json",
+  "CPU_check_sha256": "40823165037b6b900bcc7ef17224cc009eb9fcdd1c72a62110f528b844efce1d",
+  "reuse_source_probe": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_GRADIENT_PROBE_20261031",
+  "native_updates": 28000,
+  "world": 8,
+  "TRAIN_groups": 24,
+  "already_scored_candidates": 192,
+  "generated_candidates": 0,
+  "new_scores": 0,
+  "optimizer_steps": 0,
+  "expected_original_observation_Qwen_prefills": 24,
+  "bound_model": "one fixed SafetyEP native28000 theta + fixed original IL70 reference, both credits evaluated on same saved sampled chains",
+  "steps": [
+    "Root reviews code/CPU receipt",
+    "Root freezes new immutable source including independent module and entry branch",
+    "Root arranges one finite authorized eight-rank diagnostic using existing exact-entry whitelist",
+    "Consume new case{0..2}.json and SUMMARY.json; keep original P0 outputs immutable"
+  ],
+  "report_semantics": [
+    "PPO vs Safety at Safety theta, not matched trained-policy performance",
+    "safety_EP objective is exact complement of shared-total-cap/clip safety_safe",
+    "five-component gradient sum intentionally absent",
+    "PPO+anchor and Safety+anchor geometry computed separately from equal-rank mean norms/cosines",
+    "separate BF16 component differentiation may differ from native fused backward; no bitexact/causal final-gain claim"
+  ]
+}

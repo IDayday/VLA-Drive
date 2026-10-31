@@ -1,0 +1,164 @@
+{
+  "schema": "world_fresh_IL70_success_memory_FPO_registration_v1",
+  "status": "AUTHORIZED",
+  "created_unix": 1793443874.8165374,
+  "arms": [
+    {
+      "id": "PPO_SAFETY_SUCCESS_MEMORY",
+      "algorithm": "PPO_WITH_ONLINE_SUCCESS_MEMORY",
+      "module": "starVLA.rl.qwen_world_research_algorithms.success_memory_entry",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_SUCCESS_MEMORY.yaml",
+      "config_sha256": "b1f51b430277e655fde689286e35e2f86e32233b038ee523f3c1f032f6c2c800",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "source_commit": "5ac3ae8",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_SUCCESS_MEMORY",
+      "host": "training-vlawm-zt",
+      "lease": "primary",
+      "data_policy": "uniform_full",
+      "data_scenes": 103288,
+      "status": "REGISTERED_FRESH_IL70",
+      "research_budget_updates": 10000,
+      "stage_budget_updates": 0,
+      "completed_updates": 0,
+      "source_identity_ceiling_updates": 50000,
+      "parent_PDMS": 88.79290990699972,
+      "parent_updates": 70000,
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "fresh_Adam": true,
+      "initial_scene_cursor": 0,
+      "initial_updates": 0,
+      "training_seed": 42,
+      "new_training_authorized": true,
+      "new_evaluation_authorized": true,
+      "original_DEV_role": "TRAIN_DIAGNOSTIC; not independent heldout",
+      "NAVTEST_used_for_training_selection": false,
+      "hypothesis": "independent current-run verified-success CFM retention",
+      "evaluation_gates": [
+        1000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR/STATE.json",
+      "scientific_registration": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_SAFETY_FRESH_PAIR_REGISTRATION_20261031.json"
+    },
+    {
+      "id": "PPO_SAFETY_FPO",
+      "algorithm": "PPO_ENDPOINT_CFM",
+      "module": "starVLA.rl.qwen_world_research_algorithms.fpo_entry",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_FPO.yaml",
+      "config_sha256": "ebf4f867b296b0a957eb8756fd905f789d77104cbcae3d96ad6ad968db9450ad",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "source_commit": "5ac3ae8",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_FPO",
+      "host": "training-vlawm-tsinghua-zt5",
+      "lease": "primary",
+      "data_policy": "uniform_full",
+      "data_scenes": 103288,
+      "status": "REGISTERED_FRESH_IL70",
+      "research_budget_updates": 10000,
+      "stage_budget_updates": 0,
+      "completed_updates": 0,
+      "source_identity_ceiling_updates": 50000,
+      "parent_PDMS": 88.79290990699972,
+      "parent_updates": 70000,
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "fresh_Adam": true,
+      "initial_scene_cursor": 0,
+      "initial_updates": 0,
+      "training_seed": 42,
+      "new_training_authorized": true,
+      "new_evaluation_authorized": true,
+      "original_DEV_role": "TRAIN_DIAGNOSTIC; not independent heldout",
+      "NAVTEST_used_for_training_selection": false,
+      "hypothesis": "perMC endpointCFM-ratio PPO replacing transitionPG with matched W3 collection",
+      "evaluation_gates": [
+        1000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR/STATE.json",
+      "scientific_registration": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_SAFETY_FRESH_PAIR_REGISTRATION_20261031.json"
+    }
+  ],
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+  "source_commit": "5ac3ae8",
+  "target_PDMS": 92.0,
+  "target_protocol": "12146NAVTEST/singleODE10shift5/seed2101/invalid0",
+  "common_initialization": "same pinned IL70 current and reference,freshAdam/seed42/update0/scenecursor0;noRLwarmstart",
+  "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+  "parent_selection_sha256": "f117a64f4cd3617541def37b6b448a095870c59a2a0ffa761124c1393c3353c5",
+  "gates": [
+    1000,
+    5000,
+    10000
+  ],
+  "optimizer_update_cap_per_arm": 10000,
+  "source_max_steps_identity_ceiling_is_not_budget_permission": 50000,
+  "automatic50k": false,
+  "budget_wait": false,
+  "changes": {
+    "PPO_SAFETY_SUCCESS_MEMORY": "one independent current-run verified-success historicalCFM objective",
+    "PPO_SAFETY_FPO": "perMC endpointCFM surrogatePPO replacingtransitionPG"
+  },
+  "controls_unchanged": [
+    "W3eta.1",
+    "uniform103288",
+    "G8/world8/fourinners",
+    "IL70physicalanchor beta50",
+    "action5e-5/memory5e-6 warmup100constant",
+    "52.7mclosure",
+    "scorer",
+    "singleODEdeployment"
+  ],
+  "diagnostics": {
+    "native28k_PG_anchor": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_GRADIENT_PROBE_20261031/SUMMARY.json",
+    "sparse_fresh_component_gradients": [
+      0,
+      252,
+      1004,
+      4988,
+      9980
+    ],
+    "extra_optimizer_updates": 0
+  },
+  "evaluation": {
+    "gates": [
+      1000,
+      5000,
+      10000
+    ],
+    "NAVTEST12146": true,
+    "TRAIN1024": true,
+    "max_shards": 32,
+    "max_active_evaluations": 2,
+    "asynchronous": true,
+    "evaluation_seed": 2101,
+    "matched_control": "samebudgetfreshIL70SafetyEP"
+  },
+  "analysis": {
+    "bootstrap_physical_logs": 44,
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 42,
+    "training_seeds": [
+      42
+    ],
+    "primary_high_cohort": "fixedIL70score>=.9",
+    "NAVTEST_training_tokens": false,
+    "Test_used_for_parent_and_method_selection": true,
+    "early_futility_evidence": "deltaPDMS<-1 withpairedCIupper<0 andfixedILhighCIupper<0;recordedrootdecisionbeforestop"
+  },
+  "parameters_are_candidates_not_optimal": true,
+  "policy": "/mnt/project/qwen-world-rl-optimization-20261030/SAFETY_RL_92_TARGET_POLICY_20261031.json",
+  "sourcepapers": [
+    "https://arxiv.org/abs/1806.05635",
+    "https://arxiv.org/abs/2507.21053",
+    "https://arxiv.org/abs/2602.02481"
+  ],
+  "DDC_note": "fixedcanonicalscore=NC*DAC*(5EP+5TTC+2Comfort)/12;DDCdiagnosticretained,noaddedDDCgate",
+  "old_closed_arms_not_restarted": true,
+  "independent_IL_unchanged_by_this_dispatch": true,
+  "resource_decision": "Tsh6nowIL_A/Tsh3noworiginalSafetyexcluded;useidleP1vlawmzt/P2Tsh5;noexistingmodelmovedorsignalled",
+  "sha256": "51e513f593469f9ce3544078a1955f9f9d00847c8ca030222d1b2667b306b670"
+}

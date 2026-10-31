@@ -1,0 +1,87 @@
+{
+  "schema": "world_finite_freshSafety_evidence_futility_guard_v1",
+  "arms": {
+    "PPO_SAFETY_SUCCESS_MEMORY": {
+      "status": "OBSERVING",
+      "observed_conditions": {
+        "1000": {
+          "delta_below_minus1": false,
+          "paired_CIupper_negative": true,
+          "ILhigh_CIupper_negative": false
+        }
+      }
+    },
+    "PPO_SAFETY_FPO": {
+      "status": "OBSERVING",
+      "observed_conditions": {
+        "1000": {
+          "delta_below_minus1": false,
+          "paired_CIupper_negative": false,
+          "ILhigh_CIupper_negative": false
+        }
+      }
+    }
+  },
+  "events": [],
+  "scientific_bindings": {
+    "PPO_SAFETY_SUCCESS_MEMORY": {
+      "id": "PPO_SAFETY_SUCCESS_MEMORY",
+      "module": "starVLA.rl.qwen_world_research_algorithms.success_memory_entry",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_SUCCESS_MEMORY",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_SUCCESS_MEMORY.yaml",
+      "config_sha256": "b1f51b430277e655fde689286e35e2f86e32233b038ee523f3c1f032f6c2c800",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "native_identity_sha256": "f41c32acb419e8efbc8672c363958793296609d4bad0755afe2af6108019bab6",
+      "registration_file_sha256": "3496de4bcadb2422280522b83e0562646b08c1078c49bd51ca53817e7fa865a2",
+      "registration_seal": "51e513f593469f9ce3544078a1955f9f9d00847c8ca030222d1b2667b306b670"
+    },
+    "PPO_SAFETY_FPO": {
+      "id": "PPO_SAFETY_FPO",
+      "module": "starVLA.rl.qwen_world_research_algorithms.fpo_entry",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FRESH_IL70_5ac3ae8/PPO_SAFETY_FPO",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_FPO.yaml",
+      "config_sha256": "ebf4f867b296b0a957eb8756fd905f789d77104cbcae3d96ad6ad968db9450ad",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fresh_safety_5ac3ae8",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "native_identity_sha256": "2b9d3aae084f02b1e9d3f7f3acf69feff313556e49227324f6651395ff69152d",
+      "registration_file_sha256": "3496de4bcadb2422280522b83e0562646b08c1078c49bd51ca53817e7fa865a2",
+      "registration_seal": "51e513f593469f9ce3544078a1955f9f9d00847c8ca030222d1b2667b306b670"
+    }
+  },
+  "status": "WATCHING_ACTUAL_COMPLETE_EVIDENCE",
+  "policy": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR_FUTILITY_GUARD/POLICY.json",
+  "policy_sha256": "30ff7fe8f47cd4fe28fb6a2e3ac2755bd17a3cc62d422ccb799994877e7494ba",
+  "rule": {
+    "schema": "world_freshSafety_two_checkpoint_futility_rule_v1",
+    "authorized_by": "root parent instruction,2026-10-31,preauthorized beforefirstcompletepilotresults",
+    "arms": [
+      "PPO_SAFETY_SUCCESS_MEMORY",
+      "PPO_SAFETY_FPO"
+    ],
+    "gates": [
+      1000,
+      5000
+    ],
+    "cap": 10000,
+    "conjunction": "samearm1k AND5k: actualcomplete samebudgetSafetyNAVTEST deltaPDMS<-1 ANDpairedCIupper<0 ANDfixedIL70score>=.9cohortCIupper<0 atBOTH",
+    "one_checkpoint_action": false,
+    "partial_scores_imputed": false,
+    "expected_scenes": 12146,
+    "physical_logs": 44,
+    "bootstrap": 2000,
+    "seed": 42,
+    "action": "auditdecisionthenRUNSlock onlythisarm new_training_authorized=False/statusSTOP_REQUESTED_FUTILITY +exactcurrenttrainingjob STOP_REQUESTED",
+    "finalize": "nativeexit0 +exacttransportexit +atomicfullcheckpointinventory/8rankRNG/bankreceipt +ownerackhold, thenSTOPPED_FUTILITY",
+    "no_stop_if_natural10k": true,
+    "no_process_signals": true,
+    "no_evaluation_cancellation": true,
+    "no_scoring_or_GPU": true,
+    "classification": "clear sustained degradation of this registered recipe,notalgorithmfamilyrejected; one trainingseed,correlatedcheckpoints,notindependentpvalues",
+    "lifetime": "botharms10kcompleted/stopped/failedor24hours; inotify+1800smetadataheartbeat;nojournalpolling"
+  },
+  "max_hours": 24,
+  "process_signals": 0,
+  "evaluation_actions": 0,
+  "updated_at": "2026-10-31T12:09:58.905362+00:00"
+}

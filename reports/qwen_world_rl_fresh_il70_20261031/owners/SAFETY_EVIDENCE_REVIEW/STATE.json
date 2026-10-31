@@ -1,0 +1,225 @@
+{
+  "schema": "finite_SAFETY_20k35k_futility_review_v1",
+  "status": "COMPLETE_SUPERSEDED_BY_ROOT_30K_ALLOCATION",
+  "started_unix": 1793410370.1431367,
+  "deadline_unix": 1793496770.1431367,
+  "policy": {
+    "schema": "finite_SAFETY_20k35k_futility_review_v1",
+    "gates": [
+      20000,
+      35000
+    ],
+    "maximum_hours": 24,
+    "bootstrap": 2000,
+    "seed": 42,
+    "unit": "PDMS or metric percentage points",
+    "physical_logs": 44,
+    "full_NAVTEST": 12146,
+    "refresh": "unique id + scientific_result=False",
+    "budget_is_ceiling_not_commitment": true,
+    "at20k": "Recommendation only: CI-negative PDMS vs10k and no clear safety gain -> stop-review recommended; no automatic stop.",
+    "at35k": "STOP iff both20k/35k do not exceed10k PDMS AND35k-minus10k PDMS95CI upper<0 AND no NC/DAC/TTC95CI lower>0.",
+    "clear_safety_improvement": "35k-minus-own10k, paired physical-log95CI lower>0; mean-only gain is not clear.",
+    "matched_FULL": "same-budget contrasts are evidence, never substitute a missing own10k comparison.",
+    "highest_route_protection": "Safety decline alone is never a stop; a new PDMS best at20k or35k blocks this stop rule.",
+    "stop": "standard STOP_FUTILITY arm decision + only current registered Safety training job STOP_REQUESTED; native owner seals/resumes state; never kill.",
+    "exclusions": "No single-seed certainty claim, no NAVTEST training token selection, no new50k commitment."
+  },
+  "allow_cooperative_stop": true,
+  "arm_binding": {
+    "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP",
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+    "module": "starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry",
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_EP.yaml"
+  },
+  "gates": {
+    "20000": {
+      "gate": 20000,
+      "complete_at": "2026-10-31T06:28:24.957226+00:00",
+      "vs_own10k": {
+        "target": "PPO_SAFETY_EP_u020000_NAVTEST",
+        "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+        "target_PDMS": 90.86547930770594,
+        "baseline_PDMS": 91.34989173702405,
+        "metrics": {
+          "score": {
+            "delta_pp": -0.48441242931877493,
+            "CI95_pp": [
+              -0.7826430771994523,
+              -0.23495178916988535
+            ],
+            "clear_improvement": false
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": 0.06586530545035403,
+            "CI95_pp": [
+              -0.05436223276666751,
+              0.19425299985589603
+            ],
+            "clear_improvement": false
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.24699489543882758,
+            "CI95_pp": [
+              -0.4968586136758346,
+              -0.046481039507260166
+            ],
+            "clear_improvement": false
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": 0.23876173225753336,
+            "CI95_pp": [
+              -0.032952638580478893,
+              0.5115340746360899
+            ],
+            "clear_improvement": false
+          },
+          "ego_progress": {
+            "delta_pp": -1.0843779561411067,
+            "CI95_pp": [
+              -1.3806159492042114,
+              -0.8202323777508527
+            ],
+            "clear_improvement": false
+          },
+          "comfort": {
+            "delta_pp": -0.024699489543882756,
+            "CI95_pp": [
+              -0.07591344451453295,
+              0.029445070711211132
+            ],
+            "clear_improvement": false
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.012349744771941378,
+            "CI95_pp": [
+              -0.08705158357205378,
+              0.06698275556014568
+            ],
+            "clear_improvement": false
+          }
+        },
+        "physical_logs": 44,
+        "scenes": 12146,
+        "bootstrap": 2000,
+        "seed": 42,
+        "estimator": "resample44 physical logs, scene-weighted ratio of sums; same draws all metrics",
+        "uncertainty": "fixed training/evaluation seed; physical-log variability, not across-seed uncertainty; component CIs unadjusted, used conservatively to protect any clear safety gain"
+      },
+      "vs_matched_FULL": {
+        "target": "PPO_SAFETY_EP_u020000_NAVTEST",
+        "baseline": "PPO_FULL_u020000_NAVTEST",
+        "target_PDMS": 90.86547930770594,
+        "baseline_PDMS": 90.79733531090675,
+        "metrics": {
+          "score": {
+            "delta_pp": 0.06814399679893085,
+            "CI95_pp": [
+              -0.14331126138336506,
+              0.2561201522504318
+            ],
+            "clear_improvement": false
+          },
+          "no_at_fault_collisions": {
+            "delta_pp": -0.1070311213568253,
+            "CI95_pp": [
+              -0.218257509849803,
+              -0.011211993153293949
+            ],
+            "clear_improvement": false
+          },
+          "drivable_area_compliance": {
+            "delta_pp": -0.19759591635106205,
+            "CI95_pp": [
+              -0.3301043262357856,
+              -0.06358140353882327
+            ],
+            "clear_improvement": false
+          },
+          "time_to_collision_within_bound": {
+            "delta_pp": -0.04939897908776551,
+            "CI95_pp": [
+              -0.28423752523931856,
+              0.17063231264697634
+            ],
+            "clear_improvement": false
+          },
+          "ego_progress": {
+            "delta_pp": 0.5413249059205556,
+            "CI95_pp": [
+              0.1628392936910159,
+              0.9397358162751306
+            ],
+            "clear_improvement": true
+          },
+          "comfort": {
+            "delta_pp": -0.09056479499423678,
+            "CI95_pp": [
+              -0.16349674998341607,
+              -0.03177038886226573
+            ],
+            "clear_improvement": false
+          },
+          "driving_direction_compliance": {
+            "delta_pp": -0.11114770294747241,
+            "CI95_pp": [
+              -0.18133198059069122,
+              -0.03876746125643747
+            ],
+            "clear_improvement": false
+          }
+        },
+        "physical_logs": 44,
+        "scenes": 12146,
+        "bootstrap": 2000,
+        "seed": 42,
+        "estimator": "resample44 physical logs, scene-weighted ratio of sums; same draws all metrics",
+        "uncertainty": "fixed training/evaluation seed; physical-log variability, not across-seed uncertainty; component CIs unadjusted, used conservatively to protect any clear safety gain"
+      },
+      "provenance": {
+        "target": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u020000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "13a515249715811798f06d9672bf4719c36928f1d342286c7f50a5931611a2ff",
+          "summary_seal": "0111af45cedb47b3c6c40bba2a4641c8c894b708c836b120faf580cea8a2844a",
+          "identity_seal": "d2f44d6b916b59c11d9e44945ffa1b5fdc9aa18befaa3167d5228b6eea2d23b6",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u020000_NAVTEST.npz",
+          "cache_sha256": "c2f411f9ea83fde568fa5351a646e7653119930405b3ada26f6d370b63bbd840",
+          "cache_reused": false
+        },
+        "own10k": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+          "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+          "cache_reused": true
+        },
+        "matched_FULL": {
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u020000_NAVTEST/SUMMARY.json",
+          "summary_file_sha256": "0fe7e172ff82aa4dbcb880eac025020394d358ca5d77b86793e56963e852f676",
+          "summary_seal": "845f96e0eb0932b2f8ab63ea5704048eb3c8835e3d66ff4c6355bb3b68609a99",
+          "identity_seal": "2864e943a7726dc36a78e3ee0f245fc5276ad31c094ae4d01a183b357c2ee3a4",
+          "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u020000_NAVTEST.npz",
+          "cache_sha256": "4170a858318dca7948942087573f5d5abeed38680a99ef80adc812dbdb2a0f1d",
+          "cache_reused": true
+        }
+      },
+      "decision": {
+        "recommendation": "STOP_REVIEW_RECOMMENDED",
+        "automatic_stop_eligible": false,
+        "reason": "20k is recommendation only; second gate required for automatic futility",
+        "new_PDMS_best": false,
+        "clear_safety_gain": false
+      }
+    }
+  },
+  "events": [],
+  "heartbeat_at": "2026-10-31T12:35:14.961473+00:00",
+  "updated_at": "2026-10-31T06:28:24.992197+00:00",
+  "closed_unix": 1793450140.5861976,
+  "superseded_by": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_SAFETY_EP.json",
+  "gate35_not_observed": true,
+  "guard_policy_changed": false,
+  "reason": "Root manual allocation decision ended this native continuation using actual20k/30k evidence; old35k observer no longer needed."
+}

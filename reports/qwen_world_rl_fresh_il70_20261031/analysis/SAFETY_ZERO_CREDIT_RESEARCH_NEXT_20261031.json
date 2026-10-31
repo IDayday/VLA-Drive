@@ -1,0 +1,651 @@
+{
+  "schema": "world_Safety_zero_quality_problem_driven_primary_research_v1",
+  "status": "COMPLETE_CPU_RESEARCH_CANDIDATE_NOT_REGISTERED",
+  "created_at": "2026-10-31T12:37:49.154101+00:00",
+  "priority_order": [
+    "canonical_feasible_quality",
+    "mixed_group_verified_witness_replay",
+    "allfail_identical_binary_DAC_tie_credit"
+  ],
+  "candidates": [
+    {
+      "id": "canonical_feasible_quality",
+      "priority": 1,
+      "status": "INDEPENDENT_CPU_IMPLEMENTATION_READY_NOT_REGISTERED",
+      "name_zh": "保Safety安全排序的可行集合canonical质量信用",
+      "one_core_change": "replace within-feasible EP by q=(5EP+2Comfort)/7; all other source factors fixed",
+      "exact_formula": "A=A_safe+f*(q-mean_feasible(q)); m<2 quality0; A_safe and global64 populationstd rule unchanged",
+      "relation_to_current": {
+        "current": "safety_efficiency.py:safety_efficiency_parts/safety_efficiency_advantages",
+        "new": "safety_feasible_score.py:quality_parts/advantages; same source ResearchLoss PG/anchor",
+        "old_SafeComfort": "safe_comfort.py replaces Comfort1 in safe training rewards, deleting C; this restores measured canonical quality differences, the opposite operation"
+      },
+      "real_signal": "Existing same-scene official Comfort differences at identical EP, plus canonical ordering disagreements; no new scores or synthetic labels.",
+      "mathematical_guarantees": [
+        "for f1, R=5/12+(7/12)q, so quality ranking exactly canonical",
+        "mixed group: A_raw_unsafe=-m/8; A_raw_f-A_raw_unsafe>=1/m before clamp5",
+        "group sum0; allfail original mean(c)-c unchanged; no fabricated tie direction"
+      ],
+      "qualification": "Common positive normalization preserves order; monotone cap5 may create ties, cannot reverse. This is candidate-metric hierarchy, not real-world safety guarantee.",
+      "coefficient_caveat": "EP coefficient becomes5/7 from1 and Comfort becomes2/7; not merely adding C or holding the old PG scale.",
+      "failure_modes": [
+        "SDE eta.1 Comfort may mostly measure terminal exploration jitter rather than deployed ODE quality",
+        "canonical tradeoff may reduce EP while improving Comfort; cannot decide from changedA count",
+        "no cure for persistent allfail costtie or absent actor information",
+        "large sign/scale changes require actual PG/anchor gradient observation, not meanloss comparison"
+      ],
+      "fresh_design": {
+        "initialization": "sameIL70 freshAdam/RNG42/update0",
+        "control": "PPO_SAFETY_EP same updates",
+        "gates": [
+          1000,
+          5000
+        ],
+        "fixed": "uniform103288/W3eta.1/G8/world8/4inners/action5e-5 Memory5e-6/warmup100 constant/beta50/clip.005/Acap5/IL70reference",
+        "not_combined_with": [
+          "FPO",
+          "new sigma range",
+          "success-memory",
+          "LR/reference refresh",
+          "extra resampling"
+        ]
+      },
+      "success_metrics": [
+        "complete12146 ODE PDMS and44log pairedCI vs same-budgetSafety",
+        "NC/DAC/TTC/EP/Comfort individually",
+        "fixed ILhigh and ILlow separately, repaired/newzero,TRAIN-only allfail exposure",
+        "native activatedComfort-only groups,per-component PG/anchor gradients,ratio/clip distribution"
+      ],
+      "expected": "Test an actual ignored reward component; no claimed92 guarantee."
+    },
+    {
+      "id": "mixed_group_verified_witness_replay",
+      "priority": 2,
+      "status": "HYPOTHESIS_NOT_IMPLEMENTED_NOT_REGISTERED",
+      "name_zh": "让成功记忆优先保存有失败对比的真实成功见证",
+      "one_core_change": "P1 bank admission: only original fresh groups with 0<m_feasible<8 and an actually scored strict4/EP>=.5 teacher; unchanged auxiliary coefficient/period/MC and main stream",
+      "relation_to_current": "success_memory.py:verified_winner/attach_history; restrict bank admission only, retain independent historical CFM and native bank/RNG provenance",
+      "primary_sources": [
+        "ExGRPO",
+        "FPO_ROBOT"
+      ],
+      "real_signal": "Same-scene rare successful endpoint actually exists alongside fresh failures; replay explicitly imitates that witness, never historical onpolicyA.",
+      "when_ineffective": [
+        "scene has never produced a verified successful witness",
+        "bank contains no hard-scene or observation-distinguishable witness",
+        "historical witness obsolete or boundary exploits canonical metrics",
+        "P1 negative1k may come from auxiliary gradient conflict rather than admission distribution"
+      ],
+      "safeguards": "Do not copy token entropy selection, offpolicy IS ratios or unclip; P1 CFM is a separate surrogate supervised target, not ExGRPO exact algorithm.",
+      "trigger": "Only after actual P1 5k activation/gradient/coverage evidence; current1k global replay did not improve PDMS. No automatic next GPU.",
+      "fresh_design": "sameIL70 fresh; exact P1 control, same period4/MC1/coef.1/sigma.2-.8/W3/sourceA/LR/anchor; admission criterion alone changes",
+      "success_metrics": "matched full PDMS/NC/TTC/EP/zeros and ILhigh/low; bank sourcegroupm histogram/known-failure coverage/actual aux updates and actual PG-aux gradient cosine"
+    },
+    {
+      "id": "allfail_identical_binary_DAC_tie_credit",
+      "priority": 3,
+      "status": "CONDITIONAL_LOW_COVERAGE_NOT_IMPLEMENTED_NOT_REGISTERED",
+      "name_zh": "仅全失败同成本组的已观测可行性细分信用",
+      "one_core_change": "Only if all f0, identical binary cost and identical NC/TTC, all DAC0 but official non-drivable-time fraction differs: use mean(D)-D; otherwise original fallback",
+      "relation_to_current": "safety_efficiency.py allfail mean(c)-c; collection existing feedback contains non-drivable body/time readout cached as ND_time_fraction",
+      "real_signal": "Measured fraction of simulated horizon outside drivable area; a finer constraint deficit than binary DAC, not fake success or largerrawprogress.",
+      "when_ineffective": [
+        "D also ties or readout unavailable",
+        "failures are collisions/TTC rather than DAC",
+        "later failure delay does not create a truly safe trajectory"
+      ],
+      "evidence": "Only1/1280 observed group is allfail costtie; it has NDtime and rawprogress variation. Cannot infer this is the dominant source of133 persistent NAVzeros.",
+      "risk": "May reward stopping/delaying violations; do not use raw progress as a fallback while unsafe. Keep official scores separate and require later actual feasibility.",
+      "primary_sources": [
+        "RLZVP",
+        "NGRPO",
+        "DAPO"
+      ],
+      "sources_relation": "These papers motivate investigating zero groups, not the exact proposed dense driving branch; this branch is a local, unvalidated adaptation using real existing measurements.",
+      "fresh_design": "sameIL70 Safety control; branch-only change, no resampling/teacher/newcritic/rewardweight bundle; register only if TRAIN diagnostic shows adequate recurring coverage",
+      "success_metrics": "allfailtie coverage and time-to-first strict success on TRAIN, ODEzero repair/newzero, full PDMS and highretention; no claim merely from nonzeroA"
+    }
+  ],
+  "existing_evidence": {
+    "Safety_formula": "f strictly NC/DAC/TTC; A_safe=f-fmean if anyf else mean(c)-c; A_EP onlyf centeredEP; global64std",
+    "rollout_groups": 1280,
+    "PGzero_groups": 111,
+    "allfail_groups": 8,
+    "allfail_costvar_groups": 7,
+    "allfail_costtie_groups": 1,
+    "EP1_allfeasible_groups": 110,
+    "EP1_Comfort_differing_groups": 96,
+    "all_EP1_all_C0_groups": 0,
+    "warning": "Uniform sampled TRAIN windows are1280distinctscene observations, not recurrent measurements of each persistentzero. ODE NAVzero != TRAIN SDEallfail.",
+    "fresh_1k_actual_pilots": {
+      "PPO_SAFETY_SUCCESS_MEMORY": {
+        "updates": 1000,
+        "PDMS": 90.59887715956735,
+        "vs_samebudget_Safety_delta": -0.10873102030325829,
+        "CI95_PDMS": [
+          -0.20584975200618927,
+          -0.03578020926783853
+        ],
+        "fixed_IL70_high_ge09": {
+          "target": "PPO_SAFETY_SUCCESS_MEMORY_u001000_NAVTEST",
+          "baseline": "PPO_SAFETY_EP_u001000_NAVTEST",
+          "scenes": 8724,
+          "physical_log_clusters": 44,
+          "bootstrap": 2000,
+          "seed": 42,
+          "target_PDMS": 95.93975810366392,
+          "baseline_PDMS": 95.90943843953056,
+          "delta_PDMS": 0.030319664133350913,
+          "CI95_PDMS": [
+            -0.05815653859084551,
+            0.11496727004330794
+          ],
+          "components": {
+            "score": {
+              "delta_pp": 0.030319664133350913,
+              "CI95_pp": [
+                -0.05815653859084551,
+                0.11496727004330794
+              ]
+            },
+            "no_at_fault_collisions": {
+              "delta_pp": 0.022925263640531865,
+              "CI95_pp": [
+                0.0,
+                0.055158212855154834
+              ]
+            },
+            "drivable_area_compliance": {
+              "delta_pp": -0.0343878954607978,
+              "CI95_pp": [
+                -0.10659908299765053,
+                0.029936855754484678
+              ]
+            },
+            "time_to_collision_within_bound": {
+              "delta_pp": 0.0343878954607978,
+              "CI95_pp": [
+                -0.04671303871562529,
+                0.11082459101108155
+              ]
+            },
+            "ego_progress": {
+              "delta_pp": 0.0727671939200422,
+              "CI95_pp": [
+                -0.021598793463287334,
+                0.15919637634875605
+              ]
+            },
+            "comfort": {
+              "delta_pp": 0.011462631820265932,
+              "CI95_pp": [
+                -0.03220483753556145,
+                0.06851034453252743
+              ]
+            },
+            "driving_direction_compliance": {
+              "delta_pp": 0.05731315910132966,
+              "CI95_pp": [
+                0.01740958880006425,
+                0.10147247631328345
+              ]
+            }
+          },
+          "zeros": {
+            "baseline": 22,
+            "target": 23,
+            "repaired": 4,
+            "new_zero": 5,
+            "high_to_zero": 5
+          },
+          "uncertainty": "fixedseed physical-log cluster bootstrap,scene weighted; no across-training-seed claim"
+        },
+        "zeros": {
+          "baseline": 318,
+          "target": 330,
+          "repaired": 10,
+          "new_zero": 22,
+          "high_to_zero": 13
+        }
+      },
+      "PPO_SAFETY_FPO": {
+        "updates": 1000,
+        "PDMS": 90.58759841030894,
+        "vs_samebudget_Safety_delta": -0.12000976956166706,
+        "CI95_PDMS": [
+          -0.3044449826887749,
+          0.0270701064005056
+        ],
+        "fixed_IL70_high_ge09": {
+          "target": "PPO_SAFETY_FPO_u001000_NAVTEST",
+          "baseline": "PPO_SAFETY_EP_u001000_NAVTEST",
+          "scenes": 8724,
+          "physical_log_clusters": 44,
+          "bootstrap": 2000,
+          "seed": 42,
+          "target_PDMS": 96.23041643470447,
+          "baseline_PDMS": 95.90943843953056,
+          "delta_PDMS": 0.32097799517389763,
+          "CI95_PDMS": [
+            0.21649823894139836,
+            0.42450901524819096
+          ],
+          "components": {
+            "score": {
+              "delta_pp": 0.32097799517389763,
+              "CI95_pp": [
+                0.21649823894139836,
+                0.42450901524819096
+              ]
+            },
+            "no_at_fault_collisions": {
+              "delta_pp": 0.04011921137093077,
+              "CI95_pp": [
+                -0.006175265155613454,
+                0.09736610022515034
+              ]
+            },
+            "drivable_area_compliance": {
+              "delta_pp": 0.1375515818431912,
+              "CI95_pp": [
+                0.0535761014491905,
+                0.2293823669489141
+              ]
+            },
+            "time_to_collision_within_bound": {
+              "delta_pp": 0.12608895002292525,
+              "CI95_pp": [
+                0.0,
+                0.25732130926970354
+              ]
+            },
+            "ego_progress": {
+              "delta_pp": 0.4058354965328979,
+              "CI95_pp": [
+                0.31283262151147,
+                0.4985192648623158
+              ]
+            },
+            "comfort": {
+              "delta_pp": 0.04585052728106373,
+              "CI95_pp": [
+                0.0,
+                0.14905212306593935
+              ]
+            },
+            "driving_direction_compliance": {
+              "delta_pp": 0.05158184319119669,
+              "CI95_pp": [
+                -0.02658941636050436,
+                0.13984504104144205
+              ]
+            }
+          },
+          "zeros": {
+            "baseline": 22,
+            "target": 6,
+            "repaired": 16,
+            "new_zero": 0,
+            "high_to_zero": 0
+          },
+          "uncertainty": "fixedseed physical-log cluster bootstrap,scene weighted; no across-training-seed claim"
+        },
+        "zeros": {
+          "baseline": 318,
+          "target": 328,
+          "repaired": 33,
+          "new_zero": 43,
+          "high_to_zero": 28
+        }
+      }
+    },
+    "pilot_interpretation": "P1 smallnegative PDMS CI; FPO totaldifference CIcross0 but ILhigh positiveCI. One1k point neither family failure nor evidence to combine methods.",
+    "current_FPO_time_trial": "Fulltime upper sigma extension has separate development/registration evidence; its live status is read from actual registration/OWNER, not inferred here."
+  },
+  "same_candidate_counterfactual": {
+    "input_windows": [
+      {
+        "updates": 1000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u001000_rollouts.npz",
+        "npz_sha256": "c77eacede2950c22ea9f449bfd831e26498af5460455318c4994868bc69c7398",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u001000_rollouts.json",
+        "metadata_sha256": "719939375dc473c0a2385c4188f9591316bf09aef144667bf96a17dabe2b6941"
+      },
+      {
+        "updates": 5000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u005000_rollouts.npz",
+        "npz_sha256": "355d903b0ba6a02d0fe5800b044029363a1d997c95c9a3bb3ab40e8dc7da96b4",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u005000_rollouts.json",
+        "metadata_sha256": "cc6bc57463cf558c4f80dc55eb9388ed5f0c790a72ab8432e000a7b9ad4b61e6"
+      },
+      {
+        "updates": 10000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u010000_rollouts.npz",
+        "npz_sha256": "85a3ac25aec7c024918da21429166b9540768ca42124ca4104de79602efcce42",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u010000_rollouts.json",
+        "metadata_sha256": "4925c8a88fe09d4503f7934d50b3e9dbbd00b1522bd275f7d1319c2c8d45a5e1"
+      },
+      {
+        "updates": 12000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u012000_rollouts.npz",
+        "npz_sha256": "8793f3bc77f9d2ce56192f12ec3538e25c737b414f578b9f9ae5ec6c73d65728",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u012000_rollouts.json",
+        "metadata_sha256": "dcd303345eb8fa02917f807cf87b24968ff244780965ec3856010b96ec4eb43a"
+      },
+      {
+        "updates": 14000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u014000_rollouts.npz",
+        "npz_sha256": "c15fad6e63a027f3369c25bd5836bd6ffe5bd319c3df7350587979c4c7f69075",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u014000_rollouts.json",
+        "metadata_sha256": "6e590ed7dfd0d793609ec6a0f952a9dfc7f89b2ace1c3d8188ea73e06579db5c"
+      },
+      {
+        "updates": 16000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u016000_rollouts.npz",
+        "npz_sha256": "098a913fb9a9a93d915488dfc77e968c3a93735e1b7b2a062bc30fe3612e904a",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u016000_rollouts.json",
+        "metadata_sha256": "11b8a4510ce5d21438ac84e657a0a6258707b0de3b17f84af9f5c386fc90b7bb"
+      },
+      {
+        "updates": 18000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u018000_rollouts.npz",
+        "npz_sha256": "13d00a3447724d3cad64b6a8b7c291a4e116280bb03ee35a187f9d6c4ba8079b",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u018000_rollouts.json",
+        "metadata_sha256": "58e0b7c59c2a559458c7e9d03c96b9721c70cf96a8e6990387c3475b2f10a5cd"
+      },
+      {
+        "updates": 20000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u020000_rollouts.npz",
+        "npz_sha256": "8d88c43715ef499e647a80dfe5b9d48171dd922a4469241f1cb22b9e79049b2b",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u020000_rollouts.json",
+        "metadata_sha256": "5872a83f942b864ed2cded89682793d1529f6a4f501ca676e90b5cb4e347da81"
+      },
+      {
+        "updates": 22000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u022000_rollouts.npz",
+        "npz_sha256": "d2e9aa92389e4be08349086065fe36fea4a941458bf6a61f7378694e28d50e3b",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u022000_rollouts.json",
+        "metadata_sha256": "5d20e2ec66b26edb7ffb6fbde079f39a9eb1cbc9ff411c133b7327ae2ed7bf1c"
+      },
+      {
+        "updates": 24000,
+        "npz": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u024000_rollouts.npz",
+        "npz_sha256": "f744cd44c39ba9061033152c7cf29879ba24998ce1738e08c7e996a0808a8e24",
+        "metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_CACHE/u024000_rollouts.json",
+        "metadata_sha256": "44309bbd2103e11a459e733c12d0f2de7331f844643cf7af357385830370529e"
+      }
+    ],
+    "groups": 1280,
+    "scenes_distinct": true,
+    "global_batches": 160,
+    "original_rawA_recomputed_exact": true,
+    "original_saved_normalizedA_matched_tolerance": 1e-06,
+    "variants": {
+      "EP_plus04C_unbounded_cpu_only": {
+        "groups": 1280,
+        "candidates": 10240,
+        "rawA_changed_groups": 1098,
+        "PG_zero_before": 111,
+        "PG_zero_after": 15,
+        "reactivated_groups": 96,
+        "reactivated_EP1_Comfort_differing": 96,
+        "feasible_sign_flips": 1826,
+        "feasible_positive_to_negative": 1196,
+        "feasible_negative_to_positive": 630,
+        "mixed_unsafe_positive": 0,
+        "allfail_rawA_max_difference": 0.0,
+        "actual_mixed_feasible_not_above_unsafe_groups": 0,
+        "minimum_actual_raw_credit_gap": 0.18579715961494592,
+        "normalized_Acap5_before": 2,
+        "normalized_Acap5_after": 0,
+        "global_std_candidate_over_original": {
+          "n": 160,
+          "min": 1.0228752020298046,
+          "median": 1.1003572490601712,
+          "mean": 1.112544542762603,
+          "max": 1.3456362844247927
+        },
+        "batch_advantage_cosine": {
+          "n": 160,
+          "min": 0.6897000636635399,
+          "median": 0.9142738079413973,
+          "mean": 0.9047515944002225,
+          "max": 0.9673539761215895
+        },
+        "note": "Advantage-vector cosine/scale are not parameter-gradient cosine/scale; no actual World Jacobian evaluated."
+      },
+      "canonical_quality_range1_selected": {
+        "groups": 1280,
+        "candidates": 10240,
+        "rawA_changed_groups": 1182,
+        "PG_zero_before": 111,
+        "PG_zero_after": 15,
+        "reactivated_groups": 96,
+        "reactivated_EP1_Comfort_differing": 96,
+        "feasible_sign_flips": 1603,
+        "feasible_positive_to_negative": 954,
+        "feasible_negative_to_positive": 649,
+        "mixed_unsafe_positive": 0,
+        "allfail_rawA_max_difference": 0.0,
+        "actual_mixed_feasible_not_above_unsafe_groups": 0,
+        "minimum_actual_raw_credit_gap": 0.4184265425821041,
+        "normalized_Acap5_before": 2,
+        "normalized_Acap5_after": 0,
+        "global_std_candidate_over_original": {
+          "n": 160,
+          "min": 0.98843588875085,
+          "median": 1.0398314944207452,
+          "mean": 1.0448297858341502,
+          "max": 1.1711961095551975
+        },
+        "batch_advantage_cosine": {
+          "n": 160,
+          "min": 0.7872346309473223,
+          "median": 0.9513853714681534,
+          "mean": 0.9436271037851321,
+          "max": 0.9836225790197627
+        },
+        "note": "Advantage-vector cosine/scale are not parameter-gradient cosine/scale; no actual World Jacobian evaluated."
+      }
+    },
+    "canonical_pair_order_audit": {
+      "feasible_pairs_with_canonical_score_difference": 19402,
+      "original_EP_only_ties_despite_canonical_difference": 3324,
+      "original_EP_canonical_order_reversals": 3439,
+      "new_canonical_quality_order_reversals": 0,
+      "groups_with_original_order_disagreement": 994
+    },
+    "witness_eligibility": {
+      "P1_original_eligible_groups": 1239,
+      "mixed_safety_with_verified_teacher_groups": 773,
+      "allfeasible_with_verified_teacher_groups": 466,
+      "allfail_groups": 8,
+      "allfail_with_same_group_feasible_teacher": 0,
+      "interpretation": "Only latent mixed-group teacher eligibility from these1280distinct TRAIN observations. Not actual P1 bank exposure/activation, not longitudinal per-scene coverage."
+    },
+    "mathematical_bound": {
+      "selected": "qrange1 preserves gap>=1/m",
+      "alternative": "EP+.4C hasrange1.4, theoretical minimumgap=1-1.4*(m-1)/m; negative for m>=4 even if this sampled window haszero violations"
+    },
+    "gradient_evidence": {
+      "CPU_surrogate_leaf_gradient": "new Comfort-onlyA has finite correctly signed score gradients; zero originalA giveszeroPG",
+      "actual_World_parameter_gradients": "UNKNOWN_NOT_MEASURED_FOR_NEW_CREDIT",
+      "future": "native optional PG-vs-anchor8rank gradient norm/cosine and actual update needed; do not compare scalarPG loss magnitudes"
+    }
+  },
+  "primary_sources": [
+    {
+      "id": "RLZVP",
+      "title": "No Prompt Left Behind: Exploiting Zero-Variance Prompts in LLM Reinforcement Learning via Entropy-Guided Advantage Shaping",
+      "first_date": "2025-09-26",
+      "version_date": "2026-02-09",
+      "version": "v3",
+      "URL": "https://arxiv.org/html/2509.21880v3",
+      "official_project": "https://bltnynk.github.io/publications/rl-zvp/",
+      "code_status": "Official project inspected; executable official code link not found there, not code-verified.",
+      "mechanism_zh": "对二值全对/全错组赋正/负方向，再用token词表熵调幅；在Qwen3两规模数学任务有实证。",
+      "transfer_zh": "支持区分有用的同分反馈与被忽略指标，但连续动作没有对应的词表熵。固定SDE方差的熵主要由采样协议决定，不能照抄成pose熵；不把人工非零A等同新增安全方向。"
+    },
+    {
+      "id": "NGRPO",
+      "title": "NGRPO: Negative-enhanced Group Relative Policy Optimization",
+      "first_date": "2025-09-23",
+      "version": "v1",
+      "URL": "https://arxiv.org/abs/2509.18851",
+      "official_repo": "https://github.com/nangongrui-ngr/NGRPO",
+      "commit": "e7a380415a64cd8ac102504c38a5f86069022f35",
+      "mechanism_zh": "用虚拟最高分样本校准全错组优势，并配不对称clip；作者报告Qwen2.5-Math-7B数学收益。",
+      "transfer_zh": "虚拟正样本没有本场景的真实安全轨迹。全失败统一负A可改变有限样本更新，但不能识别往哪走才安全；安全驾驶不优先用虚构见证替代canonical可评分证据。",
+      "code_paths": [
+        "verl/trainer/ppo/core_algos.py:compute_ngrpo_outcome_advantage",
+        "train_scripts/train_qwen2.5-math-7b_ngrpo.sh"
+      ],
+      "official_code_verified": "core_algos.py lines156-199 append virtual max_reward1.0 before computing mean/std; pinned source files cached in paper_sources/SAFETY_ZERO_CREDIT_20261031 with SHA receipts."
+    },
+    {
+      "id": "DAPO",
+      "title": "DAPO: An Open-Source LLM Reinforcement Learning System at Scale",
+      "first_date": "2025-03-18",
+      "version_date": "2025-05-20",
+      "version": "v2",
+      "URL": "https://arxiv.org/html/2503.14476v2",
+      "official_repo": "https://github.com/BytedTsinghua-SIA/DAPO",
+      "commit": "33fe3176f0bb212588e84fc8ccf50dd554975144",
+      "code_status": "Pinned official README inspected; it points to an old verl branch now absent. No claim current README is full dynamic-sampling implementation.",
+      "mechanism_zh": "过采样并过滤全0/全1组，凑足有对比梯度的prompt批；论文给出组合和阶段消融。",
+      "transfer_zh": "过滤提高有效组密度但并不教会被排除的失败场景；我们零PG111组里96组有真实Comfort差异，直接丢弃会错失现成信号。额外rollout成本必须计入，不能只比optimizer更新。"
+    },
+    {
+      "id": "ExGRPO",
+      "title": "ExGRPO: Learning to Reason from Experience",
+      "first_date": "2025-10-02",
+      "version_date": "2026-02-28",
+      "version": "v2",
+      "URL": "https://arxiv.org/html/2510.02245v2",
+      "official_repo": "https://github.com/Simplified-Reasoning/LUFFY/tree/01f4ae066249e6965ce0d5512ccdf99a12895c74/ExGRPO",
+      "commit": "01f4ae066249e6965ce0d5512ccdf99a12895c74",
+      "code_paths": [
+        "ExGRPO/exgrpo/verl/verl/mix_src/mix_core_alg.py",
+        "ExGRPO/exp_scripts/run_exgrpo.sh"
+      ],
+      "mechanism_zh": "存已验证成功经验、按难度选题、低熵选轨迹；一条历史成功与新rollout形成对比，并对历史策略概率作校正；Qwen2.5-Math7B主表数学均值45.3→48.3。",
+      "transfer_zh": "借鉴真实见证与排除已全会样本，不能把历史World轨迹混入onpolicyGRPO或把CFMenergy当精确IS。我们可仅改变P1 bank见证筛选，保历史轨迹为单独CFM监督。熵选轨迹与50%混合率不迁移。"
+    },
+    {
+      "id": "FPO",
+      "title": "Flow Matching Policy Gradients",
+      "version_date": "2025-08-01",
+      "version": "v2",
+      "URL": "https://arxiv.org/html/2507.21053v2",
+      "mechanism_zh": "以CFM误差差构造PPO比率代理，训练可与采样器解耦；连续控制与部分观测任务有实验。",
+      "transfer_zh": "我们的fpo_training使用fresh endpoint、old行为CFM缓存和perMC普通PPO；无A的组仍无PG。采样器无关不意味着奖励同分凭空可学，且代理不是endpoint精确密度。"
+    },
+    {
+      "id": "FPO_ROBOT",
+      "title": "Flow Policy Gradients for Robot Control",
+      "first_date": "2026-02-02",
+      "version_date": "2026-10-13",
+      "version": "v2",
+      "URL": "https://arxiv.org/html/2602.02481v2",
+      "official_repo": "https://github.com/amazon-far/fpo-control/tree/8f460e4415a2a6debfbeb689093f5e36140bd178",
+      "commit": "8f460e4415a2a6debfbeb689093f5e36140bd178",
+      "code_paths": [
+        "manipulation_experiments/finetune_online_rl.py",
+        "isaaclab_experiments/isaaclab_fpo/isaaclab_fpo/algorithms/fpo.py"
+      ],
+      "mechanism_zh": "机器人操控/运动任务检验perMC CFM比率及稳定性选择；普通PPO与ASPO效果依任务而变。",
+      "transfer_zh": "支持我们优先连续flow尺度/时间分布诊断，而不默认迁移LLM token clip。现有Fulltime单因素时间实验已另行推进，本报告不再增一组采样/clip组合。"
+    },
+    {
+      "id": "DPPO",
+      "title": "Diffusion Policy Policy Optimization",
+      "first_date": "2024-09-01",
+      "URL": "https://arxiv.org/abs/2409.00588",
+      "official_project": "https://diffusion-ppo.github.io/",
+      "official_repo": "https://github.com/irom-princeton/dppo",
+      "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+      "mechanism_zh": "显式去噪MDP的PG训练与结构化探索，在机器人仿真和实机上验证。",
+      "transfer_zh": "探索分布确实重要，但本文不证明我们的末步强噪声有益；既有fixedtheta和LastDet负结果要求将候选质量与学习效果分开。"
+    }
+  ],
+  "transfer_exclusions": [
+    "LLM vocabulary entropy is not fixed SDE transition entropy",
+    "virtual positive is not an actual feasible trajectory",
+    "discarding allfail cannot itself solve that scene",
+    "higher pass@k candidate quality does not prove singleODE deploy or PG learning gain",
+    "ExGRPO historical language importance ratios cannot be asserted exact with a continuous CFM proxy",
+    "no allfail means not allzeroPG; old successful EP1 groups can still have canonical Comfort differences",
+    "new quality numerator also changes its globalstd; do not attribute allSafety gains to gate or add effects toFPO"
+  ],
+  "implementation": {
+    "entry": "starVLA.rl.qwen_world_research_algorithms.safety_feasible_score_entry",
+    "arm": "PPO_SAFETY_FEASIBLE_SCORE",
+    "structured_advantage": "candidate_metric_safety_feasible_canonical_quality_global_std_v1",
+    "protocol": {
+      "schema": "candidate_metric_safety_feasible_canonical_quality_global_std_v1",
+      "feasible": "f=1 iff NC=DAC=TTC=1; Comfort is quality, not feasibility",
+      "cost": "c=mean(1-NC,1-DAC,1-TTC); indicator deficit, not accident severity",
+      "safety": "if any f: A_safe=f-mean(f); allfail: A_safe=mean(c)-c",
+      "quality": "q=(5*EP+2*Comfort)/7 in[0,1]; A_quality=f*(q-mean_feasible(q)); singleton/empty gives0",
+      "raw": "A_raw=A_safe+A_quality; group sum0",
+      "ordering": "before Acap5: mixed group with m feasible has every A_raw_feasible-A_raw_unsafe>=1/m>0; unsafe A_raw=-m/8; monotone clamp may tie but cannot invert",
+      "coefficients": {
+        "EP": 0.7142857142857143,
+        "Comfort": 0.2857142857142857
+      },
+      "normalization": "one population_std of all64 A_raw+1e-8; zero groups included; fixed4inners",
+      "canonical": "canonical rewards/records/PDMS/scorer unchanged; never label A_raw as PDMS",
+      "mask": "all-zero A_raw group has PGmask0; allfail costtie remains zero",
+      "unchanged": "freshIL70/seed42/full103288/W3eta.1/G8/world8/4inner/PPOclip.005/Acap5/beta50 IL70 meananchor/LR",
+      "limitation": "metric-conditioned quality credit; not scene-risk inference or safety guarantee"
+    },
+    "files": {
+      "starVLA/rl/qwen_world_research_algorithms/safety_feasible_score.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/safety_feasible_score.py",
+        "sha256": "a6c53859c58d269d1372ba52bf406c1849620657402ae00f32a8b7521072453c"
+      },
+      "starVLA/rl/qwen_world_research_algorithms/safety_feasible_score_entry.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/safety_feasible_score_entry.py",
+        "sha256": "fe61b35c39375d72b90f85b49e98e608a18a6051b6a4857466e205aafe31ae68"
+      },
+      "tests/test_qwen_world_safety_feasible_score.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tests/test_qwen_world_safety_feasible_score.py",
+        "sha256": "2343e6739472254df8b73bce8c02b27c63860ce31d44a3548a503454142df33c"
+      }
+    },
+    "config_template": {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/PPO_SAFETY_FEASIBLE_SCORE_CONFIG_TEMPLATE_20261031.json",
+      "sha256": "114dec9c807d931385e82109d00a18380540bdefa9f6a81e39aeacbb60414251",
+      "formal_registration": false
+    },
+    "tests": {
+      "command": "python -m pytest -q tests/test_qwen_world_safety_feasible_score.py",
+      "passed": 3,
+      "coverage": "canonical order/preclamp bound,C-only nonzero/allfail nofake,actualW3collect/eight-rank native/fourinner savedA/poison rejection/isolation",
+      "seconds": 6.85,
+      "receipt": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_FEASIBLE_SCORE_CPU_CHECK_20261031.json",
+      "receipt_sha256": "a44500d072e5b124360d0a892f2a7ee257c51081a8af7628dff86b3c2ebcbdce"
+    },
+    "required_root_actions_if_later_authorized": "review/freeze/new config+role/worker whitelist/native budget registration; not done by this agent"
+  },
+  "provenance": {
+    "builder": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/build_safety_zero_credit_research_next_20261031.py",
+    "builder_sha256": "0190f6d410bc86e322a362f234730149632309807c4b222da20fb62dc06a79a3",
+    "process": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_PROCESS_DIAGNOSIS_20261031.json",
+    "process_sha256": "151b4980d32a97f51e8b3086e413fb89b9b51dbefff773a36d4c7ea327cced26",
+    "pilot_review": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_FRESH_PAIR_MATCHED_REVIEW_20261031.json",
+    "pilot_review_sha256": "4aec58d6c4396a18ffbd1df19ae869214843eae5a337a12eb699a46327db886f"
+  },
+  "scope": {
+    "CPU_only": true,
+    "new_GPU": 0,
+    "new_scores": 0,
+    "original_payload_or_journal_rescans": 0,
+    "live_runtime_owner_modified": false,
+    "registration": false,
+    "dispatch": false,
+    "git_stage": false,
+    "git_commit": false
+  },
+  "sha256": "1724e541e5ddecd411991937196b0e338082a6e26275a1aab160fd696813c7ee"
+}

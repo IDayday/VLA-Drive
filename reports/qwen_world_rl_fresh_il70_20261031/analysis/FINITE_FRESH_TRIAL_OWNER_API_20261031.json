@@ -1,0 +1,87 @@
+{
+  "schema": "finite_fresh_trial_owner_API_v1",
+  "status": "CPU_IMPLEMENTED_NOT_LAUNCHED",
+  "created_at": "2026-10-31T12:09:30.439576+00:00",
+  "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/finite_fresh_trial_owner.py",
+  "script_sha256": "8b78c53ea67b7429b5024fe65c04c4e2fd97ae7c4426f438b73aee1b3267f8d2",
+  "CLI": "--registration REG [--root ROOT] [--owner-root O] --prepare|--launch|--run|--self-check",
+  "first_use": {
+    "registration": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_FPO_FULLTIME_REGISTRATION_20261031.json",
+    "owner_root": "/mnt/project/qwen-world-rl-optimization-20261030/owners/FPO_FULLTIME",
+    "arms": [
+      "PPO_FPO_FULLTIME"
+    ],
+    "gates": [
+      1000,
+      5000
+    ],
+    "optimizer_update_cap_per_arm": 5000
+  },
+  "registration_required": {
+    "arms[]": [
+      "id",
+      "module",
+      "config",
+      "config_sha256",
+      "source",
+      "root",
+      "manifest"
+    ],
+    "gates": "increasing unique optimizer update integers,first1000,last=cap",
+    "optimizer_update_cap_per_arm": "explicit integer <=10000",
+    "owner_root": "recommended unique dedicated ROOT/owners/FPO_FULLTIME",
+    "comparisons": {
+      "primary": "PPO_SAFETY_FPO",
+      "secondary": [
+        "PPO_SAFETY_EP"
+      ]
+    },
+    "sha256": "optional canonical body seal; fullfile SHA is pinned by prepare/launch regardless",
+    "reviewer": {
+      "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/finite_fresh_trial_review.py",
+      "sha256": "exact fileSHA",
+      "argv": [
+        "--registration",
+        "REG"
+      ],
+      "output": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FPO_FULLTIME_MATCHED_REVIEW_20261031.json"
+    }
+  },
+  "RUNS_required_per_new_arm": [
+    "all six binding fields equal sealed registration",
+    "research_budget_updates=cap",
+    "fresh_Adam=true",
+    "training_seed=42",
+    "initial_updates=0",
+    "initial_scene_cursor=0",
+    "scientific_registration=absolute REG",
+    "job=actual own ROOT/jobs/ARM first dispatch with LAUNCH.json",
+    "stage_budget_updates in registered gates"
+  ],
+  "STATE_schema": "world_finite_sealed_fresh_trial_owner_v1; runs{arm:{status,updates,stages{u:{train_job,checkpoint,train_completed,NAVTEST/TRAIN_DIAGNOSTIC{spec,summary,status}}}}},results[{label,cohort,summary}],events,registration_sha256,global_budget_cap,budget_wait=false",
+  "finite_completion": "COMPLETED_AT_REGISTERED_CAP; training_status independent of evaluation_status; no automatic extension or budget wait",
+  "reuse": [
+    "CampaignOwner.train_to/run_evaluation/native_checkpoint/registry transactions",
+    "CadenceDispatch exact shared claims/frozen worlds/up-to32",
+    "Events/pidfd capacity wake; no journal polling",
+    "max2 simultaneous evaluations; CPUreview max1"
+  ],
+  "CPU_mock_checks": {
+    "status": "PASS",
+    "script_sha256": "8b78c53ea67b7429b5024fe65c04c4e2fd97ae7c4426f438b73aee1b3267f8d2",
+    "checks": [
+      "root_first_job_adopted_no_redispatch",
+      "native5k_before_any_evaluation_wait"
+    ],
+    "GPU": 0,
+    "dispatches": 0
+  },
+  "actions": {
+    "owner_launched": false,
+    "GPU_dispatched": false,
+    "running_owners_modified": false,
+    "scientific_source_changed": false,
+    "git_stage": false,
+    "git_commit": false
+  }
+}

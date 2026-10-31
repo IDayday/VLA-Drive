@@ -1,0 +1,1149 @@
+{
+  "schema": "world_Safety_PPO_credit_gradient_replay_interpretation_v1",
+  "status": "COMPLETE",
+  "at_unix": 1793446826.189003,
+  "scientific_status": "FINITE_SAME_THETA_GRADIENT_EVIDENCE_NOT_TRAINING_GAIN",
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/credit_replay_ca942fd",
+  "output": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031",
+  "attempts": [
+    {
+      "attempt": 1,
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/SAFETY_EP_CREDIT_GRADIENT_REPLAY/native028000_attempt001",
+      "host": "training-vlawm-tsinghua-zt3",
+      "lease": "research",
+      "returncode": 75,
+      "child_not_started": true,
+      "reason": "GPU admission lease became busy before child startup",
+      "result_sha256": "a7e518ac62264c55a6a0eb821dfb64802f734eb5507544fd3a71f0c160c124d2",
+      "launch_sha256": "c6fc33315a03d8eef5f9889feb5e4db8af02e48221b1ca2571ffe52a21a14a88"
+    },
+    {
+      "attempt": 2,
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/SAFETY_EP_CREDIT_GRADIENT_REPLAY/native028000_attempt002",
+      "host": "training-vlawm-tsinghua-zt3",
+      "lease": "primary",
+      "returncode": 75,
+      "child_not_started": true,
+      "reason": "GPU admission lease became busy before child startup",
+      "result_sha256": "5a857bff55764d62109417b3d5fda088e6df2886ef577fd255b88765ab711c51",
+      "launch_sha256": "bd2e7849886cfc08a31b44cbebde4315a52ed4b041614f564df3a739a9e2222a"
+    },
+    {
+      "attempt": 3,
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/SAFETY_EP_CREDIT_GRADIENT_REPLAY/native028000_attempt003",
+      "host": "training-vlawm-zt",
+      "lease": "research",
+      "returncode": 0,
+      "child_not_started": false,
+      "reason": null,
+      "result_sha256": "ff0084f890b0406048273ed4b968c11ecfa1b664b069ac13c4171e9f50309dcd",
+      "launch_sha256": "f288d107f94c045faedcc412429ff3f69e936e5a0de03a10eecb99f2c89393de"
+    }
+  ],
+  "attempt_evidence": {
+    "attempt": 3,
+    "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/SAFETY_EP_CREDIT_GRADIENT_REPLAY/native028000_attempt003",
+    "host": "training-vlawm-zt",
+    "lease": "research",
+    "returncode": 0,
+    "child_not_started": false,
+    "reason": null,
+    "result_sha256": "ff0084f890b0406048273ed4b968c11ecfa1b664b069ac13c4171e9f50309dcd",
+    "launch_sha256": "f288d107f94c045faedcc412429ff3f69e936e5a0de03a10eecb99f2c89393de"
+  },
+  "provenance": {
+    "summary": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031/SUMMARY.json",
+    "summary_sha256": "f2b61b1b334b66b3c9b5fc28c4d1012964fed332749f703d19a989bea591667e",
+    "protocol": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031/PROTOCOL.json",
+    "protocol_sha256": "b542b859bf30b021af2a90d60f04dad5a1c248558b267956cc59123674db8c39",
+    "native_updates": 28000,
+    "native_files_sha256": "875915403e121457edcca2fd1fe3501ce104dec6d467ec70badc6b14ca7666fe",
+    "policy_sha256": "48f75056ad7b79eca5296b419cf63b2d943d074a3eaa556e3bf77909a9499879",
+    "reference": "fixed original complete IL70",
+    "world": 8,
+    "groups": 24,
+    "candidates": 192,
+    "scopes": [
+      "all",
+      "action",
+      "memory",
+      "scene",
+      "predictive"
+    ],
+    "new_generation": 0,
+    "new_scoring": 0,
+    "optimizer_steps": 0,
+    "gradient_measurement_seconds": 10.273870594799519
+  },
+  "gradient_results": {
+    "case_metrics": [
+      {
+        "case": 0,
+        "scope_metrics": {
+          "action": {
+            "numel": 5242880,
+            "norms": {
+              "anchor": 0.004997564014047384,
+              "ppo_pg": 0.027836957946419716,
+              "safety_EP": 0.006870104931294918,
+              "safety_pg": 0.03466668352484703,
+              "safety_safe": 0.033443085849285126
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.1839043900187543,
+              "anchor__safety_EP": -0.13040218973763779,
+              "anchor__safety_pg": -0.37287182361880217,
+              "anchor__safety_safe": -0.3598179368537748,
+              "ppo_pg__safety_EP": 0.03856356871001893,
+              "ppo_pg__safety_pg": 0.868032606578248,
+              "ppo_pg__safety_safe": 0.8921831028285413,
+              "safety_EP__safety_pg": 0.274895398925194,
+              "safety_EP__safety_safe": 0.08079975576295585,
+              "safety_pg__safety_safe": 0.9805193202413446
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.2453474115804284,
+            "anchor_to_Safety_PG_norm_ratio": 0.1441604303009091,
+            "anchor_to_PPO_PG_norm_ratio": 0.1795298187275579,
+            "EP_to_safe_norm_ratio": 0.2054267648103942,
+            "safe_EP_cosine": 0.08079975576295585,
+            "PPO_Safety_PG_cosine": 0.868032606578248,
+            "PPO_Safety_PG_angle_degrees": 29.769185623848998,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.027362445565935204,
+              "safety_plus_beta50_anchor": 0.033129371769868105
+            },
+            "candidate_update_cosine": 0.8521298631215952,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 0.00023295930124373268,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.006719976575687178,
+            "rank_alignment_ratio": {
+              "anchor": 0.514705798644954,
+              "ppo_pg": 0.46235849703083726,
+              "safety_EP": 0.6084674749032919,
+              "safety_pg": 0.43106106425728563,
+              "safety_safe": 0.4718737515071271
+            }
+          },
+          "scene": {
+            "numel": 37985280,
+            "norms": {
+              "anchor": 0.002957564778625965,
+              "ppo_pg": 0.012164507061243057,
+              "safety_EP": 0.0032152922358363867,
+              "safety_pg": 0.015970174223184586,
+              "safety_safe": 0.01629341021180153
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.2388391843031055,
+              "anchor__safety_EP": -0.13028870178313426,
+              "anchor__safety_pg": -0.26097454976809553,
+              "anchor__safety_safe": -0.2299523910462458,
+              "ppo_pg__safety_EP": -0.1676966176596468,
+              "ppo_pg__safety_pg": 0.8976307715704441,
+              "ppo_pg__safety_safe": 0.9123753910063536,
+              "safety_EP__safety_pg": -0.002698735370595275,
+              "safety_EP__safety_safe": -0.19952280392024868,
+              "safety_pg__safety_safe": 0.9804252725938017
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.3128500927149478,
+            "anchor_to_Safety_PG_norm_ratio": 0.18519301901743448,
+            "anchor_to_PPO_PG_norm_ratio": 0.24313067218719997,
+            "EP_to_safe_norm_ratio": 0.1973369720666278,
+            "safe_EP_cosine": -0.19952280392024868,
+            "PPO_Safety_PG_cosine": 0.8976307715704441,
+            "PPO_Safety_PG_angle_degrees": 26.151630587610672,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.011812571060896001,
+              "safety_plus_beta50_anchor": 0.015464169029418275
+            },
+            "candidate_update_cosine": 0.8879866056798358,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 3.9148893256817674e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.0024513754646448096,
+            "rank_alignment_ratio": {
+              "anchor": 0.44132257308276723,
+              "ppo_pg": 0.45875927964266056,
+              "safety_EP": 0.5924715697135687,
+              "safety_pg": 0.45082241629171566,
+              "safety_safe": 0.5087778264746947
+            }
+          },
+          "predictive": {
+            "numel": 9479680,
+            "norms": {
+              "anchor": 0.0003600169438868761,
+              "ppo_pg": 0.0012777410447597504,
+              "safety_EP": 0.00023093419440556318,
+              "safety_pg": 0.0021222338546067476,
+              "safety_safe": 0.0021107173524796963
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.40517087484435604,
+              "anchor__safety_EP": -0.014738448819114361,
+              "anchor__safety_pg": -0.3749452544291731,
+              "anchor__safety_safe": -0.3755903659504432,
+              "ppo_pg__safety_EP": -0.14622732474622832,
+              "ppo_pg__safety_pg": 0.8909085926702364,
+              "ppo_pg__safety_safe": 0.9111900671547406,
+              "safety_EP__safety_pg": 0.09970057996126035,
+              "safety_EP__safety_safe": -0.00881277575681136,
+              "safety_pg__safety_safe": 0.9940907599572653
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.660926416436583,
+            "anchor_to_Safety_PG_norm_ratio": 0.16964056204521705,
+            "anchor_to_PPO_PG_norm_ratio": 0.28176049080005017,
+            "EP_to_safe_norm_ratio": 0.10941028846626902,
+            "safe_EP_cosine": -0.00881277575681136,
+            "PPO_Safety_PG_cosine": 0.8909085926702364,
+            "PPO_Safety_PG_angle_degrees": 27.012356812465722,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.0011787579669051123,
+              "safety_plus_beta50_anchor": 0.002015078727802213
+            },
+            "candidate_update_cosine": 0.8725683111700385,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 9.28593776027683e-06,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.0043755487832407266,
+            "rank_alignment_ratio": {
+              "anchor": 0.45102683920119285,
+              "ppo_pg": 0.4576672916668925,
+              "safety_EP": 0.5361768493196586,
+              "safety_pg": 0.5445203190442637,
+              "safety_safe": 0.577753813387126
+            }
+          },
+          "memory": {
+            "numel": 47464960,
+            "norms": {
+              "anchor": 0.00297939614392817,
+              "ppo_pg": 0.012231429107487202,
+              "safety_EP": 0.003223574720323086,
+              "safety_pg": 0.01611056551337242,
+              "safety_safe": 0.016429556533694267
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.24090635843385716,
+              "anchor__safety_EP": -0.12912929846680332,
+              "anchor__safety_pg": -0.26277296513117404,
+              "anchor__safety_safe": -0.23220645195707157,
+              "ppo_pg__safety_EP": -0.16744490339628873,
+              "ppo_pg__safety_pg": 0.8971999171943306,
+              "ppo_pg__safety_safe": 0.9120929661498024,
+              "safety_EP__safety_pg": -0.0017274721779046767,
+              "safety_EP__safety_safe": -0.1974421375236871,
+              "safety_pg__safety_safe": 0.9806513110836893
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.3171449854139032,
+            "anchor_to_Safety_PG_norm_ratio": 0.18493429926188196,
+            "anchor_to_PPO_PG_norm_ratio": 0.24358528490382192,
+            "EP_to_safe_norm_ratio": 0.19620582659745406,
+            "safe_EP_cosine": -0.1974421375236871,
+            "PPO_Safety_PG_cosine": 0.8971999171943306,
+            "PPO_Safety_PG_angle_degrees": 26.207584565336155,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.011871238729258573,
+              "safety_plus_beta50_anchor": 0.015594904479368133
+            },
+            "candidate_update_cosine": 0.8873861212142599,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 3.9771949023364345e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.002468687333809109,
+            "rank_alignment_ratio": {
+              "anchor": 0.4413096972744915,
+              "ppo_pg": 0.45851739418979437,
+              "safety_EP": 0.5919798280059371,
+              "safety_pg": 0.4513946498185387,
+              "safety_safe": 0.5089522542305817
+            }
+          },
+          "all": {
+            "numel": 52707840,
+            "norms": {
+              "anchor": 0.005818285513669252,
+              "ppo_pg": 0.03040565922856331,
+              "safety_EP": 0.007588792592287064,
+              "safety_pg": 0.03822733089327812,
+              "safety_safe": 0.03726084157824516
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.19424357151925198,
+              "anchor__safety_EP": -0.12948836834768165,
+              "anchor__safety_pg": -0.34715204040723546,
+              "anchor__safety_safe": -0.32982586714702344,
+              "ppo_pg__safety_EP": 0.003349334975872691,
+              "ppo_pg__safety_pg": 0.872785601080483,
+              "ppo_pg__safety_safe": 0.894903745087472,
+              "safety_EP__safety_pg": 0.22537251695358868,
+              "safety_EP__safety_safe": 0.028672024584841287,
+              "safety_pg__safety_safe": 0.9803151670897224
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.2572439428436097,
+            "anchor_to_Safety_PG_norm_ratio": 0.1522022432042813,
+            "anchor_to_PPO_PG_norm_ratio": 0.1913553483557926,
+            "EP_to_safe_norm_ratio": 0.20366669862652267,
+            "safe_EP_cosine": 0.028672024584841287,
+            "PPO_Safety_PG_cosine": 0.872785601080483,
+            "PPO_Safety_PG_angle_degrees": 29.216024185605868,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.029826661941603955,
+              "safety_plus_beta50_anchor": 0.03661633348520819
+            },
+            "candidate_update_cosine": 0.8577070863840064,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 0.00023538195001011268,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.006157425708513229,
+            "rank_alignment_ratio": {
+              "anchor": 0.4849860761297851,
+              "ppo_pg": 0.4549278816091049,
+              "safety_EP": 0.5826829004898163,
+              "safety_pg": 0.42736628672385835,
+              "safety_safe": 0.47229202129224335
+            }
+          }
+        },
+        "all8_current_old_logp_bit_equal": true,
+        "max_current_old_logp_abs": 0.0,
+        "total_advantage_cap_hits": 0,
+        "actual_total_branch_blocked_candidate_steps": 0,
+        "canonical_PPO_blocked_candidate_steps": 0,
+        "max_abs_Safety_PG_loss_scalar": 3.973643103449831e-08,
+        "source_case": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031/case0.json",
+        "source_case_sha256": "8876d05d08807dcc4221472704f0b719a2dc4cc1bed1f93d0a429bd3de52b67a"
+      },
+      {
+        "case": 1,
+        "scope_metrics": {
+          "action": {
+            "numel": 5242880,
+            "norms": {
+              "anchor": 0.008346960879862309,
+              "ppo_pg": 0.024457011371850967,
+              "safety_EP": 0.006842781789600849,
+              "safety_pg": 0.030317917466163635,
+              "safety_safe": 0.029535654932260513
+            },
+            "cosine": {
+              "anchor__ppo_pg": 0.16313307210180603,
+              "anchor__safety_EP": 0.07582258057853813,
+              "anchor__safety_pg": 0.0818456874257838,
+              "anchor__safety_safe": 0.06593441779445944,
+              "ppo_pg__safety_EP": 0.23622273020370776,
+              "ppo_pg__safety_pg": 0.8685019742825365,
+              "ppo_pg__safety_safe": 0.8368981430673638,
+              "safety_EP__safety_pg": 0.22592746249249618,
+              "safety_EP__safety_safe": 0.0010328307502072106,
+              "safety_pg__safety_safe": 0.97434371550054
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.2396411403340284,
+            "anchor_to_Safety_PG_norm_ratio": 0.27531445354642015,
+            "anchor_to_PPO_PG_norm_ratio": 0.3412911231447242,
+            "EP_to_safe_norm_ratio": 0.23167868819210694,
+            "safe_EP_cosine": 0.0010328307502072106,
+            "PPO_Safety_PG_cosine": 0.8685019742825365,
+            "PPO_Safety_PG_angle_degrees": 29.714976837550797,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.027100215720570045,
+              "safety_plus_beta50_anchor": 0.032097850694780196
+            },
+            "candidate_update_cosine": 0.882520190453848,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 0.0002451266115093768,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.008085206108993164,
+            "rank_alignment_ratio": {
+              "anchor": 0.6028675983619776,
+              "ppo_pg": 0.40000738993800533,
+              "safety_EP": 0.5638222982515365,
+              "safety_pg": 0.4216284679869444,
+              "safety_safe": 0.44943831880589136
+            }
+          },
+          "scene": {
+            "numel": 37985280,
+            "norms": {
+              "anchor": 0.003040248528122902,
+              "ppo_pg": 0.011625774204730988,
+              "safety_EP": 0.0035568377934396267,
+              "safety_pg": 0.016229648143053055,
+              "safety_safe": 0.016475340351462364
+            },
+            "cosine": {
+              "anchor__ppo_pg": 0.06133570919398833,
+              "anchor__safety_EP": -0.2310651934051996,
+              "anchor__safety_pg": 0.19159573705282382,
+              "anchor__safety_safe": 0.23805206380545677,
+              "ppo_pg__safety_EP": 0.09668067721733152,
+              "ppo_pg__safety_pg": 0.7121792241329059,
+              "ppo_pg__safety_safe": 0.6803326659489825,
+              "safety_EP__safety_pg": 0.03673800499504794,
+              "safety_EP__safety_safe": -0.17957095941349988,
+              "safety_pg__safety_safe": 0.9764753622124674
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.3960057934420032,
+            "anchor_to_Safety_PG_norm_ratio": 0.1873268293511496,
+            "anchor_to_PPO_PG_norm_ratio": 0.26150933904132634,
+            "EP_to_safe_norm_ratio": 0.2158885775688342,
+            "safe_EP_cosine": -0.17957095941349988,
+            "PPO_Safety_PG_cosine": 0.7121792241329059,
+            "PPO_Safety_PG_angle_degrees": 44.587499260927544,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.012195802066846492,
+              "safety_plus_beta50_anchor": 0.017074896382478152
+            },
+            "candidate_update_cosine": 0.7454802736205204,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 6.831951285308936e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.004209549846731143,
+            "rank_alignment_ratio": {
+              "anchor": 0.407545095874401,
+              "ppo_pg": 0.4137463381721991,
+              "safety_EP": 0.5382591660024753,
+              "safety_pg": 0.45428430608446474,
+              "safety_safe": 0.5069019015789317
+            }
+          },
+          "predictive": {
+            "numel": 9479680,
+            "norms": {
+              "anchor": 0.00045662125921808183,
+              "ppo_pg": 0.0010240362025797367,
+              "safety_EP": 0.00042637548176571727,
+              "safety_pg": 0.0012153034331277013,
+              "safety_safe": 0.0013539902865886688
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.203852428063235,
+              "anchor__safety_EP": -0.02269340448893813,
+              "anchor__safety_pg": -0.23757866654948503,
+              "anchor__safety_safe": -0.20667430302810236,
+              "ppo_pg__safety_EP": -0.2856462659052813,
+              "ppo_pg__safety_pg": 0.7302362340595105,
+              "ppo_pg__safety_safe": 0.7473804954389672,
+              "safety_EP__safety_pg": -0.16687537822763449,
+              "safety_EP__safety_safe": -0.46433504165239387,
+              "safety_pg__safety_safe": 0.9506767108932447
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.1867778014743298,
+            "anchor_to_Safety_PG_norm_ratio": 0.37572613289088036,
+            "anchor_to_PPO_PG_norm_ratio": 0.44590343394869086,
+            "EP_to_safe_norm_ratio": 0.3149029103007492,
+            "safe_EP_cosine": -0.46433504165239387,
+            "PPO_Safety_PG_cosine": 0.7302362340595105,
+            "PPO_Safety_PG_angle_degrees": 43.093797955706634,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.0010327205203442087,
+              "safety_plus_beta50_anchor": 0.0011923861548041469
+            },
+            "candidate_update_cosine": 0.7228605346508721,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 1.2904062159043709e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.010617975566672969,
+            "rank_alignment_ratio": {
+              "anchor": 0.448702135027262,
+              "ppo_pg": 0.3449697276838409,
+              "safety_EP": 0.46692792158470464,
+              "safety_pg": 0.32417937741485736,
+              "safety_safe": 0.41354925170458307
+            }
+          },
+          "memory": {
+            "numel": 47464960,
+            "norms": {
+              "anchor": 0.0030743477400392294,
+              "ppo_pg": 0.011670787818729877,
+              "safety_EP": 0.0035823022481054068,
+              "safety_pg": 0.016275085508823395,
+              "safety_safe": 0.016530882567167282
+            },
+            "cosine": {
+              "anchor__ppo_pg": 0.057764808896996804,
+              "anchor__safety_EP": -0.22727921446019791,
+              "anchor__safety_pg": 0.18630672892117,
+              "anchor__safety_safe": 0.2321064877119301,
+              "ppo_pg__safety_EP": 0.09264004986643887,
+              "ppo_pg__safety_pg": 0.7122363051479815,
+              "ppo_pg__safety_safe": 0.6808028839643062,
+              "safety_EP__safety_pg": 0.03489187366802505,
+              "safety_EP__safety_safe": -0.18222213574347448,
+              "safety_pg__safety_safe": 0.9762920165344097
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.3945147287061723,
+            "anchor_to_Safety_PG_norm_ratio": 0.18889902227379995,
+            "anchor_to_PPO_PG_norm_ratio": 0.2634224687990093,
+            "EP_to_safe_norm_ratio": 0.2167036293162215,
+            "safe_EP_cosine": -0.18222213574347448,
+            "PPO_Safety_PG_cosine": 0.7122363051479815,
+            "PPO_Safety_PG_angle_degrees": 44.58284021970371,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.012239449006088038,
+              "safety_plus_beta50_anchor": 0.0171164785569851
+            },
+            "candidate_update_cosine": 0.7452661546648323,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 6.890879157814469e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.004234004886842923,
+            "rank_alignment_ratio": {
+              "anchor": 0.40788003411026064,
+              "ppo_pg": 0.4129061285675346,
+              "safety_EP": 0.5366942549308359,
+              "safety_pg": 0.4528830552377472,
+              "safety_safe": 0.5058983628074823
+            }
+          },
+          "all": {
+            "numel": 52707840,
+            "norms": {
+              "anchor": 0.008895131759345531,
+              "ppo_pg": 0.027098940685391426,
+              "safety_EP": 0.0077237654477357864,
+              "safety_pg": 0.03441009670495987,
+              "safety_safe": 0.033847082406282425
+            },
+            "cosine": {
+              "anchor__ppo_pg": 0.1467540705388436,
+              "anchor__safety_EP": 0.026601601687334046,
+              "anchor__safety_pg": 0.0981238559231371,
+              "anchor__safety_safe": 0.09316986825732361,
+              "ppo_pg__safety_EP": 0.20738042675688395,
+              "ppo_pg__safety_pg": 0.8356945654490583,
+              "ppo_pg__safety_safe": 0.8022968952028015,
+              "safety_EP__safety_pg": 0.18400843597373107,
+              "safety_EP__safety_safe": -0.040478621892018944,
+              "safety_pg__safety_safe": 0.9746429362801925
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.2697949010054759,
+            "anchor_to_Safety_PG_norm_ratio": 0.25850353852866065,
+            "anchor_to_PPO_PG_norm_ratio": 0.3282464751155658,
+            "EP_to_safe_norm_ratio": 0.22819590046266922,
+            "safe_EP_cosine": -0.040478621892018944,
+            "PPO_Safety_PG_cosine": 0.8356945654490583,
+            "PPO_Safety_PG_angle_degrees": 33.31176949228217,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.02973593273888082,
+              "safety_plus_beta50_anchor": 0.03637644957820486
+            },
+            "candidate_update_cosine": 0.8540342633811423,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 0.00025506917236359764,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.007412625850796635,
+            "rank_alignment_ratio": {
+              "anchor": 0.5555072126419444,
+              "ppo_pg": 0.39897300731707774,
+              "safety_EP": 0.5541999267851039,
+              "safety_pg": 0.42379814715429787,
+              "safety_safe": 0.4567668234687073
+            }
+          }
+        },
+        "all8_current_old_logp_bit_equal": true,
+        "max_current_old_logp_abs": 0.0,
+        "total_advantage_cap_hits": 0,
+        "actual_total_branch_blocked_candidate_steps": 0,
+        "canonical_PPO_blocked_candidate_steps": 0,
+        "max_abs_Safety_PG_loss_scalar": 1.9868215517249155e-08,
+        "source_case": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031/case1.json",
+        "source_case_sha256": "de8e2e014a21df3735ccd6e438b2ad4511c18443d4084144543ddeea211dcf46"
+      },
+      {
+        "case": 2,
+        "scope_metrics": {
+          "action": {
+            "numel": 5242880,
+            "norms": {
+              "anchor": 0.007639600895345211,
+              "ppo_pg": 0.03539412468671799,
+              "safety_EP": 0.0036888846661895514,
+              "safety_pg": 0.04236176609992981,
+              "safety_safe": 0.0432906299829483
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.6587181532206171,
+              "anchor__safety_EP": 0.032503059413550466,
+              "anchor__safety_pg": -0.6777633259220053,
+              "anchor__safety_safe": -0.6660307903318494,
+              "ppo_pg__safety_EP": -0.2682090839941585,
+              "ppo_pg__safety_pg": 0.9730541215059436,
+              "ppo_pg__safety_safe": 0.9750292851491599,
+              "safety_EP__safety_pg": -0.21136119272513615,
+              "safety_EP__safety_safe": -0.29178627003037033,
+              "safety_pg__safety_safe": 0.9965407626516607
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.196858701122972,
+            "anchor_to_Safety_PG_norm_ratio": 0.18034188842183022,
+            "anchor_to_PPO_PG_norm_ratio": 0.21584375833461564,
+            "EP_to_safe_norm_ratio": 0.08521208094321016,
+            "safe_EP_cosine": -0.29178627003037033,
+            "PPO_Safety_PG_cosine": 0.9730541215059436,
+            "PPO_Safety_PG_angle_degrees": 13.331034775627959,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.0309010801885395,
+              "safety_plus_beta50_anchor": 0.03760582034553693
+            },
+            "candidate_update_cosine": 0.963686268671473,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 0.00015149514963443502,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.003576223646508592,
+            "rank_alignment_ratio": {
+              "anchor": 0.6684015309449766,
+              "ppo_pg": 0.5345087509371649,
+              "safety_EP": 0.4743711615104362,
+              "safety_pg": 0.5824655819652313,
+              "safety_safe": 0.6201623363667187
+            }
+          },
+          "scene": {
+            "numel": 37985280,
+            "norms": {
+              "anchor": 0.0037737246602773666,
+              "ppo_pg": 0.01707434467971325,
+              "safety_EP": 0.002622604602947831,
+              "safety_pg": 0.018558364361524582,
+              "safety_safe": 0.01924682781100273
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.3411808725131893,
+              "anchor__safety_EP": -0.16398897941868468,
+              "anchor__safety_pg": -0.3295263916313253,
+              "anchor__safety_safe": -0.29557946461039003,
+              "ppo_pg__safety_EP": -0.29827184712762533,
+              "ppo_pg__safety_pg": 0.9687640193676029,
+              "ppo_pg__safety_safe": 0.975115096924972,
+              "safety_EP__safety_pg": -0.19396812747237557,
+              "safety_EP__safety_safe": -0.3232726355571025,
+              "safety_pg__safety_safe": 0.9910324510232592
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.0869151765206286,
+            "anchor_to_Safety_PG_norm_ratio": 0.20334360220349465,
+            "anchor_to_PPO_PG_norm_ratio": 0.22101724728335187,
+            "EP_to_safe_norm_ratio": 0.13626165458022027,
+            "safe_EP_cosine": -0.3232726355571025,
+            "PPO_Safety_PG_cosine": 0.9687640193676029,
+            "PPO_Safety_PG_angle_degrees": 14.358272803394332,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.016180452165389183,
+              "safety_plus_beta50_anchor": 0.017677603891098806
+            },
+            "candidate_update_cosine": 0.9654645515871306,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 6.373735810794078e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.0034344275641059086,
+            "rank_alignment_ratio": {
+              "anchor": 0.48194367614620826,
+              "ppo_pg": 0.5318805669150594,
+              "safety_EP": 0.5595574916024469,
+              "safety_pg": 0.5190408930177309,
+              "safety_safe": 0.5830114402684229
+            }
+          },
+          "predictive": {
+            "numel": 9479680,
+            "norms": {
+              "anchor": 0.00040054263081401587,
+              "ppo_pg": 0.0017836133483797312,
+              "safety_EP": 0.00030762149253860116,
+              "safety_pg": 0.0020293372217565775,
+              "safety_safe": 0.002085072686895728
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.5114265942679904,
+              "anchor__safety_EP": -0.1821686725291983,
+              "anchor__safety_pg": -0.5200290842550693,
+              "anchor__safety_safe": -0.47814652352437625,
+              "ppo_pg__safety_EP": -0.19245648904978854,
+              "ppo_pg__safety_pg": 0.9659505673994772,
+              "ppo_pg__safety_safe": 0.9668672249051865,
+              "safety_EP__safety_pg": -0.11938863012247358,
+              "safety_EP__safety_safe": -0.263686388387926,
+              "safety_pg__safety_safe": 0.9891631557006011
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.1377674559343631,
+            "anchor_to_Safety_PG_norm_ratio": 0.19737608245676855,
+            "anchor_to_PPO_PG_norm_ratio": 0.22456808319912863,
+            "EP_to_safe_norm_ratio": 0.14753514084757896,
+            "safe_EP_cosine": -0.263686388387926,
+            "PPO_Safety_PG_cosine": 0.9659505673994772,
+            "PPO_Safety_PG_angle_degrees": 14.994521986741656,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.001615849984850391,
+              "safety_plus_beta50_anchor": 0.0018529023624701136
+            },
+            "candidate_update_cosine": 0.9581374724230414,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 1.5580050005016326e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.007677408090672266,
+            "rank_alignment_ratio": {
+              "anchor": 0.48923587337521063,
+              "ppo_pg": 0.40318830965844565,
+              "safety_EP": 0.5402909752352076,
+              "safety_pg": 0.3964973560024863,
+              "safety_safe": 0.4381825578679457
+            }
+          },
+          "memory": {
+            "numel": 47464960,
+            "norms": {
+              "anchor": 0.0037949217949062586,
+              "ppo_pg": 0.01716725155711174,
+              "safety_EP": 0.0026405842509120703,
+              "safety_pg": 0.018668988719582558,
+              "safety_safe": 0.019359439611434937
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.34304731425044604,
+              "anchor__safety_EP": -0.16420257398272126,
+              "anchor__safety_pg": -0.33171037168763845,
+              "anchor__safety_safe": -0.29765415616608315,
+              "ppo_pg__safety_EP": -0.29696713513953304,
+              "ppo_pg__safety_pg": 0.9687208711156609,
+              "ppo_pg__safety_safe": 0.9750156613271892,
+              "safety_EP__safety_pg": -0.1930177249661808,
+              "safety_EP__safety_safe": -0.3225123570358151,
+              "safety_pg__safety_safe": 0.9910100157914083
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.0874768542579376,
+            "anchor_to_Safety_PG_norm_ratio": 0.2032740954482249,
+            "anchor_to_PPO_PG_norm_ratio": 0.22105587387016337,
+            "EP_to_safe_norm_ratio": 0.1363977627406307,
+            "safe_EP_cosine": -0.3225123570358151,
+            "PPO_Safety_PG_cosine": 0.9687208711156609,
+            "PPO_Safety_PG_angle_degrees": 14.368238643415406,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.01626093496314843,
+              "safety_plus_beta50_anchor": 0.01777444705726164
+            },
+            "candidate_update_cosine": 0.9653769868233179,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 6.587972999676473e-05,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.003528832278293745,
+            "rank_alignment_ratio": {
+              "anchor": 0.48185371183339853,
+              "ppo_pg": 0.5290141559897655,
+              "safety_EP": 0.5591849806192914,
+              "safety_pg": 0.5157861859803109,
+              "safety_safe": 0.5791777864529052
+            }
+          },
+          "all": {
+            "numel": 52707840,
+            "norms": {
+              "anchor": 0.008530235849320889,
+              "ppo_pg": 0.039337750524282455,
+              "safety_EP": 0.004536579363048077,
+              "safety_pg": 0.04629308730363846,
+              "safety_safe": 0.04742221161723137
+            },
+            "cosine": {
+              "anchor__ppo_pg": -0.5974019739246973,
+              "anchor__safety_EP": -0.018849882376359362,
+              "anchor__safety_pg": -0.6149629468287534,
+              "anchor__safety_safe": -0.598581355058985,
+              "ppo_pg__safety_EP": -0.2716630250870153,
+              "ppo_pg__safety_pg": 0.9716433206143003,
+              "ppo_pg__safety_safe": 0.974556035718808,
+              "safety_EP__safety_pg": -0.20257923093636124,
+              "safety_EP__safety_safe": -0.2932278503706389,
+              "safety_pg__safety_safe": 0.9956157497744537
+            },
+            "Safety_to_PPO_PG_norm_ratio": 1.1768107399802286,
+            "anchor_to_Safety_PG_norm_ratio": 0.18426586659409178,
+            "anchor_to_PPO_PG_norm_ratio": 0.21684605081969122,
+            "EP_to_safe_norm_ratio": 0.09566359746494113,
+            "safe_EP_cosine": -0.2932278503706389,
+            "PPO_Safety_PG_cosine": 0.9716433206143003,
+            "PPO_Safety_PG_angle_degrees": 13.67719240618955,
+            "candidate_update_norms": {
+              "ppo_plus_beta50_anchor": 0.034918401753463835,
+              "safety_plus_beta50_anchor": 0.04159481034471549
+            },
+            "candidate_update_cosine": 0.9631371345894872,
+            "BF16_separate_attribution_sum_residual_norm_from_Gram": 0.00016266971191029696,
+            "BF16_separate_attribution_sum_residual_relative_to_Safety": 0.003513909341222782,
+            "rank_alignment_ratio": {
+              "anchor": 0.6103544024658032,
+              "ppo_pg": 0.5300213570674893,
+              "safety_EP": 0.49319778881799137,
+              "safety_pg": 0.5667361024034548,
+              "safety_safe": 0.6101686563661366
+            }
+          }
+        },
+        "all8_current_old_logp_bit_equal": true,
+        "max_current_old_logp_abs": 0.0,
+        "total_advantage_cap_hits": 0,
+        "actual_total_branch_blocked_candidate_steps": 0,
+        "canonical_PPO_blocked_candidate_steps": 0,
+        "max_abs_Safety_PG_loss_scalar": 5.960464477539063e-08,
+        "source_case": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_CREDIT_GRADIENT_REPLAY_20261031/case2.json",
+        "source_case_sha256": "4e29e73c7e5b85a77dc5aafe9ab2ec4162d28aa1f8358775f225f8cafdab5898"
+      }
+    ],
+    "source_credit_counts": {
+      "groups": 24,
+      "candidates": 192,
+      "feasible": 151,
+      "positive_PPO_unsafe": 4,
+      "positive_Safety_unsafe": 0,
+      "negative_PPO_feasible": 29,
+      "negative_Safety_feasible": 32,
+      "opposite_nonzero_credit_signs": 34,
+      "group_classes": {
+        "success_EP1_saturation": 2,
+        "mixed_feasible": 15,
+        "all_feasible_progress_signal": 7
+      },
+      "canonical_PPO_PG0_groups": 0,
+      "Safety_PG0_groups": 2
+    },
+    "Comfort_variable_Safety_PG0_groups": [
+      {
+        "case": 0,
+        "rank": 0,
+        "token": "c358fc1d3641547a",
+        "log": "2021.06.14.18.42.45_veh-12_04838_04927",
+        "metrics_NC_DAC_TTC_EP": [
+          [
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ]
+        ],
+        "Comfort": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rewards": [
+          1.0,
+          0.8333333134651184,
+          0.8333333134651184,
+          0.8333333134651184,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "canonical_PPO_advantages": [
+          0.21785728633403778,
+          -0.3630954623222351,
+          -0.3630954623222351,
+          -0.3630954623222351,
+          0.21785728633403778,
+          0.21785728633403778,
+          0.21785728633403778,
+          0.21785728633403778
+        ],
+        "Safety_advantages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_component_norms": {
+          "anchor": {
+            "action": 0.010250597260892391,
+            "scene": 0.003369260812178254,
+            "predictive": 0.0004525722761172801,
+            "memory": 0.0033995206467807293,
+            "all": 0.010799604468047619
+          },
+          "ppo_pg": {
+            "action": 0.03197323530912399,
+            "scene": 0.00591787975281477,
+            "predictive": 0.0010089566931128502,
+            "memory": 0.006003273651003838,
+            "all": 0.03253193944692612
+          },
+          "safety_EP": {
+            "action": 0.0,
+            "scene": 0.0,
+            "predictive": 0.0,
+            "memory": 0.0,
+            "all": 0.0
+          },
+          "safety_pg": {
+            "action": 0.0,
+            "scene": 0.0,
+            "predictive": 0.0,
+            "memory": 0.0,
+            "all": 0.0
+          },
+          "safety_safe": {
+            "action": 0.0,
+            "scene": 0.0,
+            "predictive": 0.0,
+            "memory": 0.0,
+            "all": 0.0
+          }
+        },
+        "unaveraged_local_PPO_norms": {
+          "action": 0.03197323530912399,
+          "scene": 0.00591787975281477,
+          "predictive": 0.0010089566931128502,
+          "memory": 0.006003273651003838,
+          "all": 0.03253193944692612
+        },
+        "equal_rank_1_over8_contribution_norms": {
+          "action": 0.003996654413640499,
+          "scene": 0.0007397349691018462,
+          "predictive": 0.00012611958663910627,
+          "memory": 0.0007504092063754797,
+          "all": 0.004066492430865765
+        },
+        "original_scored_rollout": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_GRADIENT_PROBE_20261031/case0_rank0.pt",
+        "original_scored_rollout_sha256": "ec7543b9e981652b8234ea5f995e05cf3d6bd6ee82f27ab68e4234af4f1e3301",
+        "conclusion": "Canonical PPO has measured nonzero action and Memory PG; Safety PG is exactly zero, while its IL anchor remains active. No group-local gradient vector/cosine was stored, so its exact effect on the global rotation is not identifiable."
+      },
+      {
+        "case": 2,
+        "rank": 2,
+        "token": "1715472edf1857e8",
+        "log": "2021.09.15.15.34.53_veh-28_01820_02314",
+        "metrics_NC_DAC_TTC_EP": [
+          [
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ]
+        ],
+        "Comfort": [
+          0.0,
+          1.0,
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rewards": [
+          0.8333333134651184,
+          1.0,
+          1.0,
+          1.0,
+          0.8333333134651184,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "canonical_PPO_advantages": [
+          -0.5057345628738403,
+          0.16857819259166718,
+          0.16857819259166718,
+          0.16857819259166718,
+          -0.5057345628738403,
+          0.16857819259166718,
+          0.16857819259166718,
+          0.16857819259166718
+        ],
+        "Safety_advantages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_component_norms": {
+          "anchor": {
+            "action": 0.009729999117553234,
+            "scene": 0.005057414527982473,
+            "predictive": 0.0005390522419475019,
+            "memory": 0.005086061079055071,
+            "all": 0.010979111306369305
+          },
+          "ppo_pg": {
+            "action": 0.03053727187216282,
+            "scene": 0.005369939841330051,
+            "predictive": 0.0010266609024256468,
+            "memory": 0.00546720065176487,
+            "all": 0.0310228168964386
+          },
+          "safety_EP": {
+            "action": 0.0,
+            "scene": 0.0,
+            "predictive": 0.0,
+            "memory": 0.0,
+            "all": 0.0
+          },
+          "safety_pg": {
+            "action": 0.0,
+            "scene": 0.0,
+            "predictive": 0.0,
+            "memory": 0.0,
+            "all": 0.0
+          },
+          "safety_safe": {
+            "action": 0.0,
+            "scene": 0.0,
+            "predictive": 0.0,
+            "memory": 0.0,
+            "all": 0.0
+          }
+        },
+        "unaveraged_local_PPO_norms": {
+          "action": 0.03053727187216282,
+          "scene": 0.005369939841330051,
+          "predictive": 0.0010266609024256468,
+          "memory": 0.00546720065176487,
+          "all": 0.0310228168964386
+        },
+        "equal_rank_1_over8_contribution_norms": {
+          "action": 0.0038171589840203524,
+          "scene": 0.0006712424801662564,
+          "predictive": 0.00012833261280320585,
+          "memory": 0.0006834000814706087,
+          "all": 0.003877852112054825
+        },
+        "original_scored_rollout": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_NATIVE28K_GRADIENT_PROBE_20261031/case2_rank2.pt",
+        "original_scored_rollout_sha256": "70462561307e6e1c65552ba3f4ce36af67976f16157a70980c517cc7ee01a23f",
+        "conclusion": "Canonical PPO has measured nonzero action and Memory PG; Safety PG is exactly zero, while its IL anchor remains active. No group-local gradient vector/cosine was stored, so its exact effect on the global rotation is not identifiable."
+      }
+    ]
+  },
+  "paired_training_basis": {
+    "theta": "same sealed SafetyEP28000 for both objectives; not trained PPO theta",
+    "sample": "same previously scored SDE G8 chains, same saved old logp, same current legal observations",
+    "advantages": "original canonical-PPO source group centering/raw64 reward population std and tie mask versus actual saved Safety raw64 structured-A std and mask",
+    "attribution": "A_safe receives total A cap gain and actual total-A PPO clip branch; EP objective is exact SafetyPG\u2212safe complement; neither part independently selects clipping",
+    "beta50_anchor": "identical physical IL-reference mean penalty forward; candidate sums are geometries of separately measured vectors, not new optimizer updates",
+    "scalar_vs_gradient": "At ratio1 centered policy loss value is approximately0 even with nonzero PG; PG0 classification uses actual A/mask and measured gradient, never the scalar loss value",
+    "all24_current_old_logp_bit_equal": true,
+    "first_inner_proxy_ratio": 1,
+    "cap_hits": 0,
+    "Safety_blocked": 0,
+    "canonical_PPO_blocked": 0
+  },
+  "mechanism_interpretation": {
+    "changed_credit_changes_parameters": "Measured whole-model and Memory PG rotation demonstrates a parameter-level difference, beyond comparing scalar advantages. Magnitude incorporates both credit definition and its actual normalization.",
+    "safe_EP_conflict": "All3 Memory safe/EP cosines are negative. Shared parameters couple otherwise candidate-local feasibility and within-feasible efficiency preferences; this is partial gradient cancellation, not proof EP is unsafe or should be removed.",
+    "anchor": "Weighted anchor norm is15.2\u201325.9% of Safety whole-model PG here; its alignment varies. These observations reject a blanket anchor-dominates explanation for this bounded window, not all training.",
+    "Comfort": "The two EP1/strict-feasible groups still have Comfort0/1 and PDMS5/6 versus1. Current Safety ignores that distinction and has measured zero PG; canonical PPO has nonzero action/Memory gradients. Anchor remains, with unknown effect on Comfort.",
+    "no_clip_explanation": "All current/old logp are bit-identical, no A-cap hits or actual PPO blocked candidate-steps; this run isolates first-inner credit differences and cannot settle later-inner clipping pathology."
+  },
+  "next_research_conditions": [
+    {
+      "priority": 1,
+      "hypothesis": "Recover the current canonical Comfort distinction inside feasible quality credit",
+      "candidate": "A_quality=f*[(EP+0.4*Comfort)\u2212mean_feasible(EP+0.4*Comfort)], leaving A_safe/sourcePG/anchor/sampler unchanged",
+      "reason": "Restores the observed lost teacher-independent canonical quality distinction while keeping original EP coefficient1; this is an unregistered testable future direction, not an approved recipe or proven gain",
+      "caution": "Changes normalized total-A population and hence scale; must report zero repair and fixed-high retention alongside matched PDMS and safety."
+    },
+    {
+      "priority": 2,
+      "hypothesis": "Measure whether partial safe/EP Memory cancellation predicts future high-score degradation",
+      "candidate": "Reuse sparse real gradient probes at a few matched native milestones before deciding to alter EP coefficient",
+      "reason": "Only3 same-theta cases are currently measured; negative cosine alone does not determine usefulness."
+    },
+    {
+      "priority": 3,
+      "hypothesis": "Later-inner transition proxy clipping may differ from first-inner credit effects",
+      "candidate": "If existing saved native pendingrollout is already available, consider separately authorized same-chain later-inner probe",
+      "reason": "This diagnostic has ratio1 and zero clip blocking; it neither validates nor rules out Flow-DPPO/FPO clipping ideas."
+    }
+  ],
+  "numerical_limits": {
+    "BF16_objective_complement": "Scalar safety_safe+safety_EP equals original SafetyPG by construction; separately backpropagated BF16 component gradients are not bitexact additive.",
+    "observed_all_scope_attribution_Gram_residual_relative": [
+      0.006157425708513229,
+      0.007412625850796635,
+      0.003513909341222782
+    ],
+    "previous_fresh_P1_fused_vs_component_sum_discrepancy": ".34% at another probe; current three-case attribution residual is separately measured and must not be silently replaced by that historical value",
+    "actual_update": "Raw equal-rank-mean gradients before Adam preconditioning/global clip; not an actual parameter displacement. All-five component sum has no update meaning and is omitted.",
+    "pooling": "Each case is one real equal8rank mean. No 24-group pooled gradient vector is stored; do not average cosines/norms and present that as a pooled gradient.",
+    "inference": "Fixed first24 TRAIN-panel scenes,3 cases,1 Safety theta, no population CI/cross-training-seed claim or causal final-score attribution."
+  },
+  "conclusions_zh": [
+    "\u540c\u03b8\u540crollout\u771f\u5b9ePG\uff1aSafety\u5168\u6a21\u578b\u8303\u6570\u4e3a\u539fPPO\u76841.18\u20131.27\u500d\uff0c\u65b9\u5411cos0.836\u20130.972\uff1bMemory\u65b9\u5411cos0.712\u20130.969\uff0c\u8bc1\u5b9e\u4fe1\u7528\u53d8\u5316\u5b9e\u9645\u8fdb\u5165\u8868\u5f81\u68af\u5ea6\u3002",
+    "\u5b89\u5168\u9879\u4e3b\u5bfcSafetyPG\u65b9\u5411\uff1bEP\u4e0e\u5b89\u5168\u9879\u7684Memory\u68af\u5ea6\u4e09\u6b21\u5747\u90e8\u5206\u51b2\u7a81\uff0c\u4f46EP\u4ec5\u4e3a\u5b89\u5168\u9879\u8303\u6570\u768413.6\u201321.7%\uff0c\u4e0d\u80fd\u79f0EP\u5168\u9762\u4e3b\u5bfc\u6216\u636e\u6b64\u5220\u9664\u3002",
+    "\u4e24\u4e2aNC/DAC/TTC/EP\u51681\u4f46Comfort\u6709\u5dee\u5f02\u7684\u7ec4\uff1aSafety\u771f\u5b9ePG\u4e3a0\uff0c\u539fPPO\u5168\u6a21\u578b\u672c\u5730PG\u8303\u65700.03253\u548c0.03102\uff1b\u5f53\u524dSafety\u4fe1\u7528\u4e22\u5931\u4e86canonical PDMS\u4e2d\u7684\u8fd9\u90e8\u5206\u533a\u5206\u3002",
+    "beta50 anchor\u4e0d\u662f\u6b64\u7a97\u53e3\u7684\u68af\u5ea6\u4e3b\u5bfc\u9879\uff1b\u4e0d\u540ccase\u53ef\u80fd\u540c\u5411\u6216\u53cd\u5411\u3002scalar loss\u63a5\u8fd10\u4e0d\u7b49\u4e8e\u6ca1\u6709PG\u3002",
+    "\u5168\u90e8\u65b0\u65e7logp\u9010bit\u76f8\u540c\uff0ccap\u4e0eclip\u963b\u585e\u51680\uff1b\u8fd9\u662ffirst-inner\u4fe1\u7528\u8bca\u65ad\uff0c\u4e0d\u662f\u540e\u7eedinner clip\u6216\u6700\u7ec8\u63d0\u5206\u7684\u56e0\u679c\u8bc1\u636e\u3002"
+  ]
+}

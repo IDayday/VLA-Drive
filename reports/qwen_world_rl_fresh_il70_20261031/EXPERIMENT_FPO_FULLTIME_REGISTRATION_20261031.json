@@ -1,0 +1,121 @@
+{
+  "schema": "world_fresh_IL70_FPO_time_coverage_registration_v1",
+  "status": "AUTHORIZED",
+  "created_unix": 1793448598.3493128,
+  "target_PDMS": 92.0,
+  "arms": [
+    {
+      "id": "PPO_FPO_FULLTIME",
+      "algorithm": "PER_MC_FPO_SIGMA_UPPER_1",
+      "module": "starVLA.rl.qwen_world_research_algorithms.fpo_entry",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_FPO_FULLTIME.yaml",
+      "config_sha256": "c13bc6d34d17aba76fb4d0ac076de2990952c3860d0e8c31a753da95a91b76ef",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/fpo_fulltime_20261031",
+      "source_commit": "128a843",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/FPO_FULLTIME_128a843/PPO_FPO_FULLTIME",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "host": "training-vlawm-zt",
+      "lease": "research",
+      "data_policy": "uniform_full",
+      "data_scenes": 103288,
+      "status": "REGISTERED_FRESH_IL70",
+      "research_budget_updates": 5000,
+      "stage_budget_updates": 0,
+      "completed_updates": 0,
+      "source_identity_ceiling_updates": 50000,
+      "parent_PDMS": 88.79290990699972,
+      "parent_updates": 70000,
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "fresh_Adam": true,
+      "training_seed": 42,
+      "initial_updates": 0,
+      "initial_scene_cursor": 0,
+      "new_training_authorized": true,
+      "new_evaluation_authorized": true,
+      "scientific_registration": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_FPO_FULLTIME_REGISTRATION_20261031.json",
+      "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/FPO_FULLTIME/STATE.json",
+      "evaluation_gates": [
+        1000,
+        5000
+      ],
+      "hypothesis": "extend endpointCFM sigma upper.8 to1.0; fixedlower.2 andallotherFPO choices; coversmissinghighnoise region,notproven causal",
+      "NAVTEST_used_for_training_selection": false
+    }
+  ],
+  "gates": [
+    1000,
+    5000
+  ],
+  "optimizer_update_cap_per_arm": 5000,
+  "owner_root": "/mnt/project/qwen-world-rl-optimization-20261030/owners/FPO_FULLTIME",
+  "common_initialization": "same pinned IL70/freshAdam/RNG42/update0/scenecursor0; noRLwarmstart",
+  "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+  "parent_selection_sha256": "f117a64f4cd3617541def37b6b448a095870c59a2a0ffa761124c1393c3353c5",
+  "comparisons": {
+    "primary": "PPO_SAFETY_FPO",
+    "secondary": [
+      "PPO_SAFETY_EP"
+    ]
+  },
+  "reviewer": {
+    "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/finite_fresh_trial_review.py",
+    "sha256": "d9d3a464f36a0e18f030ba11e61c3682226e014e85555aad578425a71e12bd0a",
+    "argv": [
+      "--registration",
+      "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_FPO_FULLTIME_REGISTRATION_20261031.json"
+    ],
+    "output": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FPO_FULLTIME_MATCHED_REVIEW_20261031.json"
+  },
+  "source_commit": "128a843",
+  "single_explicit_scientific_config_change": "FPO sigma_max .8\u21921.0; changed private output/arm paths are provenance, no change to optimizer/data/credit/rollout/anchor/clip/M2",
+  "draws": "same existing stateless seed construction; different run/policy hashes mean formal variants do not share identical epsilon draws; one global trainingseed42 only",
+  "unchanged": [
+    "sigma_min.2",
+    "M2",
+    "CFMenergy=sum8meanXYZ",
+    "clip.01",
+    "SafetyA",
+    "W3eta.1",
+    "IL70physicalanchor50",
+    "uniform103288",
+    "5e-5/5e-6 warmup100constant",
+    "52.7mclosure",
+    "singleODE10shift5"
+  ],
+  "motivation": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FPO_TIME_COVERAGE_DESIGN_20261031.json",
+  "limitation": "support extends high-sigma region but commonregion density decreases25% and expected1/sigma\u00b2 weight6.25\u21925; not proof missingcoverage caused NAVregression; notfullpaper0..1ELBO",
+  "actual_ODE_sigmas": [
+    1,
+    0.97826087474823,
+    0.9523810148239136,
+    0.9210526347160339,
+    0.882352888584137,
+    0.8333333134651184,
+    0.7692307829856873,
+    0.6818181872367859,
+    0.5555555820465088,
+    0.3571428656578064
+  ],
+  "evaluation": {
+    "NAVTEST": 12146,
+    "TRAIN_diagnostic": 1024,
+    "gates": [
+      1000,
+      5000
+    ],
+    "max_shards": 32,
+    "max_active_evaluations": 2,
+    "seed": 2101,
+    "asynchronous": true,
+    "main_criterion": "actualcompletepairedPDMS and ILhigh/low pluszero/safety/EP"
+  },
+  "source_identity_ceiling_is_not_budget_permission": 50000,
+  "budget_wait": false,
+  "automatic_promotion": false,
+  "NAVTEST_training_tokens": false,
+  "Test_used_for_method_design_and_selection": true,
+  "new_training_seeds": 0,
+  "independent_IL_and_original_Safety_unmodified": true,
+  "resource_use": "cohost verified ownP1primary onvlawmzt,researchslot; no model migrations/signals",
+  "sha256": "583f971780afaf5bdf80b1b1ae18cb2d7b09d022697cde4a7da01a8b5307db85"
+}

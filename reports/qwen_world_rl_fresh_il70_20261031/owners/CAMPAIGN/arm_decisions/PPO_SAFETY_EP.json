@@ -1,0 +1,46 @@
+{
+  "schema": "world_root_manual_evidence_allocation_decision_v1",
+  "arm": "PPO_SAFETY_EP",
+  "disposition": "STOP_FUTILITY",
+  "created_unix": 1793450100.7898824,
+  "status": "COOPERATIVE_STOP_REQUESTED",
+  "reason": "Root allocation review: repeated10k-to20k and10k-to30k fullNAV PDMS regressions with paired44-log CI upper<0; at30k no clear NC/DAC/TTC gain, EP lower1.0466pp. Retain best10k and stop this constant-LR continuation to prioritize fresh algorithms toward92.",
+  "decision_type": "manual post-hoc allocation review under user instruction to stop unpromising long runs; NOT satisfaction of original predeclared35k guard",
+  "former35k_review_superseded": true,
+  "observed_gate": 30000,
+  "best_native_updates": 10000,
+  "best_PDMS": 91.34989173702405,
+  "latest_complete_PDMS": 90.99903837095002,
+  "delta_PDMS": -0.35085336607415085,
+  "CI95_PDMS": [
+    -0.5945526025665363,
+    -0.14014120342976286
+  ],
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_30K_PROGRESS_REVIEW_20261031.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_EVIDENCE_REVIEW/GATE_020000.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u030000_NAVTEST/SUMMARY.json"
+  ],
+  "evidence_sha256": {
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_30K_PROGRESS_REVIEW_20261031.json": "4084859e59c1615c70fddeca21d87251b2205443d39e829c04ef5e455c0e71db",
+    "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_EVIDENCE_REVIEW/GATE_020000.json": "97cea871712e9f96b707408e41ac456c95f86b4f31257015b034359f65aa71b0",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u030000_NAVTEST/SUMMARY.json": "a69cdd67aa826f0c7ed24dbc1d198da6989f5d5fb7a2239ef39d5a43d21ff787"
+  },
+  "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP",
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+  "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_EP.yaml",
+  "config_sha256": "20320947b698df80d604255c7b336b3f5a75abbac61edfe68a4b067cfd3aa674",
+  "current_job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to035000_attempt002",
+  "job_launch_sha256": "27a71c4c57807e22646811ed752e0eeb9f2c6cf62c576a613a3c1b41cfe84727",
+  "stop_mode": "cooperative native checkpoint retaining fullAdam/RNG/cursor/pendingrollout; source50k is ceiling",
+  "native_signals": 0,
+  "algorithm_family_rejected": false,
+  "independent_IL_changed": false,
+  "new_fresh_trials_changed": false,
+  "existing32shard28k_evaluation_preserved": true,
+  "new_training_authorized": false,
+  "Test_selection_used": true,
+  "NAVTEST_used_for_training_scene_selection": false
+}

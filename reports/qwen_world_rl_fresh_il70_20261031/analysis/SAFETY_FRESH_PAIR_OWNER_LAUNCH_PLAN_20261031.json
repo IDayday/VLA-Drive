@@ -1,0 +1,52 @@
+{
+  "adopt_only_first1000": true,
+  "arms": [
+    "PPO_SAFETY_SUCCESS_MEMORY",
+    "PPO_SAFETY_FPO"
+  ],
+  "automatic_early_stop": false,
+  "baseline": "samebudgetoriginalSafetyEP; sharedILTRAINbaseline andfixedILhighcohort",
+  "bindings": {
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/campaign_owner.py": "58ac3c837ed8646769abc027b8bcb7c6dc6fb51caa3469ff5d98c93d05ea4d17",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/dispatch.py": "0a79aec09faaee82b1c3d606628fed4660188d610e15755cb224d40f40f3b62f",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner_v2.py": "0a36d568437ccc38556eff885627c09b9546055a399e45aafdb3513868786017",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safety_fresh_pair_owner.py": "8c38cecef19c334d0bb1e042358d4b138fb001c240f7375410a6196cb5550ca3",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safety_fresh_pair_review.py": "26d6f00d5d005e22475e83104573465550cdf53921b8b130615eed93224dd2c8"
+  },
+  "budget_wait": false,
+  "cap": 10000,
+  "early_stop": "CPU evidenceonly forroot; noextraeffectmargin guessed",
+  "evaluation_and_review_do_not_block_native": true,
+  "evaluations": "NAVTESTup-to32sharedCadenceDispatch+TRAIN1024 ateach1k/5k/10k; frozenexistingworldadopted",
+  "finite_end": "COMPLETED_AT_REGISTERED_10K",
+  "launch": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR/LAUNCH.json",
+  "launch_argv": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safety_fresh_pair_owner.py",
+    "--launch"
+  ],
+  "main_controller_or_CAMPAIGN_lock_used": false,
+  "max_active_model_evaluations": 2,
+  "native_parallel_arms": 2,
+  "origin_updates": 0,
+  "owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR/OWNER.json",
+  "prepared_at": "2026-10-31T10:51:59.982025+00:00",
+  "ready_for_owner": true,
+  "registered_firstjobs": {
+    "PPO_SAFETY_FPO": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_FPO/formal_to001000_attempt001",
+    "PPO_SAFETY_SUCCESS_MEMORY": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_SUCCESS_MEMORY/formal_to001000_attempt001"
+  },
+  "registration": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_SAFETY_FRESH_PAIR_REGISTRATION_20261031.json",
+  "schema": "fresh_IL70_Safety_pair_owner_launch_plan_v1",
+  "scientific_cfg_modified": false,
+  "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/safety_fresh_pair_owner.py",
+  "started": false,
+  "state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/SAFETY_FRESH_PAIR/STATE.json",
+  "status": "READY_FOR_ROOT_REVIEW",
+  "targets": [
+    1000,
+    5000,
+    10000
+  ],
+  "waiting_reason": null
+}

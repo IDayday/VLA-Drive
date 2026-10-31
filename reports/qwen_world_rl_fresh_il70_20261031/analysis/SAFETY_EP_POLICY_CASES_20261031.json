@@ -1,0 +1,1042 @@
+{
+  "schema": "world_SafetyEP_NAVTEST_policy_illustrations_report_only_v1",
+  "status": "COMPLETE_EXISTING_RECORDS_ONLY",
+  "created_at": "2026-10-31T11:39:51.273397+00:00",
+  "comparison": {
+    "FULL": "PPO_FULL_u010000_NAVTEST",
+    "SafetyEP": "PPO_SAFETY_EP_u010000_NAVTEST",
+    "updates": 10000,
+    "full_population": 12146,
+    "inference": "singleODE10shift5/seed2101",
+    "metrics": "officialcanonical",
+    "parent": "sameIL70freshRLandseed42"
+  },
+  "cases": [
+    {
+      "id": "safe_ep_gain",
+      "title_zh": "双方安全指标通过、EP明显增加",
+      "token": "7398c63b60075187",
+      "log": "2021.09.09.14.18.22_veh-48_00322_00895",
+      "selection_rule": "NC=DAC=TTC=Comfort=1 for both; SafetyEP_EP-FULL_EP>=.2; max EP gain, then lexicographic token",
+      "eligible_scene_count": 6,
+      "selection_tiebreak": "largestregisteredcontrastthenlexicographic token, orlexicographicfirstforpersistentzero",
+      "interpretation_zh": "同协议下双方NC/DAC/TTC/Comfort均通过，SafetyEP的EP更高；图只描述请求进度差，不能据此证明必要等待或交通规则判断。",
+      "metrics": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 1.0,
+            "drivable_area_compliance": 1.0,
+            "ego_progress": 0.7042671980337472,
+            "time_to_collision_within_bound": 1.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 0.8767779991807281
+          },
+          "PDMS": 87.67779991807281,
+          "raw_progress_meters": 3.7686236373712756,
+          "requested_trajectory": [
+            [
+              0.12457025051116943,
+              -0.04376983642578125,
+              0.002354741096496582
+            ],
+            [
+              0.3852733373641968,
+              -0.04376983642578125,
+              0.0014929771423339844
+            ],
+            [
+              0.5156248807907104,
+              -0.04376983642578125,
+              0.0006310939788818359
+            ],
+            [
+              1.0370310544967651,
+              -0.04376983642578125,
+              -0.00023066997528076172
+            ],
+            [
+              1.558437466621399,
+              -0.03351593017578125,
+              -0.0006616115570068359
+            ],
+            [
+              2.3405466079711914,
+              -0.03351593017578125,
+              -0.0015233755111694336
+            ],
+            [
+              3.253007411956787,
+              -0.03351593017578125,
+              -0.002385258674621582
+            ],
+            [
+              3.9047651290893555,
+              -0.04376983642578125,
+              -0.0028160810470581055
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": null,
+          "official_first_ttc_infraction_seconds": null
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 1.0,
+            "drivable_area_compliance": 1.0,
+            "ego_progress": 1.0,
+            "time_to_collision_within_bound": 1.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 1.0
+          },
+          "PDMS": 100.0,
+          "raw_progress_meters": 5.540555538828789,
+          "requested_trajectory": [
+            [
+              -0.13613295555114746,
+              -0.02326202392578125,
+              0.003647446632385254
+            ],
+            [
+              0.12457025051116943,
+              -0.02326202392578125,
+              0.0027856826782226562
+            ],
+            [
+              0.3852733373641968,
+              -0.02326202392578125,
+              0.0014929771423339844
+            ],
+            [
+              0.9066795110702515,
+              -0.03351593017578125,
+              0.0002002716064453125
+            ],
+            [
+              1.8191405534744263,
+              -0.03351593017578125,
+              -0.0010925531387329102
+            ],
+            [
+              2.9923043251037598,
+              -0.03351593017578125,
+              -0.0028160810470581055
+            ],
+            [
+              4.2958197593688965,
+              -0.04376983642578125,
+              -0.0045397281646728516
+            ],
+            [
+              5.468984127044678,
+              -0.06427764892578125,
+              -0.005401611328125
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": null,
+          "official_first_ttc_infraction_seconds": null
+        }
+      },
+      "local_GT_trajectory": [
+        [
+          0.21550804376602173,
+          0.03096701018512249,
+          -8.171957597369328e-05
+        ],
+        [
+          0.49659428000450134,
+          0.04552793502807617,
+          0.0004349781374912709
+        ],
+        [
+          0.8950355648994446,
+          0.06311988085508347,
+          0.002043477026745677
+        ],
+        [
+          1.4096816778182983,
+          0.03010885789990425,
+          0.005644111428409815
+        ],
+        [
+          2.049421548843384,
+          0.014571533538401127,
+          0.009115146473050117
+        ],
+        [
+          2.8337695598602295,
+          0.045014072209596634,
+          0.013016576878726482
+        ],
+        [
+          3.798737049102783,
+          0.07769466191530228,
+          0.015151997096836567
+        ],
+        [
+          4.94524621963501,
+          0.09076222777366638,
+          0.016320249065756798
+        ]
+      ],
+      "coordinate_frame": "rear_axle ego xforward/y left/yaw radians;8poses at0.5..4.0s",
+      "input": {
+        "current_navigation": "go straight",
+        "current_proprio": [
+          0.3974257707595825,
+          -0.019394418224692345,
+          -0.1121397316455841,
+          -0.019510703161358833,
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "current_camera": {
+          "path": "/mnt/project/DriveDreamer-Policy/navsim_raw/sensor_blobs/test/2021.09.09.14.18.22_veh-48_00322_00895/CAM_F0/82c17b200f335e2e.jpg",
+          "available": true,
+          "sha256": "f9b09f596d9fa884eb5ad5389215c16dd21ba86673b8af88e6dc244aa18e218e"
+        }
+      },
+      "artifacts": {
+        "svg": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_safe_ep_gain.svg",
+          "sha256": "1972fed43b8a0fe3bfe6a0d3a58810dca1f128ab59c2b597055e2ce19b9cb68a",
+          "bytes": 239884
+        },
+        "png": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_safe_ep_gain.png",
+          "sha256": "a24ec4b16c33e7dde8e37f9ac8a3dcb52ff6ec12f2853481652cac302b9e63d2",
+          "bytes": 282656
+        }
+      },
+      "provenance": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/scenes/7398c63b60075187.json",
+          "scene_file_sha256": "34575c362ba76323e5851632b5ba365ea516b266c370b71252f9e468728ed360",
+          "scene_seal": "14c3c2bf752e7c383f7e3d781b75424c05c47879887705c4149ab6bcd0dbe9f5",
+          "requested_trajectory_sha256": "60bacf3ea8a49013a4410050b9bcf43155649ee7637d9057db28ffffc58efcd0",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "9f5f1c6fd4077fd75763cb22cf59e20af7ab77766082d7241e4932be9d4a04f2",
+          "identity_seal": "450d95b62d52c1b5a2a8908610b93d143df50bbb35cb073866ec6da3d428993d",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.09.09.14.18.22_veh-48_00322_00895/unknown/7398c63b60075187/metric_cache.pkl",
+            "sha256": "5a034f759cf055f4c9c325f1fd55e153afcd0b9b4b62447cec91bc84274e779d"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/scenes/7398c63b60075187.json",
+          "scene_file_sha256": "9f9ce549c7bb0528ea86a21cfa99a7fbbfea1cd01d10a34bc8d4f9c34f9e10e5",
+          "scene_seal": "cccc0fa9bbe7c27b049bb4c6f7844e45e738f6d800a8c8541f54d34304cb0685",
+          "requested_trajectory_sha256": "f312b2d122fb1de7b1965dcb08effedb1c14e491ef2b27591f52e4f8948f77b1",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.09.09.14.18.22_veh-48_00322_00895/unknown/7398c63b60075187/metric_cache.pkl",
+            "sha256": "5a034f759cf055f4c9c325f1fd55e153afcd0b9b4b62447cec91bc84274e779d"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        }
+      },
+      "map_obstacles_rendered": false,
+      "simulated_executed_trace_rendered": false,
+      "GT_role": "recorded futureego,notPDMrewardreferenceornormativeoptimaltrajectory",
+      "NAVTEST_report_only": true,
+      "training_selection_eligible": false
+    },
+    {
+      "id": "zero_repair",
+      "title_zh": "原PPO零分、SafetyEP修复",
+      "token": "24b9908a6761529b",
+      "log": "2021.10.06.07.26.10_veh-52_00422_00728",
+      "selection_rule": "FULL_score<=1e-12; SafetyEP strict NC=DAC=TTC=Comfort1 and score>=.9; max SafetyEP score, then lexicographic token",
+      "eligible_scene_count": 28,
+      "selection_tiebreak": "largestregisteredcontrastthenlexicographic token, orlexicographicfirstforpersistentzero",
+      "interpretation_zh": "原PPO的官方零分在SafetyEP10k变为高分；只把修复归于已记录指标，不根据无障碍物轨迹图推断撞谁或模型看懂了什么。",
+      "metrics": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 0.0,
+            "drivable_area_compliance": 1.0,
+            "ego_progress": 0.0,
+            "time_to_collision_within_bound": 0.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 0.0
+          },
+          "PDMS": 0.0,
+          "raw_progress_meters": 20.23725373548803,
+          "requested_trajectory": [
+            [
+              2.6012496948242188,
+              0.26897430419921875,
+              0.044799208641052246
+            ],
+            [
+              5.468984127044678,
+              0.37151336669921875,
+              0.0816957950592041
+            ],
+            [
+              7.5546088218688965,
+              0.49456024169921875,
+              0.10518026351928711
+            ],
+            [
+              10.161640167236328,
+              0.6842575073242188,
+              0.12559449672698975
+            ],
+            [
+              12.768671989440918,
+              0.9662399291992188,
+              0.14584720134735107
+            ],
+            [
+              15.831933975219727,
+              1.3462753295898438,
+              0.1635143756866455
+            ],
+            [
+              18.634490966796875,
+              1.7891159057617188,
+              0.17730355262756348
+            ],
+            [
+              20.850467681884766,
+              2.2018356323242188,
+              0.18549072742462158
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": 3.7,
+          "official_first_ttc_infraction_seconds": 2.9000000000000004
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 1.0,
+            "drivable_area_compliance": 1.0,
+            "ego_progress": 1.0,
+            "time_to_collision_within_bound": 1.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 1.0
+          },
+          "PDMS": 100.0,
+          "raw_progress_meters": 20.854518407833986,
+          "requested_trajectory": [
+            [
+              2.7316012382507324,
+              0.17668914794921875,
+              0.04393744468688965
+            ],
+            [
+              5.338632583618164,
+              0.26897430419921875,
+              0.0725928544998169
+            ],
+            [
+              7.684960842132568,
+              0.41765594482421875,
+              0.09572720527648926
+            ],
+            [
+              10.422343254089355,
+              0.6432418823242188,
+              0.11837685108184814
+            ],
+            [
+              13.029375076293945,
+              0.9277877807617188,
+              0.1372290849685669
+            ],
+            [
+              16.0274600982666,
+              1.3324165344238281,
+              0.15661990642547607
+            ],
+            [
+              18.764842987060547,
+              1.7737350463867188,
+              0.1704089641571045
+            ],
+            [
+              21.306697845458984,
+              2.2069625854492188,
+              0.18075072765350342
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": null,
+          "official_first_ttc_infraction_seconds": null
+        }
+      },
+      "local_GT_trajectory": [
+        [
+          2.4069480895996094,
+          0.04193316772580147,
+          0.03260891139507294
+        ],
+        [
+          4.965541362762451,
+          0.16574688255786896,
+          0.05857541412115097
+        ],
+        [
+          7.58564567565918,
+          0.33822140097618103,
+          0.07489726692438126
+        ],
+        [
+          10.255044937133789,
+          0.564032793045044,
+          0.08588515967130661
+        ],
+        [
+          13.000519752502441,
+          0.8268625736236572,
+          0.0943952202796936
+        ],
+        [
+          15.81938362121582,
+          1.1219546794891357,
+          0.10114195197820663
+        ],
+        [
+          18.70104217529297,
+          1.4302165508270264,
+          0.10888934135437012
+        ],
+        [
+          21.62332534790039,
+          1.7755907773971558,
+          0.11872965097427368
+        ]
+      ],
+      "coordinate_frame": "rear_axle ego xforward/y left/yaw radians;8poses at0.5..4.0s",
+      "input": {
+        "current_navigation": "go straight",
+        "current_proprio": [
+          4.770285129547119,
+          -0.0286997202783823,
+          0.5604993104934692,
+          0.18861261010169983,
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "current_camera": {
+          "path": "/mnt/project/DriveDreamer-Policy/navsim_raw/sensor_blobs/test/2021.10.06.07.26.10_veh-52_00422_00728/CAM_F0/bc3a3b612eb3540f.jpg",
+          "available": true,
+          "sha256": "da225b6c19fa8fca50b939e46327884ff1d243a34890a1f3afd46a847b9ac8aa"
+        }
+      },
+      "artifacts": {
+        "svg": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_zero_repair.svg",
+          "sha256": "abecfa0bb59ea06205f551bba1660d2cb646df7f078c77fcc1712f2e90e83990",
+          "bytes": 307332
+        },
+        "png": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_zero_repair.png",
+          "sha256": "c672dd3d0e9be988abee215a829e81ad431f7c9ae65379a1648cbe5420d49efa",
+          "bytes": 332932
+        }
+      },
+      "provenance": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/scenes/24b9908a6761529b.json",
+          "scene_file_sha256": "38d7ab30185e2dd31a7b2ba7d67fbedbafff7bdf827c13d5b2382c0c70486cd0",
+          "scene_seal": "b6f66afc29be5462bb46e30b6b5047b8c61f34d8524d51dea8b740eb713f6d4f",
+          "requested_trajectory_sha256": "c915413c9617029f94d4027f3aac5a2f26835d4d8ab511a297707d09f0f19c03",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "9f5f1c6fd4077fd75763cb22cf59e20af7ab77766082d7241e4932be9d4a04f2",
+          "identity_seal": "450d95b62d52c1b5a2a8908610b93d143df50bbb35cb073866ec6da3d428993d",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.10.06.07.26.10_veh-52_00422_00728/unknown/24b9908a6761529b/metric_cache.pkl",
+            "sha256": "ccd85614272e6c6ba4a252e295cba5676a84c2d5f778572c96cda5e5962afad3"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/scenes/24b9908a6761529b.json",
+          "scene_file_sha256": "d4d2d2bc2690cade9f98beaff70422e0be350d0962ba0d0b6310e1346c995478",
+          "scene_seal": "425d1d76a5dbfb492eae1a92d196dfa9a00e11498132209c483afd25bdfd4082",
+          "requested_trajectory_sha256": "4d1de59594a2caf1dbc076b6c7ea0d75455c8a5fb9553dedeb022ab03f4f4d8d",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.10.06.07.26.10_veh-52_00422_00728/unknown/24b9908a6761529b/metric_cache.pkl",
+            "sha256": "ccd85614272e6c6ba4a252e295cba5676a84c2d5f778572c96cda5e5962afad3"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        }
+      },
+      "map_obstacles_rendered": false,
+      "simulated_executed_trace_rendered": false,
+      "GT_role": "recorded futureego,notPDMrewardreferenceornormativeoptimaltrajectory",
+      "NAVTEST_report_only": true,
+      "training_selection_eligible": false
+    },
+    {
+      "id": "high_to_zero",
+      "title_zh": "原PPO高分、SafetyEP变零",
+      "token": "35f13a6de1575fdc",
+      "log": "2021.09.16.19.27.01_veh-45_01749_03230",
+      "selection_rule": "FULL_score>=.95 and SafetyEP_score<=1e-12; max FULL score, then lexicographic token",
+      "eligible_scene_count": 12,
+      "selection_tiebreak": "largestregisteredcontrastthenlexicographic token, orlexicographicfirstforpersistentzero",
+      "interpretation_zh": "SafetyEP存在由高分变零的反例，不能只展示正例；请求轨迹与官方模拟后的安全结果分开记录。",
+      "metrics": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 1.0,
+            "drivable_area_compliance": 1.0,
+            "ego_progress": 1.0,
+            "time_to_collision_within_bound": 1.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 1.0
+          },
+          "PDMS": 100.0,
+          "raw_progress_meters": 0.24739777687085862,
+          "requested_trajectory": [
+            [
+              1.0370310544967651,
+              0.01775360107421875,
+              0.004078388214111328
+            ],
+            [
+              1.558437466621399,
+              0.01262664794921875,
+              0.0032166242599487305
+            ],
+            [
+              1.558437466621399,
+              0.01262664794921875,
+              0.002354741096496582
+            ],
+            [
+              1.2977341413497925,
+              0.00749969482421875,
+              0.0019237995147705078
+            ],
+            [
+              1.0370310544967651,
+              0.00749969482421875,
+              0.0010620355606079102
+            ],
+            [
+              0.9066795110702515,
+              0.00749969482421875,
+              0.0006310939788818359
+            ],
+            [
+              0.9066795110702515,
+              -0.00275421142578125,
+              -0.00023066997528076172
+            ],
+            [
+              0.3852733373641968,
+              -0.01300811767578125,
+              -0.00023066997528076172
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": null,
+          "official_first_ttc_infraction_seconds": null
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 0.0,
+            "drivable_area_compliance": 1.0,
+            "ego_progress": 0.0,
+            "time_to_collision_within_bound": 0.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 0.0
+          },
+          "PDMS": 0.0,
+          "raw_progress_meters": 0.0,
+          "requested_trajectory": [
+            [
+              1.2977341413497925,
+              0.00749969482421875,
+              0.0062329769134521484
+            ],
+            [
+              1.6887890100479126,
+              -0.00275421142578125,
+              0.004078388214111328
+            ],
+            [
+              1.4280856847763062,
+              -0.00275421142578125,
+              0.002354741096496582
+            ],
+            [
+              1.0370310544967651,
+              -0.00275421142578125,
+              0.0006310939788818359
+            ],
+            [
+              1.0370310544967651,
+              -0.01300811767578125,
+              -0.0006616115570068359
+            ],
+            [
+              1.1673825979232788,
+              -0.02326202392578125,
+              -0.0015233755111694336
+            ],
+            [
+              1.2977341413497925,
+              -0.02326202392578125,
+              -0.002385258674621582
+            ],
+            [
+              0.12457025051116943,
+              -0.01300811767578125,
+              0.0002002716064453125
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": 4.0,
+          "official_first_ttc_infraction_seconds": 4.0
+        }
+      },
+      "local_GT_trajectory": [
+        [
+          0.42323043942451477,
+          -0.004626572597771883,
+          -0.040057700127363205
+        ],
+        [
+          0.589805006980896,
+          -0.015697060152888298,
+          -0.05349256470799446
+        ],
+        [
+          0.5883201956748962,
+          -0.014140302315354347,
+          -0.05328069254755974
+        ],
+        [
+          0.5701609253883362,
+          -0.0012930299853906035,
+          -0.052833329886198044
+        ],
+        [
+          0.5571995377540588,
+          0.0014720844337716699,
+          -0.05323781073093414
+        ],
+        [
+          0.5501585602760315,
+          0.0028759187553077936,
+          -0.053470760583877563
+        ],
+        [
+          0.5458911657333374,
+          0.003926650620996952,
+          -0.05330080911517143
+        ],
+        [
+          0.5430364608764648,
+          0.004641580395400524,
+          -0.05343305692076683
+        ]
+      ],
+      "coordinate_frame": "rear_axle ego xforward/y left/yaw radians;8poses at0.5..4.0s",
+      "input": {
+        "current_navigation": "go straight",
+        "current_proprio": [
+          1.2724119424819946,
+          -0.0445532351732254,
+          -1.315588355064392,
+          -0.19516333937644958,
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "current_camera": {
+          "path": "/mnt/project/DriveDreamer-Policy/navsim_raw/sensor_blobs/test/2021.09.16.19.27.01_veh-45_01749_03230/CAM_F0/ad86a758843d5df6.jpg",
+          "available": true,
+          "sha256": "5be30fbad595b4e87e81f44ecc01b1a20c757ff5e2aebcf71f17b0e8510ef94a"
+        }
+      },
+      "artifacts": {
+        "svg": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_high_to_zero.svg",
+          "sha256": "872b49820a73f13f259f5074feb56d66c52f8edc18926c368d73f9fc83df5f06",
+          "bytes": 248109
+        },
+        "png": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_high_to_zero.png",
+          "sha256": "63ea34e1f733a3b407a9a23d1483f9f6362b071aee652b7f9d8c15775c46029e",
+          "bytes": 282882
+        }
+      },
+      "provenance": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/scenes/35f13a6de1575fdc.json",
+          "scene_file_sha256": "ae021f0568bfcbae526860c7cc3cfdb311543db332faaf06a6e642b59c02ee82",
+          "scene_seal": "d8ae7343d82b466b5bfc023256524c0ba30c4c03fea9e6c3f63e77beea453ea6",
+          "requested_trajectory_sha256": "fb4ddf2fd204e39316cfb7e89e4deabca8f71dc403e7f5131cab69d9998ac327",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "9f5f1c6fd4077fd75763cb22cf59e20af7ab77766082d7241e4932be9d4a04f2",
+          "identity_seal": "450d95b62d52c1b5a2a8908610b93d143df50bbb35cb073866ec6da3d428993d",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.09.16.19.27.01_veh-45_01749_03230/unknown/35f13a6de1575fdc/metric_cache.pkl",
+            "sha256": "1cc857867e430aec6f43f910c6ab88b92d77a53ff8163fca9235e7ad16854c93"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/scenes/35f13a6de1575fdc.json",
+          "scene_file_sha256": "068a5a22dc5d9435205bd0a79785dc6ed793e6c0045f66a0d8b84ca0bd8bf692",
+          "scene_seal": "9d097398222cdb4191626b43f529c02935cce7a437ef18df125180b2c8ca6193",
+          "requested_trajectory_sha256": "f0052a83cb7e6b52ee0d48e8a09f823659fd5b6c82c2d6c9fc40db7c57b5fc8a",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.09.16.19.27.01_veh-45_01749_03230/unknown/35f13a6de1575fdc/metric_cache.pkl",
+            "sha256": "1cc857867e430aec6f43f910c6ab88b92d77a53ff8163fca9235e7ad16854c93"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        }
+      },
+      "map_obstacles_rendered": false,
+      "simulated_executed_trace_rendered": false,
+      "GT_role": "recorded futureego,notPDMrewardreferenceornormativeoptimaltrajectory",
+      "NAVTEST_report_only": true,
+      "training_selection_eligible": false
+    },
+    {
+      "id": "persistent_zero",
+      "title_zh": "截至10k的多观测持续零",
+      "token": "00016f8b45c25a1d",
+      "log": "2021.09.29.14.44.26_veh-28_00337_00504",
+      "selection_rule": "score<=1e-12 at all seven explicitly listed observations: IL70 and FULL/SafetyEP1k,5k,10k; lexicographically first token",
+      "eligible_scene_count": 167,
+      "selection_tiebreak": "largestregisteredcontrastthenlexicographic token, orlexicographicfirstforpersistentzero",
+      "interpretation_zh": "此处持续只指IL70及两策略1k/5k/10k共7个已评分观测，不能推出未观测更新、10k以后、不可避免失败或无安全解。",
+      "metrics": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 1.0,
+            "drivable_area_compliance": 0.0,
+            "ego_progress": 0.0,
+            "time_to_collision_within_bound": 1.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 0.0
+          },
+          "PDMS": 0.0,
+          "raw_progress_meters": 28.034187519027775,
+          "requested_trajectory": [
+            [
+              2.7316012382507324,
+              0.07415008544921875,
+              0.04652285575866699
+            ],
+            [
+              6.120741844177246,
+              0.32537078857421875,
+              0.12753355503082275
+            ],
+            [
+              8.858124732971191,
+              0.8278121948242188,
+              0.22858154773712158
+            ],
+            [
+              12.116913795471191,
+              1.8224411010742188,
+              0.3742285966873169
+            ],
+            [
+              15.440877914428711,
+              3.2374801635742188,
+              0.5293554067611694
+            ],
+            [
+              18.504140853881836,
+              5.236991882324219,
+              0.6948243379592896
+            ],
+            [
+              21.045995712280273,
+              7.554374694824219,
+              0.8396095037460327
+            ],
+            [
+              22.805742263793945,
+              10.056327819824219,
+              0.9602636098861694
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": null,
+          "official_first_ttc_infraction_seconds": null
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "metrics": {
+            "no_at_fault_collisions": 1.0,
+            "drivable_area_compliance": 0.0,
+            "ego_progress": 0.0,
+            "time_to_collision_within_bound": 1.0,
+            "comfort": 1.0,
+            "driving_direction_compliance": 1.0,
+            "score": 0.0
+          },
+          "PDMS": 0.0,
+          "raw_progress_meters": 28.372678338366732,
+          "requested_trajectory": [
+            [
+              2.6012496948242188,
+              0.08953094482421875,
+              0.04824650287628174
+            ],
+            [
+              5.599335670471191,
+              0.36638641357421875,
+              0.12516355514526367
+            ],
+            [
+              8.727773666381836,
+              0.9380416870117188,
+              0.23633790016174316
+            ],
+            [
+              11.856210708618164,
+              1.8737106323242188,
+              0.3725048303604126
+            ],
+            [
+              15.114999771118164,
+              3.3092575073242188,
+              0.5345264673233032
+            ],
+            [
+              17.85238265991211,
+              5.113945007324219,
+              0.6879297494888306
+            ],
+            [
+              20.52458953857422,
+              7.472343444824219,
+              0.8430565595626831
+            ],
+            [
+              22.5450382232666,
+              10.179374694824219,
+              0.9706054925918579
+            ]
+          ],
+          "heading_units": "radians",
+          "official_first_at_fault_collision_seconds": null,
+          "official_first_ttc_infraction_seconds": null
+        }
+      },
+      "local_GT_trajectory": [
+        [
+          2.8262550830841064,
+          0.08145420998334885,
+          0.06260325014591217
+        ],
+        [
+          5.68961238861084,
+          0.33294451236724854,
+          0.12601293623447418
+        ],
+        [
+          8.654289245605469,
+          0.8170134425163269,
+          0.2091725468635559
+        ],
+        [
+          11.747268676757812,
+          1.609557867050171,
+          0.30796799063682556
+        ],
+        [
+          14.761033058166504,
+          2.738213539123535,
+          0.41877830028533936
+        ],
+        [
+          17.643922805786133,
+          4.226616382598877,
+          0.5463815927505493
+        ],
+        [
+          20.349346160888672,
+          6.131302833557129,
+          0.6923317909240723
+        ],
+        [
+          22.80483055114746,
+          8.463950157165527,
+          0.8374614119529724
+        ]
+      ],
+      "coordinate_frame": "rear_axle ego xforward/y left/yaw radians;8poses at0.5..4.0s",
+      "input": {
+        "current_navigation": "turn left",
+        "current_proprio": [
+          5.56202507019043,
+          0.09391084313392639,
+          1.1705782413482666,
+          0.4772177040576935,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "current_camera": {
+          "path": "/mnt/project/DriveDreamer-Policy/navsim_raw/sensor_blobs/test/2021.09.29.14.44.26_veh-28_00337_00504/CAM_F0/06109b4dff5c5e47.jpg",
+          "available": true,
+          "sha256": "1529dca07ae7625a3850fec7e885531164f7f2df1988097c5bc9d07d2aa3c01e"
+        }
+      },
+      "artifacts": {
+        "svg": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_persistent_zero.svg",
+          "sha256": "54b863d330ef1bb61e2c3f2d4f7b7bb38d684b86185f2b47505e8bfb557543e8",
+          "bytes": 232979
+        },
+        "png": {
+          "path": "/mnt/project/qwen-world-rl-optimization-20261030/reporting/figures/safety_policy_case_persistent_zero.png",
+          "sha256": "adbb04c3ab18694e25ebfd46c3aa5584a39437aeb4ca605ed50bbaf01a928d87",
+          "bytes": 284592
+        }
+      },
+      "provenance": {
+        "PPO_FULL_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/scenes/00016f8b45c25a1d.json",
+          "scene_file_sha256": "f54e4d2ecfcdad84e03790eea4928c908130f1783e37ada5431d3372ff9e378a",
+          "scene_seal": "55bf89f23db284ea05415abbc6020e261f44e1f527ce237696e1c15bf894384e",
+          "requested_trajectory_sha256": "4fc229a1d3205efc6fa085bc96c48752e1bd1addaa15349985765b11a7ba0b8f",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "9f5f1c6fd4077fd75763cb22cf59e20af7ab77766082d7241e4932be9d4a04f2",
+          "identity_seal": "450d95b62d52c1b5a2a8908610b93d143df50bbb35cb073866ec6da3d428993d",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.09.29.14.44.26_veh-28_00337_00504/unknown/00016f8b45c25a1d/metric_cache.pkl",
+            "sha256": "19de437e6372abf57ecd6c0125d13a3b4dd5eb6c0cea348c4dfcb1e3a912eca0"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        },
+        "PPO_SAFETY_EP_u010000_NAVTEST": {
+          "scene": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/scenes/00016f8b45c25a1d.json",
+          "scene_file_sha256": "6736ebd8037c2aacd83f6cb0643335ce7bae9986a6ca7ab9a3429116636a0445",
+          "scene_seal": "7562fd966ff874aec26320e4dbf377b930fd5fbf67a968a22ffa32e019905a41",
+          "requested_trajectory_sha256": "fe59def2c4380b3b9a325647c2f268197dbe03baa200427643523dd4929d233c",
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+          "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+          "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+          "canonical_cache": {
+            "path": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1/2021.09.29.14.44.26_veh-28_00337_00504/unknown/00016f8b45c25a1d/metric_cache.pkl",
+            "sha256": "19de437e6372abf57ecd6c0125d13a3b4dd5eb6c0cea348c4dfcb1e3a912eca0"
+          },
+          "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+        }
+      },
+      "map_obstacles_rendered": false,
+      "simulated_executed_trace_rendered": false,
+      "GT_role": "recorded futureego,notPDMrewardreferenceornormativeoptimaltrajectory",
+      "NAVTEST_report_only": true,
+      "training_selection_eligible": false,
+      "persistent_observations": {
+        "IL70_NAVTEST": 0.0,
+        "PPO_FULL_u001000_NAVTEST": 0.0,
+        "PPO_FULL_u005000_NAVTEST": 0.0,
+        "PPO_FULL_u010000_NAVTEST": 0.0,
+        "PPO_SAFETY_EP_u001000_NAVTEST": 0.0,
+        "PPO_SAFETY_EP_u005000_NAVTEST": 0.0,
+        "PPO_SAFETY_EP_u010000_NAVTEST": 0.0
+      }
+    }
+  ],
+  "limitations_zh": [
+    "4个按规则挑选的极端/反例只描述策略差异，不证明总体提升因果或代表性。",
+    "NC/DAC/TTC通过不等于真实道路安全或交通规则完整合规。",
+    "图画原始8pose请求轨迹而非模拟执行轨迹；不画map/障碍物，不推断撞谁、遮挡目标或是否看懂红灯。",
+    "EP零可来自安全门控，不能把零分直接解释为原地不动；必要等待不能仅低EP判定。",
+    "GT是记录人类未来轨迹，不是canonical参考规划器轨迹或最优行动证书。",
+    "持续零仅指列出的7次观测，不推断全部训练时刻或10k以后。",
+    "全部NAVTEST案例只用于报告，未进入训练采样/teacher/preferencebank。"
+  ],
+  "provenance": {
+    "metric_caches": {
+      "IL70_NAVTEST": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/IL70_NAVTEST.npz",
+        "cache_sha256": "24d2330af23d1299010ad5bd11710a986285f1a3b164870207a25df181de1a02",
+        "identity_sha256": "4ce3d1dbf6a7d21ae250549813e0b24953e8792a02f9e9fa8cec6da4a0f820aa",
+        "summary_sha256": "65db5cea99e5350bbe567d1dabb05645fdd025e3233638634443985444947814"
+      },
+      "PPO_FULL_u001000_NAVTEST": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u001000_NAVTEST.npz",
+        "cache_sha256": "5700411eeda58f3122a6d848d732a538a9a2bdb2adcfcc8a6217d81abb69df20",
+        "identity_sha256": "fd3bb00010486c36229172b470c4997eeed3a5e82214ceb4429851c6516e3053",
+        "summary_sha256": "29165d101fa57b816edd651a6d3463ac62e7730b904193d15b79917462668979"
+      },
+      "PPO_FULL_u005000_NAVTEST": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u005000_NAVTEST.npz",
+        "cache_sha256": "167432cf7e5ec891dd3594bd9ecc54838841107a45052ce5598329c64b6aefc7",
+        "identity_sha256": "3a75705f33b90da2df7ee946bdc66463934b5639479a3109f9872fab978cee69",
+        "summary_sha256": "6e9113e59a23fb4983f925632952cdc1bcf82361d2912a458f93088da0d91386"
+      },
+      "PPO_FULL_u010000_NAVTEST": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u010000_NAVTEST.npz",
+        "cache_sha256": "91d5508cd6f230a2f20c0276ac54c36e51062e9886db44c5cd07a8cddfb2c17d",
+        "identity_sha256": "450d95b62d52c1b5a2a8908610b93d143df50bbb35cb073866ec6da3d428993d",
+        "summary_sha256": "9f5f1c6fd4077fd75763cb22cf59e20af7ab77766082d7241e4932be9d4a04f2"
+      },
+      "PPO_SAFETY_EP_u001000_NAVTEST": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u001000_NAVTEST.npz",
+        "cache_sha256": "0a9733981b50e6e8d3fc7755a539082ff5ff01e59fec3a9ab280260a5d4e9379",
+        "identity_sha256": "fd2032288911c3930e75ec26e386201e74d6f9e06048aa40a480670adef44806",
+        "summary_sha256": "5783dfebd457e4732023b7d8b73cdba1b69f4a5345f1da6792bdbfc701710c67"
+      },
+      "PPO_SAFETY_EP_u005000_NAVTEST": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u005000_NAVTEST.npz",
+        "cache_sha256": "badb09853b4b04ae1ecc373fdb1ca609eb3d1c6747b68d6c605fd63ce706d203",
+        "identity_sha256": "3cf1c16262f3717a7c88d6f8c5be656b2667779665993f66b9e8684707b65ba5",
+        "summary_sha256": "34cf7c477453910410800d6675812cf519867e553131737a4e282ac82951ccc7"
+      },
+      "PPO_SAFETY_EP_u010000_NAVTEST": {
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+        "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+        "identity_sha256": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+        "summary_sha256": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828"
+      }
+    },
+    "raw_records": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST/records.pkl",
+    "raw_records_sha256": "587f48d6d8e9b8124f2b447255a5dc10b54e7906523fd5d8d3f549aaccd18553",
+    "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/build_safety_ep_policy_cases_20261031.py",
+    "script_sha256": "7f5d8082badeb207f8a44b48303072adc961bc36caef4c470a152e0622f6b2e7"
+  },
+  "scope": {
+    "CPU_only": true,
+    "new_model_forward": 0,
+    "new_scores": 0,
+    "new_GPU_work": 0,
+    "selected_scene_record_reads": 8,
+    "original_population_scans": 0,
+    "weights_loaded": false,
+    "official_cache_pickles_unloaded": true,
+    "report_renderer_modified": false,
+    "git_stage": false,
+    "git_commit": false
+  },
+  "sha256": "e7ddd3e148b171fc40771619faf177f197a3ff9cdfa6e61f2a440fe3efad7d54"
+}

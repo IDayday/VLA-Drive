@@ -1,0 +1,147 @@
+{
+  "schema": "world_fresh_IL70_FPO_training_handoff_v1",
+  "status": "CPU_READY_FOR_ROOT_FREEZE_AND_NATIVE_PILOT",
+  "at": "2026-10-31T10:32:13.683891+00:00",
+  "entry": "starVLA.rl.qwen_world_research_algorithms.fpo_entry",
+  "arm": "PPO_SAFETY_FPO",
+  "config": {
+    "schema": "world_endpoint_CFM_per_MC_PPO_v1",
+    "mc_samples": 2,
+    "sigma_min": 0.2,
+    "sigma_max": 0.8,
+    "clip_range": 0.01,
+    "stateless_seed": 42,
+    "energy_reduction": "mean_xyz_then_sum_8poses"
+  },
+  "protocol": {
+    "schema": "world_endpoint_CFM_per_MC_PPO_v1",
+    "mc_samples": 2,
+    "sigma_min": 0.2,
+    "sigma_max": 0.8,
+    "clip_range": 0.01,
+    "stateless_seed": 42,
+    "energy_reduction": "mean_xyz_then_sum_8poses",
+    "target": "state=(1-sigma)*clean_endpoint+sigma*eps; target_velocity=eps-clean_endpoint",
+    "energy": "ell[MC,G] = sum_horizon8 mean_xyz squared_velocity_error = 8*mean_all24",
+    "ratio": "rho[MC,G] = exp(ell_behavior_old - ell_current), surrogate not endpoint likelihood/IS/KL",
+    "clipping": "ordinary symmetric PPO independently perMC; same finalized SafetyA clipped5; noASPO",
+    "sigma": "independent Uniform[.2,.8] perMC/candidate; truncatedCFM, not fullpaper U[0,1] ELBO equivalence",
+    "old": "CURRENT collection-start behavior, no_grad cached once beforeinner0, not permanently frozen IL70",
+    "material": "all MCnoise/sigma/endpoints/oldvelocities/oldenergies fixed all4inners, detached, native sealed",
+    "randomness": "private stateless schema/token/behavior/rank/seed42; no sourceSDE/global RNG consumption",
+    "anchor": "unchanged source W3[7,8,9] physical mean anchor beta50 to frozenIL70, same axisweights/reduction",
+    "data_and_credit": "samefresh full103288 uniform W3rigorouseta.1 canonicalG8/SafetyEPglobal64std",
+    "fresh_ratio_tolerance": 0.0001,
+    "stabilization": "finite guards; noHuber, energyclamp, logratioSTEclamp, temperature or adaptiveLR",
+    "interpretation": "pre-registered firstcandidate scale .01, not an optimum or copiedLLM tokenclip"
+  },
+  "files": {
+    "starVLA/rl/qwen_world_research_algorithms/fpo_training.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/fpo_training.py",
+      "sha256": "e7c46785de619356541071352d16f4054cae4d6cc19f4653b4c8d463689254c5"
+    },
+    "starVLA/rl/qwen_world_research_algorithms/fpo_entry.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/starVLA/rl/qwen_world_research_algorithms/fpo_entry.py",
+      "sha256": "4be95b7909936fba1955a5e177a722598aa09f188c76b1f7c17b45c7fe9043fb"
+    },
+    "tests/test_qwen_world_fpo_training.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tests/test_qwen_world_fpo_training.py",
+      "sha256": "8774aa74a9eef433a1e8301b0817c06d1d947161440ac02a5e9c7aeb507d8a6c"
+    }
+  },
+  "baseline_compatibility": {
+    "starVLA/rl/qwen_world_postcot/scope_actor.py": {
+      "current_sha256": "1ff1a473e545c3792c04e25d21beac37282994ead2899be2bad301ff2bcf5fa2",
+      "baseline_sha256": "1ff1a473e545c3792c04e25d21beac37282994ead2899be2bad301ff2bcf5fa2",
+      "exact": true,
+      "changed_functions": []
+    },
+    "starVLA/rl/qwen_world_postcot/rl_actor.py": {
+      "current_sha256": "84d112aa1cd277832ab4a788504cf67e932aa6f5a00f9220cb5c15e42cad2e23",
+      "baseline_sha256": "84d112aa1cd277832ab4a788504cf67e932aa6f5a00f9220cb5c15e42cad2e23",
+      "exact": true,
+      "changed_functions": []
+    },
+    "starVLA/rl/simwam_recipe/vendor/action_math.py": {
+      "current_sha256": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+      "baseline_sha256": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+      "exact": true,
+      "changed_functions": []
+    },
+    "starVLA/rl/qwen_world_research_algorithms/policy.py": {
+      "current_sha256": "58dcf2a9f6df8da6df8211ac955412327d895e10513f58736221689696675761",
+      "baseline_sha256": "340e3855423d1a5c53e3f92f6fa374db66db5e2e1625acb0801dce7c0a3700ea",
+      "exact": false,
+      "changed_functions": [
+        "_policy_loss"
+      ]
+    },
+    "starVLA/rl/qwen_world_research_algorithms/safety_efficiency.py": {
+      "current_sha256": "0981f46a71fb796c1f841dfc078c634966a30f1850b1f72470a13bbd5778b2af",
+      "baseline_sha256": "d8904dc31796c0f5c330980c0fda738bba36eed2a70bd121164031abc739dd5d",
+      "exact": false,
+      "changed_functions": [
+        "validate_safety_efficiency_recipe"
+      ]
+    }
+  },
+  "tests": {
+    "command": "modelpython -m pytest -q tests/test_qwen_world_fpo_training.py",
+    "passed": 5,
+    "failed": 0,
+    "seconds": 6.76,
+    "scope": "actualsourceW3collect/4inner/currentMemory/anchorvalue+gradient/native8ranks/torchroundtrip/pollution/freshmismatch/finalizer+initialscale+probe"
+  },
+  "root_integration": {
+    "runtime_edit_required": false,
+    "trainer_edit_required": false,
+    "gradient_probe": ".gradient_probe.maybe_probe_components(model,rollout,cfg,{pg,anchor})",
+    "role_and_worker_module_registration": "rootowned",
+    "recipe_fields": {
+      "policy_objective": "ppo",
+      "data_policy": "uniform_full",
+      "structured_advantage": "candidate_metric_safety_feasible_EP_global_std_v1",
+      "fpo": {
+        "schema": "world_endpoint_CFM_per_MC_PPO_v1",
+        "mc_samples": 2,
+        "sigma_min": 0.2,
+        "sigma_max": 0.8,
+        "clip_range": 0.01,
+        "stateless_seed": 42,
+        "energy_reduction": "mean_xyz_then_sum_8poses"
+      }
+    },
+    "dependencies": [
+      "fpo_prototype.py(existingnumerichelpers/freshendpointaudit)",
+      "gradient_probe.py(rootowned)",
+      "policy.py",
+      "safety_efficiency.py"
+    ]
+  },
+  "fresh_contract": "sameIL70 freshAdam/RNG42/update0; noRL10kfork/warmstart; exactnative resumeonlywithinnewrun",
+  "gates": [
+    1000,
+    5000
+  ],
+  "scheduler_identity_max_steps": 50000,
+  "native_diagnostics": {
+    "firstcollection": "initial_FPO_scale_rankN.json (oldvelocity/CFMenergy/sigma/logclipband, noextraforward)",
+    "everyinner": "fpo energy/ratio/positive+negativeclipblock/A0/eligiblemetrics plusW3anchor currentaudit",
+    "fresh": "material marker setatcollection+pendinginner0 boundary,consumedbyfirstforward; resumeinner1..3notmischecked",
+    "P0": "rootoptin actualgradienthelper; scalarenergycannotreplacegradientscale"
+  },
+  "caveats": [
+    "CFMproxy notexactendpointlikelihood/IS/KL",
+    "truncatedsigmaU[.2,.8],sum8meanxyzenergyunits;.01 formalfirstcandidate,nopromisedoptimum",
+    "W3unchanged;FPOdoesnotitselfproveODEimprovement",
+    "allA0noPG;beta50anchorstillcomputed",
+    "noHuber/clamp/ASPO/extraaux/learnedcritic"
+  ],
+  "actions": {
+    "GPU_dispatch": 0,
+    "registration": 0,
+    "git_stage": 0,
+    "git_commit": 0,
+    "shared_runtime_modified": false
+  }
+}

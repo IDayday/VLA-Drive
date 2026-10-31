@@ -1,0 +1,942 @@
+{
+  "schema": "Flow_direct_proximal_primary_and_native_mechanism_research_v1",
+  "status": "COMPLETE_CPU_RESEARCH_ONLY",
+  "created_at": "2026-10-31T10:56:45.496215+00:00",
+  "decision": {
+    "recommendation": "DEFER_NEW_GPU_ARM;KEEP_A_SMALL_CPU_PROTOTYPE_AND_REQUIRE_KL_MASK_DISAGREEMENT_EVIDENCE",
+    "priority": "below already running freshIL70 P1/FPO first gates",
+    "reason_zh": "两点8rank×64updates有效候选步被PPO挡住仅2.82%/2.34%，有负正不对称但未见clip全面崩溃；尚无old/new conditionalKL记录，不能宣称被挡的就是误挡。代码成本小、机制合理，先保留数学原型与单位方案，不追加训练资源。",
+    "GPU_registration": false,
+    "GPU_dispatch": false
+  },
+  "primary_sources": [
+    {
+      "title": "Flow-DPPO v2,27Jun2026",
+      "url": "https://arxiv.org/html/2606.11025v2",
+      "type": "author_primary_paper"
+    },
+    {
+      "title": "Tencent-Hunyuan UniRL official loss",
+      "url": "https://github.com/Tencent-Hunyuan/UniRL/blob/main/unirl/algorithms/flowdppo.py",
+      "type": "official_code"
+    },
+    {
+      "title": "Official SDE kernel logdensity reduction",
+      "url": "https://github.com/Tencent-Hunyuan/UniRL/blob/main/unirl/sde/kernels.py",
+      "type": "official_code"
+    },
+    {
+      "title": "Official config extract",
+      "url": "https://github.com/Tencent-Hunyuan/UniRL/blob/main/FlowDPPO/config.yaml",
+      "type": "official_code"
+    }
+  ],
+  "paper_claims": [
+    {
+      "claim": "在图像flow-RL上，以Gaussian conditional KL门槛加非对称方向mask替换PPO ratio clip，报告更稳的多轮复用与图像reward/保持表现。",
+      "source": "https://arxiv.org/html/2606.11025v2",
+      "location": "Sec3.3 Eq14/17/18,Sec4",
+      "scope": "image generation,not driving PDMS"
+    },
+    {
+      "claim": "v2 AppendixE明确ratio方向只是KL变化方向的启发式；预测mask尚待实证，未被当作已验证主算法。",
+      "source": "https://arxiv.org/html/2606.11025v2",
+      "location": "AppendixE.1-E.3"
+    }
+  ],
+  "official_implementation_findings": [
+    {
+      "finding": "flowdppo_kl_adv_loss仍优化-A*exp(new_logp-old_logp)，仅mask阈值改成Gaussian旧新均值位移；ratio方向未消失。",
+      "source": "https://github.com/Tencent-Hunyuan/UniRL/blob/main/unirl/algorithms/flowdppo.py"
+    },
+    {
+      "finding": "gaussian元素KL对latent轴取mean；kl_mask_threshold单位是每坐标KL。代码边界>=delta屏蔽，论文写>delta。",
+      "source": "https://github.com/Tencent-Hunyuan/UniRL/blob/main/unirl/algorithms/flowdppo.py"
+    },
+    {
+      "finding": "SDE finalize_logp同样对latent轴取mean，因此当前官方工程ratio也不是完整latent联合密度比。",
+      "source": "https://github.com/Tencent-Hunyuan/UniRL/blob/main/unirl/sde/kernels.py"
+    },
+    {
+      "finding": "当前config extract threshold1e-5，paperF.2报告FlowSDE1e-7/CPS1e-6；不同归约/实现与采样不能照搬阈值。",
+      "source": "https://github.com/Tencent-Hunyuan/UniRL/blob/main/FlowDPPO/config.yaml",
+      "paper_source": "https://arxiv.org/html/2606.11025v2"
+    }
+  ],
+  "source_snapshot": {
+    "status": "NETWORK_PIN_UNAVAILABLE",
+    "error": "HTTP Error 403: rate limit exceeded",
+    "official_web_source": "https://raw.githubusercontent.com/Tencent-Hunyuan/UniRL/main/unirl/algorithms/flowdppo.py",
+    "raw_files": [
+      {
+        "path": "unirl/algorithms/flowdppo.py",
+        "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/UniRL/main/unirl/algorithms/flowdppo.py",
+        "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/primary_sources/FlowDPPO_20261031/unirl__algorithms__flowdppo.py",
+        "sha256": "ebebc58b007105691c3dcfa68d623ac460ca8b9136c13ac3b620214fc5fa3de1",
+        "http_etag": "\"42a752ec3592d8bacc5bf9e00060a54c5d8f256fc800cdb2c78b09d8e601f57c\"",
+        "bytes": 12367
+      },
+      {
+        "path": "unirl/algorithms/base.py",
+        "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/UniRL/main/unirl/algorithms/base.py",
+        "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/primary_sources/FlowDPPO_20261031/unirl__algorithms__base.py",
+        "sha256": "3783201c6a7d18e9a7e82268b1761d1cdae883808e2fcca01c744e8e74421878",
+        "http_etag": "\"5a5628910ae54f1f829e4fd5ef6e76e03e79f787a69fdcd82abbaf04949722b7\"",
+        "bytes": 15646
+      },
+      {
+        "path": "unirl/sde/kernels.py",
+        "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/UniRL/main/unirl/sde/kernels.py",
+        "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/primary_sources/FlowDPPO_20261031/unirl__sde__kernels.py",
+        "sha256": "63ad4d513beea8e3863b55f9079d3334bb0db9b5bdaff8a75540b39989744c27",
+        "http_etag": "\"3a0cf2c4b0c7d513bd33c925336b34734d8bff997584c6fb3ca536153d30e6aa\"",
+        "bytes": 18293
+      },
+      {
+        "path": "FlowDPPO/config.yaml",
+        "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/UniRL/main/FlowDPPO/config.yaml",
+        "local": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/primary_sources/FlowDPPO_20261031/FlowDPPO__config.yaml",
+        "sha256": "ce803115248ef176d63a6bae9b78ca5ff5e3ebd084f51d737d9ac35f3c3d1f6c",
+        "http_etag": "\"1e3e62e50e36ae4730af6168c32e105caeaea16a56845a3769453a2f8deb9f5d\"",
+        "bytes": 3638
+      }
+    ],
+    "retrieved_at": "2026-10-31T10:54:11.576170+00:00",
+    "limitation": "GitHub commit API rate-limited;main branch bodies content-SHA pinned if directraw succeeded,not a claimed immutable gitcommit"
+  },
+  "native_evidence": {
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FLOW_DIRECT_PROXIMAL_JOURNAL_EVIDENCE_20261031.json",
+    "windows": {
+      "10000": {
+        "rows": 512,
+        "ranks": 8,
+        "optimizer_updates": 64,
+        "collections": 16,
+        "all": {
+          "clipfrac": {
+            "mean": 0.04280599054618506,
+            "minimum": 0.0,
+            "maximum": 0.25
+          },
+          "positive_ppo_blocked_fraction": {
+            "mean": 0.021833147839060985,
+            "minimum": 0.0,
+            "maximum": 0.3333333432674408
+          },
+          "negative_ppo_blocked_fraction": {
+            "mean": 0.038715278831659816,
+            "minimum": 0.0,
+            "maximum": 0.6666666865348816
+          },
+          "ppo_blocked_fraction": {
+            "mean": 0.02555338595266221,
+            "minimum": 0.0,
+            "maximum": 0.2083333283662796
+          },
+          "ratio_mean": {
+            "mean": 0.9999587181955576,
+            "minimum": 0.998146653175354,
+            "maximum": 1.001343846321106
+          },
+          "step7_ratio_mean": {
+            "mean": 1.0000230835285038,
+            "minimum": 0.9992647767066956,
+            "maximum": 1.0013234615325928
+          },
+          "step8_ratio_mean": {
+            "mean": 0.9999789617722854,
+            "minimum": 0.9982798099517822,
+            "maximum": 1.0011075735092163
+          },
+          "step9_ratio_mean": {
+            "mean": 0.9998740431619808,
+            "minimum": 0.9944722056388855,
+            "maximum": 1.0034579038619995
+          },
+          "step7_ratio_ess_fraction": {
+            "mean": 0.9062497892882675,
+            "minimum": 0.0,
+            "maximum": 1.000000238418579
+          },
+          "step8_ratio_ess_fraction": {
+            "mean": 0.9062490978976712,
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "step9_ratio_ess_fraction": {
+            "mean": 0.9062404173891991,
+            "minimum": 0.0,
+            "maximum": 1.0000001192092896
+          },
+          "source_logdensity_clamp_hit_rate": {
+            "mean": 0.0002780490472105157,
+            "maximum": 0.0034722222480922937
+          },
+          "eligible_weighted_counts": {
+            "positive_candidate_steps": 6996,
+            "negative_candidate_steps": 4140,
+            "eligible_candidate_steps": 11136,
+            "positive_blocked_steps": 161,
+            "negative_blocked_steps": 153,
+            "positive_blocked_rate": 0.023013150371640936,
+            "negative_blocked_rate": 0.03695652173913044,
+            "overall_blocked_rate": 0.02819683908045977
+          }
+        },
+        "by_inner": {
+          "1": {
+            "clipfrac": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step7_ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step8_ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.90625,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.90625,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.90625,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.00028483073128882097,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1749,
+              "negative_candidate_steps": 1035,
+              "eligible_candidate_steps": 2784,
+              "positive_blocked_steps": 0,
+              "negative_blocked_steps": 0,
+              "positive_blocked_rate": 0.0,
+              "negative_blocked_rate": 0.0,
+              "overall_blocked_rate": 0.0
+            }
+          },
+          "2": {
+            "clipfrac": {
+              "mean": 0.03255208415794186,
+              "minimum": 0.0,
+              "maximum": 0.1666666716337204
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.013616071722935885,
+              "minimum": 0.0,
+              "maximum": 0.1111111119389534
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.02732514962553978,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.016927083808695897,
+              "minimum": 0.0,
+              "maximum": 0.125
+            },
+            "ratio_mean": {
+              "mean": 0.9999713012948632,
+              "minimum": 0.9988802671432495,
+              "maximum": 1.0008080005645752
+            },
+            "step7_ratio_mean": {
+              "mean": 1.0000150315463543,
+              "minimum": 0.9996582269668579,
+              "maximum": 1.0006186962127686
+            },
+            "step8_ratio_mean": {
+              "mean": 0.9999875565990806,
+              "minimum": 0.9989789724349976,
+              "maximum": 1.000925064086914
+            },
+            "step9_ratio_mean": {
+              "mean": 0.9999111983925104,
+              "minimum": 0.996624231338501,
+              "maximum": 1.001971960067749
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.9062498291023076,
+              "minimum": 0.0,
+              "maximum": 1.000000238418579
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.906249238178134,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.9062429461628199,
+              "minimum": 0.0,
+              "maximum": 1.0000001192092896
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.00027126736313221045,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1749,
+              "negative_candidate_steps": 1035,
+              "eligible_candidate_steps": 2784,
+              "positive_blocked_steps": 26,
+              "negative_blocked_steps": 26,
+              "positive_blocked_rate": 0.014865637507146942,
+              "negative_blocked_rate": 0.025120772946859903,
+              "overall_blocked_rate": 0.01867816091954023
+            }
+          },
+          "3": {
+            "clipfrac": {
+              "mean": 0.05631510535022244,
+              "minimum": 0.0,
+              "maximum": 0.1666666716337204
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.025601439032470807,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.05437128129415214,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.03222656322759576,
+              "minimum": 0.0,
+              "maximum": 0.125
+            },
+            "ratio_mean": {
+              "mean": 0.9999389485456049,
+              "minimum": 0.99815434217453,
+              "maximum": 1.0011647939682007
+            },
+            "step7_ratio_mean": {
+              "mean": 1.0000372007489204,
+              "minimum": 0.9994641542434692,
+              "maximum": 1.000878095626831
+            },
+            "step8_ratio_mean": {
+              "mean": 0.9999831323511899,
+              "minimum": 0.9988088607788086,
+              "maximum": 1.0008213520050049
+            },
+            "step9_ratio_mean": {
+              "mean": 0.9997964529320598,
+              "minimum": 0.9956109523773193,
+              "maximum": 1.0028756856918335
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.906249709893018,
+              "minimum": 0.0,
+              "maximum": 1.0000001192092896
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.9062488288618624,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.9062373135238886,
+              "minimum": 0.0,
+              "maximum": 0.9999998807907104
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.00028483073128882097,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1749,
+              "negative_candidate_steps": 1035,
+              "eligible_candidate_steps": 2784,
+              "positive_blocked_steps": 45,
+              "negative_blocked_steps": 54,
+              "positive_blocked_rate": 0.025728987993138937,
+              "negative_blocked_rate": 0.05217391304347826,
+              "overall_blocked_rate": 0.03556034482758621
+            }
+          },
+          "4": {
+            "clipfrac": {
+              "mean": 0.08235677267657593,
+              "minimum": 0.0,
+              "maximum": 0.25
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.048115080600837246,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.07316468440694734,
+              "minimum": 0.0,
+              "maximum": 0.6666666865348816
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.053059896774357185,
+              "minimum": 0.0,
+              "maximum": 0.2083333283662796
+            },
+            "ratio_mean": {
+              "mean": 0.9999246229417622,
+              "minimum": 0.998146653175354,
+              "maximum": 1.001343846321106
+            },
+            "step7_ratio_mean": {
+              "mean": 1.0000401018187404,
+              "minimum": 0.9992647767066956,
+              "maximum": 1.0013234615325928
+            },
+            "step8_ratio_mean": {
+              "mean": 0.9999451581388712,
+              "minimum": 0.9982798099517822,
+              "maximum": 1.0011075735092163
+            },
+            "step9_ratio_mean": {
+              "mean": 0.999788521323353,
+              "minimum": 0.9944722056388855,
+              "maximum": 1.0034579038619995
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.9062496181577444,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.9062483245506883,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.9062314098700881,
+              "minimum": 0.0,
+              "maximum": 0.9999998807907104
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.00027126736313221045,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1749,
+              "negative_candidate_steps": 1035,
+              "eligible_candidate_steps": 2784,
+              "positive_blocked_steps": 90,
+              "negative_blocked_steps": 73,
+              "positive_blocked_rate": 0.051457975986277875,
+              "negative_blocked_rate": 0.07053140096618357,
+              "overall_blocked_rate": 0.058548850574712645
+            }
+          }
+        }
+      },
+      "24000": {
+        "rows": 512,
+        "ranks": 8,
+        "optimizer_updates": 64,
+        "collections": 16,
+        "all": {
+          "clipfrac": {
+            "mean": 0.040283204150910024,
+            "minimum": 0.0,
+            "maximum": 0.2083333432674408
+          },
+          "positive_ppo_blocked_fraction": {
+            "mean": 0.019414993024838623,
+            "minimum": 0.0,
+            "maximum": 0.3333333432674408
+          },
+          "negative_ppo_blocked_fraction": {
+            "mean": 0.02994481730274856,
+            "minimum": 0.0,
+            "maximum": 0.3333333432674408
+          },
+          "ppo_blocked_fraction": {
+            "mean": 0.02197265673748916,
+            "minimum": 0.0,
+            "maximum": 0.2083333283662796
+          },
+          "ratio_mean": {
+            "mean": 0.9999243894126266,
+            "minimum": 0.9981504678726196,
+            "maximum": 1.00142502784729
+          },
+          "step7_ratio_mean": {
+            "mean": 0.9999852265464142,
+            "minimum": 0.9993058443069458,
+            "maximum": 1.0007485151290894
+          },
+          "step8_ratio_mean": {
+            "mean": 0.9999882179545239,
+            "minimum": 0.9979544878005981,
+            "maximum": 1.0016257762908936
+          },
+          "step9_ratio_mean": {
+            "mean": 0.9997996671590954,
+            "minimum": 0.9950309991836548,
+            "maximum": 1.0041941404342651
+          },
+          "step7_ratio_ess_fraction": {
+            "mean": 0.937499720021151,
+            "minimum": 0.0,
+            "maximum": 1.0000001192092896
+          },
+          "step8_ratio_ess_fraction": {
+            "mean": 0.9374990141950548,
+            "minimum": 0.0,
+            "maximum": 1.0000001192092896
+          },
+          "step9_ratio_ess_fraction": {
+            "mean": 0.937490671640262,
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "source_logdensity_clamp_hit_rate": {
+            "mean": 0.000467936201403063,
+            "maximum": 0.0034722222480922937
+          },
+          "eligible_weighted_counts": {
+            "positive_candidate_steps": 7344,
+            "negative_candidate_steps": 4176,
+            "eligible_candidate_steps": 11520,
+            "positive_blocked_steps": 144,
+            "negative_blocked_steps": 126,
+            "positive_blocked_rate": 0.0196078431372549,
+            "negative_blocked_rate": 0.03017241379310345,
+            "overall_blocked_rate": 0.0234375
+          }
+        },
+        "by_inner": {
+          "1": {
+            "clipfrac": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step7_ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step8_ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_mean": {
+              "mean": 1.0,
+              "minimum": 1.0,
+              "maximum": 1.0
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.9375,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.9375,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.9375,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.0004882812536379788,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1836,
+              "negative_candidate_steps": 1044,
+              "eligible_candidate_steps": 2880,
+              "positive_blocked_steps": 0,
+              "negative_blocked_steps": 0,
+              "positive_blocked_rate": 0.0,
+              "negative_blocked_rate": 0.0,
+              "overall_blocked_rate": 0.0
+            }
+          },
+          "2": {
+            "clipfrac": {
+              "mean": 0.028971354971872643,
+              "minimum": 0.0,
+              "maximum": 0.2083333432674408
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.009561012120684609,
+              "minimum": 0.0,
+              "maximum": 0.1111111119389534
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.020095486688660458,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.012695312849245965,
+              "minimum": 0.0,
+              "maximum": 0.125
+            },
+            "ratio_mean": {
+              "mean": 0.999962683301419,
+              "minimum": 0.9989354014396667,
+              "maximum": 1.0008182525634766
+            },
+            "step7_ratio_mean": {
+              "mean": 0.999983714427799,
+              "minimum": 0.9994853734970093,
+              "maximum": 1.000472903251648
+            },
+            "step8_ratio_mean": {
+              "mean": 1.0000090738758445,
+              "minimum": 0.9987493753433228,
+              "maximum": 1.0010097026824951
+            },
+            "step9_ratio_mean": {
+              "mean": 0.9998951759189367,
+              "minimum": 0.9975457191467285,
+              "maximum": 1.0027673244476318
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.9374997848644853,
+              "minimum": 0.0,
+              "maximum": 1.0000001192092896
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.937499257735908,
+              "minimum": 0.0,
+              "maximum": 1.0000001192092896
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.9374940362758934,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.0004747178854813683,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1836,
+              "negative_candidate_steps": 1044,
+              "eligible_candidate_steps": 2880,
+              "positive_blocked_steps": 19,
+              "negative_blocked_steps": 20,
+              "positive_blocked_rate": 0.010348583877995643,
+              "negative_blocked_rate": 0.019157088122605363,
+              "overall_blocked_rate": 0.013541666666666667
+            }
+          },
+          "3": {
+            "clipfrac": {
+              "mean": 0.05078125130967237,
+              "minimum": 0.0,
+              "maximum": 0.2083333432674408
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.023449901374988258,
+              "minimum": 0.0,
+              "maximum": 0.2222222238779068
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.03730778879253194,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.02669270889600739,
+              "minimum": 0.0,
+              "maximum": 0.2083333283662796
+            },
+            "ratio_mean": {
+              "mean": 0.9998941384255886,
+              "minimum": 0.9987920522689819,
+              "maximum": 1.0012147426605225
+            },
+            "step7_ratio_mean": {
+              "mean": 0.9999807639978826,
+              "minimum": 0.9993058443069458,
+              "maximum": 1.0006015300750732
+            },
+            "step8_ratio_mean": {
+              "mean": 0.9999852706678212,
+              "minimum": 0.998381495475769,
+              "maximum": 1.0016257762908936
+            },
+            "step9_ratio_mean": {
+              "mean": 0.9997163070365787,
+              "minimum": 0.9953782558441162,
+              "maximum": 1.0039165019989014
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.937499638646841,
+              "minimum": 0.0,
+              "maximum": 1.0000001192092896
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.9374987417832017,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.9374891668558121,
+              "minimum": 0.0,
+              "maximum": 0.9999999403953552
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.0004747178854813683,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1836,
+              "negative_candidate_steps": 1044,
+              "eligible_candidate_steps": 2880,
+              "positive_blocked_steps": 44,
+              "negative_blocked_steps": 38,
+              "positive_blocked_rate": 0.023965141612200435,
+              "negative_blocked_rate": 0.03639846743295019,
+              "overall_blocked_rate": 0.02847222222222222
+            }
+          },
+          "4": {
+            "clipfrac": {
+              "mean": 0.08138021032209508,
+              "minimum": 0.0,
+              "maximum": 0.2083333432674408
+            },
+            "positive_ppo_blocked_fraction": {
+              "mean": 0.044649058603681624,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "negative_ppo_blocked_fraction": {
+              "mean": 0.06237599372980185,
+              "minimum": 0.0,
+              "maximum": 0.3333333432674408
+            },
+            "ppo_blocked_fraction": {
+              "mean": 0.048502605204703286,
+              "minimum": 0.0,
+              "maximum": 0.1666666716337204
+            },
+            "ratio_mean": {
+              "mean": 0.9998407359234989,
+              "minimum": 0.9981504678726196,
+              "maximum": 1.00142502784729
+            },
+            "step7_ratio_mean": {
+              "mean": 0.9999764277599752,
+              "minimum": 0.9994062781333923,
+              "maximum": 1.0007485151290894
+            },
+            "step8_ratio_mean": {
+              "mean": 0.9999585272744298,
+              "minimum": 0.9979544878005981,
+              "maximum": 1.0010499954223633
+            },
+            "step9_ratio_mean": {
+              "mean": 0.9995871856808662,
+              "minimum": 0.9950309991836548,
+              "maximum": 1.0041941404342651
+            },
+            "step7_ratio_ess_fraction": {
+              "mean": 0.9374994565732777,
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "step8_ratio_ess_fraction": {
+              "mean": 0.9374980572611094,
+              "minimum": 0.0,
+              "maximum": 0.9999997615814209
+            },
+            "step9_ratio_ess_fraction": {
+              "mean": 0.9374794834293425,
+              "minimum": 0.0,
+              "maximum": 0.9999991655349731
+            },
+            "source_logdensity_clamp_hit_rate": {
+              "mean": 0.0004340277810115367,
+              "maximum": 0.0034722222480922937
+            },
+            "eligible_weighted_counts": {
+              "positive_candidate_steps": 1836,
+              "negative_candidate_steps": 1044,
+              "eligible_candidate_steps": 2880,
+              "positive_blocked_steps": 81,
+              "negative_blocked_steps": 68,
+              "positive_blocked_rate": 0.04411764705882353,
+              "negative_blocked_rate": 0.06513409961685823,
+              "overall_blocked_rate": 0.05173611111111111
+            }
+          }
+        }
+      }
+    },
+    "scope": "eachpoint64updates×8ranks=512rows,16freshcollections,3stochasticsteps;eligible counts weighted from actual saved A-sign/mask,not unweighted fraction averages",
+    "limitations": [
+      "only2fixed windows,not fullrun prevalence",
+      "blocked fractions are counts,not gradient mass or PDMS causal effect",
+      "no current-old Gaussian means in journal;kl_x/kl_x_norm are toIL70 reference,not behavior-old trustregion KL",
+      "clipping grows across4inner;freshinner0 ratios1 and blocked0,as intended"
+    ],
+    "measured_zh": "10k正blocked161/6996=2.3013%、负153/4140=3.6957%；24k正144/7344=1.9608%、负126/4176=3.0172%。inner4总blocked5.8549%/5.1736%，不是4inner全无效。"
+  },
+  "native_probability_contract": {
+    "existing": "exp(mean24(clamp_relative(logNormal_new))-mean24(clamp_relative(logNormal_old)));not exact transition IS and not endpoint likelihood",
+    "source": "starVLA/rl/simwam_recipe/vendor/action_math.py action_chain_logprobs; qwen_world_research_algorithms/policy.py",
+    "dimensions_per_step": 24,
+    "steps": [
+      7,
+      8,
+      9
+    ],
+    "sampler": "rigorousSDE eta.1,source shift5K10 W3,Gaussian innovation clamp±5",
+    "exact_KL_statement": "For nominal equal-variance Gaussian kernels at the SAME stored state,KL(old||new)=sum24((mu_new-mu_old)^2/(2*transition_std^2)),exactly;dimensionmean is this KL/24.",
+    "realization_caveat": "innovationclamp±5 and floatingpoint sampling make realized transitions not literally unconstrained Gaussians;call this nominal Gaussian-kernel KL,not exact divergence of the full clipped/hybrid rollout law",
+    "variance_requirement": "use full perstep transition std g*sqrt(-dsigma),including native min_std guard;not sigma timestep,not diffusion coefficientg,not action physical-unit scale",
+    "existing_vendor_gate": "vendor trainer_math already has asymmetric old-mean KL gate shape,but ResearchLoss currently rejects kl_gate and existing rollout stores old_probability rather than expected top-level old_mean/old_std;not a safe config-only switch"
+  },
+  "mathematical_audit": {
+    "attribution": "our derivation,not a paper empirical result",
+    "exact_ratio_mean": "For fixed equal-Gaussian kernels and untempered exact density ratio,E_old[r]=1;E_old[log r]=-D,median(r)=exp(-D).Intrinsic Gaussian does not imply population mean exactratio<1.",
+    "native_mean_log_ratio": "Ignoring element clamp/innovationclip and fixing the kernels,native rho_proxy=exp(log r_joint/d).For d=24,E[rho_proxy]=exp(-D*(d-1)/d^2)<1 and Var(log rho_proxy)=2D/d^2.",
+    "implication": "Some leftshift is structurally induced by geometric-mean tempering;this does not establish empirical root cause because currenttheta is fitted on the same sampled batch and the real logdensity is clipped.",
+    "direction": "The sign(A*(rho-1)) mask is still sample/proxy-dependent and does not guarantee KL decrease in sharedNN Adam+anchor updates.",
+    "fullchain": "Conditional KL for W3 measured only at old visited states does not bound all states/deterministic prefix/fulltrajectory/deploymentODE;not a monotonic-PDMS or safety guarantee.",
+    "native_epsilon_units": {
+      "proxy_epsilon": 0.005,
+      "dimensions": 24,
+      "joint_ratio_equivalent_if_no_element_clamp": [
+        0.8866535105013078,
+        1.1271597762053889
+      ],
+      "interpretation": "Only the algebraic geometric-mean relation,not exact IS for nativeclamped density;epsilon.005 is not directly the same scale as a scalar/full-density PPOepsilon.005"
+    }
+  },
+  "proposed_proxy_compatible_variant": {
+    "status": "PURE_CPU_NOT_IN_RUNTIME",
+    "loss": "-mean_local_effective(mask.detach()*rho_proxy*A_clipped),same source rank reduction;keep beta50IL mean anchor/reward/normalization/data/RNG/W3 unchanged",
+    "mask": "block iff A*log(rho_proxy)>0 and D_mean>=delta_mean;corrective proxy steps remain",
+    "differences_from_paper": [
+      "retains source mean-clamped proxy weighting,so no exact-IS/theorem claim",
+      "uses native24dim normalized action and source W3/shift5/eta.1,not image/CPS recipes",
+      "keeps existing IL70 weighted mean anchor,not paper reference Gaussian KL coefficient",
+      "ordinary Eq18/code mask only;predictive mean-step masks not implemented"
+    ],
+    "units": {
+      "delta_mean": "nats per normalized latent coordinate per stochastic transition",
+      "delta_sum": "nats for whole24D conditional Gaussian transition",
+      "conversion": "delta_sum=24*delta_mean",
+      "threshold_selected_for_training": null,
+      "example_mean_1e_minus5_to_sum": 0.00024
+    },
+    "calibration": "do not map epsilon.005 to delta via a blind formula or import image default;first compare actual old/new kernelKL quantiles byinner,step andA sign"
+  },
+  "minimal_next_observation": {
+    "no_new_model_forward_needed": true,
+    "reason": "old_probability already saved;current terms.mean/std already computed for beta50 reference comparison",
+    "requested_if_future_sealed_trial_has_instrumentation": [
+      "conditional KL mean andsum p50/p90/p99 bystep7/8/9 andinner1..4",
+      "PPOblocked but Dbelowcandidate threshold vs ratio-insideclip butDhigh+outward",
+      "A/gradient-weighted mismatch and sign split;do not judge from counts alone"
+    ],
+    "no_current_hot_change": true,
+    "activation_for_new_GPU_trial": "only if substantial actionable mask disagreement and reasonable delta calibration emerge,then one freshsameIL70 gate-only comparison;do not change ratio reduction/anchor/sampler simultaneously"
+  },
+  "CPU_prototype": {
+    "path": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/flow_direct_proximal_cpu.py",
+    "sha256": "3af688cd16ded281593c90db3b98f1b825cc730483424b419fb79a404117c763",
+    "check": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FLOW_DIRECT_PROXIMAL_CPU_CHECK_20261031.json",
+    "result": {
+      "status": "PASS",
+      "CPU_only": true,
+      "dimensions": 24,
+      "checks": [
+        "analytic Gaussian KL matches torch distribution KL",
+        "sum/mean unit consistency",
+        "lowKL preserves gradients that ratio can clip",
+        "highKL blocks near1 outward ratio",
+        "highKL corrective gradient remains",
+        "maskdetached+ratio gradient behavior"
+      ],
+      "runtime_or_GPU_entry_created": false
+    }
+  },
+  "conclusions_zh": [
+    "有机制价值，但目前clip仅温和阻断，不足以列为首要已证瓶颈。",
+    "优先把条件Gaussian KL当更可靠的测量与候选门控；它不修复reward credit本身，也不自动把SDE成功转成ODE部署成功。",
+    "官方工程也用mean logp/mean KL；迁移时必须区分数学全密度比、工程proxy及δ归约单位。",
+    "保留CPU原型，先看已运行P1/FPO结果，不为新名字追加训练资源。"
+  ],
+  "actions": {
+    "models_loaded": false,
+    "GPU": false,
+    "new_evaluation": false,
+    "process_signal": false,
+    "existing_source_edits": false,
+    "registration": false,
+    "stage_or_commit": false
+  }
+}

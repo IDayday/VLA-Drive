@@ -1,0 +1,64 @@
+{
+  "schema": "fresh_IL70_online_success_memory_CPU_readiness_v1",
+  "status": "PASS",
+  "created_at": "2026-10-31T10:43:56.288145+00:00",
+  "entry": "starVLA.rl.qwen_world_research_algorithms.success_memory_entry",
+  "arm": "PPO_SAFETY_SUCCESS_MEMORY",
+  "files": {
+    "starVLA/rl/qwen_world_research_algorithms/success_memory.py": {
+      "sha256": "8e238f45b3817a4bd6d03b97cc485fa5fb3633613581a6a5248448d152acfdcd",
+      "bytes": 15111
+    },
+    "starVLA/rl/qwen_world_research_algorithms/success_memory_entry.py": {
+      "sha256": "427ac94a8a6285268ffd1f49a26cf45066b789e8234982b30a154f15bc979c27",
+      "bytes": 5762
+    },
+    "tests/test_qwen_world_success_memory.py": {
+      "sha256": "132d38baff13deaf3f962e3ef446cfa76078dcec92ae09233738d9464c6ff4e4",
+      "bytes": 9028
+    }
+  },
+  "tests": {
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_qwen_world_success_memory.py",
+    "passed": 5,
+    "failed": 0,
+    "scope": [
+      "emptybank,independent historical noncurrent selection despite fresh saturation,main/global RNG and PG material unchanged",
+      "rankstate+pendingaux torchsave/load preserves private RNG and future choices,partial-inner completed exposure",
+      "official strict label and nativecodec admission,lowEP threshold is not failure label",
+      "4inner saved CFM material,current-memory gradients rebuilt,no retained component graph,live probe callback metrics",
+      "2entry frozen-feature LRU and scalar public JSON while full native state retained"
+    ]
+  },
+  "trainer_hooks": [
+    "bind_training_state(state,rollout,identity) after fresh/native restore before Invocation",
+    "optional record_policy_components(pg,beta*kl_loss) before base loss return",
+    "public_training_state(state) only for JSON diagnostics,notcheckpoint"
+  ],
+  "budget": {
+    "period_collections": 4,
+    "historical_scenes_per_rank": 1,
+    "CFM_MC": 1,
+    "coefficient": 0.1,
+    "sigma": [
+      0.2,
+      0.8
+    ],
+    "bank_capacity": 1024
+  },
+  "ancestry": "fresh sameIL70;no Safety10k weights or external teacherbank",
+  "model_loaded": false,
+  "GPU_used": false,
+  "process_signal": false,
+  "registered": false,
+  "dispatched": false,
+  "git_staged": false,
+  "git_committed": false,
+  "DDC_decision": {
+    "gate_in_config": false,
+    "raw_DDC_metrics_retained": true,
+    "considered_but_not_adopted": true,
+    "reason": "Actual canonical score is NC*DAC*(5EP+5TTC+2Comfort)/12;DDC is not a multiplicative term. Keep P1 original single auxiliary admission,do not add unmotivated extra gate.",
+    "scorer_unchanged": true
+  }
+}

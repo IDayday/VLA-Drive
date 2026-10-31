@@ -1,0 +1,28 @@
+{
+  "schema": "world_freshSafety_two_checkpoint_futility_rule_v1",
+  "authorized_by": "root parent instruction,2026-10-31,preauthorized beforefirstcompletepilotresults",
+  "arms": [
+    "PPO_SAFETY_SUCCESS_MEMORY",
+    "PPO_SAFETY_FPO"
+  ],
+  "gates": [
+    1000,
+    5000
+  ],
+  "cap": 10000,
+  "conjunction": "samearm1k AND5k: actualcomplete samebudgetSafetyNAVTEST deltaPDMS<-1 ANDpairedCIupper<0 ANDfixedIL70score>=.9cohortCIupper<0 atBOTH",
+  "one_checkpoint_action": false,
+  "partial_scores_imputed": false,
+  "expected_scenes": 12146,
+  "physical_logs": 44,
+  "bootstrap": 2000,
+  "seed": 42,
+  "action": "auditdecisionthenRUNSlock onlythisarm new_training_authorized=False/statusSTOP_REQUESTED_FUTILITY +exactcurrenttrainingjob STOP_REQUESTED",
+  "finalize": "nativeexit0 +exacttransportexit +atomicfullcheckpointinventory/8rankRNG/bankreceipt +ownerackhold, thenSTOPPED_FUTILITY",
+  "no_stop_if_natural10k": true,
+  "no_process_signals": true,
+  "no_evaluation_cancellation": true,
+  "no_scoring_or_GPU": true,
+  "classification": "clear sustained degradation of this registered recipe,notalgorithmfamilyrejected; one trainingseed,correlatedcheckpoints,notindependentpvalues",
+  "lifetime": "botharms10kcompleted/stopped/failedor24hours; inotify+1800smetadataheartbeat;nojournalpolling"
+}
