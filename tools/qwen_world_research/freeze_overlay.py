@@ -60,8 +60,12 @@ def freeze_overlay(repo,base,commit,output):
         node=tree
         for part in PurePosixPath(e['path']).parts:node=node.setdefault(part,{})
         node['__entry__']=e
-    if any('__entry__' in node and len(node)>1 for node in tree.values()):
-        raise ValueError('File/directory delta conflict')
+    def validate_tree(node):
+        if '__entry__' in node:
+            if len(node)>1:raise ValueError('File/directory structural transitions require a fresh base snapshot')
+        else:
+            for child in node.values():validate_tree(child)
+    validate_tree(tree)
     output.parent.mkdir(parents=True,exist_ok=True)
     attempt=output.with_name(output.name+'.incomplete.'+uuid.uuid4().hex)
     attempt.mkdir();linked=[];expanded=[]
