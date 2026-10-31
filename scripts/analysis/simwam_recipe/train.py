@@ -189,6 +189,8 @@ def main(runtime=None):
         # An explicitly registered scientific fork may inherit a complete
         # parent's Adam/RNG/cursor before publishing its own new run identity.
         state,rollout=runtime.initialize_training_state(actor,optimizer,scheduler,generator,identity)
+    if runtime is not None and hasattr(runtime,'bind_training_state'):
+        runtime.bind_training_state(state,rollout,identity)
     if rollout is not None and 'chain_identity' not in rollout:rollout['chain_identity']=rollout_digest(rollout)
     invocation=Invocation(root,rank,state,identity,a.resume)
     invocation.record.update(process_start_unix=process_started_unix,preparation_seconds=time.monotonic()-process_started)

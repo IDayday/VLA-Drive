@@ -194,5 +194,8 @@ class ResearchLoss(SourceLoss):
             for i, value in enumerate(d_mean_raw.mean(dim=(0, 1, 2)).tolist()):
                 extra[f'kl_x_dim{i}'] = torch.as_tensor(value, device=pg.device)
         total = pg + model.grpo_bc_coeff*bc_loss + beta*kl_loss
+        observer = getattr(self, 'record_policy_components', None)
+        if observer is not None:
+            observer(pg, beta*kl_loss)
         return total, dict(policy_loss=pg.detach(), bc_loss=bc_loss.detach(),
                            kl_loss=(beta*kl_loss).detach(), **extra)
