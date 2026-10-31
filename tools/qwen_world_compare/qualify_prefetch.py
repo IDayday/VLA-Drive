@@ -50,6 +50,9 @@ def main():
             CandidateBank(cfg['candidate_bank'],allowed_splits=('TRAIN',)),FutureTrackStore(Path(cfg['target_root'])/'TRAIN'),
             EvidenceBank(cfg['evidence_root']))
     rows=[];builder=factory();expected=factory();data=builder.data
+    def worker_factory():
+        return BatchBuilder(data,builder.processor,builder.teachers,
+            CandidateBank(cfg['candidate_bank'],allowed_splits=('TRAIN',)),builder.tracks,EvidenceBank(cfg['evidence_root']))
     for micro in(2,1):
         def request(update,cursor):
             return [([data.tokens[data.index(cursor+i)]for i in range(m,m+micro)],list(range(m,m+micro)))
@@ -61,7 +64,7 @@ def main():
         # committed builder progress, and resume must reproduce update2.
         for u in(20000,20001):
             before=builder.calls
-            with OrderedUpdatePrefetch(builder,request,start_update=u,start_cursor=u*32,builder_factory=factory)as pool:
+            with OrderedUpdatePrefetch(builder,request,start_update=u,start_cursor=u*32,builder_factory=worker_factory)as pool:
                 tick=time.perf_counter();actual=pool.next(u,u*32);waits.append(time.perf_counter()-tick)
                 comparison_bytes+=equal(actual,values[u])
             assert builder.calls==before+4//micro

@@ -1,5 +1,6 @@
 """Complete100k shared-objective IL; finite qualification never initializes it."""
 import argparse
+import copy
 from datetime import timedelta
 import fcntl
 import json
@@ -100,13 +101,23 @@ def main():
     p.add_argument('--qualification-save-at',type=int,nargs='*',default=[])
     p.add_argument('--profile-dir');p.add_argument('--profile-steps',type=int,default=0)
     p.add_argument('--retain-short-graphs',action='store_true')
+    p.add_argument('--checkpoint-policy',choices=('source','short_off','all_off'),default='source')
     p.add_argument('--cpu-prefetch-depth',type=int,choices=(0,1,2),default=0)
+    p.add_argument('--execution-receipt')
+    p.add_argument('--qualification-parent')
     a=p.parse_args();cfg=load_config(a.config);host=require_dispatch(admit_long_job=not a.qualification)
     world=int(os.environ.get('WORLD_SIZE',1));rank=int(os.environ.get('RANK',0));local=int(os.environ.get('LOCAL_RANK',0))
     if not a.qualification and (world!=8 or a.stop_after or a.evidence_override or a.profile_no_save or a.joint):raise ValueError('Formal IL preserves all100k/scenes/tasks/stages')
     if a.qualification and not(a.stop_after and 1<=a.stop_after<=20):raise ValueError('Qualification requires a finite1..20update window')
-    if (a.retain_short_graphs or a.cpu_prefetch_depth)and not a.qualification:
-        raise ValueError('Execution tuning requires qualification before an explicit native migration; formal source remains unchanged')
+    if a.retain_short_graphs:
+        if a.checkpoint_policy!='source':raise ValueError('Specify one checkpoint execution option')
+        a.checkpoint_policy='short_off'
+    tuning=a.checkpoint_policy!='source'or bool(a.cpu_prefetch_depth)
+    if tuning and not a.qualification and not a.execution_receipt:
+        raise ValueError('Formal execution tuning requires an explicit qualified native migration receipt')
+    if a.execution_receipt and(a.qualification or not a.resume):raise ValueError('Formal migration needs exact native resume')
+    if a.qualification_parent and(not a.qualification or a.resume or a.joint or world!=8):
+        raise ValueError('Native continuation qualification requires eight ranks, original stage and separate output')
     if a.profile_no_save and (not a.qualification or a.resume):raise ValueError('Disposable profile cannot recover/formally train')
     if a.qualification_save_at and(not a.qualification or a.profile_no_save):raise ValueError('Extra checkpoint boundaries are qualification-only')
     backend=a.backend or cfg['execution']['backend']
@@ -126,11 +137,15 @@ def main():
     builder=BatchBuilder(data,processor,teacher,bank,tracks,evidence)
     micro=a.micro_batch or cfg['execution']['micro_batch'];accum=32//(world*micro)
     if world*micro*accum!=32:raise ValueError('Microbatch topology changes global32')
-    model=build_model(cfg).to(device)
-    if a.retain_short_graphs:
-        from starVLA.model.modules.qwen_world_compare.execution import short_stream_checkpointing
-        short_stream_checkpointing(model,False)
+    native_parent=a.resume or a.qualification_parent
+    parent_config=(json.loads((Path(native_parent)/'identity.json').read_text())['qwen_config']if native_parent else None)
+    # Exact native restoration loads every model tensor below. Avoid first
+    # loading unused generic weights; construction never replaces native data.
+    model=build_model(cfg,checkpoint_config=copy.deepcopy(parent_config)).to(device)
     if cfg['architecture_id']!='D'and cfg['execution']['activation_checkpointing']:model.qwen.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
+    if a.checkpoint_policy!='source':
+        from starVLA.model.modules.qwen_world_compare.execution import checkpoint_flags,apply_checkpoint_policy
+        apply_checkpoint_policy(model,a.checkpoint_policy,checkpoint_flags(model))
     groups=parameter_groups(model,cfg);opt=cfg['il']['optimizer']
     # ZeRO2 replaces param_groups entries with flattened master tensors. Bind
     # logical model names/shapes before handing those same groups to the engine.
@@ -144,29 +159,50 @@ def main():
     else:engine=ProfileDDPEngine(model,optimizer,scheduler,accum)
     qcfg=model.decision.qwen_model.config.to_dict()if cfg['architecture_id']=='D'else model.qwen.model.config.to_dict()
     identity=cp.canonical_identity(dict(schema='qwen_world_compare_IL_v1',architecture_id=cfg['architecture_id'],config=cfg,model_config=cfg['model'],qwen_config=qcfg,world=world,qualification=a.qualification,uses_rl=False,uses_metric_supervision=True,train_heads=True,source_files=source_files(),initialization=qwen_identity,parameter_roles=model.parameter_roles(),optimizer_ordered_parameter_groups=group_contract,data_sha256=data.sha,teacher_identity_sha256=file_sha(Path(cfg['teacher_cache'])/'IDENTITY.json'),candidate_bank_hash=bank.bank_hash,evidence_identity=evidence.manifest['identity'],evidence_manifest_sha256=file_sha(evidence.root/'MANIFEST.json'),target_manifest_sha256=file_sha(tracks.root/'manifest.json'),execution=dict(backend=backend,micro=micro,accum=accum,ds=ds),joint_override=a.joint))
-    if a.retain_short_graphs or a.cpu_prefetch_depth:
-        identity['execution']['qualification_tuning']=dict(retain_short_graphs=a.retain_short_graphs,cpu_prefetch_depth=a.cpu_prefetch_depth)
+    if tuning:
+        identity['execution']['execution_tuning']=dict(checkpoint_policy=a.checkpoint_policy,cpu_prefetch_depth=a.cpu_prefetch_depth)
+    migration=None
+    if a.execution_receipt:
+        from starVLA.rl.qwen_world_compare.execution_migration import validate_receipt
+        migration=cp._rank_zero_call(lambda:validate_receipt(a.execution_receipt,identity,resume=a.resume))
     def publish():
         p=out/'IDENTITY.json'
-        if p.exists()and json.loads(p.read_text())!=identity:raise ValueError('Existing run identity mismatch')
+        if p.exists()and json.loads(p.read_text())!=identity:
+            previous=json.loads(p.read_text())
+            if migration is None or previous!=migration['old_identity']:raise ValueError('Existing run identity mismatch')
+            archive=out/'execution_lineage'/migration['sha256'];archive.mkdir(parents=True,exist_ok=True)
+            cp.atomic_json(archive/'PREVIOUS_IDENTITY.json',previous)
+            cp.atomic_json(archive/'MIGRATION.json',migration)
         cp.atomic_json(p,identity)
-    cp._rank_zero_call(publish)
     state=dict(updates=0,cursor=0,phase='joint'if a.joint else'interface',qwen_optimizer_initialized=a.joint);last=None
-    if a.resume:state=cp.restore(a.resume,engine,identity,builder);last=a.resume
-    start=state['updates'];limit=a.stop_after if a.qualification else 100000
+    if a.resume:
+        if a.execution_receipt:
+            from starVLA.rl.qwen_world_compare.execution_migration import restore
+            state=restore(a.resume,engine,identity,builder,a.execution_receipt)
+        else:state=cp.restore(a.resume,engine,identity,builder)
+        last=a.resume
+    if a.qualification_parent:
+        from starVLA.rl.qwen_world_compare.execution_migration import validate_patch
+        parent=json.loads((Path(a.qualification_parent)/'identity.json').read_text())
+        validate_patch(parent,identity,qualification=True)
+        state=cp.restore(a.qualification_parent,engine,parent,builder);last=a.qualification_parent
+    cp._rank_zero_call(publish)
+    start=state['updates'];limit=(start+a.stop_after if a.qualification_parent else a.stop_after)if a.qualification else 100000
     qualified_tokens=evidence.manifest['scenes']
     prefetch=None
     if a.cpu_prefetch_depth:
         from starVLA.rl.qwen_world_compare.prefetch import OrderedUpdatePrefetch
         def worker_builder():
-            return BatchBuilder(WorldSceneData(Path(cfg['data_root'])/'TRAIN'),QwenObservationProcessor(cfg['qwen_path']),
-                TeacherCacheReader(cfg['teacher_cache'],expected_cohort='TRAIN'),CandidateBank(cfg['candidate_bank'],allowed_splits=('TRAIN',)),
-                FutureTrackStore(Path(cfg['target_root'])/'TRAIN'),EvidenceBank(a.evidence_override or cfg['evidence_root']))
+            # Ownership of CPU observation/teacher/track readers transfers to
+            # this sole worker. Only SQLite readers need worker-local creation;
+            # duplicating all immutable manifests added ~40s startup per rank.
+            return BatchBuilder(data,processor,teacher,CandidateBank(cfg['candidate_bank'],allowed_splits=('TRAIN',)),
+                tracks,EvidenceBank(a.evidence_override or cfg['evidence_root']))
         def requests(update,cursor):
             result=[]
             for m in range(accum):
                 positions=[rank*(32//world)+m*micro+j for j in range(micro)]
-                tokens=[qualified_tokens[(cursor+i)%len(qualified_tokens)]if a.qualification else data.tokens[data.index(cursor+i)]for i in positions]
+                tokens=[qualified_tokens[(cursor+i)%len(qualified_tokens)]if a.qualification and not a.qualification_parent else data.tokens[data.index(cursor+i)]for i in positions]
                 result.append((tokens,positions))
             return result
         prefetch=OrderedUpdatePrefetch(builder,requests,start_update=start,start_cursor=state['cursor'],
@@ -190,7 +226,7 @@ def main():
                     else:
                         for m in range(accum):
                             positions=[rank*(32//world)+m*micro+j for j in range(micro)]
-                            tokens=[qualified_tokens[(state['cursor']+i)%len(qualified_tokens)]if a.qualification else data.tokens[data.index(state['cursor']+i)]for i in positions]
+                            tokens=[qualified_tokens[(state['cursor']+i)%len(qualified_tokens)]if a.qualification and not a.qualification_parent else data.tokens[data.index(state['cursor']+i)]for i in positions]
                             batches.append(builder.build(tokens,positions,state['updates']))
                 except Exception as exc:err=repr(exc)
                 consistent_cpu_data_error(err,device);data_seconds=time.monotonic()-tick

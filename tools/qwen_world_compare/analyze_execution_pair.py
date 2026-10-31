@@ -31,7 +31,9 @@ def main():
     args=p.parse_args();root=Path(args.root);paths=[root/n for n in('baseline','optimized')]
     cps=[Path(json.loads((q/'LATEST.json').read_text())['checkpoint'])for q in paths]
     identities=[json.loads((q/'identity.json').read_text())for q in cps]
-    for v in identities:v['execution'].pop('qualification_tuning',None)
+    for v in identities:
+        v['execution'].pop('qualification_tuning',None)
+        v['execution'].pop('execution_tuning',None)
     if identities[0]!=identities[1]:raise ValueError('Non-execution identity changed')
     world=identities[0]['world'];torch.set_num_threads(4);rows=[];timings=[]
     all_metrics=[]
@@ -39,7 +41,8 @@ def main():
         ranks=[]
         for rank in range(world):
             values=[json.loads(l)for l in(path/f'metrics_rank{rank}.jsonl').read_text().splitlines()if l.strip()]
-            if [v['updates']for v in values]!=list(range(1,len(values)+1)):raise ValueError('Missing/duplicate updates')
+            start=values[0]['updates']
+            if [v['updates']for v in values]!=list(range(start,start+len(values))):raise ValueError('Missing/duplicate updates')
             ranks.append(values)
         all_metrics.append(ranks)
         timings.append([max(v[i]['seconds']for v in ranks)for i in range(len(ranks[0]))])
@@ -66,11 +69,12 @@ def main():
                 del payload,value
             if hashes[0]!=hashes[1]:raise ValueError(f'Native tensor/optimizer payload differs: {name}')
         rows.append(dict(file=name,serialized_bytes_identical=identical,full_native_state_equivalent=True))
-    medians=[statistics.median(v[2:])for v in timings]
-    result=dict(status='PASS',world=world,logical_global_scene_batch=32,effective_updates=len(timings[0]),
+    discard=min(2,len(timings[0])-1)
+    medians=[statistics.median(v[discard:])for v in timings]
+    result=dict(status='PASS',world=world,architecture_id=identities[0]['architecture_id'],source_files=identities[0]['source_files'],logical_global_scene_batch=32,effective_updates=len(timings[0]),
         actual_optimizer_updates_and_native_states_compared=True,sample_cursor_loss_RNG_builder_exact=True,
         native_payloads=rows,raw_max_rank_step_wall_seconds=dict(zip(('baseline','optimized'),timings)),
-        discard_first_updates=2,median_max_rank_wall_seconds=dict(zip(('baseline','optimized'),medians)),
+        discard_first_updates=discard,median_max_rank_wall_seconds=dict(zip(('baseline','optimized'),medians)),
         observed_end_to_end_speedup=medians[0]/medians[1],
         caveat='Finite qualification on shared GPUs, fresh generic initialization, four ranks with global32. Not an eight-rank production speedup, trained-parent migration or long-run ETA.')
     out=Path(args.output)

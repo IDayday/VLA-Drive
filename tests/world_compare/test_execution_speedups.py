@@ -6,13 +6,15 @@ import pytest
 import torch
 
 from starVLA.model.modules.qwen_world_compare.execution import short_stream_checkpointing
+from starVLA.model.modules.qwen_world_compare.execution import checkpoint_flags,apply_checkpoint_policy
 from starVLA.model.modules.qwen_world_compare.independent_actor import ArchitectureA,ArchitectureC
 from starVLA.model.modules.qwen_world_compare.shared_actor import ArchitectureB
 from starVLA.rl.qwen_world_compare.prefetch import OrderedUpdatePrefetch
 
 
 @pytest.mark.parametrize('architecture',list('ABCD'))
-def test_short_checkpoint_policy_preserves_outputs_input_and_all_parameter_grads_and_adam(architecture):
+@pytest.mark.parametrize('policy',['short_off','all_off'])
+def test_short_checkpoint_policy_preserves_outputs_input_and_all_parameter_grads_and_adam(architecture,policy):
     torch.set_num_threads(2);torch.manual_seed(42)
     if architecture=='D':
         spec=importlib.util.spec_from_file_location('tiny_D_oracle',Path(__file__).with_name('test_d_qwen_flow_adapter.py'))
@@ -28,7 +30,9 @@ def test_short_checkpoint_policy_preserves_outputs_input_and_all_parameter_grads
         for name,p in reference.named_parameters():
             if 'modulation'in name:p.add_(torch.randn_like(p)*.01)
     candidate=copy.deepcopy(reference)
-    short_stream_checkpointing(SimpleNamespace(architecture_id=architecture,decision=candidate),False)
+    wrapper=torch.nn.Module();wrapper.architecture_id=architecture;wrapper.decision=candidate
+    original_flags=checkpoint_flags(wrapper)
+    apply_checkpoint_policy(wrapper,policy,original_flags)
     state=torch.randn(2,8,3);sigma=torch.tensor([.23,.81]);scene=torch.randn(2,160,24);ego=torch.randn(2,8)
     valid=torch.ones(2,160,dtype=torch.bool);valid[1,-4:]=False
     def forward(model):
@@ -51,6 +55,8 @@ def test_short_checkpoint_policy_preserves_outputs_input_and_all_parameter_grads
     for opt in opts:opt.step()
     for a,b in zip(reference.parameters(),candidate.parameters()):torch.testing.assert_close(a,b,atol=2e-6,rtol=2e-5)
     assert set(reference.state_dict())==set(candidate.state_dict())
+    apply_checkpoint_policy(wrapper,'source',original_flags)
+    assert checkpoint_flags(wrapper)==original_flags
 
 
 class Builder:
