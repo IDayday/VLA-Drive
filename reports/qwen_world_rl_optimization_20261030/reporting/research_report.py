@@ -214,9 +214,10 @@ def render_research_report(root,snapshot,history,h):
     if rescue_registration:
         rescue_running=[a for a in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM')if runs.get(a,{}).get('worker_receipt_status')=='RUNNING'and h.finite(runs.get(a,{}).get('updates'))]
         body+='<p class="note"><b>当前新增主问题：采到的好轨迹如何真正被学会，同时保住已有能力？</b>Rescue '+('两臂已有真实原生优化更新'if len(rescue_running)==2 else '已登记，实际启动／更新看路线表')+'。从SafetyEP10k当前权重开始额外phase，以低分verified teacher补学习方向，以高分retention池防遗忘；尚未建立新最佳。'+link(root/'analysis'/'RESCUE_PAIR_NATIVE_STARTUP_20261031.json','8rank启动与warmstart身份')+'</p>'
-    lastdet_first=next((row for arm,key,row in sampler_pairs if arm=='PPO_LASTDET'and '_u001000_'in key),{})
-    if lastdet_first:
-        body+='<p class="alert"><b>LastDet1k的实际负结果：</b>完整Test '+fmt(lastdet_first.get('target_PDMS'),6)+'，相对Full1k '+signed(lastdet_first.get('delta_PDMS'),6)+'，95%区间 '+ci_text(lastdet_first)+'。局部去末噪声反事实改善未转成该训练配方的部署收益；继续既定5k再筛，不把W2视作已证明有效。'+link(root/'analysis'/'LASTDET_MATCHED_REVIEW.json','完整同预算配对与过程诊断')+'</p>'
+    sampler_first=[(arm,row)for arm,key,row in sampler_pairs if '_u001000_'in key]
+    if sampler_first:
+        sampler_first_readout='；'.join(esc('Noise03'if arm=='PPO_NOISE03'else 'LastDet')+'1k完整Test '+fmt(row.get('target_PDMS'),6)+'，相对Full1k '+signed(row.get('delta_PDMS'),6)+'，95%区间 '+ci_text(row)+' '+link(root/'analysis'/('NOISE03_MATCHED_REVIEW.json'if arm=='PPO_NOISE03'else 'LASTDET_MATCHED_REVIEW.json'),'配对与过程诊断')for arm,row in sampler_first)
+        body+='<p class="alert"><b>降低噪声配方的1k实际部署证据：</b>'+sampler_first_readout+'。选定TRAIN的静态候选／反事实改善未转成这两套训练配方的部署收益；继续既定5k cap复核后再决定延长，不把W2或低噪声视作已证明有效。Rescue尚无新完整评测。</p>'
     if preference_study:
         body+='<h3>结论、假设与实验状态</h3>'+table(['证据等级','现在的判断','下一步怎样验证'],[
             ['明确结论','零分有固定核心，也有换入换出；SafetyEP新高仍伴随NC退化。'+('选定固定theta探针中SDE净损害较大，同时有少量独有修复。' if fixed_probe_complete else ''),'持续集合、相邻修复／新零和安全组件继续分开观察，不能据局部均值全关探索。'],

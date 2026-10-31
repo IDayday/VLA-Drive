@@ -1,0 +1,718 @@
+{
+  "completed_pairs": 1,
+  "contrasts": {
+    "PPO_NOISE03_u001000_NAVTEST_minus_PPO_FULL_u001000_NAVTEST": {
+      "CI95_PDMS": [
+        -1.9708443049517095,
+        -0.9767759349732632
+      ],
+      "CI_excludes_zero": true,
+      "G_minus_PDMS": -3.6489879833197256,
+      "G_plus_PDMS": 2.2170792106278725,
+      "baseline": "PPO_FULL_u001000_NAVTEST",
+      "baseline_PDMS": 90.43253691024785,
+      "changed_scores": {
+        "degraded": 771,
+        "degraded_at_least5_scene_PDMS": 769,
+        "improved": 7725,
+        "improved_at_least5_scene_PDMS": 1015,
+        "unchanged_within_epsilon": 3650
+      },
+      "completed_UTC": "2026-10-31T03:24:46.370844+00:00",
+      "delta_PDMS": -1.4319087726918531,
+      "loss_decomposition": {
+        "EP_down_safety_unchanged_Gminus_PDMS": -4.635266331415822e-05,
+        "EP_down_safety_unchanged_scenes": 2,
+        "new_safety_violation_Gminus_PDMS": -3.6437892367609273,
+        "new_safety_violation_degraded_scenes": 766
+      },
+      "native_process_diagnostic_key": "1000",
+      "paired": {
+        "CI95": [
+          -0.019708443049517094,
+          -0.009767759349732633
+        ],
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+        "baseline_high_denominator": 11322,
+        "baseline_nonzero_denominator": 11830,
+        "baseline_zero_denominator": 316,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "high_to_zero": 213,
+        "high_to_zero_rate": 0.01881293057763646,
+        "mean_delta": -0.014319087726918532,
+        "new_zero": 327,
+        "new_zero_rate": 0.02764158918005072,
+        "physical_groups": 44,
+        "repaired_zero": 23,
+        "repaired_zero_rate": 0.07278481012658228,
+        "safety_transitions": {
+          "drivable_area_compliance": {
+            "baseline_failure": 180,
+            "baseline_pass": 11966,
+            "new_failure": 159,
+            "repaired_failure": 15
+          },
+          "no_at_fault_collisions": {
+            "baseline_failure": 156,
+            "baseline_pass": 11990,
+            "new_failure": 179,
+            "repaired_failure": 10
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failure": 421,
+            "baseline_pass": 11725,
+            "new_failure": 525,
+            "repaired_failure": 33
+          }
+        },
+        "scene_denominator": 12146
+      },
+      "review": {
+        "no_automatic_training_action": true,
+        "recommendation_zh": "安全指标存在配对下降证据；优先检查新增failure及效率交换，扩预算前由root审查，不因总分上涨自动推广。",
+        "safety_decrease_CI_excludes_zero": [
+          "no_at_fault_collisions",
+          "drivable_area_compliance",
+          "time_to_collision_within_bound"
+        ],
+        "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+      },
+      "safety_metrics": {
+        "comfort": {
+          "CI95_delta_percentage_points": [
+            -0.021758518508674052,
+            0.022602017775273483
+          ],
+          "baseline_mean_percent": 99.98353367363741,
+          "delta_percentage_points": 0.0,
+          "target_mean_percent": 99.98353367363741
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -1.5762193246257286,
+            -0.7353069202387733
+          ],
+          "baseline_failure": 180,
+          "baseline_mean_percent": 98.51803062736704,
+          "baseline_pass": 11966,
+          "delta_percentage_points": -1.1855754981063724,
+          "new_failure": 159,
+          "repaired_failure": 15,
+          "target_mean_percent": 97.33245512926067
+        },
+        "driving_direction_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.3615055472157572,
+            -0.1073478373869869
+          ],
+          "baseline_mean_percent": 98.47274822986991,
+          "delta_percentage_points": -0.22229540589494481,
+          "target_mean_percent": 98.25045282397498
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            1.972913523190945,
+            3.083669210221084
+          ],
+          "baseline_mean_percent": 82.96749756523755,
+          "delta_percentage_points": 2.5475110476901515,
+          "target_mean_percent": 85.51500861292767
+        },
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            -1.8558873624864298,
+            -0.9260841258728757
+          ],
+          "baseline_failure": 156,
+          "baseline_mean_percent": 98.77325868598716,
+          "baseline_pass": 11990,
+          "delta_percentage_points": -1.366705088094846,
+          "new_failure": 179,
+          "repaired_failure": 10,
+          "target_mean_percent": 97.40655359789231
+        },
+        "score": {
+          "CI95_delta_percentage_points": [
+            -1.9708443049517093,
+            -0.9767759349732631
+          ],
+          "baseline_mean_percent": 90.43253691024752,
+          "delta_percentage_points": -1.4319087726918531,
+          "target_mean_percent": 89.00062813755567
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            -4.988212160331303,
+            -3.1708858465526037
+          ],
+          "baseline_failure": 421,
+          "baseline_mean_percent": 96.53383830067513,
+          "baseline_pass": 11725,
+          "delta_percentage_points": -4.050716285196772,
+          "new_failure": 525,
+          "repaired_failure": 33,
+          "target_mean_percent": 92.48312201547834
+        }
+      },
+      "status": "COMPLETE",
+      "target": "PPO_NOISE03_u001000_NAVTEST",
+      "target_PDMS": 89.00062813755586,
+      "zero_transitions": {
+        "baseline_nonzero_denominator": 11830,
+        "baseline_zero_denominator": 316,
+        "high_to_zero": 213,
+        "high_to_zero_rate": 0.01881293057763646,
+        "new_zero": 327,
+        "new_zero_rate": 0.02764158918005072,
+        "repaired_zero": 23,
+        "repaired_zero_rate": 0.07278481012658228
+      }
+    }
+  },
+  "evaluations": {
+    "PPO_FULL_u001000_NAVTEST": {
+      "PDMS": 90.43253691024785,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u001000_NAVTEST.npz",
+        "identity_file_sha256": "198c673adbffe28c04465e0bd10b34a67b3bc0832022eaec8a4ce31ec5e7f22e",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/identity.json",
+        "identity_seal": "fd3bb00010486c36229172b470c4997eeed3a5e82214ceb4429851c6516e3053",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u001000_NAVTEST.json",
+        "npz_sha256": "5700411eeda58f3122a6d848d732a538a9a2bdb2adcfcc8a6217d81abb69df20",
+        "scene_raw_hash_inventory_sha256": "4e8f4bda675fca1ca820c4f7fd78b83622ff66f1a2303b2ce81ad08562db3d93",
+        "summary_file_sha256": "fc0758d90a9cc9c69e4d58197c2a12f2490a85e397bac881672a78f46d9ccf5a",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/SUMMARY.json",
+        "summary_seal": "29165d101fa57b816edd651a6d3463ac62e7730b904193d15b79917462668979"
+      }
+    },
+    "PPO_NOISE03_u001000_NAVTEST": {
+      "PDMS": 89.00062813755586,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_NOISE03_u001000_NAVTEST.npz",
+        "identity_file_sha256": "d1a2ed5014c9a7e19d9d51b4bd9ef894dd125fce0baf18e8fecf61c13e5a5104",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_NOISE03_u001000_NAVTEST/identity.json",
+        "identity_seal": "e35e2789fa8de48bdd9b1fee329b417631fd176b5d101f128c07346b8107554f",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_NOISE03_u001000_NAVTEST.json",
+        "npz_sha256": "ba1b968b73fa1f9962b88e5214565972e71c871f70ab342418a4a8cd51152883",
+        "scene_raw_hash_inventory_sha256": "759f521690979465fc2c5aa75cf981b1c32baaa8cb863046e58f146dae8668b7",
+        "summary_file_sha256": "9123b659f3ee0ea2e881bf1cd8f6e93d21b1ce9cbd3c7d000179d40de89ef4cf",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_NOISE03_u001000_NAVTEST/SUMMARY.json",
+        "summary_seal": "7456d5013b4ba9861addb5979f138086be08cbf5ecbc01ddd1eb1222472bdf2f"
+      }
+    }
+  },
+  "interpretation_zh": "仅rigorous eta .1→.03单因素，静态同seed配对簇bootstrap非跨训练seed不确定性；选定TRAIN15 probe正向不等于正式泛化。过程诊断是局部窗口，缺字段UNKNOWN。",
+  "matching_evidence": {
+    "actual_complete_NAVTEST_only": true,
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "evaluation_seed": 2101,
+    "inference": "single ODE10 shift5",
+    "physical_logs": 44,
+    "same_budget_only": true,
+    "scenes": 12146,
+    "training_seed": 42
+  },
+  "native_process_diagnostics": {
+    "1000": {
+      "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/checkpoints/update001000_inner0",
+      "collected_UTC": "2026-10-31T02:46:01.794682+00:00",
+      "expected_rank_update_rows": 512,
+      "exploration_once_per_collection": {
+        "DAC": {
+          "max": 1.0,
+          "mean": 0.9833984375,
+          "mean_absolute": 0.9833984375,
+          "median": 1.0,
+          "min": 0.375,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "EP": {
+          "max": 1.0,
+          "mean": 0.8978859646951565,
+          "mean_absolute": 0.8978859646951565,
+          "median": 0.941461886319648,
+          "min": 0.3731292573247593,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "NC": {
+          "max": 1.0,
+          "mean": 1.0,
+          "mean_absolute": 1.0,
+          "median": 1.0,
+          "min": 1.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "TTC": {
+          "max": 1.0,
+          "mean": 0.9833984375,
+          "mean_absolute": 0.9833984375,
+          "median": 1.0,
+          "min": 0.5,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "all_full": {
+          "max": 1.0,
+          "mean": 0.328125,
+          "mean_absolute": 0.328125,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "all_zero": {
+          "max": 0.0,
+          "mean": 0.0,
+          "mean_absolute": 0.0,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "canonical_random_mean": {
+          "max": 1.0,
+          "mean": 0.9398743602896484,
+          "mean_absolute": 0.9398743602896484,
+          "median": 0.9621393417212146,
+          "min": 0.3742205238853164,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "global_reward_std": {
+          "max": 0.2625979492490008,
+          "mean": 0.11016569289134057,
+          "mean_absolute": 0.11016569289134057,
+          "median": 0.07655578123281534,
+          "min": 0.02857854489756985,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "positive_unsafe_with_safe_alternative": {
+          "max": 0.0,
+          "mean": 0.0,
+          "mean_absolute": 0.0,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "progress_only": {
+          "max": 1.0,
+          "mean": 0.46875,
+          "mean_absolute": 0.46875,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "safe_fraction": {
+          "max": 1.0,
+          "mean": 0.96875,
+          "mean_absolute": 0.96875,
+          "median": 1.0,
+          "min": 0.375,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "safety_differing": {
+          "max": 1.0,
+          "mean": 0.1171875,
+          "mean_absolute": 0.1171875,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "tied": {
+          "max": 1.0,
+          "mean": 0.328125,
+          "mean_absolute": 0.328125,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "train_reward_mean": {
+          "max": 1.0,
+          "mean": 0.9398743577767164,
+          "mean_absolute": 0.9398743577767164,
+          "median": 0.962139368057251,
+          "min": 0.37422052025794983,
+          "n": 128,
+          "status": "AVAILABLE"
+        },
+        "zero_PG": {
+          "max": 1.0,
+          "mean": 0.328125,
+          "mean_absolute": 0.328125,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 128,
+          "status": "AVAILABLE"
+        }
+      },
+      "first_inner_collection_rank_rows": 128,
+      "gradient_attribution": "UNKNOWN PG/anchor component norms and cosine; native gradient_norm is combined only, scalar losses do not identify those gradients.",
+      "gradient_clip1_trigger_fraction": 0.0,
+      "native_metadata": {
+        "COMPLETE": {
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/checkpoints/update001000_inner0/COMPLETE",
+          "sha256": "6c59cc25888c7651939f151140cef0fdd8377f51ae63e98684c65c332c217580"
+        },
+        "files.json": {
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/checkpoints/update001000_inner0/files.json",
+          "sha256": "8b26f8331b106daa5a40405784bab5990e47d75854cdff24a2a6b00dcc44396b"
+        },
+        "identity.json": {
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/checkpoints/update001000_inner0/identity.json",
+          "sha256": "cf2339027940fa0e38a2c26dd7860ba2fdab70e1637becbcae07deedd7e4a8c3"
+        },
+        "transaction.json": {
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/checkpoints/update001000_inner0/transaction.json",
+          "sha256": "c189917e230b2a81722d7301712c6fa8392d96ef508d764ff33d8abdacc9162e"
+        }
+      },
+      "native_sampler": {
+        "anneal_noise": true,
+        "final_action_clip": null,
+        "group_size": 8,
+        "infer_shift": null,
+        "logprob_clamp_mode": "relative",
+        "logprob_clamp_width": 7.0,
+        "logprob_noise_std": null,
+        "merge_sde_window": false,
+        "min_std": 0.001,
+        "noise_level": 0.03,
+        "num_inference_steps": 10,
+        "randn_clip": 5.0,
+        "sample_noise_std": 0.1,
+        "sde_exclude_last_step": false,
+        "sde_mode": "rigorous",
+        "sde_step_indices": null,
+        "train_sde_steps": 3
+      },
+      "per_rank_captures": [
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "c178e9f13bbb39e0c764c155d0c817de823b94bec12ea502755b0824fb1e83f4",
+          "file_bytes_at_capture": 3503991,
+          "offset": 1406839,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank0.jsonl",
+          "rank": 0
+        },
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "47ac7c767b211a06173396ee84dbe0cedd152435486fc6e415204fce4079c183",
+          "file_bytes_at_capture": 3504141,
+          "offset": 1406989,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank1.jsonl",
+          "rank": 1
+        },
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "5078cee8d6c52f0c605bcf540965c53e258fdaa0336c70f475580f5057aa2f9d",
+          "file_bytes_at_capture": 3504859,
+          "offset": 1407707,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank2.jsonl",
+          "rank": 2
+        },
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "19d1be8891b54ed30af83c7ffa06515808bd1e681218e89a9f044326fb8b8089",
+          "file_bytes_at_capture": 3509439,
+          "offset": 1412287,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank3.jsonl",
+          "rank": 3
+        },
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "935799ced1c53ad01b9e6ec3199118c984f0fdc5ed4e560b2cf59ab02861cdcb",
+          "file_bytes_at_capture": 3472783,
+          "offset": 1375631,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank4.jsonl",
+          "rank": 4
+        },
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "199d7242c7e1662ea45f8361d1ad77450a74bfb7db7fc86e2e5cf39e9dfd50f3",
+          "file_bytes_at_capture": 3491658,
+          "offset": 1394506,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank5.jsonl",
+          "rank": 5
+        },
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "6761de79e0deca3950f451a85c07995b248e2755f40ab6029f9c786c3cd7545b",
+          "file_bytes_at_capture": 3507147,
+          "offset": 1409995,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank6.jsonl",
+          "rank": 6
+        },
+        {
+          "bytes_read": 2097152,
+          "captured_once": true,
+          "captured_sha256": "b79ea5852b2b6ea3d197d495c5e6605d437cdd9080f0b0a734e6ad707e0d71fc",
+          "file_bytes_at_capture": 3494810,
+          "offset": 1397658,
+          "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_NOISE03_snapshotfix_1caa866/metrics_rank7.jsonl",
+          "rank": 7
+        }
+      ],
+      "reading_protocol": {
+        "full_journal_scan": false,
+        "new_GPU_forwards": 0,
+        "optimizer_or_rank_tensor_loads": 0,
+        "single_capture": true
+      },
+      "requested_update_window": [
+        937,
+        1000
+      ],
+      "scope_zh": "仅此checkpoint末64次更新、每rank最多2MiB一次捕获；探索只取inner1去除四次复用，非全程/全103k统计。缺字段UNKNOWN，非0。",
+      "selected_rank_update_rows": 512,
+      "source_metrics": {
+        "adv_kept_frac": {
+          "max": 1.0,
+          "mean": 0.671875,
+          "mean_absolute": 0.671875,
+          "median": 1.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "clipfrac": {
+          "max": 0.625,
+          "mean": 0.1417643269887776,
+          "mean_absolute": 0.1417643269887776,
+          "median": 0.125,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "kl_loss": {
+          "max": 0.002595700789242983,
+          "mean": 0.0005264879070594475,
+          "mean_absolute": 0.0005264879070594475,
+          "median": 0.00043617338815238327,
+          "min": 5.451628749142401e-05,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "negative_ppo_blocked_fraction": {
+          "max": 0.6666666865348816,
+          "mean": 0.07345920299121644,
+          "mean_absolute": 0.07345920299121644,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "pg_logprob_weight_abs_mean": {
+          "max": 2.2165579795837402,
+          "mean": 0.23213704552836134,
+          "mean_absolute": 0.23213704552836134,
+          "median": 0.057649511843919754,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "policy_loss": {
+          "max": 0.007757385727018118,
+          "mean": -0.0015006790966430384,
+          "mean_absolute": 0.0017296925953618736,
+          "median": 0.0,
+          "min": -0.15742036700248718,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "positive_ppo_blocked_fraction": {
+          "max": 0.5,
+          "mean": 0.04485057140846038,
+          "mean_absolute": 0.04485057140846038,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "ppo_blocked_fraction": {
+          "max": 0.4583333432674408,
+          "mean": 0.05541992232610937,
+          "mean_absolute": 0.05541992232610937,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "ratio_mean": {
+          "max": 1.0027639865875244,
+          "mean": 0.9996250738622621,
+          "mean_absolute": 0.9996250738622621,
+          "median": 1.0,
+          "min": 0.9944836497306824,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step7_active_fraction": {
+          "max": 1.0,
+          "mean": 0.6650390625,
+          "mean_absolute": 0.6650390625,
+          "median": 1.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step7_negative_ppo_blocked_fraction": {
+          "max": 0.5,
+          "mean": 0.0062825521163176745,
+          "mean_absolute": 0.0062825521163176745,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step7_positive_ppo_blocked_fraction": {
+          "max": 0.5,
+          "mean": 0.00616164441453293,
+          "mean_absolute": 0.00616164441453293,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step7_ratio_ess_fraction": {
+          "max": 1.0000001192092896,
+          "mean": 0.6718736235052347,
+          "mean_absolute": 0.6718736235052347,
+          "median": 0.9999973773956299,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step8_active_fraction": {
+          "max": 1.0,
+          "mean": 0.627685546875,
+          "mean_absolute": 0.627685546875,
+          "median": 0.875,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step8_negative_ppo_blocked_fraction": {
+          "max": 1.0,
+          "mean": 0.05983072958770208,
+          "mean_absolute": 0.05983072958770208,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step8_positive_ppo_blocked_fraction": {
+          "max": 0.6666666865348816,
+          "mean": 0.037286086968379095,
+          "mean_absolute": 0.037286086968379095,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step8_ratio_ess_fraction": {
+          "max": 1.0,
+          "mean": 0.6718690216075629,
+          "mean_absolute": 0.6718690216075629,
+          "median": 0.9999886751174927,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step9_active_fraction": {
+          "max": 1.0,
+          "mean": 0.556640625,
+          "mean_absolute": 0.556640625,
+          "median": 0.75,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step9_negative_ppo_blocked_fraction": {
+          "max": 1.0,
+          "mean": 0.15426432419917546,
+          "mean_absolute": 0.15426432419917546,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step9_positive_ppo_blocked_fraction": {
+          "max": 0.800000011920929,
+          "mean": 0.09110398223856464,
+          "mean_absolute": 0.09110398223856464,
+          "median": 0.0,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        },
+        "step9_ratio_ess_fraction": {
+          "max": 1.0,
+          "mean": 0.6718140608863905,
+          "mean_absolute": 0.6718140608863905,
+          "median": 0.9998814165592194,
+          "min": 0.0,
+          "n": 512,
+          "status": "AVAILABLE"
+        }
+      },
+      "status": "AVAILABLE_BOUNDED_WINDOW",
+      "total_post_DDP_gradient_norm_rank0": {
+        "max": 0.1776077300310135,
+        "mean": 0.04349008917051833,
+        "mean_absolute": 0.04349008917051833,
+        "median": 0.03624931164085865,
+        "min": 0.010499756783246994,
+        "n": 64,
+        "status": "AVAILABLE"
+      },
+      "updates": 1000
+    }
+  },
+  "pending_pairs": [
+    "PPO_NOISE03_u005000_NAVTEST_minus_PPO_FULL_u005000_NAVTEST"
+  ],
+  "provenance": {
+    "CPU_only": true,
+    "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_NOISE03.yaml",
+    "config_sha256": "b98abd8e9bf5a0a9076b8de97ffa60fde8a18dc4308c82d24730a3348e1410d1",
+    "deadline_UTC": "2026-10-31T10:58:26.021877+00:00",
+    "event_driven": true,
+    "journal_polling": false,
+    "pid": 2297761,
+    "source_file": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/finite_noise03_analyzer.py",
+    "source_sha256": "0203ecb837086f6c07107b5456d32a7a8bd020df988b2f2fa797d5119480cbe2",
+    "start_ticks": 1485051887,
+    "started_UTC": "2026-10-31T01:58:26.021956+00:00",
+    "timer_metadata_reads": false
+  },
+  "schema": "world_noise03_matched_review_v1",
+  "scope": {
+    "automatic_training_actions": false,
+    "new_GPU_forwards": 0,
+    "new_scores": 0,
+    "new_seeds": 0,
+    "partial_points_imputed": false
+  },
+  "sha256": "6a1129c4e058c6e61f6a19824cd41841560e9d5ada73a98abedf1131f128e58b",
+  "status": "PARTIAL",
+  "target_pairs": 2,
+  "utc": "2026-10-31T03:24:46.466334+00:00"
+}

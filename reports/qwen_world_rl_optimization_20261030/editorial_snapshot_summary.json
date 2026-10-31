@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 03:21:23 UTC",
+  "generated_utc": "2026-10-31 03:26:36 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": {
     "main_sections": 7,
@@ -361,6 +361,14 @@
       "scenes": 12146,
       "PDMS": 88.87339559951937,
       "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_LASTDET_u001000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_NOISE03",
+      "updates": 1000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 89.00062813755586,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_NOISE03_u001000_NAVTEST/SUMMARY.json"
     },
     {
       "arm": "PPO_ADAPTIVE",
@@ -3854,10 +3862,179 @@
   },
   "sampler_matched_reviews": {
     "PPO_NOISE03": {
-      "status": "WAITING_SUMMARIES",
-      "completed_pairs": 0,
+      "status": "PARTIAL",
+      "completed_pairs": 1,
       "target_pairs": 2,
-      "contrasts": {}
+      "contrasts": {
+        "PPO_NOISE03_u001000_NAVTEST_minus_PPO_FULL_u001000_NAVTEST": {
+          "CI95_PDMS": [
+            -1.9708443049517095,
+            -0.9767759349732632
+          ],
+          "CI_excludes_zero": true,
+          "G_minus_PDMS": -3.6489879833197256,
+          "G_plus_PDMS": 2.2170792106278725,
+          "baseline": "PPO_FULL_u001000_NAVTEST",
+          "baseline_PDMS": 90.43253691024785,
+          "changed_scores": {
+            "degraded": 771,
+            "degraded_at_least5_scene_PDMS": 769,
+            "improved": 7725,
+            "improved_at_least5_scene_PDMS": 1015,
+            "unchanged_within_epsilon": 3650
+          },
+          "completed_UTC": "2026-10-31T03:24:46.370844+00:00",
+          "delta_PDMS": -1.4319087726918531,
+          "loss_decomposition": {
+            "EP_down_safety_unchanged_Gminus_PDMS": -4.635266331415822e-05,
+            "EP_down_safety_unchanged_scenes": 2,
+            "new_safety_violation_Gminus_PDMS": -3.6437892367609273,
+            "new_safety_violation_degraded_scenes": 766
+          },
+          "native_process_diagnostic_key": "1000",
+          "paired": {
+            "CI95": [
+              -0.019708443049517094,
+              -0.009767759349732633
+            ],
+            "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+            "baseline_high_denominator": 11322,
+            "baseline_nonzero_denominator": 11830,
+            "baseline_zero_denominator": 316,
+            "bootstrap": 2000,
+            "bootstrap_seed": 42,
+            "high_to_zero": 213,
+            "high_to_zero_rate": 0.01881293057763646,
+            "mean_delta": -0.014319087726918532,
+            "new_zero": 327,
+            "new_zero_rate": 0.02764158918005072,
+            "physical_groups": 44,
+            "repaired_zero": 23,
+            "repaired_zero_rate": 0.07278481012658228,
+            "safety_transitions": {
+              "drivable_area_compliance": {
+                "baseline_failure": 180,
+                "baseline_pass": 11966,
+                "new_failure": 159,
+                "repaired_failure": 15
+              },
+              "no_at_fault_collisions": {
+                "baseline_failure": 156,
+                "baseline_pass": 11990,
+                "new_failure": 179,
+                "repaired_failure": 10
+              },
+              "time_to_collision_within_bound": {
+                "baseline_failure": 421,
+                "baseline_pass": 11725,
+                "new_failure": 525,
+                "repaired_failure": 33
+              }
+            },
+            "scene_denominator": 12146
+          },
+          "review": {
+            "no_automatic_training_action": true,
+            "recommendation_zh": "安全指标存在配对下降证据；优先检查新增failure及效率交换，扩预算前由root审查，不因总分上涨自动推广。",
+            "safety_decrease_CI_excludes_zero": [
+              "no_at_fault_collisions",
+              "drivable_area_compliance",
+              "time_to_collision_within_bound"
+            ],
+            "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+          },
+          "safety_metrics": {
+            "comfort": {
+              "CI95_delta_percentage_points": [
+                -0.021758518508674052,
+                0.022602017775273483
+              ],
+              "baseline_mean_percent": 99.98353367363741,
+              "delta_percentage_points": 0.0,
+              "target_mean_percent": 99.98353367363741
+            },
+            "drivable_area_compliance": {
+              "CI95_delta_percentage_points": [
+                -1.5762193246257286,
+                -0.7353069202387733
+              ],
+              "baseline_failure": 180,
+              "baseline_mean_percent": 98.51803062736704,
+              "baseline_pass": 11966,
+              "delta_percentage_points": -1.1855754981063724,
+              "new_failure": 159,
+              "repaired_failure": 15,
+              "target_mean_percent": 97.33245512926067
+            },
+            "driving_direction_compliance": {
+              "CI95_delta_percentage_points": [
+                -0.3615055472157572,
+                -0.1073478373869869
+              ],
+              "baseline_mean_percent": 98.47274822986991,
+              "delta_percentage_points": -0.22229540589494481,
+              "target_mean_percent": 98.25045282397498
+            },
+            "ego_progress": {
+              "CI95_delta_percentage_points": [
+                1.972913523190945,
+                3.083669210221084
+              ],
+              "baseline_mean_percent": 82.96749756523755,
+              "delta_percentage_points": 2.5475110476901515,
+              "target_mean_percent": 85.51500861292767
+            },
+            "no_at_fault_collisions": {
+              "CI95_delta_percentage_points": [
+                -1.8558873624864298,
+                -0.9260841258728757
+              ],
+              "baseline_failure": 156,
+              "baseline_mean_percent": 98.77325868598716,
+              "baseline_pass": 11990,
+              "delta_percentage_points": -1.366705088094846,
+              "new_failure": 179,
+              "repaired_failure": 10,
+              "target_mean_percent": 97.40655359789231
+            },
+            "score": {
+              "CI95_delta_percentage_points": [
+                -1.9708443049517093,
+                -0.9767759349732631
+              ],
+              "baseline_mean_percent": 90.43253691024752,
+              "delta_percentage_points": -1.4319087726918531,
+              "target_mean_percent": 89.00062813755567
+            },
+            "time_to_collision_within_bound": {
+              "CI95_delta_percentage_points": [
+                -4.988212160331303,
+                -3.1708858465526037
+              ],
+              "baseline_failure": 421,
+              "baseline_mean_percent": 96.53383830067513,
+              "baseline_pass": 11725,
+              "delta_percentage_points": -4.050716285196772,
+              "new_failure": 525,
+              "repaired_failure": 33,
+              "target_mean_percent": 92.48312201547834
+            }
+          },
+          "status": "COMPLETE",
+          "target": "PPO_NOISE03_u001000_NAVTEST",
+          "target_PDMS": 89.00062813755586,
+          "zero_transitions": {
+            "baseline_nonzero_denominator": 11830,
+            "baseline_zero_denominator": 316,
+            "high_to_zero": 213,
+            "high_to_zero_rate": 0.01881293057763646,
+            "new_zero": 327,
+            "new_zero_rate": 0.02764158918005072,
+            "repaired_zero": 23,
+            "repaired_zero_rate": 0.07278481012658228
+          }
+        }
+      }
     },
     "PPO_LASTDET": {
       "status": "PARTIAL",
@@ -4425,7 +4602,18 @@
           "teacher_active_zero_PG_collections": 10,
           "attribution": "Combined gradient only; scalar loss ratios do not establish PG/CFM gradient dominance"
         }
-      ]
+      ],
+      "zeroPG_reward_semantics_followup": {
+        "status": "EXACT_ORIGINAL_UPDATE_WINDOWS",
+        "original_collections_recovered": 128,
+        "teacher_active_collections": 20,
+        "teacher_active_zero_PG_collections": 10,
+        "teacher_active_canonical_all_zero_collections": 7,
+        "zeroPG_active_canonical_all_zero_collections": 7,
+        "zeroPG_active_low_pool": 9,
+        "zeroPG_active_high_pool": 1,
+        "semantic_limit": "zero_PG means no within-group credit; it is not synonymous with eight canonical zero rewards; fresh fully saturated success groups skip auxiliary by contract"
+      }
     },
     "next_decisions": {
       "schema": "world_zero_rescue_next_decisions_CPU_v1",
