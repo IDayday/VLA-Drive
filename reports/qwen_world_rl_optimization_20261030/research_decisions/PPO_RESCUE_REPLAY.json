@@ -1,0 +1,214 @@
+{
+  "schema": "world_completed_pilot_no_extension_review_v1",
+  "arm": "PPO_RESCUE_REPLAY",
+  "status": "COMPLETED_NO_EXTENSION",
+  "disposition": "STOP_FUTILITY",
+  "review_complete": true,
+  "created_unix": 1793434124.138234,
+  "reason": "\u8f83\u81ea\u8eabSafety10k\u8d77\u70b9\u603b\u5206\u660e\u786e\u4e0b\u964d\uff0c\u9ad8\u5206\u4fdd\u7559\u660e\u663e\u5931\u8d25\uff1b\u7ed3\u675f\u6b64W2/\u91cd\u542f\u4f18\u5316\u5668/\u9759\u6001\u6551\u63f4\u7ec4\u5408\u914d\u65b9\u3002",
+  "matched_budget_updates": 5000,
+  "completed_at_native_updates": 5000,
+  "stop_mode": "completed pilot5k; cancel extension; no native stop signal",
+  "training_already_exited": true,
+  "native_stop_requested": false,
+  "training_or_evaluation_processes_signalled": false,
+  "baseline_label": "PPO_SAFETY_EP_u010000_NAVTEST",
+  "baseline_PDMS": 91.34989173702405,
+  "PDMS": 88.01667850294396,
+  "delta_PDMS": -3.333213234080091,
+  "same_budget_comparison": false,
+  "native_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_RESCUE_REPLAY/checkpoints/update005000_inner0",
+  "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_RESCUE_REPLAY/formal_to005000_attempt001",
+  "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_RESCUE_REPLAY",
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_rescue_2123dea",
+  "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_RESCUE_REPLAY.yaml",
+  "config_sha256": "3033d72c053c5d5017d6c3bd0eef0c379564502937be55a750b518d7836f6fb6",
+  "native_state_retained": true,
+  "algorithm_family_rejected": false,
+  "scope": "This completed exact recipe is closed for this round; checkpoint/data/optimizer/RNG remain available for separately registered revised experiments.",
+  "previous_portfolio_decision_time": null,
+  "contrast": {
+    "target": "PPO_RESCUE_REPLAY_u005000_NAVTEST",
+    "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+    "scenes": 12146,
+    "physical_log_clusters": 44,
+    "bootstrap": 2000,
+    "seed": 42,
+    "target_PDMS": 88.01667850294382,
+    "baseline_PDMS": 91.3498917370243,
+    "delta_PDMS": -3.3332132340804517,
+    "CI95_PDMS": [
+      -3.8677129544426805,
+      -2.8118734645138184
+    ],
+    "components": {
+      "score": {
+        "delta_pp": -3.3332132340804517,
+        "CI95_pp": [
+          -3.8677129544426805,
+          -2.8118734645138184
+        ]
+      },
+      "no_at_fault_collisions": {
+        "delta_pp": -1.1855754981063724,
+        "CI95_pp": [
+          -1.6221250331547976,
+          -0.7596312052649126
+        ]
+      },
+      "drivable_area_compliance": {
+        "delta_pp": -1.9677260003293267,
+        "CI95_pp": [
+          -2.585016629723681,
+          -1.3490266603439058
+        ]
+      },
+      "time_to_collision_within_bound": {
+        "delta_pp": -4.116581590647127,
+        "CI95_pp": [
+          -5.207109076725027,
+          -3.1244996602817117
+        ]
+      },
+      "ego_progress": {
+        "delta_pp": -0.8406515160300385,
+        "CI95_pp": [
+          -1.7950281801101693,
+          0.1668883557426902
+        ]
+      },
+      "comfort": {
+        "delta_pp": 0.0,
+        "CI95_pp": [
+          -0.04932724517131369,
+          0.054903748079920864
+        ]
+      },
+      "driving_direction_compliance": {
+        "delta_pp": 0.03704923431582414,
+        "CI95_pp": [
+          -0.09884460802444754,
+          0.1688743002439741
+        ]
+      }
+    },
+    "zeros": {
+      "baseline": 256,
+      "target": 638,
+      "repaired": 32,
+      "new_zero": 414,
+      "high_to_zero": 269
+    },
+    "uncertainty": "fixedseed physical-log cluster bootstrap,scene weighted; no across-training-seed claim",
+    "fixed_SAFETY10k_high_ge09": {
+      "target": "PPO_RESCUE_REPLAY_u005000_NAVTEST",
+      "baseline": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "scenes": 8850,
+      "physical_log_clusters": 44,
+      "bootstrap": 2000,
+      "seed": 42,
+      "target_PDMS": 92.22195534511755,
+      "baseline_PDMS": 96.88433872042317,
+      "delta_PDMS": -4.6623833753056,
+      "CI95_PDMS": [
+        -5.269469547177315,
+        -4.085975858801149
+      ],
+      "components": {
+        "score": {
+          "delta_pp": -4.6623833753056,
+          "CI95_pp": [
+            -5.269469547177315,
+            -4.085975858801149
+          ]
+        },
+        "no_at_fault_collisions": {
+          "delta_pp": -1.0338983050847457,
+          "CI95_pp": [
+            -1.3459217916984005,
+            -0.737584257021791
+          ]
+        },
+        "drivable_area_compliance": {
+          "delta_pp": -2.022598870056497,
+          "CI95_pp": [
+            -2.617770548393509,
+            -1.460768221508393
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "delta_pp": -5.672316384180791,
+          "CI95_pp": [
+            -6.715593490123072,
+            -4.721072664503527
+          ]
+        },
+        "ego_progress": {
+          "delta_pp": -2.3903648130991892,
+          "CI95_pp": [
+            -3.1535955395299076,
+            -1.6293195656003345
+          ]
+        },
+        "comfort": {
+          "delta_pp": -0.03389830508474576,
+          "CI95_pp": [
+            -0.08779715254130044,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "delta_pp": 0.0790960451977401,
+          "CI95_pp": [
+            -0.08983269994945593,
+            0.24437749396301892
+          ]
+        }
+      },
+      "zeros": {
+        "baseline": 0,
+        "target": 269,
+        "repaired": 0,
+        "new_zero": 269,
+        "high_to_zero": 269
+      },
+      "uncertainty": "fixedseed physical-log cluster bootstrap,scene weighted; no across-training-seed claim"
+    },
+    "provenance": {
+      "target": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "8abf3e0a63d646187c485d8a401325b7a3db5481e655193a96ceb76c581037bc",
+        "summary_seal": "ad111cf2cf7a8d724941da4e5ab14e6e4b650ecfc1ec3f0f4120b00af14d2c04",
+        "identity_seal": "7da56a30124c1f5e54b114a3d86e3de9d279be0e012efbe8957e14965538f6ae",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_RESCUE_REPLAY_u005000_NAVTEST.npz",
+        "cache_sha256": "74b7ee2a1aca6560527f95a26d69835f3cbc481dabd66d89e374e9a8f03fbaf7",
+        "cache_reused": false
+      },
+      "baseline": {
+        "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+        "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+        "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828",
+        "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+        "cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+        "cache_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+        "cache_reused": true
+      }
+    }
+  },
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RESCUE_PAIR_MATCHED_REVIEW.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_NAVTEST/SUMMARY.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_TRAIN1024/SUMMARY.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_RESCUE_REPLAY/formal_to005000_attempt001/RESULT.json"
+  ],
+  "evidence_sha256": {
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RESCUE_PAIR_MATCHED_REVIEW.json": "0aa279616ec70a7a11e82c9aeec094f9bb936dd35c5aafe32de7bd8f20dcc478",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_NAVTEST/SUMMARY.json": "8abf3e0a63d646187c485d8a401325b7a3db5481e655193a96ceb76c581037bc",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_TRAIN1024/SUMMARY.json": "ca4894c6842ed533510c252b2bcbd36e742ac95c6b91fee6123beffd682aec7f",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+    "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_RESCUE_REPLAY/formal_to005000_attempt001/RESULT.json": "19506b8a9978ec4eb248dd9d494b8943e3588a3e9e823cab336115310b174834"
+  },
+  "Test_selection_used": true,
+  "NAVTEST_used_for_training_scene_selection": false
+}

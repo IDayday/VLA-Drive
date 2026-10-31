@@ -567,6 +567,7 @@ def load_snapshot(root: Path) -> dict:
     adaptive_coverage_amendment=read_json(root/'ADAPTIVE_COVERAGE_POLICY_AMENDMENT.json',warnings,inputs) or {}
     safety_ep_operator_review=read_json(root/'jobs'/'PPO_SAFETY_EP'/'formal_to001000_attempt001'/'PRECHILD_OPERATOR_REVIEW.json',warnings,inputs) or {}
     new_pilot_matched_review=read_json(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json',warnings,inputs) or {}
+    completed_pilot_reviews=read_json(root/'analysis'/'COMPLETED_5K_PILOT_REVIEWS_20261031.json',warnings,inputs) or {}
     lr_research={key:read_json(root/'analysis'/name,warnings,inputs) or {}for key,name in [('native_audit','RL_LR_NATIVE_AUDIT_20261031.json'),('primary','RL_LR_PRIMARY_RESEARCH_20261031.json')]}
     lr_study={key:read_json(root/path,warnings,inputs) or {}for key,path in {
         'registration':'EXPERIMENT_LR_STUDY_REGISTRATION_20261031.json',
@@ -844,6 +845,7 @@ def load_snapshot(root: Path) -> dict:
                     pilot_startups=pilot_startups,pilot_registrations=pilot_registrations,
                     adaptive_coverage_amendment=adaptive_coverage_amendment,safety_ep_operator_review=safety_ep_operator_review,
                     new_pilot_matched_review=new_pilot_matched_review,
+                    completed_pilot_reviews=completed_pilot_reviews,
                     lr_research=lr_research,
                     lr_study=lr_study,
                     preference_research=preference_research,preference_research_path=str(preference_path) if preference_path else None,

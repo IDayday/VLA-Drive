@@ -122,6 +122,7 @@ def render_research_report(root,snapshot,history,h):
     stopped=editorial.get('nft_stopped',{})
     decisions=editorial.get('decisions',{});stop_receipts=editorial.get('stopped_receipts',{})
     completed_no_extension={arm:value for arm,value in decisions.items() if value.get('disposition')=='STOP_FUTILITY' and value.get('stop_mode','').startswith('completed ')}
+    completed_5k={arm:value for arm,value in completed_no_extension.items()if value.get('matched_budget_updates')==5000}
     safety_hold=editorial.get('safety_ep_review',{})
     safety_continue=editorial.get('safety_ep_continuation',{}) or editorial.get('safety_ep_continuation_pending',{})
     nft_state='已协作停止' if stopped else '停止决策已下，等待退出收据' if decision else '待停止决策／执行收据'
@@ -181,6 +182,7 @@ def render_research_report(root,snapshot,history,h):
         ('当前关键风险','NC下降' if pilot_focus else '待诊断','SafetyEP10k新增碰撞23／修复11' if pilot_focus else '安全分量与总分分别判断')]
     body='<div class="note"><b>核心研究目标：根据场景信息，平衡安全与驾驶效率。</b>识别何时必须让行、何时存在安全通行窗口，以及何时只是观测信息不足；不是把安全与舒适性作为主要对立轴。SafeComfort是突出EP的局部奖励去干扰，尚未实现真正的场景条件风险权衡。</div><div class="metric-grid">'+''.join('<div class="metric"><span>'+a+'</span><strong>'+b+'</strong><small>'+c+'</small></div>' for a,b,c in cards)+'</div>'
     body+='<p><b>IL与RL两线并行：</b>IL提供并补齐离线驾驶知识基础；RL在固定IL知识基础上强化轨迹行为，不全面重做IL。知识缺口反馈IL；新IL达标后，用相同RL配方另起对照，不热切换正在训练的旧父模型。</p>'
+    if completed_5k:body+='<p class="note"><b>'+number(len(completed_5k))+'条5k配方已完成，已决定不续训。</b>'+esc('、'.join(sorted(completed_5k)))+'。这是当前配方的no-promotion决定，方向本身未被全盘否定；旧owner的预算复核流程状态只作执行历史。资源已优先用于正在训练的四组8rank LR／数据组合。'+link(root/'analysis'/'COMPLETED_5K_PILOT_REVIEWS_20261031.json','完整复核与正式决定')+'</p>'
     if editorial.get('lr_research',{}).get('native_audit',{}).get('status')=='COMPLETE':body+='<p class="note"><b>当前优先：LR幅度×数据曝光的2×2对照，另测cosine。</b>'+('四个新臂均已有8rank真实原生更新'if len(lr_native_evidence)==4 else '原生继承启动中，实际更新待证据'if lr_registration else '同checkpoint的独立LR对照正在准备')+'。原Safety1倍／full作为控制；LOW0.2倍／full、DATA1倍／静态80/10/10、LRDATA0.2倍／同静态，COS单独测退火。没有新完整成绩前，不认定组合有效。<a href="#process">设计、两参数组LR与primary文献比较</a>见过程研究区。</p>'
     priority_review=editorial.get('route_priority_review',{})
     if priority_review:
@@ -222,19 +224,22 @@ def render_research_report(root,snapshot,history,h):
     if rescue_registration:
         rescue_running=[a for a in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM')if runs.get(a,{}).get('worker_receipt_status')=='RUNNING'and h.finite(runs.get(a,{}).get('updates'))]
         rescue_finished=all((runs.get(a,{}).get('updates')or 0)>=5000 and runs.get(a,{}).get('worker_returncode')==0 for a in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM'))
-        body+='<p class="note"><b>当前新增主问题：采到的好轨迹如何真正被学会，同时保住已有能力？</b>Rescue '+('两臂额外5k原生训练已完成，部署证据按下方发布'if rescue_finished else '两臂已有真实原生优化更新'if len(rescue_running)==2 else '已登记，实际启动／更新看路线表')+'。从SafetyEP10k当前权重开始额外phase，以低分verified teacher补学习方向，以高分retention池防遗忘；只按下方完整评测与配对判断收益。'+link(root/'analysis'/'RESCUE_PAIR_NATIVE_STARTUP_20261031.json','8rank启动与warmstart身份')+'</p>'
+        rescue_closed=all(a in completed_no_extension for a in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM'))
+        body+='<p class="note"><b>研究问题：采到的好轨迹如何真正被学会，同时保住已有能力？</b>Rescue '+('两臂额外5k及完整评测已完成，当前两配方已决定不续训'if rescue_closed else '两臂额外5k原生训练已完成，部署证据按下方发布'if rescue_finished else '两臂已有真实原生优化更新'if len(rescue_running)==2 else '已登记，实际启动／更新看路线表')+'。从SafetyEP10k当前权重开始额外phase，以低分verified teacher补学习方向，以高分retention池防遗忘；该W2／freshAdam组合的结果不等于静态数据或teacher方向整体无效。'+link(root/'analysis'/'RESCUE_PAIR_NATIVE_STARTUP_20261031.json','8rank启动与warmstart身份')+'</p>'
     sampler_first=[(arm,row)for arm,key,row in sampler_pairs if '_u001000_'in key]
     if sampler_first:
         sampler_first_readout='；'.join(esc('Noise03'if arm=='PPO_NOISE03'else 'LastDet')+'1k完整Test '+fmt(row.get('target_PDMS'),6)+'，相对Full1k '+signed(row.get('delta_PDMS'),6)+'，95%区间 '+ci_text(row)+' '+link(root/'analysis'/('NOISE03_MATCHED_REVIEW.json'if arm=='PPO_NOISE03'else 'LASTDET_MATCHED_REVIEW.json'),'配对与过程诊断')for arm,row in sampler_first)
         sampler_cap_finished=all((runs.get(a,{}).get('updates')or 0)>=5000 and runs.get(a,{}).get('worker_returncode')==0 for a in ('PPO_NOISE03','PPO_LASTDET'))
-        sampler_cap_text='两臂5k cap均已完成，尚未获promotion；完整5k分与配对见结果表，新预算须另行批准。'if sampler_cap_finished else '继续既定5k cap复核后再决定延长。'
+        sampler_closed=all(a in completed_no_extension for a in ('PPO_NOISE03','PPO_LASTDET'))
+        sampler_cap_text='两臂5k及完整复核均已完成，当前配方已决定不续训；保留全部结果，不否定整个采样方向。'if sampler_closed else '两臂5k cap均已完成，尚未获promotion；完整5k分与配对见结果表，新预算须另行批准。'if sampler_cap_finished else '继续既定5k cap复核后再决定延长。'
         body+='<p class="alert"><b>降低噪声配方的1k实际部署证据：</b>'+sampler_first_readout+'。选定TRAIN的静态候选／反事实改善未转成这两套训练配方的部署收益；'+sampler_cap_text+'不把W2或低噪声视作已证明有效；Rescue收益独立判断。</p>'
     if preference_study:
         preference_cap_finished=all((runs.get(a,{}).get('updates')or 0)>=5000 and runs.get(a,{}).get('worker_returncode')==0 for a in ('PPO_PREF_REPLAY','PPO_PREF_CFM'))
+        preference_closed=all(a in completed_no_extension for a in ('PPO_PREF_REPLAY','PPO_PREF_CFM'))
         body+='<h3>结论、假设与实验状态</h3>'+table(['证据等级','现在的判断','下一步怎样验证'],[
             ['明确结论','零分有固定核心，也有换入换出；SafetyEP新高仍伴随NC退化。'+('选定固定theta探针中SDE净损害较大，同时有少量独有修复。' if fixed_probe_complete else ''),'持续集合、相邻修复／新零和安全组件继续分开观察，不能据局部均值全关探索。'],
             ['待验证假设','候选偏好监督能否改善部署安全—效率，以及局部噪声效应能否推广，均待验证。','Replay隔离采样作用，CFM对Replay隔离辅助损失；固定theta结果只解释选定cohort。'],
-            ['已完成预算／待复核'if preference_cap_finished else '进行中研究','两项偏好pilot均已完成5k，尚未获延长；完整结果与配对见下文。'if preference_cap_finished else '两项5k偏好pilot已有native child启动回执；优化进度见路线表。' if len(pref_children_started)==2 else '两项5k偏好pilot已登记；实际派发／更新以路线与独立收据为准。','保持canonical单候选评测，不预填训练结果，也不把best-of8当部署。']])
+            ['已完成／决定不续训'if preference_closed else '已完成预算／待复核'if preference_cap_finished else '进行中研究','两项偏好配方均已完成5k和正式复核，决定不续训当前配方；不推论整条偏好学习路线无效。'if preference_closed else '两项偏好pilot均已完成5k，尚未获延长；完整结果与配对见下文。'if preference_cap_finished else '两项5k偏好pilot已有native child启动回执；优化进度见路线表。' if len(pref_children_started)==2 else '两项5k偏好pilot已登记；实际派发／更新以路线与独立收据为准。','保持canonical单候选评测，不预填训练结果，也不把best-of8当部署。']])
     if snapshot.get('warnings'):body+='<div class="alert">'+esc('；'.join(snapshot['warnings']))+'</div>'
     chapter('01','conclusions','现在可以得出的结论','先区分已观察到的提升、尚未证明的算法优势，以及已经决定调整的投入。',body)
 
@@ -255,8 +260,8 @@ def render_research_report(root,snapshot,history,h):
         result=latest.get(arm)
         status=run.get('owner_receipt',{}).get('status') or run.get('status','未登记')
         if arm.startswith('PPO_RESCUE_')and run.get('worker_returncode')==0 and(run.get('updates')or 0)>=5000:status='PILOT_COMPLETE_REVIEW_REQUIRED'
-        if arm in stop_receipts:state='已协作停止';next_action=stopped_actions.get(arm,'保留checkpoint、optimizer/RNG与结果；预算转向更高优先研究')
-        elif arm in completed_no_extension:state='pilot完成，取消延长（STOP_FUTILITY）';next_action='保留10k结果与原生状态；本轮已完成，无需再发子进程停止信号'
+        if arm in completed_no_extension:state='已完成，决定不续训';next_action='保留'+number(completed_no_extension[arm].get('matched_budget_updates'))+'更新结果与原生状态；当前配方结束，方法方向未被全盘否定。'
+        elif arm in stop_receipts:state='已协作停止';next_action=stopped_actions.get(arm,'保留checkpoint、optimizer/RNG与结果；预算转向更高优先研究')
         elif arm=='PPO_SAFETY_EP' and safety_continue:
             new_native=run.get('stage_budget_updates',0)>10000 and run.get('worker_receipt_status')=='RUNNING'
             stage_finished=run.get('worker_returncode')==0 and h.finite(run.get('updates'))and run['updates']>=run.get('stage_budget_updates',20000)
@@ -280,7 +285,7 @@ def render_research_report(root,snapshot,history,h):
                      number(run.get('updates'))+' → 20,000自然节点' if arm=='PPO_SAFETY_EP' and safety_continue else '10,000：hold review' if arm=='PPO_SAFETY_EP' and safety_hold else number(run.get('updates'))+' / '+number(run.get('stage_budget_updates')))
         if arm in ('PPO_PREF_REPLAY','PPO_PREF_CFM') and arm not in decisions:next_action='1k／5k完整配对：Replay−Full隔离采样，CFM−Replay隔离辅助；首轮cap5k。'
         if arm in ('PPO_NOISE03','PPO_LASTDET') and arm not in decisions and run.get('worker_receipt_status')=='RUNNING':next_action='真实恢复训练；首轮1k／5k同预算Full配对，完整证据后选择性延长。'
-        if arm in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM'):
+        if arm in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM')and arm not in completed_no_extension:
             native_cell='新phase '+number(run.get('updates'))+' / '+number(run.get('stage_budget_updates'))
             next_action='额外phase1k／5k：对固定Safety10k查修复／新零与≥0.9保持；CFM−Replay隔离辅助。'
         if arm in lr_study_arms:
@@ -289,11 +294,15 @@ def render_research_report(root,snapshot,history,h):
             native_cell='全局 '+number(run.get('updates'))+' / 20,000<small>继承10k＋新增 '+number(max(0,run.get('updates',10000)-10000)if h.finite(run.get('updates'))else None)+'</small>'
             next_action='同全局12／14／16／18／20k配对；继承Adam／RNG／cursor，无第二warmup、无W2／CFM叠加。'
         state_cell=esc(state)+('<small>'+link(root/'owners'/'CAMPAIGN'/'arm_decisions'/f'{arm}.STOPPED.json','实际结束收据')+'</small>' if arm in stop_receipts else '')
+        if arm in completed_no_extension:state_cell+='<small>'+link(root/'owners'/'CAMPAIGN'/'arm_decisions'/f'{arm}.json','正式不续训决定')+'</small>'
         route_rows.append(['<b>'+esc(arm)+'</b><small>'+esc(IDEAS.get(arm,run.get('hypothesis','新登记独立pilot')))+'</small>',
             fmt(result['PDMS'],4)+'<small>'+('额外phase 'if arm.startswith('PPO_RESCUE_')else '')+number(update(result))+'更新 · 完整Test</small>' if result else '暂无完整Test',
             native_cell,
             state_cell,esc(next_action)])
     body=table(['路线与单因素','最近完整结果','原生日志 / 当前目标','执行决策','依据与下次复核'],route_rows)
+    closed_review=editorial.get('completed_pilot_reviews',{})
+    if closed_review.get('status')=='COMPLETE':
+        body+='<h3>已完成的5k复核：当前六配方不续训</h3>'+table(['配方','完整PDMS／对应基线','决定理由','正式决定'],[[esc(row.get('arm')),fmt(row.get('PDMS'),5)+' / '+fmt(row.get('baseline_PDMS'),5)+'<small>'+esc(row.get('baseline_label'))+'</small>',esc(row.get('reason')),link(row.get('decision'),'已完成，决定不续训')]for row in closed_review.get('reviewed_arms',[])])+'<p>六组原生job均已自然完成并保留资产，本轮没有额外停止信号；pending review为0。Rescue是Safety10k之后的额外phase，基线为自身起点，不与fresh-IL的5k混算。停止的是这些确切配方，算法族与数据方向未被全盘否定。</p>'
     body+='<p class="note">资源优先流向'+('Safety原W3控制与四个LR／数据分叉，到全局20k再按匹配证据复核；旧偏好、采样及Rescue的5k完成不自动获延长。'if lr_registration else 'SafetyEP20k复核与已登记研究的完整证据；')+'平台期路线结束后保留历史最佳checkpoint与控制结果。实际退出按逐臂收据，接近自然预算末尾的SAFE不计作提前节省大量训练；库存UUID和slot结束也不等于整张物理GPU空闲。</p>'
     ongoing_count=sum(a in runs and a not in decisions for a in display_arms)
     anchor_result=latest.get('PPO_ANCHOR40')
@@ -611,7 +620,8 @@ def render_research_report(root,snapshot,history,h):
         for spec in preference_study.get('configs',[]):
             arm=spec.get('arm');run=runs.get(arm,{})
             status=run.get('owner_receipt',{}).get('status') or run.get('status','REGISTERED')
-            if arm in stop_receipts:state='已有停止收据，见路线表'
+            if arm in completed_no_extension:state='已完成，决定不续训当前配方'
+            elif arm in stop_receipts:state='已有停止收据，见路线表'
             elif status=='PILOT_COMPLETE_REVIEW_REQUIRED':state='首轮预算完成，等待复核'
             elif run.get('journal_ranks')==run.get('expected_ranks',8) and h.finite(run.get('updates')) and run['updates']>0:state='全rank原生记录 '+number(run['updates'])+' 更新'
             elif arm in pref_children_started and not preference_receipts[arm].get('RESULT.json'):state='native child已启动（RUNNING）；优化更新待原生日志'
@@ -760,7 +770,7 @@ def render_research_report(root,snapshot,history,h):
         if formal:
             formal_run=runs.get('PPO_NOISE03',{});formal_started=formal_run.get('worker_receipt_status')=='RUNNING'
             formal_failed=formal_run.get('worker_terminal_receipt') and h.finite(formal_run.get('worker_returncode')) and formal_run['worker_returncode']!=0
-            formal_state='启动阶段失败待修复，未形成科学训练结果'if formal_failed else 'native child已启动，实际更新见路线表'if formal_started else '已登记／派发，尚无当前native RUNNING证明'
+            formal_state='已完成5k及正式复核，决定不续训当前配方'if 'PPO_NOISE03'in completed_no_extension else '启动阶段失败待修复，未形成科学训练结果'if formal_failed else 'native child已启动，实际更新见路线表'if formal_started else '已登记／派发，尚无当前native RUNNING证明'
             body+='<p><b>正式PPO_NOISE03：</b>'+formal_state+'；首轮cap '+number(formal.get('research_budget_updates'))+'，1k／5k完整复核。此为canonical PPO仅改eta0.1→0.03，mean与diffusion联动；有限15场景诊断不是这条训练路线的泛化成绩。'+link(root/'EXPERIMENT_PPO_NOISE03_REGISTRATION.json','正式5k独立登记')+'</p>'
     elif editorial.get('preference_deployment',{}).get('probes'):
         jobs=editorial['preference_deployment']['probes'];owner=editorial.get('probe_owner_state',{})
@@ -783,10 +793,11 @@ def render_research_report(root,snapshot,history,h):
         lastdet_diagnostic=sampler_reviews.get('PPO_LASTDET',{}).get('native_process_diagnostics',{}).get('1000',{})
         window=lastdet_diagnostic.get('exploration_once_per_collection',{})
         if window:
-            body+='<p class="note">LastDet1k末64更新的 '+number(lastdet_diagnostic.get('first_inner_collection_rank_rows'))+' 个去重collection-rank组：训练canonical候选均分 '+fmt(window.get('canonical_random_mean',{}).get('mean'),4)+'；zero-PG '+fmt(100*window.get('zero_PG',{}).get('mean',0),2)+'%，安全指标组内有差异 '+fmt(100*window.get('safety_differing',{}).get('mean',0),2)+'%，仅进度有差异 '+fmt(100*window.get('progress_only',{}).get('mean',0),2)+'%。高候选分与缺少安全区分可能掩盖学习信号不足，但这只是局部窗口。相对Full1k的新增零与能力损失需正视；继续既定5k复核。W3→W2同时改变PG／anchor平均权重与后续RNG流，不能单因归咎于去掉末噪声。'+link(root/'analysis'/'LASTDET_MATCHED_REVIEW.json','LastDet配对、原生日志窗口与归因边界')+'</p>'
+            body+='<p class="note">LastDet1k末64更新的 '+number(lastdet_diagnostic.get('first_inner_collection_rank_rows'))+' 个去重collection-rank组：训练canonical候选均分 '+fmt(window.get('canonical_random_mean',{}).get('mean'),4)+'；zero-PG '+fmt(100*window.get('zero_PG',{}).get('mean',0),2)+'%，安全指标组内有差异 '+fmt(100*window.get('safety_differing',{}).get('mean',0),2)+'%，仅进度有差异 '+fmt(100*window.get('progress_only',{}).get('mean',0),2)+'%。高候选分与缺少安全区分可能掩盖学习信号不足，但这只是局部窗口。相对Full1k的新增零与能力损失需正视；5k完整结果与正式决策见路线表。W3→W2同时改变PG／anchor平均权重与后续RNG流，不能单因归咎于去掉末噪声。'+link(root/'analysis'/'LASTDET_MATCHED_REVIEW.json','LastDet配对、原生日志窗口与归因边界')+'</p>'
     if rescue_registration:
         bank=rescue.get('bank',{});stats=bank.get('statistics',{});census=rescue.get('census',{});teacher=rescue.get('persistent_zero_teacher',{})
-        body+='<h3>当前重点：Rescue补学习方向，同时保住高分能力</h3><p><b>研究假设：</b>部署零分不等于训练没有正优势；偶尔采到好轨迹也不等于能稳定学会。将真实评分通过的好轨迹作为positive CFM目标，检验能否在现有强策略上修复低分，而不是用更高候选均分替代部署验证。</p>'
+        body+='<h3>'+('Rescue已完成：当前两配方决定不续训'if rescue_closed else 'Rescue研究：补学习方向，同时保住高分能力')+'</h3><p><b>原研究假设：</b>部署零分不等于训练没有正优势；偶尔采到好轨迹也不等于能稳定学会。将真实评分通过的好轨迹作为positive CFM目标，检验能否在现有强策略上修复低分，而不是用更高候选均分替代部署验证。</p>'
+        if rescue_closed:body+='<p class="note">两条额外5k配方及完整TRAIN／NAVTEST复核均已结束，正式决定不续训；该W2／freshAdam／采样／CFM组合不支持延长，不等于静态数据或teacher方法方向已全否定。当前DATA／LRDATA保原W3与原生Adam／RNG，正独立拆开验证数据作用。'+link(root/'analysis'/'COMPLETED_5K_PILOT_REVIEWS_20261031.json','完成复核与no-extension决定')+'</p>'
         body+=table(['设计','两臂共享设置／隔离变量'],[
             ['起点与预算','只加载SafetyEP10k的当前LoRA＋scene／predictive权重，父完整NAVTEST '+fmt(rescue_registration.get('starting_complete_NAVTEST_PDMS'),6)+'；fresh AdamW、fresh RNG42、phase update0，冻结reference仍IL70。首轮额外phase1k／5k，不继承父optimizer／RNG；不是原生不中断续训。'],
             ['相同训练配方','SafetyEP信用＋finaldet W2[7,8]；80%全量、10%低分、10%高分。Replay隔离数据与新phase；CFM−Replay同额外预算隔离teacher辅助；它不单独隔离W2。'],
@@ -949,7 +960,7 @@ def render_research_report(root,snapshot,history,h):
             body+=table(['同预算完整人口配对','ΔPDMS［95%区间］','ΔNC pp［区间］','ΔTTC pp［区间］','ΔEP pp［区间］','结论／风险'],pair_rows)
         else:body+='<p class="muted">尚无双方完整且已配对的结果，不填分数或区间；每组完成后独立展示，不必等待六组齐备。</p>'
         body+='<p>'+esc(pilot_review.get('knowledge_scope_zh',''))+' '+esc(pilot_review.get('interpretation_zh',''))+' '+link(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json','有限CPU配对分析与实际进度')+'</p>'
-    actions=[['P0／已登记','两项同采样5k偏好pilot','Replay−Full隔离采样；CFM−Replay隔离辅助损失','910有效偏好场景；历史pair不混on-policy PG，当前成绩看完整证据'],
+    actions=[['已完成／不续训'if preference_study and preference_closed else 'P0／已登记','两项同采样5k偏好研究','完整复核未支持这两条当前配方延长'if preference_study and preference_closed else 'Replay−Full隔离采样；CFM−Replay隔离辅助损失','910有效偏好场景；方向未被全盘否定，历史pair不混on-policy PG'],
         ['已完成／后续诊断' if fixed_probe_complete else 'P0／有限探针','固定theta、同初始latent的ODE8／SDE8','选定cohort的噪声损害已观察，是否推广／减弱仍待验证' if fixed_probe_complete else '排除历史theta变化后比较候选可行性与效率','不把不同更新模型排名；不把best-of8当部署'],
         ['P0','场景条件安全—效率与表征诊断','合法等待、低风险停滞、确认风险／观测不确定分开','IL补知识、RL做适配与轨迹强化，不把局部奖励去干扰当场景策略'],
         ['已完成／继续拆解','解释20k匹配结果，保留Full控制','SAFE总分阶段增益、BATCH/CISPO的NC/TTC风险','不把10k领先外推；不因一个总分替代场景分组'],

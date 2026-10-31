@@ -1,0 +1,116 @@
+{
+  "schema": "world_completed_pilot_no_extension_review_v1",
+  "arm": "PPO_PREF_CFM",
+  "status": "COMPLETED_NO_EXTENSION",
+  "disposition": "STOP_FUTILITY",
+  "review_complete": true,
+  "created_unix": 1793434124.0624783,
+  "reason": "\u76f8\u5bf9Replay\u603b\u5206\u660e\u786e\u4e0b\u964d\uff0c\u672a\u8bc1\u5b9e\u8be5\u8f85\u52a9\u76ee\u6807\u7684\u589e\u91cf\u6536\u76ca\u3002",
+  "matched_budget_updates": 5000,
+  "completed_at_native_updates": 5000,
+  "stop_mode": "completed pilot5k; cancel extension; no native stop signal",
+  "training_already_exited": true,
+  "native_stop_requested": false,
+  "training_or_evaluation_processes_signalled": false,
+  "baseline_label": "PPO_FULL_u005000_NAVTEST",
+  "baseline_PDMS": 90.58224721647319,
+  "PDMS": 90.39983099079379,
+  "delta_PDMS": -0.18241622567940396,
+  "same_budget_comparison": true,
+  "native_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_PREF_CFM/checkpoints/update005000_inner0",
+  "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_PREF_CFM/formal_to005000_attempt001",
+  "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_PREF_CFM",
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v9_preference_a2adf6958c7c",
+  "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_PREF_CFM.yaml",
+  "config_sha256": "e8eb9344f42b81d72641a754d9d12e3697d04a61f5eaa085ec76076383b0ef3a",
+  "native_state_retained": true,
+  "algorithm_family_rejected": false,
+  "scope": "This completed exact recipe is closed for this round; checkpoint/data/optimizer/RNG remain available for separately registered revised experiments.",
+  "previous_portfolio_decision_time": "2026-10-31T03:52:53.910034+00:00",
+  "contrast": {
+    "target": "PPO_PREF_CFM_u005000_NAVTEST",
+    "baseline": "PPO_FULL_u005000_NAVTEST",
+    "target_PDMS": 90.39983099079379,
+    "baseline_PDMS": 90.58224721647319,
+    "metrics": {
+      "score": {
+        "delta_pp": -0.18241622567958224,
+        "CI95_pp": [
+          -0.5196574055970281,
+          0.16446625472231802
+        ],
+        "clear_improvement": false
+      },
+      "no_at_fault_collisions": {
+        "delta_pp": 0.05763214226905978,
+        "CI95_pp": [
+          -0.06407899776513157,
+          0.20156257299367583
+        ],
+        "clear_improvement": false
+      },
+      "drivable_area_compliance": {
+        "delta_pp": 0.07409846863164828,
+        "CI95_pp": [
+          -0.13344107625533957,
+          0.28939748686599737
+        ],
+        "clear_improvement": false
+      },
+      "time_to_collision_within_bound": {
+        "delta_pp": 0.024699489543882756,
+        "CI95_pp": [
+          -0.14917711372935255,
+          0.19665772185682215
+        ],
+        "clear_improvement": false
+      },
+      "ego_progress": {
+        "delta_pp": -0.6283281549219275,
+        "CI95_pp": [
+          -1.2131419494217779,
+          -0.07462796306107111
+        ],
+        "clear_improvement": false
+      },
+      "comfort": {
+        "delta_pp": 0.008233163181294254,
+        "CI95_pp": [
+          0.0,
+          0.028800513397545708
+        ],
+        "clear_improvement": false
+      },
+      "driving_direction_compliance": {
+        "delta_pp": 0.08233163181294254,
+        "CI95_pp": [
+          0.03590225885238292,
+          0.13525811202519364
+        ],
+        "clear_improvement": true
+      }
+    },
+    "physical_logs": 44,
+    "scenes": 12146,
+    "bootstrap": 2000,
+    "seed": 42,
+    "estimator": "resample44 physical logs, scene-weighted ratio of sums; same draws all metrics",
+    "uncertainty": "fixed training/evaluation seed; physical-log variability, not across-seed uncertainty; component CIs unadjusted, used conservatively to protect any clear safety gain"
+  },
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/owners/PORTFOLIO_REVIEW/STATE.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u005000_NAVTEST/SUMMARY.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u005000_TRAIN1024/SUMMARY.json",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u005000_NAVTEST/SUMMARY.json",
+    "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_PREF_CFM/formal_to005000_attempt001/RESULT.json"
+  ],
+  "evidence_sha256": {
+    "/mnt/project/qwen-world-rl-optimization-20261030/owners/PORTFOLIO_REVIEW/STATE.json": "915c207051c01857b6c2f66f385fd7b1ecb12dd41dee98e1ee74ccd083d94b4a",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u005000_NAVTEST/SUMMARY.json": "eda4428491ba66a4608c11f82f4749b8d1a72104e97c25c4305ff7ce9d29d489",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u005000_TRAIN1024/SUMMARY.json": "643ee718fa631e01af370afff6e8b4de84533cc63c5feebbb438ead83f25654b",
+    "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u005000_NAVTEST/SUMMARY.json": "eb9de48f7d8b8635e0e48a9f4723095ea6957a0d63618cbab4db652a9f2b056d",
+    "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_PREF_CFM/formal_to005000_attempt001/RESULT.json": "906f749fcda081c88d3dcb1fa5f222375ca07ffc4362aa9cc8092772be467196"
+  },
+  "Test_selection_used": true,
+  "NAVTEST_used_for_training_scene_selection": false
+}

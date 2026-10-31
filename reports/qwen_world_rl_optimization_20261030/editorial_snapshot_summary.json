@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 06:06:40 UTC",
+  "generated_utc": "2026-10-31 08:09:58 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": {
     "main_sections": 7,
@@ -403,6 +403,14 @@
       "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_LASTDET_u005000_NAVTEST/SUMMARY.json"
     },
     {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 20000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.86547930770594,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u020000_NAVTEST/SUMMARY.json"
+    },
+    {
       "arm": "PPO_RESCUE_REPLAY",
       "updates": 1000,
       "cohort": "NAVTEST",
@@ -435,6 +443,22 @@
       "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_RESCUE_REPLAY_u005000_NAVTEST/SUMMARY.json"
     },
     {
+      "arm": "PPO_SAFETY_DATA",
+      "updates": 12000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.94896542131083,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u012000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_DATA",
+      "updates": 14000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.08105265326283,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_DATA_u014000_NAVTEST/SUMMARY.json"
+    },
+    {
       "arm": "PPO_SAFETY_EP",
       "updates": 12000,
       "cohort": "NAVTEST",
@@ -465,6 +489,54 @@
       "scenes": 12146,
       "PDMS": 90.92927646571185,
       "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u018000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "updates": 22000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.1896250707805,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u022000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "updates": 12000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.82003334799182,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u012000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_LRCOS",
+      "updates": 14000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.05254280072845,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRCOS_u014000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_LRDATA",
+      "updates": 12000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.0709378946058,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRDATA_u012000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "updates": 12000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.04153469704774,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u012000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_SAFETY_LRLOW",
+      "updates": 14000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 91.0770796561419,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_LRLOW_u014000_NAVTEST/SUMMARY.json"
     },
     {
       "arm": "PPO_ADAPTIVE",
@@ -5925,5 +5997,96 @@
     ],
     "matched_review_status": "WAITING_ACTUAL_COMPLETE_RESULTS",
     "factorial_interaction": "[LRDATA-DATA]-[LOW-Safety], jointly bootstrapped over matched44 logs"
+  },
+  "completed_5k_pilot_reviews": {
+    "schema": "world_completed_5k_pilot_reviews_v1",
+    "status": "COMPLETE",
+    "created_unix": 1793434124.219535,
+    "reviewed_arms": [
+      {
+        "arm": "PPO_PREF_REPLAY",
+        "status": "COMPLETED_NO_EXTENSION",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_PREF_REPLAY.json",
+        "PDMS": 90.54610697219195,
+        "baseline_label": "PPO_FULL_u005000_NAVTEST",
+        "baseline_PDMS": 90.58224721647319,
+        "delta_PDMS": -0.03614024428124196,
+        "reason": "同预算完整总分未显示明确增益；安全与效率变化相抵，本轮不延长。",
+        "completed_updates": 5000,
+        "native_job_exited": true,
+        "assets_preserved": true
+      },
+      {
+        "arm": "PPO_PREF_CFM",
+        "status": "COMPLETED_NO_EXTENSION",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_PREF_CFM.json",
+        "PDMS": 90.39983099079379,
+        "baseline_label": "PPO_FULL_u005000_NAVTEST",
+        "baseline_PDMS": 90.58224721647319,
+        "delta_PDMS": -0.18241622567940396,
+        "reason": "相对Replay总分明确下降，未证实该辅助目标的增量收益。",
+        "completed_updates": 5000,
+        "native_job_exited": true,
+        "assets_preserved": true
+      },
+      {
+        "arm": "PPO_NOISE03",
+        "status": "COMPLETED_NO_EXTENSION",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_NOISE03.json",
+        "PDMS": 90.14266867648708,
+        "baseline_label": "PPO_FULL_u005000_NAVTEST",
+        "baseline_PDMS": 90.58224721647319,
+        "delta_PDMS": -0.4395785399861154,
+        "reason": "同预算总分无明确优势，NC/DAC/TTC出现明确退化。",
+        "completed_updates": 5000,
+        "native_job_exited": true,
+        "assets_preserved": true
+      },
+      {
+        "arm": "PPO_LASTDET",
+        "status": "COMPLETED_NO_EXTENSION",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_LASTDET.json",
+        "PDMS": 88.72017794897997,
+        "baseline_label": "PPO_FULL_u005000_NAVTEST",
+        "baseline_PDMS": 90.58224721647319,
+        "delta_PDMS": -1.8620692674932258,
+        "reason": "同预算总分与安全组件明确下降，本轮不延长。",
+        "completed_updates": 5000,
+        "native_job_exited": true,
+        "assets_preserved": true
+      },
+      {
+        "arm": "PPO_RESCUE_REPLAY",
+        "status": "COMPLETED_NO_EXTENSION",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_RESCUE_REPLAY.json",
+        "PDMS": 88.01667850294396,
+        "baseline_label": "PPO_SAFETY_EP_u010000_NAVTEST",
+        "baseline_PDMS": 91.34989173702405,
+        "delta_PDMS": -3.333213234080091,
+        "reason": "较自身Safety10k起点总分明确下降，高分保留明显失败；结束此W2/重启优化器/静态救援组合配方。",
+        "completed_updates": 5000,
+        "native_job_exited": true,
+        "assets_preserved": true
+      },
+      {
+        "arm": "PPO_RESCUE_CFM",
+        "status": "COMPLETED_NO_EXTENSION",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_RESCUE_CFM.json",
+        "PDMS": 87.84041829657772,
+        "baseline_label": "PPO_SAFETY_EP_u010000_NAVTEST",
+        "baseline_PDMS": 91.34989173702405,
+        "delta_PDMS": -3.509473440446328,
+        "reason": "较自身Safety10k起点总分明确下降，高分保留明显失败；结束此W2/重启优化器/静态救援组合配方。",
+        "completed_updates": 5000,
+        "native_job_exited": true,
+        "assets_preserved": true
+      }
+    ],
+    "pending_review_count": 0,
+    "continuing_exact_recipes": [],
+    "stop_signals_sent": false,
+    "root_cause": "Portfolio decision DEFER_THIS_RECIPE was complete, but RUNS/route renderer retained the pre-review PILOT label; Rescue final evidence was complete and is now formally closed.",
+    "future_direction": "Preserve method ideas and assets; continue separately registered W3 Safety native LR/data study, not these six exact recipes.",
+    "main_owner_execution_history_preserved": true
   }
 }
