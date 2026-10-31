@@ -20,8 +20,11 @@ IDEAS.update(PPO_MEMORYLR20='仅memory学习率5e−6→2e−5；既有IL知识�
 IDEAS.update(PPO_PREF_REPLAY='80%全量＋20%有效偏好场景；采样对照',PPO_PREF_CFM='与Replay同采样＋离线CFM偏好辅助')
 IDEAS.update(PPO_NOISE03='rigorous eta0.1→0.03，mean与diffusion联动；正式5k对照')
 IDEAS.update(PPO_LASTDET='末步确定性；PG与anchor同时改W2[7,8]，RNG消耗亦变',PPO_RESCUE_REPLAY='Safety10k权重新phase；80全量／10低分／10高分',PPO_RESCUE_CFM='与Rescue Replay同设置＋verified positive CFM')
+IDEAS.update(PPO_SAFETY_LRLOW='Safety10k原生继承；0.2倍constant／full',PPO_SAFETY_LRCOS='Safety10k原生继承；1→0.1倍相对cosine／full',PPO_SAFETY_DATA='Safety10k原生继承；1倍constant／静态80/10/10',PPO_SAFETY_LRDATA='Safety10k原生继承；0.2倍constant／静态80/10/10')
 COLORS.update(PPO_MEMORYLR20='#ea580c',PPO_SAFETY_EP='#059669')
 SHORT.update(PPO_MEMORYLR20='MemoryLR20',PPO_SAFETY_EP='SafetyEP')
+COLORS.update(PPO_SAFETY_LRLOW='#2563eb',PPO_SAFETY_LRCOS='#d97706',PPO_SAFETY_DATA='#7c3aed',PPO_SAFETY_LRDATA='#be185d')
+SHORT.update(PPO_SAFETY_LRLOW='LR low',PPO_SAFETY_LRCOS='LR cosine',PPO_SAFETY_DATA='Data mix',PPO_SAFETY_LRDATA='LR + data')
 
 
 def update(row):
@@ -138,6 +141,9 @@ def render_research_report(root,snapshot,history,h):
     noise003_matched=matched_noise003_complete(editorial.get('fixed_theta_probe',{}),noise003_result)
     rescue=editorial.get('rescue_study',{});rescue_registration=rescue.get('registration',{})
     sampler_reviews=editorial.get('sampler_matched_reviews',{})
+    lr_study=editorial.get('lr_study',{});lr_registration=lr_study.get('registration',{})
+    lr_native_evidence={node['arm']:node for node in lr_study.get('startup',{}).get('arms',[])if node.get('arm')and len(node.get('native_ranks',[]))==8 and all(row.get('finite')is True and row.get('updates',0)>10000 for row in node['native_ranks'])}
+    lr_study_arms={row.get('arm')for row in lr_registration.get('arms',[])}
     sampler_pairs=[(arm,key,row)for arm,review in sampler_reviews.items()for key,row in review.get('contrasts',{}).items()if row.get('status')=='COMPLETE']
     def pilot_pair(arm,u=10000):
         value=pilot_review.get('contrasts',{}).get(f'{arm}_u{u:06d}_NAVTEST_minus_PPO_FULL_u{u:06d}_NAVTEST',{})
@@ -175,7 +181,7 @@ def render_research_report(root,snapshot,history,h):
         ('当前关键风险','NC下降' if pilot_focus else '待诊断','SafetyEP10k新增碰撞23／修复11' if pilot_focus else '安全分量与总分分别判断')]
     body='<div class="note"><b>核心研究目标：根据场景信息，平衡安全与驾驶效率。</b>识别何时必须让行、何时存在安全通行窗口，以及何时只是观测信息不足；不是把安全与舒适性作为主要对立轴。SafeComfort是突出EP的局部奖励去干扰，尚未实现真正的场景条件风险权衡。</div><div class="metric-grid">'+''.join('<div class="metric"><span>'+a+'</span><strong>'+b+'</strong><small>'+c+'</small></div>' for a,b,c in cards)+'</div>'
     body+='<p><b>IL与RL两线并行：</b>IL提供并补齐离线驾驶知识基础；RL在固定IL知识基础上强化轨迹行为，不全面重做IL。知识缺口反馈IL；新IL达标后，用相同RL配方另起对照，不热切换正在训练的旧父模型。</p>'
-    if editorial.get('lr_research',{}).get('native_audit',{}).get('status')=='COMPLETE':body+='<p class="note"><b>新增研究变量：学习率幅度与后期调度。</b>原始Safety／PPO已有100次optimizer-update warmup，之后action5e−5／memory5e−6保持constant。正在按同checkpoint的原生状态设计独立LR对照，正式执行由独立回执认定；尚未证明LR解释退化。<a href="#process">两参数组曲线、原生计数审计与primary文献比较</a>见过程研究区。</p>'
+    if editorial.get('lr_research',{}).get('native_audit',{}).get('status')=='COMPLETE':body+='<p class="note"><b>当前优先：LR幅度×数据曝光的2×2对照，另测cosine。</b>'+('四个新臂均已有8rank真实原生更新'if len(lr_native_evidence)==4 else '原生继承启动中，实际更新待证据'if lr_registration else '同checkpoint的独立LR对照正在准备')+'。原Safety1倍／full作为控制；LOW0.2倍／full、DATA1倍／静态80/10/10、LRDATA0.2倍／同静态，COS单独测退火。没有新完整成绩前，不认定组合有效。<a href="#process">设计、两参数组LR与primary文献比较</a>见过程研究区。</p>'
     priority_review=editorial.get('route_priority_review',{})
     if priority_review:
         retired_rows=[]
@@ -185,9 +191,10 @@ def render_research_report(root,snapshot,history,h):
             last=max(action.get('completed_scores',[]),key=lambda r:r.get('updates',0),default={})
             if latest.get(arm) and update(latest[arm])>last.get('updates',0):last=latest[arm]
             retired_rows.append([esc(arm),'已实际结束' if confirmed else '停止已决定，待退出证据',number(action.get('sealed_updates')) if confirmed else '待seal',fmt(peak.get('PDMS'),5)+' / '+number(peak.get('updates'))+'更新<small>最近 '+fmt(last.get('PDMS'),5)+' / '+number(last.get('updates'))+'更新</small>','已sealed27k仅做一次完整NAVTEST，再决定是否重启' if arm=='PPO_ADAPTIVE' else '保留已测checkpoint，不追加长训预算'])
-        body+='<div class="note"><b>当前资源优先级：</b>SafetyEP推进20k自然复核；偏好与采样pilot先到1k／5k；'+('Rescue两臂从最高分Safety10k启动额外5k，验证低分修复与高分保持；'if rescue_registration else '')+'新问题用有限诊断验证。50k是上限，当前没有默认跑满的承诺。</div><h3>本轮平台期路线：停止证据与下一复核点</h3>'+table(['路线','实际决策状态','最终原生更新','本路线最佳／最近完整分','下一步'],retired_rows)
+        resource_priority='Safety原W3控制＋四个LR／数据原生分叉到全局20k；每2k完整评测。旧偏好、低噪声与Rescue均按已完成5k复核，不把W2或强CFM的完整负结果当作继续堆组件的理由。'if lr_registration else 'SafetyEP推进20k自然复核；偏好、采样与Rescue按1k／5k完整结果复核。'
+        body+='<div class="note"><b>当前资源优先级：</b>'+resource_priority+'50k是上限，当前没有默认跑满的承诺。</div><h3>本轮平台期路线：停止证据与下一复核点</h3>'+table(['路线','实际决策状态','最终原生更新','本路线最佳／最近完整分','下一步'],retired_rows)
         if priority_review.get('status')=='FOUR_NATIVE_TRAINING_CONTINUATIONS_STOPPED':body+='<p>四条旧线均已return0并保留optimizer／RNG，'+number(priority_review.get('freed_training_slots'))+' 个8rank训练槽位结束，分布在 '+number(priority_review.get('distinct_physical_hosts'))+' 个物理host；不等于32张独占GPU已空闲。Full／Safe直到48.9k／49.96k才停，复核确实来晚了，已耗算力不能回收；不把它写成10k提前止损的节省。</p>'
-        body+='<p class="muted">资源去向：Safety最高分主线、偏好采样／辅助损失对照、有限低噪声探针；Adaptive只完成一次已封存27k正式Test，不恢复优化，等新覆盖阶段的结果再决定。'+link(root/'analysis'/'ROUTE_PRIORITY_REVIEW_20261031.json','本轮完整路线与资源决策')+'</p>'
+        body+='<p class="muted">资源去向：'+('Safety原W3控制与LR幅度／调度、静态数据及其组合的四个原生分叉；旧5k研究先按完整证据复核，不默认续训。'if lr_registration else 'Safety最高分主线、偏好采样／辅助损失对照与有限噪声诊断；')+'Adaptive已完成封存27k正式Test，保持停止；重启需独立新证据。'+link(root/'analysis'/'ROUTE_PRIORITY_REVIEW_20261031.json','旧路线结束与资源决策')+'</p>'
         adaptive27=points.get(('PPO_ADAPTIVE',27000));adaptive_review=editorial.get('adaptive27k_review',{})
         if adaptive_review.get('status')=='COMPLETE' and adaptive27:
             adaptive20=points.get(('PPO_ADAPTIVE',20000));delta27=adaptive27['PDMS']-adaptive20['PDMS']if adaptive20 else None
@@ -252,8 +259,9 @@ def render_research_report(root,snapshot,history,h):
         elif arm in completed_no_extension:state='pilot完成，取消延长（STOP_FUTILITY）';next_action='保留10k结果与原生状态；本轮已完成，无需再发子进程停止信号'
         elif arm=='PPO_SAFETY_EP' and safety_continue:
             new_native=run.get('stage_budget_updates',0)>10000 and run.get('worker_receipt_status')=='RUNNING'
-            state='续训native child已启动' if new_native else '继续训练已决定，等待新启动收据'
-            next_action='高优先推进20k复核；35k／50k再按证据决策，50k仅上限；偏好实验并行'
+            stage_finished=run.get('worker_returncode')==0 and h.finite(run.get('updates'))and run['updates']>=run.get('stage_budget_updates',20000)
+            state='当前原生阶段已完成，等待证据review'if stage_finished else '续训native child已启动' if new_native else '继续训练已决定，等待新启动收据'
+            next_action='原W3控制与四个LR／数据fork按相同全局预算配对；新延长须按证据决策。'if lr_registration else '高优先推进20k复核；35k／50k再按证据决策，50k仅上限。'
         elif arm=='PPO_SAFETY_EP' and safety_hold.get('disposition')=='RETAIN_CHECKPOINT_HOLD_AT_REGISTERED_10K_REVIEW':state='保留10k，等待安全取舍复核';next_action='NC退化与总分收益联合判断；下一预算单独决策'
         elif arm=='PPO_NOISE03' and run.get('worker_terminal_receipt') and h.finite(run.get('worker_returncode')) and run['worker_returncode']!=0:
             state='等待容量：child前拒绝'if run['worker_returncode']==75 else '启动失败待修复：未形成科学训练结果'
@@ -275,13 +283,18 @@ def render_research_report(root,snapshot,history,h):
         if arm in ('PPO_RESCUE_REPLAY','PPO_RESCUE_CFM'):
             native_cell='新phase '+number(run.get('updates'))+' / '+number(run.get('stage_budget_updates'))
             next_action='额外phase1k／5k：对固定Safety10k查修复／新零与≥0.9保持；CFM−Replay隔离辅助。'
+        if arm in lr_study_arms:
+            if arm in lr_native_evidence:state='已证8rank实际原生优化；当前状态 '+str(status)
+            else:state='原生继承启动中，8rank更新待证据'
+            native_cell='全局 '+number(run.get('updates'))+' / 20,000<small>继承10k＋新增 '+number(max(0,run.get('updates',10000)-10000)if h.finite(run.get('updates'))else None)+'</small>'
+            next_action='同全局12／14／16／18／20k配对；继承Adam／RNG／cursor，无第二warmup、无W2／CFM叠加。'
         state_cell=esc(state)+('<small>'+link(root/'owners'/'CAMPAIGN'/'arm_decisions'/f'{arm}.STOPPED.json','实际结束收据')+'</small>' if arm in stop_receipts else '')
         route_rows.append(['<b>'+esc(arm)+'</b><small>'+esc(IDEAS.get(arm,run.get('hypothesis','新登记独立pilot')))+'</small>',
             fmt(result['PDMS'],4)+'<small>'+('额外phase 'if arm.startswith('PPO_RESCUE_')else '')+number(update(result))+'更新 · 完整Test</small>' if result else '暂无完整Test',
             native_cell,
             state_cell,esc(next_action)])
     body=table(['路线与单因素','最近完整结果','原生日志 / 当前目标','执行决策','依据与下次复核'],route_rows)
-    body+='<p class="note">资源优先流向SafetyEP的20k复核、两臂5k偏好对照与针对新问题的有限诊断；平台期路线结束后保留历史最佳checkpoint与控制结果。实际退出按逐臂收据，接近自然预算末尾的SAFE不计作提前节省大量训练；库存UUID和slot结束也不等于整张物理GPU空闲。</p>'
+    body+='<p class="note">资源优先流向'+('Safety原W3控制与四个LR／数据分叉，到全局20k再按匹配证据复核；旧偏好、采样及Rescue的5k完成不自动获延长。'if lr_registration else 'SafetyEP20k复核与已登记研究的完整证据；')+'平台期路线结束后保留历史最佳checkpoint与控制结果。实际退出按逐臂收据，接近自然预算末尾的SAFE不计作提前节省大量训练；库存UUID和slot结束也不等于整张物理GPU空闲。</p>'
     ongoing_count=sum(a in runs and a not in decisions for a in display_arms)
     anchor_result=latest.get('PPO_ANCHOR40')
     anchor_result_text=('ANCHOR40最近完整Test为'+fmt(anchor_result['PDMS'],6)+' / '+number(update(anchor_result))+'更新，单独保留其预算。' if anchor_result else 'ANCHOR40是独立单因素，尚无正式完整Test成绩。')
@@ -322,7 +335,8 @@ def render_research_report(root,snapshot,history,h):
     plot_budget=10000 if pilot_focus else budget
     plot_arms=['PPO_FULL','PPO_MEMORYLR20','PPO_SAFETY_EP'] if pilot_focus else ALGO_ARMS
     curve_budget=max(plot_budget,max((update(r)for r in test if r.get('arm')=='PPO_SAFETY_EP'),default=plot_budget))
-    series={a:[(update(r),r['PDMS']) for r in test if r.get('arm')==a and update(r)<=curve_budget] for a in plot_arms}
+    curve_arms=plot_arms+sorted(arm for arm in lr_study_arms if any(r.get('arm')==arm for r in test))
+    series={a:[(update(r),r['PDMS']) for r in test if r.get('arm')==a and update(r)<=curve_budget] for a in curve_arms}
     line=curve(root,h,'research_matched_ppo','新pilot完整NAVTEST：同预算曲线' if pilot_focus else 'PPO算法完整NAVTEST：同预算曲线',series,
         caption='纵轴放大用于看路线差异；新周期完整点自动追加，跨预算不作算法排名。右侧配对区间仍仅对应标注的匹配预算。IL70='+fmt(base,4)+'见首卡总提升。')
     paired_source={'contrasts':{arm+'_minus_PPO_FULL':pilot_pair(arm,plot_budget) for arm in plot_arms if arm!='PPO_FULL'}} if pilot_focus else analysis20 if budget==20000 and analysis20.get('status')=='COMPLETE' else analysis10 if budget==10000 else {}
@@ -504,6 +518,29 @@ def render_research_report(root,snapshot,history,h):
     adaptive_tenk=points.get(('PPO_ADAPTIVE',10000))
     adaptive_sentence=('Adaptive的10k完整Test为'+fmt(adaptive_tenk['PDMS'],6)+'；' if adaptive_tenk else 'Adaptive的5k Test较Full高0.157064点，但10k尚未完整；')
     body='<h3>新的研究主线：场景条件安全—驾驶效率</h3><p>先审计当前观测能支持哪些风险与交互判断，再定义场景分组、表征诊断与策略判据。不能仅凭低EP把等待判为低效，也不能把所有停滞都解释为安全；已确认风险与信息不足须分开。</p>'
+    if lr_registration:
+        body+='<h3>现在RL还卡在哪：按证据排研究优先级</h3>'+table(['优先级／问题','已有证据','本轮行动与下一触发'],[
+            ['P0 · 更新强度与遗忘','Safety10k后在峰值constant LR下波动；尚未证明LR是根因。','保原W3、条件安全信用与原生Adam／RNG，比较LOW、COS；同全局预算完整配对。'],
+            ['P0 · 数据曝光与组合','旧Rescue捆绑W2／freshAdam／CFM且完整分显著下降，不能推出静态数据比例本身无效。','DATA在原W3／原生状态下单独测80/10/10，LRDATA再与LOW组成2×2；静态mix仍待验证。'],
+            ['已完成负结果 · 候选好却没学好','纯W2、0.03与RescueW2＋强CFM均未把局部候选改善转为该配方部署收益。','不继续据候选分叠组件；保原W3探索与SafetyEP信用，检查总分、zero修复／新生、高分保持。'],
+            ['条件后续 · 不并开全家桶','FPO仅CPU原型；现online teacher升级不跨collection留存；更细失败信用与reference冲突尚缺充分证据。','先等LR／数据匹配结果；再分别按成功buffer覆盖、全fail信用tie、PG／anchor梯度等证据触发，知识缺口继续反馈IL。']])
+        body+='<h3>已执行组合研究：LR×静态数据的2×2，cosine单独比较</h3>'+table(['LR策略','Full103,288','静态80full／10low／10high'],[
+            ['1倍constant','原SafetyEP（控制）','PPO_SAFETY_DATA'],['0.2倍constant','PPO_SAFETY_LRLOW','PPO_SAFETY_LRDATA'],['1→0.1倍相对cosine','PPO_SAFETY_LRCOS（独立调度比较）','本轮不另开cosine×mix']])
+        body+='<p>四新臂共同从Safety10k完整native状态分叉：继承全部Adam moments／step、各rank RNG／rollout generator与cursor20,000，初始warmup已完成，不重新热身。W3 eta0.1、SafetyEP优势、beta50和IL70 reference保持；DATA／LRDATA按继承cursor进入静态stage2，不用teacher CFM。批准预算到全局20k，即再训练10k；配置50k仅上限。</p>'
+        lr_study_rows=[]
+        for item in lr_registration.get('arms',[]):
+            arm=item.get('arm');native=lr_native_evidence.get(arm,{});rank_records=native.get('native_ranks',[]);sample=rank_records[0]if rank_records else {};schedule=item.get('lr_schedule',{})
+            lr_study_rows.append([esc(arm),esc(schedule.get('kind'))+' '+str(schedule.get('start_factor'))+'→'+str(schedule.get('end_factor')),esc(item.get('data_policy')),number(min((row['updates']for row in rank_records),default=None))+'<small>'+number(len(rank_records))+'rank finite；启动证据截点</small>',esc(json.dumps(sample.get('used_group_lrs',{}),ensure_ascii=False)),number(runs.get(arm,{}).get('updates'))+'<small>本次report实际全rank共同更新</small>'])
+        body+=table(['研究臂','两组共同LR倍率','数据','实际原生启动证据','本次使用action／memory LR','最新全局更新'],lr_study_rows)
+        body+='<p class="note">当前仅确认四组真实优化，不代表已提高分数。12／14／16／18k由独立2k cadence评测，20k由LR_STUDY owner评测，actual world按spec冻结；完整结果写独立STATE后自动进入总表，训练不等Test。每个同预算差和交互项都要等两边／四边完整；不能拿固定10k分数冒充同预算控制。'+link(root/'EXPERIMENT_LR_STUDY_REGISTRATION_20261031.json','正式组合登记')+' · '+link(root/'analysis'/'LR_STUDY_NATIVE_STARTUP_20261031.json','4×8rank实际LR／梯度／继承证据')+' · '+link(root/'owners'/'LR_STUDY'/'STATE.json','独立owner状态')+'</p>'
+        body+=detail('首次启动失败与实际修复：保留失败，不改写父历史','<p>attempt001在首个新optimizer更新之前被旧Invocation历史原点guard拒绝；原失败root／receipt保留。typed parent-journal origin窄修后冻结新source，attempt002已恢复真实原生更新；没有伪造父0→10k历史，也不是算法负结果。'+link(root/'analysis'/'LR_NATIVE_FORK_STARTUP_HISTORY_GUARD_20261031.json','guard修复收据')+'</p>')
+        lr_matched=lr_study.get('matched_review',{});lr_complete_pairs=[(key,row)for key,row in lr_matched.get('contrasts',{}).items()if row.get('completed_at')and h.finite(row.get('delta_PDMS'))and len(row.get('CI95_PDMS',[]))==2]
+        if lr_complete_pairs:
+            body+=table(['已完整同全局预算对照','ΔPDMS［95%区间］','修复／新零','固定Safety10k高分≥0.9子集Δ／仍≥0.9'],[[esc(key),signed(row.get('delta_PDMS'),5)+'<small>'+ci_text(row)+'</small>',number(row.get('zeros',{}).get('repaired'))+' / '+number(row.get('zeros',{}).get('new_zero')),signed(row.get('fixed_SAFETY10k_high_ge09',{}).get('metrics',{}).get('score',{}).get('delta_pp'),5)+' / '+number(row.get('fixed_SAFETY10k_high_ge09',{}).get('target',{}).get('remaining_ge09'))]for key,row in lr_complete_pairs])
+            body+=detail('完整对照的安全—效率组件区间',table(['对照','组件','Δpp与95%区间'],[[esc(key),esc(metric),signed(item.get('delta_pp'),5)+'<small>'+esc(str(item.get('CI95_pp','UNKNOWN')))+'</small>']for key,row in lr_complete_pairs for metric,item in row.get('metrics',{}).items()if metric in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound','ego_progress')]))
+        else:body+='<p class="muted">尚无新LR／数据完整配对分数，不填收益或组合结论。'+link(root/'analysis'/'LR_STUDY_MATCHED_REVIEW_20261031.json','有限匹配分析入口')+'</p>'
+        lr_interactions=[(key,row)for key,row in lr_matched.get('factorial_interactions',{}).items()if row.get('completed_at')and h.finite(row.get('delta_PDMS'))and len(row.get('CI95_PDMS',[]))==2]
+        if lr_interactions:body+=table(['四个同预算完整模型的2×2交互','ΔPDMS［95%区间］'],[[esc(key),signed(row.get('delta_PDMS'),5)+'<small>'+ci_text(row)+'</small>']for key,row in lr_interactions])+'<p>交互＝[LRDATA−DATA]−[LOW−Safety]，按同44物理log联合bootstrap；不把两个独立区间相减。</p>'
     lr_research=editorial.get('lr_research',{});lr_audit=lr_research.get('native_audit',{});lr_primary=lr_research.get('primary',{})
     if lr_audit.get('status')=='COMPLETE':
         lr_semantics=lr_audit.get('counter_semantics',{});lr_curve=lr_audit.get('toy_schedules',{}).get('curve',{}).get('constant',[])

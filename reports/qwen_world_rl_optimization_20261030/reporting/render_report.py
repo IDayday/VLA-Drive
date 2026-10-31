@@ -454,6 +454,7 @@ def load_snapshot(root: Path) -> dict:
     runs_input = read_json(root/'RUNS.json', warnings, inputs) or {}
     state = read_json(root/'STATE.json', warnings, inputs) or {}
     campaign = read_json(root/'owners'/'CAMPAIGN'/'STATE.json',warnings,inputs) or {}
+    lr_study_state=read_json(root/'owners'/'LR_STUDY'/'STATE.json',warnings,inputs) or {}
     run_map = {}
     # RUNS is the live dispatch registry. A historical STATE.runs must never
     # restore old output paths/hosts/status over its newer dispatch records.
@@ -461,6 +462,9 @@ def load_snapshot(root: Path) -> dict:
         key = record.get('id') or record.get('name')
         if key:
             run_map[key] = {**run_map.get(key, {}), **record}
+    for arm,node in lr_study_state.get('runs',{}).items():
+        run_map[arm]={**run_map.get(arm,{}),**node,'id':arm,'root':node.get('run_root')or run_map.get(arm,{}).get('root')}
+        if node.get('stage_target_updates'):run_map[arm]['stage_budget_updates']=node['stage_target_updates']
     # The campaign's current owner state is dynamic; registration identity
     # remains sourced from RUNS, while newer stage fields may advance here.
     for record in object_rows(campaign.get('runs',[]),'runs'):
@@ -472,6 +476,7 @@ def load_snapshot(root: Path) -> dict:
     results_input = read_json(root/'RESULTS.json', warnings, inputs) or {}
     result_rows = object_rows(registration.get('results', []), 'results')+object_rows(state.get('results', []), 'results')+object_rows(results_input, 'results')
     result_rows += evaluation_entries(campaign)
+    result_rows += evaluation_entries(lr_study_state)
     baseline_spec=read_json(root/'IL_BASELINE_EVALUATION.json',warnings,inputs)
     if baseline_spec:result_rows+=evaluation_entries(baseline_spec)
     train4096_state=read_json(root/'owners'/'TRAIN4096'/'STATE.json',warnings,inputs) or {}
@@ -563,6 +568,13 @@ def load_snapshot(root: Path) -> dict:
     safety_ep_operator_review=read_json(root/'jobs'/'PPO_SAFETY_EP'/'formal_to001000_attempt001'/'PRECHILD_OPERATOR_REVIEW.json',warnings,inputs) or {}
     new_pilot_matched_review=read_json(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json',warnings,inputs) or {}
     lr_research={key:read_json(root/'analysis'/name,warnings,inputs) or {}for key,name in [('native_audit','RL_LR_NATIVE_AUDIT_20261031.json'),('primary','RL_LR_PRIMARY_RESEARCH_20261031.json')]}
+    lr_study={key:read_json(root/path,warnings,inputs) or {}for key,path in {
+        'registration':'EXPERIMENT_LR_STUDY_REGISTRATION_20261031.json',
+        'deployment':'analysis/LR_STUDY_DEPLOYMENT_20261031.json',
+        'startup':'analysis/LR_STUDY_NATIVE_STARTUP_20261031.json',
+        'owner':'owners/LR_STUDY/OWNER.json',
+        'matched_review':'analysis/LR_STUDY_MATCHED_REVIEW_20261031.json'}.items()}
+    lr_study['progress']={key:lr_study_state.get(key)for key in ('status','updated_at','global_budget_cap','initial_global_updates','training_waits_for_intermediate_evaluation')}
     preference_path=next((root/'analysis'/name for name in ('TRAIN_PREFERENCE_RESEARCH_20261031.json','SCENE_PREFERENCE_RESEARCH.json') if (root/'analysis'/name).exists()),None)
     preference_research=read_json(preference_path,warnings,inputs) or {} if preference_path else {}
     zero_path=next((root/'analysis'/name for name in ('ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS.json','ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS_20261031.json') if (root/'analysis'/name).exists()),None)
@@ -833,6 +845,7 @@ def load_snapshot(root: Path) -> dict:
                     adaptive_coverage_amendment=adaptive_coverage_amendment,safety_ep_operator_review=safety_ep_operator_review,
                     new_pilot_matched_review=new_pilot_matched_review,
                     lr_research=lr_research,
+                    lr_study=lr_study,
                     preference_research=preference_research,preference_research_path=str(preference_path) if preference_path else None,
                     zero_longitudinal=zero_longitudinal,zero_longitudinal_path=str(zero_path) if zero_path else None,
                     preference_mixture_study=preference_mixture_study,

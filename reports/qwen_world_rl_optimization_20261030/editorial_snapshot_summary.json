@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 05:47:21 UTC",
+  "generated_utc": "2026-10-31 06:06:40 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": {
     "main_sections": 7,
@@ -5831,7 +5831,99 @@
       "最新Run-then-WalkTable7同文就有AutoDrive1e-6constant与ReCog1e-4→1e-6cosine；同时改reward/reference/阶段，不能把结果单因子归因LR。",
       "有依据比较更低constant与相对floorcosine，但文献值不是我们scope/loss的最优值证据；优先同Safety10k nativeAdam/RNG/cursor分叉，只改LR策略，不混reward/ref/sampler/optimizerreset。"
     ],
-    "actual_new_LR_training_claimed": false,
-    "figure": "reporting/figures/research_learning_rates.png"
+    "actual_new_LR_training_claimed": true,
+    "figure": "reporting/figures/research_learning_rates.png",
+    "new_complete_NAVTEST_gain_established": false
+  },
+  "LR_study": {
+    "registration_schema": "world_native_Safety_LR_data_factorial_study_v1",
+    "status": "ACTUAL_FOUR_NATIVE_TRAINING_RUNS_8RANK_EACH",
+    "initial_global_updates": 10000,
+    "global_budget_cap": 20000,
+    "additional_budget": 10000,
+    "native_state_inherited": [
+      "AdamW moments and steps",
+      "all per-rank RNG",
+      "global data cursor"
+    ],
+    "no_second_warmup": true,
+    "arms": [
+      {
+        "arm": "PPO_SAFETY_LRLOW",
+        "data_policy": "uniform_full",
+        "lr_schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 0.2,
+          "end_factor": 0.2
+        }
+      },
+      {
+        "arm": "PPO_SAFETY_LRCOS",
+        "data_policy": "uniform_full",
+        "lr_schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "cosine",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 1.0,
+          "end_factor": 0.1
+        }
+      },
+      {
+        "arm": "PPO_SAFETY_DATA",
+        "data_policy": "static_rescue_retention",
+        "lr_schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 1.0,
+          "end_factor": 1.0
+        }
+      },
+      {
+        "arm": "PPO_SAFETY_LRDATA",
+        "data_policy": "static_rescue_retention",
+        "lr_schedule": {
+          "schema": "world_native_fork_relative_LR_v1",
+          "kind": "constant",
+          "start_updates": 10000,
+          "end_updates": 20000,
+          "start_factor": 0.2,
+          "end_factor": 0.2
+        }
+      }
+    ],
+    "current_updates": [
+      {
+        "id": "PPO_SAFETY_LRLOW",
+        "updates": 10270,
+        "journal_ranks": 8,
+        "status": "TRAINING"
+      },
+      {
+        "id": "PPO_SAFETY_LRCOS",
+        "updates": 10296,
+        "journal_ranks": 8,
+        "status": "TRAINING"
+      },
+      {
+        "id": "PPO_SAFETY_DATA",
+        "updates": 10301,
+        "journal_ranks": 8,
+        "status": "TRAINING"
+      },
+      {
+        "id": "PPO_SAFETY_LRDATA",
+        "updates": 10232,
+        "journal_ranks": 8,
+        "status": "TRAINING"
+      }
+    ],
+    "matched_review_status": "WAITING_ACTUAL_COMPLETE_RESULTS",
+    "factorial_interaction": "[LRDATA-DATA]-[LOW-Safety], jointly bootstrapped over matched44 logs"
   }
 }
