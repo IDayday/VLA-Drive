@@ -87,7 +87,10 @@ def training_job(state, root):
             continue
         if not any('train_il' in part for part in command):
             continue
-        candidates.append((job.get('dispatch_unix', 0), key, job))
+        # The four-framework launcher names this timestamp `at`; lexical job
+        # names cannot decide whether a recovered invocation supersedes a fail.
+        dispatched=max(job.get(field,0)or 0 for field in('dispatch_unix','dispatched_unix','at'))
+        candidates.append((dispatched, key, job))
     return max(candidates, default=(0, None, {}))[2]
 
 

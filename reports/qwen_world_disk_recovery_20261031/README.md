@@ -44,6 +44,8 @@ D继续vla-zt八卡。CPU guardian为本次shared-slot native invocation保留pr
 /usr/bin/python3 -m unittest discover -s tests/il_report
 ```
 
-42项针对性测试通过；实际验收另包含七组全部八rank新更新、原生状态与重算batch验证。入口拒绝重复派发，当前仍在训练，不要再次启动同名helper。
+43项针对性测试通过；实际验收另包含七组全部八rank新更新、原生状态与重算batch验证。入口拒绝重复派发，当前仍在训练，不要再次启动同名helper。
 
 工作收据根：`/mnt/project/qwen-world-il-research-20261030/maintenance/disk_recovery_20261031/`。每组PREPARED、NEW_INVOCATION、RESTORED_OWNER、REAL_LEARNING_CONFIRMED及汇总RESTORED_ALL_SEVEN均真实存在。初次容量拒绝、损坏metadata、原始失败、回滚日志和CPU接管历史保留。新训练仍在进行，不宣称完整100k/50k已经结束；此次恢复不新增PDMS方法结论。
+
+报告归属补充：旧D resume任务名在字典序上大于新diskresume，旧展示会错误关联已失败任务。现按实际`at`/`dispatch_unix`时间选最新invocation，已有回归测试；只修正报告归属，不修改训练。

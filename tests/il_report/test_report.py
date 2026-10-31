@@ -16,6 +16,12 @@ def seal(value):
 
 
 class ReportTests(unittest.TestCase):
+    def test_four_framework_recovery_uses_actual_time_not_lexical_job_name(self):
+        run=Path('/test/run');old=dict(command=['train_il','--output',str(run)],at=1,receipt='/old',status='FAILED')
+        new=dict(command=['train_il','--output',str(run)],at=2,receipt='/new',status='RUNNING')
+        state=dict(jobs={'D_IL_resume010671':old,'D_IL_diskresume011000':new})
+        self.assertEqual(e.training_job(state,run)['receipt'],'/new')
+
     def test_partial_last_line_and_missing_rank_do_not_claim_global_update(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
