@@ -191,6 +191,8 @@ def main(runtime=None):
         state,rollout=runtime.initialize_training_state(actor,optimizer,scheduler,generator,identity)
     if runtime is not None and hasattr(runtime,'bind_training_state'):
         runtime.bind_training_state(state,rollout,identity)
+    def public_state():
+        return runtime.public_training_state(state) if runtime is not None and hasattr(runtime,'public_training_state') else state
     if rollout is not None and 'chain_identity' not in rollout:rollout['chain_identity']=rollout_digest(rollout)
     invocation=Invocation(root,rank,state,identity,a.resume)
     invocation.record.update(process_start_unix=process_started_unix,preparation_seconds=time.monotonic()-process_started)
@@ -228,7 +230,7 @@ def main(runtime=None):
                     fault('after_collect')
                 except Exception:
                     error=traceback.format_exc()
-                    checkpoint.failure_evidence(root,state,error,invocation.id,rollout=rollout)
+                    checkpoint.failure_evidence(root,public_state(),error,invocation.id,rollout=rollout)
                 if not all_ok(error,device):
                     raise RuntimeError('At least one rank failed actual sampling/scoring; no zero replacement or update')
                 error=None
@@ -302,9 +304,9 @@ def main(runtime=None):
             milestone=state['updates'] in cfg['evaluate_updates']
             if state['updates']%save_every==0 or milestone or stop_now or state['updates']==cfg['max_steps']:
                 last_saved=save_boundary()
-                if rank==0:atomic_json(root/'progress.json',dict(state,status='COMPLETE' if state['updates']==cfg['max_steps'] else 'PAUSED' if stop_now else 'RUNNING',checkpoint=last_saved,host=host,invocation=invocation.id,invocation_start_update=invocation.record['start_update'],wall_seconds_this_invocation=time.monotonic()-started))
+                if rank==0:atomic_json(root/'progress.json',dict(public_state(),status='COMPLETE' if state['updates']==cfg['max_steps'] else 'PAUSED' if stop_now else 'RUNNING',checkpoint=last_saved,host=host,invocation=invocation.id,invocation_start_update=invocation.record['start_update'],wall_seconds_this_invocation=time.monotonic()-started))
             if stop_now:break
-        result=dict(state,status='COMPLETE' if state['updates']==cfg['max_steps'] else 'STOPPED_AT_SAVED_BOUNDARY',
+        result=dict(public_state(),status='COMPLETE' if state['updates']==cfg['max_steps'] else 'STOPPED_AT_SAVED_BOUNDARY',
                     host=host,rank=rank,checkpoint=last_saved,wall_seconds_this_invocation=time.monotonic()-started,
                     peak_GPU_bytes=torch.cuda.max_memory_allocated(),qualification=a.qualification)
         if world>1:
@@ -322,7 +324,7 @@ def main(runtime=None):
         invocation.finish(state,result['status'])
     except BaseException:
         error=traceback.format_exc()
-        checkpoint.failure_evidence(root,state,error,invocation.id,rollout=rollout)
+        checkpoint.failure_evidence(root,public_state(),error,invocation.id,rollout=rollout)
         invocation.finish(state,'ABORTED',error)
         raise
     finally:
