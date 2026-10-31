@@ -9,13 +9,37 @@ from .checkpoint import gather
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
-def validate_rows(rows, boundary):
-    if [r['updates'] for r in rows] != list(range(1, boundary+1)):
+def validate_rows(rows, boundary, *, origin=0):
+    if [r['updates'] for r in rows] != list(range(origin+1, boundary+1)):
         raise ValueError('Effective journal has a gap/duplicate; manual lineage audit required')
     for r in rows:
         u=r['updates']; c=(u-1)//4+1; i=(u-1)%4+1
         if r['collection']!=c or r['inner_completed']!=i or r['behavior']['update']!=(c-1)*4:
             raise ValueError('Journal behavior/collection/inner ancestry mismatch')
+
+
+def journal_origin(identity):
+    """A typed native fork inherits its sealed prefix, never fabricated rows."""
+    fork=identity.get('native_fork_provenance')
+    if fork is None:return 0
+    request=identity.get('recipe',{}).get('research',{}).get('native_fork',{})
+    if (fork.get('schema')!='world_Safety10k_exact_native_LR_fork_v1'
+            or fork.get('expected_updates')!=10000 or fork.get('initial_global_updates')!=10000
+            or fork.get('optimizer_state_inherited') is not True
+            or fork.get('RNG_state_inherited') is not True
+            or fork.get('stream_cursor_inherited') is not True
+            or fork.get('weights_only') is not False or fork.get('phase_reset') is not False
+            or request.get('schema')!=fork['schema']
+            or any(fork.get(key)!=value for key,value in request.items())):
+        raise ValueError('Invalid native-fork learning history provenance')
+    parent=Path(fork['checkpoint']);seal=json.loads((parent/'COMPLETE').read_text())
+    if (seal.get('schema')!=2 or seal.get('world')!=8 or seal.get('phase')!='READY'
+            or seal.get('updates')!=10000 or seal.get('next_inner')!=0
+            or file_sha(parent/'files.json')!=fork['checkpoint_files_sha256']
+            or seal['files_sha256']!=fork['checkpoint_files_sha256']
+            or file_sha(parent/'identity.json')!=fork['checkpoint_identity_sha256']):
+        raise ValueError('Native-fork inherited learning history checkpoint changed')
+    return 10000
 
 
 class Invocation:
@@ -34,6 +58,13 @@ class Invocation:
             attempted_collections=0,generated_candidates=0,scored_candidates=0,
             seconds_generation=0.,seconds_scoring=0.,seconds_save=0.,
             GPU_occupancy='worker elapsed time; shared GPU, not exclusive GPU compute')
+        origin=journal_origin(identity)
+        if state['updates']<origin:raise ValueError('Child learning history precedes its native-fork origin')
+        if origin:
+            self.record.update(journal_origin_update=origin,
+                inherited_history_checkpoint=identity['native_fork_provenance']['checkpoint'],
+                inherited_history_files_sha256=identity['native_fork_provenance']['checkpoint_files_sha256'],
+                local_journal_interval='only child updates after the sealed native parent; parent rows are not relabelled')
         journal=self.root/f'metrics_rank{rank}.jsonl'
         if journal.exists():
             raw=journal.read_bytes();rows=[];bad_tail=None
@@ -44,7 +75,7 @@ class Invocation:
                     if idx!=len(lines)-1:raise ValueError('Corrupt non-tail journal')
                     bad_tail=line.hex()
             prefix=[r for r in rows if r['updates']<=state['updates']]
-            validate_rows(prefix,state['updates'])
+            validate_rows(prefix,state['updates'],origin=origin)
             if any(r['behavior']['run']!=identity['sha256'] for r in rows):
                 raise ValueError('Journal belongs to another scientific run')
             suffix=[r for r in rows if r['updates']>state['updates']]
@@ -61,7 +92,7 @@ class Invocation:
                     for row in prefix:f.write(json.dumps(row,allow_nan=False)+'\n')
                     f.flush();os.fsync(f.fileno())
                 os.replace(tmp,journal)
-        elif state['updates']:
+        elif state['updates']!=origin:
             raise ValueError('Cannot resume without the effective learning history')
         # Rollback cannot overwrite old behavior. Preserve every unpublished suffix.
         for p in sorted((self.root/'behavior').glob(f'collection*/rank{rank}.pt')):
