@@ -41,6 +41,25 @@ def wait_until(predicate,seconds,message):
         time.sleep(5)
 
 
+def signal_verified_cpu(pid,start,cwd,entry):
+    # The qualified model Python was built without os.pidfd_open. Use the
+    # existing system operations interpreter, retaining PID/start/cwd/argv
+    # checks under the pidfd rather than falling back to a racy os.kill(pid).
+    code='''import os,sys,signal,json
+from pathlib import Path
+pid,start=int(sys.argv[1]),int(sys.argv[2]);cwd,entry=sys.argv[3:5]
+fd=os.pidfd_open(pid)
+try:
+ p=Path('/proc')/str(pid);s=(p/'stat').read_text().split()
+ args=(p/'cmdline').read_bytes().decode().split('\\0')
+ assert s[2]not in('Z','X')and int(s[21])==start
+ assert str((p/'cwd').resolve())==cwd and entry in args
+ signal.pidfd_send_signal(fd,signal.SIGTERM)
+finally:os.close(fd)
+'''
+    subprocess.run(['/usr/bin/python3','-c',code,str(pid),str(start),str(cwd),entry],check=True)
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--source',required=True);p.add_argument('--root',required=True)
     p.add_argument('--performance-root',required=True);p.add_argument('--output',required=True);p.add_argument('--resume',action='store_true')
@@ -77,11 +96,7 @@ def main():
             cwd=Path(f'/proc/{pid}/cwd').resolve()
             if 'tools.qwen_world_compare.campaign'not in argv or cwd!=Path(original['controller_source']).resolve():
                 raise ValueError('Refusing to signal an unverified CPU owner')
-            fd=os.pidfd_open(pid)
-            try:
-                if not alive(pid,ticks):raise ValueError('CPU owner identity changed')
-                signal.pidfd_send_signal(fd,signal.SIGTERM)
-            finally:os.close(fd)
+            signal_verified_cpu(pid,ticks,cwd,'tools.qwen_world_compare.campaign')
             wait_until(lambda:not alive(pid,ticks),180,'Old CPU owner did not finish; native workers untouched')
         owner_lock=(root/'campaign/owner.lock').open('a');fcntl.flock(owner_lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         write(root/'campaign/OWNER.json',dict(pid=os.getpid(),start_ticks=state['owner_start_ticks'],
