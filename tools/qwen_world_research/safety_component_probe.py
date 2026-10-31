@@ -41,6 +41,8 @@ def main():
     p=argparse.ArgumentParser(__doc__)
     for arg in ('config','manifest','output','il-checkpoint','parent-selection','data','rl-checkpoint','panel'):
         p.add_argument('--'+arg,required=True)
+    p.add_argument('--credit-replay',metavar='COMPLETED_P0_DIRECTORY',
+                   help='Replay original scored P0 materials with alternative credit; no new generation/scoring')
     a=p.parse_args();a.qualification=False
     class Runtime(SafetyEfficiencyRuntimeMixin,ResearchRuntime):
         pass
@@ -70,6 +72,13 @@ def main():
     policy_sha=parameter_hash(actor,trainable=True)
     all_policy=checkpoint.gather(policy_sha)
     if len(set(all_policy))!=1:raise ValueError('Probe policies differ across ranks')
+    if a.credit_replay:
+        from starVLA.rl.qwen_world_research_algorithms.safety_credit_gradient_probe import run_credit_replay
+        try:
+            run_credit_replay(runtime,actor,cfg,a,native,seal,policy_sha,host)
+        finally:
+            dist.destroy_process_group()
+        return
     panel=json.loads(Path(a.panel).read_text());tokens=panel['tokens'][:24]
     if len(tokens)!=24 or len(set(tokens))!=24 or not set(tokens)<=set(runtime.conditions.data.tokens):
         raise ValueError('Probe requires 24 distinct legal TRAIN diagnostic tokens')
