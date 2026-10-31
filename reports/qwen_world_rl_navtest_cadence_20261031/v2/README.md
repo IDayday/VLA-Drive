@@ -1,0 +1,11 @@
+# NAVTEST cadence v2：精确 CPU-only 接管
+
+Root实际启动PID2345488 / start_ticks1485780946，LAUNCH2026-10-31T03:59:56UTC。精确源码SHA256为 `0a36d568437ccc38556eff885627c09b9546055a399e45aafdb3513868786017`。原b96归档完整保留在父目录，本目录不覆盖其历史证据。
+
+仅两项运行逻辑修复：Events.wait使用monotonic实际deadline，忽略不匹配inotify事件后继续等待，避免将自身STATE写入误判为1800秒heartbeat；capacity wait兼容当前model Python没有os.pidfd_open的环境，使用ctypes syscall434 fallback且不加入负fd。
+
+定向CPU验证：忽略自身写入仍等0.18014秒真实超时；随后匹配事件0.06096秒唤醒；同时存在ignored inotify与extra fd时保留精确退出事件。实际model Python确认os.pidfd_open不存在，syscall434自PIDfd成功打开/关闭。验证不发送信号、不启动owner/GPU、不访问其他进程。
+
+旧CPU2342200由root单独精确pidfd SIGTERM退出，收据归档为OLD_CPU_STOP_RECEIPT.json；当时57个evaluation/native子任务未被signal。v2仍使用同一独立owner目录、STATE schema、封存policy和标准evaluation specs，收养已发布任务，原训练/优化器/评测身份与分片均不改。每2k cadence、up-to32实际合法routes、最多2模型及TRAIN频次不变等语义详见父目录POLICY.json。
+
+INITIAL_STATE/RESULTS是运行后各自原子读取的行政快照，不是跨文件事务，完整实际分数仍以标准SUMMARY为准。SOURCE_ARCHIVE逐文件列原路径、SHA和大小，无NPZ、日志、模型tensor。
