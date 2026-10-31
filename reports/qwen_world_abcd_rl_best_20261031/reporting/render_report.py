@@ -290,6 +290,12 @@ def load_abcd_research(warnings: list, inputs: list) -> dict:
         [Path(row['owner_state'])for row in run_map.values()if row.get('owner_state')]+
         sorted((root/'owners').glob('*/STATE.json'))))
     documents=[read_json(path,warnings,inputs) or {}for path in state_paths]
+    controllers={}
+    for role in ['ABCD_NATIVE','ABCD_EVALUATION']:
+        state_path=root/'owners'/role/'STATE.json'
+        if state_path in state_paths:
+            controllers[role]=dict(state=documents[state_paths.index(state_path)],state_path=str(state_path),
+                owner=read_json(state_path.with_name('OWNER.json'),warnings,inputs)or{})
     for document in documents:
         for row in object_rows(document.get('runs',{}),'runs'):
             key=row.get('id')
@@ -317,11 +323,11 @@ def load_abcd_research(warnings: list, inputs: list) -> dict:
         key=result.get('evidence')or result.get('label')
         if key and not(results.get(key,{}).get('publishable_complete')and not result.get('publishable_complete')):results[key]=result
     analyses={}
-    for name in ['ABC_ARCH_RL_DESIGN.json','ABC_META_SCOPE_AUDIT.json','D_ARCH_RL_DESIGN.json','D_RL_DESIGN.json','D_PAPER_RESEARCH.json','D_PAPER_RL_DESIGN.json','D_CPU_CHECK.json','ABCD_DEPLOYMENT_CPU_CHECK.json','PARENT_RUNTIME_SOURCE_DIFFERENCE.json','PARENT_EXPORT_REAL_SOURCE_MIGRATION_CHECK.json']:
+    for name in ['ABC_ARCH_RL_DESIGN.json','ABC_META_SCOPE_AUDIT.json','D_ARCH_RL_DESIGN.json','D_RL_DESIGN.json','D_PAPER_RESEARCH.json','D_PAPER_RL_DESIGN.json','D_CPU_CHECK.json','ABCD_DEPLOYMENT_CPU_CHECK.json','PARENT_RUNTIME_SOURCE_DIFFERENCE.json','PARENT_EXPORT_REAL_SOURCE_MIGRATION_CHECK.json','ABCD_FOUR_ACTUAL_NATIVE_STARTUP.json','ABCD_EARLY_NATIVE_PROCESS.json']:
         path=root/'analysis'/name
         if path.exists():analyses[name]=read_json(path,warnings,inputs) or {}
     return dict(root=str(root),parent_path=str(parent_path),parents_locked=parent_path==locked,
-        parents=parents,candidates=candidates,registry=registry,runs=runs,results=list(results.values()),analyses=analyses,
+        parents=parents,candidates=candidates,registry=registry,runs=runs,results=list(results.values()),analyses=analyses,controllers=controllers,
         source_worktree='/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031',new_training_or_scoring_by_report=False)
 
 

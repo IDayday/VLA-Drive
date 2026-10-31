@@ -14,3 +14,5 @@ Live artifacts: `/mnt/project/qwen-world-abcd-rl-best-20261031`.
 Persistent report: `/mnt/project/qwen-world-rl-optimization-20261030/report.html`, ABCD first,30min plus milestones.
 
 Resource authorization adds the exact newly granted hosts `training-vlawm-zt4` and `training-vlawm-zt5` as temporary until withdrawal. At launch zt4 is idle8×A800; zt5 SSH is refused. Existing IL/RL jobs and guardians remain untouched. Physical GPU locks, known-owner checks and measured headroom apply to every new child.
+
+All four registered8rank learners now have actual finite optimizer updates and complete native checkpoints. The independent evaluation owner is live (ops017b87b); it will discover the1/5/10k boundaries without stopping training, publish full DEV/NAV summaries, and compare NAVTEST scenes directly with each own protected IL evaluation. One actual native/export check per checkpoint is performed on DEV rank0. Initial process analysis uses the same first128updates/256groups per arm and is not a performance claim. Live HTML now includes separate LR and effective-credit plots.
