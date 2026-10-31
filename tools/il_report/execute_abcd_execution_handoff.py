@@ -60,6 +60,21 @@ finally:os.close(fd)
     subprocess.run(['/usr/bin/python3','-c',code,str(pid),str(start),str(cwd),entry],check=True)
 
 
+def available_native_slot(uuids):
+    for slot,folder in [('shared','runtime_gpu_shared_workers'),('primary','runtime_gpu_leases')]:
+        held=[]
+        try:
+            for uuid in uuids:
+                f=(Path('/mnt/project')/folder/(uuid+'.lock')).open('a')
+                try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                except BlockingIOError:f.close();break
+                held.append(f)
+            if len(held)==len(uuids):return slot
+        finally:
+            for f in held:f.close()
+    return None
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--source',required=True);p.add_argument('--root',required=True)
     p.add_argument('--performance-root',required=True);p.add_argument('--output',required=True);p.add_argument('--resume',action='store_true')
@@ -79,6 +94,8 @@ def main():
         state=read(state_path)
         if state['source']!=str(source):raise ValueError('Source changed during handoff')
     else:state=dict(status='WAITING_NATIVE_PROOFS',source=str(source),architectures={},started=time.time())
+    if state.get('error'):
+        state.setdefault('error_history',[]).append(dict(error=state.pop('error'),at=state.get('failure_at')))
     state.update(owner_pid=os.getpid(),owner_start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
         owner_file=str(Path(__file__).resolve()),owner_sha256=file_sha(__file__))
     write(state_path,state)
@@ -151,7 +168,12 @@ def main():
                     '--config',str(source/'configs/qwen_world_compare'/('arch_'+arch.lower()+'.yaml')),'--output',str(run),
                     '--resume',migration['parent_checkpoint'],'--checkpoint-policy','all_off','--cpu-prefetch-depth','2',
                     '--execution-receipt',row['migration']]
-                for attempt in range(1,4):
+                slot=available_native_slot(job['uuids'])
+                if slot is None:raise RuntimeError('No all-rank native slot is currently free; no worker started')
+                row['lease_slot']=slot;progress()
+                previous=list((root/'jobs').glob(f'execution_fast_{source.name}_{arch}_resume{row["old_boundary"]:06d}_attempt*'))
+                first=max([int(x.name.rsplit('attempt',1)[1])for x in previous],default=0)+1
+                for attempt in range(first,first+3):
                     name=f'execution_fast_{source.name}_{arch}_resume{row["old_boundary"]:06d}_attempt{attempt:03d}'
                     entry=dict(architecture=arch,logical=arch+'_IL_execution_resume'+str(row['old_boundary']),family=arch+'_IL',
                         attempt=attempt,command=command,host=host,scientific_source=str(source),execution_source=str(source),
@@ -159,7 +181,7 @@ def main():
                         receipt=str(root/'jobs'/name),status='LAUNCH_INTENT',at=time.time())
                     current=read(root/'campaign/STATE.json');current['jobs'][name]=entry;write(root/'campaign/STATE.json',current)
                     directory=dispatch.launch(host,source,command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=job['uuids'],
-                        share_minimum=40000,lease_slot='shared')
+                        share_minimum=40000,lease_slot=slot)
                     wait_until(lambda:(directory/'RUNNING.json').exists()or(directory/'RESULT.json').exists(),60,'Missing admission receipt')
                     result=dispatch.job_state(directory)
                     if result.get('child_not_started')is True and result.get('returncode')==75:
@@ -178,7 +200,8 @@ def main():
             committed_value=read(complete)
             if committed_value['from_updates']!=row['old_boundary']or committed_value['updates']!=row['old_boundary']+2:
                 raise ValueError('Native continuation skipped or reset updates')
-            row.update(status='PASS',committed=committed_value,completed_at=time.time(),lease_slot='shared');progress()
+            actual_slot=read(directory/'RUNNING.json')['lease_slot']
+            row.update(status='PASS',committed=committed_value,completed_at=time.time(),lease_slot=actual_slot);progress()
         state['status']='ADOPTING_STEADY_CAMPAIGN';progress()
         owner_lock.close();owner_lock=None
         controller=Path(args.controller_source).resolve();controller_env=dict(env,PYTHONPATH=str(controller))
@@ -188,7 +211,7 @@ def main():
             cwd=source,env=controller_env,check=True)
         for arch,row in state['architectures'].items():
             tool(['--activate-architecture',arch,'--root',str(root),'--receipt',row['migration'],'--host',row['host'],
-                '--lease-slot','shared','--share-min-free-mib','40000'])
+                '--lease-slot',row['lease_slot'],'--share-min-free-mib','40000'])
         command=[PY,'-u','-m','tools.qwen_world_compare.campaign','run','--config',str(source/'configs/qwen_world_compare/campaign.yaml'),
             '--source',str(source),'--architectures','A','B','C','D','--stages','il','rl','evaluate','--resume','--poll-seconds','30']
         command+=['--execution-migration',args.controller_migration]

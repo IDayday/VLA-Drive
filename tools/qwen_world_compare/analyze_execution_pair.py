@@ -76,7 +76,9 @@ def main():
         native_payloads=rows,raw_max_rank_step_wall_seconds=dict(zip(('baseline','optimized'),timings)),
         discard_first_updates=discard,median_max_rank_wall_seconds=dict(zip(('baseline','optimized'),medians)),
         observed_end_to_end_speedup=medians[0]/medians[1],
-        caveat='Finite qualification on shared GPUs, fresh generic initialization, four ranks with global32. Not an eight-rank production speedup, trained-parent migration or long-run ETA.')
+        starting_update=all_metrics[0][0][0]['updates']-1,
+        timed_updates_after_discard=len(timings[0])-discard,
+        caveat=f'Finite {world}-rank qualification on shared GPUs, global32. Starting update is recorded separately; initialization provenance must be read from the qualification invocation. Very few timed updates and changing cohosts do not establish production speedup or long-run ETA.')
     out=Path(args.output)
     if out.exists():raise FileExistsError(out)
     out.write_text(json.dumps(result,indent=2,allow_nan=False));print(out.read_text())
