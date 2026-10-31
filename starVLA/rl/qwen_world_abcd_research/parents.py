@@ -49,7 +49,11 @@ def inspect_parent_export(path):
     if meta.get('qualification') is not False or meta.get('RL_parent') is not None:
         raise ValueError('Parent must be a complete formal IL export, never RL')
     expected = meta['runtime_source_files']; actual = original._source_runtime()
-    if set(expected) != set(actual):
+    added = set(actual)-set(expected)
+    helper = 'starVLA/model/modules/qwen_world_compare/execution.py'
+    helper_sha = '4f1cef430829f29b3c2938486c0bbc39782812be17255dbb784519d789270f22'
+    if (set(expected)-set(actual) or added not in (set(), {helper})
+            or (added and actual[helper] != helper_sha)):
         raise ValueError('Parent runtime source inventory changed')
     differences = {name: (expected[name], actual[name]) for name in expected if expected[name] != actual[name]}
     if differences not in ({}, {ADAPTER: ADAPTER_MIGRATION}):
@@ -59,7 +63,7 @@ def inspect_parent_export(path):
     # shapes, masks, numerical kernels or denoising formula change.
     meta = copy.deepcopy(meta)
     meta['parent_source_migration'] = dict(
-        differences=differences, checkpoint_short_suffix=True,
+        differences=differences, added_execution_helper={name:actual[name] for name in added}, checkpoint_short_suffix=True,
         source_original_seals_unchanged=True,
         scope='one reviewed default-True activation-checkpoint execution flag; no model math/parameters change',
     )
