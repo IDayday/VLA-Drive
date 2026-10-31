@@ -10,6 +10,11 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
+if __package__ in(None,''):
+    script_dir=Path(__file__).resolve().parent
+    sys.path[:]=[x for x in sys.path if Path(x or os.curdir).resolve()!=script_dir]
+    sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from starVLA.rl.qwen_world_compare.contracts import file_sha,fingerprint
 from starVLA.rl.qwen_world_compare.execution_migration import SCHEMA,validate_patch
 from starVLA.rl.qwen_world_compare.loading import inspect_IL_checkpoint
@@ -17,14 +22,14 @@ from starVLA.rl.qwen_world_postcot.checkpoint import atomic_json
 from tools.qwen_world_compare.train_il import source_files
 
 
-def adopt_campaign(root,source,proof_root,output):
+def adopt_campaign(root,source,proof_root,output,execution_migration=None):
     """Metadata-only owner adoption. Existing native workers are untouched."""
     from tools.qwen_world_compare.campaign import make_plan,expected_source_files
     root,source,output=map(Path,(root,source,output));directory=root/'campaign'
     with(directory/'owner.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         old=json.loads((root/'RUNS.json').read_text());state=json.loads((directory/'STATE.json').read_text())
-        plan=make_plan(source/'configs/qwen_world_compare/campaign.yaml',source)
+        plan=make_plan(source/'configs/qwen_world_compare/campaign.yaml',source,execution_migration=execution_migration)
         full=expected_source_files(source);train=source_files();proofs={}
         for key in('root','common','data_paths','stages','IL_updates','RL_updates','IL_DEV_updates','RL_DEV_updates',
                     'inference','train_seed','evaluation_seed','DEV_count','NAVTEST_count','logical_IL_scene_exposures_per_arm',
@@ -85,12 +90,14 @@ def main():
     p.add_argument('--cpu-prefetch-depth',type=int,choices=(1,2),default=2)
     p.add_argument('--proof',action='append')
     p.add_argument('--adopt-campaign');p.add_argument('--native-proof-root')
+    p.add_argument('--training-source');p.add_argument('--controller-migration')
     p.add_argument('--activate-architecture',choices=list('ABCD'));p.add_argument('--root');p.add_argument('--receipt');p.add_argument('--host')
     p.add_argument('--lease-slot',choices=('primary','shared'),default='shared');p.add_argument('--share-min-free-mib',type=int,default=40000)
     a=p.parse_args();source=Path(__file__).resolve().parents[2]
     if a.adopt_campaign:
         if not a.native_proof_root or not a.output:raise ValueError('Adoption requires actual native proofs and an archive directory')
-        return adopt_campaign(a.adopt_campaign,source,a.native_proof_root,a.output)
+        return adopt_campaign(a.adopt_campaign,Path(a.training_source).resolve()if a.training_source else source,
+            a.native_proof_root,a.output,a.controller_migration)
     if a.activate_architecture:
         return activate(a.root,a.activate_architecture,a.receipt,a.host,a.lease_slot,a.share_min_free_mib)
     if not(a.checkpoint and a.output and a.checkpoint_policy and a.proof):raise ValueError('Pinning needs parent, execution policy and actual equivalence proofs')

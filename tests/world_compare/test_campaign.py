@@ -94,6 +94,15 @@ def test_execution_hold_blocks_restart_without_touching_other_running_jobs(insta
     assert next(iter(instance.state['jobs'].values()))['status']=='RUNNING'
 
 
+def test_actual_invocation_time_overrides_alphabetical_job_prefix(instance):
+    instance.state['jobs']={
+        'zzz_old':dict(logical='A_IL_old',family='A_IL',at=100,attempt=1),
+        'aaa_new':dict(logical='A_IL_new',family='A_IL',at=200,attempt=1)}
+    # JSON writers can sort keys; source-version/name prefixes are not time.
+    instance.state=json.loads(json.dumps(instance.state,sort_keys=True))
+    assert instance._last_family('A_IL')['logical']=='A_IL_new'
+
+
 def test_running_resume_family_does_not_start_another_learner_when_checkpoint_advances(instance,monkeypatch):
     instance._training('A','IL');old=list(instance.state['jobs'].values())[-1]
     old['status']='COMPLETE'

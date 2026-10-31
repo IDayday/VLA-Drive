@@ -27,7 +27,7 @@ from starVLA.rl.qwen_world_postcot.checkpoint import atomic_json
 SCHEMA = 'qwen_world_compare_RL_engineering_acceptance_v1'
 OPS_SCHEMA = 'qwen_world_compare_controller_migration_v1'
 OPS_ONLY = frozenset('tools/qwen_world_compare/'+name for name in
-                     ('campaign.py', 'qualify_rl.py', 'qualify.py', 'profile.py')) | frozenset({
+                     ('campaign.py', 'qualify_rl.py', 'qualify.py', 'profile.py','prepare_execution_handoff.py')) | frozenset({
                          'starVLA/rl/qwen_world_compare/profiling.py'})
 UPDATES = 4
 MID_UPDATE = 2

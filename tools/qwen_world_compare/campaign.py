@@ -221,14 +221,15 @@ class Campaign:
             else:entry.update(status='RUNNING',result=result)
 
     def _history(self,logical):
-        return [v for v in self.state['jobs'].values()if v['logical']==logical]
+        values=[v for v in self.state['jobs'].values()if v['logical']==logical]
+        return [v for _,v in sorted(enumerate(values),key=lambda item:(item[1].get('at',0),item[1].get('attempt',0),item[0]))]
 
     def _last(self,logical):
         values=self._history(logical);return values[-1]if values else None
 
     def _last_family(self,family):
         values=[v for v in self.state['jobs'].values()if v.get('family',v['logical'])==family]
-        return values[-1]if values else None
+        return max(enumerate(values),key=lambda item:(item[1].get('at',0),item[1].get('attempt',0),item[0]))[1]if values else None
 
     def _can_launch(self,logical):
         history=self._history(logical)
