@@ -1,0 +1,29 @@
+{
+  "schema": "world_report_primary_preference_flow_literature_v1",
+  "verified_utc": "2026-10-31T00:59:37.048457+00:00",
+  "status": "VERIFIED_REPORT_ASSOCIATIONS",
+  "benchmark_scores_compared": false,
+  "papers": [
+    {
+      "name": "DriveDPO · NeurIPS2025",
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2025/hash/750337e1301941f81ae31a90e0a1c181-Abstract-Conference.html",
+      "finding_zh": "NAVSIM轨迹级SafetyDPO；策略是离散anchor上的softmax，并使用标准轨迹DPO。",
+      "relevance_zh": "迁移判断：我方连续Flow需明确CFM代理，不能直接复制其离散logπ；当前方法不是DriveDPO复现。",
+      "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2025/file/750337e1301941f81ae31a90e0a1c181-Paper-Conference.pdf"
+    },
+    {
+      "name": "FPO++ · arXiv2602.02481v2",
+      "url": "https://arxiv.org/html/2602.02481v2",
+      "version_utc": "2026-10-13",
+      "finding_zh": "逐噪声／时间样本的CFM比率裁剪与非对称信赖域；其收益依赖奖励机制，操作微调实验未采用ASPO。",
+      "relevance_zh": "v2 §4.4表明ASPO在稀疏／可利用的shaping奖励下会退化，操作微调采用PPO；trick不能默认迁移。当前离线pair辅助不是FPO++。"
+    },
+    {
+      "name": "PNAPO · ICML2026",
+      "url": "https://proceedings.mlr.press/v306/lu26ai.html",
+      "finding_zh": "面向RF图像偏好，保留生成winner／loser的prior noise，以噪声—端点插值构造离线代理。",
+      "relevance_zh": "我方三步SDE还有额外innovation，仅保存prior不能复现完整生成路径；当前代理不宣称PNAPO严格复现。"
+    }
+  ],
+  "official_DriveDPO_PDF_verified_utc": "2026-10-31T01:14:43.111146+00:00"
+}

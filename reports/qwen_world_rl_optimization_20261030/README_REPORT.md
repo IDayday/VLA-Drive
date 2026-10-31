@@ -2,12 +2,12 @@
 
 固定持续报告：/mnt/project/qwen-world-rl-optimization-20261030/report.html
 
-本归档保留七节中文研究报告、八组标准科学图（SVG/PNG/PDF）、展示/采集源码和小型结论快照。报告版本时间见 editorial_snapshot_summary.json。当前分数、停止状态和正在进行的诊断均从完整结果或独立收据汇总；TRAIN 与完整 NAVTEST 分开，partial 不发布均分。
+本归档保留七节中文研究报告、九组标准科学图（SVG/PNG/PDF）、展示/采集源码和小型结论快照。报告版本时间见 editorial_snapshot_summary.json。当前分数、停止状态和正在进行的诊断均从完整结果或独立收据汇总；TRAIN 与完整 NAVTEST 分开，partial 不发布均分。
 
 - reporting/render_report.py：证据采集、完整性检查、原子输出和唯一 watch owner。
 - reporting/research_report.py：研究结论与图表展示层，每次生成重新加载。
 - reporting/report_events.py：原有 owner STATE 的 inotify 通知和去重。
-- reporting/figures/：八组图件；PPO算法、数据路线、NFT与训练panel使用分开的图。
+- reporting/figures/：九组图件；PPO算法、数据路线、NFT与训练panel使用分开的图。
 - report.html：本次归档页面；部分原始证据仍链接运行目录，权重、cache、scene raw 与 NPZ 不归档。
 
 现有 watcher 保持 1800 秒常规更新及阶段事件更新。生成一次可运行：
@@ -23,3 +23,7 @@
 2026-10-31更新：报告优先展示SafetyEP/MemoryLR20完整10k匹配及NC风险，动态读最终TRAIN偏好manifest和纵向zero诊断。新授权收据允许hosts列表，权限激活与库存证据分开；最新REQUEST覆盖旧8h时间窗。报告watch保持原PID和固定30分钟deadline，不操作科学运行。
 
 2026-10-31偏好研究更新：区分明确结论、待验证假设与两臂5k执行状态；5261pairs对应910有效优先场景，90无pair场景保留全量采样机会。加入完整历史TRAIN rollout/优势/unknown审计，固定theta探针仅条件展示实际JSON。Replay对Full隔离采样，CFM对Replay隔离辅助；没有预填研究成绩。
+
+本轮首页增加平台期路线停止证据与下一复核点；Safety主线先到20k、50k仅上限，两偏好pilot并行。四旧线真实结束，FULL/SAFE回收偏晚如实记录，4个8rank槽位不当作32张独占GPU。第九张图展示同theta ODE/SDE局部净损害及rare-repair反例；三篇primary仅作迁移关联，无跨论文分数比较。
+
+本轮首页增加平台期路线真实停止与下次复核：Safety先到20k，50k仅上限，偏好两臂并行。FULL/SAFE回收偏晚如实记录，4个8rank槽位不等于32张独占GPU。第九张图呈现同theta ODE/SDE局部净损害及rare-repair反例；三篇primary仅作迁移关联，不比较论文分数。0.03首轮路径代码失败按运行问题展示，未宣称算法效果或正式训练已启动。

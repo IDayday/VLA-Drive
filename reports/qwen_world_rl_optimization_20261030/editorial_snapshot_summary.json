@@ -1,8 +1,11 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 00:56:49 UTC",
+  "generated_utc": "2026-10-31 01:37:24 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
-  "layout": "7 research chapters; 8 scientific figures; operations and hashes folded",
+  "layout": {
+    "main_sections": 7,
+    "scientific_figures": 9
+  },
   "training_seed": 42,
   "inference_seed": 2101,
   "NAVTEST_scene_denominator": 12146,
@@ -337,6 +340,28 @@
     }
   ],
   "stopped": {
+    "PPO_MEMORYLR20": {
+      "status": "STOPPED_FUTILITY",
+      "checkpoint": {
+        "files_sha256": "9f110d72d0904301806172fb4cd478f845a8aec63260c836d20ac70028b2cff4",
+        "next_inner": 0,
+        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_MEMORYLR20/checkpoints/update010000_inner0",
+        "phase": "READY",
+        "updates": 10000
+      },
+      "at": "2026-10-31T01:10:05.873273+00:00"
+    },
+    "PPO_SAFE_COMFORT": {
+      "status": "STOPPED_FUTILITY",
+      "checkpoint": {
+        "files_sha256": "73274db6b4ceedb6686db8bbd1d80d8c7474d5effacc2a2370b0f831a1cc72ce",
+        "next_inner": 2,
+        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFE_COMFORT/checkpoints/update049958_inner2",
+        "phase": "INNER_COMMITTED",
+        "updates": 49958
+      },
+      "at": "2026-10-31T01:24:42.350341+00:00"
+    },
     "CISPO_FULL": {
       "status": "STOPPED_FUTILITY",
       "checkpoint": {
@@ -370,6 +395,28 @@
       },
       "at": "2026-10-30T11:10:45.928727+00:00"
     },
+    "PPO_ADAPTIVE": {
+      "status": "STOPPED_FUTILITY",
+      "checkpoint": {
+        "files_sha256": "0e91ce9f27558c9dd0b739c07ff27cf562018c67ea54874fde0401ec74af76c6",
+        "next_inner": 1,
+        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ADAPTIVE/checkpoints/update027545_inner1",
+        "phase": "INNER_COMMITTED",
+        "updates": 27545
+      },
+      "at": "2026-10-31T01:24:50.950858+00:00"
+    },
+    "PPO_ANCHOR40": {
+      "status": "STOPPED_FUTILITY",
+      "checkpoint": {
+        "files_sha256": "c153bb54cdfdddeda0e900f00644e21e0bd6ff2b2f10d5a78ac43af47346ac63",
+        "next_inner": 2,
+        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ANCHOR40/checkpoints/update033618_inner2",
+        "phase": "INNER_COMMITTED",
+        "updates": 33618
+      },
+      "at": "2026-10-31T01:24:20.733585+00:00"
+    },
     "PPO_BATCHSTD": {
       "status": "STOPPED_FUTILITY",
       "checkpoint": {
@@ -380,6 +427,17 @@
         "updates": 25329
       },
       "at": "2026-10-30T16:51:08.576070+00:00"
+    },
+    "PPO_FULL": {
+      "status": "STOPPED_FUTILITY",
+      "checkpoint": {
+        "files_sha256": "726ff5cf950f0693f1abdcbe43f75749f8959cc4ab860d1df905c4ea8a93d6a3",
+        "next_inner": 0,
+        "path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update048896_inner0",
+        "phase": "READY",
+        "updates": 48896
+      },
+      "at": "2026-10-31T01:24:40.273847+00:00"
     }
   },
   "paired10k": {
@@ -476,126 +534,33 @@
     "live owner locks"
   ],
   "figure_assets": [
-    {
-      "path": "reporting/figures/research_data_navtest.pdf",
-      "sha256": "527db30812e7b0a0b1d8c4fdf371fd1493690614a48dd55144c7c5d8064c8472",
-      "bytes": 17307
-    },
-    {
-      "path": "reporting/figures/research_data_navtest.png",
-      "sha256": "dc9b53a8d3fe920f989a0e3e01f2bf74bc9415e17924a3ae98b1835176bf519a",
-      "bytes": 78674
-    },
-    {
-      "path": "reporting/figures/research_data_navtest.svg",
-      "sha256": "6c36ef69595332ca1eb4375e9ce49570ce8f1373e580128534d9f9dd1b01c1ed",
-      "bytes": 34572
-    },
-    {
-      "path": "reporting/figures/research_full_repairs.pdf",
-      "sha256": "7abe2ae0d545a525d6d2961ef8a83393756b23c8624c2f37f659c4ccaa80f30d",
-      "bytes": 16205
-    },
-    {
-      "path": "reporting/figures/research_full_repairs.png",
-      "sha256": "b2c6732bb77dc8f4a9322c00043b6c013d7016eb2147b44be5b326310c4455a4",
-      "bytes": 68381
-    },
-    {
-      "path": "reporting/figures/research_full_repairs.svg",
-      "sha256": "ecf20f38c7abce64a247e8220aa6ef8dff597b653d4938bf8df04bef1a8642ba",
-      "bytes": 40103
-    },
-    {
-      "path": "reporting/figures/research_matched_deltas.pdf",
-      "sha256": "185d0590cff89f45cd1acf1d576a00ba8529c9a7c22f085ed25abc5aa4c2d9d6",
-      "bytes": 14419
-    },
-    {
-      "path": "reporting/figures/research_matched_deltas.png",
-      "sha256": "62ed7f5914b33e533a3453dcd101a9e022817ac5c7f66e35eb066bd47ad50c88",
-      "bytes": 32707
-    },
-    {
-      "path": "reporting/figures/research_matched_deltas.svg",
-      "sha256": "17c042988a28ea89a8bb6439162a1da9bd6c17c0b1ef560781646c5423b53a36",
-      "bytes": 28325
-    },
-    {
-      "path": "reporting/figures/research_matched_ppo.pdf",
-      "sha256": "92a6476e9e77c18343c780eaa94f5636f6c5e93f943e808c0cdadb56c6e2ab32",
-      "bytes": 17944
-    },
-    {
-      "path": "reporting/figures/research_matched_ppo.png",
-      "sha256": "577c08fae44639fc6b997c51d9399de32fff532c44fe126e4d054c7e84113ca4",
-      "bytes": 89960
-    },
-    {
-      "path": "reporting/figures/research_matched_ppo.svg",
-      "sha256": "c1c9ba466da589ef8f10569dc78e69e329f457195557e1f6c5a9cc6393b75dcb",
-      "bytes": 37091
-    },
-    {
-      "path": "reporting/figures/research_nft_components.pdf",
-      "sha256": "a08cdfb54f8d5a1d737f7bb84d79c37b3f77113c10feae37bb90b7240f6e81e0",
-      "bytes": 17152
-    },
-    {
-      "path": "reporting/figures/research_nft_components.png",
-      "sha256": "203bd94cd60899e34668a86a344781d7ae08f748a2f09f8e4137170d03ab7ac6",
-      "bytes": 69807
-    },
-    {
-      "path": "reporting/figures/research_nft_components.svg",
-      "sha256": "c1e66424601d52f76cf737d0d924e8d1d581afdf1d98ef4d27627bfacfc04343",
-      "bytes": 34715
-    },
-    {
-      "path": "reporting/figures/research_nft_test.pdf",
-      "sha256": "144bb4258bca8740b8a7b6bdce0424d1f23b5ecf582e5d18ffff6ad03c0595ec",
-      "bytes": 15783
-    },
-    {
-      "path": "reporting/figures/research_nft_test.png",
-      "sha256": "07daca0ddb491020ba0d386b19d4b54d5eefd5d9cb6a18180b55747daf0240cb",
-      "bytes": 61996
-    },
-    {
-      "path": "reporting/figures/research_nft_test.svg",
-      "sha256": "3380e8756cfe9913d54fc23ad0cea2dbc0bc782001dfa9d263d1d052a3566dc9",
-      "bytes": 33410
-    },
-    {
-      "path": "reporting/figures/research_ppo_components.pdf",
-      "sha256": "5f10c3c9dcf8604b613f844cec71408bae3794b7e4be78e437a350bdc27da248",
-      "bytes": 25914
-    },
-    {
-      "path": "reporting/figures/research_ppo_components.png",
-      "sha256": "8280a26e9b60dc1585986abf627bb72740514b32c401199dd00511ec3e875a04",
-      "bytes": 74065
-    },
-    {
-      "path": "reporting/figures/research_ppo_components.svg",
-      "sha256": "4708bb97f7b72eb8835d2c18753527ef274a977c80baee47580c6a83d185ba45",
-      "bytes": 46381
-    },
-    {
-      "path": "reporting/figures/research_train_panel.pdf",
-      "sha256": "a11221914235b7738e40d59c9c685a6da38c118bf3e41aed8cc10d940ccf6b80",
-      "bytes": 17618
-    },
-    {
-      "path": "reporting/figures/research_train_panel.png",
-      "sha256": "c7aa5088185487f18ce84334e22451808e03bd19a6dd95aefa3ce1dc0b93c281",
-      "bytes": 88286
-    },
-    {
-      "path": "reporting/figures/research_train_panel.svg",
-      "sha256": "0474418daaf5bf5c772b061c5aa0dd95e258a68822b42c9b9b8826bc924ee17b",
-      "bytes": 36010
-    }
+    "reporting/figures/research_data_navtest.pdf",
+    "reporting/figures/research_data_navtest.png",
+    "reporting/figures/research_data_navtest.svg",
+    "reporting/figures/research_fixed_theta_probe.pdf",
+    "reporting/figures/research_fixed_theta_probe.png",
+    "reporting/figures/research_fixed_theta_probe.svg",
+    "reporting/figures/research_full_repairs.pdf",
+    "reporting/figures/research_full_repairs.png",
+    "reporting/figures/research_full_repairs.svg",
+    "reporting/figures/research_matched_deltas.pdf",
+    "reporting/figures/research_matched_deltas.png",
+    "reporting/figures/research_matched_deltas.svg",
+    "reporting/figures/research_matched_ppo.pdf",
+    "reporting/figures/research_matched_ppo.png",
+    "reporting/figures/research_matched_ppo.svg",
+    "reporting/figures/research_nft_components.pdf",
+    "reporting/figures/research_nft_components.png",
+    "reporting/figures/research_nft_components.svg",
+    "reporting/figures/research_nft_test.pdf",
+    "reporting/figures/research_nft_test.png",
+    "reporting/figures/research_nft_test.svg",
+    "reporting/figures/research_ppo_components.pdf",
+    "reporting/figures/research_ppo_components.png",
+    "reporting/figures/research_ppo_components.svg",
+    "reporting/figures/research_train_panel.pdf",
+    "reporting/figures/research_train_panel.png",
+    "reporting/figures/research_train_panel.svg"
   ],
   "paired20k": {
     "PPO_SAFE_COMFORT_minus_PPO_FULL": {
@@ -995,10 +960,9 @@
       "training-vlawm-zt",
       "training-vlawm-zt2"
     ],
-    "known_inventory_UUIDs": 72,
+    "known_inventory_UUIDs": 80,
     "unknown_inventory_hosts": [
-      "training-vla-zt3",
-      "training-vlawm-tsinghua-zt6"
+      "training-vla-zt3"
     ],
     "temporary_window": {
       "hosts": [],
@@ -2689,64 +2653,699 @@
   },
   "preference_mixture_review": {},
   "fixed_theta_probe": {
-    "registration": {
-      "schema": "TRAIN_fixed_theta_matched_root_ODE8_SDE8_probe_v1_registration",
-      "status": "PREPARED_NOT_DISPATCHED",
-      "at": 1793407424.6880462,
-      "TRAIN_unique_scenes": 15,
-      "arms": [
+    "status": "COMPLETE",
+    "per_model": {
+      "PPO_ADAPTIVE": {
+        "status": "COMPLETE",
+        "updates": 26000,
+        "count": 15,
+        "ODE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 76.00566837025805,
+          "canonical_zero": 18,
+          "feasible": 90
+        },
+        "SDE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 41.95813525532495,
+          "canonical_zero": 57,
+          "feasible": 50
+        },
+        "interpretation": "selected TRAIN diagnostic cohort; fixed theta and identical initial roots; G8 mean/feasibility are not deployment best-of8 or heldout score; no training update"
+      },
+      "PPO_FULL": {
+        "status": "COMPLETE",
+        "updates": 35000,
+        "count": 15,
+        "ODE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 49.33461261272287,
+          "canonical_zero": 50,
+          "feasible": 54
+        },
+        "SDE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 29.73374095784895,
+          "canonical_zero": 73,
+          "feasible": 34
+        },
+        "interpretation": "selected TRAIN diagnostic cohort; fixed theta and identical initial roots; G8 mean/feasibility are not deployment best-of8 or heldout score; no training update"
+      },
+      "PPO_SAFETY_EP": {
+        "status": "COMPLETE",
+        "updates": 10000,
+        "count": 15,
+        "ODE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 61.48332403843751,
+          "canonical_zero": 39,
+          "feasible": 72
+        },
+        "SDE8": {
+          "candidate_count": 120,
+          "mean_PDMS": 31.513154066272584,
+          "canonical_zero": 72,
+          "feasible": 36
+        },
+        "interpretation": "selected TRAIN diagnostic cohort; fixed theta and identical initial roots; G8 mean/feasibility are not deployment best-of8 or heldout score; no training update"
+      }
+    },
+    "matched_diagnosis": {
+      "schema": "selected_TRAIN15_fixed_theta_matched_root_sampler_diagnosis_v1",
+      "status": "COMPLETE",
+      "at": "2026-10-31T01:16:35.890420+00:00",
+      "scope": "15个TRAIN1024历史零分/恢复场景，全部为预先固定的shared selected cohort；不是103288总体率，也不是NAVTEST。三臂checkpoint更新数不同，禁止以本probe跨臂排算法强弱。",
+      "controls": {
+        "same_theta_within_each_arm": true,
+        "same_current_observation_within_scene": true,
+        "all45_scene_root8_bit_identical": true,
+        "all45_scene_pre_SDE_7step_prefix_bit_identical": true,
+        "same_prior_hash_across_arms": true,
+        "varied": "Only final3 registered rigorousSDE transitions vs source pureODE branch; includes both stochastic innovations and rigorous drift correction. No optimizer step.",
+        "ODE8_definition": "source sampler deterministic=True Euler velocity branch; canonical deployment single native clean-x ODE B1 seed2101 recorded separately and reused, not best-of8",
+        "scoring": "official independent reference-candidate pair canonical PDM; 16-candidate pool does not renormalize EP by best candidate"
+      },
+      "conclusions_zh": [
+        "同θ同root的控制排除了跨训练时点参数变化：在这15个预选难点/恢复TRAIN场景上，SDE0.1净损失严格可行候选，三条路线均如此；这是局部受控证据，不是全量训练收益结论。",
+        "SDE同时能救出少量ODE无法生成的可行轨迹。长期zero场景7af4e577726c5be7在三臂固定checkpoint都表现为B1zero且ODE8全zero，SDE8分别含2/2/1条严格可行候选（ADAPT/FULL/SAFETY）。不能因此取消所有随机探索。",
+        "在该持续zero场景，当前瓶颈至少包含候选发现后如何让部署ODE分布获得收益，而非单纯所有候选无可行解或无奖励信号。偏好/endpoint优化、信用分配与ILanchor是待检假说，不从本probe直接断言某个训练机制为唯一原因。",
+        "lower-noise0.03有必要作有限诊断：可能保留关键修复又减少0.1对可行候选的大量破坏，但目前完全未测，不能称其已更优，也不直接扩为新长训练臂。",
+        "恢复场景bc8b1e06aca55794在SAFETY10k的B1和ODE8均满分，SDE0.1却全部零分并产生非零结构优势；探索制造失败后的可训练信号不能本身视为改善。"
+      ],
+      "next_finite_comparison": {
+        "name": "same_theta_same_root_same_base_innovations_SDE003",
+        "status": "PROPOSED_NOT_LAUNCHED",
+        "priority": "保持当前偏好CFM pilot先行；有限低噪声诊断与其互补，不重复三臂长训练。",
+        "pinned": "同3个sealed checkpoints、同15TRAIN、同CPU generator seed42+tokenhash、同8prior与同3个基础innovation draws/clip；只noise_level0.1→0.03。",
+        "candidate_budget": 360,
+        "new_training_seeds": 0,
+        "canonical_B1_reused": true,
+        "ODE8_control_reused": true,
+        "SDE01_control_reused": true,
+        "runtime_rule": "新增独立诊断receipt/source，不热改已冻结probe或训练run；noise_level同时缩小diffusion和rigorous mean correction，不能声称只改方差。",
+        "metrics": [
+          "matched-root feasible损失/修复",
+          "canonical zero变化",
+          "NC/DAC/TTC各自恶化/恢复",
+          "候选均值PDMS（非best-of8部署）",
+          "逐scene所有候选全零频率",
+          "7af持久zero严格可行witness是否保留",
+          "实际轨迹扰动/事件时刻/ND占比"
+        ],
+        "decision_rules": [
+          "若.03显著减少匹配root可行损失，且保留persistent-zero的可行发现，才考虑独立小budget noise训练对照。",
+          "若.03只是更贴近ODE均值却丢失唯一修复能力，需考虑混合探索/少量高noise支路，先保持额外探索预算一致，不能只按均分选。",
+          "若仍多数训练有正信号而部署zero，优先已有safe候选的noise-aware preference/endpoint对齐，dense-allzero辅助暂不作为此scene主解。",
+          "若.03/.1/ODE对某scene都全零且无cost方向，再按dense design中的有效性与非劣pair判据考虑局部辅助。"
+        ]
+      },
+      "arms": {
+        "PPO_ADAPTIVE": {
+          "counts": {
+            "scenes": 15,
+            "both_strictly_feasible": 45,
+            "ODE_feasible_SDE_not": 45,
+            "SDE_feasible_ODE_not": 5,
+            "neither_strictly_feasible": 25,
+            "canonical_zero_repaired_by_SDE": 6,
+            "canonical_positive_lost_to_SDE_zero": 45,
+            "SDE_score_better": 16,
+            "SDE_score_worse": 77,
+            "score_equal": 27,
+            "canonical_B1_zero": 3,
+            "persistent_all_observed_TRAIN_ODE_zero": 1,
+            "ODE8_allzero": 2,
+            "SDE8_allzero": 0,
+            "ODE8_all_strict_safety_fail": 2,
+            "SDE8_all_strict_safety_fail": 1,
+            "B1_zero_but_ODE8_has_feasible": 1,
+            "B1_zero_but_SDE8_has_feasible": 3,
+            "ODE8_allzero_SDE8_has_signal": 2,
+            "ODE8_has_positive_SDE8_allzero": 0,
+            "ODE8_nonzero_locked_formula_groups": 8,
+            "SDE8_nonzero_locked_formula_groups": 15,
+            "ODE8_all_safe_EP1_saturated_groups": 5,
+            "SDE8_all_safe_EP1_saturated_groups": 0
+          }
+        },
+        "PPO_FULL": {
+          "counts": {
+            "scenes": 15,
+            "both_strictly_feasible": 23,
+            "ODE_feasible_SDE_not": 31,
+            "SDE_feasible_ODE_not": 11,
+            "neither_strictly_feasible": 55,
+            "canonical_zero_repaired_by_SDE": 14,
+            "canonical_positive_lost_to_SDE_zero": 37,
+            "SDE_score_better": 19,
+            "SDE_score_worse": 55,
+            "score_equal": 46,
+            "canonical_B1_zero": 6,
+            "persistent_all_observed_TRAIN_ODE_zero": 4,
+            "ODE8_allzero": 6,
+            "SDE8_allzero": 2,
+            "ODE8_all_strict_safety_fail": 8,
+            "SDE8_all_strict_safety_fail": 4,
+            "B1_zero_but_ODE8_has_feasible": 0,
+            "B1_zero_but_SDE8_has_feasible": 3,
+            "ODE8_allzero_SDE8_has_signal": 4,
+            "ODE8_has_positive_SDE8_allzero": 0,
+            "ODE8_nonzero_locked_formula_groups": 7,
+            "SDE8_nonzero_locked_formula_groups": 13,
+            "ODE8_all_safe_EP1_saturated_groups": 2,
+            "SDE8_all_safe_EP1_saturated_groups": 0
+          }
+        },
+        "PPO_SAFETY_EP": {
+          "counts": {
+            "scenes": 15,
+            "both_strictly_feasible": 31,
+            "ODE_feasible_SDE_not": 41,
+            "SDE_feasible_ODE_not": 5,
+            "neither_strictly_feasible": 43,
+            "canonical_zero_repaired_by_SDE": 7,
+            "canonical_positive_lost_to_SDE_zero": 40,
+            "SDE_score_better": 16,
+            "SDE_score_worse": 60,
+            "score_equal": 44,
+            "canonical_B1_zero": 6,
+            "persistent_all_observed_TRAIN_ODE_zero": 4,
+            "ODE8_allzero": 4,
+            "SDE8_allzero": 2,
+            "ODE8_all_strict_safety_fail": 6,
+            "SDE8_all_strict_safety_fail": 4,
+            "B1_zero_but_ODE8_has_feasible": 0,
+            "B1_zero_but_SDE8_has_feasible": 3,
+            "ODE8_allzero_SDE8_has_signal": 3,
+            "ODE8_has_positive_SDE8_allzero": 1,
+            "ODE8_nonzero_locked_formula_groups": 6,
+            "SDE8_nonzero_locked_formula_groups": 14,
+            "ODE8_all_safe_EP1_saturated_groups": 4,
+            "SDE8_all_safe_EP1_saturated_groups": 0
+          }
+        }
+      },
+      "persistent_shared_TRAIN_zero": {
+        "token": "7af4e577726c5be7",
+        "ADAPT_persistence": "IL+1k..26k全部27个已观测ODE点为0",
+        "by_arm": {
+          "PPO_ADAPTIVE": {
+            "canonical_single_ODE_PDMS": 0.0,
+            "ODE8": {
+              "canonical_zero": 8,
+              "positive_canonical": 0,
+              "strictly_feasible": 0,
+              "has_nonzero_locked_formula_signal": false,
+              "actual_training_loss_or_gradient_measured": false
+            },
+            "SDE8": {
+              "canonical_zero": 4,
+              "positive_canonical": 4,
+              "strictly_feasible": 2,
+              "has_nonzero_locked_formula_signal": true,
+              "actual_training_loss_or_gradient_measured": false
+            }
+          },
+          "PPO_FULL": {
+            "canonical_single_ODE_PDMS": 0.0,
+            "ODE8": {
+              "canonical_zero": 8,
+              "positive_canonical": 0,
+              "strictly_feasible": 0,
+              "has_nonzero_locked_formula_signal": false,
+              "actual_training_loss_or_gradient_measured": false
+            },
+            "SDE8": {
+              "canonical_zero": 5,
+              "positive_canonical": 3,
+              "strictly_feasible": 2,
+              "has_nonzero_locked_formula_signal": true,
+              "actual_training_loss_or_gradient_measured": false
+            }
+          },
+          "PPO_SAFETY_EP": {
+            "canonical_single_ODE_PDMS": 0.0,
+            "ODE8": {
+              "canonical_zero": 8,
+              "positive_canonical": 0,
+              "strictly_feasible": 0,
+              "has_nonzero_locked_formula_signal": false,
+              "actual_training_loss_or_gradient_measured": false
+            },
+            "SDE8": {
+              "canonical_zero": 6,
+              "positive_canonical": 2,
+              "strictly_feasible": 1,
+              "has_nonzero_locked_formula_signal": true,
+              "actual_training_loss_or_gradient_measured": false
+            }
+          }
+        }
+      }
+    }
+  },
+  "route_priority_review": {
+    "schema": "world_RL_route_priority_review_v1",
+    "at_unix": 1793409829.7367783,
+    "budget_is_ceiling_not_commitment": true,
+    "all_training_seeds": [
+      42
+    ],
+    "actions": [
+      {
+        "arm": "PPO_FULL",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_FULL.json",
+        "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_FULL/formal_to050000_attempt001",
+        "job_already_completed": false,
+        "cooperative_stop_requested": true,
+        "completed_scores": [
+          {
+            "updates": 1000,
+            "PDMS": 90.43253691024785,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 5000,
+            "PDMS": 90.58224721647319,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u005000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 10000,
+            "PDMS": 91.01948815223066,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 12000,
+            "PDMS": 90.66092757632998,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u012000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 20000,
+            "PDMS": 90.79733531090675,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u020000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 35000,
+            "PDMS": 90.79828611055491,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u035000_NAVTEST/SUMMARY.json"
+          }
+        ],
+        "best_completed": {
+          "updates": 10000,
+          "PDMS": 91.01948815223066,
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json"
+        },
+        "previous_host": "training-vlawm-zt",
+        "previous_lease": "primary",
+        "freed_slot_confirmed": true,
+        "stopped_receipt": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_FULL.STOPPED.json",
+        "sealed_updates": 48896,
+        "sealed_next_inner": 0,
+        "sealed_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/relocated_vla3_20261030T090354Z/PPO_FULL/checkpoints/update048896_inner0"
+      },
+      {
+        "arm": "PPO_SAFE_COMFORT",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_SAFE_COMFORT.json",
+        "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFE_COMFORT/formal_to050000_attempt001",
+        "job_already_completed": false,
+        "cooperative_stop_requested": true,
+        "completed_scores": [
+          {
+            "updates": 1000,
+            "PDMS": 90.45746312778724,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u001000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 5000,
+            "PDMS": 90.66825731961067,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u005000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 10000,
+            "PDMS": 91.07013032146756,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u010000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 20000,
+            "PDMS": 90.95077020362523,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u020000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 35000,
+            "PDMS": 90.81620515847517,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u035000_NAVTEST/SUMMARY.json"
+          }
+        ],
+        "best_completed": {
+          "updates": 10000,
+          "PDMS": 91.07013032146756,
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFE_COMFORT_u010000_NAVTEST/SUMMARY.json"
+        },
+        "previous_host": "training-vla-zt",
+        "previous_lease": "primary",
+        "freed_slot_confirmed": true,
+        "stopped_receipt": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_SAFE_COMFORT.STOPPED.json",
+        "sealed_updates": 49958,
+        "sealed_next_inner": 2,
+        "sealed_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFE_COMFORT/checkpoints/update049958_inner2"
+      },
+      {
+        "arm": "PPO_ANCHOR40",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_ANCHOR40.json",
+        "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_ANCHOR40/formal_to035000_attempt001",
+        "job_already_completed": false,
+        "cooperative_stop_requested": true,
+        "completed_scores": [
+          {
+            "updates": 1000,
+            "PDMS": 90.55744212936303,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u001000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 5000,
+            "PDMS": 90.46391417206263,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u005000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 10000,
+            "PDMS": 91.05431708074612,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u010000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 20000,
+            "PDMS": 90.68470221422872,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u020000_NAVTEST/SUMMARY.json"
+          }
+        ],
+        "best_completed": {
+          "updates": 10000,
+          "PDMS": 91.05431708074612,
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ANCHOR40_u010000_NAVTEST/SUMMARY.json"
+        },
+        "previous_host": "training-vla-zt",
+        "previous_lease": "research",
+        "freed_slot_confirmed": true,
+        "stopped_receipt": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_ANCHOR40.STOPPED.json",
+        "sealed_updates": 33618,
+        "sealed_next_inner": 2,
+        "sealed_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ANCHOR40/checkpoints/update033618_inner2"
+      },
+      {
+        "arm": "PPO_ADAPTIVE",
+        "decision": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_ADAPTIVE.json",
+        "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_ADAPTIVE/formal_to028000_attempt001",
+        "job_already_completed": false,
+        "cooperative_stop_requested": true,
+        "completed_scores": [
+          {
+            "updates": 1000,
+            "PDMS": 90.32274973270987,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u001000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 5000,
+            "PDMS": 90.73931139174515,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u005000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 10000,
+            "PDMS": 90.81917046555932,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u010000_NAVTEST/SUMMARY.json"
+          },
+          {
+            "updates": 20000,
+            "PDMS": 90.85681760078644,
+            "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u020000_NAVTEST/SUMMARY.json"
+          }
+        ],
+        "best_completed": {
+          "updates": 20000,
+          "PDMS": 90.85681760078644,
+          "summary": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_ADAPTIVE_u020000_NAVTEST/SUMMARY.json"
+        },
+        "previous_host": "training-vlawm-tsinghua-zt",
+        "previous_lease": "research",
+        "freed_slot_confirmed": true,
+        "stopped_receipt": "/mnt/project/qwen-world-rl-optimization-20261030/owners/CAMPAIGN/arm_decisions/PPO_ADAPTIVE.STOPPED.json",
+        "sealed_updates": 27545,
+        "sealed_next_inner": 1,
+        "sealed_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_ADAPTIVE/checkpoints/update027545_inner1"
+      }
+    ],
+    "high_priority": [
+      "PPO_SAFETY_EP_to20k_then_evidence_review",
+      "PPO_PREF_REPLAY_and_CFM_to1k5k_matched_review",
+      "fixed_theta_noise003_finite_diagnosis"
+    ],
+    "single_additional_measurement": "PPO_ADAPTIVE exact27k full NAVTEST; no further TRAIN until reviewed",
+    "no_automatic_safety_only_pruning": true,
+    "checkpoints_and_native_state_preserved": true,
+    "status": "FOUR_NATIVE_TRAINING_CONTINUATIONS_STOPPED",
+    "updated_unix": 1793410066.4989963,
+    "freed_training_slots": 4,
+    "stopped_training_ranks": 32,
+    "distinct_physical_hosts": 3,
+    "physical_GPUs_not_claimed_exclusive": true,
+    "resource_reallocation": [
+      "retain SafetyEP8rank mainline onTsh5",
+      "retain Replay/CFM two8rank pilots",
+      "one finite adaptive27k NAVTEST review, no more ADAPT optimizer work",
+      "lower-noise003 finite diagnosis; promising result can justify a new bounded RL pilot"
+    ],
+    "sunk_compute_note": "FULL and SafeComfort had already reached48.9k and49.96k; this review came late. Actual sealed stops are reported, not hypothetical early-stop savings."
+  },
+  "safety_ep_continuation": {
+    "schema": "world_SafetyEP_mainline_continuation_v1",
+    "arm": "PPO_SAFETY_EP",
+    "decision": "CONTINUE_MAINLINE",
+    "at_unix": 1793409536.1664875,
+    "supersedes": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_10K_REVIEW_20261031.json",
+    "previous_registration": {
+      "algorithm": "ppo_safety_feasible_EP_credit",
+      "budget_review_required": true,
+      "completed_updates": 10000,
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_SAFETY_EP.yaml",
+      "config_sha256": "20320947b698df80d604255c7b336b3f5a75abbac61edfe68a4b067cfd3aa674",
+      "data_policy": "uniform_full",
+      "data_scenes": 103288,
+      "host": "training-vlawm-zt",
+      "hypothesis": "Only replace once-finalized advantages with fixed safety/feasible-EP decomposition and its global scale. Same IL70 knowledge, scope, input, raw canonical feedback, beta50, sampling and source PPO. Not explicit scene-risk inference.",
+      "id": "PPO_SAFETY_EP",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to010000_attempt001",
+      "last_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+      "lease": "research",
+      "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+      "module": "starVLA.rl.qwen_world_research_algorithms.safety_efficiency_entry",
+      "old_DEV_role": "TRAIN_DIAGNOSTIC; not held-out for full population arms",
+      "owner_state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/PPO_SAFETY_EP/STATE.json",
+      "parent_PDMS": 88.79290990699972,
+      "parent_updates": 70000,
+      "priority": 1,
+      "qualification_root": null,
+      "research_budget_updates": 10000,
+      "reviewed_prechild_failure": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to001000_attempt001/PRECHILD_OPERATOR_REVIEW.json",
+      "root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+      "source_sha": "121aa27aa99ce98f2f4095daee026b2b581cd288",
+      "stage_budget_updates": 10000,
+      "status": "PILOT_COMPLETE_REVIEW_REQUIRED",
+      "target_updates": 50000,
+      "updated_unix": 1793387914.5637734
+    },
+    "reason": "Highest observed complete NAVTEST PDMS and positive matched10k gain justify continued mainline measurement. Safety regression remains a monitored research outcome; it does not alone terminate this promising route. Preference study continues independently.",
+    "evidence": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/NEW_PILOT_MATCHED_REVIEW.json",
+    "resume_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+    "native_optimizer_RNG_pending_state_preserved": true,
+    "recipe_unchanged": true,
+    "scientific_source_unchanged": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+    "training_seed_unchanged": 42,
+    "next_natural_gate": 20000,
+    "subsequent_natural_gates": [
+      35000,
+      50000
+    ],
+    "new_research_budget_updates": 50000,
+    "automatic_safety_only_pruning": false,
+    "Test_selection_used": true,
+    "NAVTEST_used_for_training_scene_selection": false,
+    "new_job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_SAFETY_EP/formal_to020000_attempt001",
+    "status": "DISPATCHED_TO_20K_WITH_50K_MAINLINE_BUDGET"
+  },
+  "preference_deployment": {
+    "schema": "world_preference_study_deployment_v1",
+    "at_unix": 1793408916.8235931,
+    "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v9_preference_a2adf6958c7c",
+    "training": {
+      "PPO_PREF_REPLAY": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_PREF_REPLAY/formal_to001000_attempt001",
+      "PPO_PREF_CFM": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_PREF_CFM/formal_to001000_attempt001"
+    },
+    "probes": [
+      {
+        "arm": "PPO_ADAPTIVE",
+        "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/FIXED_THETA_ZERO_PROBE_20261031/PPO_ADAPTIVE/attempt001",
+        "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE",
+        "host": "training-vlawm-zt2",
+        "gpu": 0
+      },
+      {
+        "arm": "PPO_FULL",
+        "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/FIXED_THETA_ZERO_PROBE_20261031/PPO_FULL/attempt001",
+        "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL",
+        "host": "training-vlawm-zt2",
+        "gpu": 1
+      },
+      {
+        "arm": "PPO_SAFETY_EP",
+        "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/FIXED_THETA_ZERO_PROBE_20261031/PPO_SAFETY_EP/attempt001",
+        "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP",
+        "host": "training-vlawm-zt2",
+        "gpu": 2
+      }
+    ],
+    "probe_analysis_owner": {
+      "pid": 2276355,
+      "start_ticks": 1484753606,
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "/mnt/project/qwen-world-rl-optimization-20261030/analysis/probe_zero_rollouts_owner.py",
+        "--jobs-spec",
+        "/mnt/project/qwen-world-rl-optimization-20261030/owners/ZERO_ODE_SDE_20261031/JOBS.json",
+        "--output",
+        "/mnt/project/qwen-world-rl-optimization-20261030/owners/ZERO_ODE_SDE_20261031"
+      ]
+    },
+    "status": "DISPATCHED_AWAIT_NATIVE_CHILD_RECEIPTS"
+  },
+  "primary_research_links": {
+    "schema": "world_report_primary_preference_flow_literature_v1",
+    "verified_utc": "2026-10-31T00:59:37.048457+00:00",
+    "status": "VERIFIED_REPORT_ASSOCIATIONS",
+    "benchmark_scores_compared": false,
+    "papers": [
+      {
+        "name": "DriveDPO · NeurIPS2025",
+        "url": "https://proceedings.neurips.cc/paper_files/paper/2025/hash/750337e1301941f81ae31a90e0a1c181-Abstract-Conference.html",
+        "finding_zh": "NAVSIM轨迹级SafetyDPO；策略是离散anchor上的softmax，并使用标准轨迹DPO。",
+        "relevance_zh": "迁移判断：我方连续Flow需明确CFM代理，不能直接复制其离散logπ；当前方法不是DriveDPO复现。",
+        "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2025/file/750337e1301941f81ae31a90e0a1c181-Paper-Conference.pdf"
+      },
+      {
+        "name": "FPO++ · arXiv2602.02481v2",
+        "url": "https://arxiv.org/html/2602.02481v2",
+        "version_utc": "2026-10-13",
+        "finding_zh": "逐噪声／时间样本的CFM比率裁剪与非对称信赖域；其收益依赖奖励机制，操作微调实验未采用ASPO。",
+        "relevance_zh": "v2 §4.4表明ASPO在稀疏／可利用的shaping奖励下会退化，操作微调采用PPO；trick不能默认迁移。当前离线pair辅助不是FPO++。"
+      },
+      {
+        "name": "PNAPO · ICML2026",
+        "url": "https://proceedings.mlr.press/v306/lu26ai.html",
+        "finding_zh": "面向RF图像偏好，保留生成winner／loser的prior noise，以噪声—端点插值构造离线代理。",
+        "relevance_zh": "我方三步SDE还有额外innovation，仅保存prior不能复现完整生成路径；当前代理不宣称PNAPO严格复现。"
+      }
+    ],
+    "official_DriveDPO_PDF_verified_utc": "2026-10-31T01:14:43.111146+00:00"
+  },
+  "failure_guidance": {
+    "schema": "TRAIN_canonical_allzero_dense_failure_guidance_design_v1",
+    "status": "DESIGN_READY_NOT_DEPLOYED",
+    "proposed_next_arm": {
+      "name": "PPO_SAFETY_EP_TIE_ND_OCC_V1",
+      "status": "CONDITIONAL_PILOT_ONLY_NOT_REGISTERED_NOT_LAUNCHED",
+      "warm_start": "与SAFETY_EP continuation对照从同一sealed10k checkpoint分叉；完整继承优化器/RNG/source ancestry并用新科学身份登记变更，不热改既有run。",
+      "inherited": "full103288 uniform,seed42,模型/观察/current-memory+LoRA/K10 shift5/rigorousSDE0.1/4inner/sourcePPO/ILmeananchor全部不变。",
+      "activation": "8条canonical R=0；8条同NC=1,DAC=0,TTC=1；原structured A精确全0；全部41步NDflags/events/rawprogress有效。；t0 NDflag=False，t0无collision/TTC事件，初始输入/真实metriccache有效，禁止把初始已违法状态作为动作惩罚依据。",
+      "pair_rule": [
+        "只比较同scene同fresh group候选，不跨theta构造相对安全结论。",
+        "candidate w越界时间占比比l至少低0.05（40采样点中至少少2点）；作为唯一严格改善项。",
+        "w首次collision/TTC/non-drivable事件均不得更早；None按4s内未触发处理，比较时仅右删失，不认为超horizon安全。",
+        "w raw progress不得比l低超过1m；这是效率退化guard，不是越远越安全的奖励。Comfort/DrivingDirection不得更差，二者不加权换取安全。",
+        "不满足偏序/间隔条件则不生成pair；不随机打破完全tie。"
+      ],
+      "auxiliary_advantage": "a_i=(#wins_i-#losses_i)/(G-1),sum_i a_i=0,|a_i|<=1；在原structured A已经完成原global_std归一化后，仅eligible零组加eta*a_i，eta=0.1。不要将aux再次除以自身std；否则稀有微小信号会被放大到单位尺度。",
+      "mask": "为新非零eligible group重算PG mask；保留其他group原A/mask；aux/原优势随fresh rollout固定，4次inner复用。PPO ratio/clip保持原样。",
+      "reasons_for_excluding_other_signals": "collision/TTC elapsed time只作guard，rawprogress只作guard；此首臂不奖励晚撞、不以进度补偿NC/DAC失败，也不新加速度/长度/舒适度惩罚。",
+      "offline_selected_cohort_replay": {
+        "activated_groups": 160,
+        "total_groups": 175,
+        "distinct_tokens_with_activation": 5,
+        "pairs": 1563,
+        "bounded_aux_abs_max": 0.1,
+        "all_group_aux_sum_zero": true,
+        "main_positive_candidate_groups_modified": 0,
+        "replay_file": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FAILURE_GUIDANCE_AUX_REPLAY_20261031.json",
+        "qualification": "仅175历史组CPU代数回放，不是模型训练效果或独立175scene证据"
+      },
+      "prospective_minimal_budget": "若下方启动条件满足，新增单变量1000-update pilot，比较同budget的固定warm-start continuation；先监测实际eligible频率/unique-token覆盖，再以canonical ODE评价决定资源，不将proxy改善当最终成功。",
+      "initial_validity_guard": {
+        "all8_non_drivable_flag_at_t0_must_be_false": true,
+        "all8_collision_or_TTC_event_at_t0_must_be_absent": true,
+        "actual_historical_groups_passing": 175,
+        "initial_state_invalid_actionable": false,
+        "invalid_action": "只记asset/current-state validity diagnostic，不参与dense梯度与偏好排序；不从官方测试分母剔除。"
+      }
+    },
+    "conclusions_zh": [
+      "真正可补的信息主要是DAC违规持续时间：161个结构成本tie组中160个为NC=1/DAC=0/TTC=1，几何失误的过程差异被一个DAC=0完全压扁。",
+      "碰撞/TTC时间不是无用，但现有175组仅15组存在这类差异，且成本不同14组已有SAFETY fallback；首个dense臂不宜先堆collision时间权重。",
+      "raw progress每组都不同，却不能当安全密集奖励。把它用作不大幅退化的guard，比奖励更远/更快更稳妥。",
+      "这些组只覆盖9场景、142组来自同一token，说明可辨识性存在，并不说明全量数据普遍缺这项信号。当前SAFETY10k1000组zero-PG均为全安全EP1饱和，不能误诊为全失败。",
+      "所有这些监督读数来自训练privileged模拟/GT cache；actor输入仍只有当前图像、ego和导航，不新增未来GT/TTC/route输入。"
+    ]
+  },
+  "last_report_milestone": {
+    "id": "PORTFOLIO_NATIVE_PREF_PROBE_SAFETY_20261031T013911Z",
+    "scientific_result": false,
+    "evidence_kind": "completed_supplemental_analysis",
+    "reason": "Homepage real portfolio stops and next review; actual Safety continuation and preference children; fixedtheta tradeoff, primary links, and noise003 first-code-failure guard"
+  },
+  "adaptive27k_review": {},
+  "safety_evidence_review": {},
+  "noise003": {
+    "deployment": {
+      "status": "DISPATCHED",
+      "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_probe_noise003_sdeonly_db49222",
+      "at_unix": 1793410422.345381,
+      "jobs": [
         {
           "arm": "PPO_ADAPTIVE",
-          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE.json",
-          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE",
-          "command": [
-            "python",
-            "-m",
-            "tools.qwen_world_research.probe_zero_rollouts",
-            "run",
-            "--manifest",
-            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE.json",
-            "--output",
-            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE"
-          ]
+          "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/LOW_NOISE003_PROBE_20261031/PPO_ADAPTIVE/attempt001",
+          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/PPO_ADAPTIVE",
+          "host": "training-vlawm-zt2",
+          "gpu": 0
         },
         {
           "arm": "PPO_FULL",
-          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL.json",
-          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL",
-          "command": [
-            "python",
-            "-m",
-            "tools.qwen_world_research.probe_zero_rollouts",
-            "run",
-            "--manifest",
-            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL.json",
-            "--output",
-            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL"
-          ]
+          "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/LOW_NOISE003_PROBE_20261031/PPO_FULL/attempt001",
+          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/PPO_FULL",
+          "host": "training-vlawm-zt2",
+          "gpu": 1
         },
         {
           "arm": "PPO_SAFETY_EP",
-          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP.json",
-          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP",
-          "command": [
-            "python",
-            "-m",
-            "tools.qwen_world_research.probe_zero_rollouts",
-            "run",
-            "--manifest",
-            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP.json",
-            "--output",
-            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP"
-          ]
+          "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/LOW_NOISE003_PROBE_20261031/PPO_SAFETY_EP/attempt001",
+          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_SDE8_NOISE003_REUSE_ODE_20261031/PPO_SAFETY_EP",
+          "host": "training-vlawm-zt2",
+          "gpu": 2
         }
       ],
-      "total_diagnostic_candidates": 720,
-      "canonical_single_ODE_reused": true,
-      "NAVTEST_tokens_included": false,
-      "training_seed_unchanged": 42,
-      "sha256": "9224eb20b94f4bd09bb341255b05c1d5067ce61c8f2726a435b93dca6798f1a0"
+      "new_generated_candidates": 360,
+      "new_scored_candidates": 360,
+      "reused_ODE_candidates": 360,
+      "owner": {
+        "pid": 2287230,
+        "start_ticks": 1484904098,
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-B",
+          "/mnt/project/qwen-world-rl-optimization-20261030/analysis/probe_noise003_owner.py",
+          "--jobs-spec",
+          "/mnt/project/qwen-world-rl-optimization-20261030/owners/LOW_NOISE003_PROBE_20261031/JOBS.json",
+          "--output",
+          "/mnt/project/qwen-world-rl-optimization-20261030/owners/LOW_NOISE003_PROBE_20261031"
+        ]
+      }
     },
-    "results_published": false
+    "result_status": "COMPLETE_WITH_FAILURES_REQUIRES_REVIEW",
+    "is_formal_training": false
   }
 }

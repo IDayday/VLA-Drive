@@ -544,8 +544,42 @@ def load_snapshot(root: Path) -> dict:
     zero_longitudinal=read_json(zero_path,warnings,inputs) or {} if zero_path else {}
     preference_mixture_study=read_json(root/'PREFERENCE_MIXTURE_STUDY_REGISTRATION.json',warnings,inputs) or {}
     preference_mixture_review=read_json(root/'analysis'/'PREFERENCE_MIXTURE_MATCHED_REVIEW.json',warnings,inputs) or {}
+    preference_deployment=read_json(root/'analysis'/'PREFERENCE_STUDY_DEPLOYMENT_20261031.json',warnings,inputs) or {}
+    preference_training_receipts={}
+    for arm,folder in preference_deployment.get('training',{}).items():
+        path=Path(folder)
+        preference_training_receipts[arm]={name:read_json(path/name,warnings,inputs) or {} for name in ('RUNNING.json','RESULT.json') if (path/name).exists()}
+    probe_owner_state=read_json(root/'owners'/'ZERO_ODE_SDE_20261031'/'STATE.json',warnings,inputs) or {}
+    safety_ep_review=read_json(root/'analysis'/'SAFETY_EP_10K_REVIEW_20261031.json',warnings,inputs) or {}
+    safety_ep_continuation_pending=read_json(root/'reporting'/'SAFETY_EP_CONTINUATION_PENDING_20261031.json',warnings,inputs) or {}
+    safety_continuation_paths=list(root.glob('*SAFETY_EP*CONTINUATION*.json'))+list((root/'analysis').glob('*SAFETY_EP*CONTINUATION*.json'))
+    safety_ep_continuation_path=max(safety_continuation_paths,key=lambda p:p.stat().st_mtime) if safety_continuation_paths else None
+    safety_ep_continuation=read_json(safety_ep_continuation_path,warnings,inputs) or {} if safety_ep_continuation_path else {}
+    route_priority_review=read_json(root/'analysis'/'ROUTE_PRIORITY_REVIEW_20261031.json',warnings,inputs) or {}
+    noise003_deployment=read_json(root/'analysis'/'NOISE003_PROBE_DEPLOYMENT_20261031.json',warnings,inputs) or {}
+    noise003_result=read_json(root/'analysis'/'FIXED_THETA_NOISE003_ZERO_PROBE.json',warnings,inputs) or {}
+    safety_evidence_review=read_json(root/'analysis'/'SAFETY_EVIDENCE_REVIEW_20261031.json',warnings,inputs) or {}
+    adaptive27k_review=read_json(root/'analysis'/'ADAPTIVE27K_FINITE_REVIEW.json',warnings,inputs) or {}
+    if adaptive27k_review:
+        extra_entries=evaluation_entries(adaptive27k_review,default_arm='PPO_ADAPTIVE')
+        if isinstance(adaptive27k_review.get('summary'),str):extra_entries.append(dict(evidence=adaptive27k_review['summary']))
+        for entry in extra_entries:
+            entry.update(arm='PPO_ADAPTIVE',cohort='NAVTEST',updates=27000,expected_scenes=12146)
+            entry.setdefault('label','PPO_ADAPTIVE_u027000_NAVTEST')
+            row=normalize_result(entry,warnings,inputs)
+            previous=next((v for v in results if v.get('evidence')==row.get('evidence')),None)
+            if previous is None:results.append(row)
+            elif row.get('publishable_complete') and not previous.get('publishable_complete'):results[results.index(previous)]=row
+    failure_guidance=read_json(root/'analysis'/'FAILURE_GUIDANCE_DESIGN_20261031.json',warnings,inputs) or {}
+    primary_research_links=read_json(root/'reporting'/'PRIMARY_RESEARCH_LINKS_20261031.json',warnings,inputs) or {}
     fixed_theta_probe_registration=read_json(root/'data'/'probes'/'ZERO_ODE8_SDE8_FIXED_THETA_20261031'/'REGISTRATION.json',warnings,inputs) or {}
     fixed_theta_probe=read_json(root/'analysis'/'FIXED_THETA_ODE_SDE_ZERO_PROBE.json',warnings,inputs) or {}
+    fixed_diagnosis_input=read_json(root/'analysis'/'FIXED_THETA_ZERO_PROBE_DIAGNOSIS_20261031.json',warnings,inputs) or {}
+    fixed_probe_diagnosis={key:fixed_diagnosis_input.get(key) for key in ('schema','status','at','scope','controls','conclusions_zh','next_finite_comparison')}
+    fixed_probe_diagnosis['arms']={arm:{'counts':node.get('counts',{})}for arm,node in fixed_diagnosis_input.get('arms',{}).items()}
+    persistent_probe=fixed_diagnosis_input.get('persistent_shared_TRAIN_zero',{})
+    fixed_probe_diagnosis['persistent_shared_TRAIN_zero']={key:persistent_probe.get(key)for key in ('token','ADAPT_persistence')}
+    fixed_probe_diagnosis['persistent_shared_TRAIN_zero']['by_arm']={arm:{'canonical_single_ODE_PDMS':node.get('canonical_single_ODE_PDMS'),**{mode:{key:node.get(mode,{}).get(key)for key in ('canonical_zero','positive_canonical','strictly_feasible','has_nonzero_locked_formula_signal','actual_training_loss_or_gradient_measured')}for mode in ('ODE8','SDE8')}}for arm,node in persistent_probe.get('by_arm',{}).items()}
     representation_audit=read_json(root/'analysis'/'REPRESENTATION_TRAINABILITY_AUDIT_20261030.json',warnings,inputs) or {}
     scene_brief=read_json(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json',warnings,inputs) or {}
     scene_information_audit=read_json(root/'analysis'/'SCENARIO_SAFETY_EFFICIENCY_AUDIT_20261030.json',warnings,inputs) or {}
@@ -667,6 +701,14 @@ def load_snapshot(root: Path) -> dict:
         if isinstance(inventory,dict) and isinstance(inventory.get('gpus'),list):
             resources=[row for row in resources if row['host']!=host]
             resources+=flatten_resources({'hosts':{host:inventory}})
+    # A registered native child's launch can bind a newly deployed host's GPU
+    # UUIDs before a separate inventory snapshot has been archived. This proves
+    # identities at launch, not current free memory or idle capacity.
+    for arm,receipts in preference_training_receipts.items():
+        receipt=receipts.get('RUNNING.json',{});host=receipt.get('host');ids=receipt.get('gpu_uuids',[]);indices=receipt.get('gpus',[])
+        if host and host not in {row['host']for row in resources} and receipt.get('child_pid') and len(ids)==len(indices)>0 and all(isinstance(v,str)and v.startswith('GPU-')for v in ids):
+            source=str(Path(preference_deployment['training'][arm])/'RUNNING.json')
+            resources.extend(dict(host=host,index=index,uuid=uid,inventory_at=utc(receipt.get('start_unix')),inventory_source='registered native worker launch identity; not an idle-capacity snapshot',source=source)for index,uid in zip(indices,ids))
     steady_hosts={host for key in ('permanent_hosts','unbounded_temporary_hosts') for host in authorization.get(key,[]) if isinstance(host,str)}
     temporary_hosts={host for host in authorization.get('temporary_hosts',[]) if isinstance(host,str)}
     def resource_timestamp(value):
@@ -735,7 +777,15 @@ def load_snapshot(root: Path) -> dict:
                     zero_longitudinal=zero_longitudinal,zero_longitudinal_path=str(zero_path) if zero_path else None,
                     preference_mixture_study=preference_mixture_study,
                     preference_mixture_review=preference_mixture_review,
+                    preference_deployment=preference_deployment,preference_training_receipts=preference_training_receipts,
+                    probe_owner_state=probe_owner_state,safety_ep_review=safety_ep_review,
+                    safety_ep_continuation_pending=safety_ep_continuation_pending,safety_ep_continuation=safety_ep_continuation,
+                    safety_ep_continuation_path=str(safety_ep_continuation_path) if safety_ep_continuation_path else None,
+                    route_priority_review=route_priority_review,adaptive27k_review=adaptive27k_review,
+                    noise003_deployment=noise003_deployment,noise003_result=noise003_result,safety_evidence_review=safety_evidence_review,
+                    failure_guidance=failure_guidance,primary_research_links=primary_research_links,
                     fixed_theta_probe_registration=fixed_theta_probe_registration,fixed_theta_probe=fixed_theta_probe,
+                    fixed_probe_diagnosis=fixed_probe_diagnosis,
                     representation_audit=representation_audit,scene_brief_20k=scene_brief,
                     scene_information_audit=scene_information_audit,
                     decisions=decisions,stopped_receipts=stopped_receipts,nft_decision=decisions.get('NFT_FULL',{}),
