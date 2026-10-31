@@ -32,7 +32,6 @@ Current completion state is listed below; no partial-scene means are published. 
 | A | 13000 | 80.007834 |
 | B | 10000 | 80.692819 |
 | C | 12000 | 85.386918 |
+| D | 7000 | 80.862939 |
 
-Pending: D_IL_007000. Unequal intermediate budgets do not establish a final architecture ranking.
-
-C12k is newly complete: **PDMS85.386918**, versus C8k68.900082 (**+16.486836 points**). This substantial checkpoint recovery shows why the low8k observation could not establish a ceiling or justify early termination. It does not establish final superiority at a matched100k budget. Native/export parity PASS; all12146 scenes valid and all8owned workers exited.
+Pending: none. Unequal intermediate budgets do not establish a final architecture ranking.
