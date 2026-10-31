@@ -29,3 +29,14 @@ def test_cispo_does_not_silently_change_sampler_reward_or_anchor():
     for key,value in [('kl_beta',0),('ppo_clip_range',.2),('num_inner_epochs',2)]:
         altered=copy.deepcopy(cfg);altered['grpo']['train'][key]=value
         with pytest.raises(ValueError):validate_recipe(altered)
+
+
+def test_lower_rigorous_noise_requires_its_own_single_factor_registration():
+    cfg=config();cfg['grpo']['sample']['noise_level']=.03
+    with pytest.raises(ValueError,match='inherited scientific change'):validate_recipe(cfg)
+    cfg['research'].update(arm='PPO_NOISE03',noise_level_ablation='rigorous_eta003_v1')
+    assert validate_recipe(cfg)==cfg
+    assert cfg['grpo']['sample']['sample_noise_std']==.1
+    for field in ('reward_transform','advantage_normalization','anchor_ablation','memory_lr_ablation','preference_auxiliary'):
+        changed=copy.deepcopy(cfg);changed['research'][field]='unregistered combination'
+        with pytest.raises(ValueError):validate_recipe(changed)

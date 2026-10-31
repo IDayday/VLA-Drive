@@ -52,6 +52,14 @@ def validate_recipe(cfg):
             expected = copy.deepcopy(expected)
             if research['policy_objective'] == 'nft':
                 expected['train']['kl_beta'] = 0
+            if research.get('noise_level_ablation') == 'rigorous_eta003_v1':
+                if (research.get('arm') != 'PPO_NOISE03' or research['policy_objective'] != 'ppo'
+                        or research['data_policy'] != 'uniform_full'
+                        or any(research.get(k) is not None for k in (
+                            'advantage_normalization', 'reward_transform', 'anchor_ablation',
+                            'memory_lr_ablation', 'preference_auxiliary'))):
+                    raise ValueError('Register rigorous eta0.03 as a separate canonical full PPO arm')
+                expected['sample']['noise_level'] = .03
             if research.get('anchor_ablation') == 'raw_batchstd_beta40_v1':
                 if (research.get('arm') != 'PPO_ANCHOR40' or research['policy_objective'] != 'ppo'
                         or research['data_policy'] != 'uniform_full'
