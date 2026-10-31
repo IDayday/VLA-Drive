@@ -2,6 +2,8 @@
 
 2026-10-31。用户明确关心**IL辅助任务**，本报告不以RL训练问题解释IL学习曲线。
 
+补充核查：[辅助任务学到了什么，是否帮助规划](LEARNING_VS_PLANNING_VALUE.md)。四组冻结预测诊断已完成；新增原版World20/40/60k物理对象精度复核与对象loss尺度算术。特征预测优于均值不等于Navtest受益，当前尚无匹配去辅助对照证明净贡献。
+
 ## 1. 八rank长期曲线
 
 实际读取四个原生训练根的八rank有效更新日志，核对场景游标、optimizer step、skipped=0和更新连续性。各任务的loss先按原global有效分母还原，再对八rank取均值；每个点取500个有效更新，排除interface/aux warmup。不是选一个rank或单步截图。
