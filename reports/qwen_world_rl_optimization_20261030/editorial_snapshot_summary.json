@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 00:28:58 UTC",
+  "generated_utc": "2026-10-31 00:56:49 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": "7 research chapters; 8 scientific figures; operations and hashes folded",
   "training_seed": 42,
@@ -2108,7 +2108,7 @@
     }
   },
   "zero_longitudinal": {
-    "status": "ODE_LONGITUDINAL_COMPLETE_ROLLOUT_PENDING",
+    "status": "COMPLETE",
     "definitions": {
       "ODE_vs_G8": "single fixed-seed deployment ODE outcome is not equivalent to all8 stochastic training candidates failing",
       "intermittent": "zero at some but not all observed checkpoints",
@@ -2119,7 +2119,7 @@
       "relapse": "observed zero→positive→zero at any recorded checkpoints",
       "zero": "official canonical score<=1e-12"
     },
-    "rollout_analysis_status": "PENDING",
+    "rollout_analysis_status": "COMPLETE",
     "NAVTEST_cross10k": {
       "arms": [
         "PPO_FULL",
@@ -2429,6 +2429,324 @@
       "controller_or_frozen_runtime_modified": false,
       "new_GPU_forwards": 0,
       "new_scores": 0
+    },
+    "conclusions_zh": [
+      "零分不是固定同一批，也不是完全随机轮换。FULL从IL的565个零分降至35k的237个：141个在全部已观测checkpoint持续为零，680个至少一次为零；20k→35k有52个恢复、48个新零分。持续仅指已观测点。",
+      "ODE零分、G8全失败、PG优势为零是三个不同概念。ADAPT长期ODE零分的1个TRAIN场景，历史229组G8有196组至少一条NC/DAC/TTC全通过、225组有正优势；它们跨theta，尚不能归因为采样器差异。",
+      "漏采样必须标unknown：SAFETY_EP持续ODE零分的4个TRAIN场景中只有1个在所查prefix再采到；另外3个不能称G8持续全失败。",
+      "canonical零分由NC或DAC门控触发，EP同时被遮蔽为0；这不等于车辆必然原地不动，也不抹去TTC、raw progress和违规时刻中尚可区分的信息。",
+      "检查所选175组canonical全零G8未发现t=0全候选碰撞/非可行驶区域问题；本cohort证据不支持用初始状态违规解释这些全零组。",
+      "不同路线观测checkpoint数量不同，持续零分绝对数量不能直接排强弱。NAVTEST仅为诊断，未向训练输出场景名单。"
+    ],
+    "TRAIN_persistent_rollout": {
+      "PPO_ADAPTIVE": {
+        "counts": {
+          "PG_active": 225,
+          "all_safe_EP1_saturated": 0,
+          "all_zero_PG_active": 0,
+          "all_zero_cost_varied": 4,
+          "all_zero_first_infraction_time_varied": 4,
+          "all_zero_positive_A": 0,
+          "at_least_one_feasible": 196,
+          "canonical_all_zero": 4,
+          "canonical_reward_tie": 4,
+          "has_positive_actual_A": 225,
+          "sampled_all_fail": 33,
+          "zero_PG": 4,
+          "zero_PG_all_fail": 4,
+          "zero_PG_saturated": 0
+        },
+        "groups": 229,
+        "infraction_timing_available_groups": 229,
+        "tokens": 1,
+        "tokens_ever_resampled": 1,
+        "tokens_no_rollout_observed_unknown": 0
+      },
+      "PPO_FULL": {
+        "counts": {
+          "PG_active": 3,
+          "all_safe_EP1_saturated": 0,
+          "all_zero_PG_active": 0,
+          "all_zero_cost_varied": 0,
+          "all_zero_first_infraction_time_varied": 0,
+          "all_zero_positive_A": 0,
+          "at_least_one_feasible": 3,
+          "canonical_all_zero": 1,
+          "canonical_reward_tie": 1,
+          "has_positive_actual_A": 3,
+          "sampled_all_fail": 1,
+          "zero_PG": 1,
+          "zero_PG_all_fail": 1,
+          "zero_PG_saturated": 0
+        },
+        "groups": 4,
+        "infraction_timing_available_groups": 4,
+        "tokens": 4,
+        "tokens_ever_resampled": 4,
+        "tokens_no_rollout_observed_unknown": 0
+      },
+      "PPO_MEMORYLR20": {
+        "counts": {
+          "PG_active": 2,
+          "all_safe_EP1_saturated": 0,
+          "all_zero_PG_active": 0,
+          "all_zero_cost_varied": 0,
+          "all_zero_first_infraction_time_varied": 0,
+          "all_zero_positive_A": 0,
+          "at_least_one_feasible": 2,
+          "canonical_all_zero": 0,
+          "canonical_reward_tie": 0,
+          "has_positive_actual_A": 2,
+          "sampled_all_fail": 0,
+          "zero_PG": 0,
+          "zero_PG_all_fail": 0,
+          "zero_PG_saturated": 0
+        },
+        "groups": 2,
+        "infraction_timing_available_groups": 2,
+        "tokens": 5,
+        "tokens_ever_resampled": 2,
+        "tokens_no_rollout_observed_unknown": 3
+      },
+      "PPO_SAFETY_EP": {
+        "counts": {
+          "PG_active": 1,
+          "all_safe_EP1_saturated": 0,
+          "all_zero_PG_active": 0,
+          "all_zero_cost_varied": 0,
+          "all_zero_first_infraction_time_varied": 0,
+          "all_zero_positive_A": 0,
+          "at_least_one_feasible": 1,
+          "canonical_all_zero": 0,
+          "canonical_reward_tie": 0,
+          "has_positive_actual_A": 1,
+          "sampled_all_fail": 0,
+          "zero_PG": 0,
+          "zero_PG_all_fail": 0,
+          "zero_PG_saturated": 0
+        },
+        "groups": 1,
+        "infraction_timing_available_groups": 1,
+        "tokens": 4,
+        "tokens_ever_resampled": 1,
+        "tokens_no_rollout_observed_unknown": 3
+      },
+      "PPO_SAFE_COMFORT": {
+        "counts": {
+          "PG_active": 2,
+          "all_safe_EP1_saturated": 0,
+          "all_zero_PG_active": 0,
+          "all_zero_cost_varied": 1,
+          "all_zero_first_infraction_time_varied": 0,
+          "all_zero_positive_A": 0,
+          "at_least_one_feasible": 2,
+          "canonical_all_zero": 2,
+          "canonical_reward_tie": 2,
+          "has_positive_actual_A": 2,
+          "sampled_all_fail": 2,
+          "zero_PG": 2,
+          "zero_PG_all_fail": 2,
+          "zero_PG_saturated": 0
+        },
+        "groups": 4,
+        "infraction_timing_available_groups": 4,
+        "tokens": 4,
+        "tokens_ever_resampled": 4,
+        "tokens_no_rollout_observed_unknown": 0
+      }
+    },
+    "initial_state_zero_group_counts": {
+      "PPO_ADAPTIVE": {
+        "all8_TTC_infraction_at_time0": 0,
+        "all8_collision_at_time0": 0,
+        "all8_initial_non_drivable": 0,
+        "all_canonical0_groups": 170,
+        "any_initial_non_drivable": 0
+      },
+      "PPO_FULL": {
+        "all8_TTC_infraction_at_time0": 0,
+        "all8_collision_at_time0": 0,
+        "all8_initial_non_drivable": 0,
+        "all_canonical0_groups": 2,
+        "any_initial_non_drivable": 0
+      },
+      "PPO_MEMORYLR20": {},
+      "PPO_SAFETY_EP": {},
+      "PPO_SAFE_COMFORT": {
+        "all8_TTC_infraction_at_time0": 0,
+        "all8_collision_at_time0": 0,
+        "all8_initial_non_drivable": 0,
+        "all_canonical0_groups": 3,
+        "any_initial_non_drivable": 0
+      }
     }
+  },
+  "preference_mixture_study": {
+    "IL_parent": "unchanged pinned World IL70",
+    "all_future_stages_presealed": true,
+    "bank": "/mnt/project/qwen-world-rl-optimization-20261030/data/preferences/TRAIN_METRIC_PREFERENCES_20261031/manifest.json",
+    "bank_sha256": "2cbeef8c456ea37135d9d65b01ce19b0d83a14a84f692aa47f352bf906e970dc",
+    "comparisons": [
+      "REPLAY vs FULL isolates the registered sampling change",
+      "CFM vs REPLAY isolates the registered auxiliary preference loss",
+      "CFM vs FULL evaluates the complete proposed method"
+    ],
+    "configs": [
+      {
+        "arm": "PPO_PREF_REPLAY",
+        "native_scheduler_max_updates": 50000,
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_PREF_REPLAY.yaml",
+        "research_budget_updates": 5000,
+        "sha256": "e84009670322dfb10f2540f1fb965f1e7a6c93901fa354cf42917d9c730d0cbc"
+      },
+      {
+        "arm": "PPO_PREF_CFM",
+        "native_scheduler_max_updates": 50000,
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_PREF_CFM.yaml",
+        "research_budget_updates": 5000,
+        "sha256": "e8eb9344f42b81d72641a754d9d12e3697d04a61f5eaa085ec76076383b0ef3a"
+      }
+    ],
+    "eligible_scenes": 103288,
+    "extra_GPU_qualification": false,
+    "historical_pairs_in_onpolicy_advantages": false,
+    "inference": "unchanged single ODE10 shift5 seed2101",
+    "initial_reviews": [
+      1000,
+      5000
+    ],
+    "labels": "candidate-metric preferences; no claim of human traffic-rule/necessary-wait optimality",
+    "min_full_population_probability": 7.745333436604446e-06,
+    "pairs": 5261,
+    "preference_scenes": 910,
+    "registered_unix": 1793407826.0971029,
+    "sampler_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/PREFERENCE_MIXTURE_FULL80_PRIORITY20.json",
+    "sampler_sha256": "1e5669aefa35e0730d7718b0e0245a370e7939d9cc6537427d48c5f5a126a695",
+    "schema": "world_matched_preference_mixture_study_v1",
+    "stages": [
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000000.json",
+        "preference_exposures": 2097,
+        "sha256": "f91c8798be77579a8cd9db12165999ab5f0a3fa46b34960f422e330e7135ba03",
+        "unique_scenes": 8420
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000001.json",
+        "preference_exposures": 2057,
+        "sha256": "e702bc3e10bd149b881f310ce811691d47aa2e9f494c3727980857ffb29bef5c",
+        "unique_scenes": 8467
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000002.json",
+        "preference_exposures": 2114,
+        "sha256": "01de8fa368d0957dcd999ab4864cac3c347d9129ebbf379cbcbefe0c019b6a72",
+        "unique_scenes": 8413
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000003.json",
+        "preference_exposures": 2086,
+        "sha256": "055eb68118b21bef5b9849b03cd59fdda9492cad869ce5207e230e538088733a",
+        "unique_scenes": 8415
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000004.json",
+        "preference_exposures": 2069,
+        "sha256": "53bd6beea3ef2d2c5f007a4aa85724e623d79e1daa74b6390aa36c855e377e9e",
+        "unique_scenes": 8426
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000005.json",
+        "preference_exposures": 2039,
+        "sha256": "f8bc7a58fd48475e31e6a7de19e4a530a61bafb095760e66f4e1c71cfa0480b1",
+        "unique_scenes": 8480
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000006.json",
+        "preference_exposures": 2046,
+        "sha256": "3fdbbd76b0b44cb425256c09036ed5b1740d4ec8ddc1d5d10d7710c9ba1c2f74",
+        "unique_scenes": 8441
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000007.json",
+        "preference_exposures": 2126,
+        "sha256": "ad170f1dc48d0cb56c5b7fccf7efeb1d6a003de313be0b645ec35252d7f67257",
+        "unique_scenes": 8397
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000008.json",
+        "preference_exposures": 2128,
+        "sha256": "e9cb79c736c548c3c19108c0bc17a5fe42980657973d3b336051e6137a7f90ac",
+        "unique_scenes": 8415
+      },
+      {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000009.json",
+        "preference_exposures": 1985,
+        "sha256": "217d1f7894d360e378e994a7be12bf832bf0c4c0c5c276b8fc4c1229962f1956",
+        "unique_scenes": 8504
+      }
+    ],
+    "training_seed": 42
+  },
+  "preference_mixture_review": {},
+  "fixed_theta_probe": {
+    "registration": {
+      "schema": "TRAIN_fixed_theta_matched_root_ODE8_SDE8_probe_v1_registration",
+      "status": "PREPARED_NOT_DISPATCHED",
+      "at": 1793407424.6880462,
+      "TRAIN_unique_scenes": 15,
+      "arms": [
+        {
+          "arm": "PPO_ADAPTIVE",
+          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE.json",
+          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE",
+          "command": [
+            "python",
+            "-m",
+            "tools.qwen_world_research.probe_zero_rollouts",
+            "run",
+            "--manifest",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE.json",
+            "--output",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE"
+          ]
+        },
+        {
+          "arm": "PPO_FULL",
+          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL.json",
+          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL",
+          "command": [
+            "python",
+            "-m",
+            "tools.qwen_world_research.probe_zero_rollouts",
+            "run",
+            "--manifest",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL.json",
+            "--output",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL"
+          ]
+        },
+        {
+          "arm": "PPO_SAFETY_EP",
+          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP.json",
+          "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP",
+          "command": [
+            "python",
+            "-m",
+            "tools.qwen_world_research.probe_zero_rollouts",
+            "run",
+            "--manifest",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP.json",
+            "--output",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP"
+          ]
+        }
+      ],
+      "total_diagnostic_candidates": 720,
+      "canonical_single_ODE_reused": true,
+      "NAVTEST_tokens_included": false,
+      "training_seed_unchanged": 42,
+      "sha256": "9224eb20b94f4bd09bb341255b05c1d5067ce61c8f2726a435b93dca6798f1a0"
+    },
+    "results_published": false
   }
 }

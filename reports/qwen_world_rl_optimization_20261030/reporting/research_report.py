@@ -17,6 +17,7 @@ COLORS=dict(zip(ARMS,['#2563eb','#059669','#7c3aed','#d97706','#64748b','#0891b2
 SHORT={'PPO_FULL':'Full','PPO_BATCHSTD':'BatchStd','PPO_SAFE_COMFORT':'SafeComfort','CISPO_FULL':'CISPO','PPO_HARD':'Hard','PPO_ADAPTIVE':'Adaptive','PPO_ANCHOR40':'Anchor40','NFT_FULL':'NFT'}
 IDEAS={'PPO_FULL':'全量103,288；原始PPO对照','PPO_BATCHSTD':'仅改中心化优势的全局std分母','PPO_SAFE_COMFORT':'安全候选Comfort置1，局部突出EP','CISPO_FULL':'全量数据；仅改策略目标','PPO_HARD':'困难15,171；数据人口对照','PPO_ADAPTIVE':'训练内低分／退化／覆盖再采样','PPO_ANCHOR40':'仅将均值anchor权重β50改为40','NFT_FULL':'纯ODE采样＋NFT目标／EMA'}
 IDEAS.update(PPO_MEMORYLR20='仅memory学习率5e−6→2e−5；既有IL知识适配',PPO_SAFETY_EP='仅安全／可行EP分量优势；候选指标条件信用')
+IDEAS.update(PPO_PREF_REPLAY='80%全量＋20%有效偏好场景；采样对照',PPO_PREF_CFM='与Replay同采样＋离线CFM偏好辅助')
 COLORS.update(PPO_MEMORYLR20='#ea580c',PPO_SAFETY_EP='#059669')
 SHORT.update(PPO_MEMORYLR20='MemoryLR20',PPO_SAFETY_EP='SafetyEP')
 
@@ -100,6 +101,7 @@ def render_research_report(root,snapshot,history,h):
     active_pilots={arm for arm,value in pilot_startups.items() if value.get('status')=='ACTUAL_NATIVE_UPDATES_ALL8_FINITE' and len(value.get('rows',[]))==8 and all(row.get('finite') is True for row in value['rows'])}
     adaptive_amendment=editorial.get('adaptive_coverage_amendment',{})
     pilot_review=editorial.get('new_pilot_matched_review',{})
+    preference_study=editorial.get('preference_mixture_study',{})
     def pilot_pair(arm,u=10000):
         value=pilot_review.get('contrasts',{}).get(f'{arm}_u{u:06d}_NAVTEST_minus_PPO_FULL_u{u:06d}_NAVTEST',{})
         return value if value.get('status')=='COMPLETE' else {}
@@ -155,6 +157,11 @@ def render_research_report(root,snapshot,history,h):
     elif not pilot_focus:body+='<article class="finding caution">'+evidence('limited','待判断 · 小差需要匹配比较')+'<h3>新增trick的优劣尚需区间支持</h3><p>仅比较同预算、同人口的完整结果；配对区间未完成或跨零时，不宣布算法胜出。</p></article>'
     if not pilot_focus:body+='<article class="finding stop">'+evidence('action','决策 · 低潜力路线释放预算')+'<h3>NFT缺少持续部署收益</h3><p>'+(number(update(nft))+'更新完整分 '+fmt(nft['PDMS'],6)+'，相对IL70 '+signed(nft['PDMS']-base)+'；已测最高仅 '+fmt(nft_best,6)+'。' if nft else '等待完整NFT结果。')+' '+esc(nft_state)+'。</p></article></div>'
     body+='<div class="protocol">统一读数：NAVTEST 12,146场景 · 单候选ODE K10 / shift5 · 训练seed42 / 推理seed2101。固定种子研究，不安排多种子。TRAIN panel与随机训练候选分数另列。</div>'
+    if preference_study:
+        body+='<h3>结论、假设与实验状态</h3>'+table(['证据等级','现在的判断','下一步怎样验证'],[
+            ['明确结论','零分有固定核心，也有换入换出；SafetyEP新高仍伴随NC退化。','持续集合、相邻修复／新零和安全组件继续分开观察。'],
+            ['待验证假设','候选偏好监督可能补足标量PG遗漏的信用；历史ODE/G8差异仍混有theta变化。','Replay隔离采样作用，CFM对Replay隔离辅助损失；另做固定theta探针。'],
+            ['进行中研究','两项5k偏好pilot已登记；实际派发／更新以路线与独立收据为准。','保持canonical单候选评测，不预填训练结果，也不把best-of8当部署。']])
     if snapshot.get('warnings'):body+='<div class="alert">'+esc('；'.join(snapshot['warnings']))+'</div>'
     chapter('01','conclusions','现在可以得出的结论','先区分已观察到的提升、尚未证明的算法优势，以及已经决定调整的投入。',body)
 
@@ -390,7 +397,7 @@ def render_research_report(root,snapshot,history,h):
     preference=editorial.get('preference_research',{});longitudinal=editorial.get('zero_longitudinal',{})
     if preference:
         summary=preference.get('summary',{});counts=summary.get('pair_counts_by_reason',{})
-        body+='<h3>TRAIN偏好数据与CPU代理损失已准备，尚非已上线实验</h3><p>证据时间 '+esc(preference.get('utc','待记录'))+'；状态 '+esc(preference.get('status','已发布离线研究证据'))+'。既有 '+number(summary.get('unique_scenes'))+' 个共同TRAIN场景、'+number(summary.get('groups'))+'组／'+number(summary.get('candidates'))+'候选，构造 '+number(summary.get('pairs'))+' 对；不新增rollout或评分，不把历史pair混入on-policy GRPO优势。'+link(preference.get('manifest'),'离线偏好manifest')+'</p>'
+        body+='<h3>TRAIN离线偏好数据与CPU代理检查</h3><p>产物证据时间 '+esc(preference.get('utc','待记录'))+'；保存时状态 '+esc(preference.get('status','已发布离线研究证据'))+'，当前训练执行看下方独立登记。既有 '+number(summary.get('unique_scenes'))+' 个共同TRAIN场景、'+number(summary.get('groups'))+'组／'+number(summary.get('candidates'))+'候选，构造 '+number(summary.get('pairs'))+' 对；构建过程不新增rollout或评分，不把历史pair混入on-policy GRPO优势。'+link(preference.get('manifest'),'离线偏好manifest')+'</p>'
         body+=table(['偏好类型','已选pairs','方向与限制'],[
             ['通过三项指标优于未通过',number(counts.get('pass_over_fail')),'只表示NC=DAC=TTC指标条件优先；不是已知路权／必要等待标签。'],
             ['通过候选内部比较效率',number(counts.get('feasible_efficiency')),'EP差≥0.05，raw progress更高且Comfort不差；不把所有低EP或停车判错。'],
@@ -412,6 +419,39 @@ def render_research_report(root,snapshot,history,h):
             body+=table(['准备研究的方法','优先级','实现／证据边界'],[[esc(node.get('name')),number(node.get('priority')),esc(node.get('scope',''))]for node in recommendations])
         body+='<p>CPU prototype已检查梯度方向与clean-x／CFM恒等关系；chain logscore或CFM负误差仍是代理分数，不是精确端点DPO likelihood。'+esc(preference.get('limits_zh',''))+' '+link(editorial.get('preference_research_path'),'偏好研究、CPU检查与实施边界')+'</p>'+detail('偏好样本、CPU原型与完整证据','<pre>'+esc(json.dumps(preference,ensure_ascii=False,indent=2))+'</pre>')
     else:body+='<p class="muted">TRAIN安全—效率冲突偏好manifest与CPU候选方案正在准备；尚不声明偏好训练已注册、已上线或已提分。NAVTEST场景不直接回流为训练名单。</p>'
+    if preference_study:
+        eligible=preference_study.get('preference_scenes');source_scenes=preference.get('summary',{}).get('unique_scenes')
+        no_pair=source_scenes-eligible if h.finite(source_scenes) and h.finite(eligible) else None
+        body+='<h3>两臂5k偏好研究：分离采样效应与辅助损失</h3><p>原 '+number(source_scenes)+' 个源TRAIN场景中，'+number(eligible)+' 个有合法偏好pair，另 '+number(no_pair)+' 个无pair，不计入优先池。两臂共同采用静态80%全量103,288＋20%有效偏好场景采样；无pair场景仍可从全量分量采到。固定IL70、seed42、sampler和canonical部署，不把历史pair混进on-policy PG优势。</p>'
+        study_rows=[]
+        for spec in preference_study.get('configs',[]):
+            arm=spec.get('arm');run=runs.get(arm,{})
+            status=run.get('owner_receipt',{}).get('status') or run.get('status','REGISTERED')
+            if arm in stop_receipts:state='已有停止收据，见路线表'
+            elif status=='PILOT_COMPLETE_REVIEW_REQUIRED':state='首轮预算完成，等待复核'
+            elif run.get('journal_ranks')==run.get('expected_ranks',8) and h.finite(run.get('updates')) and run['updates']>0:state='全rank原生记录 '+number(run['updates'])+' 更新'
+            elif run.get('job_receipts',{}).get('RUNNING.json'):state='worker已启动，原生更新待日志'
+            elif run.get('job'):state='已派发，启动／更新待回执'
+            else:state='已登记，尚无派发／更新证据'
+            treatment='仅改变训练场景分布；PG与anchor保留Full' if arm=='PPO_PREF_REPLAY' else '相同采样＋离线CFM pair代理辅助；coef0.001／beta0.1'
+            contrast_design='对Full隔离采样作用' if arm=='PPO_PREF_REPLAY' else '对Replay隔离辅助损失；对Full看完整方法'
+            latest_result=latest.get(arm)
+            result_cell=fmt(latest_result['PDMS'],6)+' / '+number(update(latest_result))+'更新完整Test' if latest_result else '暂无完整成绩'
+            study_rows.append([esc(arm),treatment,contrast_design,number(spec.get('research_budget_updates'))+' cap<small>1k／5k复核；scheduler '+number(spec.get('native_scheduler_max_updates'))+'不是当前研究预算</small>',esc(state),result_cell,link(spec.get('path'),'配置')])
+        body+=table(['研究臂','主要变化','可归因比较','首轮预算','实际执行状态','成绩','来源'],study_rows)+'<p>这是候选指标条件偏好监督，不是精确端点DPO，也没有新增红灯／让行真值。成功饱和组跳过aux；PG mask为0时若pref_aux_enabled且weighted_loss有效，仍可能有辅助梯度，legacy的anchor_only_updates_local不能单独解释成纯anchor。'+link(root/'PREFERENCE_MIXTURE_STUDY_REGISTRATION.json','两臂共同采样与预注册比较')+'</p>'
+        mixture_review=editorial.get('preference_mixture_review',{})
+        completed=[(key,row)for key,row in mixture_review.get('contrasts',{}).items()if row.get('status')=='COMPLETE']
+        if completed:
+            review_rows=[]
+            for key,row in completed:
+                deltas=[]
+                for metric in ['no_at_fault_collisions','time_to_collision_within_bound','ego_progress']:
+                    m=row.get('safety_metrics',{}).get(metric,{});ci=m.get('CI95_delta_percentage_points',[])
+                    deltas.append(signed(m.get('delta_percentage_points'),5)+'<small>['+', '.join(signed(v,5)for v in ci)+']</small>')
+                zeros=row.get('zero_transitions',row.get('paired',{}))
+                review_rows.append([esc(key.replace('_NAVTEST','').replace('_minus_',' − '))+'<small>'+esc(row.get('comparison_question_zh',''))+'</small>',signed(row.get('delta_PDMS'),6)+'<small>'+ci_text(row)+'</small>']+deltas+[number(zeros.get('repaired_zero'))+' / '+number(zeros.get('new_zero'))])
+            body+='<h3>偏好研究：已完整配对 '+number(len(completed))+' / '+number(mixture_review.get('target_pairs',6))+'</h3>'+table(['匹配对照与归因问题','ΔPDMS［95%区间］','ΔNC pp［区间］','ΔTTC pp［区间］','ΔEP pp［区间］','zero修复／新增'],review_rows)+'<p>'+link(root/'analysis'/'PREFERENCE_MIXTURE_MATCHED_REVIEW.json','完整人口配对及组件区间')+'</p>'
+        else:body+='<p class="muted">偏好研究尚无已完整匹配对照，不填分数／区间。未来1k与5k各三组比较逐对发布，任一组双方完整即可展示，不必等待全部六组。</p>'
     if longitudinal:
         body+='<h3>纵向zero：同一难点与轮换失败分开统计</h3><p>状态 '+esc(longitudinal.get('status','已发布诊断证据'))+'；证据时间 '+esc(longitudinal.get('at',longitudinal.get('utc','待记录')))+'。persistent只表示在表中列出的观测点全部为零，不代表未观测更新也始终失败；不同路线的观测点数与预算不同，不能直接按持续zero数排算法。</p>'
         nav_zero=longitudinal.get('NAVTEST_diagnostic_only',{});nav_series=nav_zero.get('series',{})
@@ -443,7 +483,35 @@ def render_research_report(root,snapshot,history,h):
                 train_rows.append([esc(arm),number(len(node.get('observed_updates',[]))),number(sets.get('latest_zero')),number(sets.get('persistent_zero_all_observed')),number(sets.get('intermittent_zero')),number(sets.get('relapsed_after_observed_recovery'))])
             body+=detail('训练内固定1024 panel的纵向zero（与Test隔开）',table(['TRAIN1024路线','观测点数：含IL','最新zero','全部点zero','间歇zero','修复后复发'],train_rows)+'<p>TRAIN可反馈，旧DEV对全量训练臂不是heldout；不把其持续率当完整NAVTEST结论。</p>')
         body+='<p>rollout／优势关联状态：'+esc(longitudinal.get('rollout_analysis_status','见原始诊断'))+'。'+link(editorial.get('zero_longitudinal_path'),'完整纵向集合、分层与rollout诊断')+'</p>'
-    else:body+='<p class="muted">纵向zero集合与rollout信号分析正在复用已保存证据；persistent／rotating比例尚待对齐诊断，不先把单阶段零分率当作持续失败。</p>'
+        rollout=longitudinal.get('TRAIN_rollout_advantage_diagnosis',{})
+        if rollout.get('status')=='COMPLETE':
+            history_rows=[];post_rows=[]
+            for arm,node in rollout.get('arms',{}).items():
+                cohort=node.get('cohorts',{}).get('persistent_ODE_zero',{});c=cohort.get('counts',{})
+                history_rows.append([esc(arm),number(cohort.get('tokens')),number(cohort.get('tokens_ever_resampled')),number(cohort.get('tokens_no_rollout_observed_unknown')),number(cohort.get('groups')),number(c.get('at_least_one_feasible')),number(c.get('has_positive_actual_A')),number(c.get('canonical_all_zero')),number(c.get('zero_PG'))])
+                post=node.get('post_ODE_zero_windows',{})
+                post_rows.append([esc(arm),number(post.get('windows')),number(post.get('observed_G8')),number(post.get('unknown_not_resampled'))])
+            body+='<h3>持续ODE零分不等于没有训练机会或优势</h3>'+table(['TRAIN固定panel路线','持续ODE0 token','实际再采到token','未见rollout：unknown','历史G8组','至少1可行候选组','有实际正A组','canonical全0组','PG=0组'],history_rows)
+            ad=rollout.get('arms',{}).get('PPO_ADAPTIVE',{}).get('cohorts',{}).get('persistent_ODE_zero',{});ac=ad.get('counts',{})
+            if ad:
+                body+='<p class="note">ADAPT的 '+number(ad.get('tokens'))+' 个持续ODE零分TRAIN场景，在 '+number(ad.get('groups'))+' 组历史G8中，'+number(ac.get('at_least_one_feasible'))+' 组至少一条可行，'+number(ac.get('has_positive_actual_A'))+' 组有正优势，仅 '+number(ac.get('canonical_all_zero'))+' 组canonical全0。它们跨theta、跨历史训练时间，不能据此宣布sampler mismatch已证明；需要固定checkpoint配对探针。</p>'
+            body+='<p>未再采到必须保留unknown，不能记为G8持续全失败。此表是TRAIN选定cohort的历史组统计，与前面近10k固定1000组的成功饱和诊断不是同一总体；也不把best-of8可行性当单候选部署分数。</p>'
+            ad_low=rollout.get('arms',{}).get('PPO_ADAPTIVE',{}).get('cohorts',{}).get('ever_ODE_low50',{}).get('counts',{})
+            if ad_low:body+='<p>ADAPT选定零／低分cohort中的 '+number(ad_low.get('canonical_all_zero'))+' 个全零G8组，有 '+number(ad_low.get('all_zero_cost_varied'))+' 组指标deficit不同、'+number(ad_low.get('all_zero_first_infraction_time_varied'))+' 组首次违规时间不同；标量乘零会遮蔽这些方向。实际SafetyEP已采用kappa0的cost-centered全失败fallback，首次违规时刻尚未进入现有优势，不热改封存训练。</p>'
+            initial=rollout.get('initial_state_zero_group_counts',{});checked=sum(n.get('all_canonical0_groups',0) for n in initial.values() if isinstance(n,dict))
+            if initial:body+='<p>所选 '+number(checked)+' 组全零G8的初始状态审计，未见全候选t=0碰撞／不可行驶区问题；这是该cohort证据，不能外推为全量训练不存在初始状态问题。'+link(root/'analysis'/'ZERO_LOW_SCORE_ROLLOUT_DIAGNOSIS.json','历史rollout、实际优势与初始状态审计')+'</p>'
+            body+=detail('ODE零分之后的训练窗口：未再采样单列unknown',table(['路线','ODE零分窗口','之后有G8窗口','未再采到：unknown'],post_rows))
+    probe=editorial.get('fixed_theta_probe',{});probe_registration=editorial.get('fixed_theta_probe_registration',{})
+    if probe:
+        body+='<h3>固定theta ODE8／SDE8探针：实际结果入口</h3><p>状态 '+esc(probe.get('status','见结果收据'))+'；只用于选定TRAIN场景，固定checkpoint与初始latent，G8均值／通过数不当作best-of8部署成绩。'+link(root/'analysis'/'FIXED_THETA_ODE_SDE_ZERO_PROBE.json','固定theta实际诊断JSON')+'</p>'
+        probe_rows=[]
+        for arm,node in probe.get('results',{}).items():
+            if node.get('status')!='COMPLETE':continue
+            probe_rows.append([esc(arm),number(node.get('updates')),number(node.get('count')),esc(json.dumps(node.get('ODE8',{}),ensure_ascii=False)),esc(json.dumps(node.get('SDE8',{}),ensure_ascii=False))])
+        if probe_rows:body+=detail('已完整模型的候选诊断汇总：非正式部署分数',table(['模型','固定更新','TRAIN场景数','ODE8候选统计','SDE8候选统计'],probe_rows))
+    elif probe_registration:
+        body+='<p class="muted">固定theta ODE8／SDE8探针方案已登记：'+number(probe_registration.get('TRAIN_unique_scenes'))+' 个共同TRAIN场景、'+number(probe_registration.get('total_diagnostic_candidates'))+' 个候选；当前尚无实际结果JSON，不推断采样器优劣。'+link(root/'data'/'probes'/'ZERO_ODE8_SDE8_FIXED_THETA_20261031'/'REGISTRATION.json','有限探针登记')+'</p>'
+    if not longitudinal:body+='<p class="muted">纵向zero集合与rollout信号分析正在复用已保存证据；persistent／rotating比例尚待对齐诊断，不先把单阶段零分率当作持续失败。</p>'
     examples=scene_research.get('scene_examples',[])
     example_rows=[[esc(row.get('scene','')),esc(row.get('evidence_needed','')),esc(row.get('desired',''))]for row in examples] if examples else [
         ['路口让行／冲突参与者通过','路权、冲突间隙、参与者可见性、可行通行窗口','必要等待不作低效惩罚；区分尚无安全窗口与错过安全窗口。'],
@@ -482,7 +550,7 @@ def render_research_report(root,snapshot,history,h):
         body+='<p>'+link(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_RESEARCH.json','场景安全—效率研究目标、证据与实施状态')+'</p>'+detail('场景研究原始登记／诊断', '<pre>'+esc(json.dumps(scene_research,ensure_ascii=False,indent=2))+'</pre>')
         brief=editorial.get('scene_brief_20k',{})
         candidate=brief.get('minimal_CPU_candidate',{})
-        if candidate:body+='<p class="note">CPU信用分配原型把安全优势与“通过候选子集内中心化”的EP优势分开，并保留全失败fallback和绝对成本。该简报记录的是CPU结构检查；是否形成正式pilot，看新注册／worker收据，不能把代数性质当作训练成绩或安全保证。低EP或停车并非自动错误，必须先检查同组是否有通过指标的可行替代。'+link(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json','20k解释、局部方法边界与CPU原型')+'</p>'
+        if candidate:body+='<p class="note">CPU信用分配原型将安全优势与“通过候选子集内中心化”的EP优势分开。当前实际SafetyEP为kappa0的相对成本中心化：全失败但成本不同时可有方向，同成本仍无相对PG方向；不能把旧CPU推演当作当前部署保证。低EP或停车并非自动错误，必须先检查同组是否有通过指标的可行替代。'+link(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json','20k解释、局部方法边界与CPU原型')+'</p>'
     else:body+='<p class="muted">场景条件诊断／表征方案由研究主进程准备，正式SCENE_SAFETY_EFFICIENCY_RESEARCH.json待发布；当前是研究目标与判据，尚非新策略成绩。</p>'
     body+='<h3>数据覆盖与反馈：支持诊断，不替代场景解释</h3><div class="plots-two">'+data_chart+panel_chart+'</div><p>固定Hard的5k→10k下降0.118841点；同10k Full−Hard为+0.283893，配对区间[+0.011398,+0.520610]且NC/DAC/TTC均更高，支持本轮机会成本停止决策。'+adaptive_sentence+'其TRAIN先升后降，不能把反馈panel回升当泛化证明。</p>'
     if adaptive_amendment:
@@ -578,7 +646,9 @@ def render_research_report(root,snapshot,history,h):
             body+=table(['同预算完整人口配对','ΔPDMS［95%区间］','ΔNC pp［区间］','ΔTTC pp［区间］','ΔEP pp［区间］','结论／风险'],pair_rows)
         else:body+='<p class="muted">尚无双方完整且已配对的结果，不填分数或区间；每组完成后独立展示，不必等待六组齐备。</p>'
         body+='<p>'+esc(pilot_review.get('knowledge_scope_zh',''))+' '+esc(pilot_review.get('interpretation_zh',''))+' '+link(root/'analysis'/'NEW_PILOT_MATCHED_REVIEW.json','有限CPU配对分析与实际进度')+'</p>'
-    actions=[['P0','场景条件安全—效率与表征诊断','合法等待、低风险停滞、确认风险／观测不确定分开','IL补知识、RL做适配与轨迹强化，不把局部奖励去干扰当场景策略'],
+    actions=[['P0／已登记','两项同采样5k偏好pilot','Replay−Full隔离采样；CFM−Replay隔离辅助损失','910有效偏好场景；历史pair不混on-policy PG，当前成绩看完整证据'],
+        ['P0／有限探针','固定theta、同初始latent的ODE8／SDE8','排除历史theta变化后比较候选可行性与效率','实际JSON发布前不推断sampler差异；不把best-of8当部署'],
+        ['P0','场景条件安全—效率与表征诊断','合法等待、低风险停滞、确认风险／观测不确定分开','IL补知识、RL做适配与轨迹强化，不把局部奖励去干扰当场景策略'],
         ['已完成／继续拆解','解释20k匹配结果，保留Full控制','SAFE总分阶段增益、BATCH/CISPO的NC/TTC风险','不把10k领先外推；不因一个总分替代场景分组'],
         ['已完成／收据','停止NFT、固定hard-only、BATCH与CISPO后续预算','逐臂STOPPED、退出与checkpoint收据','保留旧结果与历史好点；不是模型失败'],
         ['已完成／后续解释','三模型固定TRAIN4096诊断','旧反馈1024、反馈外3072与实际曝光分层','面板特化迹象，不等于反馈外场景退化'],

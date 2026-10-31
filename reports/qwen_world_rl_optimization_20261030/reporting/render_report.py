@@ -542,6 +542,10 @@ def load_snapshot(root: Path) -> dict:
     preference_research=read_json(preference_path,warnings,inputs) or {} if preference_path else {}
     zero_path=next((root/'analysis'/name for name in ('ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS.json','ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS_20261031.json') if (root/'analysis'/name).exists()),None)
     zero_longitudinal=read_json(zero_path,warnings,inputs) or {} if zero_path else {}
+    preference_mixture_study=read_json(root/'PREFERENCE_MIXTURE_STUDY_REGISTRATION.json',warnings,inputs) or {}
+    preference_mixture_review=read_json(root/'analysis'/'PREFERENCE_MIXTURE_MATCHED_REVIEW.json',warnings,inputs) or {}
+    fixed_theta_probe_registration=read_json(root/'data'/'probes'/'ZERO_ODE8_SDE8_FIXED_THETA_20261031'/'REGISTRATION.json',warnings,inputs) or {}
+    fixed_theta_probe=read_json(root/'analysis'/'FIXED_THETA_ODE_SDE_ZERO_PROBE.json',warnings,inputs) or {}
     representation_audit=read_json(root/'analysis'/'REPRESENTATION_TRAINABILITY_AUDIT_20261030.json',warnings,inputs) or {}
     scene_brief=read_json(root/'analysis'/'SCENE_SAFETY_EFFICIENCY_BRIEF_20K.json',warnings,inputs) or {}
     scene_information_audit=read_json(root/'analysis'/'SCENARIO_SAFETY_EFFICIENCY_AUDIT_20261030.json',warnings,inputs) or {}
@@ -729,6 +733,9 @@ def load_snapshot(root: Path) -> dict:
                     new_pilot_matched_review=new_pilot_matched_review,
                     preference_research=preference_research,preference_research_path=str(preference_path) if preference_path else None,
                     zero_longitudinal=zero_longitudinal,zero_longitudinal_path=str(zero_path) if zero_path else None,
+                    preference_mixture_study=preference_mixture_study,
+                    preference_mixture_review=preference_mixture_review,
+                    fixed_theta_probe_registration=fixed_theta_probe_registration,fixed_theta_probe=fixed_theta_probe,
                     representation_audit=representation_audit,scene_brief_20k=scene_brief,
                     scene_information_audit=scene_information_audit,
                     decisions=decisions,stopped_receipts=stopped_receipts,nft_decision=decisions.get('NFT_FULL',{}),

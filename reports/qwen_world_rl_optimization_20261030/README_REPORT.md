@@ -21,3 +21,5 @@
 本次展示更新以场景条件安全—驾驶效率为研究主线，加入20k匹配配对、TRAIN4096最终三模型诊断及原生optimizer表征可训练审计。10k BatchStd历史最佳保留，后续20k优势未持续；SafeComfort仅是通过候选内局部突出EP。资源按最新有效时间窗和独立部署收据动态区分，报告侧不操作主机。
 
 2026-10-31更新：报告优先展示SafetyEP/MemoryLR20完整10k匹配及NC风险，动态读最终TRAIN偏好manifest和纵向zero诊断。新授权收据允许hosts列表，权限激活与库存证据分开；最新REQUEST覆盖旧8h时间窗。报告watch保持原PID和固定30分钟deadline，不操作科学运行。
+
+2026-10-31偏好研究更新：区分明确结论、待验证假设与两臂5k执行状态；5261pairs对应910有效优先场景，90无pair场景保留全量采样机会。加入完整历史TRAIN rollout/优势/unknown审计，固定theta探针仅条件展示实际JSON。Replay对Full隔离采样，CFM对Replay隔离辅助；没有预填研究成绩。
