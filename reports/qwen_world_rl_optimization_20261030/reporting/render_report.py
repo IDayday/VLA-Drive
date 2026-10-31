@@ -891,7 +891,7 @@ def main() -> None:
             'stage_selection_complete','performance_selection_complete','campaign_complete','stage_policy_amended'],
         debounce_seconds=1.0,journal_polling=False,event_updates_reset_regular_deadline=False,
         administrative_event_validation_is_scientific_result=False)
-    config.update(research_continuation_preference='1k/5k诊断不硬淘汰；健康臂继续原预算；单臂故障不终止整体；TRAIN反馈不等Test',
+    config.update(research_continuation_preference='SafetyEP续训到20k按证据复核；四个pilot在5k/10k预注册节点按证据选择延长；Rescue新phase1k/5k独立评测后review；已停止平台期路线不自动复活；单臂故障隔离、不终止整体；TRAIN反馈不等Test；50k仅配置上限，不默认续满',
         training_seed=42,inference_seed=2101,multiple_training_seeds_requested=False,
         resource_preference='高效并行使用授权资源，修正运营规划错误后继续研究')
     atomic_json(config_path,config)
