@@ -394,7 +394,7 @@ class EvaluationOwner:
                         '--cohort', entry['cohort'], '--data', data, '--rank', str(rank), '--world', str(entry['world']), '--seed', '2101']
                     if entry['cohort'] == 'NAVTEST':
                         command += ['--selection', self.registry['parent_selection']]
-                    if rank == 0:
+                    if rank == 0 and entry['cohort'] == 'DEV':
                         command += ['--native-parity-output', str(Path(entry['evaluation'])/'native_export_parity.json')]
                     self.launch_job(run, node, command, entry['label']+'/'+entry['cohort']+f'/rank{rank:02}', route)
                     # Every successful/ambiguous launch claims immediately, even
