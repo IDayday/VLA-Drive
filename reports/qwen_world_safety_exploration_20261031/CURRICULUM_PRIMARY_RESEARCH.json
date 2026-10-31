@@ -1,0 +1,116 @@
+{
+  "schema": "world_curriculum_primary_research_v1",
+  "status": "COMPLETE_PRIMARY_REVIEW_CODE_CPU_READY",
+  "at": "2026-10-31T23:41:02.946944+00:00",
+  "papers": [
+    {
+      "id": "DAPO",
+      "title": "DAPO: An Open-Source LLM Reinforcement Learning System at Scale",
+      "year": 2025,
+      "primary": "https://arxiv.org/html/2503.14476v2",
+      "project": "https://dapo-sia.github.io/",
+      "sections": [
+        "3.2 Dynamic Sampling"
+      ],
+      "paper_claim_zh": "在二元正确性reward的GRPO中，过滤所有回答全对/全错的prompt组，补充有效组以保持训练batch有效梯度规模。",
+      "transfer_zh": "过滤提高有效计算占比，但不会给全失败组创造成功轨迹、密集反馈或非零组内差。我们的课程不删除原uniform中的失败组，也不改PG。",
+      "important_difference_zh": "本研究canonical reward连续，且Safety rawA与canonical variance不同；140全canonical零组中59仍有结构信用，不能照搬按canonical全0过滤。"
+    },
+    {
+      "id": "SFL_UED",
+      "title": "No Regrets: Investigating and Improving Regret Approximations for Curriculum Discovery",
+      "year": 2024,
+      "primary": "https://arxiv.org/html/2408.15099v3",
+      "official_code": "https://github.com/amacrutherford/sampling-for-learnability",
+      "sections": [
+        "4.1 Defining Learnability",
+        "4.3 Sampling For Learnability"
+      ],
+      "paper_claim_zh": "常见regret代理未必代表regret；在二元成功任务中优先有时成功、有时失败的环境，避免反复训练已掌握任务。",
+      "transfer_zh": "用strict-feasible候选比例p作为局部信号，mixed组而非全饱和组进入优先池；保留覆盖用于发现未知能力。",
+      "important_difference_zh": "SFL的二元成功方差不是Safety rawA方差，也不是预期PDMS改进。本实现组合当前信用方差和可行性，仅是待验证信号代理，不复现完整UED/SFL。"
+    },
+    {
+      "id": "SFL_LLM",
+      "title": "Learning to Reason at the Frontier of Learnability",
+      "year": 2025,
+      "version_reviewed": "v6,2026-04-30",
+      "primary": "https://arxiv.org/abs/2502.12272v6",
+      "paper_claim_zh": "在PPO/VinePPO的数学推理任务中，按当前策略成功率的方差优先选择处于可学边界的问题。",
+      "transfer_zh": "在线反馈随当前策略更新，优于仅按静态困难标签排序；本池设TTL并在重新曝光后剔除饱和。",
+      "important_difference_zh": "不是GRPO驾驶实验；高成功方差可能来自采样噪声，不代表确定性ODE部署能学到，也不证明对已掌握场景无干扰。"
+    },
+    {
+      "id": "E2H",
+      "title": "Curriculum Reinforcement Learning from Easy to Hard Tasks Improves LLM Reasoning",
+      "year": 2025,
+      "primary": "https://arxiv.org/html/2506.06632v1",
+      "official_code": "https://github.com/divelab/E2H-Reasoning",
+      "sections": [
+        "3.1 Task decomposition",
+        "3.2 Training schedulers",
+        "5 Limitations"
+      ],
+      "paper_claim_zh": "任务分解与逐步困难调度能缓解稀疏奖励；简单阶段顺序也会遗忘或过拟合，论文比较混合调度。",
+      "transfer_zh": "不把困难集永久垄断训练，至少75% uniform；重复上限与过期机制避免旧1024反馈面板长期集中。",
+      "important_difference_zh": "本方案没有人为重构驾驶任务、没有静态easy/hard真值或课程收敛保证；保留覆盖并不保证最终高分保持。"
+    },
+    {
+      "id": "LEARNING_PROGRESS",
+      "title": "Automated Curriculum Learning for Neural Networks",
+      "year": 2017,
+      "primary": "https://proceedings.mlr.press/v70/graves17a.html",
+      "pdf": "https://proceedings.mlr.press/v70/graves17a/graves17a.pdf",
+      "paper_claim_zh": "非平稳bandit根据预测准确率或模型复杂度的变化估计学习进展，从而调度任务。",
+      "transfer_zh": "真正learning progress需要跨时点的可比测量；本实现记录重复反馈变化，但不把两次随机G8的差值直接作为确定学习进展。",
+      "important_difference_zh": "论文不是GRPO。当前native参数梯度大小、组内rawA方差和下一步总体性能变化不是同一量。"
+    },
+    {
+      "id": "CURIOUS_FORGETTING",
+      "title": "CURIOUS: Intrinsically Motivated Modular Multi-Goal Reinforcement Learning",
+      "year": 2019,
+      "version_reviewed": "v5,2026-01-29",
+      "primary": "https://arxiv.org/html/1810.06284v5",
+      "sections": [
+        "2.2 Learning Progress Estimation",
+        "4.3 Resilience to Forgetting"
+      ],
+      "paper_claim_zh": "按绝对学习进展调度模块化机器人目标，可把注意力转回被遗忘的目标。",
+      "transfer_zh": "遗忘需要相同任务可比性能回落，和单次失败不同。先保uniform并在报告中固定高分群体，不能拿NAV失败ID作为train bank。",
+      "important_difference_zh": "原算法包含goal-conditioned策略、HER等结构，本课程没有引入这些组件；也没有把NAV变化作为优先权重。"
+    }
+  ],
+  "definitions": {
+    "current_credit_variance": "当前同一场景G候选的实际Safety rawA population variance；用于有无相对方向，不等于学习价值。",
+    "learnability": "当前策略在任务上有时成功有时失败；二元p(1-p)是能力边界代理，不是对未来收益的保证。",
+    "learning_progress": "随训练发生的同任务可比成功率/回报提升；需处理策略、采样噪声和测量协议。",
+    "forgetting": "曾掌握任务的可比性能回落；不是单个新失败、不是一次candidate失败。",
+    "learning_value": "本应指训练该任务对目标性能的期望增量/成本；本实现只用便宜signal代理，不宣称已估计反事实增量。"
+  },
+  "full_training_evidence": {
+    "path": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/SAFETY_FULL_TRAINING_AUDIT_20261031/SUMMARY.json",
+    "sha256": "ff50e9f014fbf73339e83639966a490d0f71499572fad0aff8df643db0005ed2",
+    "actual_groups": 62640,
+    "actual_candidates": 501120,
+    "PG0": 6007,
+    "Safety_credit_saturated": 5910,
+    "saturated_with_Comfort_variation": 5552,
+    "allfail_costtie": 97,
+    "canonical_allzero": 140,
+    "canonical_allzero_with_activeSafety_credit": 59
+  },
+  "conclusions_zh": [
+    "不能把canonical reward variance作为learning-value：5552个Safety饱和组仍有Comfort差异，可能被按reward波动反复抽中。",
+    "优先池只分配额外25%预算到实际有Safety方向且有strict-feasible支持的组；全失败无witness不自动提高优先级，uniform仍保留它们的探索与PG。",
+    "数据课程不创造从未见过的成功端点，不修复reward成本压平、不更改meananchor、不证明解决SDE到ODE转移。",
+    "pool重复最多3次、cooldown8、TTL128、cap256；每rank uniform cursor独立按residue推进，priority不吞原无放回流。",
+    "首次priority机会collection12（48updates附近），需真实bank有可用条目；若无eligible必须报告fallback，不能伪称激活。",
+    "所有外部论文为机制借鉴，没有把其token环境结果称驾驶PDMS证据；最终只靠同预算完整NAV和高分/zero保持比较。"
+  ],
+  "scope": {
+    "new_GPU": false,
+    "registered": false,
+    "committed": false,
+    "external_eval_ID_training_selection": false
+  }
+}

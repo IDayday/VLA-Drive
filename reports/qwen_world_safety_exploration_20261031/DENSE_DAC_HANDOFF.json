@@ -1,0 +1,68 @@
+{
+  "schema": "world_DenseDAC_narrow_handoff_v1",
+  "status": "CPU_READY_UNREGISTERED",
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/dense_credit.py": "3a1f6ff48e75acc6f4fb24d57e8644796af071f40588d92642f0d2e2db1481cc",
+    "tests/test_world_safety_exploration_dense.py": "c5f76ff5259cd3830c782d71c9831e99ef57c80982d986d6780274fc3fe66a6c"
+  },
+  "module": "starVLA.rl.qwen_world_safety_exploration.dense_credit",
+  "mixin": "DenseRuntimeMixin",
+  "runtime_composition": "class Runtime(DenseRuntimeMixin, GroupRuntime): pass",
+  "entry": "tools.qwen_world_safety_exploration.train.main(Runtime()) via root router",
+  "configuration": {
+    "research_structured_advantage": "world_SafetyEP_DenseDAC_initial_legal_fixed_base_std_v1",
+    "group_size_supported": [
+      8,
+      16
+    ],
+    "initial_pilot_group_size": 8,
+    "other_parameters": "unchanged G8 SafetyEP freshIL70/Adam/RNG42, original103288uniform/W3, source clamped mean PPO clip.005, IL70 physical anchor beta50, actionLR5e-5/memoryLR5e-6 and52,707,840 trainable parameters"
+  },
+  "math": {
+    "gate": "all G NC=TTC1,DAC0, originalSafetyRawAall0, every t0 drivable, real binary Gx41 non_drivable_body_by_time available and d varies",
+    "duration": "mean(flags[1:41]) in FP64 on CPU, not geometry/risk probability",
+    "delta": "mean(d)-d offset-centered; A_safe+=delta,Araw+=delta,A_EP unchanged",
+    "normalization": "original Safety rawA world*G std when nonzero; only all-rank exactzero branch gathers updatedrawA to compute fallback std; eps1e-8 unchanged",
+    "scope": "positive A remains failed leastcost, never canonical success; raw canonical reward and all records unchanged"
+  },
+  "materials": {
+    "eligible": "real bool[G,41] flags + FP64[1,G]duration/delta, semantic provenance digest, independent schema",
+    "ineligible": "flags/duration/delta explicitlyNone + subtype/availability/initiallegality/tie skip status; no invented allzero flags",
+    "actor_inputs": "unchanged legal current observation descriptor only; privileged future score fields never passed to actor",
+    "normalization": "original_normalization_std and effective normalization_std saved"
+  },
+  "native_hooks": {
+    "finalize": "DenseCredit.finalize",
+    "boundary": "validate_dense_boundary reuses recovery.validate_structure and recomputes exact gates/parts from original records",
+    "ranks": "validate_dense_ranks validates eight actual summaries and rawA/normalization/masks/activation counts",
+    "source_loss": "DenseDACLoss subclass returns exact ResearchLoss total and gradient, only appends native activation metrics",
+    "identity": "DenseRuntimeMixin.recipe_identity adds full independent dense_credit_protocol; base Group identity already records scope/G/data"
+  },
+  "activation_logs": {
+    "metrics_prefix": "dense_dac_",
+    "fields": [
+      "subtype_groups",
+      "activated_groups",
+      "activated_candidates",
+      "missing_fields",
+      "initially_invalid",
+      "duration_tied",
+      "original_normalization_std",
+      "effective_normalization_std",
+      "normalization_fallback",
+      "failed_positive_candidates",
+      "adv_cap5_candidates",
+      "delta_abs_mean"
+    ],
+    "counting": "metrics repeat each inner; count first inner once per rank per fresh collection; full decision/status also saved in behavior payload",
+    "negative_result_guard": "1k with no/few activations is exposure-limited, cannot reject DenseDAC family"
+  },
+  "limits": [
+    "Historical74 supporting groups is exposure evidence, not a policy improvement result",
+    "No teacher, successful trajectory guarantee, learned critic or policy input change",
+    "Time fraction can prefer delaying offroad without making trajectory feasible; raw canonical eval determines value",
+    "No new algorithm registered or GPU dispatched"
+  ],
+  "receipt": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/DENSE_DAC_CPU_CHECK.json",
+  "sha256": "022638a502dfa8f3096796e7a8665c2bceb816d967d21455cb8920bff67c11a3"
+}

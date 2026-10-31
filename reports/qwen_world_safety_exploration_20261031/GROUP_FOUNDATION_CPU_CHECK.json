@@ -1,0 +1,48 @@
+{
+  "schema": "world_Safety_exploration_group_foundation_CPU_v1",
+  "status": "PASS",
+  "created_unix": 1793489688.07044,
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031",
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/__init__.py": "9a16ea7d70c020efaee413b097ebc934929a6577a575131edee6bbe06b60a8a9",
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py": "6b95108fe0dd390c58211461228c547543ccc51689caaf238f2231a794d4e379",
+    "starVLA/rl/qwen_world_safety_exploration/conditions.py": "a7de5b11469f5d91e144e467caf187cf3e505e957c3611e83c55237fead28d3f",
+    "starVLA/rl/qwen_world_safety_exploration/credit.py": "5daebd1e4a289b0608fd22214b3a1f99cd409ee53da76a10a4ad32a01ef19eff",
+    "starVLA/rl/qwen_world_safety_exploration/recovery.py": "5651e217761441857bba1e088d357b024995bea595d8a5a9f421c20070de6b79",
+    "tools/qwen_world_safety_exploration/__init__.py": "9a16ea7d70c020efaee413b097ebc934929a6577a575131edee6bbe06b60a8a9",
+    "tools/qwen_world_safety_exploration/train.py": "b3b16360487ec6b3c650f70144376f4303978451d7632af006eea663b61aa839",
+    "tests/test_world_safety_exploration_groups.py": "8bce34082fa6ad4342c880bfbd0d23d77c1a540c014fba874e100eae3d5f9973"
+  },
+  "tests": [
+    {
+      "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_safety_exploration_groups.py",
+      "result": "3 passed",
+      "seconds": 7.74
+    },
+    {
+      "command": "python -m tools.qwen_world_safety_exploration.train --help",
+      "result": "PASS CPU import/CLI"
+    },
+    {
+      "command": "pytest -q tests/test_world_safety_exploration_groups.py::test_eight_rank_torch_roundtrip_inner_recovery_gradients_and_corruption",
+      "result": "1 passed; schema guard branch",
+      "seconds": 6.93
+    }
+  ],
+  "checks": [
+    "G8 tensor-bitwise baseline math parity vs existing SafetyEP",
+    "G16 independent scalar-reference advantage; global64/128 fresh-only gather; allfail ties and success saturation",
+    "Eight-rank summary validation and torchsave/load at all four inners; real Adam/scheduler increments; source loss value/gradient equality",
+    "Corrupt reward/parts/schema/counters/descriptor and G8-G16 restore mismatch rejected",
+    "Single Qwen prefill/cache for G8/G16, candidate views dynamic, actual H8 collector shapes and generated/scored readouts",
+    "Collection callback exceptions converge through original checkpoint.check_errors before rank validation/publication"
+  ],
+  "scope": {
+    "GPU": false,
+    "qualification_matrix": false,
+    "registered": false,
+    "committed": false,
+    "live_source_edited": false
+  },
+  "sha256": "fde059313288083d370b74af28647dcb275649c682e28c9b9a6fc1b279cff60c"
+}

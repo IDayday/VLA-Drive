@@ -1,0 +1,139 @@
+{
+  "schema": "world_Safety_exploration_registered_pilots_v1",
+  "task": "qwen_world_safety_exploration_20261031",
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031",
+  "registered_unix": 1793490480.8367732,
+  "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+  "parent_selection": "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+  "observation_data": "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+  "training_population": 103288,
+  "original_DEV_independent": false,
+  "NAVTEST_training_feedback": false,
+  "multi_seed": false,
+  "automatic50k_budget": false,
+  "runs": [
+    {
+      "id": "SAFETY_G8_CONTROL",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/initial_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/configs/SAFETY_G8_CONTROL.yaml",
+      "config_sha256": "506483e0266a5cc33e5428a79ee7f29e2933248b47496619897c6edc9c0a5d24",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 1000,
+      "gates": [
+        500,
+        1000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/RESEARCH_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 40000
+        }
+      ],
+      "initialization": "fresh own common IL70 weights/Adam/seed42/update0",
+      "status": "REGISTERED_NOT_STARTED"
+    },
+    {
+      "id": "SAFETY_G16",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/initial_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/configs/SAFETY_G16.yaml",
+      "config_sha256": "9debe7c6bd39b7d818a28f75610a727b89cb4981f0e9f985f5f4d128b4bc708b",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "target_updates": 1000,
+      "gates": [
+        500,
+        1000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/RESEARCH_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        }
+      ],
+      "initialization": "fresh own common IL70 weights/Adam/seed42/update0",
+      "status": "REGISTERED_NOT_STARTED"
+    },
+    {
+      "id": "SAFETY_DAC_DENSE_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/initial_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/configs/SAFETY_DAC_DENSE_G8.yaml",
+      "config_sha256": "ceae14aa5141d8ddccd3b32de01347c20b6f07812626fa212a6c27b20538357b",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 1000,
+      "gates": [
+        500,
+        1000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/RESEARCH_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 40000
+        }
+      ],
+      "initialization": "fresh own common IL70 weights/Adam/seed42/update0",
+      "status": "REGISTERED_NOT_STARTED"
+    },
+    {
+      "id": "SAFETY_ACTIVE_DATA_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/initial_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/configs/SAFETY_ACTIVE_DATA_G8.yaml",
+      "config_sha256": "363f18c71a0b449ee42e9c8eacd7d3cc879ba47a9e2166f1f9398ee57840994a",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 1000,
+      "gates": [
+        500,
+        1000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/RESEARCH_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 40000
+        }
+      ],
+      "initialization": "fresh own common IL70 weights/Adam/seed42/update0",
+      "status": "REGISTERED_NOT_STARTED"
+    }
+  ],
+  "evaluation": {
+    "cohorts": [
+      "NAVTEST"
+    ],
+    "data_paths": {
+      "NAVTEST": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST"
+    },
+    "manifests": {
+      "NAVTEST": "/mnt/project/qwen-world-safety-exploration-20261031/data/NAVTEST.json"
+    },
+    "max_shards": 32,
+    "max_workers": 64,
+    "inference": "single ODE K10 shift5 seed2101",
+    "partial_scores_publishable": false
+  },
+  "comparison_contract": {
+    "same_candidates": "G16@500 vs G8@1000:16000 candidates,1000 vs2000scene exposures",
+    "same_scenes_and_updates": "G16@1000 vs G8@1000:2000scene exposures,32000 vs16000candidates",
+    "dense": "G8Dense vs G8Control:only narrow rawA override/baseStd retention",
+    "curriculum": "G8Active vs G8Control:only scene allocation;>=75%uniformfloor,private resumable bank,oldDEV is TRAIN diagnostic"
+  },
+  "evidence_root": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis",
+  "registry_file_sha256": "3f0f20aa1dfc9632db19e85709f5969bb3a29c522da820d087de18516bc71da5"
+}

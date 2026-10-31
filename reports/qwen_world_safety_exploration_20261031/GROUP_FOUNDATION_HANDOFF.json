@@ -1,0 +1,74 @@
+{
+  "schema": "world_Safety_exploration_group_foundation_handoff_v1",
+  "status": "CPU_READY_FOR_ROOT_REVIEW",
+  "entry": "tools.qwen_world_safety_exploration.train",
+  "call": "main(runtime=None); default runtime=GroupRuntime()",
+  "runtime": "starVLA.rl.qwen_world_safety_exploration.group_runtime.GroupRuntime",
+  "config": {
+    "research_schema": "world_Safety_exploration_experiment_v1",
+    "campaign_root": "/mnt/project/qwen-world-safety-exploration-20261031",
+    "structured_advantage": "world_SafetyEP_group_credit_v1",
+    "group_size": [
+      8,
+      16
+    ],
+    "world_size": 8,
+    "max_steps": 50000,
+    "warmup_updates": 100,
+    "LR_action": 5e-05,
+    "LR_memory": 5e-06,
+    "logical_budget_candidates": {
+      "8": 800000,
+      "16": 1600000
+    },
+    "W3": [
+      7,
+      8,
+      9
+    ],
+    "scope_numel": 52707840
+  },
+  "credit": {
+    "class_path": "starVLA.rl.qwen_world_safety_exploration.credit.GroupCredit",
+    "extension": "Override GroupRuntime.make_credit(cfg) -> subclass with own protocol/schema and parts(components); same object used for finalize and boundary/rank recompute",
+    "extra_material": "Nonstandard material must use a paired custom finalizer and validator; recovery.validate_structure is available without assuming any A mathematics.",
+    "parts": "feasible,cost,A_safe,A_EP,A_raw; tensor[scene,G], components[scene,G,4]",
+    "metadata": "protocol.group_size/world/normalization_population_candidates bound to native payload"
+  },
+  "trainer_hooks": {
+    "bind_training_state": "after native restore before Invocation/first stream.at",
+    "on_collection_committed": "after A finalize and collections/exposure/cursor commit, before boundary check/behavior publication; once per fresh collection; exceptions gathered before any rank enters validation/publication",
+    "stream_at": "runtime.stream.at(global_cursor, rank)",
+    "public_training_state": "full native state preserved; large curriculum fields removed only from public summaries",
+    "stop": "runtime.request_stop callback bound to local trainer.stop; avoids duplicate __main__ module flags"
+  },
+  "checkpoint": {
+    "module": "unchanged simwam_recipe.checkpoint transaction engine",
+    "hooks": "runtime.validate_boundary and validate_ranks supplied on BOTH save and restore",
+    "states": "full Adam/scheduler/all RNG/source generator/rollout/curriculum per-rank; no G8-to-G16 native resume",
+    "identity": "scope schema retained for deployment compatibility; exploration/credit/condition protocols explicit; JSON-canonicalized before sealing"
+  },
+  "dependencies": {
+    "root_owned": "new .contracts.require_dispatch and boundary_stop_due; ops/entryrouter/registration",
+    "adaptive_owned": "curriculum mixin/stream; append boundary/rank state checks"
+  },
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/__init__.py": "9a16ea7d70c020efaee413b097ebc934929a6577a575131edee6bbe06b60a8a9",
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py": "6b95108fe0dd390c58211461228c547543ccc51689caaf238f2231a794d4e379",
+    "starVLA/rl/qwen_world_safety_exploration/conditions.py": "a7de5b11469f5d91e144e467caf187cf3e505e957c3611e83c55237fead28d3f",
+    "starVLA/rl/qwen_world_safety_exploration/credit.py": "5daebd1e4a289b0608fd22214b3a1f99cd409ee53da76a10a4ad32a01ef19eff",
+    "starVLA/rl/qwen_world_safety_exploration/recovery.py": "5651e217761441857bba1e088d357b024995bea595d8a5a9f421c20070de6b79",
+    "tools/qwen_world_safety_exploration/__init__.py": "9a16ea7d70c020efaee413b097ebc934929a6577a575131edee6bbe06b60a8a9",
+    "tools/qwen_world_safety_exploration/train.py": "b3b16360487ec6b3c650f70144376f4303978451d7632af006eea663b61aa839",
+    "tests/test_world_safety_exploration_groups.py": "8bce34082fa6ad4342c880bfbd0d23d77c1a540c014fba874e100eae3d5f9973"
+  },
+  "receipt": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/GROUP_FOUNDATION_CPU_CHECK.json",
+  "scope": {
+    "GPU": false,
+    "qualification_matrix": false,
+    "registered": false,
+    "committed": false,
+    "live_source_edited": false
+  },
+  "sha256": "5cf090c683c58c5654d1cac85e497f2d8f88f4dbe2ebbff0beae61fe74344d91"
+}

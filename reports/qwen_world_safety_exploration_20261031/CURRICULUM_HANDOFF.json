@@ -1,0 +1,94 @@
+{
+  "schema": "world_curriculum_implementation_handoff_v1",
+  "status": "CPU_READY_FOR_ROOT_REVIEW",
+  "at": "2026-10-31T23:41:02.957234+00:00",
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031",
+  "module": "starVLA.rl.qwen_world_safety_exploration.curriculum",
+  "classes": [
+    "OnlinePriorityStream",
+    "CurriculumRuntimeMixin"
+  ],
+  "compose": "class Runtime(CurriculumRuntimeMixin, GroupRuntime): pass; tools.qwen_world_safety_exploration.train.main(Runtime())",
+  "cfg_fragment": "/mnt/project/qwen-world-safety-exploration-20261031/configs/CURRICULUM_FRAGMENT.json",
+  "strict_config": {
+    "schema": "world_online_Safety_credit_priority_stream_v1",
+    "enabled": true,
+    "warmup_collections": 8,
+    "priority_every_collections": 4,
+    "uniform_floor": 0.75,
+    "capacity": 256,
+    "max_priority_repeats": 3,
+    "cooldown_collections": 8,
+    "max_age_collections": 128,
+    "min_rawA_variance": 1e-06,
+    "min_EP_headroom": 0.0001,
+    "priority_clip": 1.0,
+    "seed": 42
+  },
+  "config_sha256": "ef8dab41aa7fec298bf8aa0536d203bede65191f57fc9adce666530884283e59",
+  "initialization": "fresh IL70 run, state collections0; exact native selfresume retains allcurriculum state; no transplant from uniform/nativeG8 toG16",
+  "hooks": {
+    "make_scene_stream": "super creates original uniform SceneStream; wrapper replaces self.stream only for online_priority",
+    "bind_training_state": "super then stream.bind(state); validate pending rollout; called after restore before firstat",
+    "at": "idempotent persistent prepared selection; returns token+position containing curriculum_selection_id",
+    "commit": "on_collection_committed after finalizedA and native collections/cursor increment, once per fresh collection before behavior/checkpoint publication",
+    "boundary": "super core validation + private curriculum/nativeplan/counters; metadata included in ranksummary",
+    "ranks": "super global64/128A validation + rankowner/residue/cursor/75%floor",
+    "public": "small summary only; full bank/RNG/plan/counters remains in native state, not public JSON"
+  },
+  "state_fields": [
+    "schema",
+    "identity_sha256",
+    "rank",
+    "uniform_draws",
+    "committed_collections",
+    "rng_state",
+    "bank",
+    "priority_counts",
+    "last_priority_collection",
+    "seen_uniform",
+    "seen_priority",
+    "selection_plan",
+    "stats"
+  ],
+  "math": {
+    "eligibility": "variance(actualSafety rawA)>=1e-6 AND (mixed strictfeasible OR allfeasible with normalizedEP headroom>=1e-4)",
+    "weighting": "mixed: min(1,varA*(1+4p*(1-p))); allfeasible: min(1,varA*(1-meanEP)); allfail/saturated not automatically admitted",
+    "uniform": "base.at(uniform_draws*world,rank); drawcount increases only on uniform commit, not priority",
+    "schedule": "warmup8 collections then each divisible-by4 collection priority; first12; fallbackuniform if empty/cooldown/cap",
+    "no_importance_correction": "intentional training-distribution experiment, not an unbiased uniform objective estimator"
+  },
+  "telemetry": {
+    "priority_exposures": "every priority sample is a replay of its ownrank observed TRAIN scene",
+    "repeated_priority_exposures": "additional priority repeats after the first priority sample for thatscene",
+    "repeat_scene_exposures": "all exposures minus distinct observedscene count, includes uniform epoch repeats",
+    "pool_exits": "saturated/uninformative/expired/capacity/repeatcap counts",
+    "stochastic_feedback_delta": "recorded only; not used as a causal learning-progress/forgetting estimate"
+  },
+  "parent_data_contract": "Same original103288 fullmanifest; priorDEV explicitly train diagnostic; no NAV/DEV evaluation list consumed. Underlying SceneStream validates token and physical-log eligibility.",
+  "scope_note": "rank-local priority bank contains only ownrank uniform history; uniform global positions preserve distinct rank residues. Source epoch repeats/padding retain original semantics; this5k/10k pilot stays before fulluniform epoch wrap.",
+  "unchanged": [
+    "PG/loss/credit",
+    "reference",
+    "modelscope",
+    "G",
+    "noise",
+    "learningrate",
+    "optimizer",
+    "mainstream fullpopulation eligibility"
+  ],
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/curriculum.py": "ab47f4be22529aab737ccf37f52ea8e1949f3ee7fdc0020323ab4b1eac49d4d6",
+    "tests/test_qwen_world_safety_curriculum.py": "cbecbb1b34b0b083d8908cffbc40e5765db3608ea97a91596d119b23a4f8b0be"
+  },
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/CURRICULUM_CPU_CHECK.json",
+  "primary_research": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/CURRICULUM_PRIMARY_RESEARCH.json",
+  "operational_actions": {
+    "GPU": false,
+    "dispatch": false,
+    "registration": false,
+    "git_stage": false,
+    "git_commit": false,
+    "old_live_sources_edited": false
+  }
+}

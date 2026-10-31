@@ -1,0 +1,132 @@
+{
+  "schema": "world_DenseDAC_narrow_CPU_check_v1",
+  "status": "PASS_THREE_TARGETED_CHECKS",
+  "created_unix": 1793490292.9085968,
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/dense_credit.py": "3a1f6ff48e75acc6f4fb24d57e8644796af071f40588d92642f0d2e2db1481cc",
+    "tests/test_world_safety_exploration_dense.py": "c5f76ff5259cd3830c782d71c9831e99ef57c80982d986d6780274fc3fe66a6c"
+  },
+  "checks": [
+    {
+      "name": "eligible gate, duration ranking, unrelated normalized A bit equality",
+      "status": "PASS",
+      "groups": [
+        8,
+        16
+      ],
+      "initial_legal_missing_malformed_tie_cases": true
+    },
+    {
+      "name": "global64/128 base std or fallback, full eight-rank recomputation and material corruption rejection",
+      "status": "PASS",
+      "groups": [
+        8,
+        16
+      ],
+      "normalization_branches": [
+        "original_nonzero",
+        "original_zero_updated_std"
+      ]
+    },
+    {
+      "name": "actual eight-process CPU Gloo native checkpoint save+restore, four pending inners and READY4",
+      "status": "PASS",
+      "groups": [
+        8
+      ],
+      "ranks": 8,
+      "seconds": 4.52,
+      "checkpoint_seals": [
+        {
+          "path": "/tmp/pytest-of-root/pytest-current/test_actual_native_checkpoint_0/native/checkpoints/update000000_inner0",
+          "seal": {
+            "schema": 2,
+            "phase": "ROLLOUT_COMMITTED",
+            "world": 8,
+            "updates": 0,
+            "next_inner": 0,
+            "files_sha256": "cabd2adcdd36cf1a81097a6b70ab0186caf332bebf9b602bd7eb140859d4a932"
+          },
+          "files_sha256": "cabd2adcdd36cf1a81097a6b70ab0186caf332bebf9b602bd7eb140859d4a932",
+          "transaction_sha256": "204122c5d82f3e0e75f008391806f3f11dfea1efca8873f19ce762796d0b7471",
+          "rank_files": 8
+        },
+        {
+          "path": "/tmp/pytest-of-root/pytest-current/test_actual_native_checkpoint_0/native/checkpoints/update000001_inner1",
+          "seal": {
+            "schema": 2,
+            "phase": "INNER_COMMITTED",
+            "world": 8,
+            "updates": 1,
+            "next_inner": 1,
+            "files_sha256": "71d6507af1b5cb8ebd9372f6017d8c8d9d5ff2717c093e7ed7f0634efcb856c5"
+          },
+          "files_sha256": "71d6507af1b5cb8ebd9372f6017d8c8d9d5ff2717c093e7ed7f0634efcb856c5",
+          "transaction_sha256": "0f1ed78b65382135cca1d367d12af8c1463941f89fe8027e952b84e81c2596d3",
+          "rank_files": 8
+        },
+        {
+          "path": "/tmp/pytest-of-root/pytest-current/test_actual_native_checkpoint_0/native/checkpoints/update000002_inner2",
+          "seal": {
+            "schema": 2,
+            "phase": "INNER_COMMITTED",
+            "world": 8,
+            "updates": 2,
+            "next_inner": 2,
+            "files_sha256": "3d3521fd25a140d03b974f239c00ba73468feaeca58f423bf86680bf427d1221"
+          },
+          "files_sha256": "3d3521fd25a140d03b974f239c00ba73468feaeca58f423bf86680bf427d1221",
+          "transaction_sha256": "5b24ffb6e58d6f4533ebfd29dd7eade19e4e419e44cb5f4c84b1ce51e1e76a0f",
+          "rank_files": 8
+        },
+        {
+          "path": "/tmp/pytest-of-root/pytest-current/test_actual_native_checkpoint_0/native/checkpoints/update000003_inner3",
+          "seal": {
+            "schema": 2,
+            "phase": "INNER_COMMITTED",
+            "world": 8,
+            "updates": 3,
+            "next_inner": 3,
+            "files_sha256": "3787705a9d380378d59781e208c2bd6806c4af1aa12b17df0c63cf1674679920"
+          },
+          "files_sha256": "3787705a9d380378d59781e208c2bd6806c4af1aa12b17df0c63cf1674679920",
+          "transaction_sha256": "7ad4f7937fc56ba3a0c20a821a4d440a54a8437af98668a7463543c4ba0658a1",
+          "rank_files": 8
+        },
+        {
+          "path": "/tmp/pytest-of-root/pytest-current/test_actual_native_checkpoint_0/native/checkpoints/update000004_inner0",
+          "seal": {
+            "schema": 2,
+            "phase": "READY",
+            "world": 8,
+            "updates": 4,
+            "next_inner": 0,
+            "files_sha256": "fdd95abfa5de2e497ede1df1af65645fec58c2112b644dff7324c87c7dacc02f"
+          },
+          "files_sha256": "fdd95abfa5de2e497ede1df1af65645fec58c2112b644dff7324c87c7dacc02f",
+          "transaction_sha256": "71597d1562bc0cd4c8c32608ad1b841af6e64f4be1ee4467f59efd097ba98592",
+          "rank_files": 8
+        }
+      ],
+      "marker": "/tmp/pytest-of-root/pytest-current/test_actual_native_checkpoint_0/native/NATIVE_CPU_PASS",
+      "optimizer_RNG_rollout_exact": true
+    }
+  ],
+  "tests": [
+    {
+      "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q tests/test_world_safety_exploration_dense.py",
+      "result": "First two checks passed; third initially failed only because test helper tried JSON-digest on numpy records; no checkpoint algorithm failure"
+    },
+    {
+      "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q tests/test_world_safety_exploration_dense.py::test_actual_native_checkpoint_eight_CPU_ranks_pending_four_inner_roundtrip",
+      "result": "1 passed in4.52s after test-only digest correction; numpy record equality is checked independently"
+    }
+  ],
+  "scope": {
+    "GPU": false,
+    "registration": false,
+    "commit": false,
+    "default_Group_or_trainer_changed": false
+  },
+  "sha256": "2be6770e3ec8d7d0007137f534984463c5148d17e72bb38b0d08310234b7fc45"
+}
