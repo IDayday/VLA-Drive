@@ -476,6 +476,28 @@ def load_snapshot(root: Path) -> dict:
     if baseline_spec:result_rows+=evaluation_entries(baseline_spec)
     train4096_state=read_json(root/'owners'/'TRAIN4096'/'STATE.json',warnings,inputs) or {}
     result_rows+=evaluation_entries(train4096_state)
+    cadence_folder=root/'owners'/'NAVTEST_CADENCE'
+    cadence_state=read_json(cadence_folder/'STATE.json',warnings,inputs) or {}
+    cadence_results=read_json(cadence_folder/'RESULTS.json',warnings,inputs) or {}
+    cadence_owner=read_json(cadence_folder/'OWNER.json',warnings,inputs) or {}
+    cadence_launch=read_json(cadence_folder/'LAUNCH.json',warnings,inputs) or {}
+    cadence_policy=read_json(root/'NAVTEST_CADENCE_POLICY_20261031.json',warnings,inputs) or {}
+    result_rows+=evaluation_entries(cadence_state)+evaluation_entries(cadence_results)
+    cadence_identity=bool(cadence_owner.get('pid') and all(cadence_owner.get(key)==cadence_launch.get(key)for key in ('pid','start_ticks','source_sha256')))
+    try:cadence_alive=cadence_identity and int(Path(f"/proc/{cadence_owner['pid']}/stat").read_text().split()[21])==cadence_owner['start_ticks']
+    except (OSError,ValueError,KeyError,IndexError):cadence_alive=False
+    cadence_evaluations={}
+    for label,node in cadence_state.get('evaluations',{}).items():
+        spec=node.get('spec',{});job_counts={}
+        for job in spec.get('jobs',[]):
+            folder=Path(job);receipt_path=folder/'RESULT.json'if(folder/'RESULT.json').exists()else folder/'RUNNING.json'
+            receipt=read_json(receipt_path,warnings,inputs) or {}if receipt_path.exists()else {}
+            worker_status=receipt.get('status','PENDING');job_counts[worker_status]=job_counts.get(worker_status,0)+1
+        cadence_evaluations[label]={key:node.get(key)for key in ('arm','updates','status','checkpoint','summary')}
+        cadence_evaluations[label].update(world=spec.get('world'),worker_counts=job_counts,spec=spec)
+    cadence=dict(status='ACTIVE'if cadence_alive and cadence_state.get('status')not in ('FAILED','STOPPED','COMPLETE')else cadence_state.get('status','AWAITING_OWNER_RECEIPT'),
+        owner=cadence_owner,launch=cadence_launch,identity_matches=cadence_identity,process_matches=cadence_alive,
+        approved_arms=cadence_state.get('approved_arms',{}),evaluations=cadence_evaluations,policy=cadence_policy,updated_at=cadence_state.get('updated_at'))
     additional_probes=read_json(root/'ADDITIONAL_NAVTEST_PROBES.json',warnings,inputs) or {}
     for run in runs:
         owner=run.get('owner_receipt',{})
@@ -815,7 +837,7 @@ def load_snapshot(root: Path) -> dict:
                     safety_ep_continuation_path=str(safety_ep_continuation_path) if safety_ep_continuation_path else None,
                     route_priority_review=route_priority_review,adaptive27k_review=adaptive27k_review,
                     noise003_deployment=noise003_deployment,noise003_attempts=noise003_attempts,noise003_result=noise003_result,noise003_scorer_fix=noise003_scorer_fix,noise003_registration=noise003_registration,last_step_counterfactual=last_step_counter,safety_evidence_review=safety_evidence_review,
-                    sampler_matched_reviews=sampler_matched_reviews,rescue_study=rescue_study,
+                    sampler_matched_reviews=sampler_matched_reviews,rescue_study=rescue_study,navtest_cadence=cadence,
                     failure_guidance=failure_guidance,primary_research_links=primary_research_links,
                     fixed_theta_probe_registration=fixed_theta_probe_registration,fixed_theta_probe=fixed_theta_probe,
                     fixed_probe_diagnosis=fixed_probe_diagnosis,

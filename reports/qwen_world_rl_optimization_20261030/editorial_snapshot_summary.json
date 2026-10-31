@@ -1,6 +1,6 @@
 {
   "schema": "qwen_world_editorial_report_snapshot_v1",
-  "generated_utc": "2026-10-31 03:26:36 UTC",
+  "generated_utc": "2026-10-31 03:58:36 UTC",
   "canonical_report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
   "layout": {
     "main_sections": 7,
@@ -369,6 +369,22 @@
       "scenes": 12146,
       "PDMS": 89.00062813755586,
       "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_NOISE03_u001000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_PREF_REPLAY",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.54610697219195,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_REPLAY_u005000_NAVTEST/SUMMARY.json"
+    },
+    {
+      "arm": "PPO_PREF_CFM",
+      "updates": 5000,
+      "cohort": "NAVTEST",
+      "scenes": 12146,
+      "PDMS": 90.39983099079379,
+      "evidence": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_PREF_CFM_u005000_NAVTEST/SUMMARY.json"
     },
     {
       "arm": "PPO_ADAPTIVE",
@@ -5554,5 +5570,147 @@
       "worker_receipt_status": "RUNNING",
       "worker_returncode": null
     }
-  ]
+  ],
+  "NAVTEST_cadence": {
+    "status": "ACTIVE",
+    "owner": {
+      "pid": 2342200,
+      "role": "CPU NAVTEST observer/dispatcher only; no native training actions",
+      "source_file": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner.py",
+      "source_sha256": "b96dd4450aa5a85ca9be4e46b8028166ac3da42ecdfba0ff31406b08a4acbe30",
+      "start_ticks": 1485735603,
+      "started_at": "2026-10-31T03:52:22.932628+00:00"
+    },
+    "identity_matches": true,
+    "process_matches": true,
+    "approved_arms": {
+      "PPO_SAFETY_EP": {
+        "currently_dispatched_target": 20000,
+        "eligible_budget": 50000,
+        "run_root": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP",
+        "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v7_memorylr_121aa27aa99c",
+        "status": "TRAINING_DISPATCHED"
+      }
+    },
+    "evaluations": {
+      "PPO_SAFETY_EP_u012000_NAVTEST": {
+        "arm": "PPO_SAFETY_EP",
+        "updates": 12000,
+        "status": "DISPATCHED",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update012000_inner0",
+        "summary": null,
+        "world": 32,
+        "worker_counts": {
+          "RUNNING": 32
+        },
+        "spec": {
+          "administrative_owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE",
+          "baseline": null,
+          "cohort": "NAVTEST",
+          "data": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST",
+          "export": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/exports/PPO_SAFETY_EP_u012000_NAVTEST",
+          "jobs": [
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank000_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank001_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank002_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank003_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank004_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank005_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank006_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank007_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank008_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank009_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank010_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank011_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank012_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank013_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank014_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank015_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank016_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank017_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank018_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank019_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank020_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank021_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank022_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank023_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank024_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank025_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank026_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank027_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank028_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank029_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank030_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u012000_NAVTEST/rank031_attempt001"
+          ],
+          "label": "PPO_SAFETY_EP_u012000_NAVTEST",
+          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/panels/NAVTEST_012146.json",
+          "output": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u012000_NAVTEST",
+          "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "requested_world": 32,
+          "rl_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update012000_inner0",
+          "route_policy": "existing UUID/visible-owner/admission proof, plus measured CPU/RAM pressure",
+          "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v3_4e61823bb3a8",
+          "training_bank": null,
+          "world": 32
+        }
+      },
+      "PPO_SAFETY_EP_u014000_NAVTEST": {
+        "arm": "PPO_SAFETY_EP",
+        "updates": 14000,
+        "status": "DISPATCHED",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update014000_inner0",
+        "summary": null,
+        "world": 25,
+        "worker_counts": {
+          "RUNNING": 25
+        },
+        "spec": {
+          "administrative_owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE",
+          "baseline": null,
+          "cohort": "NAVTEST",
+          "data": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST",
+          "export": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/exports/PPO_SAFETY_EP_u014000_NAVTEST",
+          "jobs": [
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank000_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank001_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank002_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank003_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank004_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank005_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank006_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank007_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank008_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank009_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank010_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank011_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank012_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank013_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank014_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank015_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank016_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank017_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank018_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank019_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank020_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank021_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank022_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank023_attempt001",
+            "/mnt/project/qwen-world-rl-optimization-20261030/jobs/EVAL_PPO_SAFETY_EP_u014000_NAVTEST/rank024_attempt001"
+          ],
+          "label": "PPO_SAFETY_EP_u014000_NAVTEST",
+          "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/panels/NAVTEST_012146.json",
+          "output": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u014000_NAVTEST",
+          "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "requested_world": 32,
+          "rl_checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update014000_inner0",
+          "route_policy": "existing UUID/visible-owner/admission proof, plus measured CPU/RAM pressure",
+          "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v3_4e61823bb3a8",
+          "training_bank": null,
+          "world": 25
+        }
+      }
+    },
+    "updated_at": "2026-10-31T03:58:36.034694+00:00"
+  }
 }

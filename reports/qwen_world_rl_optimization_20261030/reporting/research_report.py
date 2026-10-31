@@ -287,7 +287,15 @@ def render_research_report(root,snapshot,history,h):
     if editorial.get('safety_evidence_review'):body+='<p class="muted">有限CPU证据评审已启动：20k提出建议；35k若两个节点均未刷新10k、总分差95%区间上界低于0且NC／DAC／TTC无明确改善，才按登记条件协作停止。不因单个安全指标下降或预算上限强停。'+link(root/'analysis'/'SAFETY_EVIDENCE_REVIEW_20261031.json','Safety证据评审状态')+'</p>'
     cadence=snapshot.get('report_config',{}).get('long_run_NAVTEST_cadence',{})
     if cadence:
-        body+='<p class="note"><b>新增完整NAVTEST节奏：10k后每2k（12／14／16／18／20k…）。</b>仅适用于已获准长训、预算超过10k的活动任务；5k／10k pilot不自动获得延长，停止路线不复活。原生训练／预算复核节点仍保留，但不再等同完整Test的唯一频次；旧20／35／50k评测与已在途／已完成结果复用，避免重复评分。从实际存在的完整native checkpoint补评可用节点，不补造缺失权重。TRAIN频次不改；仍是单候选ODE K10／shift5／seed2101、12,146场景。独立owner与补评执行状态：'+esc(cadence.get('owner_activation','待实际启动收据'))+'。</p>'
+        cadence_runtime=editorial.get('navtest_cadence',{});cadence_active=cadence_runtime.get('status')=='ACTIVE'
+        cadence_state_text=('ACTIVE：独立CPU owner '+number(cadence_runtime.get('owner',{}).get('pid'))+'，OWNER／LAUNCH／进程start一致'if cadence_active else str(cadence_runtime.get('status')or cadence.get('owner_activation','待实际启动收据')))
+        body+='<p class="note"><b>新增完整NAVTEST节奏：10k后每2k（12／14／16／18／20k…）。</b>仅适用于已获准长训、预算超过10k的活动任务；5k／10k pilot不自动获得延长，停止路线不复活。原生训练／预算复核节点仍保留，但不再等同完整Test的唯一频次；旧20／35／50k评测与已在途／已完成结果复用，避免重复评分。从实际存在的完整native checkpoint补评可用节点，不补造缺失权重。TRAIN频次不改；仍是单候选ODE K10／shift5／seed2101、12,146场景。独立owner与补评执行状态：'+esc(cadence_state_text)+'。</p>'
+        cadence_rows=[];cadence_running=0
+        for label,node in cadence_runtime.get('evaluations',{}).items():
+            workers=node.get('worker_counts',{});cadence_running+=workers.get('RUNNING',0)
+            row=next((v for v in snapshot['results']if v.get('label')==label),{})
+            cadence_rows.append([esc(label),number(node.get('updates')),number(node.get('world'))if node.get('world')else 'CPU导出／选路中',esc(node.get('status','待记录'))+'<small>'+esc('，'.join(str(k)+' '+str(v)for k,v in workers.items())or '尚无worker回执')+'</small>',fmt(row.get('PDMS'),6)if row.get('publishable_complete')else '未完整，不发布均分',link(node.get('spec',{}).get('output'),'评测输出')])
+        if cadence_rows:body+=table(['独立周期评测','完整native预算','实际world','实际worker回执（RESULT优先）','完整Test PDMS','来源'],cadence_rows)+'<p class="muted">本次读取共有 '+number(cadence_running)+' 个RUNNING评测分片；world按各自spec实际冻结值，requested32不代表每份都32。训练／TRAIN反馈继续异步；独立STATE结果自动进入既有完整成绩表与曲线。'+link(root/'owners'/'NAVTEST_CADENCE'/'STATE.json','独立STATE')+' · '+link(root/'owners'/'NAVTEST_CADENCE'/'RESULTS.json','仅完整结果索引')+'</p>'
     resources=snapshot.get('active_resources',[]);uuids={r.get('uuid') for r in resources if r.get('uuid')}
     body+='<p class="muted">最新可核查资源身份：'+number(len(snapshot.get('current_authorized_hosts') or []))+'许可主机 / '+number(len(uuids))+'已登记GPU UUID，来源含库存快照与native child启动回执；授权、准入合格和实际部署分开记录，UUID不等于当前空闲。运营细节见折叠附录。</p>'
     if snapshot.get('resource_inventory_unknown_hosts'):body+='<p class="muted">当前重新授权但物理库存／就绪度未核实的主机：'+esc('、'.join(snapshot['resource_inventory_unknown_hosts']))+'；不填8张可用卡，不将连接失败写成部署完成。</p>'
@@ -307,9 +315,10 @@ def render_research_report(root,snapshot,history,h):
     # 03: matched-budget curves and point deltas sit side by side.
     plot_budget=10000 if pilot_focus else budget
     plot_arms=['PPO_FULL','PPO_MEMORYLR20','PPO_SAFETY_EP'] if pilot_focus else ALGO_ARMS
-    series={a:[(update(r),r['PDMS']) for r in test if r.get('arm')==a and update(r)<=plot_budget] for a in plot_arms}
+    curve_budget=max(plot_budget,max((update(r)for r in test if r.get('arm')=='PPO_SAFETY_EP'),default=plot_budget))
+    series={a:[(update(r),r['PDMS']) for r in test if r.get('arm')==a and update(r)<=curve_budget] for a in plot_arms}
     line=curve(root,h,'research_matched_ppo','新pilot完整NAVTEST：同预算曲线' if pilot_focus else 'PPO算法完整NAVTEST：同预算曲线',series,
-        caption='纵轴放大用于看路线差异；IL70='+fmt(base,4)+'见首卡总提升。数据路线与NFT分别另图。')
+        caption='纵轴放大用于看路线差异；新周期完整点自动追加，跨预算不作算法排名。右侧配对区间仍仅对应标注的匹配预算。IL70='+fmt(base,4)+'见首卡总提升。')
     paired_source={'contrasts':{arm+'_minus_PPO_FULL':pilot_pair(arm,plot_budget) for arm in plot_arms if arm!='PPO_FULL'}} if pilot_focus else analysis20 if budget==20000 and analysis20.get('status')=='COMPLETE' else analysis10 if budget==10000 else {}
     base_row=points.get(('PPO_FULL',plot_budget))
     def delta_draw(plt):
