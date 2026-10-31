@@ -1,0 +1,65 @@
+{
+  "checks": {
+    "G": 8,
+    "aux_independent_recipe_valid": true,
+    "beta_anchor": 50,
+    "both_inherited_recipe_valid": true,
+    "control_ResearchLoss_RAW": true,
+    "inner": 4,
+    "lr": 5e-05,
+    "memory_lr": 5e-06,
+    "only_control_vs_aux_config_delta": [
+      "research.arm",
+      "research.preference_auxiliary"
+    ],
+    "pilot_cap_updates": 5000,
+    "same_80_20_sampler": true,
+    "same_bank": true,
+    "scheduler_updates": 50000,
+    "world": 8
+  },
+  "configs": [
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_PREF_REPLAY.yaml",
+      "sha256": "e84009670322dfb10f2540f1fb965f1e7a6c93901fa354cf42917d9c730d0cbc"
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_PREF_CFM.yaml",
+      "sha256": "e8eb9344f42b81d72641a754d9d12e3697d04a61f5eaa085ec76076383b0ef3a"
+    }
+  ],
+  "existing_CPU_test_evidence": {
+    "commit": "68716fa",
+    "last_duration_seconds": 6.69,
+    "passed": 8,
+    "test": "tests/test_qwen_world_preference_auxiliary.py"
+  },
+  "interface_findings": [
+    "Engine selects explicit runtime finalizer/boundary/rank hooks and passes them to native checkpoint save/restore.",
+    "CFM finalizer calls original canonical source finalize first, then attaches independent auxiliary materials. Source rank A/rawstd semantics remain enforced.",
+    "Actor.action_velocity accepts G8 state and per-sample sigma*1000, converts World clean-x to FP32 velocity once; w4+l4 matches fixed context repeats8.",
+    "PPO chain invocation ends its prepared-context scope before auxiliary opens a fresh scope, retaining Memory gradients while avoiding stale KV graphs.",
+    "Permanent IL70 use_ref reference velocity/energy is cached at collection; four inner updates reuse all sigma/noise/pair/ref material. Auxiliary does not overwrite probability audit.",
+    "CPU eight-test combination applies to these actual config values; this audit did not rerun the test matrix or construct/load actor weights."
+  ],
+  "logging_limit": "anchor_only_updates_local means source PGmask0 only; use pref_aux_enabled/weighted_loss to detect auxiliary gradients.",
+  "registration": "/mnt/project/qwen-world-rl-optimization-20261030/PREFERENCE_MIXTURE_STUDY_REGISTRATION.json",
+  "registration_sha256": "5d63bfcacc9ca2eddc00d29afc4a6463db83f368591b870ecb956e19cbb39736",
+  "schema": "world_preference_native_hook_velocity_audit_v1",
+  "scope": {
+    "GPU_forwards": 0,
+    "model_loads": 0,
+    "new_tests": 0,
+    "runtime_changes": false
+  },
+  "sha256": "0542007c2fe9cf0fc069ba410524aa784afdc8dbddffb0b75e8245567bd2122d",
+  "source_hashes": {
+    "scripts/analysis/simwam_recipe/train.py": "53202300729237d6545409c77252c63d662507ebbfbdacccecc1f5c488f09302",
+    "starVLA/rl/qwen_world_postcot/rl_actor.py": "84d112aa1cd277832ab4a788504cf67e932aa6f5a00f9220cb5c15e42cad2e23",
+    "starVLA/rl/qwen_world_postcot/scope_actor.py": "1ff1a473e545c3792c04e25d21beac37282994ead2899be2bad301ff2bcf5fa2",
+    "starVLA/rl/qwen_world_research_algorithms/preference_auxiliary.py": "dd69fbcc53c989aa14fb2ecc39b2f42d3c29ee47cc737c8bb6c9fd94fb101874",
+    "starVLA/rl/qwen_world_research_algorithms/preference_entry.py": "184cf4682d0aa6ca1c5551c6d4bd528d374a747a04146aca15f38d929c08518d"
+  },
+  "status": "PASS_CPU_CONFIG_AND_INTERFACE_ONLY",
+  "utc": "2026-10-31T00:53:36.242151+00:00"
+}

@@ -1,0 +1,106 @@
+{
+  "IL_parent": "unchanged pinned World IL70",
+  "all_future_stages_presealed": true,
+  "bank": "/mnt/project/qwen-world-rl-optimization-20261030/data/preferences/TRAIN_METRIC_PREFERENCES_20261031/manifest.json",
+  "bank_sha256": "2cbeef8c456ea37135d9d65b01ce19b0d83a14a84f692aa47f352bf906e970dc",
+  "comparisons": [
+    "REPLAY vs FULL isolates the registered sampling change",
+    "CFM vs REPLAY isolates the registered auxiliary preference loss",
+    "CFM vs FULL evaluates the complete proposed method"
+  ],
+  "configs": [
+    {
+      "arm": "PPO_PREF_REPLAY",
+      "native_scheduler_max_updates": 50000,
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_PREF_REPLAY.yaml",
+      "research_budget_updates": 5000,
+      "sha256": "e84009670322dfb10f2540f1fb965f1e7a6c93901fa354cf42917d9c730d0cbc"
+    },
+    {
+      "arm": "PPO_PREF_CFM",
+      "native_scheduler_max_updates": 50000,
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_PREF_CFM.yaml",
+      "research_budget_updates": 5000,
+      "sha256": "e8eb9344f42b81d72641a754d9d12e3697d04a61f5eaa085ec76076383b0ef3a"
+    }
+  ],
+  "eligible_scenes": 103288,
+  "extra_GPU_qualification": false,
+  "historical_pairs_in_onpolicy_advantages": false,
+  "inference": "unchanged single ODE10 shift5 seed2101",
+  "initial_reviews": [
+    1000,
+    5000
+  ],
+  "labels": "candidate-metric preferences; no claim of human traffic-rule/necessary-wait optimality",
+  "min_full_population_probability": 7.745333436604446e-06,
+  "pairs": 5261,
+  "preference_scenes": 910,
+  "registered_unix": 1793407826.0971029,
+  "sampler_manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/PREFERENCE_MIXTURE_FULL80_PRIORITY20.json",
+  "sampler_sha256": "1e5669aefa35e0730d7718b0e0245a370e7939d9cc6537427d48c5f5a126a695",
+  "schema": "world_matched_preference_mixture_study_v1",
+  "stages": [
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000000.json",
+      "preference_exposures": 2097,
+      "sha256": "f91c8798be77579a8cd9db12165999ab5f0a3fa46b34960f422e330e7135ba03",
+      "unique_scenes": 8420
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000001.json",
+      "preference_exposures": 2057,
+      "sha256": "e702bc3e10bd149b881f310ce811691d47aa2e9f494c3727980857ffb29bef5c",
+      "unique_scenes": 8467
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000002.json",
+      "preference_exposures": 2114,
+      "sha256": "01de8fa368d0957dcd999ab4864cac3c347d9129ebbf379cbcbefe0c019b6a72",
+      "unique_scenes": 8413
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000003.json",
+      "preference_exposures": 2086,
+      "sha256": "055eb68118b21bef5b9849b03cd59fdda9492cad869ce5207e230e538088733a",
+      "unique_scenes": 8415
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000004.json",
+      "preference_exposures": 2069,
+      "sha256": "53bd6beea3ef2d2c5f007a4aa85724e623d79e1daa74b6390aa36c855e377e9e",
+      "unique_scenes": 8426
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000005.json",
+      "preference_exposures": 2039,
+      "sha256": "f8bc7a58fd48475e31e6a7de19e4a530a61bafb095760e66f4e1c71cfa0480b1",
+      "unique_scenes": 8480
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000006.json",
+      "preference_exposures": 2046,
+      "sha256": "3fdbbd76b0b44cb425256c09036ed5b1740d4ec8ddc1d5d10d7710c9ba1c2f74",
+      "unique_scenes": 8441
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000007.json",
+      "preference_exposures": 2126,
+      "sha256": "ad170f1dc48d0cb56c5b7fccf7efeb1d6a003de313be0b645ec35252d7f67257",
+      "unique_scenes": 8397
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000008.json",
+      "preference_exposures": 2128,
+      "sha256": "e9cb79c736c548c3c19108c0bc17a5fe42980657973d3b336051e6137a7f90ac",
+      "unique_scenes": 8415
+    },
+    {
+      "path": "/mnt/project/qwen-world-rl-optimization-20261030/preference_mixture_stages/stage000009.json",
+      "preference_exposures": 1985,
+      "sha256": "217d1f7894d360e378e994a7be12bf832bf0c4c0c5c276b8fc4c1229962f1956",
+      "unique_scenes": 8504
+    }
+  ],
+  "training_seed": 42
+}

@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "at_unix": 1793416370.341068,
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_rescue_2123dea",
+  "lineage_depth": 7,
+  "actual_imports_checked": 84,
+  "recipes": [
+    {
+      "arm": "PPO_RESCUE_REPLAY",
+      "warmstart": {
+        "schema": "world_verified_RL_weights_only_warmstart_v1",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "expected_updates": 10000,
+        "checkpoint_files_sha256": "e5479f593eb3d624033e074cf897176cc39c83151aa186e4cf259773a96a7963",
+        "checkpoint_identity_sha256": "a95502b8694bd2b3f1a046417e788868afa70566e3753d7ea6d3bae3e29680ff",
+        "optimizer_file_sha256": "b22aafb4ef1426292300eb726aa6fe1fd01e5e0086a36dd61491c362683b2a33",
+        "expected_parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+        "optimizer": "fresh_AdamW",
+        "phase_seed": 42,
+        "reference": "original_frozen_IL70",
+        "reference_reset": false,
+        "optimizer_state_inherited": false,
+        "RNG_state_inherited": false,
+        "phase_updates_start": 0,
+        "initial_RL_knowledge_updates": 10000,
+        "interpretation": "current LoRA+scene/predictive weights only; original IL70 remains the frozen reference; fresh AdamW and phase seed42"
+      },
+      "source_inventory_count": 143
+    },
+    {
+      "arm": "PPO_RESCUE_CFM",
+      "warmstart": {
+        "schema": "world_verified_RL_weights_only_warmstart_v1",
+        "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update010000_inner0",
+        "expected_updates": 10000,
+        "checkpoint_files_sha256": "e5479f593eb3d624033e074cf897176cc39c83151aa186e4cf259773a96a7963",
+        "checkpoint_identity_sha256": "a95502b8694bd2b3f1a046417e788868afa70566e3753d7ea6d3bae3e29680ff",
+        "optimizer_file_sha256": "b22aafb4ef1426292300eb726aa6fe1fd01e5e0086a36dd61491c362683b2a33",
+        "expected_parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+        "optimizer": "fresh_AdamW",
+        "phase_seed": 42,
+        "reference": "original_frozen_IL70",
+        "reference_reset": false,
+        "optimizer_state_inherited": false,
+        "RNG_state_inherited": false,
+        "phase_updates_start": 0,
+        "initial_RL_knowledge_updates": 10000,
+        "interpretation": "current LoRA+scene/predictive weights only; original IL70 remains the frozen reference; fresh AdamW and phase seed42"
+      },
+      "source_inventory_count": 143
+    }
+  ],
+  "model_loaded": false,
+  "GPU_used": false
+}

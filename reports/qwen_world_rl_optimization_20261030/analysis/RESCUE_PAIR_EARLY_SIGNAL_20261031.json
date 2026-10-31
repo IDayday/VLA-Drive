@@ -1,0 +1,192 @@
+{
+  "status": "ACTUAL_BOUNDED_STARTUP_DIAGNOSTIC",
+  "at_unix": 1793416588.219745,
+  "runs": [
+    {
+      "arm": "PPO_RESCUE_REPLAY",
+      "per_rank_capture": [
+        {
+          "rank": 0,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        },
+        {
+          "rank": 1,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        },
+        {
+          "rank": 2,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        },
+        {
+          "rank": 3,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        },
+        {
+          "rank": 4,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        },
+        {
+          "rank": 5,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        },
+        {
+          "rank": 6,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        },
+        {
+          "rank": 7,
+          "min_update": 9,
+          "max_update": 72,
+          "rows": 64
+        }
+      ],
+      "latest64_update_local_window": true,
+      "metrics": {
+        "rescue_aux_enabled": null,
+        "rescue_aux_loss": null,
+        "rescue_aux_weighted_loss": null,
+        "rescue_aux_pool_low": null,
+        "rescue_aux_pool_high": null,
+        "rescue_aux_online_upgrade": null,
+        "policy_loss": {
+          "n": 512,
+          "mean": 0.0014219554877854534,
+          "min": -0.0015655457973480225,
+          "max": 0.1882750391960144
+        },
+        "kl_loss": {
+          "n": 512,
+          "mean": 0.00028384508167533795,
+          "min": 2.6870635338127613e-05,
+          "max": 0.00119127263315022
+        }
+      },
+      "collections": 128,
+      "teacher_active_collections": 0,
+      "teacher_active_zero_PG_collections": 0,
+      "attribution": "Combined gradient only; scalar loss ratios do not establish PG/CFM gradient dominance"
+    },
+    {
+      "arm": "PPO_RESCUE_CFM",
+      "per_rank_capture": [
+        {
+          "rank": 0,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        },
+        {
+          "rank": 1,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        },
+        {
+          "rank": 2,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        },
+        {
+          "rank": 3,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        },
+        {
+          "rank": 4,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        },
+        {
+          "rank": 5,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        },
+        {
+          "rank": 6,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        },
+        {
+          "rank": 7,
+          "min_update": 29,
+          "max_update": 92,
+          "rows": 64
+        }
+      ],
+      "latest64_update_local_window": true,
+      "metrics": {
+        "rescue_aux_enabled": {
+          "n": 512,
+          "mean": 0.15625,
+          "min": 0.0,
+          "max": 1.0
+        },
+        "rescue_aux_loss": {
+          "n": 512,
+          "mean": 0.0006566273930559419,
+          "min": 0.0,
+          "max": 0.02023645117878914
+        },
+        "rescue_aux_weighted_loss": {
+          "n": 512,
+          "mean": 0.0006511802498043728,
+          "min": 0.0,
+          "max": 0.02023645117878914
+        },
+        "rescue_aux_pool_low": {
+          "n": 512,
+          "mean": 0.1015625,
+          "min": 0.0,
+          "max": 1.0
+        },
+        "rescue_aux_pool_high": {
+          "n": 512,
+          "mean": 0.0546875,
+          "min": 0.0,
+          "max": 1.0
+        },
+        "rescue_aux_online_upgrade": {
+          "n": 512,
+          "mean": 0.046875,
+          "min": 0.0,
+          "max": 1.0
+        },
+        "policy_loss": {
+          "n": 512,
+          "mean": 0.002256653312997514,
+          "min": -0.0013625770807266235,
+          "max": 0.2947109043598175
+        },
+        "kl_loss": {
+          "n": 512,
+          "mean": 0.00025135426362865587,
+          "min": 2.630204107845202e-05,
+          "max": 0.0008489658357575536
+        }
+      },
+      "collections": 128,
+      "teacher_active_collections": 20,
+      "teacher_active_zero_PG_collections": 10,
+      "attribution": "Combined gradient only; scalar loss ratios do not establish PG/CFM gradient dominance"
+    }
+  ]
+}

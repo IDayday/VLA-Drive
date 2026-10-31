@@ -1,0 +1,45 @@
+{
+  "schema": "world_preference_study_deployment_v1",
+  "at_unix": 1793408916.8235931,
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v9_preference_a2adf6958c7c",
+  "training": {
+    "PPO_PREF_REPLAY": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_PREF_REPLAY/formal_to001000_attempt001",
+    "PPO_PREF_CFM": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_PREF_CFM/formal_to001000_attempt001"
+  },
+  "probes": [
+    {
+      "arm": "PPO_ADAPTIVE",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/FIXED_THETA_ZERO_PROBE_20261031/PPO_ADAPTIVE/attempt001",
+      "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_ADAPTIVE",
+      "host": "training-vlawm-zt2",
+      "gpu": 0
+    },
+    {
+      "arm": "PPO_FULL",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/FIXED_THETA_ZERO_PROBE_20261031/PPO_FULL/attempt001",
+      "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_FULL",
+      "host": "training-vlawm-zt2",
+      "gpu": 1
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/FIXED_THETA_ZERO_PROBE_20261031/PPO_SAFETY_EP/attempt001",
+      "output": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/PPO_SAFETY_EP",
+      "host": "training-vlawm-zt2",
+      "gpu": 2
+    }
+  ],
+  "probe_analysis_owner": {
+    "pid": 2276355,
+    "start_ticks": 1484753606,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/probe_zero_rollouts_owner.py",
+      "--jobs-spec",
+      "/mnt/project/qwen-world-rl-optimization-20261030/owners/ZERO_ODE_SDE_20261031/JOBS.json",
+      "--output",
+      "/mnt/project/qwen-world-rl-optimization-20261030/owners/ZERO_ODE_SDE_20261031"
+    ]
+  },
+  "status": "DISPATCHED_AWAIT_NATIVE_CHILD_RECEIPTS"
+}

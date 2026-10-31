@@ -1,0 +1,372 @@
+{
+  "schema": "TRAIN_canonical_allzero_dense_failure_guidance_design_v1",
+  "status": "DESIGN_READY_NOT_DEPLOYED",
+  "at": "2026-10-31T01:05:09.500923+00:00",
+  "GPU_dispatch_performed": false,
+  "scientific_runtime_modified": false,
+  "cohort": "TRAIN_ONLY",
+  "NAVTEST_tokens_included": false,
+  "evidence": {
+    "field_audit": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FAILURE_GUIDANCE_FIELD_AUDIT_20261031.json",
+    "initial_state_audit": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN_G8_ZERO_INITIAL_STATE_AUDIT.json",
+    "longitudinal": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/ZERO_LOW_SCORE_LONGITUDINAL_DIAGNOSIS.json",
+    "preference_window": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/TRAIN_PREFERENCE_ZERO_TIE_DIAGNOSTIC_20261031.json",
+    "probe_registration": "/mnt/project/qwen-world-rl-optimization-20261030/data/probes/ZERO_ODE8_SDE8_FIXED_THETA_20261031/REGISTRATION.json",
+    "summary": {
+      "groups": 175,
+      "unique_TRAIN_tokens": 9,
+      "group_counts_by_token": {
+        "b66ce994eb075094": 14,
+        "229a59137a705430": 142,
+        "835e9a4cbef853b0": 6,
+        "cfb033a99b845acb": 3,
+        "7af4e577726c5be7": 4,
+        "bc8b1e06aca55794": 2,
+        "8f7772f52b6e511a": 1,
+        "10b907a5bb8459e8": 1,
+        "29d8cec9c0c25e72": 2
+      },
+      "unique_tokens_by_arm": {
+        "PPO_ADAPTIVE": 8,
+        "PPO_FULL": 2,
+        "PPO_SAFE_COMFORT": 3
+      },
+      "ADAPT_groups": 170,
+      "dominant_token_groups": 142,
+      "dominant_token_fraction": 0.8114285714285714,
+      "cost_varied": 14,
+      "cost_tied": 161,
+      "metric_vector_varied": 14,
+      "first_collision_time_varied": 14,
+      "first_TTC_time_varied": 15,
+      "first_non_drivable_time_varied": 174,
+      "non_drivable_time_fraction_varied": 174,
+      "raw_progress_varied_1m": 175,
+      "collision_or_TTC_time_varied": 15,
+      "tied_cost_first_ND_varied": 160,
+      "tied_cost_ND_occupancy_varied": 160,
+      "conservative_same_metrics_Pareto_pairs": 2987,
+      "groups_with_conservative_Pareto_pairs": 161,
+      "strict_DAC_occupancy_pairs": 2872,
+      "groups_with_strict_DAC_occupancy_pairs": 160,
+      "strict_DAC_occupancy_progress_guard_pairs": 1563,
+      "groups_with_strict_DAC_occupancy_progress_guard_pairs": 160,
+      "raw_progress_only_pairs": 40,
+      "groups_with_raw_progress_only_pairs": 34,
+      "no_initial_non_drivable": 175,
+      "median_within_group_ND_time_fraction_range_pp": 60.00000000000001,
+      "cost_tied_triplets": {
+        "(1.0, 0.0, 1.0)": 160,
+        "(0.0, 1.0, 0.0)": 1
+      },
+      "proposed_aux_activated_groups": 160,
+      "proposed_aux_max_abs": 0.1,
+      "offline_replay_only": true
+    },
+    "common_10k_window": {
+      "PPO_FULL": {
+        "groups": 1000,
+        "zero_PG_all3pass_EP_tie_below1": 0,
+        "zero_PG_all3pass_and_all_EP1": 8,
+        "zero_PG_allfail": 3,
+        "zero_PG_allfail_cost_tie": 1,
+        "zero_PG_allfail_has_own_deficit_direction": 2,
+        "zero_PG_groups": 11,
+        "zero_PG_with_other_policy_pass_witness": 2,
+        "zero_PG_with_other_policy_strict_safe_EP_improvement_witness": 0
+      },
+      "PPO_SAFETY_EP": {
+        "groups": 1000,
+        "zero_PG_all3pass_EP_tie_below1": 0,
+        "zero_PG_all3pass_and_all_EP1": 100,
+        "zero_PG_allfail": 0,
+        "zero_PG_allfail_cost_tie": 0,
+        "zero_PG_allfail_has_own_deficit_direction": 0,
+        "zero_PG_groups": 100,
+        "zero_PG_with_other_policy_pass_witness": 0,
+        "zero_PG_with_other_policy_strict_safe_EP_improvement_witness": 0
+      },
+      "PPO_SAFE_COMFORT": {
+        "groups": 1000,
+        "zero_PG_all3pass_EP_tie_below1": 0,
+        "zero_PG_all3pass_and_all_EP1": 94,
+        "zero_PG_allfail": 1,
+        "zero_PG_allfail_cost_tie": 0,
+        "zero_PG_allfail_has_own_deficit_direction": 1,
+        "zero_PG_groups": 95,
+        "zero_PG_with_other_policy_pass_witness": 0,
+        "zero_PG_with_other_policy_strict_safe_EP_improvement_witness": 0
+      }
+    },
+    "interpretation": "175个组只覆盖9个TRAIN场景，其中142组来自同一场景，170组来自ADAPT；这些是条件抽样、跨theta历史数据，绝非独立175场景或当前SAFETY总体失败率。",
+    "initial_t0_validity": "原175组全部t0 NDflag false、无全候选t0 collision/TTC；新组仍逐组guard，不把历史结论盲迁。"
+  },
+  "fields": [
+    {
+      "name": "official_first_at_fault_collision_seconds",
+      "available": true,
+      "actor_input": false,
+      "privileged_training_label": true,
+      "discriminating_groups": 14,
+      "interpretation": "模拟未来4s内首次at-fault事件时间；None表示本有限horizon未触发，不是无穷安全。",
+      "use": "主安全事件非劣约束和诊断，不单独奖励晚撞；无撞击严重度/伤害风险标注。"
+    },
+    {
+      "name": "official_first_ttc_infraction_seconds",
+      "available": true,
+      "actor_input": false,
+      "privileged_training_label": true,
+      "discriminating_groups": 15,
+      "interpretation": "官方scorer首次TTC规则违例时刻；不是actor可见TTC标量，也不是连续碰撞概率。",
+      "use": "与collision合并仅15组有区分；作非劣约束，不把延后越过horizon当安全成功。"
+    },
+    {
+      "name": "non_drivable_body_by_time",
+      "available": true,
+      "actor_input": false,
+      "privileged_training_label": true,
+      "shape": "41 boolean flags at0..4s,dt0.1",
+      "discriminating_groups": 174,
+      "use": "f_ND=sum(flag[1:41])/40；这是违规状态的时间占比，非身体面积占比/越界距离/风险概率。",
+      "derived_first_ND": "首个True索引×0.1s；None表示horizon内未见",
+      "cost_tied_discriminating_groups": 160
+    },
+    {
+      "name": "raw_progress_meters",
+      "available": true,
+      "actor_input": false,
+      "privileged_training_label": true,
+      "discriminating_groups_gap_atleast1m": 175,
+      "interpretation": "官方simulated轨迹沿cache centerline累计投影进度；canonical EP在NC/DAC门控后为0不能代替它。",
+      "use": "仅非劣效率guard，不进主奖励或独立选winner；更远可能意味着更快冲出路面/更剧烈碰撞。"
+    },
+    {
+      "name": "simulated_states/simulated_body_coordinates",
+      "available": true,
+      "actor_input": false,
+      "privileged_training_label": true,
+      "use": "未来可进一步检查碰撞速度/几何距离；当前缺完整严重度、反事实交通灯与闭环其他actor反应，不凭位置数组臆造风险标签。"
+    },
+    {
+      "name": "prior/innovations/actual chain",
+      "available": true,
+      "actor_input": false,
+      "privileged_training_label": false,
+      "use": "probe存NPZ与SHA，按同theta同root诊断；可供独立noise-aware preference目标，不与GT未来输入混淆。"
+    }
+  ],
+  "canonical_ordering": {
+    "unchanged_metrics": "canonical PDMS=NC*DAC*(5EP+5TTC+2Comfort)/12; official scoreboard unchanged",
+    "never_override_positive": "只在8条canonical score全部<=1e-12且原结构成本相同/原A为0的group启用；有正分/可行候选的group保留原目标不加dense项。",
+    "primary_safety": "原SAFETY_EP NC/DAC/TTC feasible优先、allfail deficit-centered fallback照旧；成本不同的14组已经有原结构方向，不重复改变。",
+    "limitation": "门控保证本次样本偏好不把失败排在通过候选之上；共享参数更新仍可能影响其他场景，不能据此保证模型永不安全退化。"
+  },
+  "proposed_next_arm": {
+    "name": "PPO_SAFETY_EP_TIE_ND_OCC_V1",
+    "status": "CONDITIONAL_PILOT_ONLY_NOT_REGISTERED_NOT_LAUNCHED",
+    "warm_start": "与SAFETY_EP continuation对照从同一sealed10k checkpoint分叉；完整继承优化器/RNG/source ancestry并用新科学身份登记变更，不热改既有run。",
+    "inherited": "full103288 uniform,seed42,模型/观察/current-memory+LoRA/K10 shift5/rigorousSDE0.1/4inner/sourcePPO/ILmeananchor全部不变。",
+    "activation": "8条canonical R=0；8条同NC=1,DAC=0,TTC=1；原structured A精确全0；全部41步NDflags/events/rawprogress有效。；t0 NDflag=False，t0无collision/TTC事件，初始输入/真实metriccache有效，禁止把初始已违法状态作为动作惩罚依据。",
+    "pair_rule": [
+      "只比较同scene同fresh group候选，不跨theta构造相对安全结论。",
+      "candidate w越界时间占比比l至少低0.05（40采样点中至少少2点）；作为唯一严格改善项。",
+      "w首次collision/TTC/non-drivable事件均不得更早；None按4s内未触发处理，比较时仅右删失，不认为超horizon安全。",
+      "w raw progress不得比l低超过1m；这是效率退化guard，不是越远越安全的奖励。Comfort/DrivingDirection不得更差，二者不加权换取安全。",
+      "不满足偏序/间隔条件则不生成pair；不随机打破完全tie。"
+    ],
+    "auxiliary_advantage": "a_i=(#wins_i-#losses_i)/(G-1),sum_i a_i=0,|a_i|<=1；在原structured A已经完成原global_std归一化后，仅eligible零组加eta*a_i，eta=0.1。不要将aux再次除以自身std；否则稀有微小信号会被放大到单位尺度。",
+    "mask": "为新非零eligible group重算PG mask；保留其他group原A/mask；aux/原优势随fresh rollout固定，4次inner复用。PPO ratio/clip保持原样。",
+    "reasons_for_excluding_other_signals": "collision/TTC elapsed time只作guard，rawprogress只作guard；此首臂不奖励晚撞、不以进度补偿NC/DAC失败，也不新加速度/长度/舒适度惩罚。",
+    "offline_selected_cohort_replay": {
+      "activated_groups": 160,
+      "total_groups": 175,
+      "distinct_tokens_with_activation": 5,
+      "pairs": 1563,
+      "bounded_aux_abs_max": 0.1,
+      "all_group_aux_sum_zero": true,
+      "main_positive_candidate_groups_modified": 0,
+      "replay_file": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FAILURE_GUIDANCE_AUX_REPLAY_20261031.json",
+      "qualification": "仅175历史组CPU代数回放，不是模型训练效果或独立175scene证据"
+    },
+    "prospective_minimal_budget": "若下方启动条件满足，新增单变量1000-update pilot，比较同budget的固定warm-start continuation；先监测实际eligible频率/unique-token覆盖，再以canonical ODE评价决定资源，不将proxy改善当最终成功。",
+    "initial_validity_guard": {
+      "all8_non_drivable_flag_at_t0_must_be_false": true,
+      "all8_collision_or_TTC_event_at_t0_must_be_absent": true,
+      "actual_historical_groups_passing": 175,
+      "initial_state_invalid_actionable": false,
+      "invalid_action": "只记asset/current-state validity diagnostic，不参与dense梯度与偏好排序；不从官方测试分母剔除。"
+    }
+  },
+  "diagnostic_decision_conditions": [
+    {
+      "condition": "fixed-theta probe表明目标当前ODE零分但SDE8已有可行候选/正canonical组内差",
+      "decision": "优先endpoint/部署分布对齐或有safe winner的preference；dense-allzero不是该scene首因。历史229组跨theta不能代替此证据。"
+    },
+    {
+      "condition": "fixed-theta目标G8仍全canonical0、成本相同、pure-DAC且至少一保守ND-occupancy候选对",
+      "decision": "dense辅助具备可执行方向；将其作为候选臂，但仍检查代表性TRAIN实际激活与独特场景覆盖。"
+    },
+    {
+      "condition": "代表性当前SAFETY训练窗口仍无allfail cost-tie（已有10k1000组即为0）",
+      "decision": "不为罕见/未见激活点立即投入完整新GPU臂；先复用新probe结果。保留该方案为ADAPT/同类pure-DAC失败的局部补救，不把170个重复ADAPT组外推。"
+    },
+    {
+      "condition": "所有保守风险coords也完全tie，仅raw progress/晚碰撞时间有差",
+      "decision": "不启用当前辅助；优先更有信息的安全候选、可用expert/通过样本preference、表征/观察诊断。常数绝对罚不能提供组内排序方向。"
+    },
+    {
+      "condition": "pilot只减少4s内越界占比/推迟首次违规，canonical ODE的DAC/NC/PDMS未改善或只是把事故推到horizon后",
+      "decision": "不得宣称安全提升；停止加资源或回退该proxy，保留checkpoint证据。需更长评测horizon属于独立scorer变化不可混入canonical成绩。"
+    }
+  ],
+  "sources": [
+    {
+      "name": "DriveDPO",
+      "url": "https://arxiv.org/html/2509.17940v1",
+      "abs": "https://arxiv.org/abs/2509.17940",
+      "version": "v1,2025-09-22; latest listed",
+      "primary": true,
+      "finding": "在离散anchor policy上结合模仿与规则分数，再做trajectory-level DPO；重视选择空间相近但低分的hard negative，而非只挑最差样本。",
+      "transfer_inference": "借鉴同scene、相近轨迹的安全偏好pair选择；论文不是本clean-x连续flow/SDE PPO，也不能证明晚碰撞是安全winner。优先使用现有通过候选与失败候选的偏好。"
+    },
+    {
+      "name": "PNAPO",
+      "url": "https://arxiv.org/html/2605.09433v1",
+      "abs": "https://arxiv.org/abs/2605.09433",
+      "version": "v1,2026-05-10; latest listed",
+      "primary": true,
+      "finding": "面向RF图像偏好，保留winner/loser各自生成prior noise，使用noise-endpoint插值的DPO代理与动态正则。",
+      "transfer_inference": "本probe已经保存同root/innovations/chain；借鉴noise身份保留，不把我方部分SDE路径声称为论文的近直线RF路径。跨policy数据须显式保留来源并验证代理，不伪称PNAPO精确复现。"
+    },
+    {
+      "name": "FPO++",
+      "url": "https://arxiv.org/html/2602.02481v2",
+      "abs": "https://arxiv.org/abs/2602.02481",
+      "author_page": "https://hongsukchoi.github.io/fpo-control/",
+      "version": "v2,2026-10-13; latest listed",
+      "primary": true,
+      "finding": "CFM代理ratio逐noise/time样本clip；ASPO对负优势限制更强。新版消融显示ASPO依赖reward regime，dense shaping可提高return却不完成任务。",
+      "transfer_inference": "若固定theta显示部署ODE与SDE候选分布存在差异，FPO++是独立sampler-agnostic surrogate路线；它不能凭空区分完全相同reward的候选。不要同时叠加新dense信号、FPO++和ASPO而无法归因。"
+    }
+  ],
+  "conclusions_zh": [
+    "真正可补的信息主要是DAC违规持续时间：161个结构成本tie组中160个为NC=1/DAC=0/TTC=1，几何失误的过程差异被一个DAC=0完全压扁。",
+    "碰撞/TTC时间不是无用，但现有175组仅15组存在这类差异，且成本不同14组已有SAFETY fallback；首个dense臂不宜先堆collision时间权重。",
+    "raw progress每组都不同，却不能当安全密集奖励。把它用作不大幅退化的guard，比奖励更远/更快更稳妥。",
+    "这些组只覆盖9场景、142组来自同一token，说明可辨识性存在，并不说明全量数据普遍缺这项信号。当前SAFETY10k1000组zero-PG均为全安全EP1饱和，不能误诊为全失败。",
+    "所有这些监督读数来自训练privileged模拟/GT cache；actor输入仍只有当前图像、ego和导航，不新增未来GT/TTC/route输入。"
+  ],
+  "priority_disposition": {
+    "current_priority_order": [
+      "新偏好CFM有限pilot",
+      "固定theta ODE8/SDE8 probe",
+      "按实际新allzero激活证据再决定dense pilot"
+    ],
+    "dense_pilot_is_currently_approved_for_GPU_dispatch": false,
+    "no_new_algorithm_code_written": true,
+    "numerical_evidence_file": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FAILURE_GUIDANCE_FIELD_AUDIT_20261031.json",
+    "design_is_proposal_not_result": true,
+    "main_bottleneck_proven_to_be_dense_signal_deficiency": false,
+    "reason": "历史175组中170个ADAPT，9个独特token，当前SAFETY10k1000组allfail zero-PG为0；已有区分度只证明这些历史组可设计tie-break，不能证明当前最优policy主瓶颈。"
+  },
+  "automatic_future_TRAIN_collection": {
+    "status": "DESIGN_ONLY_NOT_RUNNING",
+    "trigger": "仅当已有正式TRAIN训练产出新fresh G8 behavior且其被后续COMPLETE原生checkpoint纳入committed prefix时，由CPU sidecar事件触发读取；不增加采样、不改现有source/数据stream/当前loss。",
+    "legal_population": "核对NAVTRAIN103288 membership+physical-log disjoint；只TRAIN行为group；禁止读取NAVTEST failures来组成训练清单。",
+    "allowed_collection_cases": [
+      "任何canonical-allzero组保留原始NC/DAC/TTC/cost与事件/ND/progress字段链接，不能只存potentialwinner。",
+      "用同一fresh G8内的actual behavior version比较，记录theta更新与native/source identity；跨group仍标theta变化。",
+      "同时累计未筛选fresh组总分母、独特scene数与eligible分子；有代价方向/仅rawprogress变化/仅晚碰撞时间变化分别计数。"
+    ],
+    "immutable_binding": [
+      "native run logical identity/source/seed42",
+      "behavior_version + collection/rank + stream position",
+      "committed checkpoint receipt",
+      "behavior path/file digest when first read",
+      "scene token/log/current-data manifest",
+      "canonical protocol/metriccache SHA",
+      "prior/innovation/chain identity already recorded by sampler"
+    ],
+    "finite_retention": "为下一次design review最多收集128个allzero组/32个TRAIN场景的完整字段sidecar，其余只加计数；不拷贝模型/优化器大文件，不新跑GPU评分。原behavior证据保留。",
+    "no_hidden_sampler_bias": "如未来决定加权重采样必须另登记数据实验，不能由CPU collector偷偷改stream或让1024反馈panel再次主导。",
+    "pilot_ready_rule": "固定theta probe完成后，如当前candidate模型存在有效pure-DAC allzero组及非劣pair，才具备目标适用性；是否足以投入GPU须用下列分母/unique-token/激活频率评估并由root选择。不设仅凭175历史组自动launch的规则。",
+    "output_proposal": "analysis/FAILURE_GUIDANCE_NEW_TRAIN_COUNTERS.json（尚未创建/运行）"
+  },
+  "minimum_activation_counters": [
+    {
+      "name": "fresh_G8_groups_seen",
+      "unit": "groups",
+      "meaning": "未按失败筛选的实际committed TRAIN fresh组分母，重复inner不重复计"
+    },
+    {
+      "name": "fresh_unique_TRAIN_tokens",
+      "unit": "tokens",
+      "meaning": "所有fresh组独特scene分母"
+    },
+    {
+      "name": "canonical_allzero_groups",
+      "unit": "groups",
+      "meaning": "8条官方canonical score全0"
+    },
+    {
+      "name": "canonical_allzero_unique_tokens",
+      "unit": "tokens",
+      "meaning": "防单场景重复曝光冒充覆盖"
+    },
+    {
+      "name": "allzero_cost_varied_groups",
+      "unit": "groups",
+      "meaning": "现结构fallback已有方向，dense首臂不动"
+    },
+    {
+      "name": "allzero_cost_tie_groups",
+      "unit": "groups",
+      "meaning": "potential新信号入口"
+    },
+    {
+      "name": "pure_DAC_tie_groups",
+      "unit": "groups",
+      "meaning": "全8条NC1/DAC0/TTC1"
+    },
+    {
+      "name": "initial_t0_invalid_groups",
+      "unit": "groups",
+      "meaning": "分列初始ND/collision/TTC，不参与dense梯度"
+    },
+    {
+      "name": "finite_valid_complete_field_groups",
+      "unit": "groups",
+      "meaning": "全部41步/事件/进度有效，没有用缺测填0"
+    },
+    {
+      "name": "conservative_pair_groups_and_pairs",
+      "unit": "groups,pairs",
+      "meaning": "满足ND占比严格下降及全部非劣guard"
+    },
+    {
+      "name": "eligible_unique_TRAIN_tokens",
+      "unit": "tokens",
+      "meaning": "能生成aux非零的独特scene数"
+    },
+    {
+      "name": "eligible_group_rate",
+      "unit": "fraction",
+      "meaning": "eligible groups/fresh_G8_groups_seen；提供分母，不以selected175为总体"
+    },
+    {
+      "name": "positive_negative_aux_candidates_and_L1_mass",
+      "unit": "candidates,normalized_advantage",
+      "meaning": "实际产生梯度的正/负候选与aux总量，0表示本方法不会起效"
+    },
+    {
+      "name": "timing_only_or_progress_only_change_groups",
+      "unit": "groups",
+      "meaning": "记录但不启用当前aux，避免晚撞/更远自动变成安全winner"
+    },
+    {
+      "name": "ODE_fixed_theta_vs_G8_result",
+      "unit": "checkpoint,token",
+      "meaning": "关联probe观察，必须标同theta或历史theta变化，未再采到=UNKNOWN"
+    }
+  ]
+}

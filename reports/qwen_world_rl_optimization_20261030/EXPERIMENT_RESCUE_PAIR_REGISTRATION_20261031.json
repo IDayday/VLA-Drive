@@ -1,0 +1,57 @@
+{
+  "schema": "world_best_RL_rescue_retention_pair_v1",
+  "status": "ACTUAL_8RANK_TRAINING",
+  "at_unix": 1793416026.8282676,
+  "configs": [
+    {
+      "arm": "PPO_RESCUE_REPLAY",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_RESCUE_REPLAY.yaml",
+      "config_sha256": "3033d72c053c5d5017d6c3bd0eef0c379564502937be55a750b518d7836f6fb6"
+    },
+    {
+      "arm": "PPO_RESCUE_CFM",
+      "config": "/mnt/project/qwen-world-rl-optimization-20261030/configs/PPO_RESCUE_CFM.yaml",
+      "config_sha256": "75cf994c9252f5fac027e3eab75a751275aa682fec771026777662730b60cf16"
+    }
+  ],
+  "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/RESCUE_80_10_10_STATIC_103288.json",
+  "manifest_sha256": "5767f6fc52d8c9cef24750da69f2fa63cf6883279cb68299f015c3d2c34b0175",
+  "bank": "/mnt/project/qwen-world-rl-optimization-20261030/data/rescue_retention/TRAIN_RESCUE_RETENTION_20261031/manifest.json",
+  "bank_sha256": "b083b89a776d1b45a83e2453792ca901cfbea9076e936cfdd265e622e71405a6",
+  "initial_RL_policy": "PPO_SAFETY_EP10k current LoRA+scene/predictive only",
+  "starting_complete_NAVTEST_PDMS": 91.34989173702405,
+  "initial_optimizer": "fresh AdamW; no parent moments",
+  "initial_phase_rng": "fresh42; no parent RNG",
+  "reference": "unchanged frozen IL70",
+  "new_phase_budget_updates": 5000,
+  "phase_reviews": [
+    1000,
+    5000
+  ],
+  "native_scheduler_max_updates": 50000,
+  "comparisons": [
+    "CFM minus REPLAY at same extra phase budget isolates positive teacher objective",
+    "Each new policy minus its fixed Safety10k start measures total improvement, not matched fresh-IL training"
+  ],
+  "goal": "Repair zero/low without losing high-scoring skills; report repaired/new zeros, predefined parent high>=.9 cohort and component/fullscore paired intervals",
+  "NAVTEST_used_for_training": false,
+  "extra_GPU_qualification": false,
+  "source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/overlay_rescue_2123dea",
+  "dispatches": [
+    {
+      "arm": "PPO_RESCUE_REPLAY",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_RESCUE_REPLAY/formal_to001000_attempt001"
+    },
+    {
+      "arm": "PPO_RESCUE_CFM",
+      "job": "/mnt/project/qwen-world-rl-optimization-20261030/jobs/PPO_RESCUE_CFM/formal_to001000_attempt001"
+    }
+  ],
+  "dispatched_unix": 1793416394.4880314,
+  "CPU_preflight": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RESCUE_PAIR_CPU_STARTUP_REVIEW_20261031.json",
+  "native_startup_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RESCUE_PAIR_NATIVE_STARTUP_20261031.json",
+  "early_learning_signal_evidence": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/RESCUE_PAIR_EARLY_SIGNAL_20261031.json",
+  "independent_owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/RESCUE_PAIR/OWNER.json",
+  "updated_unix": 1793416756.5497706,
+  "new_complete_NAVTEST_improvement_established": false
+}

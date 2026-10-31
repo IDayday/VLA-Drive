@@ -1,0 +1,15 @@
+{
+  "schema": "world_rl_evidence_based_arm_decision_v1",
+  "arm": "PPO_MEMORYLR20",
+  "disposition": "STOP_FUTILITY",
+  "created_at": "2026-10-31T01:08:13Z",
+  "reason": "At10k no established total-score benefit versus matched FULL; NC and TTC intervals indicate degradation. Preserve checkpoints and allocate continuation budget to preference experiments.",
+  "evidence": [
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/NEW_PILOT_MATCHED_REVIEW.json"
+  ],
+  "matched_budget_updates": 10000,
+  "control": "PPO_FULL",
+  "Test_selection_used": true,
+  "NAVTEST_used_for_training_scene_selection": false,
+  "stop_mode": "completed 10k pilot; no native child signal required"
+}
