@@ -1,0 +1,109 @@
+{
+  "actual_launch": {
+    "argv": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-u",
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner.py",
+      "--run"
+    ],
+    "bindings": {
+      "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/campaign_owner.py": "58ac3c837ed8646769abc027b8bcb7c6dc6fb51caa3469ff5d98c93d05ea4d17",
+      "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/dispatch.py": "0a79aec09faaee82b1c3d606628fed4660188d610e15755cb224d40f40f3b62f",
+      "/mnt/project/qwen-world-rl-optimization-20261030/NAVTEST_CADENCE_POLICY_20261031.json": "a62f285ee98df97a871eb9a02035b4efec83a572090fbd7d8a13a84eb67ce4bd",
+      "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner.py": "b96dd4450aa5a85ca9be4e46b8028166ac3da42ecdfba0ff31406b08a4acbe30",
+      "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v3_4e61823bb3a8/tools/qwen_world_research/evaluate.py": "885a1f043224da71c04c2794c453a6f352fc42da5552871c430919e32f87cd46"
+    },
+    "pid": 2342200,
+    "plan": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/NAVTEST_CADENCE_LAUNCH_PLAN_20261031.json",
+    "source_sha256": "b96dd4450aa5a85ca9be4e46b8028166ac3da42ecdfba0ff31406b08a4acbe30",
+    "start_ticks": 1485735603,
+    "started_at": "2026-10-31T03:52:22.864275+00:00"
+  },
+  "approved_arms": {
+    "PPO_SAFETY_EP": 50000
+  },
+  "bindings": {
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/campaign_owner.py": "58ac3c837ed8646769abc027b8bcb7c6dc6fb51caa3469ff5d98c93d05ea4d17",
+    "/mnt/project/VLA-Drive-qwen-world-rl-research-20261030/tools/qwen_world_research/dispatch.py": "0a79aec09faaee82b1c3d606628fed4660188d610e15755cb224d40f40f3b62f",
+    "/mnt/project/qwen-world-rl-optimization-20261030/NAVTEST_CADENCE_POLICY_20261031.json": "a62f285ee98df97a871eb9a02035b4efec83a572090fbd7d8a13a84eb67ce4bd",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner.py": "b96dd4450aa5a85ca9be4e46b8028166ac3da42ecdfba0ff31406b08a4acbe30",
+    "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v3_4e61823bb3a8/tools/qwen_world_research/evaluate.py": "885a1f043224da71c04c2794c453a6f352fc42da5552871c430919e32f87cd46"
+  },
+  "cadence": "12000,14000,... explicit RUNS research cap; COMPLETE inner0 only",
+  "cpu_export": "one at a time under independent CPU_EXPORT.lock",
+  "cpu_route_policy": {
+    "available_RAM_per_rank_GiB": 6,
+    "host_RAM_reserve_GiB": 12,
+    "prioritize": "no GPU owner; then measured load/free memory; original owner accounting still required",
+    "spare_logical_cpus_per_rank": 3
+  },
+  "currently_sealed_extra_points": [
+    {
+      "arm": "PPO_SAFETY_EP",
+      "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update012000_inner0",
+      "existing_spec": false,
+      "updates": 12000
+    },
+    {
+      "arm": "PPO_SAFETY_EP",
+      "checkpoint": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/runs/PPO_SAFETY_EP/checkpoints/update014000_inner0",
+      "existing_spec": false,
+      "updates": 14000
+    }
+  ],
+  "launch": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/LAUNCH.json",
+  "launch_argv": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner.py",
+    "--launch"
+  ],
+  "legacy_gates_excluded": [
+    1000,
+    5000,
+    10000,
+    20000,
+    35000,
+    50000
+  ],
+  "max_active_models": 2,
+  "minimum_routes": 8,
+  "model_python": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+  "never": [
+    "train or raise budgets",
+    "revive stopped/unstarted arms",
+    "kill native/eval children",
+    "use NAVTEST tokens for train selection",
+    "repartition already dispatched evaluations"
+  ],
+  "owner": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/OWNER.json",
+  "policy": "/mnt/project/qwen-world-rl-optimization-20261030/NAVTEST_CADENCE_POLICY_20261031.json",
+  "policy_sha256": "a62f285ee98df97a871eb9a02035b4efec83a572090fbd7d8a13a84eb67ce4bd",
+  "prepared_at": "2026-10-31T03:52:00.624951+00:00",
+  "preserves": [
+    "training jobs/optimizer/checkpoints",
+    "main FIRST14 owner lock/state/source",
+    "all TRAIN frequencies",
+    "old eval spec world/layout/receipts",
+    "shared exact GPU claims"
+  ],
+  "protocol": {
+    "cohort": "NAVTEST",
+    "inference": {
+      "candidates": 1,
+      "sampler": "ODE",
+      "scene_seed_namespace": "native_qwen_sourceflow_ODE",
+      "seed": 2101,
+      "shift": 5.0,
+      "steps": 10
+    },
+    "scenes": 12146,
+    "scorer_source": "/mnt/project/qwen-world-rl-optimization-20261030/runtime/v3_4e61823bb3a8"
+  },
+  "requested_world": 32,
+  "results": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/RESULTS.json",
+  "schema": "NAVTEST_cadence_launch_plan_v1",
+  "script": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/navtest_cadence_owner.py",
+  "started": true,
+  "state": "/mnt/project/qwen-world-rl-optimization-20261030/owners/NAVTEST_CADENCE/STATE.json",
+  "status": "ROOT_STARTED"
+}
