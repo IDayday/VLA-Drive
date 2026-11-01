@@ -1,0 +1,188 @@
+{
+  "API": {
+    "collector": "collect_endpoint(actor,condition,token,log,service,generator,variant=...,version=...,progress=...)",
+    "config": "research.endpoint_policy must exactly match ENDPOINT_CONFIG; G8/uniform_full/original GroupCredit schema only",
+    "finalize": "Unmodified GroupCredit.finalize: same SafetyEP formula and world64 raw-credit population std, four inner reuse",
+    "objective": "EndpointLoss._policy_loss(actor,rollout); actual [G8,1] float64 joint density, ordinary PPO .005, cap5, same local-mask/rank mean",
+    "recovery_hook": "Only optional _structure_validator; unset uses validate_structure exactly",
+    "router": "Only non-None research.endpoint_policy branch; does not use W3-only QualityDiagnosticsMixin; complete comparable quality fields implemented in EndpointLoss",
+    "trainer_hook": "Only opt-in runtime.policy_ratio and runtime.rng_protocol; unset branch retains historical probability math",
+    "validation": "EndpointRuntimeMixin.validate_boundary -> shared Safety recovery with opt-in validate_endpoint_structure; validate_ranks reuses original world64 credit recomputation"
+  },
+  "accounting": {
+    "cap1000_if_root_registers": {
+      "fresh_collections_global": 250,
+      "optimizer_updates": 1000,
+      "scenes": 2000,
+      "scored_candidates": 16000
+    },
+    "model_work_comparison_per_four_inner_collection": {
+      "endpoint": {
+        "collection_current_batched_velocity_calls": 11,
+        "current_memory_rebuilds": 10,
+        "inner_current_calls": 16,
+        "inner_reference_calls": 12,
+        "total_batched_velocity_calls": 39
+      },
+      "interpretation": "Both score64 actual candidates/world per collection. Endpoint uses2 additional G8-batched velocity calls across4inners and4 additional current-memory rebuilds; wall-time overhead not measured on productionGPU. Frozen Qwen feature caching remains per scene.",
+      "old_source_W3": {
+        "collection_current_batched_velocity_calls": 13,
+        "current_memory_rebuilds": 6,
+        "inner_current_calls": 12,
+        "inner_reference_calls": 12,
+        "total_batched_velocity_calls": 37
+      }
+    },
+    "per_inner": {
+      "PG_current_terminal_calls": 1,
+      "anchor_current_calls": 3,
+      "anchor_reference_calls": 3,
+      "current_memory_builds": 2
+    },
+    "per_rank_collection": {
+      "ODE_current_batched_velocity_calls": 10,
+      "additional_current_terminal_replay_calls": 1,
+      "independent_roots": 8,
+      "scored_candidates": 8,
+      "unscored_clean_means": 8
+    },
+    "source_clamp_hit_rate": "null/N/A for PG; anchor_nominal_source_clamp_hit_rate is a separate nominal anchor audit",
+    "world_collection": {
+      "scene_exposures": 8,
+      "scored_candidates": 64
+    }
+  },
+  "config_template": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/configs/ENDPOINT_RAMP_AR1_TEMPLATE.yaml",
+    "registered": false,
+    "sha256": "5784e7a7b1eb29fff1ea923837162f35a186aa3e16110ca28fbfab2b1cd7b4b1"
+  },
+  "cpu_numeric_caveat": {
+    "actual_reduced_fixture": true,
+    "all8rank_gradient_norm_range": [
+      3.8714401721954346,
+      1474.2900390625
+    ],
+    "all8rank_ratio_span": [
+      7.863363097764039e-10,
+      51.8461868900701
+    ],
+    "production_52M_loaded": false,
+    "rank0_four_inner_ratio_span": [
+      9.177462467709437e-07,
+      2.6391904449897194
+    ],
+    "rank0_initial_local_gradient_norm": 1111.0035400390625,
+    "statement": "Finite CPU execution only; joint24 and early ramp small sigma yield sensitive local ratios. This does not demonstrate stable production training. Preserve registered parameters and inspect actual native metrics rather than infer tuning from the tiny mock."
+  },
+  "cpu_receipt": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_RUNTIME_CPU_CHECK.json",
+    "sha256": "e0eb354dd7520904458d0f0d2900bad99deb85518a7bd450e480b73ced6261a5"
+  },
+  "created_UTC": "2026-11-01T01:58:04.035378+00:00",
+  "entry": "tools.qwen_world_safety_exploration.train",
+  "first_native_readouts": [
+    "Fresh ratio error <= trainer1e-4 guard, finite/nonzero complete trainable grads",
+    "actual joint-ratio min/max and underflow counts, sign-wise PPO blocking, gradient clipping",
+    "actual strict-high positive/negative derivative weights, new/repaired zeros and fixed-ILhigh cohort",
+    "Do not assume source .005 clip/LR is tuned for a joint24 ratio"
+  ],
+  "integration": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031",
+  "native_material": {
+    "actual_action": "rollout.endpoint_policy.action [8,8,3] FP32; exact per-record requested coordinates/cache/protocol join",
+    "chain": "rollout.chain contains detached ODE prefix and unscored clean endpoint means; chain[:,-1] must NOT be mistaken for the scored noisy actions",
+    "old_logp": "[8,1] float64; no old_probability W3 PG field is fabricated",
+    "payload": "old physical/normalized mean, terminal x/time/delta, FP64 raw/AR innovations, fixed sigma, unrounded sample, FP32 action, generator before/after prefix/after endpoint, quantization audit",
+    "phase": "READY, ROLLOUT_COMMITTED, INNER_COMMITTED; exact native same identity only, no old-SDE checkpoint migration"
+  },
+  "no_GPU": true,
+  "no_RUNS_or_owner_changes": true,
+  "no_commit_or_staging": true,
+  "objective": {
+    "draw": "action = FP32(FP64(mu_old) + fixed_sigma[h,d] * stationary_AR1(raw_F64_standard_normal)); each candidate has an independent original ODE root",
+    "limitations": [
+      "Conditional endpoint likelihood given old saved latent, not full flow marginal or unbiased full-flow policy gradient; prefix-density derivative omitted.",
+      "Continuous density at FP32 coordinate values, not exact probability mass of quantization bins.",
+      "No new supervision when original SafetyEP raw A is zero.",
+      "Training structured endpoint exploration differs from noiseless ODE deployment; only proposed to improve support, no NAV gain established."
+    ],
+    "logp": "Gaussian joint SUM24 includes complete scale/AR determinant; computed F64 at actual stored/scored FP32 coordinates promoted to F64",
+    "mean": "mu_theta = ActionCodec.denorm_odo(saved_x9.detach + saved_delta9.detach * actor.action_velocity(saved_x9, saved_t9, freshly rebuilt current condition))",
+    "ratio": "exp(logp_current(action|saved_x9,observation)-old_logp); no clamp/mean24 substitution; nonfinite rejected and underflow counted",
+    "rho": 0.8,
+    "sigma": "[1.4864179440431657,.9354143489633349,.07861934885334695] * h/8, h=1..8; exact probe-G covariance and actual step9 scale checked"
+  },
+  "protocol": {
+    "anchor": "source_W3_mean_MSE_on_stored_ODE_states",
+    "anchor_definition": "beta50 original weighted native-coordinate nominal SDE mean-square, W3[7,8,9], weights[.2,1,1]; not LM or endpoint Gaussian KL",
+    "anchor_state_change": "ODE prefix states replace stochastic-chain states; explicit scientific difference",
+    "coordinates": "physical x/y metres and unwrapped yaw radians",
+    "density": "unclamped untruncated fixed full-rank conditional Gaussian given saved last latent; not full flow marginal",
+    "deployment": "unchanged single-candidate ODE10 shift5 current-only LoRA+memory; no endpoint noise at deployment",
+    "group_size": 8,
+    "horizon_ramp": [
+      0.125,
+      0.25,
+      0.375,
+      0.5,
+      0.625,
+      0.75,
+      0.875,
+      1.0
+    ],
+    "likelihood": "joint_sum24_float64",
+    "physical_std": [
+      1.4864179440431657,
+      0.9354143489633349,
+      0.07861934885334695
+    ],
+    "prefix": "deterministic_ODE_K10_shift5",
+    "prefix_gradient": "none; current last-step velocity/current memory rebuilt every inner",
+    "reductions": "source effective local candidate mean then rank mean; adv cap5/PPOclip.005/SafetyEP global64 unchanged",
+    "request": "FP64 mean+noise -> FP32 before official scoring; density evaluated at that same rounded FP32 action promoted to FP64",
+    "request_dtype": "float32",
+    "rho": 0.8,
+    "rounding": "continuous Gaussian log-density at stored finite-precision coordinates, not exact probability mass of FP32 quantization bins",
+    "sampling": "8 independent ODE roots; stationary AR1 epsilon0=z0, epsilon[h]=.8*epsilon[h-1]+.6*z[h]; no clipping",
+    "schema": "world_fixed_ramp_AR1_endpoint_PPO_v1",
+    "sigma_origin": "actual rigorous eta.1 step9 std * source codec slope [33.37,21,1.765] * horizon t/4",
+    "world": 8
+  },
+  "research_source": {
+    "scope": "Inspiration for structured full-rank endpoint conditional Gaussian; fixed covariance only, no learned covariance head, not a complete reproduction",
+    "title": "StructRL, Sec4.2/4.3 and AppendixC",
+    "url": "https://arxiv.org/html/2608.15139v1"
+  },
+  "runtime": "runtime_for_config -> EndpointRuntimeMixin, GroupRuntime",
+  "schema": "world_endpoint_ramp_AR1_training_handoff_v1",
+  "scientific_differences": [
+    "ODE K10 prefix replaces late-W3 stochastic prefix",
+    "Fixed physical ramped AR1 endpoint noise replaces SDE transitions for scored actions",
+    "Joint SUM24 conditional Gaussian ratio replaces clamped dimension-mean transition surrogate",
+    "Terminal replay only for PG; prefix detached",
+    "Permanent IL beta50/source W3 weighted nominal-mean MSE formula preserved, but evaluated on stored ODE states (not SDE states)"
+  ],
+  "source_files": {
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_runtime.py": "cc223476eabc88cc5e4f37af457b2a208c02f00c77287ffafcfbb3321dd2f4af",
+    "starVLA/rl/qwen_world_safety_exploration/recovery.py": "52fa198694585b6cf4677f9a15d6fac53ca723b55c85364afddb17398357cba5",
+    "starVLA/rl/qwen_world_safety_exploration/runtime.py": "7be59dcaef06d1d53fb5feb09f98fb3e52f6d0cad68375dc62abb19c3bcb5e1c",
+    "tests/test_world_endpoint_runtime.py": "274408df7cee85dd827793fd8f5fdd2acea1c3efd9cf4352b9fa38b7a997d733",
+    "tools/qwen_world_safety_exploration/train.py": "bf346c0f7860a44ec90dc32ec13530c5989450714c211a1caef771fafb951093"
+  },
+  "status": "CPU_READY_NOT_REGISTERED_OR_LAUNCHED",
+  "unchanged": [
+    "fresh IL70/current and permanently frozen IL70 reference",
+    "52,707,840 production LoRA+memory closure enforced by GroupRuntime.make_actor",
+    "G8/world8/H8",
+    "uniform103288 stream/seed42",
+    "canonical scorer, raw rewards and SafetyEP credit/std",
+    "PPO .005/advclip5/beta50/dimweights [.2,1,1]",
+    "AdamW groups LR5e-5/5e-6, warmup100 constant maxsteps50k identity",
+    "four inner updates per fresh collection",
+    "single-candidate ODE10shift5 deployment/export closure"
+  ],
+  "unchanged_math_reference": {
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_policy.py": "d7e5f5c687566bb2f941bba0261148c6ae7b085bed1372292c7dc8cf03b73477",
+    "tests/test_world_endpoint_policy.py": "eade6f966c8dfd71b97288b93d99cb07d2fcc22681a5fd5f550ec64225769e7d"
+  }
+}

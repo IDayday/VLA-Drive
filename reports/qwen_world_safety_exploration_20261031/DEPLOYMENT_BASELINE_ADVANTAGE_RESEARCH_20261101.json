@@ -1,0 +1,76 @@
+{
+  "schema": "world_deployment_baseline_advantage_research_v1",
+  "status": "PRIMARY_REVIEW_AND_EXPERIMENT_DESIGN_NOT_IMPLEMENTED",
+  "created_unix": 1793497710.1244693,
+  "question": "有严格高质量轨迹后，怎样让信用更直接服务真实部署且保住高分？",
+  "sources": [
+    {
+      "name": "Self-critical Sequence Training",
+      "url": "https://arxiv.org/abs/1612.00563",
+      "mechanism": "以测试时解码得到的实际输出回报作基线"
+    },
+    {
+      "name": "ReMax",
+      "url": "https://arxiv.org/html/2310.10505v4",
+      "mechanism": "Algorithm1随机输出reward减同策略greedy输出reward，使用完整logp、无需critic"
+    },
+    {
+      "name": "DPPO",
+      "url": "https://arxiv.org/html/2409.00588v1",
+      "mechanism": "真实denoising条件概率、不同任务RL actor LR可为1e-5并衰减至1e-6，附录Tables A7-A11；不能把其IL cosine当RL配方"
+    }
+  ],
+  "local_evidence": {
+    "full_training_groups": 62640,
+    "high_quality_negative_candidates": 16546,
+    "lower_canonical_positive_witness_pairs": 30858,
+    "pilot_control_PG0": 132,
+    "pilot_saturated_PG0": 8,
+    "pilot_protected_negative_high": 0,
+    "pilot_control_negative_high": 475,
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_NATIVE_TRAINING_CENSUS_u001000.json"
+  },
+  "proposed_method": {
+    "name": "ACTUAL_ODE_BASELINE_CREDIT",
+    "priority": "AFTER_ENDPOINT_SUPPORT_AND_PILOT_FULL_NAV_REVIEW",
+    "formula": "A_i = R(o,a_i) - stopgrad(R(o, ODE_theta(o,z_deploy)))",
+    "baseline": "真实执行并通过同一canonical service评分的当前策略单轨ODE；不用virtual最大reward，不把未执行轨迹倒填成witness",
+    "inference_root": "固定TRAIN诊断root须预注册，若用正式部署2101逐scene确定性seed只用于TRAIN观察；不读取NAV轨迹或分数",
+    "conditional_math": "给定观测与saved prefix，baseline必须独立于端点noise。真实score-function下可减此baseline；当前source W3 mean24/clamp并非真实joint density，不能照搬ReMax无偏证明",
+    "normalization": "先不做组内减均值，否则又退回GRPO；batch std/adv cap/PPO clipping引入的偏差分别明确，不称理论复现",
+    "cost": "每scene8个探索候选+1个ODE baseline，多12.5%实际scorer查询。比较需额外提供等总query预算控制，不能隐藏baseline成本",
+    "same_base": "同IL70、G8、uniform103288、fresh Adam；配对控制须共享同探索kernel和LR/anchor，不能同时当endpoint与credit双因素消融"
+  },
+  "failure_boundaries": [
+    "ODE本身0且所有探索也0时，真实canonical baseline仍给A0，不会凭空解决全失败；仍需更好的支持或真实物理margin",
+    "PG0减少只表示有更新，不代表高分保持或NAV提升；SAT/PROTECTED完整结果作前置反证",
+    "严格安全门控的score与SafetyEP分量偏好不同；若改canonical目标须说明目标变化，不能只叫换baseline",
+    "单轨baseline需要额外推理/评分；当前部署没有额外scorer、没有在线选最优轨迹"
+  ],
+  "minimal_experiment": {
+    "status": "NOT_REGISTERED",
+    "prerequisite": "新端点runtime实际native训练/真实部署评测具备可行性；先完成7臂同budget证据取舍",
+    "single_change": "已选固定探索kernel中只换advantage baseline，不同时加课程/历史SIL/learned covariance",
+    "gates": [
+      500,
+      1000,
+      3000
+    ],
+    "acceptance": "完整12146 PDMS配对、零分净修复、固定IL与控制高分队列、安全组件、实际query成本同时比较"
+  },
+  "lr_decision": {
+    "current_actor": 5e-05,
+    "current_memory": 5e-06,
+    "warmup_updates": 100,
+    "schedule": "constant after warmup",
+    "current_56000_rank_updates_preclip_norm_gt1": 0,
+    "current_inner4_PPO_blocked_fraction_range": [
+      0.030825199,
+      0.033687501
+    ],
+    "interpretation": "当前W3没有被clip1或绝大多数PPO项封死的证据；新joint密度改变梯度尺度，须看新runtime真实更新的ratio/clip/梯度再独立决定LR，不能从旧proxy的稳定性推导新policy相同LR一定合适",
+    "prior": "已做LR×.2和cosine fork；12k瞬时收益未在14k持续、也未超过自身10k，不重复当新方案"
+  },
+  "no_GPU_dispatch": true,
+  "no_live_source_edit": true
+}

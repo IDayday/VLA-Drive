@@ -1,6 +1,6 @@
 {
   "schema": "world_Safety_research_question_decision_ledger_v1",
-  "updated_unix": 1793495713.077441,
+  "updated_unix": 1793498162.303392,
   "purpose": "每个用户问题对应完整证据、代码/具体实验与当前状态",
   "items": [
     {
@@ -19,13 +19,13 @@
       "question": "全零组是否无法学习？",
       "finding": "140全canonical零组59仍有SafetyPG/81PG0；97成本tie细时序均可区分；74为NC/TTC通过但全部DAC失败且越界时长不同。",
       "method": "SAFETY_DAC_DENSE_G8，只对initial-legal全部DAC失败且原A0组按真实越界持续比例排序，其他组信用/分母不变。NGRPO为次选负学习，非虚构成功。",
-      "status": "DENSE_NATIVE_1000_COMPLETE_FULL_NAV_500_89p7673_1000_90p7823_SAME_BUDGET_CONTROL1000_PENDING"
+      "status": "DENSE_NATIVE1000_COMPLETE_MATCHED_NAV_DELTA_PLUS0p07466_CI_CROSSES0_ONLY4_OF2000_ACTIVATIONS"
     },
     {
       "question": "G8是否太少？",
-      "finding": "不能由G8失败推断动作支持为零；也不能把6007 PG0全当失败，它们主要是成功饱和。",
+      "finding": "全1k/2000组：G16 allcanonical0仅1组vsG8 10；PG0 57vs132、strict支持1801vs1656，但同候选500vsG8 1000 PDMS−.58457 CI不跨0；不能把支持覆盖直接当计算效率或部署提升。",
       "method": "SAFETY_G16；同时比较G16@500 vsG8@1000同候选和G16@1000 vsG8@1000同曝光/更新。",
-      "status": "G16_NATIVE_1000_COMPLETE_FULL_NAV_500_90p1230_EQUIVALENT_CANDIDATE_COMPARISON_PENDING"
+      "status": "FULL_NAV_1000_90p83637_MATCHED_DELTA_PLUS0p12876_CI_CROSSES0_FIXED_IL_HIGH_REL_MINUS0p25282"
     },
     {
       "question": "除了增大G，还有哪些有效探索？",
@@ -37,23 +37,23 @@
       "question": "严格高质轨迹被怎样赋予优势？",
       "finding": "5910全安全EP1饱和组PG0，其中5552 Comfort不同。此前对所有feasible组混Comfort的q方法已负结果，不能重命名当成功。",
       "method": "先只读记录strict NC/DAC/TTC/Comfort1且score≥.9的正负A和PPO后有效权重；新SaturatedCredit仅在原A0/EP全1组启用canonical delta，不稀释其它EP组。",
-      "status": "SATURATED_PROTECTED_INVERSION_ALL_NATIVE1000_COMPLETE_FULL_PAIRED_PENDING"
+      "status": "ALL_FULL1000_NAV_COMPLETE_SAT90p72588_PROTECTED90p65762_INVERSION90p70965_NONE_CONFIRMED_BETTER_SAT_CONTINUES_BY_REGISTERED_GUARDS"
     },
     {
       "question": "课程和学习价值怎样迁移？",
-      "finding": "canonical方差、Safety信用方差、learnability、learning progress不是同一量；全失败无witness也不能因筛选被称解决。",
-      "method": "SAFETY_ACTIVE_DATA_G8；≥75%uniform；额外优先真实mixed/feasible-EPheadroom且SafetyA方差存在组，私有bank/TTL/cooldown/次数限制/完整native恢复。",
-      "status": "CURRICULUM_NATIVE1000_COMPLETE_500_GAIN_CI_CROSSES0_HIGHCOHORT_REGRESSES_NOT_A_CONFIRMED_WIN"
+      "finding": "ACTIVE1k已完整：相对同budget Control−.197299，CI[-.394522,-.002059]；修zero82/新增25，但固定Control高分均值−.93206，总体高分损失抵消修复。实际24%priority/1520unique相对uniform2000unique，不是未激活。",
+      "method": "现有ACTIVE不盲目延长。补PAC的实际进展+learnability、ClosedLoop遗忘探针；新实验需区分只重加权与新增rehearsal admission，反馈仅TRAIN。",
+      "status": "MATCHED_FULL_NAV_NEGATIVE_NO_AUTO_EXTENSION_NEW_PRIMARY_PROGRESS_REVIEW_IN_PREPARATION"
     },
     {
       "question": "高分怎样不退化，如何安排后续优先级？",
       "finding": "SuccessMemory10k+0.02627CI跨0，修15新增34；Safety30k虽然零分少9个总分下降。固定高分保持比只计修复更关键。",
       "method": "完整配对、.9固定高分队列、正负增益质量、严格安全指标并列。SIL改进门控witness/CLEAR历史成功分布保持二选一后续独立试验，不无条件复制历史最优或打包多个trick。",
-      "status": "FULL_EVIDENCE_AND_EXPLICIT_CONTINUATION_POLICY_ACTIVE"
+      "status": "FULL1000_PAIRED_COMPLETE_DENSE_AND_SATURATED_WITH_CONTROL_ACTUALLY_RESUMED_TO3000_OTHERS_CLOSED_AT1000"
     },
     {
       "question": "学习率和组合算法怎样安排？",
-      "finding": "当前actor5e-5/memory5e-6，warmup100后constant；已做Safety10k完整Adam/RNG fork：LR×.2 12k相对同budget+.1516且CI>0，但14k−.0295CI跨0；cosine12/14k未见优势且只走完调度20%/40%，均未超过10k自身。",
+      "finding": "当前actor5e-5/memory5e-6，warmup100后constant；已做Safety10k完整Adam/RNG fork：LR×.2 12k相对同budget+.1516且CI>0，但14k−.0295CI跨0；cosine12/14k未见优势且只走完调度20%/40%，均未超过10k自身。 新七臂56k rank-update日志preclipnorm>1次数0，inner4 blocked约3.1%-3.4%，没有当前被clip1或PPO封死的主要瓶颈证据。",
       "method": "不重复把已做LR×data2×2/cosine当新方向，也不外推全cosine失败；先解决候选支持/信用/保持，当前7臂保持同LR以归因。后续仅在实际稳定性证据需要时再登记独立调度。",
       "status": "EXISTING_LR_FORK_EVIDENCE_REVIEWED_NEW_SEVEN_ARMS_KEEP_MATCHED_SCHEDULE"
     }
@@ -93,5 +93,25 @@
       "url": "https://arxiv.org/abs/1811.11682",
       "transfer": "历史成功行为保持，区别永久IL参考"
     }
-  ]
+  ],
+  "full_pilot_training_census": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_NATIVE_TRAINING_CENSUS_u001000.json",
+  "next_priority_direction": {
+    "method": "ENDPOINT_RAMP_AR1",
+    "status": "IMPLEMENTATION_AND_CPU_NATIVE_RECOVERY_IN_PROGRESS_NOT_REGISTERED",
+    "reason": "44928成功TRAIN查询已识别真实末端抖动与严格高质支持；以平滑近端小扰动和真实joint条件概率验证训练转化",
+    "not_a_claim_of_NAV_improvement": true
+  },
+  "continuation": {
+    "status": "WAITING_CONTINUED_FULL_EVALUATIONS",
+    "current_update": 3000,
+    "novels": [
+      "SAFETY_DAC_DENSE_G8",
+      "SAFETY_SATURATED_G8"
+    ],
+    "decision": "/mnt/project/qwen-world-safety-exploration-20261031/owners/CONTINUATION/DECISION_u001000.json",
+    "same_original_native_sources": true,
+    "actual_resumed_updates_observed_over1000": true
+  },
+  "curriculum_progress_review": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/CURRICULUM_PROGRESS_PRIMARY_REVIEW_20261101.json",
+  "deployment_baseline_advantage_review": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/DEPLOYMENT_BASELINE_ADVANTAGE_RESEARCH_20261101.json"
 }

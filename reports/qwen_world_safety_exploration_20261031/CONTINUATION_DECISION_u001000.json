@@ -1,0 +1,155 @@
+{
+  "schema": "world_finite_continuation_decision_v1",
+  "status": "DECIDED",
+  "at_unix": 1793497987.1489966,
+  "from_updates": 1000,
+  "to_updates": 3000,
+  "selected_novels": [
+    "SAFETY_DAC_DENSE_G8",
+    "SAFETY_SATURATED_G8"
+  ],
+  "control_continues": true,
+  "evidence": [
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_G8_CONTROL_u001000.json",
+      "sha256": "9754cb7a32ec5d918d09be9af8c40ed7f524a14abd4ca90faff7dc710e9feb57"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_G16_1000_vs_SAFETY_G8_CONTROL_1000.json",
+      "sha256": "6bbd80085d1ccb501144f8af911fda99879992b4bee2305d25c052a293e650ba"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_G16_u001000.json",
+      "sha256": "82833c68fd48843c7680e6b5528a08372d7156e3bc36906245a2a11c5100bec5"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_DAC_DENSE_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+      "sha256": "c41957ba1236cb4a6b9134c31386158c34ad2bfc6a60193421786cf1c912c87e"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_DAC_DENSE_G8_u001000.json",
+      "sha256": "6c873fd6876cb8c0804d5ae0c929a4847ae6f6ed7ced605cf716138939a00037"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ACTIVE_DATA_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+      "sha256": "4cfc7e7f01408139e13b1badd166f3a901e8225b9a7a9aa76ff08f3e1bb22069"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ACTIVE_DATA_G8_u001000.json",
+      "sha256": "389f1a2edd6ca7ac0c69f838c30f6b59f9458870e2b0e0d227cbcc75d41de2bd"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_SATURATED_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+      "sha256": "fff2e9fe8d02a77829924cdbd29b3a4cc8824968f83210729062610edc26da53"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_SATURATED_G8_u001000.json",
+      "sha256": "edf4c390325fc12f4f20e21f43e8b1719903763b92d8b28cdc62b25f32d6ef11"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_PROTECTED_HIGH_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+      "sha256": "f8ed3ff67e1da0c2540f19f28aabb53c040829483eae4b7b19cc9aaf37279a58"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_PROTECTED_HIGH_G8_u001000.json",
+      "sha256": "1cf92dca3fa0c9147647289e28b12e24784857dbe72665e531ad0a0e172def53"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_INVERSION_CANCEL_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+      "sha256": "dfbc6a6b52e629c9bd61cdc028b3b32eeeaaa02e0a1de30d6031676c3df54de4"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_INVERSION_CANCEL_G8_u001000.json",
+      "sha256": "c306b66ad479596a46ba23d9a199ee1b2ce9b2c556ec3aadfa5b04e7e757037d"
+    }
+  ],
+  "decisions": [
+    {
+      "arm": "SAFETY_G16",
+      "decision": "STOP_AT_REGISTERED_CAP",
+      "delta_PDMS": 0.1287601409686256,
+      "CI95_PDMS": [
+        -0.1890463946992758,
+        0.36335442715275973
+      ],
+      "net_new_zero": -30,
+      "fixed_IL70_high_delta_PDMS": -0.25281629159908703,
+      "absolute_PDMS": 90.83636832083948,
+      "absolute_plateau_strikes": 0,
+      "not_a_general_training_seed_CI": true
+    },
+    {
+      "arm": "SAFETY_DAC_DENSE_G8",
+      "decision": "PROMISING_OR_UNCERTAIN_FULL_PAIRED",
+      "delta_PDMS": 0.07466227788113836,
+      "CI95_PDMS": [
+        -0.014440708509765447,
+        0.15647341203286375
+      ],
+      "net_new_zero": -4,
+      "fixed_IL70_high_delta_PDMS": 0.02899701557870593,
+      "absolute_PDMS": 90.78227045775206,
+      "absolute_plateau_strikes": 0,
+      "not_a_general_training_seed_CI": true
+    },
+    {
+      "arm": "SAFETY_ACTIVE_DATA_G8",
+      "decision": "STOP_AT_REGISTERED_CAP",
+      "delta_PDMS": -0.19729915095547773,
+      "CI95_PDMS": [
+        -0.3945216554188423,
+        -0.00205902371112487
+      ],
+      "net_new_zero": -57,
+      "fixed_IL70_high_delta_PDMS": -0.7428377093781822,
+      "absolute_PDMS": 90.51030902891506,
+      "absolute_plateau_strikes": 0,
+      "not_a_general_training_seed_CI": true
+    },
+    {
+      "arm": "SAFETY_SATURATED_G8",
+      "decision": "PROMISING_OR_UNCERTAIN_FULL_PAIRED",
+      "delta_PDMS": 0.018267512645015468,
+      "CI95_PDMS": [
+        -0.08010551248911287,
+        0.10517786579302378
+      ],
+      "net_new_zero": -12,
+      "fixed_IL70_high_delta_PDMS": -0.006230240498797945,
+      "absolute_PDMS": 90.7258756925155,
+      "absolute_plateau_strikes": 0,
+      "not_a_general_training_seed_CI": true
+    },
+    {
+      "arm": "SAFETY_PROTECTED_HIGH_G8",
+      "decision": "LOWER_PRIORITY_WITHIN_MAX_TWO_CONTINUATIONS",
+      "delta_PDMS": -0.04998341866602948,
+      "CI95_PDMS": [
+        -0.13860429929700677,
+        0.02939167980908559
+      ],
+      "net_new_zero": 7,
+      "fixed_IL70_high_delta_PDMS": 0.009514496914840853,
+      "absolute_PDMS": 90.65762476120436,
+      "absolute_plateau_strikes": 0,
+      "not_a_general_training_seed_CI": true
+    },
+    {
+      "arm": "SAFETY_INVERSION_CANCEL_G8",
+      "decision": "LOWER_PRIORITY_WITHIN_MAX_TWO_CONTINUATIONS",
+      "delta_PDMS": 0.0020402895337119594,
+      "CI95_PDMS": [
+        -0.08203863680195535,
+        0.08043291714438876
+      ],
+      "net_new_zero": -13,
+      "fixed_IL70_high_delta_PDMS": -0.06371505330620353,
+      "absolute_PDMS": 90.70964846940436,
+      "absolute_plateau_strikes": 0,
+      "not_a_general_training_seed_CI": true
+    }
+  ],
+  "scientific_config_unchanged": true,
+  "native_Adam_RNG_cursor_pending_preserved": true,
+  "GPU_signals": 0
+}

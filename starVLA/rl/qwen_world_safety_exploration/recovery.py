@@ -150,14 +150,15 @@ def validate_structure(state, rollout, identity, optimizer=None, scheduler=None,
 
 
 def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, *,
-                      credit, recipe_validator, legacy=False):
+                      credit, recipe_validator, legacy=False, _structure_validator=None):
     """Original transaction semantics, dynamic G and the registered raw-A math."""
     recipe_validator(identity['recipe'])
     g = identity['recipe']['grpo']['sample']['group_size']
     if (credit.group_size != g
             or identity['recipe']['research']['structured_advantage'] != credit.protocol['schema']):
         raise ValueError('Credit/recipe G or schema mismatch')
-    summary = validate_structure(state, rollout, identity, optimizer, scheduler, legacy=legacy)
+    structure = validate_structure if _structure_validator is None else _structure_validator
+    summary = structure(state, rollout, identity, optimizer, scheduler, legacy=legacy)
     summary.update(structured_advantage_schema=credit.protocol['schema'],
                    structured_protocol=credit.protocol, group_size=g, structured_world=8)
     if not summary['pending']:

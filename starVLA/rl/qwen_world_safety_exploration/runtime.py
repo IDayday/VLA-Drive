@@ -7,6 +7,12 @@ from .quality import QualityDiagnosticsMixin
 
 def runtime_for_config(path):
     cfg=yaml.safe_load(Path(path).read_text());r=cfg['research']
+    if r.get('endpoint_policy') is not None:
+        # Endpoint likelihood has its own quality/audit fields; the historical
+        # wrapper explicitly assumes source W3 clamped transition probabilities.
+        from .endpoint_runtime import EndpointRuntimeMixin,validate_endpoint_recipe
+        validate_endpoint_recipe(cfg)
+        return type('EndpointExplorationRuntime',(EndpointRuntimeMixin,GroupRuntime),{})()
     mixins=[QualityDiagnosticsMixin]
     if r['data_policy']=='online_priority':
         from .curriculum import CurriculumRuntimeMixin

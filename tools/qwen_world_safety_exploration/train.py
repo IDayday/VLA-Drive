@@ -138,7 +138,7 @@ def main(runtime=None):
               recipe_identity(cfg,a.manifest,conditions.sha))
     identity.update(world=world,purpose='qualification_not_formal_initialization' if a.qualification else 'formal',
                     score_protocol=service.protocol,source_files=runtime.source_files() if runtime is not None else source_files(),parameter_contract=actor.closure,
-                    rng_protocol='independent persistent CPU FP32 generator per rank; source _randn; no repeated candidate seeds',
+                    rng_protocol=getattr(runtime,'rng_protocol','independent persistent CPU FP32 generator per rank; source _randn; no repeated candidate seeds'),
                     scene_reduction='source local effective mean, then equal mean across ranks',
                     actual_optimizer=dict(name='torch.optim.AdamW',lr=cfg['learning_rate'],betas=cfg['optimizer_betas'],
                                           eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'],warmup_updates=warmup,
@@ -287,7 +287,10 @@ def main(runtime=None):
             if not all_ok(error,device):
                 raise RuntimeError('At least one rank failed source loss; last sealed boundary retained')
             current=actor._probability_audit['current'];old=rollout['old_logp']
-            ratio=(current['source_clamped_logprob'].mean((-1,-2))-old).exp()
+            if hasattr(runtime,'policy_ratio'):
+                ratio=runtime.policy_ratio(actor,rollout)
+            else:
+                ratio=(current['source_clamped_logprob'].mean((-1,-2))-old).exp()
             fresh_error=float((ratio-1).abs().max())
             error=None
             if state['next_inner']==0 and fresh_error>1e-4:error='Fresh saved-state ratio differs by '+str(fresh_error)

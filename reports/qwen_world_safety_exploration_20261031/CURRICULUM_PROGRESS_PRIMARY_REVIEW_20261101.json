@@ -1,0 +1,388 @@
+{
+  "schema": "world_curriculum_learning_progress_primary_review_v1",
+  "status": "PRIMARY_VERIFIED_EXISTING_EVIDENCE_AND_FUTURE_DESIGN_ONLY",
+  "created_unix": 1793497784.056437,
+  "main_conclusion_zh": "当前ACTIVE证实了优先重放已激活，却没有证实学习价值：1k更少零分但总分更低。下一步应把真实进度、遗忘admission和候选信用支持拆开验证；不再把rawA方差当最终收益。",
+  "paper_order": [
+    "PAC",
+    "ClosedLoopCountdown",
+    "AceGRPO",
+    "CoDaPO"
+  ],
+  "papers": [
+    {
+      "id": "PAC",
+      "priority": 1,
+      "title": "PAC: Progress-Augmented Advantage Curriculum for Multi-Task Reinforcement Learning of LLMs",
+      "version": "2608.30528v1, 2026-08-31",
+      "primary": "https://arxiv.org/html/2608.30528v1",
+      "sections": "3.2-3.3; Appendix B/C",
+      "verified_method_zh": "任务级窗口平均|标准化优势|估更新潜力，另由近期平均reward拟合趋势；两者融合后做Gaussian Thompson选择，后验按样本证据量更新并膨胀方差以追踪非平稳。",
+      "exact_formulas": {
+        "L": "window mean of mean_j |Ahat_j|",
+        "P": "OLS slope k_b over normalized window time; P_b=k_b/(sum_j|k_j|+eps)",
+        "utility": "u_b=(1+P_b)*L_b",
+        "posterior": "Gaussian precision-weighted update; add delta^2 variance inflation; per-sample Thompson argmax"
+      },
+      "verified_settings": "W=16; cold-start50 training steps; not our four-inner optimizer counter",
+      "code_status": "No algorithm repository linked in inspected primary text; no implementation parity claim",
+      "what_it_does_not_prove_zh": "reward斜率仍是代理，不能识别单任务的边际因果贡献或排除跨任务迁移。优势大小也不是参数梯度方向。",
+      "transfer_inference_zh": "最适合补目前只有单次rawA方差的缺口；优先用固定TRAIN probe进度做保守重加权，再单独比较Thompson控制器，避免同时换效用与采样器。"
+    },
+    {
+      "id": "ClosedLoopCountdown",
+      "priority": 2,
+      "title": "When Does Closed-Loop Curriculum Adaptation Help GRPO? An Analysis on Countdown",
+      "version": "2610.39056v1, 2026-10-28",
+      "primary": "https://arxiv.org/html/2610.39056v1",
+      "sections": "II-B/C; III",
+      "verified_method_zh": "固定greedy probe测各难度正确率；反馈分别控制前进速度与复习宽度，先前难度衰退时加宽覆盖，无反馈时回归参考课程。",
+      "exact_formulas": {
+        "forgetting": "F_b=max(0,best_probe_accuracy_b-current_probe_accuracy_b)",
+        "sampler": "Gaussian over ordered buckets; separately bounded/EMA-smoothed pace beta and spread sigma"
+      },
+      "verified_settings": "100 fixed probes per difficulty every100 optimizer steps; four training seeds with high dispersion, no significance claim",
+      "official_link": "https://github.com/yuvrajpant56/Closed_Loop_Curriculum",
+      "code_status": "Author-linked repository/readme accessible; full controller implementation not audited",
+      "transfer_inference_zh": "适合借鉴独立的进度与遗忘反馈，驾驶场景没有天然operand难度序，不能照搬高斯难度轴。负进度只触发确认/覆盖诊断，不直接等于高学习价值。"
+    },
+    {
+      "id": "AceGRPO",
+      "priority": 3,
+      "title": "AceGRPO: Adaptive Curriculum Enhanced Group Relative Policy Optimization for Autonomous Machine Learning Engineering",
+      "version": "2602.07906v5, 2026-05-07 (not v1)",
+      "primary": "https://arxiv.org/html/2602.07906v5",
+      "sections": "4.1-4.2",
+      "verified_method_zh": "把代码执行中间状态加入演化buffer；按reward离散程度与剩余空间组成potential，并用温度和最近采样抑制控制重复。",
+      "exact_formulas": {
+        "potential": "clip(std(rewards),0,delta_max)*clip(1-mean(rewards),0,1)",
+        "recency": "D_t(x)=min(1,(t-t_last)/Delta)",
+        "allocation": "Q_t(x) proportional exp(P(x)/tau_t)*D_t(x)"
+      },
+      "official_link": "https://github.com/yuzhu-cai/AceGRPO",
+      "code_status": "Author-linked repository currently exposes README/.gitignore only; usable algorithm implementation not verified",
+      "transfer_inference_zh": "比当前ACTIVE更接近同类启发式，仍不直接测实际进步。不能把其代码历史state转换，类推为把驾驶未来轨迹/metric-cache送入当前actor；保留当前观测合同。"
+    },
+    {
+      "id": "CoDaPO",
+      "priority": 4,
+      "title": "The Easy, the Hard, and the Learnable: Confidence and Difficulty-Adaptive Policy Optimization for LLM Reasoning",
+      "version": "PMLR306, ICML2026",
+      "primary": "https://proceedings.mlr.press/v306/zhou26ah.html",
+      "sections": "Official proceedings abstract",
+      "verified_method_zh": "用rollout置信度与经验难度给问题赋有界价值，同时重加权更新并在mini-batch重采样。",
+      "official_link": "https://github.com/tmlr-group/CoDaPO",
+      "code_status": "Official proceedings links repository; source implementation not audited for this review",
+      "transfer_inference_zh": "当前连续动作transition维均值/clamp logp不是校准token置信度。不要直接拿exp(old_logp)做confidence；其梯度重加权与数据重采样应分别对照。"
+    }
+  ],
+  "definitions": {
+    "rawA_variance": "Within-current-G dispersion of saved Safety credit before globalstd. Direction/opportunity proxy, not canonical utility or parameter-gradient norm.",
+    "learnability": "Expected useful update potential; papers use proxies whose assumptions differ from our clamped per-step source PPO.",
+    "learning_progress": "Change of a fixed population/metric under policy evolution; fixed-root ODE removes rollout root/noise resampling, not training randomness or cross-task transfer confounds.",
+    "forgetting": "Drop from a predeclared previous/high reference on the same inference/scoring population. A negative slope is not automatically high expected benefit from rehearsal.",
+    "final_benefit": "Matched-budget full deployment PDMS and gain/loss mass, zero repair/newzero and fixed-high retention; not priority activation, PG count or reward variance alone"
+  },
+  "current_immutable_implementation": {
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/initial_v1",
+    "module": "starVLA/rl/qwen_world_safety_exploration/curriculum.py",
+    "source_module_sha256": "ab47f4be22529aab737ccf37f52ea8e1949f3ee7fdc0020323ab4b1eac49d4d6",
+    "implementation": "Rank-local bounded bank, warmup8collections, first prioritycollection12, 3uniform+1priority; private RNG; rawAvar*(1+4p(1-p)) for mixed or rawAvar*(1-mean feasibleEP) for allfeasible headroom; cap3/cooldown8/TTL128.",
+    "not_present": [
+      "fixed TRAIN probe learning-progress estimator",
+      "verified-regression admission outside original eligibility",
+      "Thompson posterior",
+      "calibrated confidence",
+      "future-state actor inputs"
+    ]
+  },
+  "actual_native_evidence": {
+    "census": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_NATIVE_TRAINING_CENSUS_u001000.json",
+    "census_sha256": "d2b11ea08ce85f997f07da88c4c5f48cd5a626febf63c9eaee901ed856bcca77",
+    "scope": "All7 arms1000updates: complete56000 journal rows/14000 groups/128000 candidates; no new scan/bootstrap in this review",
+    "all_groups": 14000,
+    "all_candidates": 128000,
+    "all_metric_rows": 56000,
+    "ACTIVE_counts": {
+      "groups": 2000,
+      "candidates": 16000,
+      "all_zero_groups": 6,
+      "tied_groups": 13,
+      "safety_differing_groups": 1528,
+      "progress_only_groups": 17,
+      "journal_adv_mask_zero_groups": 121,
+      "true_zero_advantage_groups": 121,
+      "nonzero_mask_but_zero_advantage_groups": 0,
+      "all_zero_and_zero_advantage_groups": 2,
+      "positive_unsafe_with_safe_alternative_candidates": 0,
+      "quality_strict_high_count": 5216,
+      "quality_feasible_count": 11634,
+      "quality_positive_high_count": 4308,
+      "quality_negative_high_count": 343,
+      "groups_with_strict_high": 1588,
+      "globally_all_eight_ranks_zero_PG_collections": 0,
+      "unique_scene_tokens": 1520,
+      "repeated_scene_exposures": 480
+    },
+    "CONTROL_counts": {
+      "groups": 2000,
+      "candidates": 16000,
+      "all_zero_groups": 10,
+      "tied_groups": 14,
+      "safety_differing_groups": 1410,
+      "progress_only_groups": 17,
+      "journal_adv_mask_zero_groups": 132,
+      "true_zero_advantage_groups": 132,
+      "nonzero_mask_but_zero_advantage_groups": 0,
+      "all_zero_and_zero_advantage_groups": 4,
+      "positive_unsafe_with_safe_alternative_candidates": 0,
+      "quality_strict_high_count": 5514,
+      "quality_feasible_count": 11937,
+      "quality_positive_high_count": 4452,
+      "quality_negative_high_count": 475,
+      "groups_with_strict_high": 1656,
+      "globally_all_eight_ranks_zero_PG_collections": 0,
+      "unique_scene_tokens": 2000,
+      "repeated_scene_exposures": 0
+    },
+    "ACTIVE_priority_stats": {
+      "total_exposures": 2000,
+      "uniform_exposures": 1520,
+      "priority_exposures": 480,
+      "priority_slots": 480,
+      "priority_fallbacks": 0,
+      "repeated_priority_exposures": 130,
+      "saturated_observations": 119,
+      "allfail_observations": 23,
+      "admissions": 1391,
+      "exits_saturated": 7,
+      "exits_uninformative": 5,
+      "exits_expired": 552,
+      "exits_capacity": 0,
+      "exits_repeat_cap": 25,
+      "commit_calls": 2000
+    },
+    "same_rank_collection_scene_as_control": {
+      "matched": 88,
+      "total": 2000
+    },
+    "distribution_zh": "ACTIVE1520 unique vs control2000；480/2000=24%重放，350 rank-local priority distinct、130次再次优先。仅88/2000同rank/collection场景相同。相同更新/候选预算不等于相同场景或同theta对照；低经验reward也可能来自更难采样分布。",
+    "one_k_source_means": {
+      "ACTIVE": {
+        "canonical_random_mean": 0.6817047485210203,
+        "NC": 0.95459375,
+        "DAC": 0.8624375,
+        "TTC": 0.834125,
+        "EP": 0.6956994438739773,
+        "safe_fraction": 0.727125
+      },
+      "CONTROL": {
+        "canonical_random_mean": 0.6971966493163767,
+        "NC": 0.9560625,
+        "DAC": 0.8733125,
+        "TTC": 0.8465,
+        "EP": 0.7134530563950997,
+        "safe_fraction": 0.7460625
+      }
+    },
+    "local_PG0": {
+      "ACTIVE": 121,
+      "CONTROL": 132,
+      "global_allrank_zero_collections_ACTIVE": 0
+    },
+    "activation_not_improvement": true
+  },
+  "completed_samebudget_deployment_evidence": [
+    {
+      "updates": 500,
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ACTIVE_DATA_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+      "source_sha256": "b07f05600e3cca428d75e1297124bd9aaa44337e4b5e4acd42094fd22bddfc70",
+      "status": "COMPLETE",
+      "PDMS_delta": 0.22942935385971666,
+      "PDMS_CI95": [
+        -0.17346325646853564,
+        0.6165844331495353
+      ],
+      "bootstrap_reused": true,
+      "bootstrap_replicates": 2000,
+      "bootstrap_seed": 42,
+      "physical_logs": 44,
+      "zero_repaired": 95,
+      "new_zero": 45,
+      "net_zero_reduction": 50,
+      "zero_definition": "Existing review uses score<=1e-8; not silently relabeled exact0",
+      "fixed_high": {
+        "count": 8430,
+        "mean_delta_PDMS": -0.643028742478185,
+        "global_contribution_PDMS": -0.4462977358052939,
+        "to_zero": 28,
+        "below_high": 222
+      },
+      "zero_contribution_PDMS": 0.7115379622606928,
+      "G_plus_PDMS": 0.8651941775133679,
+      "G_minus_PDMS": -0.6357648236536513,
+      "cohort_reference": "same-budget G8Control canonical>=.9, NAVTEST diagnostic only; never a TRAIN token list"
+    },
+    {
+      "updates": 1000,
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ACTIVE_DATA_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+      "source_sha256": "4cfc7e7f01408139e13b1badd166f3a901e8225b9a7a9aa76ff08f3e1bb22069",
+      "status": "COMPLETE",
+      "PDMS_delta": -0.19729915095547773,
+      "PDMS_CI95": [
+        -0.3945216554188423,
+        -0.00205902371112487
+      ],
+      "bootstrap_reused": true,
+      "bootstrap_replicates": 2000,
+      "bootstrap_seed": 42,
+      "physical_logs": 44,
+      "zero_repaired": 82,
+      "new_zero": 25,
+      "net_zero_reduction": 57,
+      "zero_definition": "Existing review uses score<=1e-8; not silently relabeled exact0",
+      "fixed_high": {
+        "count": 8658,
+        "mean_delta_PDMS": -0.9320580110896586,
+        "global_contribution_PDMS": -0.6643963658829461,
+        "to_zero": 15,
+        "below_high": 661
+      },
+      "zero_contribution_PDMS": 0.5461409905191683,
+      "G_plus_PDMS": 0.8574418417728965,
+      "G_minus_PDMS": -1.054740992728374,
+      "cohort_reference": "same-budget G8Control canonical>=.9, NAVTEST diagnostic only; never a TRAIN token list"
+    }
+  ],
+  "interpretation_zh": [
+    "1k净少57个zero，但PDMS−.197299；固定control1k high队列平均−.932058，对总体贡献−.664396，零分修复贡献+.546141。少失败和多有效PG不能替代最终分。",
+    "该负结果只约束本实现/基座/预算与数据分布，不证明所有课程无效。CI为44物理log的已有名义区间，不包括训练seed变化或多路线/多时间选择修正。",
+    "当前rawA按Safety目标，不含全可行EP饱和时的Comfort差异；原high负A核实已有canonical排序反向实例，课程可能放大此方向差异。加progress权重不直接修复信用。",
+    "当前PG0主要成功饱和；canonical方差可由Comfort产生但SafetyA为零，不能把它当可学的安全失败。全fail cost-var仍可能有least-cost信用，但当前no-witness admission主动不优先它；uniform仍可到达。"
+  ],
+  "noise_and_identifiability": [
+    "不同时间不同TRAIN batch/scene mix的平均reward斜率同时受场景组成、采样roots/innovation与theta变化影响，不能直接叫学习进度。",
+    "固定同token/同seed ODE面板可去掉重新抽rollout的噪声；数值、候选batch形状、scorer/cache仍须一致。它仍是in-sample TRAIN policy change，不是单次重放的因果边际收益。",
+    "两期点不足或每bucket样本/log太少时CI宽，保持中性权重；不得把回归均值、winner/max-of-history偏差或一两个token的跳变当遗忘事实。",
+    "跨sampler/currentθ的成功witness只证明观察到可行动作，不可伪装同theta当前deploy成功或用其SDE质量替代ODE progress。",
+    "不要求新多训练seed矩阵；单seed结论明确限定，利用paired物理log区间和独立TRAIN确认，所有查询与wallclock单列。"
+  ],
+  "low_cost_shared_protocol": {
+    "status": "PROPOSED_ONLY_NO_MANIFEST_OR_RUNTIME_CREATED",
+    "data": "Same legal103288 NAVTRAIN, oldDEV explicitly TRAIN diagnostic; full base manifest/seed42/residue-rank order unchanged",
+    "actor_inputs": "Current images/ego/navigation only; future metric context for scorer/diagnostic labels only",
+    "fixed_feedback_panel": {
+      "count": 256,
+      "composition": "Proposed128 historical TRAIN failure/low +128 fixed IL70 TRAIN strict4>=.9; sample across physical logs, freeze actual eligibility/counts first. Historical failure IDs only from TRAIN.",
+      "checkpoint_updates": [
+        0,
+        500,
+        1500,
+        2500,
+        3500,
+        4500
+      ],
+      "inference": "single-candidate shift5K10 ODE, seed2101+token hash identical across checkpoints; fixed source/protocol/cache/FP32 and batch semantics",
+      "zero_step": "Reuse exact compatible IL70 TRAIN baseline cache; otherwise account an explicit baseline run, not assume compatibility",
+      "categories": "Four stable physical-log hash buckets from legal TRAIN token_logs (seed42), not an invented ordinal driving difficulty; optional semantic categories only after current metadata field/unit audit",
+      "controller_resolution": "Aggregate at fixed log/category level; category multiplier applies to all legal eligible bank scenes in that category, not only the256 feedback tokens",
+      "uncertainty": "At least8 physical logs and16 scenes/category or factor stays neutral; paired log-cluster interval on fixed differences. Never use NAV44 logs as TRAIN cluster count"
+    },
+    "independent_TRAIN_confirmation": {
+      "count": 1024,
+      "selection": "Freeze seed42 tokens from existing TRAIN4096 minus feedback cohort, preferably extra3072. Never provide their outcomes to controller.",
+      "role": "TRAIN confirmation with no feedback, not heldout from the full103288 training population. Tokens may be reached by uniform training.",
+      "physical_log_independence": "Prefer disjoint physical logs when possible; otherwise explicitly disclose token-disjoint but log-overlapping. No unearned heldout/generalization label.",
+      "evaluation": "At proposed5k budget; fixed IL70 high cohort plus zero/low strata; baseline compatible cached labels reused"
+    },
+    "fixed_high": {
+      "definition": "Feedback high cohort frozen from IL70 TRAIN NC=DAC=TTC=Comfort1, score>=.9; do not replace it with the current model own moving high subset",
+      "required_outputs": [
+        "mean_PDMS/delta and CI",
+        "strict4 pass",
+        "high->below.9/high->zero",
+        "NC/DAC/TTC and Comfort separately",
+        "newly-learned high at500 tracked as a separate frozen diagnostic cohort"
+      ]
+    },
+    "metrics": [
+      "canonical mean/zero/newzero/repaired",
+      "feasible frequency and strict4>=.9 coverage",
+      "EP with safety transitions and raw-progress diagnostic",
+      "G8 rawA variance, effective PG, mixed/allfail/costtie/saturated",
+      "distinct TRAIN/log coverage and repetition distribution",
+      "priority actual exposure and missing probe/bank signals"
+    ],
+    "timing": "Asynchronous sealed-CP probes, no train barrier; apply completed feedback only at a new collection boundary, save applied CP/version/lag and never change pending four-inner material",
+    "cold_start": "Existing online priority still starts at collection12 (~48 updates). Progress multiplier neutral until fixed probe evidence exists; first possible progress update at500, not a dormant uniform0..1k arm.",
+    "candidate_cost": {
+      "proposed_training_updates": 5000,
+      "training_collections": 1250,
+      "training_scene_exposures": 10000,
+      "training_G8_candidates": 80000,
+      "new_feedback_B1_queries": 1280,
+      "feedback_fraction_of_training_candidates": 0.016,
+      "feedback_extra_observation_prefills_fraction": 0.128,
+      "final_confirmation_B1_queries": 1024,
+      "feedback_plus_confirmation_queries": 2304,
+      "total_extra_candidate_fraction": 0.0288,
+      "caveat": "Candidate-query percentage is NOT GPU-hour percentage. Qwen prefill/export/scoring costs count separately; only frozen-feature-compatible cache can be reused, current memory must be rebuilt."
+    },
+    "immutable_state": "New opt-in schema only: panel/bucket manifest SHAs, completed probe identities, CI/progress history, controller RNG/posteriors if used, stage receipts and pending decisions all native-checkpointed. Do not hot-edit initial_v1."
+  },
+  "proposed_experiments": [
+    {
+      "id": "A_progress_reweight_existing_admission",
+      "priority": 1,
+      "status": "DESIGN_ONLY_NOT_REGISTERED_NOT_8TH_ARM",
+      "question": "Does actual canonical TRAIN improvement help allocate the existing priority budget better than rawA variance alone?",
+      "comparator": "Unchanged ACTIVE25 same freshIL70/seed42/G8/SafetyEP/W3/LR/reference; use a new separately bound source if approved, not current initial_v1 mutation",
+      "sole_change": "Only category-level progress multiplier for weights inside the SAME existing eligible pool. 75%uniform floor/25%priority slot schedule/capacity256/maxrepeat3/cooldown8/TTL128 unchanged.",
+      "admission": "Exactly existing variance>=1e-6 AND (mixed feasible OR allfeasible EP headroom). Allfail/no-witness and saturated rawA0 remain ineligible.",
+      "proposed_math": "w_new(x)=w_current(x)*clip(1+p_bucket,.5,1.5); p_bucket=confirmed_signed_fixed_probe_slope/(sum|confirmed slopes|+eps). If CI crosses0/insufficient support/missing probe: p=0. No NAV input.",
+      "probe": "OLS trend over last2-3 fixed probe epochs or first paired difference at500; use actual checkpoint updates not wall clock or changing training-batch means",
+      "falsifiable": "If higher priority PG activity or repeated-scene improvement does not translate to independent TRAIN confirmation and matched full-PDMS/gain-loss benefit, reject this progress modifier under this recipe.",
+      "cannot_claim": "Does NOT add forgotten saturated/allfail scenes to pool and cannot claim to solve forgetting. Cannot correct local credit misalignment or create missing candidate support.",
+      "retain_high": "Measure fixed-high changes; no extra retention admission or teacher in this contrast",
+      "budget": "Proposed1k/5k review only; no automatic10/50k, no launch now"
+    },
+    {
+      "id": "B_verified_regression_rehearsal_admission",
+      "priority": 2,
+      "status": "DESIGN_ONLY_DEFERRED_NO_DATA_8TH_ARM",
+      "question": "Are genuinely regressed TRAIN observations omitted by original admission, and can a bounded extra rehearsal channel restore them?",
+      "comparator": "Same unchanged ACTIVE25 without progress weighting initially, so admission/rehearsal is not bundled with unproven A",
+      "sole_change": "Add a separately labeled verified-regression admission channel within existing total25%priority; cap rehearsal at half priority slots (12.5%overall), keep>=75%uniform and original stream cursor semantics.",
+      "admission": "Current eligible OR a TRAIN scene with prior verified strict4>=.9 success and an actually observed fixed-root canonical/strict-quality regression. Save both CP/protocol/cache/inference identities. Cross-sampler or random-G8 changes alone are regression SUSPECT, not confirmed.",
+      "beyond_panel": "Fixed panel triggers log/category alarm. A bounded rotating TRAIN-only audit outside panel confirms other current-run/compatible IL70-success observations before admission; do not infer every scene in that category has regressed.",
+      "rotating_budget": "Optional64 TRAIN scenes/probe from same-category known-success bank or compatible IL70 TRAIN4096 cache, round-robin/log-balanced; audit cost separately. This is not authorized or run now.",
+      "nonzero_admission_weight": "For confirmed-regression entries bypass rawA eligibility with a bounded positive rehearsal floor/quota; do not multiply by rawAvariance=0 and silently make the new channel dormant.",
+      "no_negativeLP_equals_value": "Regression is a retention alarm, not measured usefulness. Do not rank by absolute negative slope. Keep maxrepeat3/cooldown/TTL and explicit confirmed/pending/unavailable status.",
+      "signal_gate": "On actual fresh G8 rehearsal, report feasible/mixed/progress/costtie/PG0. Allfail costtie or successful-saturation A0 can remain anchor-only locally; resampling alone creates no guaranteed useful credit.",
+      "dependence": "If new admission mostly yields PG0/no feasible witness, separately test an evidence-backed dense-failure or endpoint-exploration objective/sampler. Do not bundle it here or call rawprogress a safe teacher.",
+      "falsifiable": "If verified-regression entries replay without new PG support/recovery or harm broader independent high cohort, reject rehearsal-only under this sampler/credit rather than declare negative LP valuable.",
+      "actor": "Never feed historical future/cache/teacher into actor. Rehearsal means current observation re-collection; no CFM or old scored trajectory reuse in PG.",
+      "budget": "Future bounded1k/5k only if root approves; endpoint8th arm currently takes priority, no data-arm launch"
+    }
+  ],
+  "thompson_followup": {
+    "status": "DEFER_UNTIL_PROGRESS_ESTIMATOR_USEFUL",
+    "condition": "Only after A shows independently confirmed utility rather than exposure/memorization; then hold same bucket/utility and compare proportional allocation against Thompson alone.",
+    "key_guard": "Nonstationary variance inflation, effective observation precision, private controller RNG and full native state required; paper50step/W16 defaults not copied as our4inner counters.",
+    "no_automatic_registration": true
+  },
+  "boundaries": {
+    "NAVTEST_IDs_used_for_TRAIN": false,
+    "NAVTEST_role": "Current full results are method-design diagnostics/Test-observed; no token/log/failure labels enter proposed training selection.",
+    "old_DEV": "Full103288 includes formerDEV, so it is TRAIN diagnostic; do not call it heldout",
+    "no_new_GPU_or_scoring": true,
+    "no_runtime_or_registry_owner_changes": true,
+    "no_new_data_eighth_arm": true,
+    "no_commit_or_stage": true
+  },
+  "recommended_next_zh": [
+    "先保留这次完整ACTIVE负结果与曝光差异，完成已获准endpoint第8臂。",
+    "未来先做A：同admission、同75%floor，仅加入固定TRAIN进度重加权，独立确认收益。",
+    "B必须另登记新增遗忘admission并量化它实际是否有PG支持；不把负LP、单纯重采或未曝光场景叫已解决。"
+  ]
+}
