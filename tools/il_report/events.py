@@ -1,5 +1,7 @@
 """Reuse RL inotify mechanics; extend to several IL source/evaluation roots."""
 import os
+import errno
+import time
 from pathlib import Path
 import select
 from .rl_events_reference import OwnerStateEvents, read_object, fingerprint, state_signatures
@@ -11,10 +13,57 @@ SKIP = {'scenes','checkpoints','weights','images','data','teachers','candidates'
 
 
 class ILStateEvents(OwnerStateEvents):
+    MAX_WATCHES=512
+    METADATA_FALLBACK_SECONDS=60
+    CAPACITY_ERRORS={errno.ENOSPC,errno.EMFILE,errno.ENFILE,errno.ENOMEM}
+
     def __init__(self, root, persist, directories=()):
-        super().__init__(root, persist)
+        self.watch_errors={};self.degraded=False;self.next_metadata_check=0
+        try:super().__init__(root, persist)
+        except OSError as error:
+            if error.errno not in self.CAPACITY_ERRORS:raise
+            self.root=Path(root);self.reporting=self.root/'reporting';self.persist=persist
+            self.fd=None;self.wake_read,self.wake_write=os.pipe2(os.O_NONBLOCK|os.O_CLOEXEC)
+            self.directories={};self.seen=set(read_object(self.reporting/'EVENT_STATE.json').get('seen_signatures',[]))
+            self.initial_signatures=0;self.degraded=True;self.watch_errors['inotify_init1']=str(error)
         self.add_sources(directories, initial=True)
         self.watch(Path('/mnt/project'))
+
+    def watch(self,path):
+        path=Path(path)
+        if not path.is_dir()or path in self.directories.values():return
+        if self.fd is None or len(self.directories)>=self.MAX_WATCHES:
+            self.degraded=True;self.watch_errors[str(path)]='Bounded watch capacity; authoritative metadata fallback active';return
+        try:super().watch(path)
+        except OSError as error:
+            if error.errno not in self.CAPACITY_ERRORS:raise
+            self.degraded=True;self.watch_errors[str(path)]=str(error)
+
+    def monitor_status(self):
+        return dict(backend='linux_inotify_with_metadata_fallback'if self.degraded else'linux_inotify',
+            watched_directories=len(self.directories),watch_limit=self.MAX_WATCHES,
+            degraded=self.degraded,failed_watch_count=len(self.watch_errors),
+            metadata_fallback_seconds=self.METADATA_FALLBACK_SECONDS if self.degraded else None,
+            training_journal_polling=False)
+
+    def save(self):
+        self.persist(self.reporting/'EVENT_STATE.json',dict(schema='world_IL_report_event_state_v2',
+            seen_signatures=sorted(self.seen),initial_state_signatures=self.initial_signatures,
+            **self.monitor_status()))
+
+    def metadata_events(self):
+        # Only authoritative queue/control requests; never scan scene records,
+        # training journals or every historical evaluation directory each minute.
+        paths=[self.reporting/'refresh_request.json',self.root/'navtest_cadence_20261031/STATE.json']
+        new={}
+        for path in paths:
+            if path.is_file():new.update({k:v for k,v in self.signatures(path).items()if k not in self.seen})
+        if new:self.seen.update(new);self.save()
+        return list(new.values())
+
+    def close(self):
+        for fd in(self.fd,self.wake_read,self.wake_write):
+            if fd is not None:os.close(fd)
 
     def add_sources(self, directories, *, initial=False):
         before=set(self.directories.values())
@@ -65,7 +114,12 @@ class ILStateEvents(OwnerStateEvents):
         return {}
 
     def wait(self, timeout):
-        ready,_,_=select.select([self.fd,self.wake_read],[],[],max(0,timeout))
+        if self.degraded and time.monotonic()>=self.next_metadata_check:
+            self.next_metadata_check=time.monotonic()+self.METADATA_FALLBACK_SECONDS
+            new=self.metadata_events()
+            if new:return new
+        if self.degraded:timeout=min(timeout,max(0,self.next_metadata_check-time.monotonic()))
+        ready,_,_=select.select(([self.fd]if self.fd is not None else[])+[self.wake_read],[],[],max(0,timeout))
         if self.wake_read in ready:
             try:os.read(self.wake_read,4096)
             except BlockingIOError:pass

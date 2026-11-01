@@ -86,7 +86,7 @@ def main():
     if a.interval<60:p.error('Minimum interval60; registered normal interval1800')
     root=a.root.resolve();(root/'reporting').mkdir(parents=True,exist_ok=True)
     config=dict(schema='world_IL_live_report_config_v1',regular_interval_seconds=a.interval,
-        event_backend='linux_inotify',debounce_seconds=1.0,journal_polling=False,
+        event_backend='linux_inotify_with_bounded_metadata_fallback',debounce_seconds=1.0,journal_polling=False,
         event_updates_reset_regular_deadline=False,training_seed=42,inference_seed=2101,
         immediate_event_types=['evaluation_complete','training_stage_complete','important_exception',
                               'stage_selection_complete','resource_authorization_changed'],
@@ -139,6 +139,7 @@ def main():
                 if events is None:events=ILStateEvents(root,atomic,state['watch_directories'])
                 else:events.add_sources(state['watch_directories'])
                 owner.update(status='RUNNING',last_render=record,
+                    event_monitor=events.monitor_status(),
                     event_render_count=owner.get('event_render_count',0)+(trigger=='owner_state_event'))
             except Exception:
                 owner.update(status='REPORT_RENDER_FAILED',error=traceback.format_exc())
