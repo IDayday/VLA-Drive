@@ -43,9 +43,18 @@ def render_top_summary(root, snapshot, h):
         for original in study['runs']:
             owner=read(original['owner_state'])if original.get('owner_state')else{}
             node=owner.get('runs',{}).get(original['id'],{})
-            run={**original,**node};job=Path(run['job'])if run.get('job')else None
+            run={**original,**node};status=str(run.get('status','')).upper()
+            target=node.get('stage_target_updates',run.get('stage_target_updates'))
+            stage=node.get('stages',{}).get(str(target),{})
+            stage_job=stage.get('job');current_job=stage_job
+            waiting_without_job=status.startswith('WAITING_')and any(v in status for v in ['RESOURCE','MIGRATION','CAPACITY'])and not stage_job
+            if not current_job and not waiting_without_job and node.get('job'):
+                try:matches=Path(node['job']).name.startswith(f'formal_to{int(target):06d}_')
+                except(TypeError,ValueError):matches=False
+                if matches:current_job=node['job']
+            job=Path(current_job)if current_job else None
             result=read(job/'RESULT.json')if job else{};running=read(job/'RUNNING.json')if job else{}
-            rc=result.get('returncode',result.get('exit_code'));status=str(run.get('status','')).upper()
+            rc=result.get('returncode',result.get('exit_code'))
             reserve=any('RESEARCH_RESERVE'in str(run.get(k,''))for k in ['standard_disposition','revival_disposition','disposition'])
             now=time.time();ranks=[];started=running.get('start_unix')or 0
             if running and not result:
@@ -57,6 +66,7 @@ def render_top_summary(root, snapshot, h):
                 and 0<=now-r['mtime']<=180 and r['mtime']>=started-1 for r in ranks)
             if not result and running.get('status')=='RUNNING'and fresh:category='training'
             elif reserve and(result or not running):category='resource_reserved'
+            elif waiting_without_job:category='waiting_resource'
             elif result and rc==75 and('WAITING'in status or result.get('child_not_started')is True):category='waiting_resource'
             elif result and rc not in(None,0):category='exited_review'
             elif any(v in status for v in ['PAUSE','MIGRATION','STOPPED_AT_COOPERATIVE_BOUNDARY']):category='paused_saved'
