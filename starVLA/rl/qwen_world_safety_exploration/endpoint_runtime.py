@@ -42,7 +42,17 @@ PROTOCOL=dict(**ENDPOINT_CONFIG,group_size=8,world=8,
 
 
 def validate_endpoint_recipe(cfg):
-    validate_recipe(cfg);r=cfg['research']
+    r=cfg.get('research',{});scale=r.get('endpoint_learning_rate_scale',1.)
+    if isinstance(scale,bool) or not isinstance(scale,(int,float)) or scale not in (1.,.2):
+        raise ValueError('Endpoint permits only original LR or explicit joint action/memory LR x.2')
+    action_lr,memory_lr=(5e-5,5e-6) if scale==1 else (1e-5,1e-6)
+    if (cfg.get('learning_rate')!=action_lr or cfg.get('memory_learning_rate')!=memory_lr):
+        raise ValueError('Endpoint action and memory LR must both match their explicit scale')
+    # Validate every other inherited field against the original science. Never
+    # return/mutate this validation copy: identity/Adam/scheduler keep ACTUAL LR.
+    base=cfg if scale==1 else copy.deepcopy(cfg)
+    if scale!=1:base.update(learning_rate=5e-5,memory_learning_rate=5e-6)
+    validate_recipe(base)
     if (r.get('endpoint_policy')!=ENDPOINT_CONFIG or cfg['grpo']['sample']['group_size']!=8
             or r['data_policy']!='uniform_full' or r['structured_advantage']!=STRUCTURED_SCHEMA
             or r.get('curriculum') is not None):
@@ -256,7 +266,7 @@ def validate_endpoint_structure(state,rollout,identity,optimizer=None,scheduler=
 
 class EndpointRuntimeMixin:
     rng_protocol='persistent CPU generator per rank: FP32 independent ODE roots then FP64 untruncated AR1 innovations; no repeated candidate seeds'
-    def load_recipe(self,args):return validate_endpoint_recipe(super().load_recipe(args))
+    recipe_validator=staticmethod(validate_endpoint_recipe)
     def make_actor(self,cfg,args,device):
         actor,a,b=super().make_actor(cfg,args,device);actor._loss=EndpointLoss(cfg);return actor,a,b
     def collect(self,*args,**kwargs):return collect_endpoint(*args,**kwargs)

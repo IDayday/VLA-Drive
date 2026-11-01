@@ -134,7 +134,8 @@ class GroupRuntime(ResearchRuntime):
 
     def load_recipe(self, args):
         configure_numerics()
-        cfg = validate_recipe(yaml.safe_load(Path(args.config).read_text()))
+        recipe_validator = getattr(self, 'recipe_validator', validate_recipe)
+        cfg = recipe_validator(yaml.safe_load(Path(args.config).read_text()))
         self.cfg, self.args = cfg, args
         self.group_size = cfg['grpo']['sample']['group_size']
         self.credit = self.make_credit(cfg)

@@ -26,14 +26,17 @@ from starVLA.rl.simwam_recipe import checkpoint
 from starVLA.rl.simwam_recipe.contracts import seed_for
 
 
-def cfg():
+def cfg(lr_scale=1.):
     c=base_cfg(8);c['research']['endpoint_policy']=copy.deepcopy(E.ENDPOINT_CONFIG)
+    if lr_scale!=1:
+        c['research']['endpoint_learning_rate_scale']=lr_scale
+        c.update(learning_rate=1e-5,memory_learning_rate=1e-6)
     return c
 
 
-def factory():
+def factory(lr_scale=1.):
     actor,conditions,_,_=make(MEMORY)
-    actor._loss=E.EndpointLoss(cfg())
+    actor._loss=E.EndpointLoss(cfg(lr_scale))
     return actor,conditions
 
 
@@ -63,8 +66,8 @@ def collect(actor,conditions,rank=0):
     return r,generator,events
 
 
-def identity(conditions):
-    return dict(world=8,sha256='unit_endpoint',schema=SCOPE_SCHEMA,recipe=cfg(),
+def identity(conditions,lr_scale=1.):
+    return dict(world=8,sha256='unit_endpoint',schema=SCOPE_SCHEMA,recipe=cfg(lr_scale),
         projected_condition_identity=conditions.sha,score_protocol=CanonicalCPU.protocol)
 
 
@@ -113,16 +116,18 @@ def test_real_scope_endpoint_fresh_ratio_gradient_and_true_correlated_density(tm
         with pytest.raises(ValueError):E.validate_endpoint_recipe(wrong)
 
 
-def _native(rank,initfile,root):
+def _native(rank,initfile,root,lr_scale=1.):
     torch.set_num_threads(1)
     dist.init_process_group('gloo',init_method='file://'+initfile,rank=rank,world_size=8,timeout=timedelta(seconds=180))
     try:
-        actor,conditions=factory();r,generator,events=collect(actor,conditions,rank)
+        config=cfg(lr_scale)
+        actor,conditions=factory(lr_scale);r,generator,events=collect(actor,conditions,rank)
         runtime=E.EndpointRuntimeMixin();runtime.credit=GroupCredit(8)
-        ident=identity(conditions)
+        ident=identity(conditions,lr_scale)
         kwargs=dict(boundary_validator=runtime.validate_boundary,rank_validator=runtime.validate_ranks)
-        optimizer=ScopeRuntime().make_optimizer(actor,cfg())
-        actor._loss.optimizer=optimizer;actor._loss.learning_rate=5e-5
+        optimizer=ScopeRuntime().make_optimizer(actor,config)
+        assert [g['lr'] for g in optimizer.param_groups]==[config['learning_rate'],config['memory_learning_rate']]
+        actor._loss.optimizer=optimizer;actor._loss.learning_rate=config['learning_rate']
         scheduler=actor._loss._build_scheduler('constant',50000,100)
         digest=tensor_digest({k:v for k,v in r.items() if k!='records'})
         runtime.validate_boundary(state(),r,ident)
@@ -140,14 +145,15 @@ def _native(rank,initfile,root):
                 path=checkpoint.save(root,actor,optimizer,scheduler,generator,state(u),r,ident,**kwargs)
                 # A genuinely fresh actor/Memory/reference graph and native Adam,
                 # not merely perturbing weights on an already prepared actor.
-                actor,conditions=factory();optimizer=ScopeRuntime().make_optimizer(actor,cfg())
-                actor._loss.optimizer=optimizer;actor._loss.learning_rate=5e-5
+                actor,conditions=factory(lr_scale);optimizer=ScopeRuntime().make_optimizer(actor,config)
+                actor._loss.optimizer=optimizer;actor._loss.learning_rate=config['learning_rate']
                 scheduler=actor._loss._build_scheduler('constant',50000,100)
                 restored,r=checkpoint.restore(path,actor,optimizer,scheduler,generator,ident,**kwargs)
                 assert restored==state(u) and torch.equal(generator.get_state(),rng) and torch.equal(torch.get_rng_state(),torch_rng)
                 assert random.getstate()==py_rng and np.array_equal(np.random.get_state()[1],np_rng[1])
                 assert all(torch.equal(p,before[n]) for n,p in actor.named_parameters() if p.requires_grad)
                 assert tensor_digest(optimizer.state_dict())==adam and tensor_digest(scheduler.state_dict())==schedule
+                assert [g['initial_lr'] for g in optimizer.param_groups]==[config['learning_rate'],config['memory_learning_rate']]
                 assert tensor_digest({k:v for k,v in r.items() if k!='records'})==digest
                 total,metrics=actor(r)
                 ratio=runtime.policy_ratio(actor,r)
@@ -165,7 +171,7 @@ def _native(rank,initfile,root):
             path=checkpoint.save(root,actor,optimizer,scheduler,generator,ready,None,ident,**kwargs)
             loaded,none=checkpoint.restore(path,actor,optimizer,scheduler,generator,ident,**kwargs)
             assert loaded==ready and none is None
-        (Path(root)/f'CPU_rank{rank}.json').write_text(json.dumps(dict(rank=rank,observations=observations,
+        (Path(root)/f'CPU_rank{rank}.json').write_text(json.dumps(dict(rank=rank,lr_scale=lr_scale,actual_action_lr=config['learning_rate'],actual_memory_lr=config['memory_learning_rate'],observations=observations,
             restored_boundaries=['pending0','pending1','pending2','pending3','READY4'],
             corruption_rejected=['old_logp','action','raw_innovations'],scoring='algebraic CPU mock; no driving evaluation'),indent=2))
         if rank==0:
@@ -174,7 +180,38 @@ def _native(rank,initfile,root):
     finally:dist.destroy_process_group()
 
 
-def test_actual_scope_eight_rank_native_pending_and_fresh_actor_restore(tmp_path):
+@pytest.mark.parametrize('lr_scale',[1.,.2])
+def test_actual_scope_eight_rank_native_pending_and_fresh_actor_restore(tmp_path,lr_scale):
     torch.set_num_threads(1)
-    mp.start_processes(_native,args=(str(tmp_path/'gloo'),str(tmp_path/'native')),nprocs=8,join=True,start_method='fork')
+    mp.start_processes(_native,args=(str(tmp_path/'gloo'),str(tmp_path/'native'),lr_scale),nprocs=8,join=True,start_method='fork')
     assert (tmp_path/'native/NATIVE_CPU_PASS').is_file()
+
+
+def test_endpoint_LR_recipe_router_and_optin_group_load_hook(tmp_path):
+    import yaml
+    from starVLA.rl.qwen_world_safety_exploration import group_runtime as G
+    class AssetBoundaryReached(Exception):pass
+    for scale in (1.,.2):
+        config=cfg(scale);before=copy.deepcopy(config)
+        assert E.validate_endpoint_recipe(config) is config and config==before
+        file=tmp_path/f'endpoint_scale{scale}.yaml';file.write_text(yaml.safe_dump(config))
+        runtime=runtime_for_config(file);assert isinstance(runtime,E.EndpointRuntimeMixin)
+        with patch.object(G,'configure_numerics'),patch.object(G,'inspect_checkpoint',side_effect=AssetBoundaryReached):
+            with pytest.raises(AssetBoundaryReached):runtime.load_recipe(SimpleNamespace(config=file,il_checkpoint='no_weight_load'))
+        assert runtime.cfg==config
+    # Without the opt-in hook, the original group recipe rejects reduced LR.
+    with patch.object(G,'configure_numerics'),patch.object(G,'inspect_checkpoint') as parent:
+        with pytest.raises(ValueError):G.GroupRuntime().load_recipe(SimpleNamespace(config=file))
+        assert not parent.called
+    original=base_cfg(8);file=tmp_path/'original_group.yaml';file.write_text(yaml.safe_dump(original))
+    with patch.object(G,'configure_numerics'),patch.object(G,'inspect_checkpoint',side_effect=AssetBoundaryReached):
+        with pytest.raises(AssetBoundaryReached):G.GroupRuntime().load_recipe(SimpleNamespace(config=file,il_checkpoint='no_weight_load'))
+    for mutate in (
+        lambda c:c['research'].pop('endpoint_learning_rate_scale'),
+        lambda c:c.update(memory_learning_rate=5e-6),
+        lambda c:c['research'].update(endpoint_learning_rate_scale=.5),
+        lambda c:c['research'].update(endpoint_learning_rate_scale=True),
+        lambda c:c['grpo']['train'].update(ppo_clip_range=.01),
+        lambda c:c.update(lr_warmup_steps=50)):
+        bad=cfg(.2);mutate(bad)
+        with pytest.raises(ValueError):E.validate_endpoint_recipe(bad)

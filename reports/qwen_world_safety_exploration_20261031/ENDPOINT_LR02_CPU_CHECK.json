@@ -1,0 +1,79 @@
+{
+  "GPU_used": false,
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_endpoint_runtime.py",
+  "created_UTC": "2026-11-01T02:45:41.035302+00:00",
+  "default_formula_AST_unchanged_against555": [
+    "collect_endpoint",
+    "EndpointLoss",
+    "source_anchor",
+    "validate_endpoint_structure",
+    "sigma_matrix",
+    "ar1_from_raw"
+  ],
+  "limitation": "Actual ScopeRecipeActor and memory classes with tiny CPU dimensions, algebraic scoremock and frozenQwen fixture; no production model/score validation or claim of improved production stability/performance.",
+  "native_lowLR": {
+    "actual_action_lr": 1e-05,
+    "actual_memory_lr": 1e-06,
+    "backend": "gloo CPU",
+    "restored_boundaries": [
+      "pending0",
+      "pending1",
+      "pending2",
+      "pending3",
+      "READY4"
+    ],
+    "root": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_CPU_NATIVE",
+    "seals": [
+      {
+        "files_sha256": "b6664da5d27c9dfd50351b9bc25c5e7dbdbd0ab8d17ff0f08ae7e79b68f50b63",
+        "identity_sha256": "bf855cae402331594c571421a22ac797a0e34e4fc7ee0499e6cde17df92e12a9",
+        "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_CPU_NATIVE/checkpoints/update000000_inner0",
+        "seal_sha256": "6fc465e964df639e7c8f275492e6d49f7e08f28a444ad68e1bf4f36dc427ef2f"
+      },
+      {
+        "files_sha256": "983119aeca406e177b33878e8bd960b4dc7653011cd907a4f872dcbb2ede0f9a",
+        "identity_sha256": "bf855cae402331594c571421a22ac797a0e34e4fc7ee0499e6cde17df92e12a9",
+        "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_CPU_NATIVE/checkpoints/update000001_inner1",
+        "seal_sha256": "bfc66c6854826e67b8aa34b945ff70a5f6f45754b2b5bf13e4ddeaf532933a12"
+      },
+      {
+        "files_sha256": "ee47623e170dab84ec2c505b486e4048a63385db32c0ba39b668d02d21a42fc4",
+        "identity_sha256": "bf855cae402331594c571421a22ac797a0e34e4fc7ee0499e6cde17df92e12a9",
+        "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_CPU_NATIVE/checkpoints/update000002_inner2",
+        "seal_sha256": "683dbf7bb3dd877210784039bd830ceb733c32723847066b3e8e6d763a5c72e4"
+      },
+      {
+        "files_sha256": "6dfa81619d26173ab14cc5964c425df2f8f249d766f342f4a62fc542e7231394",
+        "identity_sha256": "bf855cae402331594c571421a22ac797a0e34e4fc7ee0499e6cde17df92e12a9",
+        "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_CPU_NATIVE/checkpoints/update000003_inner3",
+        "seal_sha256": "46f9494391d3252f9617d04cb42fb0bb5585b6f32689f9d5df2b7b3e5ae38772"
+      },
+      {
+        "files_sha256": "966c92db0dd6d9957212ee30c24694932a47b98ba631a7bbdb375af178b5e011",
+        "identity_sha256": "bf855cae402331594c571421a22ac797a0e34e4fc7ee0499e6cde17df92e12a9",
+        "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_CPU_NATIVE/checkpoints/update000004_inner0",
+        "seal_sha256": "053525b2d2c9177de9e378d044511bca341981704b2e9ddebb10167098291032"
+      }
+    ],
+    "world": 8
+  },
+  "no_GPU_or_registration": true,
+  "no_running_source_changes": true,
+  "result": "4 passed",
+  "schema": "world_endpoint_LR02_directed_CPU_check_v1",
+  "seconds": 9.89,
+  "source_files": {
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_runtime.py": "1869282df43c41fbfc87e39ade47a4726f511acc6ca9da1adf0fbb014b1f1c04",
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py": "ebaa9964e21d25740c578007f4aabd0f2fa3ac0498b4ab057ab790a521a308bd",
+    "tests/test_world_endpoint_runtime.py": "ad731a2f3e53811ec686adf2969b857ca777c5684eeb28fc5a95a33f9e52c7f7"
+  },
+  "source_validation_copy_does_not_mutate_actual_cfg": true,
+  "status": "PASS_CPU_ONLY",
+  "template_against_formal_endpoint_config": "Only action/memory LR x.2 plus arm/scale/template identity metadata; inverse change exactly restores registered original config",
+  "tests": [
+    "Unmodified default endpoint ScopeRecipeActor likelihood/gradient/quality checks",
+    "Defaultscale1 world8 native pending0/1/2/3 ->READY4 exact Adam/moments/scheduler/parameters and RNG/material recovery",
+    "ExplicitLRscale.2 world8 same native transaction, actual initial groupLR1e-5/1e-6 retained through restore",
+    "Recipe/router/load optin; default GroupRuntime fallback unchanged; missing scale, one-sided LR, invalidscale,clip orwarmup change rejected"
+  ]
+}

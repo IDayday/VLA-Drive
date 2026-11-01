@@ -1,0 +1,91 @@
+{
+  "CPU_receipt": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_CPU_CHECK.json",
+    "sha256": "5e08f6ad7debbbea33d669d19c273d58629cb97205b034620a76c314eb63349c"
+  },
+  "actions": {
+    "no_GPU": true,
+    "no_RUNS_or_owner_changes": true,
+    "no_registration": true,
+    "no_stage_or_commit": true
+  },
+  "baseline": {
+    "arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
+    "formal_config": "/mnt/project/qwen-world-safety-exploration-20261031/configs/SAFETY_ENDPOINT_RAMP_AR1_G8.yaml",
+    "formal_config_sha256": "b877ec0d8463b0c7f202fd5584d9bc90467544b50e989f6aaa329fe8ccea5b6c",
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_v1",
+    "source_commit": "555cdaa454f5fbc446af31b1621ea40caa1f1a86"
+  },
+  "config_template": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/configs/ENDPOINT_RAMP_AR1_LR02_TEMPLATE.yaml",
+    "sha256": "ce24634a9ce6a9786cff29844a0ccc63c3821ec27099b903c058b8efa82d1447"
+  },
+  "created_UTC": "2026-11-01T02:45:41.035302+00:00",
+  "hypothesis": "Smaller paired action/memory step may reduce four-inner ratio excursions and clipping while retaining structured candidate quality; not guaranteed to improveNAV or gradient norm.",
+  "integration_API": {
+    "entry": "tools.qwen_world_safety_exploration.train",
+    "explicit_config": {
+      "learning_rate": 1e-05,
+      "memory_learning_rate": 1e-06,
+      "research.endpoint_learning_rate_scale": 0.2
+    },
+    "group_load_hook": "getattr(self,'recipe_validator',validate_recipe), unset remains original group validator",
+    "identity_and_recovery": "Keep actual cfg, source identity and actual native optimizer groupLR/moments; not oldEndpoint resume or weights-only fork",
+    "recipe": "Default absent/scale1: exact5e-5/5e-6. Explicit.2: exact1e-5/1e-6; validate copy with only these2LR restored to base; return original actual config.",
+    "router": "Existing research.endpoint_policy branch; same EndpointRuntimeMixin, no new worker module"
+  },
+  "motivation": {
+    "candidates_per_arm": 8000,
+    "control_feasible_candidates": 5826,
+    "control_inner4_blocked_fraction": 0.02875,
+    "control_preclip_norm_gt1_rank_update_fraction": 0,
+    "control_strict_candidates": 2670,
+    "endpoint_feasible_candidates": 6627,
+    "endpoint_inner4_blocked_fraction": 0.4125,
+    "endpoint_preclip_norm_gt1_rank_update_fraction": 0.966,
+    "endpoint_strict_candidates": 4756,
+    "interpretation": "New conditional joint24 update scale is materially different; this motivates a one-factor test, not proof that clipping causes worseNAV. OldSafetyLRnativefork does not isolate this policy.",
+    "observational": true,
+    "score_context": "Endpoint500 completeNAV89.31826215 vs same500Control89.85582763; pairedCI handled by existingreview, no statistical-loss conclusion here.",
+    "source": "PILOT_NATIVE_TRAINING_CENSUS_u000500_EIGHT_ARMS.json"
+  },
+  "proposed_budget_only": {
+    "gates": [
+      500,
+      1000
+    ],
+    "pilot_optimizer_cap": 1000,
+    "scheduler_maxsteps_identity": 50000
+  },
+  "readouts": [
+    "Actual optimizergroupLR used; fresh ratioerror/finite completegrads",
+    "Inner2/3/4 ratio/positive-negative blocked/highgood coefficients/clip1 activation",
+    "Matched500/1000 fullNAV PDMS/components/new-repairedzero/fixedILhigh vs Endpointbase and G8Control",
+    "Retention of candidate strict quality does not itself demonstrate betterODEdeploy performance"
+  ],
+  "root_responsibilities": [
+    "Registration/allowedcapacity/ops/sourcefreeze/GPUdispatch",
+    "Actual science gates and score interpretation"
+  ],
+  "schema": "world_endpoint_LR02_single_variable_handoff_v1",
+  "single_scientific_factor": "Both action and memory base learning rates multiplied by.2; fresh sameIL70/Adam/seed42/update0; no other algorithm or precision modification",
+  "source_diff": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_LR02_SOURCE_DIFF.patch",
+    "sha256": "b9d838f7a15a34d05864ad03d91013246522b785d807ae75898cbd29a6e311f9"
+  },
+  "source_files": {
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_runtime.py": "1869282df43c41fbfc87e39ade47a4726f511acc6ca9da1adf0fbb014b1f1c04",
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py": "ebaa9964e21d25740c578007f4aabd0f2fa3ac0498b4ab057ab790a521a308bd",
+    "tests/test_world_endpoint_runtime.py": "ad731a2f3e53811ec686adf2969b857ca777c5684eeb28fc5a95a33f9e52c7f7"
+  },
+  "status": "CPU_READY_NOT_REGISTERED",
+  "unchanged": [
+    "Source52,707,840 LoRA+memory closure",
+    "sameFP32 actor/heads and fixedIL70 reference",
+    "sameODEprefix/rampedAR1 covariance/.8/FP32 score request/FP64jointconditionaldensity",
+    "sameG8/world8/103288uniform/canonicalreward/SafetyEPglobal64 credit/fourinnerreuse",
+    "samePPOclip.005,advcap5,weightedphysicalanchorbeta50 and ODEanchorstates",
+    "samewarmup100/constant scheduler with maxsteps50k identity,AdamWbetas/eps/weightdecay/clip1",
+    "sameODEK10shift5 deployment"
+  ]
+}

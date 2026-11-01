@@ -129,7 +129,7 @@ class Continuation:
             if run['id']in active:
                 run['gates'].append(next_update);run['target_updates']=next_update
                 run['continuation_decision']=str(self.out/f'DECISION_u{old:06}.json')
-            elif run['id']!=CONTROL:run['disposition']='COMPLETED_FINITE_PILOT_NOT_SELECTED_FOR_EXTENSION'
+            elif run['id'] in self.state['initial_candidate_ids']:run['disposition']='COMPLETED_FINITE_PILOT_NOT_SELECTED_FOR_EXTENSION'
         plan_path=self.out/f'PLAN_u{next_update:06}.json'
         atomic_json(plan_path,dict(previous_registry_fingerprint=fingerprint(read(ROOT/'RUNS.json')),
             new_registry_fingerprint=fingerprint(registry),registry=registry))

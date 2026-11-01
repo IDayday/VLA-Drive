@@ -33,7 +33,7 @@ class Owner:
         fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         self.mutex = threading.RLock()
         self.registry = json.loads((ROOT/'RUNS.json').read_text())
-        if self.registry['task'] != TASK or not 1 <= len(self.registry['runs']) <= 8 or len({r['id']for r in self.registry['runs']})!=len(self.registry['runs']):
+        if self.registry['task'] != TASK or not 1 <= len(self.registry['runs']) <= 16 or len({r['id']for r in self.registry['runs']})!=len(self.registry['runs']):
             raise ValueError('Exact uniquely registered bounded research arms required')
         ids={r['id']for r in self.registry['runs']}
         if selected_ids is not None and (not selected_ids or not set(selected_ids)<=ids):raise ValueError('Only explicit registered selected arms')

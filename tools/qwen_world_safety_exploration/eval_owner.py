@@ -142,7 +142,7 @@ class EvaluationOwner:
 
     def registry_now(self):
         value = read(self.registry_path)
-        if value.get('task') != TASK or not 1 <= len(value.get('runs', [])) <= 8:
+        if value.get('task') != TASK or not 1 <= len(value.get('runs', [])) <= 16:
             raise ValueError('The independent finite registered research arms are required')
         if len({row['id']for row in value['runs']}) != len(value['runs']):
             raise ValueError('Unique registered research ids required')
