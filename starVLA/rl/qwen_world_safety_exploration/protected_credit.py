@@ -44,18 +44,25 @@ def validate_protected_recipe(cfg):
 
 
 @torch.no_grad()
-def decision(records, components, original_raw):
+def quality_material(records, components):
     g = components.shape[1]
     if components.shape != (1, g, 4) or g not in (8, 16):
         raise ValueError('One G8/G16 scene per rank required')
     m = canonical_components(records, g)
     _equal(components.detach().cpu(), m['components'], 'record/component binding')
+    return torch.tensor([[[float(r['metrics'][k]) for k in QUALITY_FIELDS] for r in records]], dtype=torch.float64)
+
+
+@torch.no_grad()
+def decision_from_material(components, quality, original_raw):
     raw = original_raw.detach().cpu()
-    if (raw.dtype != torch.float64 or raw.shape != (1, g) or original_raw.requires_grad
-            or not torch.isfinite(raw).all()):
-        raise ValueError('Actual detached original FP64 raw advantage required')
-    quality = torch.tensor([[[float(r['metrics'][k]) for k in QUALITY_FIELDS] for r in records]], dtype=torch.float64)
-    feasible = m['components'][:, :, :3].eq(1).all(-1)
+    if (raw.dtype != torch.float64 or raw.shape != components.shape[:2] or original_raw.requires_grad
+            or not torch.isfinite(raw).all() or quality.shape != (*raw.shape, 2)
+            or quality.dtype != torch.float64 or quality.requires_grad or not torch.isfinite(quality).all()
+            or not ((quality >= 0) & (quality <= 1)).all()):
+        raise ValueError('Detached original FP64 rawA and actual quality material required')
+    quality = quality.cpu()
+    feasible = components.detach().cpu()[:, :, :3].eq(1).all(-1)
     high = feasible & quality[:, :, 0].eq(1) & quality[:, :, 1].ge(.9)
     eligible = high & raw.lt(0)
     delta = torch.where(eligible, -raw, torch.zeros_like(raw))
@@ -63,6 +70,11 @@ def decision(records, components, original_raw):
         activated=bool(eligible.any()), quality_fields=list(QUALITY_FIELDS), quality_material=quality,
         quality_flags=high, eligible=eligible, original_raw_A=raw.clone(), delta=delta,
         quality_digest=tensor_digest(quality), original_raw_digest=tensor_digest(raw))
+
+
+@torch.no_grad()
+def decision(records, components, original_raw):
+    return decision_from_material(components, quality_material(records, components), original_raw)
 
 
 def updated_parts(components, info):
@@ -74,12 +86,33 @@ def updated_parts(components, info):
 
 
 class ProtectedCredit(GroupCredit):
-    make_decision = staticmethod(decision)
+    payload_key = 'protected_credit'
+    metrics_prefix = 'protected_credit_'
+    tensor_fields = dict(quality_material=torch.float64, quality_flags=torch.bool,
+                         eligible=torch.bool, original_raw_A=torch.float64, delta=torch.float64)
+    expected_protocol = staticmethod(protocol)
+    validate_recipe = staticmethod(validate_protected_recipe)
+    decision_from_material = staticmethod(decision_from_material)
     update_parts = staticmethod(updated_parts)
+
+    @classmethod
+    def make_decision(cls, records, components, original_raw):
+        return cls.decision_from_material(components, quality_material(records, components), original_raw)
+
+    def restore_info(self, value):
+        out = copy.deepcopy(value)
+        for key, dtype in self.tensor_fields.items():
+            out[key] = torch.tensor(out[key], dtype=dtype)
+        return out
+
+    def normalize_changed(self, base, parts, info):
+        value = base['advantages'].clone()
+        value[info['eligible'].reshape(-1).to(value.device)] = 0.
+        return value
 
     def __init__(self, group_size):
         super().__init__(group_size)
-        self.protocol = protocol(group_size)
+        self.protocol = self.expected_protocol(group_size)
 
     @torch.no_grad()
     def advantages(self, rewards, components, *, records=None, info=None, all_material=None):
@@ -92,9 +125,13 @@ class ProtectedCredit(GroupCredit):
         old, parts = self.update_parts(components, info)
         out = dict(base, **parts, original_normalization_std=base['normalization_std'])
         if info['activated']:
-            out['advantages'] = base['advantages'].clone()
-            out['advantages'][info['eligible'].reshape(-1).to(rewards.device)] = 0.
+            out['advantages'] = self.normalize_changed(base, parts, info)
         # Mask and every ineligible normalized candidate are the original tensors.
+        out['statistics'] = self.statistics(base, parts, info, out)
+        out['protection'] = info
+        return out
+
+    def statistics(self, base, parts, info, out):
         meta = dict(base['statistics'])
         meta.update(structured_advantage_schema=SCHEMA, normalization=self.protocol['normalization'],
             protected_credit_status=info['status'], protected_credit_activated_groups=int(info['activated']),
@@ -107,14 +144,12 @@ class ProtectedCredit(GroupCredit):
             protected_credit_original_normalization_std=float(base['normalization_std']),
             protected_credit_normalized_removed_mass=float((out['advantages']-base['advantages']).detach().cpu().double().sum()),
             protected_credit_adv_cap5_candidates=int(out['advantages'].abs().gt(5).sum()))
-        out['statistics'] = meta
-        out['protection'] = info
-        return out
+        return meta
 
     @torch.no_grad()
     def finalize(self, rollout):
         if any(k in rollout for k in ('advantages', 'structured_advantage', 'canonical_rewards', 'reward_transform',
-                                     'protected_credit', 'saturated_credit', 'dense_dac')):
+                                     'protected_credit', 'saturated_credit', 'dense_dac', 'inversion_credit')):
             raise ValueError('Finalize fresh mutually exclusive protected credit once')
         m = canonical_components(rollout['records'], self.group_size, device=rollout['rewards'].device)
         if not torch.equal(rollout['rewards'], m['canonical_rewards']):
@@ -123,7 +158,7 @@ class ProtectedCredit(GroupCredit):
         rollout['canonical_rewards'] = rollout['rewards'].detach().clone()
         for k in ('advantages', 'adv_mask', 'global_std', 'raw_group_std', 'normalization_std', 'original_normalization_std'):
             rollout[k] = out[k]
-        rollout['protected_credit'] = out['protection']
+        rollout[self.payload_key] = out['protection']
         rollout['advantage_statistics'] = out['statistics']
         rollout['structured_advantage'] = dict(protocol=copy.deepcopy(self.protocol), components=m['components'],
             **{k:out[k] for k in ('feasible', 'cost', 'A_safe', 'A_EP', 'A_raw')})
@@ -131,26 +166,26 @@ class ProtectedCredit(GroupCredit):
 
 
 def validate_protected_boundary(state, rollout, identity, optimizer=None, scheduler=None, *, credit, legacy=False):
-    validate_protected_recipe(identity['recipe'])
+    credit.validate_recipe(identity['recipe'])
     g = identity['recipe']['grpo']['sample']['group_size']
-    if credit.protocol != protocol(g):raise ValueError('Protected credit/recipe mismatch')
+    if credit.protocol != credit.expected_protocol(g):raise ValueError('Credit/recipe mismatch')
     summary = validate_structure(state, rollout, identity, optimizer, scheduler, legacy=legacy)
-    summary.update(structured_advantage_schema=SCHEMA, structured_protocol=credit.protocol, group_size=g, structured_world=8)
+    summary.update(structured_advantage_schema=credit.protocol['schema'], structured_protocol=credit.protocol, group_size=g, structured_world=8)
     if not summary['pending']:return summary
-    if any(k in rollout for k in ('reward_transform', 'saturated_credit', 'dense_dac')):
+    if ('reward_transform' in rollout or any(k in rollout for k in ('protected_credit', 'saturated_credit', 'dense_dac', 'inversion_credit') if k != credit.payload_key)):
         raise ValueError('Protected credit cannot mix transformations')
     material = canonical_components(rollout['records'], g)
     for k in ('rewards', 'canonical_rewards'):_equal(rollout[k], material['canonical_rewards'], k)
-    actual = rollout.get('protected_credit', {})
+    actual = rollout.get(credit.payload_key, {})
     raw = actual.get('original_raw_A')
     old = raw_advantage_parts(material['components'])
     _equal(raw, old['A_raw'], 'original raw Safety credit', 1e-14)
-    info = decision(rollout['records'], material['components'], raw)
+    info = credit.make_decision(rollout['records'], material['components'], raw)
     if set(actual) != set(info) or tensor_digest(actual) != tensor_digest(info):
         raise ValueError('Protected quality/gate/original rawA/delta material changed')
-    for k in ('quality_material','quality_flags','eligible','original_raw_A','delta'):
+    for k in credit.tensor_fields:
         _equal(actual[k], info[k], k)
-    _, parts = updated_parts(material['components'], info)
+    _, parts = credit.update_parts(material['components'], info)
     saved = rollout.get('structured_advantage', {})
     if (set(saved) != {'protocol','components','feasible','cost','A_safe','A_EP','A_raw'}
             or saved.get('protocol') != credit.protocol):raise ValueError('Protected structured protocol changed')
@@ -163,7 +198,7 @@ def validate_protected_boundary(state, rollout, identity, optimizer=None, schedu
     offsets = material['canonical_rewards'].double()-material['canonical_rewards'].double()[:, :1]
     _equal(rollout['raw_group_std'], offsets.std(1, unbiased=False, keepdim=True), 'raw group std', 1e-12)
     meta = rollout['advantage_statistics']
-    if (meta.get('structured_advantage_schema') != SCHEMA or meta.get('group_size') != g
+    if (meta.get('structured_advantage_schema') != credit.protocol['schema'] or meta.get('group_size') != g
             or meta.get('normalization_population_candidates') != 8*g
             or meta.get('normalization_population_groups') != 8):raise ValueError('Protected population changed')
     summary.update(normalization_std=scale, original_normalization_std=original,
@@ -173,14 +208,6 @@ def validate_protected_boundary(state, rollout, identity, optimizer=None, schedu
         protection_digest=tensor_digest(info), advantage_statistics=copy.deepcopy(meta),
         canonical_rewards_digest=tensor_digest(rollout['canonical_rewards']))
     return summary
-
-
-def _restore_info(value):
-    out = copy.deepcopy(value)
-    for k,dtype in (('quality_material',torch.float64),('quality_flags',torch.bool),('eligible',torch.bool),
-                    ('original_raw_A',torch.float64),('delta',torch.float64)):
-        out[k] = torch.tensor(out[k], dtype=dtype)
-    return out
 
 
 def validate_protected_ranks(summaries, *, credit):
@@ -198,16 +225,14 @@ def validate_protected_ranks(summaries, *, credit):
     material = torch.cat((rewards.unsqueeze(-1), components), -1)
     old = raw_advantage_parts(components)
     for rank,s in enumerate(summaries):
-        info = _restore_info(s['protection_material'])
+        info = credit.restore_info(s['protection_material'])
         if tensor_digest(info) != s['protection_digest']:raise ValueError('Protected rank material digest changed')
         _equal(info['original_raw_A'], old['A_raw'][rank:rank+1], 'rank original rawA', 1e-14)
-        # Quality scalars were joined to the actual canonical records at boundary.
-        quality = info['quality_material']
-        expected_high = components[rank:rank+1,:,:3].eq(1).all(-1)&quality[:,:,0].eq(1)&quality[:,:,1].ge(.9)
-        eligible = expected_high&info['original_raw_A'].lt(0)
-        if (not torch.equal(info['quality_flags'], expected_high) or not torch.equal(info['eligible'], eligible)
-                or not torch.equal(info['delta'], torch.where(eligible,-info['original_raw_A'],torch.zeros_like(info['original_raw_A'])))
-                or info['activated'] != bool(eligible.any())):raise ValueError('Protected rank eligibility/delta changed')
+        # The boundary joined this material to actual scorer records. Recompute
+        # this credit's complete deterministic transform, including pair audits.
+        recomputed = credit.decision_from_material(components[rank:rank+1], info['quality_material'], info['original_raw_A'])
+        if tensor_digest(info) != tensor_digest(recomputed):
+            raise ValueError('Credit rank eligibility/transform audit changed')
         expected = credit.advantages(rewards[rank:rank+1], components[rank:rank+1], info=info, all_material=material)
         if (s['canonical_rewards'] != s['rewards'] or abs(s['global_std']-float(expected['global_std'])) > 1e-12
                 or abs(s['normalization_std']-float(expected['normalization_std'])) > 1e-12
@@ -215,11 +240,11 @@ def validate_protected_ranks(summaries, *, credit):
                 or not torch.allclose(torch.tensor(s['advantages']), expected['advantages'], atol=1e-7, rtol=1e-6)
                 or s['mask'] != expected['adv_mask'].tolist()):raise ValueError('Protected global std/advantage/mask changed')
         if set(s['advantage_statistics']) != set(expected['statistics']):raise ValueError('Protected statistic fields changed')
-        numeric_tolerance = ('protected_credit_original_normalization_std','protected_credit_raw_group_mean_before',
-            'protected_credit_raw_group_mean_after','protected_credit_removed_negative_raw_mass','protected_credit_normalized_removed_mass')
+        numeric_tolerance = tuple(credit.metrics_prefix+k for k in ('original_normalization_std','raw_group_mean_before',
+            'raw_group_mean_after','removed_negative_raw_mass','normalized_removed_mass','group_sum_roundoff','transferred_mass'))
         for k,want in expected['statistics'].items():
             got = s['advantage_statistics'][k]
-            if (abs(got-want) > (1e-6 if k=='protected_credit_normalized_removed_mass' else 1e-12) if k in numeric_tolerance else got != want):
+            if (abs(got-want) > (1e-6 if k==credit.metrics_prefix+'normalized_removed_mass' else 1e-12) if k in numeric_tolerance else got != want):
                 raise ValueError('Protected statistics changed: '+k)
         for k in ('feasible','cost','A_safe','A_EP','A_raw'):
             if not torch.allclose(torch.tensor(s['structured_material'][k],dtype=expected[k].dtype),expected[k],atol=1e-14,rtol=0):
@@ -228,19 +253,22 @@ def validate_protected_ranks(summaries, *, credit):
 
 
 class ProtectedLoss(ResearchLoss):
+    metrics_prefix = 'protected_credit_'
     def _policy_loss(self, model, rollout):
         total, metrics = super()._policy_loss(model, rollout)
         for k,v in rollout['advantage_statistics'].items():
-            if k.startswith('protected_credit_') and isinstance(v,(int,float)):
+            if k.startswith(self.metrics_prefix) and isinstance(v,(int,float)):
                 metrics[k] = torch.tensor(v,device=total.device,dtype=torch.float64)
         return total, metrics
 
 
 class ProtectedRuntimeMixin:
+    _credit_mixin_variant = 'protected'
     def make_credit(self,cfg):
         from .dense_credit import DenseRuntimeMixin
         from .saturated_credit import SaturatedRuntimeMixin
-        if isinstance(self,(DenseRuntimeMixin,SaturatedRuntimeMixin)):
+        variants = {c.__dict__['_credit_mixin_variant'] for c in type(self).__mro__ if '_credit_mixin_variant' in c.__dict__}
+        if len(variants) > 1 or isinstance(self,(DenseRuntimeMixin,SaturatedRuntimeMixin)):
             raise ValueError('Protected, saturated and DenseDAC credit mixins are mutually exclusive')
         validate_protected_recipe(cfg)
         return ProtectedCredit(cfg['grpo']['sample']['group_size'])

@@ -124,23 +124,34 @@ def test_global64_128_and_native_material_pollution_guards(monkeypatch):
     with pytest.raises(ValueError):Wrong().make_credit(cfg(8))
 
 
-def _native_worker(rank, initfile, root):
+def _native_worker(rank, initfile, root, variant="protected"):
     torch.set_num_threads(1)
     dist.init_process_group('gloo', init_method='file://'+initfile, rank=rank, world_size=8,
                             timeout=timedelta(seconds=90))
     try:
-        g = 8; credit = P.ProtectedCredit(g); ident = identity(g)
-        x, recs, rewards, material, all_new = population(g)
+        if variant == 'inversion':
+            from starVLA.rl.qwen_world_safety_exploration import inversion_credit as backend
+            from test_world_safety_exploration_inversion import population as make_population, cfg as make_cfg, identity as make_identity
+            credit_type, loss_type = backend.InversionCredit, backend.InversionLoss
+            boundary, ranks = backend.validate_inversion_boundary, backend.validate_inversion_ranks
+            metrics_prefix = 'inversion_credit_'
+        else:
+            credit_type, loss_type = P.ProtectedCredit, P.ProtectedLoss
+            boundary, ranks = P.validate_protected_boundary, P.validate_protected_ranks
+            make_population, make_cfg, make_identity = population, cfg, identity
+            metrics_prefix = 'protected_credit_'
+        g = 8; credit = credit_type(g); ident = make_identity(g)
+        x, recs, rewards, material, all_new = make_population(g)
         r = credit.finalize(rollout(rank, g, recs[rank]))
         actor = ToyModel(g); actor.device = torch.device('cpu')
-        loss = P.ProtectedLoss(cfg(g))
+        loss = loss_type(make_cfg(g))
         optimizer = torch.optim.AdamW(actor.parameters(), lr=5e-5)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda _: 1.)
         generator = torch.Generator().manual_seed(42+rank)
         random.seed(42+rank); np.random.seed(42+rank); torch.manual_seed(42+rank)
         digest = tensor_digest(r)
-        kwargs = dict(boundary_validator=lambda *a, **kw: P.validate_protected_boundary(*a, credit=credit, **kw),
-                      rank_validator=lambda ss: P.validate_protected_ranks(ss, credit=credit))
+        kwargs = dict(boundary_validator=lambda *a, **kw: boundary(*a, credit=credit, **kw),
+                      rank_validator=lambda ss: ranks(ss, credit=credit))
         for u in range(4):
             native_state = state(g, u)
             before = actor.p.detach().clone(); expected_rng = generator.get_state().clone()
@@ -153,9 +164,9 @@ def _native_worker(rank, initfile, root):
             assert tensor_digest(r) == digest and restored == native_state
             baseline = copy.deepcopy(actor)
             total, metrics = loss._policy_loss(actor, r)
-            original, _ = ResearchLoss(cfg(g))._policy_loss(baseline, r)
+            original, _ = ResearchLoss(make_cfg(g))._policy_loss(baseline, r)
             assert torch.equal(total, original)
-            assert int(metrics['protected_credit_activated_groups']) == int(rank in (0,1))
+            assert int(metrics[metrics_prefix+'activated_groups']) == int(r[credit.payload_key]['activated'])
             total.backward(); original.backward()
             assert torch.isfinite(actor.p.grad).all() and torch.equal(actor.p.grad, baseline.p.grad)
             dist.all_reduce(actor.p.grad); actor.p.grad.div_(8)

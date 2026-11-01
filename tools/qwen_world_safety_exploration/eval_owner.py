@@ -27,7 +27,7 @@ LEASES = {name: Path('/mnt/project')/folder for name, folder in (
     ('primary', 'runtime_gpu_leases'), ('shared', 'runtime_gpu_shared_workers'),
     ('research', 'runtime_gpu_research_slots'), ('evaluation', 'runtime_gpu_evaluation_slots'))}
 KNOWN_ROOTS = ('/mnt/project/qwen-sourceflow-', '/mnt/project/qwen-world-postcot-',
-               '/mnt/project/qwen-world-four-frameworks-', '/mnt/project/qwen-world-abcd-rl-best-20261031/','/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-rl-optimization-20261030/')
+               '/mnt/project/qwen-world-four-frameworks-', '/mnt/project/qwen-world-abcd-rl-best-20261031/','/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-rl-optimization-20261030/','/mnt/project/qwen-world-task-suites-20261031/')
 TERMINAL_NATIVE = ('FAILED', 'STOPPED', 'COMPLETED_AT_REGISTERED_CAP')
 
 
@@ -232,7 +232,13 @@ class EvaluationOwner:
 
     def discover(self):
         self.registry = self.registry_now()
+        current_ids={r['id']for r in self.registry['runs']}
+        if not set(self.initial_bindings)<=current_ids:raise ValueError('Registered scientific arms cannot disappear')
         for run in self.registry['runs']:
+            if run['id'] not in self.initial_bindings:
+                self.initial_bindings[run['id']]=self.binding(run)
+                self.state.setdefault('new_run_admissions',{})[run['id']]=dict(binding=self.binding(run),
+                    registry_sha256=file_sha(self.registry_path),admitted_unix=time.time())
             if self.binding(run) != self.initial_bindings[run['id']]:
                 raise ValueError('Run scientific/source binding changed; explicit owner review required')
             record = self.state['runs'].setdefault(run['id'], dict(gates={}))

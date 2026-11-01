@@ -40,3 +40,9 @@ A fixed-policy TRAIN-only support probe will compare late W3, mixed-time W3, sha
 Campaign: `/mnt/project/qwen-world-safety-exploration-20261031/RUNS.json`. Native and evaluation owners retain exact job receipts under `owners/RESEARCH_NATIVE` and `owners/RESEARCH_EVALUATION`.
 
 User-facing HTML: `/mnt/project/qwen-world-rl-optimization-20261030/report.html` (one existing presentation owner, 30-minute updates and scientific milestones).
+
+## Second-stage credit pilots
+
+Three independent finite500/1000 arms are prepared: saturation-only canonical credit; zeroing verified strict-high negative credit; paired cancellation of strict-high negative and lower-score positive credit. They retain original52.7M scope, source loss/anchor/LR, original baseline normalization, fresh IL70 and seed42. The last two address actual nonzero-EP credit inversions in all8,700 corresponding historical groups. They differ in conservation: Protected can create positive group mean; Inversion preserves the original group sum and may zero all PG while retaining the original mask. Actual status is in live RUNS/PHASE2_NATIVE state, not this source snapshot.
+
+Completed support probe: all312 selected TRAIN scenes and19,968 candidates, no actor update. Historical-failure strict-quality coverage is87/156 for nested first8 late,112/156 for16 late,115/156 for mixed-time16 and115/156 for ODE16. An observed eight-late/eight-mixed union covers127/156; it is not a trained mixture policy. Earlier NOISE03 and W2 LASTDET training underperformed, so these diagnostic observations do not overturn those full-training results.

@@ -1,0 +1,98 @@
+{
+  "schema": "world_inversion_shared_engine_CPU_check_v1",
+  "status": "PASS_PROTECTED_REGRESSION_AND_TWO_NEW_INVERSION_CHECKS",
+  "created_unix": 1793492570.8809786,
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/protected_credit.py": "a41700844625be1560da9a7148df2efa7b8547b4a5846cdd2c72ba1cb9270b5b",
+    "starVLA/rl/qwen_world_safety_exploration/inversion_credit.py": "7d7582ba4b77529f245fbab868d863ebe4e14f0afe32f1cad67ab3a04338d59d",
+    "tests/test_world_safety_exploration_protected.py": "19c186295494f76c8dc77103936520c2e608670a4a8aab096beddad436d508af",
+    "tests/test_world_safety_exploration_inversion.py": "2e2a2ee70397b259902b265e92f2a83df70f8dc7f9a63a0aba6b9f8d6fb06775"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q tests/test_world_safety_exploration_protected.py tests/test_world_safety_exploration_inversion.py",
+  "result": "5 passed in17.31s: originalProtected3 + newInversion2",
+  "new_checks": [
+    "G8/16 exact pure-function outputs/pairs; originalA_safe/std/mask and untouched normalized candidates bitexact; group sum conserved withinFP64roundoff; unmatchednegativeHigh remain; new allA0 retains originalmask; eight-rank/native material and pair/eligibility/stat pollution rejected",
+    "Existing Protected native worker parameterized by credit/validator/loss/population factories for Inversion: actual8 CPU Gloo ranks, pending0/1/2/3 andREADY4 original checkpoint save/restore, Adam/RNG/completeinversionpayload and source loss/gradient equivalence"
+  ],
+  "native_seals": [
+    {
+      "path": "/tmp/pytest-of-root/pytest-1319/test_existing_native8_pending_0/native/checkpoints/update000000_inner0",
+      "seal": {
+        "schema": 2,
+        "phase": "ROLLOUT_COMMITTED",
+        "world": 8,
+        "updates": 0,
+        "next_inner": 0,
+        "files_sha256": "4e0e2bac5c10f4bdede5ba8be0c836535088de489918f5b640eda334bd7c6667"
+      },
+      "rank_files": 8,
+      "files_sha256": "4e0e2bac5c10f4bdede5ba8be0c836535088de489918f5b640eda334bd7c6667",
+      "transaction_sha256": "40c3ac36eb6e3706eaee674a9cdeedb39d81709a92d4480d524c90709ce33899"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1319/test_existing_native8_pending_0/native/checkpoints/update000001_inner1",
+      "seal": {
+        "schema": 2,
+        "phase": "INNER_COMMITTED",
+        "world": 8,
+        "updates": 1,
+        "next_inner": 1,
+        "files_sha256": "0d8fa70005fa06a48919ad47079b2e698f30405b56677baeb8cab612af603f85"
+      },
+      "rank_files": 8,
+      "files_sha256": "0d8fa70005fa06a48919ad47079b2e698f30405b56677baeb8cab612af603f85",
+      "transaction_sha256": "ac001b508bd864e8ab684418a287845dd7796112cf1fb25367f64318472dd95d"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1319/test_existing_native8_pending_0/native/checkpoints/update000002_inner2",
+      "seal": {
+        "schema": 2,
+        "phase": "INNER_COMMITTED",
+        "world": 8,
+        "updates": 2,
+        "next_inner": 2,
+        "files_sha256": "299ab5cc3ceba4022d94c723e36e29d99e2979e88cab8c83355f29dd87a00fe0"
+      },
+      "rank_files": 8,
+      "files_sha256": "299ab5cc3ceba4022d94c723e36e29d99e2979e88cab8c83355f29dd87a00fe0",
+      "transaction_sha256": "251249a98ee72742394aaf350b0b1b7b720f63bb2385ce88fd7bbe5e57d7cdcd"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1319/test_existing_native8_pending_0/native/checkpoints/update000003_inner3",
+      "seal": {
+        "schema": 2,
+        "phase": "INNER_COMMITTED",
+        "world": 8,
+        "updates": 3,
+        "next_inner": 3,
+        "files_sha256": "e9c554b0ce1d9961bdc05bc88f85c7feb868a1c6f158691205fc2368d9ca6830"
+      },
+      "rank_files": 8,
+      "files_sha256": "e9c554b0ce1d9961bdc05bc88f85c7feb868a1c6f158691205fc2368d9ca6830",
+      "transaction_sha256": "e6c44bcab868902820eb0aea8d605ba199f59abe7f6939c3fee30f1ff1a178a3"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1319/test_existing_native8_pending_0/native/checkpoints/update000004_inner0",
+      "seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 4,
+        "next_inner": 0,
+        "files_sha256": "a677de8e433486e95812c613269853c2b157213f21004594d16f0f81aa911e09"
+      },
+      "rank_files": 8,
+      "files_sha256": "a677de8e433486e95812c613269853c2b157213f21004594d16f0f81aa911e09",
+      "transaction_sha256": "9a870eb759421bdb82f09df3223c819ca7017e19dc897ad4e7c7090f5d19a27b"
+    }
+  ],
+  "protected_prior_commit": "d92194b",
+  "protected_default_math_unchanged": true,
+  "scope": {
+    "GPU": false,
+    "registered": false,
+    "committed": false,
+    "router_or_initial_or_support_source_changed": false
+  },
+  "sha256": "ac1a76acebd72c2f41240067ec08a62dbb1ecb5bcfe3782f4f63d760ffa4e35e"
+}

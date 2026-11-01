@@ -16,8 +16,10 @@ def runtime_for_config(path):
         from .dense_credit import DenseRuntimeMixin,SCHEMA as DENSE_SCHEMA
         from .saturated_credit import SaturatedRuntimeMixin,SCHEMA as SATURATED_SCHEMA
         from .protected_credit import ProtectedRuntimeMixin,SCHEMA as PROTECTED_SCHEMA
+        from .inversion_credit import InversionRuntimeMixin,SCHEMA as INVERSION_SCHEMA
         if r['structured_advantage']==DENSE_SCHEMA:mixins.append(DenseRuntimeMixin)
         elif r['structured_advantage']==SATURATED_SCHEMA:mixins.append(SaturatedRuntimeMixin)
         elif r['structured_advantage']==PROTECTED_SCHEMA:mixins.append(ProtectedRuntimeMixin)
+        elif r['structured_advantage']==INVERSION_SCHEMA:mixins.append(InversionRuntimeMixin)
         else:raise ValueError('Unknown separately registered credit')
     return type('SafetyExplorationRuntime',tuple(mixins+[GroupRuntime]),{})()

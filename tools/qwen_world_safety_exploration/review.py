@@ -122,7 +122,7 @@ class Review:
             payload['sha256']=fingerprint(payload);atomic_json(p,payload);published.append(str(p))
         contrasts=[('SAFETY_G16',500,'SAFETY_G8_CONTROL',1000,'same_16000_candidates_different_scenes_updates'),
             ('SAFETY_G16',1000,'SAFETY_G8_CONTROL',1000,'same_scenes_updates_twice_candidates')]
-        for arm in ('SAFETY_DAC_DENSE_G8','SAFETY_ACTIVE_DATA_G8'):
+        for arm in ('SAFETY_DAC_DENSE_G8','SAFETY_ACTIVE_DATA_G8','SAFETY_SATURATED_G8','SAFETY_PROTECTED_HIGH_G8','SAFETY_INVERSION_CANCEL_G8'):
             contrasts.extend((arm,u,'SAFETY_G8_CONTROL',u,'same_scene_exposures_updates_candidates_actual_token_coverage_may_differ')for u in (500,1000))
         for a,u,b,v,budget in contrasts:
             if (a,u)not in ready or (b,v)not in ready:continue
@@ -149,7 +149,8 @@ def main():
         except Exception:
             atomic_json(review.out/'ERROR.json',dict(status='REVIEW_REQUIRED',error=traceback.format_exc(),at_unix=time.time()));raise
         if not a.watch or not state['pending']:break
-        if (review.out/'STOP_OWNER').exists():break
+        if (review.out/'STOP_OWNER').exists():
+            atomic_json(review.out/'OWNER_STOPPED.json',dict(pid=os.getpid(),at_unix=time.time(),existing_scores_untouched=True));break
         time.sleep(a.interval)
 
 if __name__=='__main__':main()

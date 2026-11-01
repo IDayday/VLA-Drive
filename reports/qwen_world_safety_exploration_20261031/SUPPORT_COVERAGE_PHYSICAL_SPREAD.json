@@ -1,0 +1,92 @@
+{
+  "schema": "world_support_probe_coverage_and_physical_spread_v1",
+  "status": "COMPLETE",
+  "summary_sha256": "88cbe53526292d60a13168236612cd5bb2e3c52b83affc72cee359eb506c7261",
+  "at_unix": 1793492182.7980373,
+  "cohorts": {
+    "historical_failure": {
+      "scene_count": 156,
+      "A8_quality_scenes": 87,
+      "A16_quality_scenes": 112,
+      "mixed8_quality_scenes": 114,
+      "mixture8plus8_quality_scenes": 127,
+      "ODE16_quality_scenes": 115,
+      "B1_quality_scenes": 113,
+      "A16_gain_B1_failure": 20,
+      "A16_lose_B1_success": 21,
+      "mixed16_gain_B1_failure": 2,
+      "mixed16_lose_B1_success": 0,
+      "A_xy_delta_meters": {
+        "mean": 1.5387741863295632,
+        "p50": 1.4057134606552002,
+        "p95": 3.145298684791034,
+        "max": 6.699124364970105
+      },
+      "B_xy_delta_meters": {
+        "mean": 0.0404404397494568,
+        "p50": 0.01025390625,
+        "p95": 0.13075470079582038,
+        "max": 0.5873882376558821
+      },
+      "root_ODE_xy_spread_meters": {
+        "mean": 0.09762520494962863,
+        "p50": 0.10432689901371647,
+        "p95": 0.15185533965593617,
+        "max": 0.2187631630645805
+      },
+      "A_xy_spread_meters": {
+        "mean": 1.2064678914537332,
+        "p50": 1.209911390771456,
+        "p95": 1.3063278748776614,
+        "max": 1.3639782789078965
+      }
+    },
+    "matched_high_control": {
+      "scene_count": 156,
+      "A8_quality_scenes": 156,
+      "A16_quality_scenes": 156,
+      "mixed8_quality_scenes": 156,
+      "mixture8plus8_quality_scenes": 156,
+      "ODE16_quality_scenes": 156,
+      "B1_quality_scenes": 156,
+      "A16_gain_B1_failure": 0,
+      "A16_lose_B1_success": 0,
+      "mixed16_gain_B1_failure": 0,
+      "mixed16_lose_B1_success": 0,
+      "A_xy_delta_meters": {
+        "mean": 1.5467667771517382,
+        "p50": 1.4246073612434007,
+        "p95": 3.144627653128952,
+        "max": 6.843840667868553
+      },
+      "B_xy_delta_meters": {
+        "mean": 0.02727798298092079,
+        "p50": 1.9073486328125e-06,
+        "p95": 0.13045233045837176,
+        "max": 0.5379205918661744
+      },
+      "root_ODE_xy_spread_meters": {
+        "mean": 0.06323607365200415,
+        "p50": 0.05668363992307727,
+        "p95": 0.1175041107149732,
+        "max": 0.14230464385235514
+      },
+      "A_xy_spread_meters": {
+        "mean": 1.208558600981794,
+        "p50": 1.2014235703006189,
+        "p95": 1.3119049125643134,
+        "max": 1.3922870571757489
+      }
+    }
+  },
+  "extra_actor_or_scoring_queries": 0,
+  "mixed8plus8_caveat": "Observed union from independent kernels under same-theta/matched roots; not a trained mixture policy or current PPO implementation.",
+  "noise_last_step_std_physical": {
+    "normalized": 0.04454354042682547,
+    "x_m": 1.4864179440431657,
+    "y_m": 0.9354143489633349,
+    "heading_rad": 0.07861934885334695
+  },
+  "prior_failed_trials": "PPO_NOISE03(eta .03) and LASTDET(W2/changed anchor) already underperformed in earlier full trials; current probe does not overturn these training results.",
+  "interpretation": "Mixed-time mostly preserves ODE support; late noise adds both witnesses and failures. Greater candidate quality is not increased diverse support or learned NAV improvement."
+}

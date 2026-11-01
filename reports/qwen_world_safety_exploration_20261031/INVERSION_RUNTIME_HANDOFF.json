@@ -1,0 +1,78 @@
+{
+  "schema": "world_inversion_runtime_handoff_v1",
+  "status": "CPU_READY_NOT_REGISTERED",
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/protected_credit.py": "a41700844625be1560da9a7148df2efa7b8547b4a5846cdd2c72ba1cb9270b5b",
+    "starVLA/rl/qwen_world_safety_exploration/inversion_credit.py": "7d7582ba4b77529f245fbab868d863ebe4e14f0afe32f1cad67ab3a04338d59d",
+    "tests/test_world_safety_exploration_protected.py": "19c186295494f76c8dc77103936520c2e608670a4a8aab096beddad436d508af",
+    "tests/test_world_safety_exploration_inversion.py": "2e2a2ee70397b259902b265e92f2a83df70f8dc7f9a63a0aba6b9f8d6fb06775"
+  },
+  "additional_dependency": {
+    "path": "starVLA/rl/qwen_world_safety_exploration/inversion_cancellation.py",
+    "sha256": "a1c9d001ac435b0c0ebbf7f2a3ec3c0762f2bc7408c8ee00ae6a611a74f52da4",
+    "owner": "adaptive_data, unchanged by this runtime integration"
+  },
+  "module": "starVLA.rl.qwen_world_safety_exploration.inversion_credit",
+  "runtime_mixin": "InversionRuntimeMixin",
+  "runtime_composition": "class Runtime(InversionRuntimeMixin,GroupRuntime): pass",
+  "config_fragment": {
+    "research": {
+      "structured_advantage": "world_SafetyEP_canonical_inversion_pair_cancel_fixed_base_std_v1"
+    }
+  },
+  "groups": [
+    8,
+    16
+  ],
+  "scope": "same freshIL70/seed42/full103288/W3/sourcePPO.005/beta50/actionLR5e-5/memoryLR5e-6/52.7Mscope; this is only credit transform",
+  "math": {
+    "negative_endpoint": "NC=DAC=TTC=Comfort1, officialFP64canonical>=.9 and originalrawA<0",
+    "positive_endpoint": "NC=DAC=TTC1, originalrawA>0 and strictly lower canonical score; Comfort may0",
+    "transfer": "m=min(-updatedA_high,updatedA_lower); high+=m,lower-=m",
+    "ordering": "negative canonical descending/index ascending; positive canonical ascending/index ascending",
+    "outputs": "exact deterministic returned updated_rawA becomes transformed rawA; delta added toA_EP; A_safe unchanged",
+    "normalization": "original world*G SafetyRawStd retained withsameeps; no recenter/fallback",
+    "mask": "original group PGmask retained even if transformed allA0",
+    "conservation": "real arithmetic sum preserved; FP64group_sum_roundoff stored, not corrected"
+  },
+  "engine": {
+    "shared": "protected_credit.ProtectedCredit hooks + one shared native boundary/rank validator implementation",
+    "hooks": [
+      "decision_from_material",
+      "update_parts",
+      "normalize_changed",
+      "statistics",
+      "payload_key",
+      "tensor_fields",
+      "expected_protocol",
+      "validate_recipe"
+    ],
+    "Protected": "default Protected transformation/protocol/payload remains unchanged; previous d921 frozen source untouched",
+    "material": "inversion_credit contains exact quality/oldraw/delta/newraw/pairs/counts/sums/digests; future score fields never actor inputs"
+  },
+  "metrics": {
+    "prefix": "inversion_credit_",
+    "true_PG0": [
+      "new_PG0_groups",
+      "post_raw_PG0_groups",
+      "true_nonzero_adv_fraction"
+    ],
+    "warning": "legacy trainer RL_updates_local and exploration.zero_PG use mask.any(); an allA0 cancellation group intentionally keeps mask1, so use these explicit rawPG0 metrics",
+    "counts": "count freshcollection firstinner only, not4 repeats"
+  },
+  "comparison": {
+    "Protected": "zeros every negativeverifiedhigh even without lowerRpositive witness; groupmean maypositive; lowerRpositive unchanged",
+    "Inversion": "uses only actual available opposing lowerRpositive mass; can retain unmatched/partlycancelled negativehigh; preserves groupsum up toFP64roundoff",
+    "Saturated": "targets EP1/raw0/Comfortvariance groups; distinct, mutually exclusive"
+  },
+  "limits": [
+    "Canonical relative dominance is not scene-risk optimality or unbiased endpoint policy gradient",
+    "Cancelling lowerR/Comfort0 positives may suppress useful progress exploration; needs actual complete canonical evaluation",
+    "No new witnesses, no allfail costtie supervision, no new positive sign, no learned critic",
+    "Raw-sum conservation alone does not guarantee safety, deployment retention or improvement"
+  ],
+  "pure_math_handoff": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/INVERSION_CANCELLATION_HANDOFF.json",
+  "receipt": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/INVERSION_RUNTIME_CPU_CHECK.json",
+  "no_GPU_registration_or_commit": true,
+  "sha256": "8489a096d9c9c8c3d143b1a7ae3f88c866651e714b15db91d399dc040c2e1d8a"
+}

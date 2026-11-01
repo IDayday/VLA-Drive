@@ -25,8 +25,9 @@ class StopBeforeDispatch(RuntimeError):
 
 
 class Owner:
-    def __init__(self):
-        self.directory = ROOT/'owners'/'RESEARCH_NATIVE'
+    def __init__(self, *, selected_ids=None, owner_name='RESEARCH_NATIVE'):
+        if not owner_name.replace('_','').isalnum():raise ValueError('Explicit local owner name required')
+        self.directory = ROOT/'owners'/owner_name
         self.directory.mkdir(parents=True, exist_ok=True)
         self.lock = (self.directory/'owner.lock').open('a')
         fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -34,6 +35,11 @@ class Owner:
         self.registry = json.loads((ROOT/'RUNS.json').read_text())
         if self.registry['task'] != TASK or not 1 <= len(self.registry['runs']) <= 8 or len({r['id']for r in self.registry['runs']})!=len(self.registry['runs']):
             raise ValueError('Exact uniquely registered bounded research arms required')
+        ids={r['id']for r in self.registry['runs']}
+        if selected_ids is not None and (not selected_ids or not set(selected_ids)<=ids):raise ValueError('Only explicit registered selected arms')
+        self.runs=[r for r in self.registry['runs']if selected_ids is None or r['id']in selected_ids]
+        if any(Path(r['owner_state']).resolve()!=self.directory/'STATE.json' for r in self.runs):
+            raise ValueError('Selected runs must bind this exact owner state, preventing duplicate lineages')
         self.state_path = self.directory/'STATE.json'
         self.state = json.loads(self.state_path.read_text()) if self.state_path.exists() else dict(runs={})
         self.state.update(status='RUNNING')
@@ -170,8 +176,8 @@ class Owner:
             self.update(arm, status='FAILED_REVIEW_REQUIRED', error=traceback.format_exc())
 
     def run(self):
-        with ThreadPoolExecutor(max_workers=min(8,len(self.registry['runs']))) as pool:
-            list(pool.map(self.run_arm, self.registry['runs']))
+        with ThreadPoolExecutor(max_workers=min(8,len(self.runs))) as pool:
+            list(pool.map(self.run_arm, self.runs))
         self.state['status'] = ('COMPLETED_AT_REGISTERED_CAP' if all(x.get('status')=='COMPLETED_AT_REGISTERED_CAP' for x in self.state['runs'].values()) else 'FINISHED_WITH_REVIEW_REQUIRED')
         self.state['native_owner_finished_unix'] = time.time()
         atomic_json(self.state_path, self.state)
@@ -179,8 +185,10 @@ class Owner:
 
 def main():
     parser = argparse.ArgumentParser(__doc__)
-    parser.parse_args()
-    Owner().run()
+    parser.add_argument('--ids',nargs='+',help='Only these registered arms; never adopt another active owner state')
+    parser.add_argument('--owner-name',default='RESEARCH_NATIVE')
+    args=parser.parse_args()
+    Owner(selected_ids=args.ids,owner_name=args.owner_name).run()
 
 
 if __name__ == '__main__':
