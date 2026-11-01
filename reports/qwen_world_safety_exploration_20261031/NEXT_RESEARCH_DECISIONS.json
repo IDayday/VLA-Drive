@@ -1,6 +1,6 @@
 {
   "schema": "world_Safety_research_question_decision_ledger_v1",
-  "updated_unix": 1793499067.565145,
+  "updated_unix": 1793501644.3086307,
   "purpose": "每个用户问题对应完整证据、代码/具体实验与当前状态",
   "items": [
     {
@@ -97,7 +97,7 @@
   "full_pilot_training_census": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_NATIVE_TRAINING_CENSUS_u001000.json",
   "next_priority_direction": {
     "method": "ENDPOINT_RAMP_AR1",
-    "status": "REGISTERED_AND_ACTUAL_EIGHT_GPU_NATIVE_UPDATES",
+    "status": "ORIGINAL_ENDPOINT1000_NATIVE_COMPLETE_NAV500_NEGATIVE_LR02_PILOT_REGISTERED",
     "reason": "44928成功TRAIN查询已识别真实末端抖动与严格高质支持；以平滑近端小扰动和真实joint条件概率验证训练转化",
     "not_a_claim_of_NAV_improvement": true,
     "registry_arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
@@ -112,7 +112,17 @@
     "first_native_observation": "all8ranks12updates; fresh ratioerror0; finite gradient~1.98; fullfirst50review in progress; no NAV score yet",
     "first50_production_review": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_PRODUCTION_FIRST50_REVIEW.json",
     "first50_evidence": "actual full52707840 params, all8rank50updates finite/fresherror0; strict-high474/832 vs284/832; all50 preclipnorm>1, inner2-4 blocked~31%; no canonical-allzero TRAINgroups in this prefix; no NAV or failure-rescue claim",
-    "decision": "Continue registered endpoint pilot; no blind retuning/termination solely because PPO clipping increases; first500/1000 full NAV decides next action"
+    "decision": "Continue registered endpoint pilot; no blind retuning/termination solely because PPO clipping increases; first500/1000 full NAV decides next action",
+    "endpoint500_full_PDMS": 89.31826215082205,
+    "endpoint500_vs_control_delta": -0.5375654774364871,
+    "endpoint500_vs_control_CI95": [
+      -0.8447356526760883,
+      -0.2427010394671899
+    ],
+    "conclusion": "更高训练候选质量尚未转化部署收益；不宣称新探索已提分；优先单变量LR×.2校准",
+    "low_lr_arm": "SAFETY_ENDPOINT_RAMP_AR1_LR02_G8",
+    "low_lr_source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_lr02_v1",
+    "low_lr_owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/ENDPOINT_LR_NATIVE/STATE.json"
   },
   "continuation": {
     "status": "WAITING_CONTINUED_FULL_EVALUATIONS",
@@ -126,5 +136,10 @@
     "actual_resumed_updates_observed_over1000": true
   },
   "curriculum_progress_review": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/CURRICULUM_PROGRESS_PRIMARY_REVIEW_20261101.json",
-  "deployment_baseline_advantage_review": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/DEPLOYMENT_BASELINE_ADVANTAGE_RESEARCH_20261101.json"
+  "deployment_baseline_advantage_review": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/DEPLOYMENT_BASELINE_ADVANTAGE_RESEARCH_20261101.json",
+  "ABCD_RL_disposition": {
+    "status": "TERMINATED_BY_USER_NO_RECOVERY",
+    "checkpoint_cleanup": "/mnt/project/qwen-world-abcd-rl-best-20261031/termination_20261101/CHECKPOINT_CLEANUP_COMPLETE.json",
+    "IL_retained": true
+  }
 }

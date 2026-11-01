@@ -132,6 +132,12 @@ class Review:
                 for u in run['gates']:
                     if 2*u in control['gates']:
                         contrasts.append((arm,u,'SAFETY_G8_CONTROL',2*u,'same_candidates_different_scenes_updates'))
+        endpoint='SAFETY_ENDPOINT_RAMP_AR1_G8'
+        lower_lr='SAFETY_ENDPOINT_RAMP_AR1_LR02_G8'
+        if endpoint in runs and lower_lr in runs:
+            for u in sorted(set(runs[endpoint]['gates']) & set(runs[lower_lr]['gates'])):
+                contrasts.append((lower_lr,u,endpoint,u,
+                    'same_endpoint_science_scenes_updates_candidates_only_common_action_memory_LR_scale0p2'))
         for a,u,b,v,budget in contrasts:
             if (a,u)not in ready or (b,v)not in ready:continue
             p=self.out/(f'{a}_{u}_vs_{b}_{v}.json')

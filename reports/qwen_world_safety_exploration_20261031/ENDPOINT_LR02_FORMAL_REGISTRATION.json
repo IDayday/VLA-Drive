@@ -1,0 +1,19 @@
+{
+  "status": "REGISTERED_FINITE_PILOT",
+  "arm": "SAFETY_ENDPOINT_RAMP_AR1_LR02_G8",
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_lr02_v1",
+  "source_commit": "ad09c6577d3854bc5f81405ee790cb71bbd01114",
+  "config": "/mnt/project/qwen-world-safety-exploration-20261031/configs/SAFETY_ENDPOINT_RAMP_AR1_LR02_G8.yaml",
+  "config_sha256": "ce24634a9ce6a9786cff29844a0ccc63c3821ec27099b903c058b8efa82d1447",
+  "target_updates": 1000,
+  "gates": [
+    500,
+    1000
+  ],
+  "one_factor": "actionLR5e-5->1e-5 and memoryLR5e-6->1e-6, common factor0.2; all other science unchanged",
+  "motivation": "Endpoint500 fullPDMS89.318262 vsControl89.855828 delta-.537565 CI[-.844736,-.242701]; first500 actual clipping96.6percent and joint-ratio scale differs; lowerLR is a hypothesis, not proof clipping harmful",
+  "previous_registry": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/RUNS_before_endpoint_lr02_registration.json",
+  "previous_eight_bindings_unchanged": true,
+  "at_unix": 1793501520.3384302,
+  "resource_priority": "Released ABCD RL capacity only; preserve IL B/D and healthy existing tasks"
+}

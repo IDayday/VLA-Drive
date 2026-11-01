@@ -1,0 +1,62 @@
+{
+  "RESEARCH_EVALUATION": {
+    "pid": 2964290,
+    "start_ticks": 1494013352,
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_lr02_v1",
+    "source_commit": "ad09c6577d3854bc5f81405ee790cb71bbd01114",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-u",
+      "-m",
+      "tools.qwen_world_safety_exploration.eval_owner",
+      "--max-shards",
+      "32",
+      "--max-workers",
+      "64"
+    ],
+    "at_unix": 1793501520.3490446,
+    "CPU_owner": true,
+    "existing_GPU_workers_untouched": true,
+    "reason": "bounded9th single-LR-factor pilot; support up to16 registrations; original sources/configs unchanged",
+    "previous_pid": 2936134,
+    "continuation_decision": "/mnt/project/qwen-world-safety-exploration-20261031/owners/CONTINUATION/DECISION_u001000.json"
+  },
+  "CONTINUATION": {
+    "pid": 2964291,
+    "start_ticks": 1494013352,
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_lr02_v1",
+    "source_commit": "ad09c6577d3854bc5f81405ee790cb71bbd01114",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-u",
+      "-m",
+      "tools.qwen_world_safety_exploration.continuation"
+    ],
+    "at_unix": 1793501520.3537471,
+    "CPU_owner": true,
+    "existing_GPU_workers_untouched": true,
+    "reason": "bounded9th single-LR-factor pilot; support up to16 registrations; original sources/configs unchanged",
+    "previous_pid": 2927234,
+    "continuation_decision": null
+  },
+  "ENDPOINT_LR_NATIVE": {
+    "pid": 2964292,
+    "start_ticks": 1494013353,
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_lr02_v1",
+    "source_commit": "ad09c6577d3854bc5f81405ee790cb71bbd01114",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-u",
+      "-m",
+      "tools.qwen_world_safety_exploration.owner",
+      "--owner-name",
+      "ENDPOINT_LR_NATIVE",
+      "--ids",
+      "SAFETY_ENDPOINT_RAMP_AR1_LR02_G8"
+    ],
+    "at_unix": 1793501520.3577712,
+    "CPU_owner": true,
+    "existing_GPU_workers_untouched": true,
+    "reason": "bounded9th single-LR-factor pilot; support up to16 registrations; original sources/configs unchanged"
+  }
+}
