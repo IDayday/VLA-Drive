@@ -66,7 +66,9 @@ def registered_points():
 def choose_step(available, requested, interval=2000):
     last = max(requested, default=0)
     eligible = [u for u in available if u % interval == 0 and u >= last+interval]
-    return max(eligible, default=None)
+    # Once a series exists, retain every available 2k boundary in order.
+    # Only the initial observation starts at the latest available checkpoint.
+    return (min if requested else max)(eligible, default=None)
 
 
 def pin_checkpoint(original, destination):
@@ -188,12 +190,13 @@ def tick(state):
         if job['status'] != 'PENDING': continue
         if sum(j['status'] in ('RUNNING', 'DISPATCHING') for j in state['jobs']) >= 2: break
         root = Path(job['root'])
-        operator = root/'BURST_OPERATOR.py'
+        operator = root/('BURST_OPERATOR_recovery_20261101.py' if job.get('resume_reviewed') else 'BURST_OPERATOR.py')
         if not operator.exists():
             operator.write_bytes(Path(__file__).with_name('navtest_burst.py').read_bytes())
         job['operator_sha256'] = sha(operator)
         command = [PYTHON, '-u', str(operator),
             '--root', str(root), '--source', job['source'], '--family', job['family'], '--workers', '32']
+        if job.get('resume_reviewed'):command.append('--resume')
         job.update(status='DISPATCHING', command=command, dispatched_unix=time.time())
         atomic(root/'LAUNCH_INTENT.json', dict(command=command, registered_job=job))
         atomic(ROOT/'STATE.json', state)

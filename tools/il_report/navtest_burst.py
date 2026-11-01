@@ -15,6 +15,30 @@ import time
 import traceback
 
 
+def prechild_refusal(result):
+    """No model execution occurred; this is capacity waiting, not bad science."""
+    return (result.get('status') == 'REFUSED_RESOURCE'
+            and result.get('child_not_started') is True and result.get('returncode') == 75)
+
+
+def adopt_four_jobs(request):
+    """Adopt exact existing commands, including still-running shards, once."""
+    for path in sorted((request.root/'jobs').glob('*_attempt*/spec.json')):
+        spec = json.loads(path.read_text())
+        if spec['source'] != str(request.source) or spec['source_sha'] != request.source_sha:
+            raise ValueError('Cross-source shard adoption is not allowed')
+        logical, number = path.parent.name.rsplit('_attempt', 1)
+        command = spec['command']
+        if (logical not in ['export', 'parity', *('rank'+str(i) for i in range(request.world))]
+                or '--output' not in command
+                or command[command.index('--output')+1] != str(request.export if logical == 'export' else request.output)
+                or spec['receipt_dir'] != str(path.parent)):
+            raise ValueError('Existing shard command/identity differs from this evaluation')
+        if int(number) > request.attempts.get(logical, 0):
+            request.attempts[logical] = int(number)
+            request.jobs[logical] = spec
+
+
 def write(path, value):
     path = Path(path); tmp = path.with_name(path.name+'.tmp.'+str(os.getpid()))
     with tmp.open('w') as stream:
@@ -24,8 +48,9 @@ def write(path, value):
 
 class Pool:
     """Cached administrative probes; each worker still repeats its admission."""
-    def __init__(self, delegate):
+    def __init__(self, delegate, admission_source=None):
         self.delegate = delegate; self.sample = None; self.at = 0
+        self.admission_source = admission_source
 
     def __getattr__(self, key):
         return getattr(self.delegate, key)
@@ -37,7 +62,22 @@ class Pool:
         hosts = self.delegate.allowed_hosts()
         def get(host):
             try:
-                return host, probe(host), None
+                observed = probe(host)
+                if self.admission_source:
+                    # The old qualified worker has a narrower owner allowlist
+                    # than the generic scheduler. Use its EXACT read-only guard;
+                    # do not loosen sharing or touch the immutable worker.
+                    program = '''import sys,json
+sys.path.insert(0,__SOURCE__)
+from tools.qwen_world_compare.job_worker import _admission_sample,_known_owners
+devices,owners=_admission_sample();accepted=[];rejected={}
+for index,device in devices.items():
+ try:_known_owners(owners,{index:device['uuid']},[index]);accepted.append(device['uuid'])
+ except Exception as error:rejected[device['uuid']]=str(error)
+print(json.dumps(dict(accepted=accepted,rejected=rejected)))'''.replace('__SOURCE__',repr(str(self.admission_source)))
+                    admission = json.loads(self.delegate.remote(host, ['/usr/bin/python3', '-c', program]))
+                    observed['qualified_worker_admission'] = admission
+                return host, observed, None
             except Exception as error:
                 return host, None, str(error)
         samples, errors = [], {}
@@ -54,6 +94,7 @@ class Pool:
             after['available_memory_bytes'] = after['MemAvailable_bytes']
             for a, b in zip(before['gpus'], after['gpus']):
                 if (b['uuid'] in seen or min(a['free_MiB'], b['free_MiB']) < min_free_MiB
+                        or any(self.admission_source and b['uuid'] not in s['qualified_worker_admission']['accepted'] for s in (before,after))
                         or not after['worker_python_exists']
                         or any(not o['visible'] for s in (before, after) for o in s['owners'] if o['uuid'] == b['uuid'])
                         or gpu_activity_issue(a, before['owners']) or gpu_activity_issue(b, after['owners'])):
@@ -160,16 +201,17 @@ def main():
             if not (export/'COMPLETE').exists(): raise ValueError('Missing qualified reused export')
             request.export.symlink_to(export, target_is_directory=True)
         if args.resume:
-            if args.family != 'world':
-                raise ValueError('Only the explicitly reviewed World burst adoption is enabled')
-            for path in sorted((directory/'jobs').glob('*_attempt*/spec.json')):
-                spec = json.loads(path.read_text())
-                if spec['source'] != str(request.source) or spec['source_sha'] != request.source_sha:
-                    raise ValueError('Cross-source adoption requires a separate receipt')
-                logical, number = path.parent.name.rsplit('_attempt', 1)
-                if int(number) > request.burst_attempts.get(logical, 0):
-                    request.burst_attempts[logical] = int(number)
-                    request.jobs[logical] = spec
+            if args.family == 'four':
+                adopt_four_jobs(request)
+            else:
+                for path in sorted((directory/'jobs').glob('*_attempt*/spec.json')):
+                    spec = json.loads(path.read_text())
+                    if spec['source'] != str(request.source) or spec['source_sha'] != request.source_sha:
+                        raise ValueError('Cross-source adoption requires a separate receipt')
+                    logical, number = path.parent.name.rsplit('_attempt', 1)
+                    if int(number) > request.burst_attempts.get(logical, 0):
+                        request.burst_attempts[logical] = int(number)
+                        request.jobs[logical] = spec
             write(root/'OPERATOR_ADOPTION.json', dict(at=time.time(), previous_owner=previous,
                 adopted_jobs=list(request.jobs), completed_shards_not_reexecuted=True,
                 existing_registration_and_scene_identity_preserved=True))
@@ -178,7 +220,7 @@ def main():
             request.resources = Pool(request.resources)
         else:
             from starVLA.rl.qwen_sourceflow import resources as common_resources
-            pool = Pool(common_resources)
+            pool = Pool(common_resources, admission_source=request.source)
         owner = dict(pid=os.getpid(), start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
             status='RUNNING', at=time.time(), source=str(args.source),
             workers=args.workers, model_batch=1, family=args.family, full_population=12146,
@@ -237,12 +279,18 @@ def main():
                     logs=counts['manifest_logs'], physical_logs=counts['physical_logs'], all_owned_workers_exited=True))
                 request.publish(summary)
             else:
-                request.submit('export', '', ['--checkpoint', pin['checkpoint'], '--output', str(request.export)])
+                if 'export' not in request.jobs:
+                    request.submit('export', '', ['--checkpoint', pin['checkpoint'], '--output', str(request.export)])
                 while not all(request.done('rank'+str(i)) is True for i in range(args.workers)):
                     for name in list(request.jobs):
                         if request.done(name) is False:
                             result = json.loads((Path(request.jobs[name]['receipt_dir'])/'RESULT.json').read_text())
-                            if result.get('status') == 'REFUSED_RESOURCE' and result.get('child_not_started') and request.attempts[name] < 4:
+                            if prechild_refusal(result):
+                                delay = min(300, 30*request.attempts[name])
+                                retry_after[name] = time.monotonic()+delay
+                                write(Path(request.jobs[name]['receipt_dir'])/'RESOURCE_WAIT_CLASSIFICATION.json', dict(
+                                    child_not_started=True,model_forward_calls=0,scorer_calls=0,
+                                    retry_after_seconds=delay,reason=result.get('reason'),failed_attempt_preserved=True))
                                 request.jobs.pop(name); continue
                             raise RuntimeError('Qualified worker failed; evidence retained: '+str(request.jobs[name]['receipt_dir']))
                     if request.done('export') is True:
@@ -250,7 +298,8 @@ def main():
                         parity = (request.proof.exists() and json.loads(request.proof.read_text()).get('status') == 'PASS'
                                   and request.done('parity') is True)
                         pending = [rank for rank in (range(args.workers) if parity else [0])
-                                   if ('rank'+str(rank) if parity else 'parity') not in request.jobs]
+                                   if ('rank'+str(rank) if parity else 'parity') not in request.jobs
+                                   and time.monotonic() >= retry_after.get('rank'+str(rank) if parity else 'parity',0)]
                         routes, inventory = pool.available() if pending else ([], {})
                         for rank in pending:
                             name = 'rank'+str(rank) if parity else 'parity'

@@ -15,7 +15,8 @@ class CadenceTests(unittest.TestCase):
         self.assertIsNone(cadence.choose_step([14000], [13000]))
 
     def test_initial_current_available_checkpoint_without_unbounded_backfill(self):
-        self.assertEqual(cadence.choose_step([52000, 54000, 56000], [50000]), 56000)
+        self.assertEqual(cadence.choose_step([52000, 54000, 56000], [50000]), 52000)
+        self.assertEqual(cadence.choose_step([52000, 54000, 56000], []), 56000)
 
     def test_future_milestone_and_duplicate_are_not_requeued(self):
         self.assertIsNone(cadence.choose_step([18000, 20000], [18000, 20000]))
