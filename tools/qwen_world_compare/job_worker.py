@@ -131,6 +131,11 @@ def known_owner_args(args):
     # fixed IL ancestry; a new arbitrary path prefix alone is insufficient.
     modules=('tools.qwen_world_safety_exploration.train','tools.qwen_world_safety_exploration.evaluate')
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry=='tools.qwen_world_compare.train_il'and '--output'in args and '--config'in args:
+        if max(args.index('--output'),args.index('--config'))+1>=len(args):return False
+        output=args[args.index('--output')+1];config=args[args.index('--config')+1]
+        root='/mnt/project/qwen-world-four-frameworks-20261029/'
+        return any(output==root+'runs/ARCH_'+arch+'/IL_seed42'and config==root+'runtime/fast_5a2d5b5/configs/qwen_world_compare/arch_'+arch.lower()+'.yaml'for arch in 'ABCD')
     if entry not in modules:return False
     parent_flag='--il-checkpoint'if entry.endswith('.train')else'--parent-checkpoint'
     if parent_flag not in args or args.index(parent_flag)+1>=len(args):return False

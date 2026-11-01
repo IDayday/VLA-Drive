@@ -23,6 +23,12 @@ class OwnerAdmission(unittest.TestCase):
         self.assertFalse(known_owner_args(['python','-m']))
         self.assertFalse(known_owner_args([]))
 
+    def test_registered_native_il_cohost_requires_exact_source_and_output(self):
+        root='/mnt/project/qwen-world-four-frameworks-20261029/'
+        args=['python','-m','tools.qwen_world_compare.train_il','--output',root+'runs/ARCH_C/IL_seed42','--config',root+'runtime/fast_5a2d5b5/configs/qwen_world_compare/arch_c.yaml']
+        self.assertTrue(known_owner_args(args))
+        self.assertFalse(known_owner_args([x.replace('ARCH_C','ARCH_X')for x in args]))
+
     def test_bounded_wait_releases_partial_locks(self):
         stream=Mock();locks=[stream];mapping={0:'old'}
         with patch('tools.qwen_world_compare.job_worker.require_dispatch'),patch('tools.qwen_world_compare.job_worker.authorization',return_value=({'x':1},{})),patch('tools.qwen_world_compare.job_worker._gpu_admission',side_effect=[ResourceRefused('busy'),None])as admit,patch('tools.qwen_world_compare.job_worker.write'),patch('tools.qwen_world_compare.job_worker.time.sleep'):
