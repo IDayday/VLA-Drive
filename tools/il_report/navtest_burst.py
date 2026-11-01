@@ -219,8 +219,9 @@ def main():
         if args.family == 'world':
             request.resources = Pool(request.resources)
         else:
-            from starVLA.rl.qwen_sourceflow import resources as common_resources
-            pool = Pool(common_resources, admission_source=request.source)
+            # Match this task's grant rather than the older SourceFlow grant.
+            # The probe and worker guards still independently reject sharing.
+            pool = Pool(request.resources, admission_source=request.source)
         owner = dict(pid=os.getpid(), start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
             status='RUNNING', at=time.time(), source=str(args.source),
             workers=args.workers, model_batch=1, family=args.family, full_population=12146,
