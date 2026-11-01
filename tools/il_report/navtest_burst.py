@@ -421,4 +421,3 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
 
 if __name__ == '__main__':
     main()
-              
