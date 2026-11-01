@@ -100,6 +100,8 @@ class ReportTests(unittest.TestCase):
             root=Path(tmp);(root/'reporting').mkdir();run=root/'run';run.mkdir()
             events=ILStateEvents(root,atomic,[run])
             try:
+                if events.degraded:
+                    self.skipTest('Host inotify capacity unavailable; explicit fallback covered by test_event_capacity')
                 atomic(run/'progress.json',dict(updates=123,status='RUNNING'))
                 (run/'metrics_rank0.jsonl').write_text('{"updates":123}\n')
                 self.assertEqual(events.wait(.15),[])
