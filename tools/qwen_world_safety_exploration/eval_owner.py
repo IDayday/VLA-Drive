@@ -343,11 +343,11 @@ class EvaluationOwner:
                     self.launch_job(run, node, command, gate['label']+'/export')
                     helper_busy = True
         for entry in self.state['evaluations'].values():
-            if entry.get('status') in ('COMPLETE', 'FAILED_REVIEW_REQUIRED'):
+            if entry.get('status') == 'COMPLETE':
                 continue
             for rank in range(entry['world']):
                 node = entry['ranks'].setdefault(str(rank), {})
-                if node.get('status') == 'COMPLETE' or not node.get('job'):
+                if node.get('status') in ('COMPLETE', 'FAILED_REVIEW_REQUIRED') or not node.get('job'):
                     continue
                 if self.finished(node):
                     rank_receipt = read(Path(entry['evaluation'])/f'rank{rank}.json', {})
@@ -357,6 +357,12 @@ class EvaluationOwner:
                         node['status'] = 'COMPLETE'
                 if node.get('status') == 'FAILED_REVIEW_REQUIRED':
                     entry.update(status='FAILED_REVIEW_REQUIRED', failure_rank=rank)
+            # A failed shard blocks publication, but other detached workers can
+            # still finish. Harvest their receipts so completed workers do not
+            # permanently consume the concurrency budget. Failed shards retain
+            # their review state; this does not authorize a scientific retry.
+            if entry.get('status') == 'FAILED_REVIEW_REQUIRED':
+                continue
             if all(entry['ranks'][str(rank)].get('status') == 'COMPLETE' for rank in range(entry['world'])):
                 node = entry.setdefault('summarizer', {})
                 if node.get('job'):
