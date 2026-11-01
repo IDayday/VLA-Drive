@@ -120,10 +120,18 @@ class Review:
                 official_EP_is_safety_gated=True,EP_not_physical_progress=True,
                 NAVTEST_never_enters_training_selection=True)
             payload['sha256']=fingerprint(payload);atomic_json(p,payload);published.append(str(p))
-        contrasts=[('SAFETY_G16',500,'SAFETY_G8_CONTROL',1000,'same_16000_candidates_different_scenes_updates'),
-            ('SAFETY_G16',1000,'SAFETY_G8_CONTROL',1000,'same_scenes_updates_twice_candidates')]
-        for arm in ('SAFETY_DAC_DENSE_G8','SAFETY_ACTIVE_DATA_G8','SAFETY_SATURATED_G8','SAFETY_PROTECTED_HIGH_G8','SAFETY_INVERSION_CANCEL_G8'):
-            contrasts.extend((arm,u,'SAFETY_G8_CONTROL',u,'same_scene_exposures_updates_candidates_actual_token_coverage_may_differ')for u in (500,1000))
+        runs={r['id']:r for r in registry['runs']};control=runs['SAFETY_G8_CONTROL']
+        contrasts=[]
+        for arm,run in runs.items():
+            if arm=='SAFETY_G8_CONTROL':continue
+            for u in sorted(set(run['gates'])&set(control['gates'])):
+                budget=('same_scenes_updates_twice_candidates' if run['group_size']==16 else
+                        'same_scene_exposures_updates_candidates_actual_token_coverage_may_differ')
+                contrasts.append((arm,u,'SAFETY_G8_CONTROL',u,budget))
+            if run['group_size']==16:
+                for u in run['gates']:
+                    if 2*u in control['gates']:
+                        contrasts.append((arm,u,'SAFETY_G8_CONTROL',2*u,'same_candidates_different_scenes_updates'))
         for a,u,b,v,budget in contrasts:
             if (a,u)not in ready or (b,v)not in ready:continue
             p=self.out/(f'{a}_{u}_vs_{b}_{v}.json')

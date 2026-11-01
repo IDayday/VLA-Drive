@@ -1,0 +1,41 @@
+{
+  "schema": "world_full_paired_finite_continuation_policy_v1",
+  "created_unix": 1793493840.2775776,
+  "authorized_task": "qwen_world_safety_exploration_20261031",
+  "initial_gate": 1000,
+  "bounded_stages": [
+    3000,
+    5000,
+    10000
+  ],
+  "max_novel_arms": 2,
+  "matched_control": "SAFETY_G8_CONTROL",
+  "evidence": "All registered1000 complete samebudget paired reviews; official12146 scenes and44log CIs; exact initial native/eval/review coordinators naturally finished before extension",
+  "initial_guard": {
+    "delta_PDMS_min": -0.1,
+    "CI_upper_gt": 0,
+    "net_new_zero_max": 10,
+    "fixed_IL70_high_relative_mean_delta_min": -0.1
+  },
+  "later_guard": {
+    "delta_PDMS_min": 0.02,
+    "CI_upper_gt": 0,
+    "net_new_zero_max": 5,
+    "fixed_IL70_high_relative_mean_delta_min": -0.05
+  },
+  "absolute_plateau": "Stop after two successive stage gains <=.02PDMS",
+  "preservation": [
+    "same immutable scientific source/config/IL70",
+    "full original native Adam/scheduler/RNG/cursor/pending state",
+    "existing full evaluations and rejected receipts",
+    "no GPU signal/eviction",
+    "source50k scheduler identity is not an automatic50k runtime grant"
+  ],
+  "result_statuses": "stop or continue with explicit complete evidence; no WAITING_BUDGET_REVIEW state",
+  "NAVTEST_is_repeatedly_used_for_model_selection": true,
+  "NAVTEST_tokens_enter_training_sampler": false,
+  "single_training_seed": true,
+  "CI_interpretation": "Paired scene/log uncertainty for two fixed trained policies, not training-seed uncertainty",
+  "goal_PDMS": 92,
+  "goal_not_claimed_by_controller": true
+}

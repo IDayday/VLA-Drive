@@ -1,0 +1,168 @@
+{
+  "schema": "world_continuation_readonly_CPU_review_v1",
+  "created_unix": 1793493939.9557998,
+  "source_before": {
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/continuation.py": "f2ff2582255117241d601f040f907636f62142026753aed87bf2025bff8b2fad",
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/eval_owner.py": "d7ac4c76dd2321bc348126db598db4bff9830feddc27bc9c2252287303e33d4f"
+  },
+  "checks": [
+    {
+      "name": "predeclared threshold/max2/immutable selection and relative-stage edge",
+      "status": "PASS",
+      "initial_selected": [
+        "A",
+        "B"
+      ],
+      "next_selected": [
+        "edge"
+      ],
+      "decisions": [
+        {
+          "arm": "A",
+          "decision": "PROMISING_OR_UNCERTAIN_FULL_PAIRED",
+          "delta_PDMS": 0.08,
+          "CI95_PDMS": [
+            -0.1,
+            0.2
+          ],
+          "net_new_zero": 4,
+          "fixed_IL70_high_delta_PDMS": 0.0,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 0,
+          "not_a_general_training_seed_CI": true
+        },
+        {
+          "arm": "B",
+          "decision": "PROMISING_OR_UNCERTAIN_FULL_PAIRED",
+          "delta_PDMS": 0.06,
+          "CI95_PDMS": [
+            -0.1,
+            0.2
+          ],
+          "net_new_zero": 4,
+          "fixed_IL70_high_delta_PDMS": 0.0,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 0,
+          "not_a_general_training_seed_CI": true
+        },
+        {
+          "arm": "C",
+          "decision": "LOWER_PRIORITY_WITHIN_MAX_TWO_CONTINUATIONS",
+          "delta_PDMS": -0.1,
+          "CI95_PDMS": [
+            -0.1,
+            0.2
+          ],
+          "net_new_zero": 10,
+          "fixed_IL70_high_delta_PDMS": -0.1,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 0,
+          "not_a_general_training_seed_CI": true
+        },
+        {
+          "arm": "bad_high",
+          "decision": "STOP_AT_REGISTERED_CAP",
+          "delta_PDMS": 0.5,
+          "CI95_PDMS": [
+            -0.1,
+            0.2
+          ],
+          "net_new_zero": 4,
+          "fixed_IL70_high_delta_PDMS": -0.100001,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 0,
+          "not_a_general_training_seed_CI": true
+        },
+        {
+          "arm": "bad_CI",
+          "decision": "STOP_AT_REGISTERED_CAP",
+          "delta_PDMS": 0.5,
+          "CI95_PDMS": [
+            -0.1,
+            0.0
+          ],
+          "net_new_zero": 4,
+          "fixed_IL70_high_delta_PDMS": 0.0,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 0,
+          "not_a_general_training_seed_CI": true
+        }
+      ],
+      "next_decisions": [
+        {
+          "arm": "edge",
+          "decision": "PROMISING_OR_UNCERTAIN_FULL_PAIRED",
+          "delta_PDMS": 0.02,
+          "CI95_PDMS": [
+            -0.1,
+            0.2
+          ],
+          "net_new_zero": 5,
+          "fixed_IL70_high_delta_PDMS": -0.05,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 0,
+          "not_a_general_training_seed_CI": true
+        },
+        {
+          "arm": "below",
+          "decision": "STOP_AT_REGISTERED_CAP",
+          "delta_PDMS": 0.019999,
+          "CI95_PDMS": [
+            -0.1,
+            0.2
+          ],
+          "net_new_zero": 4,
+          "fixed_IL70_high_delta_PDMS": 0.0,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 0,
+          "not_a_general_training_seed_CI": true
+        },
+        {
+          "arm": "plateau",
+          "decision": "STOP_AT_REGISTERED_CAP",
+          "delta_PDMS": 0.04,
+          "CI95_PDMS": [
+            -0.1,
+            0.2
+          ],
+          "net_new_zero": 4,
+          "fixed_IL70_high_delta_PDMS": 0.0,
+          "absolute_PDMS": null,
+          "absolute_plateau_strikes": 2,
+          "not_a_general_training_seed_CI": true
+        }
+      ]
+    },
+    {
+      "name": "futuregate versus stale native terminal state on asynchronous owner restart",
+      "status": "PASS_FIXED_RACE_AND_IDEMPOTENT_CP_ADOPTION",
+      "initial_status": "SKIPPED_NATIVE_TERMINAL",
+      "stale_old_native_updates": 1000,
+      "new_registered_target": 3000,
+      "after_missing_checkpoint": "WAITING_NATIVE_CHECKPOINT",
+      "after_real_gate_checkpoint": "CHECKPOINT_READY",
+      "repeated_discover_evaluation_entries": 1,
+      "scientific_source_unchanged": "exact_original_immutable_actor_source",
+      "world": 32,
+      "no_GPU_dispatch": true,
+      "source_sha256": {
+        "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/continuation.py": "f2ff2582255117241d601f040f907636f62142026753aed87bf2025bff8b2fad",
+        "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/eval_owner.py": "d7ac4c76dd2321bc348126db598db4bff9830feddc27bc9c2252287303e33d4f"
+      }
+    }
+  ],
+  "scope": {
+    "GPU": false,
+    "dispatch": false,
+    "owner_started": false,
+    "registered_RUNS_modified": false,
+    "source_modified": false
+  },
+  "source_after": {
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/continuation.py": "f2ff2582255117241d601f040f907636f62142026753aed87bf2025bff8b2fad",
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/eval_owner.py": "d7ac4c76dd2321bc348126db598db4bff9830feddc27bc9c2252287303e33d4f"
+  },
+  "status": "PASS_TWO_LIMITED_CPU_CHECKS",
+  "updated_unix": 1793494003.605264,
+  "sha256": "0875329a3149d614bbab4d9e75fe2ab7d793a37b0e8ec0b5783ae49b20fecbc8"
+}

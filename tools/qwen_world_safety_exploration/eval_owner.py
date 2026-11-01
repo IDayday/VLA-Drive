@@ -244,12 +244,17 @@ class EvaluationOwner:
             record = self.state['runs'].setdefault(run['id'], dict(gates={}))
             for updates in run['gates']:
                 gate = record['gates'].setdefault(str(updates), {})
-                if gate.get('status') in ('FAILED_REVIEW_REQUIRED', 'SKIPPED_NATIVE_TERMINAL'):
+                if gate.get('status') == 'FAILED_REVIEW_REQUIRED':
                     continue
                 cp, native = checkpoint_at_gate(run, updates)
                 if cp is None:
-                    if any(native.get('status', '').startswith(prefix) for prefix in TERMINAL_NATIVE):
-                        gate.update(status='SKIPPED_NATIVE_TERMINAL', native_status=native.get('status'))
+                    status=native.get('status','')
+                    terminal=(status.startswith(('FAILED','STOPPED')) or
+                        (status=='COMPLETED_AT_REGISTERED_CAP' and native.get('updates',-1)>=run['target_updates']))
+                    if terminal:
+                        gate.update(status='SKIPPED_NATIVE_TERMINAL',native_status=status)
+                    elif gate.get('status')=='SKIPPED_NATIVE_TERMINAL':
+                        gate.update(status='WAITING_NATIVE_CHECKPOINT',native_status=status)
                     continue
                 label = f"{run['id']}_u{updates:06}"
                 gate.update(status='CHECKPOINT_READY', checkpoint=cp, label=label)
