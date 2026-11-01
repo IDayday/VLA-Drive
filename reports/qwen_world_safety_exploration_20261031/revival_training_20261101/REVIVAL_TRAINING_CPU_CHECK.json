@@ -1,0 +1,327 @@
+{
+  "GPU_used": false,
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_revival_training.py tests/test_world_standardized_training.py::test_scheduler_endpoints_fixed_horizon_and_exact_stage_resume tests/test_world_standardized_training.py::test_combination_disjoint_base_scale_fallback_unrelated_loss_gradient_and_native_material",
+  "configs": [
+    {
+      "credit": "world_SafetyEP_group_credit_v1",
+      "data_policy": "uniform_full",
+      "group": 16,
+      "id": "REVIVAL_G16",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_G16.yaml",
+      "role": "g16",
+      "sha256": "92c990abc1e37c0b99aed8c4f19031d176addcb440cb0bfc3b0d6354f2bb1b5d"
+    },
+    {
+      "credit": "world_SafetyEP_DenseDAC_initial_legal_fixed_base_std_v1",
+      "data_policy": "uniform_full",
+      "group": 8,
+      "id": "REVIVAL_DENSE_G8",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_DENSE_G8.yaml",
+      "role": "dense",
+      "sha256": "2acde9209521b2dbd9684f345b38937cbd97aab1f50cbaf6faf4184a5e6e32db"
+    },
+    {
+      "credit": "world_SafetyEP_success_saturation_canonical_delta_fixed_base_std_v1",
+      "data_policy": "uniform_full",
+      "group": 8,
+      "id": "REVIVAL_SATURATED_G8",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_SATURATED_G8.yaml",
+      "role": "saturated",
+      "sha256": "e5e3e3904c6f49bcbdf60f2e36c6b7e37d648b09eb0afb19fddb8d80ef54dbe2"
+    },
+    {
+      "credit": "world_SafetyEP_group_credit_v1",
+      "data_policy": "online_priority",
+      "group": 8,
+      "id": "REVIVAL_ACTIVE_DATA_G8",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_ACTIVE_DATA_G8.yaml",
+      "role": "active_data",
+      "sha256": "e05355a511fb30406f5bb1aa0a279b429b56f4baecae8ee54b89e7b4bfd0c011"
+    }
+  ],
+  "created_UTC": "2026-11-01T05:11:59.715567+00:00",
+  "limitations": [
+    "Tiny CPU actor/memory dimensions, mock frozenQwen and algebraic scorer,128tokenfixture stream; production fullIL70/103288asset invariants remain in unchangedloader and new strictrecipes, not extraGPU qualification.",
+    "CPU gradients averaged explicitly overgloo; no production score or long-run convergence claim."
+  ],
+  "native_cases": [
+    {
+      "arm": "REVIVAL_G16",
+      "boundaries": 5,
+      "curriculum_summary": null,
+      "final_LRs": [
+        2.4980000000000003e-07,
+        2.4980000000000003e-08
+      ],
+      "group": 16,
+      "mock": "Actual ScopeRecipeActor/memory with tiny dimensions; algebraic canonical scorer/frozen Qwen fixture",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_G16",
+      "private_curriculum_preserved": false,
+      "receipt_sha256": "78e81e64afbcfbcbd0a13b409a840582e5c37c0a2382220863a275f1dfadc088",
+      "seals": [
+        {
+          "complete_sha256": "b0583566f09c8d8e74769b3884789effcc3f6ac7f80fd871bc0416631aaa6f91",
+          "files_sha256": "fc54aded1d75129af9aa9bb224de0ea716339b037b121c45d6a75a036e730248",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_G16/checkpoints/update000000_inner0"
+        },
+        {
+          "complete_sha256": "d658b915c25a819d69979ec13b02fae9c41d49d21ea80fdd171854fb467bf223",
+          "files_sha256": "e79baaeca46957f585ce25c9d6a51ec3798234b580e86efc41e7bd614e1b37cb",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_G16/checkpoints/update000001_inner1"
+        },
+        {
+          "complete_sha256": "6a374fd6422c720f5880d51737a742256475dd7917cd07cffffef0b1e6072d06",
+          "files_sha256": "abb5a0d6587ee84b9ac46d41ba7915c259d191ae4a8edcec22d7242a0aa3dabd",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_G16/checkpoints/update000002_inner2"
+        },
+        {
+          "complete_sha256": "ce7094728a9c2a921b3e07e7fc4f0612290d27952fa265a1732a1eceee2e9ced",
+          "files_sha256": "b93f12844f94a5e4f3a3c7eddcb2edb048c18fa6d3d71fb2c539ee663c4a7465",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_G16/checkpoints/update000003_inner3"
+        },
+        {
+          "complete_sha256": "9c9cf459465470ad2383bc65a92273bd6fee6251bedf3d5c8c0f5fda3084ca9a",
+          "files_sha256": "011f5c0d7fb95ab76c9343fbba87f75d8118f65c55c847733a13190fff41a867",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_G16/checkpoints/update000004_inner0"
+        }
+      ],
+      "updates": 4,
+      "world": 8
+    },
+    {
+      "arm": "REVIVAL_DENSE_G8",
+      "boundaries": 5,
+      "curriculum_summary": null,
+      "final_LRs": [
+        2.4980000000000003e-07,
+        2.4980000000000003e-08
+      ],
+      "group": 8,
+      "mock": "Actual ScopeRecipeActor/memory with tiny dimensions; algebraic canonical scorer/frozen Qwen fixture",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_DENSE_G8",
+      "private_curriculum_preserved": false,
+      "receipt_sha256": "3a5f8155c34dcd216f322e5930bb79dafb411ba064e299f66a1b362a1467091b",
+      "seals": [
+        {
+          "complete_sha256": "c044990b8e00a45f52daeda83bd6999992ea4eb98b24c00d158bc9c20449a3f2",
+          "files_sha256": "e5e7f66d1d357f14a6a32dbf8ce76a1e59944bf5f214acee72e584623253a29d",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_DENSE_G8/checkpoints/update000000_inner0"
+        },
+        {
+          "complete_sha256": "be0252c1c4b35cbcb6b778c9d74491e7e1a6db6dc84b6d06fa717b4025df95c7",
+          "files_sha256": "6d5192adf89f6887998c84ad78bdee01f6c90142a995565b79803b5eded30f69",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_DENSE_G8/checkpoints/update000001_inner1"
+        },
+        {
+          "complete_sha256": "ad80109b71bb06b92b4956f9c9a742c84884ce475edb5ce6519cec62c1954149",
+          "files_sha256": "99bc9dbbcf00293ab13128c149a4024e6aa27f64299c439e2b5e2323bd51fa15",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_DENSE_G8/checkpoints/update000002_inner2"
+        },
+        {
+          "complete_sha256": "bf7bc9bc8dd1c4213775bc4ec9a876d9fd450dbf06f2e5b6e6c8b995ac108e6b",
+          "files_sha256": "f8eabcd5b57ab7d63a925ec8b01d0f354602c7f18773ed43568ad7e81a3c1fb6",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_DENSE_G8/checkpoints/update000003_inner3"
+        },
+        {
+          "complete_sha256": "f8f1d178bcfbbf81f22a14d58b214cc99c1808742d1dbd7f84c5e6a8b56d4e98",
+          "files_sha256": "2ca039f645ea0906a8dbb49880134d967434b25f2682dd39f8c0096a3f20b94d",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_DENSE_G8/checkpoints/update000004_inner0"
+        }
+      ],
+      "updates": 4,
+      "world": 8
+    },
+    {
+      "arm": "REVIVAL_SATURATED_G8",
+      "boundaries": 5,
+      "curriculum_summary": null,
+      "final_LRs": [
+        2.4980000000000003e-07,
+        2.4980000000000003e-08
+      ],
+      "group": 8,
+      "mock": "Actual ScopeRecipeActor/memory with tiny dimensions; algebraic canonical scorer/frozen Qwen fixture",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_SATURATED_G8",
+      "private_curriculum_preserved": false,
+      "receipt_sha256": "8ccaca339ab809832e59c55d7b2c42152e8df02aa250e417e40fad14edf4e1bb",
+      "seals": [
+        {
+          "complete_sha256": "c151624fc9b5b528255b408ba7d15302f2b6e7533c6666f08c0e0bef2287ff74",
+          "files_sha256": "d1179fdaad803b33354f5201440d892a58eb35379ac025e3c658f2caebb8d193",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_SATURATED_G8/checkpoints/update000000_inner0"
+        },
+        {
+          "complete_sha256": "5f511ff1dabca413dd6dfe0936f31c4701534e02cd9e7e51caf3af2ce99d5e5e",
+          "files_sha256": "416cab7c37688acf75278f30f7cd16a3358fba03a1add35501974d0b6734b1f6",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_SATURATED_G8/checkpoints/update000001_inner1"
+        },
+        {
+          "complete_sha256": "66ecb579b96f4fa654feb4242537cf40dc94d7ffab4b96ce581a2b19db88f2cc",
+          "files_sha256": "92cd3a05e75814e76c7e1b5bb5da9faa9203443d74be14be5044a5ccc575caed",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_SATURATED_G8/checkpoints/update000002_inner2"
+        },
+        {
+          "complete_sha256": "578dad2498d994d9cf14cf8cba135d1f0fe4836451ab3b52dae47762eaf7664b",
+          "files_sha256": "6450ca9e0da548c6407626d9b259f792d7d25230a492a3364e911969f86f47af",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_SATURATED_G8/checkpoints/update000003_inner3"
+        },
+        {
+          "complete_sha256": "2fdb73fece3167447037b41fc7f87571aa91e0f68006fe9dcd11a1f211558e5f",
+          "files_sha256": "283a1ef6d3be2a1edef3930a54eae92c99f4f610b602cf680650f763f2bfe935",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_SATURATED_G8/checkpoints/update000004_inner0"
+        }
+      ],
+      "updates": 4,
+      "world": 8
+    },
+    {
+      "arm": "REVIVAL_ACTIVE_DATA_G8",
+      "boundaries": 5,
+      "curriculum_summary": {
+        "bank_size": 11,
+        "committed_collections": 12,
+        "distinct_priority_scenes": 1,
+        "distinct_seen_scenes": 11,
+        "distinct_uniform_scenes": 11,
+        "priority_replay_exposures": 1,
+        "rank": 0,
+        "repeat_scene_exposures": 1,
+        "schema": "world_online_Safety_credit_priority_stream_v1",
+        "selection_plan": {
+          "collection": 12,
+          "cursor": 88,
+          "id": "a3fbfd397ad3595ae85f1eef30407343b95fa06a1dd102f6158d186cfe4c1904",
+          "position": {
+            "curriculum_cursor": 88,
+            "curriculum_selection_id": "a3fbfd397ad3595ae85f1eef30407343b95fa06a1dd102f6158d186cfe4c1904",
+            "epoch": 0,
+            "index": 8,
+            "padding": false,
+            "selection_source": "priority",
+            "uniform_draws": 11
+          },
+          "priority_slot": true,
+          "rank": 0,
+          "signal": {
+            "eligible": true,
+            "feasible_EP_mean": 0.2928571428571429,
+            "feasible_count": 4,
+            "feasible_fraction": 0.5,
+            "group_size": 8,
+            "mixed": true,
+            "rawA_variance": 0.26033163265306125,
+            "reason": "eligible",
+            "saturated": false,
+            "weight": 0.5206632653061225
+          },
+          "source": "priority",
+          "status": "committed",
+          "token": "t0078"
+        },
+        "stats": {
+          "admissions": 11,
+          "allfail_observations": 0,
+          "commit_calls": 12,
+          "exits_capacity": 0,
+          "exits_expired": 0,
+          "exits_repeat_cap": 0,
+          "exits_saturated": 0,
+          "exits_uninformative": 0,
+          "priority_exposures": 1,
+          "priority_fallbacks": 0,
+          "priority_slots": 1,
+          "repeated_priority_exposures": 0,
+          "saturated_observations": 0,
+          "total_exposures": 12,
+          "uniform_exposures": 11
+        },
+        "uniform_draws": 11
+      },
+      "final_LRs": [
+        2.4476e-06,
+        2.4476000000000003e-07
+      ],
+      "group": 8,
+      "mock": "Actual ScopeRecipeActor/memory with tiny dimensions; algebraic canonical scorer/frozen Qwen fixture",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_ACTIVE_DATA_G8",
+      "private_curriculum_preserved": true,
+      "receipt_sha256": "76e38e48ca35ad393a9385ee315da98122fc145b8a87bd738a2f73000e8e0093",
+      "seals": [
+        {
+          "complete_sha256": "265bbd26b93e9a5b8dfd215a73839ae63b524b06ab0488339d628b5929dbe854",
+          "files_sha256": "b9d069d91e582be06c07d5378d959a7f84b808afc26cfd314f0041b969a520f0",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_ACTIVE_DATA_G8/checkpoints/update000044_inner0"
+        },
+        {
+          "complete_sha256": "c5c83237241dcb974222c5898726d4405467d835be5b0a65b3cd8d3b145e4faf",
+          "files_sha256": "43d71eec218e5dd004fbba32228aab90afd6000c8507b4c2bdd420592c31227a",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_ACTIVE_DATA_G8/checkpoints/update000045_inner1"
+        },
+        {
+          "complete_sha256": "a8fc282d41d04cf1b3a0e0120d731149769793b323984a5f0f909be0c9470fa0",
+          "files_sha256": "b319702619e3447bac7a4d1d358a807c37d77cb41940e809e33483b250986e3d",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_ACTIVE_DATA_G8/checkpoints/update000046_inner2"
+        },
+        {
+          "complete_sha256": "acbbcb8255eac92bd8a4e54d20cd5c1c12e87923bdac7851259e6fc7aeea1714",
+          "files_sha256": "01607c52872fe6a4d6c5314c1056654142c0ba40fb9373fcf796e6725b173f17",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_ACTIVE_DATA_G8/checkpoints/update000047_inner3"
+        },
+        {
+          "complete_sha256": "380fefb1df7363413bcbcdb2ad57d5f804bde2d2f0bd9206df52386df363f816",
+          "files_sha256": "83bc8b3aa22307cab4d39ac7d0e9339227f96d2ea9291ced9e88dc714a20b427",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/REVIVAL_NATIVE_CPU/REVIVAL_ACTIVE_DATA_G8/checkpoints/update000048_inner0"
+        }
+      ],
+      "updates": 48,
+      "world": 8
+    }
+  ],
+  "no_new_scoring": true,
+  "original_kernel_AST_unchanged_against_F976": {
+    "starVLA/rl/qwen_world_safety_exploration/credit.py": [
+      "GroupCredit",
+      "raw_advantage_parts"
+    ],
+    "starVLA/rl/qwen_world_safety_exploration/curriculum.py": [
+      "OnlinePriorityStream",
+      "CurriculumRuntimeMixin"
+    ],
+    "starVLA/rl/qwen_world_safety_exploration/dense_credit.py": [
+      "DenseCredit",
+      "DenseDACLoss",
+      "decision",
+      "_updated_parts"
+    ],
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py": [
+      "collect_group"
+    ],
+    "starVLA/rl/qwen_world_safety_exploration/saturated_credit.py": [
+      "SaturatedCredit",
+      "SaturatedLoss",
+      "decision",
+      "_parts"
+    ]
+  },
+  "result": "4 passed",
+  "schema": "world_revival_fixed50k_directed_CPU_check_v1",
+  "seconds": 27.53,
+  "source_files": {
+    "starVLA/rl/qwen_world_safety_exploration/dense_credit.py": "e6792fc30b75334bd0e3a87e7a33e887b6cebb378d49c80d5d19e4aa45a14f56",
+    "starVLA/rl/qwen_world_safety_exploration/revival_recipe.py": "a267cf6cef4cc3757e5e47b44526ce34a7563c26cbc0ac755335e8da456f4a38",
+    "starVLA/rl/qwen_world_safety_exploration/revival_runtime.py": "8465d20903709f76558a47463096acd5a68dd03394ac66092c11568a8c088513",
+    "starVLA/rl/qwen_world_safety_exploration/runtime.py": "cdb4eb4386f36f70305fcb0f8eff0c9d2f9e8b059d572c4e1c341009c9bd6ec9",
+    "starVLA/rl/qwen_world_safety_exploration/saturated_credit.py": "838af5d13b8f00e134b2d36346fe06d39d82aff5a81cfe7ea5b8e48c02e8ef56",
+    "starVLA/rl/qwen_world_safety_exploration/standardized_runtime.py": "fce64535ba965ad460eacf38b0b430913aa0a1422065dfea4e6c91ab356cbdea",
+    "tests/test_world_revival_training.py": "3cfe8488c496fdaf2209faa078bfa45ea2c67dd274c7e5c27e3d270b37bc41ea"
+  },
+  "status": "PASS_CPU_ONLY",
+  "tests": [
+    "Four strictG/ID/role/G/data/originalcredit recipes; originalGRPO/logicalbudget/curriculum equality, metadata/eta contamination rejected",
+    "Actual8CPU gloo ranks, actualScopeRecipeActor/currentmemory classes and W3source collector/loss; G16actual16candidate chain+global128 normalization",
+    "Dense/Sat same original independent classes/loss/protocol and fallbacknative validators; only explicit newrecipe callback",
+    "Actual Active12collections/48optimizerupdates: original warmup8, firstpriority atcollection12,11uniform+1priority perrank; completebank/privateRNG/selectionplan survives native pendingeveryinner andREADY",
+    "All4roles save/restore5sealed native boundaries on freshactors; exact Adam/scheduler/privateSampler/rollout materials checked; alltrainable gradients finite",
+    "F fixed50k scheduler actual2k/5k/10k resume/nextLR regression and originalnonactivatedloss/gradient equality regression"
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schema": "world_revival_campaign_launch_plan_v1",
+  "status": "READY_ACTUAL_REGISTRY_AND_QUALIFIED_CPU_IMPORTS_PASS_NOT_LAUNCHED_BY_THIS_AGENT",
+  "created_unix": 1793509667.5047839,
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+  "source_file": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/revival_campaign.py",
+  "source_sha256": "d89ceaafa9ddaba0158bc28b95039dac288c7a553e59c688cd590e4beedb4db9",
+  "command": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "-u",
+    "-m",
+    "tools.qwen_world_safety_exploration.revival_campaign",
+    "run",
+    "--root",
+    "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+    "--allow-continuation"
+  ],
+  "review_command": [
+    "-m",
+    "tools.qwen_world_safety_exploration.revival_campaign",
+    "review",
+    "--root",
+    "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+    "--watch",
+    "--interval",
+    "60"
+  ],
+  "evaluation_command": [
+    "-m",
+    "tools.qwen_world_safety_exploration.revival_campaign",
+    "evaluate",
+    "--root",
+    "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+    "--registry",
+    "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/RUNS.json",
+    "--max-shards",
+    "32",
+    "--max-workers",
+    "64",
+    "--interval",
+    "30"
+  ],
+  "owners": {
+    "campaign": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_CAMPAIGN",
+    "native": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE",
+    "evaluation": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/RESEARCH_EVALUATION",
+    "review": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/PILOT_COMPARISONS"
+  },
+  "roles": {
+    "REVIVAL_G16": "g16",
+    "REVIVAL_DENSE_G8": "dense",
+    "REVIVAL_SATURATED_G8": "saturated",
+    "REVIVAL_ACTIVE_DATA_G8": "active_data"
+  },
+  "initial_runtime_cap": 10000,
+  "initial_gates": [
+    2000,
+    5000,
+    10000
+  ],
+  "continuation_max_updates": 50000,
+  "healthy_10k_default_next": 20000,
+  "late_policy": "same conservative F20/30k repeated matched disadvantage+no own progress+no safety/high/zero benefit; missing uncertain evidence continues; no1k/3k screening",
+  "external_control": {
+    "registry": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json",
+    "arm": "SAFETY_G8_CONTROL",
+    "root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+    "read_only": true
+  },
+  "external_control_never_evaluated_or_trained_here": true,
+  "immutable_science_horizon": 50000,
+  "save_every": 500,
+  "protected_IL_hosts_excluded": [
+    "training-vlawm-tsinghua-zt",
+    "training-vla-zt"
+  ],
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/REVIVAL_CAMPAIGN_CPU_CHECK.json",
+  "checkpoint_or_GPU_actions_by_this_agent": 0,
+  "live_F_or_E_owner_state_mutated": false,
+  "registered_arm_addition": "Accept3or4exactIDs; new fourtharm independent submit; existingarms retain bindings/jobs/CP",
+  "operator_requirements": [
+    "reviewactualregistry/config/sourcebinding beforelaunch",
+    "startonlyoneCPUcampaign onhostwithallauthorizedSSHaliases",
+    "sources/templatesnotyetfrozenbythisagent; parentownsfreezeandGPUdeployment"
+  ],
+  "actual_registry_file_sha256": "472c2b9f382a5738aeaf56384de48b6c119fb3c9b2b35dedd708ab178d76951e",
+  "actual_CPU_check_status": "PASS_ACTUAL_REGISTRY",
+  "updated_unix": 1793509747.4529085,
+  "previous_source_sha256_before_label_correction": "f632a3cf59f70d021c295c56bc1e234bceae776257e56871e3a08d5e56ddc55f",
+  "label_only_correction": {
+    "at_unix": 1793509841.654097,
+    "field": "budget_contract",
+    "role": "active_data",
+    "value": "same_updates_and_raw_exposure_count_different_scene_distribution",
+    "runtime_or_scientific_logic_changed": false,
+    "full_checks_repeated": false
+  }
+}

@@ -183,8 +183,8 @@ def _scalar(value, field):
     return float(value)
 
 
-def validate_dense_boundary(state, rollout, identity, optimizer=None, scheduler=None, *, credit, legacy=False):
-    validate_dense_recipe(identity['recipe'])
+def validate_dense_boundary(state, rollout, identity, optimizer=None, scheduler=None, *, credit, legacy=False, _recipe_validator=None):
+    (_recipe_validator or validate_dense_recipe)(identity['recipe'])
     g = identity['recipe']['grpo']['sample']['group_size']
     if credit.protocol != protocol(g):
         raise ValueError('DenseDAC credit/recipe protocol mismatch')

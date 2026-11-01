@@ -7,6 +7,9 @@ from .quality import QualityDiagnosticsMixin
 
 def runtime_for_config(path):
     cfg=yaml.safe_load(Path(path).read_text());r=cfg['research']
+    if r.get('revival_training') is not None:
+        from .revival_runtime import revival_runtime
+        return revival_runtime(cfg)
     if r.get('standardized_training') is not None:
         from .standardized_runtime import standardized_runtime
         return standardized_runtime(cfg)

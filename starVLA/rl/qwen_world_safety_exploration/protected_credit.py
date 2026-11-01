@@ -240,9 +240,18 @@ def validate_protected_ranks(summaries, *, credit):
                 or not torch.allclose(torch.tensor(s['advantages']), expected['advantages'], atol=1e-7, rtol=1e-6)
                 or s['mask'] != expected['adv_mask'].tolist()):raise ValueError('Protected global std/advantage/mask changed')
         if set(s['advantage_statistics']) != set(expected['statistics']):raise ValueError('Protected statistic fields changed')
+        # These discrete diagnostics describe the persisted FP32 advantages.
+        # CPU/GPU raw-credit reductions may differ below 1e-16, so use the
+        # actual tensor already checked above rather than a substitute CPU zero.
+        actual_adv = torch.tensor(s['advantages'], dtype=torch.float32)
+        actual_discrete = {
+            credit.metrics_prefix+'true_nonzero_adv_fraction': float(actual_adv.ne(0).float().mean()),
+            credit.metrics_prefix+'adv_cap5_candidates': int(actual_adv.abs().gt(5).sum()),
+        }
         numeric_tolerance = tuple(credit.metrics_prefix+k for k in ('original_normalization_std','raw_group_mean_before',
             'raw_group_mean_after','removed_negative_raw_mass','normalized_removed_mass','group_sum_roundoff','transferred_mass'))
         for k,want in expected['statistics'].items():
+            if k in actual_discrete:want = actual_discrete[k]
             got = s['advantage_statistics'][k]
             if (abs(got-want) > (1e-6 if k==credit.metrics_prefix+'normalized_removed_mass' else 1e-12) if k in numeric_tolerance else got != want):
                 raise ValueError('Protected statistics changed: '+k)

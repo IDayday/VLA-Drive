@@ -13,7 +13,7 @@ from . import recovery
 class StandardizedRuntimeMixin:
  recipe_validator=staticmethod(validate_standardized_recipe)
  def make_credit(self,cfg):
-  validate_standardized_recipe(cfg)
+  self.recipe_validator(cfg)
   from .inversion_credit import InversionCredit,SCHEMA as INVERSION
   from .combined_credit import CombinedCredit,SCHEMA as COMBINED
   schema=cfg['research']['structured_advantage']
@@ -30,21 +30,25 @@ class StandardizedRuntimeMixin:
   actor._loss=ScheduledLoss(cfg)
   return actor,a,b
  def validate_boundary(self,state,rollout,identity,optimizer=None,scheduler=None,*,legacy=False):
-  cfg=validate_standardized_recipe(identity['recipe'])
+  cfg=self.recipe_validator(identity['recipe'])
   if legacy:raise ValueError('New standard study requires complete native schema2')
   from .combined_credit import SCHEMA as COMBINED,validate_combined_boundary
   from .inversion_credit import SCHEMA as INVERSION,validate_inversion_boundary
-  if cfg['research'].get('endpoint_policy') is not None:
+  custom_boundary=getattr(self,'credit_boundary_validator',None)
+  if custom_boundary is not None:
+   summary=custom_boundary(state,rollout,identity,optimizer,scheduler,credit=self.credit,
+       _recipe_validator=self.recipe_validator)
+  elif cfg['research'].get('endpoint_policy') is not None:
    from .endpoint_runtime import validate_endpoint_structure
-   structure=partial(validate_endpoint_structure,_recipe_validator=validate_standardized_recipe)
+   structure=partial(validate_endpoint_structure,_recipe_validator=self.recipe_validator)
    summary=recovery.validate_boundary(state,rollout,identity,optimizer,scheduler,credit=self.credit,
-       recipe_validator=validate_standardized_recipe,_structure_validator=structure)
+       recipe_validator=self.recipe_validator,_structure_validator=structure)
   elif cfg['research']['structured_advantage']==COMBINED:
    summary=validate_combined_boundary(state,rollout,identity,optimizer,scheduler,credit=self.credit)
   elif cfg['research']['structured_advantage']==INVERSION:
    summary=validate_inversion_boundary(state,rollout,identity,optimizer,scheduler,credit=self.credit)
   else:
-   summary=recovery.validate_boundary(state,rollout,identity,optimizer,scheduler,credit=self.credit,recipe_validator=validate_standardized_recipe)
+   summary=recovery.validate_boundary(state,rollout,identity,optimizer,scheduler,credit=self.credit,recipe_validator=self.recipe_validator)
   # Save and BEFORE-restore validation accept both objects and their native dicts.
   actual=None
   if scheduler is not None:
