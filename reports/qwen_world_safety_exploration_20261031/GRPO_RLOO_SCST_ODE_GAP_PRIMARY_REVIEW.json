@@ -1,0 +1,100 @@
+{
+  "schema": "world_GRPO_RLOO_SCST_ODE_gap_primary_review_v1",
+  "status": "PRIMARY_REVIEW_AND_UNREGISTERED_DESIGN_ONLY",
+  "created_unix": 1793547551.641027,
+  "priority": "P0earlydecay/runtime/configaudit completed first; thisreview didnotdelaydeployment",
+  "papers": [
+    {
+      "name": "GRPO / DeepSeekMath",
+      "primary": "https://arxiv.org/html/2402.03300v2",
+      "section": "4.1.1–4.1.2",
+      "verified": true,
+      "paper_claim_zh": "用同问题多输出的组内均值作baseline，并按组std归一化；不需value model。",
+      "formula": "A_i=(r_i-mean_j r_j)/std_j(r_j)",
+      "local_inference_zh": "全tie时分子为0；只换std或放大G不能凭空创造本组质量差。当前Safety结构信用另用feasibility/deficit，可在canonical全0时已有非零A，不能称等同原GRPO。"
+    },
+    {
+      "name": "RLOO / Back to Basics",
+      "primary": "https://arxiv.org/html/2402.14740v1",
+      "publication": "https://aclanthology.org/2024.acl-long.662/",
+      "section": "2.3",
+      "verified": true,
+      "paper_claim_zh": "其它独立样本的reward平均作为每个样本baseline，以多样本估计降低方差。",
+      "formula": "A_i=r_i-(sum_{j!=i}r_j)/(G-1)",
+      "derived_identity": "A_i=(G/(G-1))*(r_i-groupmean)",
+      "local_inference_zh": "与组center只差常数尺度，仍不能打破tie；论文无continuousODE驾驶实验，不支持直接宣称会修复本任务零分。"
+    },
+    {
+      "name": "SCST / Self-critical Sequence Training",
+      "primary": "https://arxiv.org/pdf/1612.00563",
+      "section": "4 / Eq9–10",
+      "verified": true,
+      "paper_claim_zh": "用当前模型test-time解码结果的reward作REINFORCE baseline；论文采用greedy caption解码。",
+      "formula": "g_hat=mean_i[(r(y_i)-r(greedy_theta(x)))*grad log pi_theta(y_i|x)]",
+      "local_inference_zh": "可启发使用同theta deterministicODE的TRAIN官方评分作baseline。此为跨领域工程推断，不是论文验证过的flow算法；不赋予ODE端点SDE密度。",
+      "access_note": "arxivPDFprimary read; CVF directPDF403 and unavailablev3HTML not claimedread"
+    }
+  ],
+  "mathematical_limits": [
+    {
+      "name": "baseline_does_not_change_exact_PG_objective",
+      "statement": "For an action-independent stoppedbaseline b_theta(x), E_{a~pi}[b_theta(x)*grad log pi(a|x)]=b_theta(x)*grad integral pi(a|x)da=0 under regularity. Baseline mayaltervariance, not turnexpectedSDEreward into deterministicODEreward.",
+      "implication": "SCSTinferencealignment intuition isnot a theorem that deterministicODE performance improves."
+    },
+    {
+      "name": "finite_group_nonzero_not_correct_direction",
+      "statement": "An observed groupof8 equallysuccessful endpoints againstbadODE can allreceivepositiveA. Conditionalfinitegradient isgenerallynonzero, but may be samplingnoise; action-independent constant cancels in expectation if rewardisreallyconstant. Selectingonlysample-dependenttiegroups adds furtherbias."
+    },
+    {
+      "name": "World_source_not_exact_IS",
+      "statement": "CurrentW3 logprob is clamped dimensionmean conditionalproxy, not exacttrajectory likelihood/IS. SDE deterministicprefix andODE distribution adddifferences. Do not reuseunbiasedREINFORCEclaims as proof."
+    },
+    {
+      "name": "rawA_mask_and_scale",
+      "statement": "CurrentGroupCredit mask is setfromoriginalrawA. At newtiegap branch, explicitlyactivateupdatednonzeroA. Do not recenter group afteraddinggap. IforiginalglobalSafetySTD iszero andallupdatedA areconstantpositive, newSTD isstillzero: use an explicitRMSfallback or skip, never epsilon-induced1e8 amplification."
+    }
+  ],
+  "minimal_candidate": {
+    "name": "Same-theta ODEgap on verifiedSDEsuccess ties",
+    "status": "DESIGN_ONLY_NOT_IMPLEMENTED_REGISTERED_OR_LAUNCHED",
+    "stage0": "BoundedpredeclaredTRAINuniform panel; samecurrenttheta/obs, originalG8SDE plusprivateCPUgenerator canonicalB1ODE. IndependentTRAINconfirmation panel; noNAVIDs.",
+    "eligibility": "OriginalSafety rawAall0, all8 endpointsstrictNC=DAC=TTC=Comfort1, EP1/canonical1; samecheckpointB1ODElow. Firstmeasureactualprevalence; selectedhistoricprobe doesnotprovidepopulationrate.",
+    "raw_bonus": "delta_i=lambda*1_eligible*max(0,r_SDE_i-r_ODE); A_safe unchanged, adddelta toA_EP/A_raw",
+    "coefficient": "lambda.1 isonlya possibleboundedinitialchoice, not empiricallychosenoptimum; registerbeforetrial",
+    "normalization": "PreserveoriginalglobalSafetySTD whenpositive; ifzerouseexplicitworld-wideRMS(updatedrawA)withoutrecenter; zeroRMS→noPG. UpdatepergroupmaskfromupdatedrawA. Newindependentschema/recoveryaudit required.",
+    "stored_material": [
+      "samecheckpointandcurrentobs identity",
+      "B1ODErequested/prior/scorer/readouts hashes",
+      "all8officialSDErecords",
+      "originalrawA/originalSTD",
+      "eligibility/delta/updatedmask/scale",
+      "allprivateRNGandpending4inner"
+    ],
+    "not_changed": [
+      "freshIL70/fullpopulation",
+      "mainuniformcursor/G8/seed42",
+      "sourceW3PG/ILreference/beta50",
+      "actorcurrent-observationinputs",
+      "nohistoricalteacherCFM orNAVselection"
+    ],
+    "cost": "OneextraB1ODEdecode/score perdiagnosedscene: +12.5%candidatequeries relativeG8; Qwenfeatures maybereused, actualtime mustbemeasured.",
+    "decisive_metrics": [
+      "singleODEfullpopulationPDMS",
+      "fixedIL70high8724retention/newzeros",
+      "independentTRAINODEzero repair",
+      "actualactivation/distinctcoverage andtruegradientprobe"
+    ],
+    "stop_condition": "Ifsame-thetaTRAINgapclass isabsent/too sparse, do not launchlargepilot; ifonlySDEcandidatequality improves whileODE/highretention worsen, rejectrecipe."
+  },
+  "allfail_boundary_zh": "全失败且ODE也失败时，SCST/RLOO都不提供安全成功见证；已有deficit有差异应沿用原结构信用，真正细成本tie需要TRAIN-only dense反馈或新支持探索，不能把rawprogress当安全。",
+  "sources_are_primary_only": true,
+  "exact_quotes_used": 0,
+  "scope": {
+    "GPU": 0,
+    "newscoring": 0,
+    "newalgorithmcode": 0,
+    "live_mutations": 0,
+    "git_commit": false
+  },
+  "sha256": "727b7b99e5e1c16ffd312174cea32c536c9c77cf62331632de3cb1aba9906d47"
+}

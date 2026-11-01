@@ -1,0 +1,117 @@
+{
+  "schema": "world_algorithm_problem_mapping_with_live_trials_v1",
+  "status": "PRIMARY_SOURCE_REVIEW_AND_THREE_DEPLOYED_TRIALS",
+  "created_unix": 1793550515.9412136,
+  "priority": [
+    "P0 early20k decay/floor",
+    "P1 actual32scene sourcePG batches",
+    "P2 verifiedhistoricalRLbehavior retention"
+  ],
+  "live_registry": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/RUNS.json",
+  "common10k_audit": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/COMMON_10K_REGRESSION_CONFIG_AUDIT.json",
+  "algorithm_mapping": [
+    {
+      "method": "REINFORCE++ / baseline",
+      "primary": "https://arxiv.org/abs/2501.03262",
+      "mechanism_zh": "跨全局批次归一化优势；带baseline版本先减组均值。",
+      "task_mapping_zh": "现有SafetyEP已用组内结构化信用与全批rawA标准差，核心思想已部分采用；Batch32把归一化人口从64增至256，并真正扩大场景批。",
+      "status": "PARTIAL_MECHANISM_ALREADY_PRESENT_AND_BATCH32_RUNNING",
+      "limit_zh": "不是整篇REINFORCE++复现；固定IL均值MSE不是真实k2KL，W3维均值clamp概率也不满足其无偏声明。"
+    },
+    {
+      "method": "DAPO",
+      "primary": "https://arxiv.org/abs/2503.14476",
+      "mechanism_zh": "分离上下clip、动态补充有组内差异的样本、token级聚合等。",
+      "task_mapping_zh": "当前10k三窗口Control有效PPO受阻约2.2%且无断点突变，Clip-Higher暂非最强瓶颈证据。自动驾驶canonical全零不等于结构化SafetyPG0：原全量140个canonical全零组中59个仍有Safety信用。",
+      "status": "TARGETED_REVIEW_NOT_A_NEW_DAPO_LAUNCH",
+      "limit_zh": "不按canonical零方差一律丢弃失败组；固定长度8步轨迹也没有LLM输出长度偏差的同一问题。"
+    },
+    {
+      "method": "GSPO",
+      "primary": "https://arxiv.org/abs/2507.18071",
+      "mechanism_zh": "以整段输出似然定义重要性比和裁剪。",
+      "task_mapping_zh": "可研究轨迹级信用与去噪步比率聚合是否匹配，但现有W3为clamped维均值transition proxy；先校准概率与梯度尺度，避免冒充真实完整流策略似然。",
+      "status": "FOLLOWUP_CONDITIONAL_ON_RATIO_DIAGNOSIS",
+      "limit_zh": "已有Endpoint joint24变体候选更好但部署差、梯度大量clip，不能仅将LLM sequence比率公式移过来。"
+    },
+    {
+      "method": "CISPO",
+      "primary": "https://arxiv.org/abs/2506.13585",
+      "mechanism_zh": "裁剪停止梯度的重要性权重，保留logprob梯度项。",
+      "task_mapping_zh": "适合确有大量有益更新被PPO剪掉时；旧CISPO20k结果属于原配方证据，当前Control受阻比例较低，优先共同优化配置与保持。",
+      "status": "HISTORICAL_TEST_EXISTS_NO_BLIND_NEW_SWEEP",
+      "limit_zh": "不能解决没有探索到好轨迹或本来rawA全零的场景。"
+    },
+    {
+      "method": "TOPR",
+      "primary": "https://arxiv.org/abs/2503.14286",
+      "mechanism_zh": "非对称、渐缩的重要性采样，利用离策略正负例。",
+      "task_mapping_zh": "对将来成功/失败历史轨迹再利用有参考；当前P2历史仅作辅助均值保持，策略梯度仍来自新采样。",
+      "status": "RESEARCH_REFERENCE_FOR_FUTURE_OFFPOLICY",
+      "limit_zh": "源W3 proxy不能自动当精确离策略修正，不能直接把旧轨迹放回当前PG。"
+    },
+    {
+      "method": "RLOO",
+      "primary": "https://arxiv.org/abs/2402.14740",
+      "mechanism_zh": "以组内其它样本均值为baseline。",
+      "task_mapping_zh": "固定G时，r_i减其它均值等于G/(G-1)乘减全组均值；全组同分仍为0。",
+      "status": "RULED_OUT_AS_A_STANDALONE_ALLTIE_FIX",
+      "limit_zh": "这不是否定RLOO总体价值，而是它单独不解决本任务缺少组内方向的问题。"
+    },
+    {
+      "method": "SCST / ReMax",
+      "primary": "https://arxiv.org/abs/1612.00563",
+      "additional_primary": "https://arxiv.org/abs/2310.10505",
+      "mechanism_zh": "自身部署/确定性解码所得reward作baseline。",
+      "task_mapping_zh": "为同theta随机候选好而单轨ODE差的诊断提供参考；已形成独立窄分支设计，先量实际支持。",
+      "status": "DESIGN_AND_PRIMARY_REVIEW_ONLY",
+      "limit_zh": "baseline不会自动把精确PG目标从随机策略改成ODE目标；有限G常数正A可能是噪声，不能把非零优势当正确改进方向。"
+    },
+    {
+      "method": "CLEAR",
+      "primary": "https://arxiv.org/abs/1811.11682",
+      "mechanism_zh": "历史经验回放与行为保持，减轻持续学习遗忘。",
+      "task_mapping_zh": "已实现P2：自身TRAIN真B1严格优质行为reservoir，只有复评退化才用25%原beta50预算保历史名义均值，PG仍新鲜。",
+      "status": "TASK_ADAPTATION_IMPLEMENTED_AND_TRAINING",
+      "limit_zh": "不是完整CLEAR actorcritic/offpolicy复现；历史均值MSE约束是代理，实际保持与总分待完整NAV验证。"
+    },
+    {
+      "method": "ScaleRL",
+      "primary": "https://arxiv.org/abs/2510.13786",
+      "mechanism_zh": "研究整体batch、模型规模、数值精度等随计算量的影响。",
+      "task_mapping_zh": "已实际部署P0早衰减与Batch32；后者按相同新鲜评分预算和数据时钟比较，Adam次数单列。",
+      "status": "TARGETED_CONFIGURATION_AND_BATCH_EXPERIMENTS_RUNNING",
+      "limit_zh": "论文并非证明warmupcosine普遍最优；fixed totalbatch下组内数消融也不是本任务G16必然有效。"
+    },
+    {
+      "method": "ReinFlow",
+      "primary": "https://arxiv.org/abs/2505.22094",
+      "mechanism_zh": "学习噪声注入，将流路径变为可计算转移似然的Markov过程。",
+      "task_mapping_zh": "后续探索可学习噪声/时域相关性与真实密度；需同时解决精确概率尺度、anchor和部署路径差距。",
+      "status": "FOLLOWUP_NOT_IMPLEMENTED",
+      "limit_zh": "当前固定W3维均值proxy、Endpoint条件joint变体均不是完整ReinFlow复现。"
+    },
+    {
+      "method": "DSRL",
+      "primary": "https://arxiv.org/abs/2506.15799",
+      "mechanism_zh": "冻结生成策略，在初始latent noise空间学习控制。",
+      "task_mapping_zh": "可作为探索模式与避免全局表征漂移的替代方向，但需新的noise actor/critic和导出评测闭环。",
+      "status": "LONGER_TERM_FEASIBILITY_NOT_LAUNCHED",
+      "limit_zh": "自动驾驶这里是单场景开环评分，不直接照搬连续环境SAC bootstrap；本轮优先已识别的共同配置问题。"
+    },
+    {
+      "method": "Q-Flow / FlowDPG",
+      "primary": "https://arxiv.org/abs/2605.13435",
+      "additional_primary": "https://arxiv.org/abs/2606.22303",
+      "mechanism_zh": "利用价值估计沿流潜变量或确定性流策略传递优化信号。",
+      "task_mapping_zh": "为确定性ODE和稀疏结果提供另一类RL路径；需先在TRAIN上证明action-value校准与安全约束可靠。",
+      "status": "LONGER_TERM_CRITIC_RESEARCH_NOT_LAUNCHED",
+      "limit_zh": "当前没有经过验证的驾驶critic，不能用未校准的替代reward直接取代官方评分。"
+    }
+  ],
+  "one_factor_first": true,
+  "no_new_multi_seed": true,
+  "NAVTEST_training_feedback": false,
+  "new_paper_alone_is_not_gain_evidence": true,
+  "sha256": "04c1957601049b80892c4e9aaa65fa9a4c1556fe4fed917f15c7b8be94995fd6"
+}

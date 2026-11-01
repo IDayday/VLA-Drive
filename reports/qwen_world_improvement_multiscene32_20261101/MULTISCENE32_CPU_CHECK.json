@@ -1,0 +1,75 @@
+{
+  "schema": "world_multiscene32_actual_CPU_check_v1",
+  "status": "PASS",
+  "created_utc": "2026-11-01T15:37:23Z",
+  "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest tests/test_world_batch32_training.py -q --disable-warnings --maxfail=1",
+  "result": "3 passed, 1 warning in 8.91s",
+  "checks": [
+    "strict recipe and source-clock endpoints; exact Adam/scheduler torchsave/load; unchanged actualcfg; contaminated recipe/scheduler rejected",
+    "32-scene/256-candidate Safety population std compared to explicit complete population",
+    "actual8rank Gloo DDP four microforwards/backwards; first3 no_sync; every gradient matches independently computed scene-mean then rank-mean",
+    "actual ScopeRecipeActor, fresh four tokens,4initial frozen-prefills, no repeated Qwen through4inners, currentMemory rebuilt4times perinner",
+    "complete original trainable closure/Adam/scheduler/rolloutgenerator/all4chains torchsave/load equal at pending0,1,2,3 and READY4",
+    "shared-alias advantage contamination and RNG transition contamination rejected before update",
+    "Actual registered FULL_103288 SceneStream via Batch32Runtime.make_scene_stream binds itself; lowlevel mocked collection receives exactly4 distinct cursor64/72/80/88 token/condition/log pairs with common behavior, with no test-side stream assignment"
+  ],
+  "native_proof": {
+    "world": 8,
+    "scenes": 32,
+    "candidates": 256,
+    "boundaries": [
+      "pending0",
+      "pending1",
+      "pending2",
+      "pending3",
+      "READY4"
+    ],
+    "scheduler": {
+      "batch32_protocol": {
+        "schema": "world_multiscene32_G8_sourcePPO_query_clock_v1",
+        "scenes_per_rank": 4,
+        "group_size": 8,
+        "world_size": 8,
+        "inner_updates": 4,
+        "normalization_candidates": 256,
+        "optimizer_horizon_updates": 12500,
+        "optimizer_warmup_updates": 250,
+        "initial_lr_ratio": 0.001,
+        "min_lr_ratio": 0.1,
+        "source_update_clock_multiplier": 4
+      },
+      "base_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "last_epoch": 4,
+      "verbose": false,
+      "_step_count": 5,
+      "_get_lr_called_within_step": false,
+      "_last_lr": [
+        8.492000000000002e-07,
+        8.492000000000002e-08
+      ]
+    },
+    "DDP": "actual8rank four no_sync microforwards/backwards, equal explicit scene-mean gradient",
+    "fixture": "actual ScopeRecipeActor tiny dimensions; fake frozen Qwen and deterministic mocked scoring; NOT production52.7M qualification"
+  },
+  "source_files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/batch32_recipe.py": "b00632f503573485b867db0be6e77612afcdb9f585f359411ef82455a326ffc6",
+    "starVLA/rl/qwen_world_safety_exploration/batch32_credit.py": "9fd0a16f1aaeb669befe694a645be8c2d3f63917880159688336b1a5caf7c304",
+    "starVLA/rl/qwen_world_safety_exploration/batch32_runtime.py": "4eb0b6af763b7069508d316aba00ba38489d8f40f34a7076eb2b433fd02bc3bb",
+    "starVLA/rl/qwen_world_safety_exploration/batch32_recovery.py": "fc35c02daaaf28a52550acbc836f08b238cc83d73b052b5e227569b14731cc12",
+    "tools/qwen_world_safety_exploration/train.py": "e3371080adf0f5b6416188932a6b958acf58ae37393eb6b653f4802a6eb836d8",
+    "tests/test_world_batch32_training.py": "bb57d2d2c429a9224b606c2b27646eeeae588ec854c9b568e615a95212677fcd"
+  },
+  "template_sha256": "9ce88252cc4558e268ce248aaa3e891f08bb17f5fb4a82f119aa22f73b21a14a",
+  "router_smoke": {
+    "batch32": true,
+    "legacy_control_optin_hooks_absent": true,
+    "cuda_initialized": false
+  },
+  "limitations": [
+    "Actual ScopeRecipeActor with tiny model dimensions, fake frozen Qwen and mocked canonical scoring; no production52.7M/GPU/scorer qualification or performance claim",
+    "CPU tolerance validates semantics; native content hashes preserve actual bits. Discrete masks use saved actual rawA; GPU/CPU reduction tiny residuals do not become count-tolerance exceptions."
+  ]
+}

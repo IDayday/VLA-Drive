@@ -1,0 +1,65 @@
+{
+  "schema": "world_consolidation_training_cpu_check_v1",
+  "status": "PASS_THREE_NECESSARY_CPU_CHECKS",
+  "created_unix": 1793546362.6675406,
+  "sources": {
+    "starVLA/rl/qwen_world_safety_exploration/consolidation_recipe.py": "5b9914601b36e548daaeba76c5a5d56258a15c496e56ac913d81696da0e94030",
+    "starVLA/rl/qwen_world_safety_exploration/consolidation_runtime.py": "47fd9c18441adae657a983fc7d9ed7878f4b59d209897e990356522714903557",
+    "tests/test_world_consolidation_training.py": "ef2f8060e824905de020649dd61233b0201b2090983db685bdaaad4f0ed8edd7"
+  },
+  "checks": [
+    {
+      "name": "strict_recipe_no_scope_sampler_credit_or_parent_change",
+      "status": "PASS"
+    },
+    {
+      "name": "two_group_warmup_cosine20k_floor_and_actual_Adam_stage_restore",
+      "status": "PASS",
+      "actual_scalar_optimizer_updates": 20002,
+      "roundtrip_updates": [
+        500,
+        1000,
+        10000,
+        20000
+      ],
+      "floor_math_checked_through": 50000
+    },
+    {
+      "name": "actual_tiny_Scope_eight_CPU_ranks_fourinner_native_restore",
+      "status": "PASS",
+      "world": 8,
+      "phases": [
+        "pending0",
+        "pending1",
+        "pending2",
+        "pending3",
+        "READY4"
+      ],
+      "exact_preserved": [
+        "Adam moments",
+        "scheduler",
+        "allRNG",
+        "pending rollout/oldlogp/A/mask",
+        "parameterscope/fourinner finite gradients"
+      ],
+      "fixture": "tinyactualScopeRecipeActor; frozenobservation/scorer mock; no Qwen/image/weight load"
+    }
+  ],
+  "commands": [
+    {
+      "command": "pytest -q tests/test_world_consolidation_training.py",
+      "outcome": "2 passed,1 test-only literalfloatassertion failed",
+      "seconds": 6.96
+    },
+    {
+      "command": "pytest -q tests/test_world_consolidation_training.py::test_two_group_schedule_warmup_decay_floor_and_real_adam_stage_restore",
+      "outcome": "1 passed after asserting identical float expression",
+      "seconds": 7.07
+    }
+  ],
+  "initial_test_fix": "5e-8 literal and5e-5*.001 differ by onebinaryfloat rounding; corrected test expression only, no runtime change",
+  "GPU_actions": 0,
+  "live_sources_or_states_mutated": false,
+  "git_commit": false,
+  "sha256": "6f9fdd628afb215ca161b4abfd39f080be3989fa06836cd8e9e3972b6f7998ed"
+}

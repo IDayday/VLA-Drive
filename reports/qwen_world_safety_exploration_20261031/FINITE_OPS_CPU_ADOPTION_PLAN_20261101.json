@@ -1,0 +1,965 @@
+{
+  "schema": "world_finite_resource_CPU_owner_adoption_plan_v1",
+  "status": "READY_CPU_ONLY_CHECKED_NOT_EXECUTED",
+  "created_unix": 1793549109.6656015,
+  "source_freeze_name": "finite_ops_v1 chosen and sealed byRoot",
+  "source_files_sha256": {
+    "tools/qwen_world_safety_exploration/resource_boundary.py": "c8c9f196429481ed8220b36988cce9f683b86f18094d21d6a873c3e18b25a994",
+    "tools/qwen_world_safety_exploration/standard_campaign.py": "025616bdd8668bbf4bbf47feb23ad8e7ce2659fc4e4b5691c995bab57fff4f54",
+    "tools/qwen_world_safety_exploration/revival_campaign.py": "f9c71d35e9777e8a86e174aceca2ccc4e18990a9191aca6ed546840ff773c75d",
+    "tools/qwen_world_safety_exploration/eval_owner.py": "f31676dd56a736c3181c044c90ecb3b8a048f0e7b501cfc00fcd8fb1c60f1390",
+    "tools/qwen_world_safety_exploration/dispatch.py": "f4ff0085f05be96c83c220650f2c9b17e0a3337d60533fff3de8208eabb2e26b",
+    "tools/qwen_world_safety_exploration/job_worker.py": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d",
+    "tests/test_world_finite_resource_eval.py": "7453fe47385156852816bc24a009dca0b203da89a4a098e5f2b0c6973bce3224"
+  },
+  "deadline": {
+    "expires_unix": 1793574000.0,
+    "deadline_UTC": "2026-11-01T23:00:00Z",
+    "guard_unix": 1793572800.0,
+    "guard_UTC": "2026-11-01T22:40:00Z",
+    "temporary_hosts": [
+      "training-rl-zt2",
+      "training-vlawm-zt",
+      "training-vla-zt3",
+      "training-vlawm-tsinghua-zt2",
+      "training-vlawm-tsinghua-zt6",
+      "training-vlawm-zt4"
+    ],
+    "permanent_hosts": [
+      "training-vla-zt",
+      "training-vlawm-tsinghua-zt",
+      "training-vlawm-tsinghua-zt3",
+      "training-vlawm-tsinghua-zt5"
+    ],
+    "wm235_still_withdrawn": true,
+    "BD_protected_no_new_GPU": true,
+    "old_temporary_false_does_not_extend_authorization": true
+  },
+  "grant": {
+    "record": "/mnt/project/qwen-world-safety-exploration-20261031/resources/TEMPORARY_UNTIL_20261101T230000Z/RESOURCE_AUTHORIZATION.json",
+    "record_sha256": "fddded4721cd109fcdf6616d46315f99456f48cfae067c9cdb75d7c8ec7613cc",
+    "worker_execution_source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+    "worker_execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+  },
+  "current_cpu_snapshot": [
+    {
+      "owner_file": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/STANDARD_CAMPAIGN/OWNER.json",
+      "owner_file_sha256": "1868fe3fe274ab59ad00e718ed9813488ac11549b04a91b4f51212fe5d40906c",
+      "owner_record": {
+        "pid": 3264820,
+        "start_ticks": 1498760025,
+        "host": "training-vla-zt-worker-0",
+        "source": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101/tools/qwen_world_safety_exploration/standard_campaign.py",
+        "source_sha256": "08326a728f9cdd17ea02815ad53492bf7953fcb98ca9088749cb7c5f04fcac08",
+        "allow_continuation": true,
+        "started_unix": 1793548991.1153843
+      },
+      "discovery": "CURRENT OWNER plus exact local proc; legacyLAUNCH is not a signal target",
+      "proc_start_ticks": 1498760025,
+      "proc_state": "S",
+      "proc_argv": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.standard_campaign",
+        "run",
+        "--root",
+        "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+        "--allow-continuation"
+      ],
+      "proc_cwd": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101",
+      "pid_start_matches": true,
+      "current_metadata_only_not_execution_permission": true
+    },
+    {
+      "owner_file": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/RESEARCH_EVALUATION/OWNER.json",
+      "owner_file_sha256": "049035dec1cfc77c84aefb3a2386808958065f529d599a974e5c8dd202e34ba2",
+      "owner_record": {
+        "pid": 3264960,
+        "start_ticks": 1498760430,
+        "source": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101/tools/qwen_world_safety_exploration/eval_owner.py",
+        "source_sha256": "6eaab3c765ca06dc2c7926cac6abab44182dff34cc92168cb9428da89764530a",
+        "started_unix": 1793548991.2144868,
+        "registry": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json",
+        "task": "qwen_world_safety_exploration_20261031",
+        "root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101"
+      },
+      "discovery": "CURRENT OWNER plus exact local proc; legacyLAUNCH is not a signal target",
+      "proc_start_ticks": 1498760430,
+      "proc_state": "S",
+      "proc_argv": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.standard_evaluation",
+        "--registry",
+        "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json",
+        "--max-shards",
+        "32",
+        "--max-workers",
+        "64",
+        "--interval",
+        "30"
+      ],
+      "proc_cwd": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101",
+      "pid_start_matches": true,
+      "current_metadata_only_not_execution_permission": true
+    },
+    {
+      "owner_file": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_CAMPAIGN/OWNER.json",
+      "owner_file_sha256": "df9f17249b22ec7e436a59a3241f05b83598762ba90d072583e876d08718d6b9",
+      "owner_record": {
+        "pid": 3265141,
+        "start_ticks": 1498763145,
+        "host": "training-vla-zt-worker-0",
+        "source": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101/tools/qwen_world_safety_exploration/revival_campaign.py",
+        "source_sha256": "bd928384b1a416adc3022315608de839833772173641e5874a846d5f0e6cb585",
+        "allow_continuation": true,
+        "started_unix": 1793549022.0578282
+      },
+      "discovery": "CURRENT OWNER plus exact local proc; legacyLAUNCH is not a signal target",
+      "proc_start_ticks": 1498763145,
+      "proc_state": "S",
+      "proc_argv": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.revival_campaign",
+        "run",
+        "--root",
+        "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+        "--allow-continuation"
+      ],
+      "proc_cwd": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101",
+      "pid_start_matches": true,
+      "current_metadata_only_not_execution_permission": true
+    },
+    {
+      "owner_file": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/RESEARCH_EVALUATION/OWNER.json",
+      "owner_file_sha256": "d9754e82ed00c57c25b229a14bc2799bd36b77d917f2805200e714bb8a4eb8b9",
+      "owner_record": {
+        "pid": 3265285,
+        "start_ticks": 1498763551,
+        "source": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101/tools/qwen_world_safety_exploration/eval_owner.py",
+        "source_sha256": "6eaab3c765ca06dc2c7926cac6abab44182dff34cc92168cb9428da89764530a",
+        "started_unix": 1793549022.4941664,
+        "registry": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/RUNS.json",
+        "task": "qwen_world_safety_exploration_20261031",
+        "root": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101"
+      },
+      "discovery": "CURRENT OWNER plus exact local proc; legacyLAUNCH is not a signal target",
+      "proc_start_ticks": 1498763551,
+      "proc_state": "S",
+      "proc_argv": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.revival_campaign",
+        "evaluate",
+        "--registry",
+        "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/RUNS.json",
+        "--max-shards",
+        "32",
+        "--max-workers",
+        "64",
+        "--interval",
+        "30"
+      ],
+      "proc_cwd": "/mnt/project/VLA-Drive-flow-eval-resource-pauses-20261101",
+      "pid_start_matches": true,
+      "current_metadata_only_not_execution_permission": true
+    }
+  ],
+  "current_native_job_metadata": [
+    {
+      "study": "standard_training_20261101",
+      "arm": "STANDARD_ENDPOINT_LR02_G8",
+      "target": "14000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_ENDPOINT_LR02_G8/formal_to014000_attempt002",
+      "status": "TRAINING",
+      "dispatch_published": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "arm": "STANDARD_INVERSION_G8",
+      "target": "26000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to026000_attempt001",
+      "status": "DISPATCHED",
+      "dispatch_published": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "arm": "STANDARD_COMBINED_G8",
+      "target": "26000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to026000_attempt001",
+      "status": "DISPATCHED",
+      "dispatch_published": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "arm": "SAFETY_G8_CONTROL",
+      "target": "30000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to030000_attempt001",
+      "status": "DISPATCHED",
+      "dispatch_published": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "arm": "REVIVAL_SATURATED_G8",
+      "target": "26000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_SATURATED_G8/formal_to026000_attempt001",
+      "status": "DISPATCHED",
+      "dispatch_published": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "arm": "REVIVAL_DENSE_G8",
+      "target": "26000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_DENSE_G8/formal_to026000_attempt001",
+      "status": "DISPATCHED",
+      "dispatch_published": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "arm": "REVIVAL_G16",
+      "target": "22000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_G16/formal_to022000_attempt001",
+      "status": "DISPATCHED",
+      "dispatch_published": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "arm": "REVIVAL_ACTIVE_DATA_G8",
+      "target": "24000",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_ACTIVE_DATA_G8/formal_to024000_attempt001",
+      "status": "TRAINING",
+      "dispatch_published": true
+    }
+  ],
+  "current_eval_job_metadata": [
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "8",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank08_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "9",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank09_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "10",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank10_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "11",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank11_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "12",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank12_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "13",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank13_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "14",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank14_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "15",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank15_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "16",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank16_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "17",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank17_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "18",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank18_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "19",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank19_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "20",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank20_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "21",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank21_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "22",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank22_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "23",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank23_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "24",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank24_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "25",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank25_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "26",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank26_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "27",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank27_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "28",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank28_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "29",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank29_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "30",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank30_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_INVERSION_G8_u024000_NAVTEST",
+      "rank": "31",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_INVERSION_G8_u024000/NAVTEST/rank31_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "0",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank00_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "1",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank01_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "2",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank02_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "3",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank03_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "4",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank04_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "5",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank05_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "6",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank06_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "7",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank07_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "13",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank13_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": true,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "STANDARD_COMBINED_G8_u024000_NAVTEST",
+      "rank": "14",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u024000/NAVTEST/rank14_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": true,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "SAFETY_G8_CONTROL_u028000_NAVTEST",
+      "rank": "0",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/SAFETY_G8_CONTROL_u028000/NAVTEST/rank00_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "SAFETY_G8_CONTROL_u028000_NAVTEST",
+      "rank": "1",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/SAFETY_G8_CONTROL_u028000/NAVTEST/rank01_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "SAFETY_G8_CONTROL_u028000_NAVTEST",
+      "rank": "2",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/SAFETY_G8_CONTROL_u028000/NAVTEST/rank02_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "SAFETY_G8_CONTROL_u028000_NAVTEST",
+      "rank": "3",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/SAFETY_G8_CONTROL_u028000/NAVTEST/rank03_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "SAFETY_G8_CONTROL_u028000_NAVTEST",
+      "rank": "4",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/SAFETY_G8_CONTROL_u028000/NAVTEST/rank04_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "standard_training_20261101",
+      "label": "SAFETY_G8_CONTROL_u028000_NAVTEST",
+      "rank": "5",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/SAFETY_G8_CONTROL_u028000/NAVTEST/rank05_attempt001",
+      "node_status": "STARTING",
+      "has_RESULT": false,
+      "has_RUNNING": true,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "0",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank00_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "1",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank01_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "2",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank02_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "3",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank03_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "4",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank04_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "5",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank05_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "6",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank06_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "7",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank07_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "8",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank08_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "9",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank09_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "10",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank10_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "11",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank11_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "12",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank12_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "13",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank13_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "14",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank14_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "15",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank15_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "16",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank16_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "17",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank17_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "18",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank18_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "19",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank19_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "20",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank20_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "21",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank21_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "22",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank22_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_SATURATED_G8_u024000_NAVTEST",
+      "rank": "23",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u024000/NAVTEST/rank23_attempt001",
+      "node_status": "RUNNING",
+      "has_RESULT": false,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    },
+    {
+      "study": "revival_training_20261101",
+      "label": "REVIVAL_G16_u020000_NAVTEST",
+      "rank": "0",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_G16_u020000/NAVTEST/rank00_attempt003",
+      "node_status": "STARTING",
+      "has_RESULT": true,
+      "has_RUNNING": false,
+      "has_DISPATCH": true
+    }
+  ],
+  "snapshot_is_not_future_action_authorization": true,
+  "procedure": [
+    {
+      "step": 1,
+      "action": "Rootfreeze newops afterpreserving concurrentlyactivated a0c573d resourcepause/lifecycle details; portstrictresource_boundary+Evalrequeue+newdispatch/finiteworker+admit_longsamples. KeepF/G run.source/config/parent/gates/nativeidentity frozen; retain existingexecution_source/migrationreceipt wherealreadyregistered."
+    },
+    {
+      "step": 2,
+      "action": "Rediscover CURRENTF/G mainCPU andEval OWNER exacthost/PID/start plus/proc argv/cwd/registry immediatelybeforeaction. IgnorestaleLAUNCH asprocessidentity; never signal a PID whose start orargv mismatch. ArchiveoldCPU metadata only. KeepoldReview processes."
+    },
+    {
+      "step": 3,
+      "action": "Writeuniquelyowned STOP_OWNER tobothcurrentEval CPUdirectories aftercheckingexistingbudgetadoptionintent/foreignmarkers. Waittheir exactCPUexit via pidfd/event, noGPU signal. Theyfinishthecurrentdispatch tick, flushallreceipts/claims, then exit. Existingnative/export/evalchildren keep running."
+    },
+    {
+      "step": 4,
+      "action": "Rootexactpidfd-TERM onlytwo currentmainCPUcoordinators whenallinflightnative launches havepublishedDISPATCH receipts/nohalf-publishedPopen. Confirmtheir exactexit. Newmain mustnotraceoldNative/Campaign owner.lock; no killpg, nostopfile onnativeGPUjob forthisCPUadoption."
+    },
+    {
+      "step": 5,
+      "action": "Withall4CPUowners drained, preserveSTATE/spec/layout/exports/scenes/nativeCP andphysicalleases. Under eachEVALUATION_DISPATCH.lock reconcileONLY provenDISPATCH-only prechildlegacySharingValueError jobs: requireexactworkerPID/start gone and codepathprovesnochild. Archiveoldjob/log/claim/source/evidence, removeonlytheir exactphantomclaim andclearonlyaffectednodejob toRESOURCE_REQUEUE. Never inventEXIT0/75 orerasea scientificfailure; uncertainjobs remainheldforreview."
+    },
+    {
+      "step": 6,
+      "action": "Do notreset otherfailedentries. Keepcompletedranknodes; harvestrunning siblings normally. SameSPEC/source/world/rank/seed2101/CP/export andscenecache foreachresource-requeuedrank. Itsnormalvalidator reusesallvalidscene receipts; norescoring orresharding completedwork."
+    },
+    {
+      "step": 7,
+      "action": "AfterexactoldEval exits andoldmain exits, archive staleSTANDARD_LAUNCH records. RemoveONLYtheRootowned STOP_OWNER marker; preserveforeignstops. StartoneF andoneG coordinator fromnewfrozenfiniteops onmanagementhostwithallSSHroutes, sameROOT/STATE/--allow-continuation. Newhelpersstart2Eval owners fromnewops; do notadoptstillaliveoldEval. Reviews mayremain."
+    },
+    {
+      "step": 8,
+      "action": "Verify4newCPUexactowners/onekernel lock each, adoptedexistingjobs/claims/specs unchanged andallpreviousGPUchildren untouched. Newnative jobsuse run.execution_source orrun.source withoriginalreceipt; newadmission worker isseparateauditedsource. Evallaunch_job explicitworker_source mustcontainthe reviewedfiniteworker; sourcebodySHA shouldmatchgrantPIN orRootrecord newimmutablepin."
+    },
+    {
+      "step": 9,
+      "action": "At22:40 no newtemporary placement: nativecandidate andEval.samples useallowed_hosts(admit_long_job=True). Existingoldtrainer/evaluator readnewgrant andstop atoptimizer/sceneboundaries evenifthe oldworker recordtemporary=false. HelperrecognizesonlyEXIT0 owned8rankCP withresourceevidence; evalguardrecognizesonlyEXIT0 exactsameSPEC STOPPEDscene shard. Requeueonlyoncurrentlyauthorized routes; waitcapacityelse, neverreset research."
+    },
+    {
+      "step": 10,
+      "action": "Oldtemporary=false workersdo notinherit newmonitor fallback retroactively. Rootmaintainsanexplicitdeadlineinventory andoperatorguard foranyoldremainingownedjobs; recordexactexit by23:00. Forced/ambiguous/nonzero outcomes retainlastatomicCP/scenes forreview andmustnotbecalledlossless/scientificsuccess. Resourcegrant doesnotreviveuserpausedT/terminatedABCD/HUBER orborrowprotectedBDGPUs."
+    }
+  ],
+  "launch_commands": {
+    "F": [
+      "MODEL",
+      "-u",
+      "-m",
+      "tools.qwen_world_safety_exploration.standard_campaign",
+      "run",
+      "--root",
+      "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+      "--allow-continuation"
+    ],
+    "G": [
+      "MODEL",
+      "-u",
+      "-m",
+      "tools.qwen_world_safety_exploration.revival_campaign",
+      "run",
+      "--root",
+      "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+      "--allow-continuation"
+    ]
+  },
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/resources/FINITE_OPS_BOUNDARY_CPU_CHECK_20261101.json",
+  "executed_by_this_agent": {
+    "owner_starts": 0,
+    "owner_stops": 0,
+    "GPU_signals": 0,
+    "host_connections": 0,
+    "live_STATE_or_RUNS_edits": 0,
+    "git_commit": 0
+  }
+}

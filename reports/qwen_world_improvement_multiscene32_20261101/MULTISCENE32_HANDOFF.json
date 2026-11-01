@@ -1,0 +1,213 @@
+{
+  "schema": "world_multiscene32_implementation_handoff_v1",
+  "status": "READY_CPU_NOT_DISPATCHED",
+  "arm": "IMPROVEMENT_MULTISCENE32_G8",
+  "campaign_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+  "template": "/mnt/project/qwen-world-safety-exploration-20261031/configs/improvement_training_templates/IMPROVEMENT_MULTISCENE32_G8.yaml",
+  "trainer_module": "tools.qwen_world_safety_exploration.train",
+  "router": {
+    "module": "starVLA.rl.qwen_world_safety_exploration.batch32_runtime",
+    "factory": "batch32_runtime(cfg)",
+    "class_name": "Batch32Runtime",
+    "root_owned_router_already_present": true
+  },
+  "exact_configuration": {
+    "schema": "world_multiscene32_G8_sourcePPO_query_clock_v1",
+    "scenes_per_rank": 4,
+    "group_size": 8,
+    "world_size": 8,
+    "inner_updates": 4,
+    "normalization_candidates": 256,
+    "optimizer_horizon_updates": 12500,
+    "optimizer_warmup_updates": 250,
+    "initial_lr_ratio": 0.001,
+    "min_lr_ratio": 0.1,
+    "source_update_clock_multiplier": 4
+  },
+  "structured_advantage_schema": "world_SafetyEP_multiscene32_group_credit_v1",
+  "scientific_protocol": {
+    "schema": "world_multiscene32_G8_sourcePPO_query_clock_v1",
+    "scenes_per_rank": 4,
+    "group_size": 8,
+    "world_size": 8,
+    "inner_updates": 4,
+    "normalization_candidates": 256,
+    "optimizer_horizon_updates": 12500,
+    "optimizer_warmup_updates": 250,
+    "initial_lr_ratio": 0.001,
+    "min_lr_ratio": 0.1,
+    "source_update_clock_multiplier": 4,
+    "normalization": "one population std of original Safety rawA over world8*scene4*G8; fixed for4inners",
+    "loss_reduction": "equal scene mean then equal rank mean; zeroPG scenes retain unmasked IL anchor",
+    "behavior": "all4 fresh scenes share collection-start currentLoRA+Memory and one behavior version; no optimizer between collects",
+    "backward": "four loss/4 microbackwards; no_sync includes forward+backward of first3; oneclip/Adam/scheduler perinner",
+    "source_probability": "unchanged source relative-clamped FP32 dimension-mean W3 proxy, NOT endpoint likelihood",
+    "frozen_cache": "four detached frozenQwen/IL-memory trees in host LRU; only active scene ondevice; rebuild currentMemory/KV every microforward",
+    "schedule": "factor(u)=old50k_factor(4u), u=completed optimizer updates; initial.001, warm250, floor.1 at12500",
+    "budget": "window32scene/256queries,4inner. 1250inner2 has10016scenes/80128queries, not nominal10000/80000"
+  },
+  "implementation": {
+    "collection": "four real stream.at(start+8*b,rank) scenes perrank; same behavior; no Adam between collections",
+    "normalization": "one all_gather of[4,8,5] perrank; all32scenes×G8=256 originalSafetyRawA, once only; original groupwise Safety parts unchanged",
+    "reduction": "sourceG8 candidate/step mean per scene, equal mean4scene then DDP rankmean; successful zeroPG scenes retain IL anchor",
+    "backward": "model.no_sync surrounds first3 forwards AND backwards; loss/4 each; one maintrainer gradientclip1+Adam+scheduler perinner",
+    "memory": "4 detached frozenQwen/IL-reference trees in CPU hostLRU, only active tree ondevice; currentMemory/KV rebuilt every differentiable microforward",
+    "checkpoint": "new actualwindow schema plus4actual source G8 leaves,4conditions,4old probability audits,4 canonical records sets,5samplinggenerator states, global256scale, exactoptimizer/scheduler/Adam/RNG",
+    "metrics": "original source metrics averaged per4scenes; batch32_total_quality_* explicit sums; exploration.groups4; actual scene/query counters32/256 perwindow; prefill metrics process lifetime +perupdate",
+    "scheduling": "source fixed50k cosine at queryclock4u:12500Adam/warm250/initial.001/floor.1, same peaks5e-5/5e-6; independent of stage caps",
+    "unchanged": "IL70,52.7M closure,G8,W3,sampler eta.1,canonical feedback,Safety credit parts,source dimensionmean clamped proxy,PPOclip.005,advclip5,beta50 IL physicalanchor,datauniform103288,seed42,4inner,ODE deployment"
+  },
+  "trainer_optin_hooks": [
+    "commit_collection_accounting",
+    "backward_update",
+    "exploration_summary"
+  ],
+  "default_runtime_hooks_absent": true,
+  "initial_budget": {
+    "optimizer_updates": 5000,
+    "global_scenes": 40000,
+    "candidates": 320000,
+    "matched_old_control_updates": 20000
+  },
+  "physical_clock_table": [
+    {
+      "batch_optimizer_updates": 500,
+      "control_optimizer_updates": 2000,
+      "windows": 125,
+      "global_scene_exposures": 4000,
+      "new_candidates": 32000,
+      "pending_inner": 0,
+      "control_scenes": 4000,
+      "control_candidates": 32000,
+      "used_next_lr_action": 4.995377133688257e-05,
+      "used_next_lr_memory": 4.995377133688257e-06
+    },
+    {
+      "batch_optimizer_updates": 1250,
+      "control_optimizer_updates": 5000,
+      "windows": 313,
+      "global_scene_exposures": 10016,
+      "new_candidates": 80128,
+      "pending_inner": 2,
+      "control_scenes": 10000,
+      "control_candidates": 80000,
+      "used_next_lr_action": 4.926413441837816e-05,
+      "used_next_lr_memory": 4.926413441837817e-06
+    },
+    {
+      "batch_optimizer_updates": 2500,
+      "control_optimizer_updates": 10000,
+      "windows": 625,
+      "global_scene_exposures": 20000,
+      "new_candidates": 160000,
+      "pending_inner": 0,
+      "control_scenes": 20000,
+      "control_candidates": 160000,
+      "used_next_lr_action": 4.6356982360066416e-05,
+      "used_next_lr_memory": 4.635698236006642e-06
+    },
+    {
+      "batch_optimizer_updates": 3000,
+      "control_optimizer_updates": 12000,
+      "windows": 750,
+      "global_scene_exposures": 24000,
+      "new_candidates": 192000,
+      "pending_inner": 0,
+      "control_scenes": 24000,
+      "control_candidates": 192000,
+      "used_next_lr_action": 4.4632534063305524e-05,
+      "used_next_lr_memory": 4.463253406330553e-06
+    },
+    {
+      "batch_optimizer_updates": 3500,
+      "control_optimizer_updates": 14000,
+      "windows": 875,
+      "global_scene_exposures": 28000,
+      "new_candidates": 224000,
+      "pending_inner": 0,
+      "control_scenes": 28000,
+      "control_candidates": 224000,
+      "used_next_lr_action": 4.262677003087963e-05,
+      "used_next_lr_memory": 4.262677003087963e-06
+    },
+    {
+      "batch_optimizer_updates": 4000,
+      "control_optimizer_updates": 16000,
+      "windows": 1000,
+      "global_scene_exposures": 32000,
+      "new_candidates": 256000,
+      "pending_inner": 0,
+      "control_scenes": 32000,
+      "control_candidates": 256000,
+      "used_next_lr_action": 4.037262485274882e-05,
+      "used_next_lr_memory": 4.037262485274882e-06
+    },
+    {
+      "batch_optimizer_updates": 4500,
+      "control_optimizer_updates": 18000,
+      "windows": 1125,
+      "global_scene_exposures": 36000,
+      "new_candidates": 288000,
+      "pending_inner": 0,
+      "control_scenes": 36000,
+      "control_candidates": 288000,
+      "used_next_lr_action": 3.79071115304188e-05,
+      "used_next_lr_memory": 3.79071115304188e-06
+    },
+    {
+      "batch_optimizer_updates": 5000,
+      "control_optimizer_updates": 20000,
+      "windows": 1250,
+      "global_scene_exposures": 40000,
+      "new_candidates": 320000,
+      "pending_inner": 0,
+      "control_scenes": 40000,
+      "control_candidates": 320000,
+      "used_next_lr_action": 3.527071372447942e-05,
+      "used_next_lr_memory": 3.5270713724479424e-06
+    },
+    {
+      "batch_optimizer_updates": 7500,
+      "control_optimizer_updates": 30000,
+      "windows": 1875,
+      "global_scene_exposures": 60000,
+      "new_candidates": 480000,
+      "pending_inner": 0,
+      "control_scenes": 60000,
+      "control_candidates": 480000,
+      "used_next_lr_action": 2.1098129300801765e-05,
+      "used_next_lr_memory": 2.1098129300801765e-06
+    },
+    {
+      "batch_optimizer_updates": 12500,
+      "control_optimizer_updates": 50000,
+      "windows": 3125,
+      "global_scene_exposures": 100000,
+      "new_candidates": 800000,
+      "pending_inner": 0,
+      "control_scenes": 100000,
+      "control_candidates": 800000,
+      "used_next_lr_action": 5e-06,
+      "used_next_lr_memory": 5.000000000000001e-07
+    }
+  ],
+  "caveats": [
+    "1250 is pendinginner2:10016scene/80128candidates vscontrol5000 10000scene/80000candidates. Primary label is retained; disclose128extraqueries; no claim perfect query equality.",
+    "Same single training seed42, not bit-identical cross-arm SDE chain: four scenes share theta_old here whereas original sequential scenes see theta after earlier optimizer updates.",
+    "Bigger batch changes effective Adam update frequency and 256-candidate scale, not just a cfg value. LR schedule aligned to fresh-query clock, no peakLR scaling.",
+    "Host frozen-feature transfers may add CPU/device time; production Qwen prefill counts/time and update time are recorded. CPU cache has no current trainable graphs.",
+    "No actual PDMS benefit or production GPU stability established by CPU checks."
+  ],
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/batch32_recipe.py": "b00632f503573485b867db0be6e77612afcdb9f585f359411ef82455a326ffc6",
+    "starVLA/rl/qwen_world_safety_exploration/batch32_credit.py": "9fd0a16f1aaeb669befe694a645be8c2d3f63917880159688336b1a5caf7c304",
+    "starVLA/rl/qwen_world_safety_exploration/batch32_runtime.py": "4eb0b6af763b7069508d316aba00ba38489d8f40f34a7076eb2b433fd02bc3bb",
+    "starVLA/rl/qwen_world_safety_exploration/batch32_recovery.py": "fc35c02daaaf28a52550acbc836f08b238cc83d73b052b5e227569b14731cc12",
+    "tools/qwen_world_safety_exploration/train.py": "e3371080adf0f5b6416188932a6b958acf58ae37393eb6b653f4802a6eb836d8",
+    "tests/test_world_batch32_training.py": "bb57d2d2c429a9224b606c2b27646eeeae588ec854c9b568e615a95212677fcd"
+  },
+  "CPU_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/MULTISCENE32_CPU_CHECK.json",
+  "GPU_dispatched": false,
+  "git_staged_or_committed": false,
+  "CPU_result": "3 passed, 1 warning in 8.91s"
+}

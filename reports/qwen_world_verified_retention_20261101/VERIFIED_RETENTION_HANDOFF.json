@@ -1,0 +1,163 @@
+{
+  "schema": "world_verified_retention_implementation_handoff_v1",
+  "status": "READY_CPU_NOT_DISPATCHED",
+  "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+  "campaign_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+  "template": "/mnt/project/qwen-world-safety-exploration-20261031/configs/improvement_training_templates/IMPROVEMENT_VERIFIED_RETENTION_G8.yaml",
+  "trainer_module": "tools.qwen_world_safety_exploration.train",
+  "router": {
+    "module": "starVLA.rl.qwen_world_safety_exploration.retention_runtime",
+    "factory": "retention_runtime(cfg)",
+    "field": "research.verified_retention",
+    "class_name": "RetentionRuntime"
+  },
+  "research_family": null,
+  "standard_role": "verified_retention",
+  "configuration": {
+    "schema": "world_verified_RL_nominal_mean_retention_v1",
+    "capacity": 256,
+    "admission_start_update": 2000,
+    "history_scenes_per_rank": 1,
+    "history_share": 0.25,
+    "min_score": 0.9,
+    "regression_margin": 0.01,
+    "upgrade_margin": 1e-06,
+    "ODE_seed": 2101,
+    "bank_seed": 42,
+    "reservoir": "uniform_over_verified_admissions"
+  },
+  "protocol": {
+    "schema": "world_verified_RL_nominal_mean_retention_v1",
+    "capacity": 256,
+    "admission_start_update": 2000,
+    "history_scenes_per_rank": 1,
+    "history_share": 0.25,
+    "min_score": 0.9,
+    "regression_margin": 0.01,
+    "upgrade_margin": 1e-06,
+    "ODE_seed": 2101,
+    "bank_seed": 42,
+    "reservoir": "uniform_over_verified_admissions",
+    "quality": "official NC=DAC=TTC=Comfort1 and canonical>=.9; TRAIN only",
+    "gate": "same-root current trueB1 ODE fails strict4 OR score < storedscore-.01; freeze gate/target for4inners",
+    "target": "stored historical currentLoRA+scene/predictiveMemory sourceW3 nominalmeans on verified ODE chain, NOT an endpoint target or density",
+    "loss": "freshSafetyPG+50*((1-.25*gate)*freshILmeanMSE+.25*gate*historicalRLmeanMSE); original [.2,1,1] weights",
+    "ODE": "actual B1 raw carrier, root seed_for(native_qwen_sourceflow_ODE,2101,token); cleanxODEK10shift5; no SDE innovations",
+    "privacy": "newrun TRAIN stream only; no NAV labels, no old-run teachers; history never enters PG/reward/std",
+    "state": "private rank RNG reservoir+uniform historical selection; bank/native RNG/targets/quality gates sealed at committed collection",
+    "feature_cache": "hostLRU2 frozenQwen+ILfeatures only; currentMemory rebuilt each probability/anchor invocation",
+    "cost": "beforeu2000 no extraODE; afterwards freshB1 plus atmost1 historicalB1 perrank/collection, extra queries counted separately"
+  },
+  "source_files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/retention_recipe.py": "c5475cf1967fa2912bc50a58cd45364374a80faca1c99a60c52cd0e32079eda7",
+    "starVLA/rl/qwen_world_safety_exploration/retention_material.py": "5b42b93c03c22d5497e099dc00206ac3d1cf52bc23c65617ddb714d1467ce240",
+    "starVLA/rl/qwen_world_safety_exploration/retention_bank.py": "4f9c48883ce5e8abe344dfdb086917647d492f79531d961dd41ec244cc4397d1",
+    "starVLA/rl/qwen_world_safety_exploration/retention_runtime.py": "12c8ed72c964677cd896d1dda10dc03b5375e71c68da0aa801f34f06454b545d",
+    "tests/test_world_verified_retention.py": "672cdec5dec596c18755591e26a862fe77f42b3082947c15481432efd0869230"
+  },
+  "schedule": {
+    "horizon_updates": 50000,
+    "warmup_updates": 1000,
+    "min_lr_ratio": 0.1,
+    "peak_action_lr": 5e-05,
+    "peak_memory_lr": 5e-06,
+    "clock": "completed optimizer updates; same original F control; stage caps do not reset"
+  },
+  "equations": {
+    "offgate": "exact original freshPG+50*freshILweightedMeanMSE",
+    "active": "freshPG+50*(.75*freshILweightedMeanMSE+.25*historicalRLweightedMeanMSE)",
+    "historical": "weighted original [.2,1,1] source nominalmeanMSE on savedW3 states of a verifiedB1 ODEchain, averaged over3nodes and1candidate; no endpointCFM or density",
+    "regression": "same token/root current trueB1 loses any NC/DAC/TTC/Comfort1 OR canonical<stored-.01; fixed all4inners",
+    "upgrade": "strict4/current score>stored+1e-6 upgrades old target; otherwise do not silently refresh it"
+  },
+  "implementation": {
+    "initialization": "same fullIL70 freshAdam/RNG42/update0; no oldSafety teacherbank, no warmstart/nativefork",
+    "admission": "u<2000 no extraB1/no bank admission; u>=2000 fresh legalTRAIN trueB1 strict4 andcanonical>=.9 enters uniform reservoir",
+    "selection": "capacity256 perrank; private bank seed42+rank; one uniformly selected historical member excludingfresh eachcollection",
+    "B1": "same fixedseed_for(native_qwen_sourceflow_ODE,2101,token), actualcurrentMemory/head batch1; deployed clean_x_step +final directpred_x0, ODE10shift5",
+    "teacher": "only detached chain/times/deltas/nominalmeans/condition/version/rank/root/FP32action/officialfeedback/cachehash; no extra model",
+    "PG": "original64 freshSafetyA and denominator,cap5,PPO.005,W3eta.1,scope52.7M,referenceIL70,mainGenerator/data unchanged; historical labels/targets never enterPG",
+    "memory": "hostLRU2 frozenQwen/frozenIL features only; differentiable currentMemory+KV rebuilt every main/historical invocation",
+    "audit": "historical code restores main_probability_audit; main fresh-ratio check still reads actualG8 W3",
+    "native": "state.retention fullreservoir/RNG/counters; rollout.verified_retention beforebank/selectedteacher/currentB1 witnesses/fixedgate/afterdigest; boundary replays exact transition plus rank/schedule checks",
+    "trainer": "no train.py or default runtime change; existingbind/collect/finalize/oncommit/public/boundary hooks only"
+  },
+  "cost": {
+    "query_upper_bounds": [
+      {
+        "optimizer_updates": 2000,
+        "main_global_candidates": 32000,
+        "max_extra_fresh_B1_global": 0,
+        "max_extra_history_B1_global": 0,
+        "max_extra_B1_global": 0
+      },
+      {
+        "optimizer_updates": 5000,
+        "main_global_candidates": 80000,
+        "max_extra_fresh_B1_global": 6000,
+        "max_extra_history_B1_global": 5992,
+        "max_extra_B1_global": 11992
+      },
+      {
+        "optimizer_updates": 10000,
+        "main_global_candidates": 160000,
+        "max_extra_fresh_B1_global": 16000,
+        "max_extra_history_B1_global": 15992,
+        "max_extra_B1_global": 31992
+      },
+      {
+        "optimizer_updates": 20000,
+        "main_global_candidates": 320000,
+        "max_extra_fresh_B1_global": 36000,
+        "max_extra_history_B1_global": 35992,
+        "max_extra_B1_global": 71992
+      },
+      {
+        "optimizer_updates": 30000,
+        "main_global_candidates": 480000,
+        "max_extra_fresh_B1_global": 56000,
+        "max_extra_history_B1_global": 55992,
+        "max_extra_B1_global": 111992
+      },
+      {
+        "optimizer_updates": 50000,
+        "main_global_candidates": 800000,
+        "max_extra_fresh_B1_global": 96000,
+        "max_extra_history_B1_global": 95992,
+        "max_extra_B1_global": 191992
+      }
+    ],
+    "maximum_per_collection": "extra8freshB1+atmost8historyB1 against64mainPG candidates, upto25% after admissionwarmup",
+    "authoritative": "sum all8sealed rankstate.retention fresh_ODE_queries_local/history_ODE_queries_local; main raw_scene_exposures/new_candidates stayPGonly",
+    "time": "extra_forward_seconds_local andextra_scoring_seconds_local; B1 ODE10 plus3nominal calls whenqualified; notfree",
+    "storage": "pending beforebank retained for exactreservoir transition verification; increasesbehavior/native storage, no duplicatedteacher model"
+  },
+  "observability": [
+    "retention_enabled/bank_size/effectiveIL/RLshares andindependent weightedanchor scalars perinner",
+    "retention_fresh_ODE_queries/history_ODE_queries percollection repeated4inner: do not sum themas4freshqueries; statecounter increments once",
+    "Qwen prefill process lifetime calls/seconds; scalar weightedloss alone doesnot prove gradientstrength"
+  ],
+  "differences": {
+    "SuccessMemory": "not .1 endpointCFM/SDEwinner imitation; trueODE strict4>=.9 andverified regressiongate, replacement withinbeta50",
+    "Protected": "freshnegative advantages unchanged; historicalfunction constraint, notsignclearing",
+    "Rescue": "samefreshIL70/W3/no fixedoldteachers/Adamreset",
+    "CLEAR": "inspiredbehaviorconsolidation, not fullCLEAR/Vtrace/valuecloning orfullpolicyKL"
+  },
+  "caveats": [
+    "No activationbefore2k; no-benefit beforeactivation cannot reject retention",
+    "Same beta budget doesnot guarantee same gradientstrength; measure actualgradientcomponents",
+    "W3 localfield preservation mayfail ifearlier ODEprefixchanges; one fixedroot officialstrict4 witness isnot all-root/humanoptimum/real-worldsafety",
+    "No productionstability, PDMSgain or>=92result established by CPUchecks"
+  ],
+  "TRAIN_only": true,
+  "NAV_feedback_used": false,
+  "main_PG_generator_unchanged": true,
+  "sourceURLs": [
+    "https://arxiv.org/html/1811.11682v2",
+    "https://proceedings.mlr.press/v97/kaplanis19a.html",
+    "https://arxiv.org/html/2609.25831v2"
+  ],
+  "CPU_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/VERIFIED_RETENTION_CPU_CHECK.json",
+  "GPU_dispatched": false,
+  "git_staged_or_committed": false
+}

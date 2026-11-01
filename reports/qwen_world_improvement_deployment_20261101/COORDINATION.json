@@ -1,0 +1,69 @@
+{
+  "status": "CPU_ADOPTION_APPLIED_NO_GPU_SIGNALS",
+  "at_unix": 1793549716.4184132,
+  "source": "df50bce",
+  "current": [
+    {
+      "study": "standard_training_20261101",
+      "pid": 3267776,
+      "start_ticks": 1498827719,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/retention_v1",
+      "source_commit": "df50bce",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.standard_campaign",
+        "run",
+        "--root",
+        "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+        "--allow-continuation"
+      ],
+      "started_unix": 1793549664.0267053,
+      "adoption": "/mnt/project/qwen-world-safety-exploration-20261031/operations/FINITE_RESOURCE_CPU_ADOPTION_20261101/PRECHILD_REQUEUE_COMPLETE.json"
+    },
+    {
+      "study": "revival_training_20261101",
+      "pid": 3267777,
+      "start_ticks": 1498827721,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/retention_v1",
+      "source_commit": "df50bce",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.revival_campaign",
+        "run",
+        "--root",
+        "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+        "--allow-continuation"
+      ],
+      "started_unix": 1793549664.0398593,
+      "adoption": "/mnt/project/qwen-world-safety-exploration-20261031/operations/FINITE_RESOURCE_CPU_ADOPTION_20261101/PRECHILD_REQUEUE_COMPLETE.json"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "pid": 3267778,
+      "start_ticks": 1498827722,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/retention_v1",
+      "source_commit": "df50bce",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.improvement_campaign",
+        "run",
+        "--root",
+        "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+        "--allow-continuation"
+      ],
+      "started_unix": 1793549664.0520055,
+      "adoption": "/mnt/project/qwen-world-safety-exploration-20261031/operations/FINITE_RESOURCE_CPU_ADOPTION_20261101/PRECHILD_REQUEUE_COMPLETE.json"
+    }
+  ],
+  "prechild_review": "/mnt/project/qwen-world-safety-exploration-20261031/operations/FINITE_RESOURCE_CPU_ADOPTION_20261101/PRECHILD_REQUEUE_COMPLETE.json",
+  "instruction": "Do not restore a0c573d/c5b86f1 or oldLAUNCH. New finite-sharing worker/Evalguard/native pause migration is active. Scientific sources retained perrun. User wm235 exclusion/23:00 deadline unchanged."
+}

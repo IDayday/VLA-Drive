@@ -1,0 +1,190 @@
+{
+  "schema": "world_consolidation_training_scientific_handoff_v1",
+  "status": "CPU_READY_FOR_ROOT_REVIEW_FREEZE_AND_LAUNCH",
+  "created_unix": 1793546362.670013,
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+  "arm": "IMPROVEMENT_EARLY_DECAY_G8",
+  "family": "consolidation_training",
+  "source_files": {
+    "starVLA/rl/qwen_world_safety_exploration/consolidation_recipe.py": "5b9914601b36e548daaeba76c5a5d56258a15c496e56ac913d81696da0e94030",
+    "starVLA/rl/qwen_world_safety_exploration/consolidation_runtime.py": "47fd9c18441adae657a983fc7d9ed7878f4b59d209897e990356522714903557",
+    "tests/test_world_consolidation_training.py": "ef2f8060e824905de020649dd61233b0201b2090983db685bdaaad4f0ed8edd7"
+  },
+  "entry_factory": "starVLA.rl.qwen_world_safety_exploration.consolidation_runtime.consolidation_runtime(cfg)",
+  "recipe_builder": "starVLA.rl.qwen_world_safety_exploration.consolidation_recipe.build_recipe(base_cfg)",
+  "protocol": {
+    "schema": "world_fixed50k_warmup1000_cosine_end20k_floor01_v1",
+    "horizon_updates": 50000,
+    "warmup_updates": 1000,
+    "cosine_decay_end_updates": 20000,
+    "min_lr_ratio": 0.1
+  },
+  "trainer_module": "tools.qwen_world_safety_exploration.train",
+  "config_fragment": {
+    "max_steps": 50000,
+    "lr_warmup_steps": 1000,
+    "lr_scheduler_type": "cosine",
+    "learning_rate": 5e-05,
+    "memory_learning_rate": 5e-06,
+    "save_every_optimizer_updates": 500,
+    "research": {
+      "campaign_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+      "arm": "IMPROVEMENT_EARLY_DECAY_G8",
+      "family": "consolidation_training",
+      "consolidation_training": {
+        "schema": "world_fixed50k_warmup1000_cosine_end20k_floor01_v1",
+        "horizon_updates": 50000,
+        "warmup_updates": 1000,
+        "cosine_decay_end_updates": 20000,
+        "min_lr_ratio": 0.1
+      },
+      "data_policy": "uniform_full",
+      "structured_advantage": "world_SafetyEP_group_credit_v1"
+    }
+  },
+  "initial_runtime_cap": 20000,
+  "continuation_caps": [
+    30000,
+    50000
+  ],
+  "evaluate_updates": [
+    2000,
+    5000,
+    10000,
+    12000,
+    14000,
+    16000,
+    18000,
+    20000,
+    22000,
+    24000,
+    26000,
+    28000,
+    30000,
+    32000,
+    34000,
+    36000,
+    38000,
+    40000,
+    42000,
+    44000,
+    46000,
+    48000,
+    50000
+  ],
+  "scheduler_clock": {
+    "definition": "u completedoptimizer updates; last_epoch=u; factor(u) used bynextupdateu+1",
+    "warmup": ".001+.999*u/1000 for0<=u<=1000",
+    "cosine": ".1+.9*(1+cos(pi*(u-1000)/19000))/2 for1000<u<20000",
+    "hold": ".1 for20000<=u<=50000",
+    "two_group_ratio": 10,
+    "samples": {
+      "0": {
+        "completed_updates": 0,
+        "factor": 0.001,
+        "action_next_lr": 5.0000000000000004e-08,
+        "memory_next_lr": 5e-09
+      },
+      "999": {
+        "completed_updates": 999,
+        "factor": 0.999001,
+        "action_next_lr": 4.9950050000000005e-05,
+        "memory_next_lr": 4.995005000000001e-06
+      },
+      "1000": {
+        "completed_updates": 1000,
+        "factor": 1.0,
+        "action_next_lr": 5e-05,
+        "memory_next_lr": 5e-06
+      },
+      "1001": {
+        "completed_updates": 1001,
+        "factor": 0.9999999938485845,
+        "action_next_lr": 4.999999969242923e-05,
+        "memory_next_lr": 4.999999969242923e-06
+      },
+      "2000": {
+        "completed_updates": 2000,
+        "factor": 0.9938625865312251,
+        "action_next_lr": 4.9693129326561254e-05,
+        "memory_next_lr": 4.969312932656126e-06
+      },
+      "5000": {
+        "completed_updates": 5000,
+        "factor": 0.9051132292283771,
+        "action_next_lr": 4.5255661461418854e-05,
+        "memory_next_lr": 4.525566146141886e-06
+      },
+      "10000": {
+        "completed_updates": 10000,
+        "factor": 0.5871607054625496,
+        "action_next_lr": 2.9358035273127483e-05,
+        "memory_next_lr": 2.9358035273127484e-06
+      },
+      "12000": {
+        "completed_updates": 12000,
+        "factor": 0.43953153078664053,
+        "action_next_lr": 2.1976576539332027e-05,
+        "memory_next_lr": 2.197657653933203e-06
+      },
+      "14000": {
+        "completed_updates": 14000,
+        "factor": 0.3038733288449078,
+        "action_next_lr": 1.519366644224539e-05,
+        "memory_next_lr": 1.5193666442245393e-06
+      },
+      "16000": {
+        "completed_updates": 16000,
+        "factor": 0.19488677077162295,
+        "action_next_lr": 9.744338538581147e-06,
+        "memory_next_lr": 9.74433853858115e-07
+      },
+      "18000": {
+        "completed_updates": 18000,
+        "factor": 0.12438224123471442,
+        "action_next_lr": 6.219112061735721e-06,
+        "memory_next_lr": 6.219112061735721e-07
+      },
+      "19999": {
+        "completed_updates": 19999,
+        "factor": 0.10000000615141548,
+        "action_next_lr": 5.000000307570774e-06,
+        "memory_next_lr": 5.000000307570774e-07
+      },
+      "20000": {
+        "completed_updates": 20000,
+        "factor": 0.1,
+        "action_next_lr": 5e-06,
+        "memory_next_lr": 5.000000000000001e-07
+      },
+      "30000": {
+        "completed_updates": 30000,
+        "factor": 0.1,
+        "action_next_lr": 5e-06,
+        "memory_next_lr": 5.000000000000001e-07
+      },
+      "50000": {
+        "completed_updates": 50000,
+        "factor": 0.1,
+        "action_next_lr": 5e-06,
+        "memory_next_lr": 5.000000000000001e-07
+      }
+    },
+    "used_vs_next": "optimizer_group_lrs_used beforestep; optimizer_group_lrs afterscheduler fornextstep"
+  },
+  "native_resume": "FreshIL70 only. Withinnewfamily restoreoptimizer/scheduler/allRNG/SceneStreamcursor/pending4inner without warmupreset; no F/G older-source resume.",
+  "unchanged": [
+    "sameIL70/seed42/freshAdam",
+    "Scope52,707,840 trainable",
+    "W3rigorous eta.1/G8/world8/4inner",
+    "SafetyEP/noaux",
+    "full103288uniformseed42",
+    "beta50IL70reference",
+    "alloriginalboundary/rank validators"
+  ],
+  "root_integration": "Root ownsruntime router/registry/whitelist/sourcefreeze/dispatch. These modules do not edit commonrouter/trainer or any F/G source/state.",
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/CONSOLIDATION_TRAINING_CPU_CHECK.json",
+  "GPU_actions": 0,
+  "git_stage_or_commit": false,
+  "sha256": "f782c6a6472b84d89d5c189ff2c165bd40f83eb90e77d375ddad8b8ca0198057"
+}
