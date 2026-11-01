@@ -25,6 +25,17 @@ def latest_control_review(research,arm):
     return max(rows,key=lambda r:r.get('updates',0),default=None)
 
 
+def endpoint_deployment_result(root,research,h):
+    pair=latest_control_review(research,'SAFETY_ENDPOINT_RAMP_AR1_G8')
+    if not pair:return ''
+    result=pair.get('comparison',{}).get('result',{});ci=result.get('PDMS_CI95',[])
+    target=next((r for r in research.get('results',[])if r.get('arm')==pair.get('arm')and r.get('updates')==pair.get('updates')and r.get('cohort')=='NAVTEST'and r.get('publishable_complete')),None)
+    if not target or len(ci)!=2:return ''
+    control=next((r for r in research.get('results',[])if r.get('arm')==pair.get('reference_arm')and r.get('updates')==pair.get('reference_updates')and r.get('cohort')=='NAVTEST'and r.get('publishable_complete')), {})
+    title=('端点探索当前完整阶段是负结果：'if ci[1]<0 else '端点探索当前完整阶段：')
+    return '<div class="warning"><b>'+title+'</b>Endpoint '+h.number(pair.get('updates'))+'，完整12,146／invalid0，PDMS '+h.fmt(target.get('PDMS'),5)+'，同预算控制 '+h.fmt(control.get('PDMS'),5)+'；Δ '+h.fmt(result.get('PDMS_delta'),5)+'、95%CI['+', '.join(f'{v:+.5f}'for v in ci)+']，zero修复 '+h.number(result.get('repaired_zero'))+'／新增 '+h.number(result.get('new_zero'))+'。TRAIN候选质量改善没有转成该阶段的单ODE部署收益；更高预算只按实际完整结果另审，不据此否定所有端点策略。'+h.relative_link(root,pair.get('evidence',''),'完整同预算配对')+'</div>'
+
+
 def render_pilot_native_census(root,research,h):
     if not research:return ''
     doc=research.get('analyses',{}).get('PILOT_NATIVE_TRAINING_CENSUS_u001000.json',{})
@@ -78,6 +89,11 @@ def render_exploration_headline(root,research,h):
     continuation=research.get('continuation',{});state=continuation.get('state',{});pid=continuation.get('owner',{}).get('pid',continuation.get('launch',{}).get('pid'))
     evaluation=research.get('controllers',{}).get('RESEARCH_EVALUATION',{})
     body='<h3>最新阶段判断：初期完整对照与当前有限续训分开</h3><div class="notice"><b>'+h.number(len(done))+' / '+h.number(len(initial_ids))+'臂已完成初期前1k原生训练；'+h.number(len(initial_complete))+' / '+h.number(initial_expected)+'份初期NAVTEST完整发布。</b>包括新增阶段的当前全部登记评测为 '+h.number(len(complete))+' / '+h.number(expected)+'份完整，其余仅显示进度。当前评测CPU owner '+h.number(evaluation.get('owner',{}).get('pid'))+'；自动续训owner '+h.number(pid)+' 当前 '+h.esc(state.get('status','待状态'))+'。OOM或排队不记作零分、不合并partial均值。</div>'
+    body+=endpoint_deployment_result(root,research,h)
+    credit=research.get('analyses',{}).get('ENDPOINT_CREDIT_INTERACTION_500.json',{}).get('arms',{}).get('SAFETY_ENDPOINT_RAMP_AR1_G8',{})
+    if credit:
+        pg=credit.get('PG0_partition',{});semantics=credit.get('negative_high_semantics',{})
+        body+='<p><b>不把较多PG0／高分负A当成待叠trick的危机：</b>端点首500的PG0中 '+h.number(pg.get('true_canonical_all1'))+' 组是canonical全1；'+h.number(semantics.get('total'))+' 个负high中 '+h.number(semantics.get('without_inversion_with_actual_higher_strict_quality_positive_witness'))+' 个在同组有更高canonical的strict4正A替代，是正常相对排序。只按总数推断信用错误会误判；完整分解见新研究卡。</p>'
     decision=max(continuation.get('decisions',[]),key=lambda d:d.get('from_updates',0),default={})
     if decision:
         selected=decision.get('selected_novels',[]);active=[r for r in runs if r.get('id')in state.get('active',[])]
@@ -93,6 +109,10 @@ def render_exploration_headline(root,research,h):
         learning=endpoint.get('worker_receipt_status')=='RUNNING'and endpoint.get('journal_ranks')==8 and h.finite(endpoint.get('updates'))and endpoint['updates']>0
         stage=('八rank真实GPU优化，共同 '+h.number(endpoint.get('updates'))+' 更新'if learning else '已正式登记／派发，实际状态见新研究卡')
         body+='<p><b>第八条独立研究线：</b>ODE prefix＋递增AR1端点探索＋joint24条件Gaussian PPO末步回放，'+stage+'；同IL70 fresh、有限500／1k评测。它改变采样／密度／回放与anchor状态，不是ρ单消融；当前无新NAV提分证据，完整机制与实际日志另列。</p>'
+    lr=next((r for r in runs if r.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_LR02_G8'),None)
+    if lr:
+        learning=lr.get('worker_receipt_status')=='RUNNING'and lr.get('journal_ranks')==8 and h.finite(lr.get('updates'))and lr['updates']>0
+        body+='<p><b>第九条单变量验证：</b>同端点runtime仅两组峰值LR×0.2，action 1e−5／memory 1e−6；'+('实际八rank共同 '+h.number(lr.get('updates'))+' 更新'if learning else '登记／执行状态见当前表')+'。不叠信用变换，初期500／1k有限预算，尚无新性能结论。</p>'
     if complete:
         best=max(complete,key=lambda r:r.get('PDMS',-1))
         body+='<p>当前本轮已完成阶段的最高观察点：'+h.esc(best.get('arm',''))+'，'+h.number(best.get('updates'))+'更新，PDMS '+h.fmt(best.get('PDMS'),5)+'；只代表当前已齐的预算点，不与未完成路线排序，也不冒充更高预算历史best被超越。</p>'
@@ -481,6 +501,34 @@ def render_endpoint_first500(root,research,h):
     return body
 
 
+def render_endpoint_credit(root,research,h):
+    doc=research.get('analyses',{}).get('ENDPOINT_CREDIT_INTERACTION_500.json',{})
+    if doc.get('status')!='COMPLETE_ALL2000_ACTUAL_BEHAVIORS':return ''
+    arms=doc.get('arms',{});endpoint=arms.get('SAFETY_ENDPOINT_RAMP_AR1_G8',{});control=arms.get('SAFETY_G8_CONTROL',{})
+    if not(endpoint and control):return ''
+    pg=endpoint.get('PG0_partition',{});cp=control.get('PG0_partition',{});negative=endpoint.get('negative_high_semantics',{});cn=control.get('negative_high_semantics',{})
+    replay=endpoint.get('counterfactual_credit_replays',{});sat=replay.get('saturated',{});inv=endpoint.get('counts',{});rates=endpoint.get('rates',{});crates=control.get('rates',{})
+    body='<h4>首500完整行为核查：优先干净LR对照，不盲叠信用技巧</h4><p>全部2,000个真实behavior／16,000候选、0错误；每臂1,000组。Endpoint的135个PG0＝canonical全1 '+h.number(pg.get('true_canonical_all1'))+'＋全safe EP1但Comfort不同 '+h.number(pg.get('safe_EP1_Comfort_varied'))+'；Control为 '+h.number(cp.get('true_canonical_all1'))+'＋'+h.number(cp.get('safe_EP1_Comfort_varied'))+'＋'+h.number(cp.get('allfail_costtie'))+'个allfail tie。没有global全八rank同时PG0，不把135全当缺监督。</p>'
+    body+='<p>447个负high中，'+h.number(negative.get('with_lower_canonical_positive_witness'))+' 个有更低canonical正A反序（'+h.fmt(rates.get('negative_high_with_lower_positive_given_negative_high'),1,percent=True)+'%，Control '+h.fmt(crates.get('negative_high_with_lower_positive_given_negative_high'),1,percent=True)+'%）；其余 '+h.number(negative.get('without_inversion_with_actual_higher_strict_quality_positive_witness'))+' 个有更高canonical／更高EP的strict4正A替代，属于正常相对downweight。Protected清全部负high也会移除这部分区分，不能因绝对447就默认组合。</p>'
+    std=endpoint.get('credit_scale',{}).get('normalization_Safety_rawA_std',{}).get('mean');cstd=control.get('credit_scale',{}).get('normalization_Safety_rawA_std',{}).get('mean')
+    body+='<p>Saturated只补 '+h.number(sat.get('changed_groups'))+' 组，正high normalized信用质量仅增加 '+h.fmt(sat.get('positive_high_normalized_mass_increment_fraction'),3,percent=True)+'%；Inversion只涉及 '+h.number(inv.get('inversion_groups'))+' 组／'+h.number(inv.get('inversion_original_pairs'))+' 对。这是冻结信用回放的量，不是PDMS、参数梯度或组合收益。两臂normalized A全局RMS约1、cap5命中均0；rawA std均值端点 '+h.fmt(std,4)+'／控制 '+h.fmt(cstd,4)+'，不足以解释全部优化尺度变化。因此先保持LR×0.2对照干净。</p>'
+    body+='<p>'+h.relative_link(root,str(Path(research['root'])/'analysis'/'ENDPOINT_CREDIT_INTERACTION_500.json'),'全行为核查／反事实摘要与完整证据')+'；报告只保留summary，未复制或展开group receipts／ledger。</p>'
+    return body
+
+
+def render_endpoint_lr_research(root,research,h):
+    run=next((r for r in research.get('runs',[])if r.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_LR02_G8'),None)
+    if not run:return ''
+    learning=run.get('worker_receipt_status')=='RUNNING'and run.get('journal_ranks')==8 and h.finite(run.get('updates'))and run['updates']>0
+    status=('实际八rank GPU训练，共同 '+h.number(run.get('updates'))+' 更新'if learning else '该原生阶段已完成，评测另列'if run.get('worker_returncode')==0 else '资源准入等待，非科学失败'if run.get('worker_returncode')==75 else '实际执行失败待审'if run.get('worker_returncode')not in(None,0)else '已登记／派发，待实际更新')
+    identity=run.get('endpoint_native_identity',{});groups=identity.get('optimizer_parameter_groups',[])
+    lr_groups='；'.join(h.esc(g.get('name',''))+' '+h.gradient_fmt(g.get('lr'))for g in groups)
+    body='<article class="callout"><h3>单变量对照：端点runtime只把两组学习率降到0.2倍</h3><p><b>SAFETY_ENDPOINT_RAMP_AR1_LR02_G8 · '+h.esc(status)+'</b>，'+h.esc(run.get('host','待host'))+'。独立fresh同IL70／Adam／seed42／update0，action峰值1e−5、memory峰值1e−6；warmup100后constant。端点噪声／joint24密度／PPO .005／Safety信用／anchor／数据和部署均不变，不叠Saturated、Protected或Inversion。</p>'
+    if groups:body+='<p>实际native identity参数 '+h.number(identity.get('trainable_numel'))+'，参数组LR：'+lr_groups+'。'+h.relative_link(root,identity.get('evidence',''),'本次identity')+'</p>'
+    body+='<p>评分预算与原端点500／1k直接匹配，原G8控制配对仍保留；登记上限 '+h.number(run.get('target_updates'))+'，协调capacity16不授予新50k预算。动机是已观察到尺度差异与部署负结果，不是已经证明LR过大／clip有害，当前无低LR提分证据。科学source '+h.esc(run.get('source_commit','待source'))+'，旧科学源不变。</p><p>'+h.relative_link(root,str(Path(research['root'])/'RUNS.json'),'正式RUNS／独立owner')+' · '+h.relative_link(root,str(Path(research['root'])/'analysis'/'ENDPOINT_LR02_HANDOFF.json'),'4项CPU检查与单变量交付边界')+'</p></article>'
+    return body
+
+
 def render_endpoint_research(root,research,h):
     run=next((r for r in research.get('runs',[])if r.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_G8'),None)
     if not run:return ''
@@ -510,9 +558,10 @@ def render_endpoint_research(root,research,h):
     if actual:
         body+='<p><b>真实生产日志窗口 '+h.number(window.get('start_update'))+'–'+h.number(window.get('end_update'))+'：</b>fresh |ratio−1|最大 '+h.fmt(window.get('fresh_ratio_max_abs_error'),6)+'；conditional ratio范围 '+h.fmt(actual.get('ratio_min'),5)+'–'+h.fmt(actual.get('ratio_max'),5)+'；preclip总gradient norm '+h.fmt(actual.get('gradient_norm_min'),4)+'–'+h.fmt(actual.get('gradient_norm_max'),4)+'；'+h.number(window.get('rank_update_rows'))+'条rank-update中norm&gt;1为 '+h.number(actual.get('norm_above_one_rank_update_rows'))+'，实际PPO阻断 '+h.fmt(actual.get('blocked_fraction'),4,percent=True)+'%。underflow为 '+h.number(actual.get('underflow_update_candidate_events'))+' 个update-candidate事件，非fresh唯一候选。PG source clamp为N/A，anchor nominal clamp另审。</p>'
     review=analyses.get('ENDPOINT_PRODUCTION_FIRST50_REVIEW.json',{})
-    if review:body+=render_endpoint_first50(root,research,h)or'<p>'+h.relative_link(root,str(project/'analysis'/'ENDPOINT_PRODUCTION_FIRST50_REVIEW.json'),'生产首50分析：'+str(review.get('status','待状态')))+'；只解释初期原生过程，finite不等于稳定／部署提升。</p>'
+    if review:body+='<details><summary>保留首50生产seal、固定对照与正常PPO保护的解释</summary>'+(render_endpoint_first50(root,research,h)or'<p>'+h.relative_link(root,str(project/'analysis'/'ENDPOINT_PRODUCTION_FIRST50_REVIEW.json'),'生产首50分析：'+str(review.get('status','待状态')))+'；只解释初期原生过程，finite不等于稳定／部署提升。</p>')+'</details>'
     else:body+='<p class="muted">生产首50分析待正式产物；上面的native指标只覆盖真实共同日志尾窗，不外推后续稳定性。</p>'
     body+=render_endpoint_first500(root,research,h)
+    body+=render_endpoint_credit(root,research,h)
     body+='<details><summary>CPU验证、概率边界与科学身份</summary><p>CPU定向与8CPU-rank pending四inner恢复使用reduced fixture／fake评分；其大梯度与ratio不是52.7M生产数值。当前只承诺有限pilot与实际检查，不把测试通过称生产稳定。条件密度给定保存的last latent、prefix停止梯度；连续密度也不是FP32量化格子的概率质量。'+h.relative_link(root,str(project/'analysis'/'ENDPOINT_RUNTIME_HANDOFF.json'),'完整runtime交付')+' · '+h.relative_link(root,str(project/'analysis'/'ENDPOINT_FORMAL_REGISTRATION.json'),'正式登记／冻结source')+'</p><p>本臂科学source '+h.esc(run.get('source_commit',registration.get('source_commit','待source')))+'，与旧initial_v1／credit_v2分开保存；旧三臂不热改。</p></details></article>'
     return body
 
@@ -521,11 +570,12 @@ def render_exploration_research(root,research,h):
     project=Path(research.get('root','/mnt/project/qwen-world-safety-exploration-20261031'));runs=research.get('runs',[]);analyses=research.get('analyses',{})
     body='<div class="notice"><b>最新执行要求：研究点逐项落实为代码与有对照实验。</b>新研究位于旧World IL70体系的独立目录，与ABCD架构实验分开；现有live不热改。代码完成、CPU检查、正式注册、child启动、八rank真实更新和完整性能分层记录。</div><p>组内G16不改变轨迹horizon8或world8。online priority／learning-value、DenseDAC tie信用等分别开发；不能把准备状态写成已训练，也不能把新信用当成已提分。每个arm的数据合同、单变量与预算以本轮登记为准。</p>'
     body+=render_endpoint_research(root,research,h)
+    body+=render_endpoint_lr_research(root,research,h)
     registered={r.get('id')for r in runs}
     priorities=[('1','SAFETY_INVERSION_CANCEL_G8','Inversion：同组canonical反序','抵消strict4高分负A与更低canonical的strict3正A；保组和，优先直接检验局部目标冲突'),('2','SAFETY_PROTECTED_HIGH_G8','Protected：高分负信用保护','仅将strict4高分负A置0；其它正A不动，单独检验去除负信用'),('3','SAFETY_SATURATED_G8','Saturated：补信用饱和','仅safe EP1、原A0且canonical可分时恢复组内canonical信用；不覆盖active负high')]
     phase2=[row for row in priorities if row[1]in registered]
     if phase2:
-        body+='<h3>七臂问题对照：已检验机制与当前取舍分开</h3><p>原四臂分别检验G8控制、G16探索、窄DAC失败细分与在线数据课程；三条信用臂独立改变信用分配。原四臂保持initial_v1，三信用臂使用credit_v2；本表为起始研究优先级，当前续训按完整阶段决策，不热改旧source。</p>'
+        body+='<h3>原七臂问题对照：历史机制与当前取舍分开</h3><p>原四臂分别检验G8控制、G16探索、窄DAC失败细分与在线数据课程；三条信用臂独立改变信用分配。原四臂保持initial_v1，三信用臂使用credit_v2；本表为起始研究优先级，当前续训按完整阶段决策，不热改旧source。</p>'
         body+=h.table(['起始Phase2优先级','正式arm／要解决的问题','唯一机制与判据'],[[p,h.esc(arm)+'<small>'+h.esc(title)+'</small>',h.esc(note)]for p,arm,title,note in phase2])
     endpoint=analyses.get('ENDPOINT_RUNTIME_HANDOFF.json',{})
     if endpoint and not any('ENDPOINT'in str(r.get('id',''))for r in runs):
@@ -559,8 +609,8 @@ def render_exploration_research(root,research,h):
         commits=sorted({r.get('source_commit')for r in runs if r.get('source_commit')})
         if commits:body+='<p class="muted">新World注册source commit：'+h.esc(' / '.join(commits))+'；与ABCD的运行source分开，以实际job回执核对执行路径。</p>'
     for role,controller in research.get('controllers',{}).items():
-        body+='<p class="muted">'+{'RESEARCH_NATIVE':'第一阶段原生协调','PHASE2_NATIVE':'第二阶段原生协调','ENDPOINT_NATIVE':'新端点runtime原生协调','RESEARCH_EVALUATION':'共享评测协调'}.get(role,role)+'owner文件状态 '+h.esc(controller.get('state',{}).get('status','待记录'))+'，记录PID '+h.number(controller.get('owner',{}).get('pid'))+'；此为CPU协调状态，learner实际更新另列。</p>'
-    methods={'SAFETY_G8_CONTROL':'SafetyEP G8 uniform控制','SAFETY_G16':'只将组内G8改为G16','SAFETY_DAC_DENSE_G8':'G8＋窄DenseDAC时长信用；保baseStd','SAFETY_ACTIVE_DATA_G8':'G8＋在线课程；≥75%uniform floor','SAFETY_SATURATED_G8':'G8＋仅饱和safe组canonical信用','SAFETY_PROTECTED_HIGH_G8':'G8＋strict4高分负A置0','SAFETY_INVERSION_CANCEL_G8':'G8＋canonical反序信用对抵消','SAFETY_ENDPOINT_RAMP_AR1_G8':'确定性ODE prefix＋ramp AR1端点探索／joint24 PPO末步回放'}
+        body+='<p class="muted">'+{'RESEARCH_NATIVE':'第一阶段原生协调','PHASE2_NATIVE':'第二阶段原生协调','ENDPOINT_NATIVE':'新端点runtime原生协调','ENDPOINT_LR_NATIVE':'端点低LR单变量协调','RESEARCH_EVALUATION':'共享评测协调'}.get(role,role)+'owner文件状态 '+h.esc(controller.get('state',{}).get('status','待记录'))+'，记录PID '+h.number(controller.get('owner',{}).get('pid'))+'；此为CPU协调状态，learner实际更新另列。</p>'
+    methods={'SAFETY_G8_CONTROL':'SafetyEP G8 uniform控制','SAFETY_G16':'只将组内G8改为G16','SAFETY_DAC_DENSE_G8':'G8＋窄DenseDAC时长信用；保baseStd','SAFETY_ACTIVE_DATA_G8':'G8＋在线课程；≥75%uniform floor','SAFETY_SATURATED_G8':'G8＋仅饱和safe组canonical信用','SAFETY_PROTECTED_HIGH_G8':'G8＋strict4高分负A置0','SAFETY_INVERSION_CANCEL_G8':'G8＋canonical反序信用对抵消','SAFETY_ENDPOINT_RAMP_AR1_G8':'确定性ODE prefix＋ramp AR1端点探索／joint24 PPO末步回放','SAFETY_ENDPOINT_RAMP_AR1_LR02_G8':'同端点runtime，仅action／memory峰值LR×0.2'}
     rows=[]
     for run in runs:
         status=('准入等待（prechild75，非科学失败）'if run.get('worker_returncode')==75 else '执行失败待审'if run.get('worker_returncode')not in(None,0)else '登记阶段训练完成，评测另列'if run.get('worker_returncode')==0 and run.get('status')=='COMPLETED_AT_REGISTERED_CAP'else '原生已退出'if run.get('worker_returncode')==0 else '八rank共同更新已见'if run.get('worker_receipt_status')=='RUNNING'and run.get('journal_ranks')==run.get('expected_ranks')and h.finite(run.get('updates'))and run['updates']>0 else 'child已启动，待实际更新'if run.get('worker_receipt_status')=='RUNNING'else str(run.get('status','已登记，待启动')))

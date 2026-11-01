@@ -233,7 +233,7 @@ def journal_snapshot(run: dict, warnings: list, inputs: list) -> dict:
             values=[row.get('metrics',{}).get(key)for row in fresh]
             if values and all(finite(x)for x in values):credit[key]=sum(values)
         if credit:snapshot['process_window']['credit_mechanisms']=credit
-        if run.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_G8':
+        if run.get('id')in('SAFETY_ENDPOINT_RAMP_AR1_G8','SAFETY_ENDPOINT_RAMP_AR1_LR02_G8'):
             metrics=[row.get('metrics',{})for row in window]
             low=[m.get('step9_ratio_min')for m in metrics];high=[m.get('step9_ratio_max')for m in metrics]
             underflow=[m.get('endpoint_ratio_underflow_candidates')for m in metrics]
@@ -433,7 +433,7 @@ def load_exploration_research(warnings: list,inputs: list) -> dict:
         snapshot=run_snapshot(row,warnings,inputs,registry_mtime=(root/'RUNS.json').stat().st_mtime if(root/'RUNS.json').exists()else 0)
         snapshot['status']=row.get('status')
         if not snapshot.get('journal_ranks')or snapshot.get('journal_ranks')!=snapshot.get('expected_ranks'):snapshot['updates']=None
-        if arm=='SAFETY_ENDPOINT_RAMP_AR1_G8':
+        if arm in('SAFETY_ENDPOINT_RAMP_AR1_G8','SAFETY_ENDPOINT_RAMP_AR1_LR02_G8'):
             identity_path=Path(row['root'])/'identity.json'
             identity=read_json(identity_path,warnings,inputs)or{}
             if identity:snapshot['endpoint_native_identity']=dict(
@@ -478,8 +478,19 @@ def load_exploration_research(warnings: list,inputs: list) -> dict:
                 document={**document,'runs':[{k:v for k,v in r.items()if not k.startswith('checkpoint0')}for r in document.get('runs',[])],
                     'checkpoint0_claims_ignored_by_report':True}
             analyses[path.name]=document
+    interaction_path=root/'analysis'/'ENDPOINT_CREDIT_INTERACTION_500.json'
+    if interaction_path.exists():
+        document=read_json(interaction_path,warnings,inputs)or{}
+        keep=['schema','status','created_unix','population','errors','conclusions_zh',
+              'recommended_combination_review','limits','deployment_comparison_existing','credit_scale_comparison']
+        summary={k:document[k]for k in keep if k in document}
+        arm_keys=['counts','rates','PG0_partition','credit_scale','negative_high_semantics',
+                  'counterfactual_credit_replays','global_all_rank_PG0_collections']
+        summary['arms']={arm:{k:row[k]for k in arm_keys if k in row}for arm,row in document.get('arms',{}).items()}
+        summary['report_omits_group_receipts']=True
+        analyses[interaction_path.name]=summary
     controllers={}
-    for role in ['RESEARCH_NATIVE','PHASE2_NATIVE','ENDPOINT_NATIVE','RESEARCH_EVALUATION']:
+    for role in ['RESEARCH_NATIVE','PHASE2_NATIVE','ENDPOINT_NATIVE','ENDPOINT_LR_NATIVE','RESEARCH_EVALUATION']:
         path=root/'owners'/role/'STATE.json';state=states.get(str(path),{})
         if state:controllers[role]=dict(state=state,state_path=str(path),owner=read_json(path.with_name('OWNER.json'),warnings,inputs)or{})
     support_dir=root/'data'/'probes'/'FROZEN_SAFETY10K_SUPPORT_20261031'
