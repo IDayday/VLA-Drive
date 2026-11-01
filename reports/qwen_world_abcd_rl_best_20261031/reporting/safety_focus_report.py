@@ -38,11 +38,14 @@ def render_safety_focus_report(root,snapshot,history,h):
     research_best=max((row for row in all_test if row.get('arm')in(SAFETY,*FRESH_ARMS)),key=lambda row:row['PDMS'],default={})
     chapters=[]
     def section(key,title,deck,body):chapters.append('<section id="'+key+'"><h2>'+title+'</h2><p class="deck">'+deck+'</p>'+body+'</section>')
-    abcd_front=''
+    abcd_front='';replanning_front='';exploration_front=''
     if editorial.get('abcd_research',{}).get('parents'):
         import importlib,abcd_research_report
         importlib.reload(abcd_research_report)
-        abcd_front='<section id="abcd"><h2>当前新研究：ABCD各自current-best父模型与RL适配</h2><p class="deck">当前已完成的最高分，不等未来100k；父模型保护、结构适配与真实启动分别判断。</p>'+abcd_research_report.render_abcd_research(root,editorial['abcd_research'],h)+'</section>'
+        replanning_front='<section id="replanning"><h2>研究判断与重规划</h2><p class="deck">先说明哪些假设得到支持、哪些配方应结束，以及下一步必须回答什么。</p>'+abcd_research_report.render_replanning(root,editorial['abcd_research'],h)+'</section>'
+        abcd_front='<section id="abcd"><h2>当前新研究：ABCD各自current-best父模型与RL适配</h2><p class="deck">最新方法结论、实际故障与恢复进展优先；父模型保护、原生学习与完整成绩分别判断。</p>'+abcd_research_report.render_abcd_research(root,editorial['abcd_research'],h,snapshot)+'</section>'
+        if editorial.get('exploration_research'):
+            exploration_front='<section id="exploration"><h2>研究点 → 代码 → 独立实验：新World研究</h2><p class="deck">与ABCD分开；设计、CPU、注册、真实学习和完整结果逐层核对。</p>'+abcd_research_report.render_exploration_research(root,editorial['exploration_research'],h)+'</section>'
     safety_stop=stopped.get(SAFETY,{})
     stop_result=safety_stop.get('result',{})
     safety_stopped=(safety_stop.get('native_job_exited')is True and stop_result.get('returncode',stop_result.get('exit_code'))==0)
@@ -117,9 +120,14 @@ def render_safety_focus_report(root,snapshot,history,h):
     body='<div class="two">'+score_figure+components_figure+'</div>'+table(['全局更新','完整PDMS','对IL70：观察点差','对Safety10k：观察点差','证据'],rows)
     body+='<p class="protocol">统一协议：NAVTEST12,146场景／44物理log；单候选ODE K10／shift5／seed2101。训练seed42，不增加多种子；TRAIN诊断与G8候选不混入此曲线。</p>'
     if mechanism.get('status')=='COMPLETE':body+=_matched_mechanism_tables(mechanism,h,link,editorial.get('safety_normalization',{}))
+    body+='<p class="protocol">这里的EP是会被NC／DAC安全门清零的官方指标，不是raw_progress_meters，也不是“保守／激进”的直接标签。原表保留作canonical分量对照；物理进度关系以首页完整原始记录审计为准。</p>'
     section('trajectory','完整轨迹：分数与安全—效率分量','先把真实部署变化看清，再检验关于优化、探索和信用分配的解释。',body)
 
     body='<p>本节只采用已完成的Safety过程诊断；持续zero、曾经zero与最新zero是不同集合。高分保持也要固定10k场景子集，不能随checkpoint改分母。</p>'
+    full_audit=editorial.get('abcd_research',{}).get('analyses',{}).get('SAFETY_FULL_POPULATION_AUDIT_20261031/SUMMARY.json',{})
+    if full_audit.get('status')=='COMPLETE':
+        longitudinal=full_audit.get('longitudinal',{})
+        body+='<p class="notice">最新全人口审计已扩展至 '+number(longitudinal.get('k'))+' 次Safety观测、持续zero '+number(longitudinal.get('persistent_zero'))+'；<a href="#safety-population">以首页完整13点人口结果为准</a>。以下旧窗口／24k材料保留为历史机制诊断，旧133不再代表最新全集。</p>'
     diagnosed_updates=max((row.get('updates',0)for row in diagnosis.get('evaluation_points',[])),default=0)
     if latest and update(latest)>diagnosed_updates:body+='<p class="notice">完整部署曲线已更新到 '+number(update(latest))+'，本次zero／高分／贡献诊断仍截至 '+number(diagnosed_updates)+'。下文分量结论只对应标注的诊断截点，不推广到后来checkpoint。</p>'
     if diagnosis.get('status')=='COMPLETE':body+=_diagnosis_tables(root,diagnosis,h,link)
@@ -188,11 +196,11 @@ def render_safety_focus_report(root,snapshot,history,h):
     import importlib
     import current_research_report
     importlib.reload(current_research_report)
-    front=([abcd_front]if abcd_front else[])+current_research_report.build_current_sections(root,snapshot,h)
+    front=([replanning_front]if replanning_front else[])+([exploration_front]if exploration_front else[])+([abcd_front]if abcd_front else[])+current_research_report.build_current_sections(root,snapshot,h)
     css+=current_research_report.CSS
     titles=['SafetyEP历史收益与停止依据','历史对照曲线与分量归因','零分场景与高分保持诊断','信用分配、真实梯度与策略案例','四组实验的完整设计、文献与配对分析','已结束路线与原始证据']
     background='<section id="background"><h2>机制、场景诊断与历史资料</h2><p class="deck">当前工作与最新结果已在前方汇总；需要追溯方法、证据或历史路线时再展开。</p>'+''.join('<details class="background-chapter"><summary>'+title+'</summary>'+chapter+'</details>'for title,chapter in zip(titles,chapters))+'</section>'
-    nav=([('abcd','ABCD新研究')]if abcd_front else[])+[('current','原World实验进度'),('current-results','原World评测结果'),('current-analysis','原World结论与下一步'),('background','机制与历史资料')]
+    nav=([('replanning','研究判断与全量审计')]if replanning_front else[])+([('exploration','新World代码与实验')]if exploration_front else[])+([('abcd','ABCD新研究')]if abcd_front else[])+[('current','原World实验进度'),('current-results','原World评测结果'),('current-analysis','原World结论与下一步'),('background','机制与历史资料')]
     return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：ABCD新研究与既有实验进展</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · RL RESEARCH</small><h1>ABCD新架构与既有RL研究进展</h1><p>最新主研究以ABCD各自当前best IL为起点，按原生动作路径适配RL；原World四条路线的真实进度、完整结果与机制证据保留在后。配置、CPU检查与child启动不计为已完成训练或提分。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(front)+background+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
 
 
@@ -208,7 +216,7 @@ def _matched_mechanism_tables(mechanism,h,link,normalization=None):
         cohort=row.get('fixed_IL70_high_ge09_primary',{})
         extras.append([h.number(row['updates']),h.number(cohort.get('scenes')),signed(cohort.get('delta_PDMS'))+'<small>'+interval(cohort.get('CI95_PDMS'))+'</small>'])
     train=[row for row in mechanism.get('TRAIN1024_matched',[])if row.get('status')=='COMPLETE']
-    body+='<details><summary>预定义IL70高分保持与TRAIN1024：固定分母、不同用途</summary>'+h.table(['更新','固定IL70≥.9人口','Safety−PPO子集ΔPDMS［区间］'],extras)+h.table(['更新','TRAIN1024 ΔPDMS［162log区间］'],[[h.number(row['updates']),signed(row.get('delta_PDMS'))+'<small>'+interval(row.get('CI95_PDMS'))+'</small>']for row in train])+'<p>IL70高分队列为比较前固定的primary；Safety10k高分仅secondary。TRAIN为分层训练内面板，既不是完整TRAIN均值，也不是泛化代理。完整缓存没有raw progress米数，因此不把EP换名当原始位移。所有区间为固定训练seed下探索性物理log bootstrap，未作多重比较校正。</p></details>'
+    body+='<details><summary>预定义IL70高分保持与TRAIN1024：固定分母、不同用途</summary>'+h.table(['更新','固定IL70≥.9人口','Safety−PPO子集ΔPDMS［区间］'],extras)+h.table(['更新','TRAIN1024 ΔPDMS［162log区间］'],[[h.number(row['updates']),signed(row.get('delta_PDMS'))+'<small>'+interval(row.get('CI95_PDMS'))+'</small>']for row in train])+'<p>IL70高分队列为比较前固定的primary；Safety10k高分仅secondary。TRAIN为分层训练内面板，既不是完整TRAIN均值，也不是泛化代理。本节早期缓存仅含官方指标；新的全人口raw_progress已另行核对，不能把安全门控EP换名当原始位移。所有区间为固定训练seed下探索性物理log bootstrap，未作多重比较校正。</p></details>'
     ablations=(normalization or {}).get('contrasts',{});norm=ablations.get('PPO_BATCHSTD_minus_PPO_FULL_u010000',{});gate=ablations.get('PPO_SAFETY_EP_minus_PPO_BATCHSTD_u010000',{})
     if norm and gate:body+='<details><summary>已有归一化拆解：收益不能全部归给安全门控</summary><p>10k仅改centered-advantage std的BATCH相对FULL '+signed(norm.get('delta_PDMS'))+'，95%区间 '+interval(norm.get('CI95_PDMS'))+'；Safety相对BATCH '+signed(gate.get('delta_PDMS'))+'，区间 '+interval(gate.get('CI95_PDMS'))+' 跨零。归一化已有独立收益证据，但目前不能确证Safety胜过BATCH，也不能用两项分数的比例作因果分摊；现有设计并非完整2×2，不外推到FPO。</p><p>'+link('/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_NORMALIZATION_EXISTING_ABLATION_20261031.json','已有归一化实验与信用拆解')+'</p></details>'
     body+='<p>'+link('/mnt/project/qwen-world-rl-optimization-20261030/analysis/SAFETY_EP_VS_PPO_MECHANISM_20261031.json','同预算机制分析、完整分量区间与身份核对')+'</p>'

@@ -158,10 +158,16 @@ def main(runtime=None):
     if runtime is None:
         preliminary=argparse.ArgumentParser(add_help=False)
         preliminary.add_argument('--architecture',choices=('A','B','C','D'),required=True)
+        preliminary.add_argument('--config',required=True)
         known,_=preliminary.parse_known_args()
         from starVLA.rl.qwen_world_abcd_research.runtime import ABCDBestRuntime
         if known.architecture=='D':
-            from starVLA.rl.qwen_world_abcd_research.d_entry import DRuntimeMixin as ObjectiveMixin
+            import yaml
+            schema=yaml.safe_load(Path(known.config).read_text()).get('research',{}).get('d_objective',{}).get('schema')
+            if schema=='abcd_D_action_JaT_SafetyEP_joint_gaussian_v1':
+                from starVLA.rl.qwen_world_abcd_research.d_safety import DSafetyRuntimeMixin as ObjectiveMixin
+            else:
+                from starVLA.rl.qwen_world_abcd_research.d_entry import DRuntimeMixin as ObjectiveMixin
         else:
             from starVLA.rl.qwen_world_abcd_research.abc import ABCObjectiveMixin as ObjectiveMixin
         class Runtime(ObjectiveMixin,ABCDBestRuntime):pass

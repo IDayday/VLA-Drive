@@ -177,9 +177,10 @@ def finalize_safety_efficiency_advantages(rollout):
     )
     return rollout
 
-def validate_safety_efficiency_boundary(state, rollout, identity, optimizer=None, scheduler=None, *, legacy=False):
+def validate_safety_efficiency_boundary(state, rollout, identity, optimizer=None, scheduler=None, *, legacy=False,
+                                        _recipe_validator=validate_recipe):
     """Keep source structure/optimizer semantics; replace only A semantics."""
-    validate_recipe(identity['recipe'])
+    _recipe_validator(identity['recipe'])
     if identity['world'] != 8:
         raise ValueError('Safety-efficiency pilot requires eight ranks and 64 fresh candidates')
     summary = source_validate_boundary(state, rollout, identity, optimizer, scheduler, legacy=legacy)

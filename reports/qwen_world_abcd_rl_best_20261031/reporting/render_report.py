@@ -208,6 +208,24 @@ def journal_snapshot(run: dict, warnings: list, inputs: list) -> dict:
         snapshot['updates'] = None
     if progress.get('status') == 'COMPLETE' and common >= progress.get('updates', math.inf):
         snapshot['training_complete'] = True
+    if run.get('report_exploration_process')and len(rank_rows)==expected_ranks:
+        start=max(values[0]['updates']for values in rank_rows.values())
+        window=[row for values in rank_rows.values()for row in values if start<=row['updates']<=common]
+        collections={}
+        for rank,values in rank_rows.items():
+            for row in values:
+                if start<=row['updates']<=common and row.get('inner_completed')==1:
+                    collections.setdefault(row.get('collection'),{})[rank]=row
+        fresh=[row for group in collections.values()if len(group)==expected_ranks for row in group.values()]
+        errors=[row.get('ratio_max_abs_from_one')for row in fresh]
+        dense=[row.get('metrics',{}).get('dense_dac_activated_groups')for row in fresh]
+        snapshot['process_window']=dict(start_update=start,end_update=common,
+            rank_update_rows=len(window),fresh_G_groups=len(fresh),
+            group_sizes=sorted({row['group_size']for row in fresh if 'group_size'in row}),
+            fresh_ratio_max_abs_error=max(errors)if errors and all(finite(x)for x in errors)else None,
+            all_recorded_gradient_norms_finite=bool(window)and all(finite(row.get('gradient_norm'))for row in window),
+            dense_activated_groups=sum(dense)if dense and all(finite(x)for x in dense)else None,
+            scope='bounded common all-rank journal suffix; first inner per fresh collection only')
     return snapshot
 
 
@@ -275,6 +293,11 @@ def readonly_controller_status(root: Path, warnings: list, inputs: list) -> dict
 
 def load_abcd_research(warnings: list, inputs: list) -> dict:
     """Independent ABCD experiment namespace, sharing only the fixed report."""
+    def diagnostic_tail(path,limit):
+        try:
+            with path.open('rb')as handle:
+                handle.seek(max(0,path.stat().st_size-limit));return handle.read().decode('utf-8','replace')
+        except OSError:return ''
     root=Path('/mnt/project/qwen-world-abcd-rl-best-20261031')
     locked=root/'BEST_PARENT_SELECTION_LOCKED.json'
     parent_path=locked if locked.is_file()else root/'BEST_PARENT_SELECTION.json'
@@ -304,15 +327,44 @@ def load_abcd_research(warnings: list, inputs: list) -> dict:
     for row in run_map.values():
         row=dict(row,algorithm=row.get('algorithm')or row.get('research_method'))
         snapshot=run_snapshot(row,warnings,inputs,registry_mtime=(root/'RUNS.json').stat().st_mtime if(root/'RUNS.json').exists()else 0)
+        # This owner controls four arms. Its top-level lifecycle is not an
+        # individual learner's training status; use the merged runs[id] node.
+        snapshot['status']=row.get('status')
         # Native checkpoint publication is intentionally less frequent than
         # journal commits. A latest pointer never supplies the live update.
         all_ranks=snapshot.get('journal_ranks')==snapshot.get('expected_ranks')and bool(snapshot.get('journal_ranks'))
         if not all_ranks:snapshot['updates']=None
         snapshot['updates_source']='common committed minimum across all expected rank metric journals'if all_ranks else 'awaiting all-rank committed metric journals'
         snapshot['checkpoint_updates_are_not_live_updates']=True
+        if snapshot.get('worker_returncode')not in(None,0)and snapshot.get('job'):
+            error_log=Path(snapshot['job'])/'stdout.log'
+            if error_log.is_file():
+                error_tail=diagnostic_tail(error_log,32768)
+                if 'Source identity changed: an explicit tested migration receipt is required'in error_tail:
+                    snapshot['failure_kind']='NATIVE_RESUME_IDENTITY_MIGRATION_REQUIRED'
+                    snapshot['failure_evidence']=str(error_log)
         runs.append(snapshot)
     entries=evaluation_entries(registry)+evaluation_entries(read_json(root/'RESULTS.json',warnings,inputs) or {})
-    for document in documents:entries+=evaluation_entries(document)
+    operations=[]
+    for document in documents:
+        entries+=evaluation_entries(document)
+        for row in object_rows(document.get('evaluations',{}),'evaluations'):
+            if row.get('cohort')not in('DEV','NAVTEST')or not row.get('evaluation'):continue
+            entry={key:row[key]for key in ['label','arm','architecture_id','updates','cohort','evaluation','status']if key in row}
+            entry.update(evidence=row.get('summary')if isinstance(row.get('summary'),str)else str(Path(row['evaluation'])/'SUMMARY.json'),expected_scenes=1696 if row['cohort']=='DEV'else 12146)
+            entries.append(entry)
+            operation=dict(entry,world=row.get('world'),ranks_by_status={})
+            for rank in row.get('ranks',{}).values():
+                status=rank.get('status','UNKNOWN');operation['ranks_by_status'][status]=operation['ranks_by_status'].get(status,0)+1
+            if str(row.get('status','')).startswith(('FAILED','DIAGNOSED_PREMODEL')):
+                failed_rank=next((rank for rank in row.get('ranks',{}).values()if str(rank.get('status','')).startswith('FAILED')),None)
+                if failed_rank and failed_rank.get('job'):
+                    log=Path(failed_rank['job'])/'stdout.log'
+                    if log.is_file():
+                        tail=diagnostic_tail(log,8192)
+                        if 'FileNotFoundError'in tail and '/data/NAVTEST/manifest.json'in tail:
+                            operation.update(failure_kind='NAVTEST_DATA_MANIFEST_MISSING_BEFORE_MODEL_LOAD',failure_evidence=str(log))
+            operations.append(operation)
     results={}
     for entry in entries:
         result=normalize_result(entry,warnings,inputs)
@@ -323,12 +375,89 @@ def load_abcd_research(warnings: list, inputs: list) -> dict:
         key=result.get('evidence')or result.get('label')
         if key and not(results.get(key,{}).get('publishable_complete')and not result.get('publishable_complete')):results[key]=result
     analyses={}
-    for name in ['ABC_ARCH_RL_DESIGN.json','ABC_META_SCOPE_AUDIT.json','D_ARCH_RL_DESIGN.json','D_RL_DESIGN.json','D_PAPER_RESEARCH.json','D_PAPER_RL_DESIGN.json','D_CPU_CHECK.json','ABCD_DEPLOYMENT_CPU_CHECK.json','PARENT_RUNTIME_SOURCE_DIFFERENCE.json','PARENT_EXPORT_REAL_SOURCE_MIGRATION_CHECK.json','ABCD_FOUR_ACTUAL_NATIVE_STARTUP.json','ABCD_EARLY_NATIVE_PROCESS.json']:
+    for name in ['ABC_ARCH_RL_DESIGN.json','ABC_META_SCOPE_AUDIT.json','D_ARCH_RL_DESIGN.json','D_RL_DESIGN.json','D_PAPER_RESEARCH.json','D_PAPER_RL_DESIGN.json','D_CPU_CHECK.json','ABCD_DEPLOYMENT_CPU_CHECK.json','PARENT_RUNTIME_SOURCE_DIFFERENCE.json','PARENT_EXPORT_REAL_SOURCE_MIGRATION_CHECK.json','ABCD_FOUR_ACTUAL_NATIVE_STARTUP.json','ABCD_EARLY_NATIVE_PROCESS.json','NEW_METHODS_COMPLETED_REVIEW_20261031.json','ABCD_NATIVE_RESUME_IDENTITY_CPU_CHECK.json','RL_DEVELOPMENT_RETROSPECTIVE_20261031.json','RL_NEXT_ALGORITHM_RESEARCH_20261031.json','ABCD_MATCHED_TRAIN1K_CREDIT.json','SAFETY_FULL_POPULATION_AUDIT_20261031/SUMMARY.json','SAFETY_FULL_POPULATION_AUDIT_20261031/OBSERVED_POLICY_WITNESSES.json','SAFETY_FULL_TRAINING_AUDIT_20261031/JOURNAL_CENSUS.json','SAFETY_FULL_TRAINING_AUDIT_20261031/SUMMARY.json','ZERO_REWARD_GROUP_RESEARCH_20261031.json','G16_IMPLEMENTATION_DESIGN.json','D_SAFETY_CREDIT_CPU_CHECK.json','SAFETY_FAILURE_RELATION_20261031/SUMMARY.json','SAFETY_FAILURE_RELATION_20261031.json']:
         path=root/'analysis'/name
         if path.exists():analyses[name]=read_json(path,warnings,inputs) or {}
     return dict(root=str(root),parent_path=str(parent_path),parents_locked=parent_path==locked,
-        parents=parents,candidates=candidates,registry=registry,runs=runs,results=list(results.values()),analyses=analyses,controllers=controllers,
+        parents=parents,candidates=candidates,registry=registry,runs=runs,results=list(results.values()),analyses=analyses,controllers=controllers,evaluation_operations=operations,
         source_worktree='/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031',new_training_or_scoring_by_report=False)
+
+
+def load_exploration_research(warnings: list,inputs: list) -> dict:
+    """Read the new World study without merging its identity with ABCD."""
+    root=Path('/mnt/project/qwen-world-safety-exploration-20261031')
+    registry=read_json(root/'RUNS.json',warnings,inputs)or{}
+    declared=registry.get('runs',[])if isinstance(registry,dict)else registry
+    run_map={r['id']:r for r in object_rows(declared,'runs')if r.get('id')}
+    state_paths=list(dict.fromkeys([Path(r['owner_state'])for r in run_map.values()if r.get('owner_state')]+sorted((root/'owners').glob('*/STATE.json'))))
+    states={str(path):read_json(path,warnings,inputs)or{}for path in state_paths}
+    runs=[]
+    for arm,declared in run_map.items():
+        path=declared.get('owner_state');owner=states.get(path,{})
+        node=owner.get('runs',{}).get(arm,{})if isinstance(owner.get('runs'),dict)else{}
+        if not node and owner.get('id')==arm:node=owner
+        if not node and path and 'runs'not in owner and any(k in owner for k in ['status','job','current_job','checkpoint']):node=owner
+        row={**declared,**node,'id':arm,'root':node.get('root')or node.get('run_root')or declared.get('root'),'report_exploration_process':True}
+        snapshot=run_snapshot(row,warnings,inputs,registry_mtime=(root/'RUNS.json').stat().st_mtime if(root/'RUNS.json').exists()else 0)
+        snapshot['status']=row.get('status')
+        if not snapshot.get('journal_ranks')or snapshot.get('journal_ranks')!=snapshot.get('expected_ranks'):snapshot['updates']=None
+        if arm=='SAFETY_ACTIVE_DATA_G8':
+            progress=snapshot.get('progress_receipt',{});checkpoint=progress.get('checkpoint')
+            if checkpoint:
+                cp=Path(checkpoint);seal=read_json(cp/'COMPLETE',warnings,inputs)or{};transaction=read_json(cp/'transaction.json',warnings,inputs)or{}
+                rank_summaries=transaction.get('ranks',[])
+                boundaries=[r.get('curriculum_boundary',{})for r in rank_summaries]
+                valid=(seal.get('world')==8 and len(boundaries)==8 and all(b.get('rank')==i and b.get('committed_collections')==rank_summaries[i].get('collections')and b.get('uniform_draws',0)+b.get('priority_exposures',0)==b.get('committed_collections')and b.get('priority_exposures',0)*4<=b.get('committed_collections',0)for i,b in enumerate(boundaries)))
+                if valid:snapshot['curriculum_native']=dict(checkpoint=checkpoint,updates=seal.get('updates'),
+                    verified_rank_boundaries=8,total_scene_exposures=sum(b['committed_collections']for b in boundaries),
+                    uniform_exposures=sum(b['uniform_draws']for b in boundaries),priority_exposures=sum(b['priority_exposures']for b in boundaries),
+                    rank0_public_summary=progress.get('curriculum',{}),evidence=str(cp/'transaction.json'),
+                    validation='saved all-rank boundary summaries only; no tensors loaded')
+        runs.append(snapshot)
+    entries=evaluation_entries(registry)
+    for state in states.values():
+        entries+=evaluation_entries(state)
+        for row in object_rows(state.get('evaluations',{}),'evaluations'):
+            if not row.get('cohort')or not row.get('evaluation'):continue
+            entry={k:row[k]for k in ['label','arm','updates','cohort','evaluation','status','expected_scenes']if k in row}
+            entry['evidence']=row.get('summary')if isinstance(row.get('summary'),str)else str(Path(row['evaluation'])/'SUMMARY.json')
+            if row['cohort']=='NAVTEST':entry['expected_scenes']=12146
+            entries.append(entry)
+    results={}
+    for entry in entries:
+        row=normalize_result(entry,warnings,inputs);key=row.get('evidence')or row.get('label')
+        # Support probes and a comparison owner's reused baselines are not
+        # formal results of the explicitly registered learners.
+        if row.get('arm')not in run_map or row.get('cohort')not in('NAVTEST','TRAIN_DIAGNOSTIC','DEV'):continue
+        if key and not(results.get(key,{}).get('publishable_complete')and not row.get('publishable_complete')):results[key]=row
+    analyses={}
+    for path in sorted((root/'analysis').glob('*.json')):
+        if path.stat().st_size<=2_000_000:
+            document=read_json(path,warnings,inputs)or{}
+            if path.name=='ACTUAL_NATIVE_STARTUP.json'and isinstance(document,dict):
+                document={**document,'runs':[{k:v for k,v in r.items()if not k.startswith('checkpoint0')}for r in document.get('runs',[])],
+                    'checkpoint0_claims_ignored_by_report':True}
+            analyses[path.name]=document
+    controllers={}
+    for role in ['RESEARCH_NATIVE','PHASE2_NATIVE','RESEARCH_EVALUATION']:
+        path=root/'owners'/role/'STATE.json';state=states.get(str(path),{})
+        if state:controllers[role]=dict(state=state,state_path=str(path),owner=read_json(path.with_name('OWNER.json'),warnings,inputs)or{})
+    support_dir=root/'data'/'probes'/'FROZEN_SAFETY10K_SUPPORT_20261031'
+    support_state=states.get(str(root/'owners'/'SUPPORT_PROBE'/'STATE.json'),{})
+    support_summary_path=support_dir/'results'/'SUMMARY.json'
+    support_summary=read_json(support_summary_path,warnings,inputs)or{}
+    # Keep the aggregate as diagnostic evidence, without duplicating its 312
+    # detailed scene objects or exposing a best-of-G value as a learner score.
+    support_summary={k:v for k,v in support_summary.items()if k!='scenes'}
+    support_manifest=read_json(support_dir/'MANIFEST.json',warnings,inputs)or{}
+    support_manifest={k:v for k,v in support_manifest.items()if k!='cases'}
+    support=dict(state=support_state,
+        launch=read_json(root/'owners'/'SUPPORT_PROBE'/'LAUNCH.json',warnings,inputs)or{},
+        manifest=support_manifest,summary=support_summary,summary_path=str(support_summary_path))
+    comparisons=read_json(root/'analysis'/'PILOT_COMPARISONS'/'STATE.json',warnings,inputs)or{}
+    return dict(root=str(root),registry=registry,runs=runs,results=list(results.values()),analyses=analyses,
+        state_paths=list(states),controllers=controllers,support_probe=support,pilot_comparisons=comparisons,
+        source_worktree='/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031',report_dispatches_nothing=True)
 
 
 def evaluation_entries(document: Any, *, default_arm: str | None = None) -> list[dict]:
@@ -540,6 +669,7 @@ def load_snapshot(root: Path) -> dict:
     report_watcher=read_json(root/'reporting'/'OWNER.json',warnings,inputs) or {}
     controller_status=readonly_controller_status(root,warnings,inputs)
     abcd_research=load_abcd_research(warnings,inputs)
+    exploration_research=load_exploration_research(warnings,inputs)
     registration = read_json(root/'REGISTRATION.json', warnings, inputs) or {}
     runs_input = read_json(root/'RUNS.json', warnings, inputs) or {}
     state = read_json(root/'STATE.json', warnings, inputs) or {}
@@ -1006,6 +1136,7 @@ def load_snapshot(root: Path) -> dict:
                     safety_mechanism=safety_mechanism,safety_gradient_probe=safety_gradient_probe,safety_fresh_pair=safety_fresh_pair,fpo_fulltime=fpo_fulltime,feasible_score=feasible_score,train_zero_support=train_zero_support,dac_tie_counterfactual=dac_tie_counterfactual,
                     readonly_controller_status=controller_status,
                     abcd_research=abcd_research,
+                    exploration_research=exploration_research,
                     llm_trick_transfer=llm_trick_transfer,
                     safety_credit_gradient=safety_credit_gradient,safety_policy_cases=safety_policy_cases,safety_normalization=safety_normalization,
                     safety_focus=dict(policy=safety_focus_policy,stop_summary=safety_focus_stop),
