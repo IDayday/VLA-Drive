@@ -21,6 +21,51 @@ def prechild_refusal(result):
             and result.get('child_not_started') is True and result.get('returncode') == 75)
 
 
+def protected_hosts():
+    policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
+    return set(policy.get('placement_preferences',{}).get('qwen_world_IL_B_D',{}).get('hosts',[]))
+
+
+def cpu_host(delegate):
+    hosts=[h for h in delegate.allowed_hosts()if h not in protected_hosts()]
+    preferred=['training-vlawm-tsinghua-zt2','training-vlawm-zt2','training-vlawm-zt']
+    return next((h for h in preferred if h in hosts),hosts[0])
+
+
+def vacant_slot(uuid, *, family, root=Path('/mnt/project')):
+    slots=[('shared','runtime_gpu_shared_workers')]
+    if family=='four':slots.append(('primary','runtime_gpu_leases'))
+    for slot,folder in slots:
+        path=root/folder/(uuid+'.lock');path.parent.mkdir(parents=True,exist_ok=True)
+        with path.open('a') as stream:
+            try:fcntl.flock(stream,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            except BlockingIOError:continue
+            return slot
+    return None
+
+
+def capacity_probe(delegate,host):
+    result=delegate.probe(host)
+    if (result.get('worker_python_exists') is not None and result.get('MemAvailable_bytes') is not None
+            and all('total_MiB'in g for g in result['gpus'])
+            and all('used_MiB'in o for o in result['owners'])):
+        return result
+    # Legacy World probe has a different RAM field and no used/total memory.
+    # Obtain real accounting through THAT SAME task-authorized remote entry.
+    code='''import subprocess,json,os
+from pathlib import Path
+g=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.total,memory.free,utilization.gpu','--format=csv,noheader,nounits'],text=True)
+gpus=[dict(index=int(i),uuid=u.strip(),total_MiB=int(t),free_MiB=int(f),utilization=int(v))for i,u,t,f,v in(x.split(',')for x in g.splitlines())]
+o=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid,used_memory','--format=csv,noheader,nounits'],text=True);owners=[]
+for line in o.splitlines():
+ p,u,m=line.split(',');owners.append(dict(pid=int(p),uuid=u.strip(),used_MiB=int(m)if m.strip().isdigit()else None,visible=(Path('/proc')/p.strip()/'cmdline').is_file()))
+free=next(int(x.split()[1])*1024 for x in Path('/proc/meminfo').read_text().splitlines()if x.startswith('MemAvailable:'))
+limit=Path('/sys/fs/cgroup/memory.max');current=Path('/sys/fs/cgroup/memory.current')
+if limit.exists()and current.exists()and limit.read_text().strip()!='max':free=min(free,max(0,int(limit.read_text())-int(current.read_text())))
+print(json.dumps(dict(gpus=gpus,owners=owners,MemAvailable_bytes=free,CPU_affinity=len(os.sched_getaffinity(0)),load1=os.getloadavg()[0],worker_python_exists=Path('/mnt/project/flow-safe-improvement-20261013/venv/bin/python').is_file())))'''
+    return json.loads(delegate.remote(host,['/usr/bin/python3','-c',code]))
+
+
 def adopt_four_jobs(request):
     """Adopt exact existing commands, including still-running shards, once."""
     for path in sorted((request.root/'jobs').glob('*_attempt*/spec.json')):
@@ -59,10 +104,10 @@ class Pool:
         if self.sample is not None and time.monotonic()-self.at < 15:
             return self.sample
         from starVLA.rl.qwen_world_postcot.resources import gpu_activity_issue
-        hosts = self.delegate.allowed_hosts()
+        hosts = [h for h in self.delegate.allowed_hosts() if h not in protected_hosts()]
         def get(host):
             try:
-                observed = self.delegate.probe(host)
+                observed = capacity_probe(self.delegate,host)
                 if self.admission_source:
                     # The old qualified worker has a narrower owner allowlist
                     # than the generic scheduler. Use its EXACT read-only guard;
@@ -113,6 +158,7 @@ def main():
     parser.add_argument('--source', required=True, type=Path)
     parser.add_argument('--family', required=True, choices=['four', 'world'])
     parser.add_argument('--workers', type=int, choices=[16, 32], default=32)
+    parser.add_argument('--host-load-limit',type=int,choices=(2,4,8),default=8)
     parser.add_argument('--resume', action='store_true')
     args = parser.parse_args(); root = args.root.resolve()
     with (root/'owner.lock').open('a') as lock:
@@ -145,7 +191,25 @@ def main():
             def route(self, routes, inventory, *, parity=False):
                 guard = dispatch_lock.open('a'); fcntl.flock(guard, fcntl.LOCK_EX)
                 try:
-                    result = Base.route(self, routes, inventory, parity=parity)
+                    used={u for j in self.active()for u in j['gpu_uuids']}
+                    result=None
+                    for route in sorted(routes,key=lambda r:-r['free_MiB']):
+                        if route['host']in protected_hosts() or route['uuid']in used:continue
+                        if self.pin.get('evaluation_hosts')and route['host']not in self.pin['evaluation_hosts']:continue
+                        if route['free_MiB']<(49152 if parity else 32768):continue
+                        host=inventory['second'][route['host']]
+                        if host['available_memory_bytes']<128*1024**3:continue
+                        loading=sum(j['host']==route['host'] and self.done(name)is None
+                            and (not(self.output/(name+'.json')).exists() or json.loads((self.output/(name+'.json')).read_text()).get('new',0)<1)
+                            for name,j in self.jobs.items())
+                        limit=min(args.host_load_limit,max(1,int((host['available_memory_bytes']-128*1024**3)//(32*1024**3))))
+                        if loading>=limit:continue
+                        slot=vacant_slot(route['uuid'],family=args.family)
+                        if slot is None:continue
+                        # Qualified worker repeats cohost/UUID/headroom checks
+                        # under this exact slot. This is a new free slot, never
+                        # a stolen lock or an actor/scorer change.
+                        result=dict(route,lease_slot=slot);break
                     if result:
                         self.dispatch_guard = guard
                         return result
@@ -157,7 +221,27 @@ def main():
             def submit(self, name, module, argv, route=None):
                 try:
                     if args.family == 'four':
-                        super().submit(name, module, argv, route)
+                        number=self.attempts.get(name,0)+1;self.attempts[name]=number
+                        receipt=self.root/'jobs'/f'{name}_attempt{number:03d}';receipt.mkdir(parents=True,exist_ok=False)
+                        module='tools.qwen_world_compare.export'if name=='export'else'tools.qwen_world_compare.evaluate'
+                        host=route['host']if route else cpu_host(self.resources)
+                        command=[self.resources.MODEL_PYTHON,'-u','-m',module,*argv]
+                        spec=dict(host=host,command=command,source=str(self.source),source_sha=self.source_sha,
+                            gpu_uuids=[route['uuid']]if route else[],receipt_dir=str(receipt),
+                            execution_only=dict(lease_slot=route.get('lease_slot')if route else None,host_load_limit=args.host_load_limit))
+                        self.jobs[name]=spec;write(receipt/'spec.json',spec)
+                        invocation=['/usr/bin/python3','-u','-m','tools.qwen_world_compare.job_worker',
+                            '--receipt-root',str(receipt),'--command-json',json.dumps(command),'--cwd',str(self.source)]
+                        if route:
+                            minimum=49152 if name=='parity'else 32768
+                            invocation+=['--gpus',str(route['gpu']),'--expected-gpu-uuids-json',json.dumps([route['uuid']]),
+                                '--share-min-free-mib',str(minimum),'--lease-slot',route['lease_slot']]
+                        code='''import subprocess,os,json
+from pathlib import Path
+s=__SPEC__;d=Path(s['directory']);f=open(d/'transport.log','ab',buffering=0)
+p=subprocess.Popen(s['invocation'],cwd=s['source'],env=dict(os.environ,PYTHONPATH=s['source']),stdin=subprocess.DEVNULL,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
+print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat').read_text().split()[21]))))'''.replace('__SPEC__',repr(dict(invocation=invocation,directory=str(receipt),source=str(self.source))))
+                        write(receipt/'operator.json',json.loads(self.resources.remote(host,['/usr/bin/python3','-c',code])))
                     else:
                         # Platform-only adaptation: unique retry receipt dirs.
                         # Commands, worker, scopes, memory guards and register()
@@ -168,7 +252,7 @@ def main():
                         receipt.mkdir(parents=True, exist_ok=False)
                         argv = ['--user-snapshot-registration' if a == '--user-interim-registration' else a for a in argv]
                         spec = dict(source=str(self.source), source_sha=self.source_sha,
-                            host=route['host'] if route else __import__('socket').gethostname().removesuffix('-worker-0'),
+                            host=route['host'] if route else cpu_host(self.resources),
                             gpus=[route['gpu']] if route else [], gpu_uuids=[route['uuid']] if route else [],
                             min_free_MiB=(49152 if name == 'rank0' else 32768) if route else 0,
                             world_shared_lease=bool(route), module=module,
@@ -217,7 +301,7 @@ def main():
                 existing_registration_and_scene_identity_preserved=True))
         # The façade changes administrative probing only, no worker imports.
         if args.family == 'world':
-            request.resources = Pool(request.resources)
+            request.resources = Pool(request.resources,admission_source=request.source)
         else:
             # Match this task's grant rather than the older SourceFlow grant.
             # The probe and worker guards still independently reject sharing.
@@ -240,11 +324,12 @@ def main():
                         result = json.loads((receipt/'result.json').read_text())
                         prechild = (not (receipt/'process.json').exists() and not (receipt/'worker.log').exists()
                             and ('BlockingIOError' in result.get('error', '') or 'Insufficient measured headroom' in result.get('error', '')))
-                        if prechild and request.burst_attempts[name] < 4:
+                        if prechild:
+                            delay=min(300,30*request.burst_attempts[name])
                             write(receipt/'PRECHILD_RESOURCE_CLASSIFICATION.json', dict(
                                 child_not_started=True, scorer_calls=0, physical_inferences=0,
-                                retained_failed_attempt=True, retry_after_seconds=30*request.burst_attempts[name]))
-                            retry_after[name] = time.monotonic()+30*request.burst_attempts[name]
+                                retained_failed_attempt=True, retry_after_seconds=delay))
+                            retry_after[name] = time.monotonic()+delay
                             request.jobs.pop(name); continue
                         while request.active(): time.sleep(15)
                         raise RuntimeError('World worker failed; retain all receipts and completed scene records: '+str(receipt))
@@ -336,3 +421,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+              

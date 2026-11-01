@@ -1,13 +1,35 @@
 import json
 from pathlib import Path
 import tempfile
+import fcntl
 from types import SimpleNamespace
 import unittest
 
-from tools.il_report.navtest_burst import Pool, adopt_four_jobs, prechild_refusal
+from tools.il_report.navtest_burst import Pool, adopt_four_jobs, prechild_refusal,capacity_probe,vacant_slot
 
 
 class BurstRecoveryTest(unittest.TestCase):
+    def test_legacy_probe_requires_real_used_total_and_RAM_enrichment(self):
+        full=dict(MemAvailable_bytes=200*1024**3,worker_python_exists=True,
+            gpus=[dict(total_MiB=80000)],owners=[])
+        calls=[]
+        delegate=SimpleNamespace(probe=lambda h:dict(available_memory_bytes=200*1024**3,gpus=[{}],owners=[]),
+            remote=lambda h,args:calls.append(h)or json.dumps(full))
+        self.assertEqual(capacity_probe(delegate,'host'),full)
+        self.assertEqual(calls,['host'])
+
+    def test_free_primary_is_used_without_stealing_held_shared_slot(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);shared=root/'runtime_gpu_shared_workers/GPU-test.lock';shared.parent.mkdir()
+            with shared.open('a')as lock:
+                fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                self.assertEqual(vacant_slot('GPU-test',family='four',root=root),'primary')
+                self.assertIsNone(vacant_slot('GPU-test',family='world',root=root))
+                primary=root/'runtime_gpu_leases/GPU-test.lock'
+                with primary.open('a')as other:
+                    fcntl.flock(other,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    self.assertIsNone(vacant_slot('GPU-test',family='four',root=root))
+
     def test_inventory_uses_the_qualified_tasks_probe(self):
         calls=[]
         def probe(host):

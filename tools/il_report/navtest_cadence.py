@@ -120,8 +120,10 @@ def enqueue(method, original, step):
 def tick(state, *, max_concurrent_models=2):
     # A user closure also cancels preexisting unstarted pins. Completed scores
     # remain published; this does not stop any other method or worker.
+    closures={'V12':OLD/'optimized_labels_IL_20261028/runs/IL_full_seed42',
+        **{a:OLD/f'fresh_loss_IL_20261029/{a}/runs/IL_full_seed42'for a in('HUBER','TIME_RESIDUAL')}}
     for job in state['jobs']:
-        if job['method']=='V12'and job['status']=='PENDING'and user_termination(OLD/'optimized_labels_IL_20261028/runs/IL_full_seed42'):
+        if job['method']in closures and job['status']=='PENDING'and user_termination(closures[job['method']]):
             job.update(status='CANCELLED_BY_USER',end_unix=time.time(),new_inference_started=False)
     # Reconcile an interrupted registration before considering a new point.
     known_roots = {j['root'] for j in state['jobs']}
