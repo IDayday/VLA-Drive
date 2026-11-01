@@ -1,6 +1,6 @@
 {
   "schema": "world_Safety_research_question_decision_ledger_v1",
-  "updated_unix": 1793501644.3086307,
+  "updated_unix": 1793502459.925023,
   "purpose": "每个用户问题对应完整证据、代码/具体实验与当前状态",
   "items": [
     {
@@ -97,7 +97,7 @@
   "full_pilot_training_census": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_NATIVE_TRAINING_CENSUS_u001000.json",
   "next_priority_direction": {
     "method": "ENDPOINT_RAMP_AR1",
-    "status": "ORIGINAL_ENDPOINT1000_NATIVE_COMPLETE_NAV500_NEGATIVE_LR02_PILOT_REGISTERED",
+    "status": "ORIGINAL_ENDPOINT_NATIVE1000_COMPLETE_LOW_LR_ACTUAL_EIGHT_GPU_RUNNING",
     "reason": "44928成功TRAIN查询已识别真实末端抖动与严格高质支持；以平滑近端小扰动和真实joint条件概率验证训练转化",
     "not_a_claim_of_NAV_improvement": true,
     "registry_arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
@@ -122,7 +122,13 @@
     "conclusion": "更高训练候选质量尚未转化部署收益；不宣称新探索已提分；优先单变量LR×.2校准",
     "low_lr_arm": "SAFETY_ENDPOINT_RAMP_AR1_LR02_G8",
     "low_lr_source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_lr02_v1",
-    "low_lr_owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/ENDPOINT_LR_NATIVE/STATE.json"
+    "low_lr_owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/ENDPOINT_LR_NATIVE/STATE.json",
+    "endpoint1000_full_PDMS": 89.55004583105357,
+    "low_lr_first_real_observation": "8GPU training on vlawm-zt4, actual update106 with actionLR1e-5 and memoryLR1e-6 verified; original common source/configs unchanged",
+    "new_evaluation_owner": 2964290,
+    "new_continuation_owner": 2964291,
+    "new_low_lr_native_owner": 2964292,
+    "new_direct_pair_review_owner": 2968447
   },
   "continuation": {
     "status": "WAITING_CONTINUED_FULL_EVALUATIONS",
@@ -141,5 +147,22 @@
     "status": "TERMINATED_BY_USER_NO_RECOVERY",
     "checkpoint_cleanup": "/mnt/project/qwen-world-abcd-rl-best-20261031/termination_20261101/CHECKPOINT_CLEANUP_COMPLETE.json",
     "IL_retained": true
+  },
+  "endpoint_credit_interaction": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_CREDIT_INTERACTION_500.json",
+    "actual_behavior_files": 2000,
+    "actual_candidates": 16000,
+    "errors": 0,
+    "PG0": {
+      "endpoint": 135,
+      "true_fullscore": 109,
+      "remaining_saturated_comfort_varies": 26
+    },
+    "negative_high": {
+      "total": 447,
+      "actual_lower_score_positive_witness": 64,
+      "higher_score_strict_positive_witness": 383
+    },
+    "decision": "不把合法相对负信用清零；不把满分PG0当失败；先保留LR单变量校准，不盲目组合"
   }
 }
