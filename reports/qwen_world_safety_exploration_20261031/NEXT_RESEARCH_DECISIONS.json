@@ -1,6 +1,6 @@
 {
   "schema": "world_Safety_research_question_decision_ledger_v1",
-  "updated_unix": 1793498162.303392,
+  "updated_unix": 1793499067.565145,
   "purpose": "每个用户问题对应完整证据、代码/具体实验与当前状态",
   "items": [
     {
@@ -97,9 +97,22 @@
   "full_pilot_training_census": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_NATIVE_TRAINING_CENSUS_u001000.json",
   "next_priority_direction": {
     "method": "ENDPOINT_RAMP_AR1",
-    "status": "IMPLEMENTATION_AND_CPU_NATIVE_RECOVERY_IN_PROGRESS_NOT_REGISTERED",
+    "status": "REGISTERED_AND_ACTUAL_EIGHT_GPU_NATIVE_UPDATES",
     "reason": "44928成功TRAIN查询已识别真实末端抖动与严格高质支持；以平滑近端小扰动和真实joint条件概率验证训练转化",
-    "not_a_claim_of_NAV_improvement": true
+    "not_a_claim_of_NAV_improvement": true,
+    "registry_arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/endpoint_v1",
+    "source_commit": "555cdaa454f5fbc446af31b1621ea40caa1f1a86",
+    "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/owners/ENDPOINT_NATIVE/STATE.json",
+    "gates": [
+      500,
+      1000
+    ],
+    "cap": 1000,
+    "first_native_observation": "all8ranks12updates; fresh ratioerror0; finite gradient~1.98; fullfirst50review in progress; no NAV score yet",
+    "first50_production_review": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_PRODUCTION_FIRST50_REVIEW.json",
+    "first50_evidence": "actual full52707840 params, all8rank50updates finite/fresherror0; strict-high474/832 vs284/832; all50 preclipnorm>1, inner2-4 blocked~31%; no canonical-allzero TRAINgroups in this prefix; no NAV or failure-rescue claim",
+    "decision": "Continue registered endpoint pilot; no blind retuning/termination solely because PPO clipping increases; first500/1000 full NAV decides next action"
   },
   "continuation": {
     "status": "WAITING_CONTINUED_FULL_EVALUATIONS",

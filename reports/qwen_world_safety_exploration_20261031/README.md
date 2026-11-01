@@ -14,6 +14,7 @@
 | 饱和组补充canonical优势 | 90.725876 | +0.018268，CI跨0 | 原生续训3k |
 | 严格高分负优势保护 | 90.657625 | −0.049983，CI跨0 | 两条续训名额内较低优先级 |
 | 质量倒置正负优势抵消 | 90.709648 | +0.002040，CI跨0 | 两条续训名额内较低优先级 |
+| 固定ramp-AR1端点策略 | 尚无NAV | 独立fresh第八臂 | 8卡实际训练，500/1000待测 |
 
 G16@500与G8@1000有同16k候选预算，差值−0.584573，CI[-0.904961,-0.283221]。增加组内采样确实改善候选支持，但本轮未证明计算效率提升。ACTIVE净修复57个零分，仍因固定对照高分队列损失而总分下降。严格高分负优势归零、PG0下降，都不能单独当作提分证据。
 
@@ -87,3 +88,9 @@ Completed support probe: all312 selected TRAIN scenes and19,968 candidates, no a
 ## Bounded continuation after full evidence
 
 `CONTINUATION_POLICY.json` documents the single-seed screening rules. After all pilot native/evaluation/review owners naturally finish, a separate CPU owner selects at most two promising or still-uncertain methods with the common G8 control, resumes the original complete native state to3k,5k and10k, and records a decision with exact full-paired evidence at each extension. It checks zero migration, the fixed IL70 high cohort, paired score interval, and two consecutive absolute-score plateaus. Nonselected methods finish at their registered cap; there is no waiting-budget limbo or implicit50k grant. Scientific config and source remain unchanged.
+
+## 第八臂实际生产读数
+
+`ENDPOINT_FORMAL_REGISTRATION.json`绑定冻结科学源码555cdaa及独立ENDPOINT_NATIVE；前七臂源和三组3k预算没有变化。`ENDPOINT_PRODUCTION_FIRST50_REVIEW.json`读取完整模型8rank×50的固定400条journal和104组832个实际评分候选。strict-high474/832（控制284/832）、strict见证92/104（控制90/104）。该前缀两臂均没有全失败组，不能当持久零分救援结果。
+
+Endpoint所有50个globalupdates preclipnorm>1、mean3.13；控制mean.02064且0/50超过1。Endpoint inner2-4实际符号阻断约31%，超界72%-77%不等于阻断；ratio范围.1003..4.0729，无underflow，fresh误差0。这是优化尺度变化，PPO也会在提高好候选概率后正常截断更新；不能单凭这些数字判断LR过大、裁剪有害或最终分数更好。继续已注册pilot，以完整部署NAV决定。
