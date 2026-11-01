@@ -1,0 +1,31 @@
+{
+  "schema": "world_terminal_noise_profile_controls_CPU_check_v1",
+  "status": "PASS_PREPARED_NOT_DISPATCHED",
+  "created_unix": 1793494265.5557256,
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/probe_noise_profiles.py": "1eaba59017255bd4774ae9bd7b75c33d58fb8fa66fc1c2714ab29f87d7884e94",
+    "tests/test_world_noise_profile_controls.py": "f85f290bdaf732cb2db93c8bbe570df776aaf8feeed9b6f2a663273eb7d4cb1a"
+  },
+  "unit_tests": {
+    "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -B -m pytest -q tests/test_world_noise_profile_controls.py",
+    "result": "2 passed, 1 warning in 1.64s",
+    "test_count": 2
+  },
+  "checks": [
+    "Exact innovation basis covariance: H IID ramp and completed G AR1 ramp have identical per-horizon marginal variances; I constant IID has equal trace to H/G peraxis",
+    "Exact saved source z/root/base join rejects mismatch; submitted FP32 accepted by real candidate_bank.trajectory_hash/list roundtrip while nonexactFP64 rejected; only all8x39 complete shards pass"
+  ],
+  "actual_preparation": {
+    "case_count": 312,
+    "exact_saved_FP64_z_loaded_and_hashed": 312,
+    "source_v2_scene_and_NPZ_hashes_verified": 312,
+    "source_ODE_roots_and_requested_hashes_retained": 312,
+    "new_queries_planned": 9984,
+    "queries_executed": 0,
+    "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101/MANIFEST.json",
+    "manifest_sha256": "28c58f485e7976e98cc92735c35b8ce21941de4e3c0ac3fbca1c612b3d690964"
+  },
+  "original_v2_tool_unchanged_sha256": "e9fd343f69cfd44c2a33a2d3fc6d4ead9dd7091a936aab4664603d44b8e98d00",
+  "actor_or_optimizer_loaded": false,
+  "GPU_started": false
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "world_fixed_AR1_endpoint_math_handoff_v1",
+  "status": "PURE_MATH_CPU_READY_NOT_A_REGISTERED_ALGORITHM",
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_policy.py": "d7e5f5c687566bb2f941bba0261148c6ae7b085bed1372292c7dc8cf03b73477",
+    "tests/test_world_endpoint_policy.py": "eade6f966c8dfd71b97288b93d99cb07d2fcc22681a5fd5f550ec64225769e7d"
+  },
+  "module": "starVLA.rl.qwen_world_safety_exploration.endpoint_policy",
+  "API": {
+    "endpoint_log_prob": "endpoint_log_prob(action,mean,sigma,rho=0.,return_diagnostics=False) -> joint [...]; optional (joint,{joint_sum24,mean24_diagnostic,whitened,log_abs_det,covariance_logdet})",
+    "mean_KL": "same_covariance_mean_kl(mean,reference_mean,sigma,rho=0.,return_diagnostics=False)",
+    "replay": "replay_endpoint_mean(actor,condition,stored_x,timestep,delta,use_ref=False,return_normalized=False) -> physical_mean; optional (physical,normalized)",
+    "whitening": "ar1_whiten_standardized(e,rho) and whiten_endpoint_residual(physical_residual,sigma,rho)"
+  },
+  "math": {
+    "action_shape": "[...,8,3], last24 are summed jointly",
+    "units": [
+      "x metres",
+      "y metres",
+      "unwrapped heading radians"
+    ],
+    "sigma": "fixed strictly positive [3] or[8,3]; positive horizon ramp supported; trainable/zero scale rejected",
+    "rho": "fixed scalar finite0<=rho<1",
+    "covariance": "D_sigma @ (R8(rho) kron I3) @ D_sigma, R_ij=rho^abs(i-j)",
+    "whitening": "e=(action-mean)/sigma; z0=e0; zt=(et-rho*e[t-1])/sqrt(1-rho^2)",
+    "log_abs_det": "sum_hd log(sigma_hd) + (3*7/2)*log(1-rho^2)",
+    "logp": "-.5*sum24 z^2 -12*log(2pi)-log_abs_det",
+    "KL": ".5*sum24 whiten((mean-reference_mean)/sigma)^2; divide sigma exactly once",
+    "reduction": "true conditional jointSUM24; /24 diagnostic only, no ratio/objective switch",
+    "dtype": "FP32/FP64 inputs preserved; action/mean/reference coordinate shape/dtype/device must align"
+  },
+  "replay": {
+    "sampling_time": "native sigma*num_train_timesteps >0",
+    "delta": "negative sigma increment; verifyt/T+delta≈0 for actual terminaljump",
+    "formula": "normalized=stored_x.detach()+action_velocity(stored_x.detach(),t.detach(),current_condition,use_ref)*delta.detach(); physical=ActionCodec.denorm_odo(normalized)",
+    "context": "exact with actor._context_call(condition) as current_condition signature, including ScopeRecipeActor currentmemory guards/cache lifetime",
+    "autograd": "prefix/savedstate/time/delta/actiontarget/reference_mean detached; current velocity and current trainable memory retain gradients",
+    "clipping": "none: no clamp/noise truncation/yawwrap in density or endpoint helper"
+  },
+  "primary": {
+    "url": "https://arxiv.org/html/2608.15139v1",
+    "version_date": "2026-08-15",
+    "sections": [
+      "4.2 Eq5-7 last-step replay",
+      "4.3 Eq9-11 AR1 output noise",
+      "AppendixC Eq15-19 scale change of variables"
+    ],
+    "adaptation_zh": "仅固定协方差条件核；不实现论文的learned scale head、PPO/AWAC训练或完整框架。"
+  },
+  "limits": [
+    "Exact Gaussian conditional on a saved late latent; not p(action|observation) marginalized over a learned flow prefix",
+    "Stop-prefix last-step replay is a truncated gradient, not the full decoder Jacobian",
+    "No registered sampler, credit, PPO clip, LR, IL anchor or deployment change",
+    "Same-covariance meanKL is dimensionless Gaussian KL and must not be confused with the existing beta50 physical mean anchor",
+    "No claimed advantage over current policies; prior312proposal rho/energy findings only motivate matched future controls"
+  ],
+  "receipt": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/ENDPOINT_POLICY_CPU_CHECK.json",
+  "no_GPU_registration_or_commit": true,
+  "sha256": "e9b86304182ae75090d675633eece37851259a86a77c2e7c5a27ae728dc75afa"
+}

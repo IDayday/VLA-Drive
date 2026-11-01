@@ -1,0 +1,54 @@
+{
+  "schema": "world_fixed_AR1_endpoint_math_CPU_check_v1",
+  "status": "PASS_TWO_TARGETED_CPU_CHECKS",
+  "created_unix": 1793494454.168991,
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_policy.py": "d7e5f5c687566bb2f941bba0261148c6ae7b085bed1372292c7dc8cf03b73477",
+    "tests/test_world_endpoint_policy.py": "eade6f966c8dfd71b97288b93d99cb07d2fcc22681a5fd5f550ec64225769e7d"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q tests/test_world_endpoint_policy.py",
+  "result": "2 passed in4.16s",
+  "checks": [
+    {
+      "name": "independent dense24x24 MultivariateNormal/Kronecker covariance",
+      "rho": [
+        0.0,
+        0.8
+      ],
+      "positive_ramp": [
+        false,
+        true
+      ],
+      "dtype": "FP64",
+      "verified": [
+        "joint logp including diagonal scale and AR determinant",
+        "same-covariance meanKL",
+        "mean gradients of logp/KL",
+        "savedaction/reference detached",
+        "explicit /24 diagnostic only",
+        "zero/trainable sigma or rho>=1/rho<0 rejected"
+      ]
+    },
+    {
+      "name": "actual ScopeRecipeActor terminal replay",
+      "fixture": "tests/world_postcot/test_scope_rl.make(MEMORY), real tiny CleanXActor + SceneMemoryProvider/PredictiveMemory",
+      "verified": [
+        "two calls rebuild currentmemory twice",
+        "one Qwen prefill",
+        "actionLoRA and both trainablememory provider gradients nonzero finite",
+        "stored prefix/storedx/saved actiontarget/time/delta gradients absent",
+        "all frozen/reference parameters unchanged and no grad",
+        "exact sourceActionCodec physical transform",
+        "nonterminal jump rejected"
+      ]
+    }
+  ],
+  "scope": {
+    "GPU": false,
+    "runtime": false,
+    "registration": false,
+    "commit": false,
+    "live_source_modified": false
+  },
+  "sha256": "79eb548c2e9f3b20e14a93e29ce4ad825a2bcbdc635e5d36463dd98f4ea60d5b"
+}

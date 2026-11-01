@@ -1,0 +1,95 @@
+{
+  "schema": "world_terminal_noise_profile_controls_handoff_v1",
+  "status": "READY_PREPARED_NOT_DISPATCHED",
+  "created_unix": 1793494265.614242,
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/probe_noise_profiles.py": "1eaba59017255bd4774ae9bd7b75c33d58fb8fa66fc1c2714ab29f87d7884e94",
+    "tests/test_world_noise_profile_controls.py": "f85f290bdaf732cb2db93c8bbe570df776aaf8feeed9b6f2a663273eb7d4cb1a"
+  },
+  "tool": "tools.qwen_world_safety_exploration.probe_noise_profiles",
+  "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101/MANIFEST.json",
+  "manifest_sha256": "28c58f485e7976e98cc92735c35b8ce21941de4e3c0ac3fbca1c612b3d690964",
+  "manifest_file_sha256": "87ed36b46dc58d41b91146683a543ce69278b034563c9858fa7a48732ac5b0c2",
+  "launch_plan": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101/LAUNCH_PLAN.json",
+  "output": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101/results",
+  "CLI": [
+    "python",
+    "-u",
+    "-m",
+    "tools.qwen_world_safety_exploration.probe_noise_profiles",
+    "run",
+    "--manifest",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101/MANIFEST.json",
+    "--output",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101/results",
+    "--rank",
+    "RANK0..7",
+    "--world",
+    "8",
+    "--cpu-threads",
+    "2"
+  ],
+  "summarize_CLI": [
+    "python",
+    "-m",
+    "tools.qwen_world_safety_exploration.probe_noise_profiles",
+    "summarize",
+    "--output",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101/results"
+  ],
+  "science": {
+    "H": "H_terminal_ramped_IID: Delta[t,d]=saved_z[t,d]*STD[d]*(t/4)",
+    "I": "I_terminal_energy_matched_IID: Delta[t,d]=saved_z[t,d]*STD[d]*sqrt(.3984375)",
+    "energy_ratio": 0.3984375,
+    "I_amplitude": 0.6312190586476298,
+    "inputs": "Same exact312 TRAIN selected cases, 16 D_ODE endpoints/roots and FP64 innovations physically read from completed v2 NPZ; no new RNG draws or model forwards",
+    "precision": "FP64 noise/raw proposal retained, explicit FP32 requested before official service and real hash precheck; no clipping",
+    "interpretation": {
+      "G_vs_H": "same analytic horizon variance/ramp and same z/root, changes AR1rho.8->IIDrho0",
+      "H_vs_I": "IID both, equal expected total energy, changes temporal variance allocation",
+      "E_vs_I": "IID constant horizon variance both, changes amplitude1->sqrt(.3984375)",
+      "caveat": "All analytic controls refer to prequantization noise; FP32 quantization errors separately recorded; old late comparison changes more than profile"
+    }
+  },
+  "resource_layout": {
+    "world": 8,
+    "case_counts": [
+      39,
+      39,
+      39,
+      39,
+      39,
+      39,
+      39,
+      39
+    ],
+    "candidates_per_case": 32,
+    "queries_per_rank": 1248,
+    "CPU_threads_max": 2,
+    "canonical_scorer_workers_per_rank": 1
+  },
+  "costs": {
+    "failed_v1": 384,
+    "successful_v2": 14976,
+    "new_controls_planned": 9984,
+    "new_controls_executed": 0,
+    "noise_family_total_if_controls_complete": 25344
+  },
+  "source_profile": {
+    "output": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/results",
+    "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/MANIFEST.json",
+    "manifest_file_sha256": "6de187a470b51e9465be4c495a34d196145368543db7225a3cc1343495333c9e",
+    "manifest_sha256": "28dc19f6df720ad1afd7b274766775ba44259ee4d36b056c766839d8ddcb9922",
+    "identity_sha256": "332b24972d4dced117d2bcc5b1c1e800bac4c5cec37a9a5c869069a4070ef874",
+    "summary_path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/results/SUMMARY.json",
+    "summary_file_sha256": "2ac0b52b580abfd79840b244cef2982ca29fd25595ea4c2f179d3c0f882fc992",
+    "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1"
+  },
+  "summary": "Require all312 whole-scene receipts and8 exact39-case shards. Merge actual completed E/F/G and old Late/Mixed/ODE descriptors with new H/I, scene quality/feasible gained/lost, candidate strict/feasible/zero/EP/NC/DAC/TTC/C/DDC. Selected TRAIN proposal-only, no NAV or trained-policy claim.",
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/NOISE_PROFILE_CONTROLS_CPU_CHECK.json",
+  "original_v2_source_or_results_changed": false,
+  "old_labels_rescored_or_reused_for_new_candidates": false,
+  "root_action": "Add narrow CPU module route/whitelist, freeze independent source, launch new8CPUjobs using new owner/output; no automatic dispatch here.",
+  "staged_or_committed": false,
+  "registered_or_dispatched": false
+}
