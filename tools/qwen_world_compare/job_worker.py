@@ -123,13 +123,28 @@ PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
 SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
 
 
+def known_owner_args(args):
+    if any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
+        return True
+    # The already running, separately authorized Safety F/G jobs were added
+    # after this worker's legacy allowlist. Recognize their actual module AND
+    # fixed IL ancestry; a new arbitrary path prefix alone is insufficient.
+    modules=('tools.qwen_world_safety_exploration.train','tools.qwen_world_safety_exploration.evaluate')
+    entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry not in modules:return False
+    parent_flag='--il-checkpoint'if entry.endswith('.train')else'--parent-checkpoint'
+    if parent_flag not in args or args.index(parent_flag)+1>=len(args):return False
+    if args[args.index(parent_flag)+1]!='/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT':return False
+    return any(arg.startswith('/mnt/project/qwen-world-safety-exploration-20261031/')for arg in args)
+
+
 def _known_owners(rows,mapping,indices):
     for row in rows:
         if row['uuid']not in {mapping[i]for i in indices}:continue
         try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
-        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
+        if not known_owner_args(args):
             raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
 
 
