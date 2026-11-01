@@ -7,6 +7,9 @@ from .quality import QualityDiagnosticsMixin
 
 def runtime_for_config(path):
     cfg=yaml.safe_load(Path(path).read_text());r=cfg['research']
+    if r.get('standardized_training') is not None:
+        from .standardized_runtime import standardized_runtime
+        return standardized_runtime(cfg)
     if r.get('endpoint_policy') is not None:
         # Endpoint likelihood has its own quality/audit fields; the historical
         # wrapper explicitly assumes source W3 clamped transition probabilities.

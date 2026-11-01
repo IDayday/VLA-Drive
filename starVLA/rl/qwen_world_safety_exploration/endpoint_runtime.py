@@ -185,9 +185,9 @@ def _tensor(value,shape,dtype,name):
             or not torch.isfinite(value).all()):raise ValueError('Invalid detached endpoint field: '+name)
 
 
-def validate_endpoint_structure(state,rollout,identity,optimizer=None,scheduler=None,*,legacy=False):
+def validate_endpoint_structure(state,rollout,identity,optimizer=None,scheduler=None,*,legacy=False,_recipe_validator=None):
     if legacy:raise ValueError('Endpoint native checkpoints require their own schema2 material')
-    cfg=identity['recipe'];validate_endpoint_recipe(cfg)
+    cfg=identity['recipe'];(_recipe_validator or validate_endpoint_recipe)(cfg)
     if identity['world']!=8:raise ValueError('Endpoint requires world8')
     u,c,i=(state[k] for k in ('updates','collections','next_inner'));phase=state.get('phase')
     if not (0<=u<=cfg['max_steps'] and 0<=i<4 and c>=0) or phase not in recovery.PHASES or phase=='COLLECTING':

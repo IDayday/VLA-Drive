@@ -1,0 +1,286 @@
+{
+  "CPU_receipt": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_TRAINING_CPU_CHECK.json",
+    "sha256": "86f2a0a979e1b5ef3c755942286ba8e64d577da1bf8cbfc8fdf89fdf2bde0ecb"
+  },
+  "actions": {
+    "no_GPU": true,
+    "no_owner_or_evaluation_or_HTML_changes": true,
+    "no_stage_commit": true,
+    "old_frozen_sources_untouched": true,
+    "old_run_identities_untouched": true
+  },
+  "combined": {
+    "denominator": "Original global64 SafetyrawA populationstd retained whenever>0; only exactzero obtains single consistent updatedworld64 std via allrank gather. No generated/imagined timeflags.",
+    "eligibility": "All three decisions see ORIGINAL SafetyA: Dense failedDAConly oldA0 +realinitiallegal timeflags; Sat allfeasibleEP1 oldA0 +canonicalvariation; Inversion qualifying highnegative/lowerRpositive signs in oldactivegroup. Atmost1 branch.",
+    "loss": "CombinedLoss subclasses sameResearchLoss only to add numericmetrics; no separate auxiliary/teacher or endpointdensity override.",
+    "masks": "Dense/Sat activate formerlyzero group; Inversion retains originalPGmask evenif newrawall0, separately logs combined_post_raw_PG0_groups; none preserves originalA/mask exactly.",
+    "payload": "combined_credit has typed realquality/feedback/originalraw/eachsubdecision/deltaSafe/deltaEP/updatedraw/groupSumAudit; boundary joins originalscorer records; allranks recompute transformations/std/masks/statistics.",
+    "protocol_path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/COMBINED_CREDIT_PROTOCOL.json",
+    "protocol_sha256": "42b929a1e084a4de73633f91a59b4451c25607d86c79996fd700e625091e4204",
+    "schema": "world_SafetyEP_disjoint_DenseDAC_Saturated_Inversion_fixed_base_std_v1",
+    "updates": "Dense changesA_safe; Sat/Inversion changeA_EP; updatedA_raw actualpurekernel result. No repeated/ordered trigger; group sum conserved up to audited FP64roundoff; do not recenter."
+  },
+  "configs": [
+    {
+      "arm": "SAFETY_G8_CONTROL",
+      "credit_schema": "world_SafetyEP_group_credit_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+      "peak_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "sha256": "2534821d3e29984c08508beff8473407feac884d703b6f0373d975bee2f41c38",
+      "standard_role": "w3_control"
+    },
+    {
+      "arm": "STANDARD_INVERSION_G8",
+      "credit_schema": "world_SafetyEP_canonical_inversion_pair_cancel_fixed_base_std_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/STANDARD_INVERSION_G8.yaml",
+      "peak_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "sha256": "050347eefb2853284ee1170556ddfa2f715131c66ff77985d13d5f2f8d37e284",
+      "standard_role": "w3_inversion"
+    },
+    {
+      "arm": "STANDARD_COMBINED_G8",
+      "credit_schema": "world_SafetyEP_disjoint_DenseDAC_Saturated_Inversion_fixed_base_std_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/STANDARD_COMBINED_G8.yaml",
+      "peak_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "sha256": "3fa3ab4768dba29f153d89928879475afb4af394136791f356f2e9a2d8ca923f",
+      "standard_role": "w3_combined"
+    },
+    {
+      "arm": "STANDARD_ENDPOINT_LR02_G8",
+      "credit_schema": "world_SafetyEP_group_credit_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/STANDARD_ENDPOINT_LR02_G8.yaml",
+      "peak_lrs": [
+        1e-05,
+        1e-06
+      ],
+      "sha256": "987aa45e57694df5095c01d784945ec459ab0fc91b242ce232d6d976620e03a8",
+      "standard_role": "endpoint_lr02"
+    }
+  ],
+  "created_UTC": "2026-11-01T04:03:41.990014+00:00",
+  "initial_budget": {
+    "future_decisions": [
+      20000,
+      30000,
+      50000
+    ],
+    "observational_gates": [
+      2000,
+      5000
+    ],
+    "policy": "Fresh sameIL70/Adam/RNG42/update0. 2k/5k are observations, not rules to reject tiny score differences; root owns continuation/criteria, no automatic50k promise.",
+    "registered_updates": 10000,
+    "save_every": 500,
+    "scheduler_horizon": 50000
+  },
+  "protocol": {
+    "horizon_updates": 50000,
+    "min_lr_ratio": 0.1,
+    "schema": "world_fixed50k_warmup1000_cosine_floor01_v1",
+    "warmup_updates": 1000
+  },
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+  "runtime_API": {
+    "MRO_combined": [
+      "StandardizedRuntimeMixin",
+      "QualityDiagnosticsMixin",
+      "CombinedRuntimeMixin",
+      "GroupRuntime"
+    ],
+    "MRO_control": [
+      "StandardizedRuntimeMixin",
+      "QualityDiagnosticsMixin",
+      "GroupRuntime"
+    ],
+    "MRO_endpoint": [
+      "StandardizedRuntimeMixin",
+      "EndpointRuntimeMixin",
+      "GroupRuntime"
+    ],
+    "MRO_inversion": [
+      "StandardizedRuntimeMixin",
+      "QualityDiagnosticsMixin",
+      "InversionRuntimeMixin",
+      "GroupRuntime"
+    ],
+    "entry": "tools.qwen_world_safety_exploration.train",
+    "recipe": "validate_standardized_recipe accepts only actual F,4IDs,G8,uniform103288,sourcegrpo/scope; validates a COPY normalized to oldE/warm100/constant; returns actualconfig unchanged.",
+    "recovery": "Std boundary dispatches actualGroup/Inversion/Combined/Endpoint probability schema, adds exact fixedscheduler guard and allrank equality. Endpoint structure accepts an optional recipevalidator; unset uses oldvalidator.",
+    "router": "runtime_for_config checks research.standardized_training first"
+  },
+  "scheduler": {
+    "boundary": "Update1000 uses state999 factor.999001; after1000, state1000 nextfactor1. After50000 nextfactor.1; last actuallyused update50000 seesfactor(49999).",
+    "class_name": "FixedHorizonCosineLR",
+    "cosine": "factor=.1+.9*(1+cos(pi*(u-1000)/49000))/2 for1000<u<=50000; samefactor on action+memory",
+    "mathematical_loss": "Only _build_scheduler supplied by StandardSchedulerLossMixin; every underlying _policy_loss unchanged. Realused optimizer groupLR already logged by existing trainer.",
+    "recovery": "State includes exact fixedprotocol, base_lrs, last_epoch, _step_count, _last_lr; validate against actual Adam initial_lr/lr and nativeupdates BEFORE restore; stage2k/5k/10k never changes horizon.",
+    "unit": "Completed optimizerupdates u == last_epoch; nextusedLR is peak*factor(u). Training calls optimizer.step then scheduler.step once.",
+    "warmup": "factor=.001+.999*u/1000 for0<=u<=1000; firstusedLR peak/1000, not0"
+  },
+  "scheduler_clock": {
+    "0": {
+      "W3_next_lrs": [
+        5.0000000000000004e-08,
+        5e-09
+      ],
+      "completed_updates": 0,
+      "endpoint_next_lrs": [
+        1e-08,
+        1e-09
+      ],
+      "factor": 0.001,
+      "next_update": 1
+    },
+    "1000": {
+      "W3_next_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "completed_updates": 1000,
+      "endpoint_next_lrs": [
+        1e-05,
+        1e-06
+      ],
+      "factor": 1.0,
+      "next_update": 1001
+    },
+    "10000": {
+      "W3_next_lrs": [
+        4.6356982360066416e-05,
+        4.635698236006642e-06
+      ],
+      "completed_updates": 10000,
+      "endpoint_next_lrs": [
+        9.271396472013284e-06,
+        9.271396472013282e-07
+      ],
+      "factor": 0.9271396472013282,
+      "next_update": 10001
+    },
+    "1001": {
+      "W3_next_lrs": [
+        4.99999999537555e-05,
+        4.99999999537555e-06
+      ],
+      "completed_updates": 1001,
+      "endpoint_next_lrs": [
+        9.9999999907511e-06,
+        9.999999990751099e-07
+      ],
+      "factor": 0.99999999907511,
+      "next_update": 1002
+    },
+    "2000": {
+      "W3_next_lrs": [
+        4.995377133688257e-05,
+        4.995377133688257e-06
+      ],
+      "completed_updates": 2000,
+      "endpoint_next_lrs": [
+        9.990754267376514e-06,
+        9.990754267376512e-07
+      ],
+      "factor": 0.9990754267376514,
+      "next_update": 2001
+    },
+    "20000": {
+      "W3_next_lrs": [
+        3.527071372447942e-05,
+        3.5270713724479424e-06
+      ],
+      "completed_updates": 20000,
+      "endpoint_next_lrs": [
+        7.054142744895885e-06,
+        7.054142744895884e-07
+      ],
+      "factor": 0.7054142744895884,
+      "next_update": 20001
+    },
+    "30000": {
+      "W3_next_lrs": [
+        2.1098129300801765e-05,
+        2.1098129300801765e-06
+      ],
+      "completed_updates": 30000,
+      "endpoint_next_lrs": [
+        4.219625860160353e-06,
+        4.219625860160353e-07
+      ],
+      "factor": 0.4219625860160353,
+      "next_update": 30001
+    },
+    "49999": {
+      "W3_next_lrs": [
+        5.000000046244504e-06,
+        5.000000046244504e-07
+      ],
+      "completed_updates": 49999,
+      "endpoint_next_lrs": [
+        1.0000000092489007e-06,
+        1.0000000092489007e-07
+      ],
+      "factor": 0.10000000092489007,
+      "next_update": 50000
+    },
+    "5000": {
+      "W3_next_lrs": [
+        4.926413441837816e-05,
+        4.926413441837817e-06
+      ],
+      "completed_updates": 5000,
+      "endpoint_next_lrs": [
+        9.852826883675634e-06,
+        9.852826883675632e-07
+      ],
+      "factor": 0.9852826883675633,
+      "next_update": 5001
+    },
+    "50000": {
+      "W3_next_lrs": [
+        5e-06,
+        5.000000000000001e-07
+      ],
+      "completed_updates": 50000,
+      "endpoint_next_lrs": [
+        1.0000000000000002e-06,
+        1e-07
+      ],
+      "factor": 0.1,
+      "next_update": 50001
+    },
+    "999": {
+      "W3_next_lrs": [
+        4.9950050000000005e-05,
+        4.995005000000001e-06
+      ],
+      "completed_updates": 999,
+      "endpoint_next_lrs": [
+        9.990010000000002e-06,
+        9.99001e-07
+      ],
+      "factor": 0.999001,
+      "next_update": 1000
+    }
+  },
+  "schema": "world_standardized_training_science_handoff_v1",
+  "scope": "Same52,707,840 production actionLoRA+scene/predictiveMemory; permanent IL70 ref, beta50, original data/prediction/ODE eval; W3peaks5e-5/5e-6; endpointpeaks1e-5/1e-6 explicitpolicy-scale exception.",
+  "source_files": {
+    "starVLA/rl/qwen_world_safety_exploration/combined_credit.py": "690f47736e44f24260b30dc8a4772ddc560282498dca4d4168c1b317c4f0fbc9",
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_runtime.py": "8ed942a6fcee0ee65ec5f88637ace27330b2e8b3ca99c07a4fa7717bde0b6ae4",
+    "starVLA/rl/qwen_world_safety_exploration/runtime.py": "10ba1a405624828f15fcdb10d69a51ffdf8e48c8d07a89be29680294dc6c07fd",
+    "starVLA/rl/qwen_world_safety_exploration/standardized_recipe.py": "ac9a84c8246d8de8a900fa0c950ea80cb8b9fb1e8a2b779d661f46fe75d025dd",
+    "starVLA/rl/qwen_world_safety_exploration/standardized_runtime.py": "b660349d0aa51810b40454b6a5c6901853a2e761b0e11d22f88abd17ef099912",
+    "tests/test_world_standardized_training.py": "833287d555f62dbf656adf0e1d3ecbbd6e304537aced0a39a6b2a7695d07784b"
+  },
+  "status": "CPU_READY_FOR_ROOT_FREEZE"
+}

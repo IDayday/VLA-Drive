@@ -1,0 +1,275 @@
+{
+  "GPU_used": false,
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_standardized_training.py tests/test_world_endpoint_runtime.py::test_endpoint_LR_recipe_router_and_optin_group_load_hook",
+  "configs": [
+    {
+      "arm": "SAFETY_G8_CONTROL",
+      "credit_schema": "world_SafetyEP_group_credit_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+      "peak_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "sha256": "2534821d3e29984c08508beff8473407feac884d703b6f0373d975bee2f41c38",
+      "standard_role": "w3_control"
+    },
+    {
+      "arm": "STANDARD_INVERSION_G8",
+      "credit_schema": "world_SafetyEP_canonical_inversion_pair_cancel_fixed_base_std_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/STANDARD_INVERSION_G8.yaml",
+      "peak_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "sha256": "050347eefb2853284ee1170556ddfa2f715131c66ff77985d13d5f2f8d37e284",
+      "standard_role": "w3_inversion"
+    },
+    {
+      "arm": "STANDARD_COMBINED_G8",
+      "credit_schema": "world_SafetyEP_disjoint_DenseDAC_Saturated_Inversion_fixed_base_std_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/STANDARD_COMBINED_G8.yaml",
+      "peak_lrs": [
+        5e-05,
+        5e-06
+      ],
+      "sha256": "3fa3ab4768dba29f153d89928879475afb4af394136791f356f2e9a2d8ca923f",
+      "standard_role": "w3_combined"
+    },
+    {
+      "arm": "STANDARD_ENDPOINT_LR02_G8",
+      "credit_schema": "world_SafetyEP_group_credit_v1",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/STANDARD_ENDPOINT_LR02_G8.yaml",
+      "peak_lrs": [
+        1e-05,
+        1e-06
+      ],
+      "sha256": "987aa45e57694df5095c01d784945ec459ab0fc91b242ce232d6d976620e03a8",
+      "standard_role": "endpoint_lr02"
+    }
+  ],
+  "created_UTC": "2026-11-01T04:03:41.990014+00:00",
+  "limitations": [
+    "Tiny CPU dimensions/frozen-Qwen fixture/algebraic canonical-scoring mock; no production52.7M model loaded, no newGPU or driving evaluation.",
+    "Eight CPU ranks use explicit gloo parameter-gradient averaging, not a GPU/NCCL/DDP qualification.",
+    "No score improvement or long-run convergence claim from code tests."
+  ],
+  "native_cases": [
+    {
+      "arm": "STANDARD_COMBINED_G8",
+      "boundaries": [
+        "pending0",
+        "pending1",
+        "pending2",
+        "pending3",
+        "READY4"
+      ],
+      "fallback": false,
+      "fixture": "actual ScopeRecipeActor with tiny dimensions; mock Qwen/scorer",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/False",
+      "receipt_sha256": "2f47e250413868741e323a5a209cdebd06c4e22e8d590bff3ba0f03c36aa54dd",
+      "scheduler": {
+        "_get_lr_called_within_step": false,
+        "_last_lr": [
+          2.4980000000000003e-07,
+          2.4980000000000003e-08
+        ],
+        "_step_count": 5,
+        "base_lrs": [
+          5e-05,
+          5e-06
+        ],
+        "fixed_protocol": {
+          "horizon_updates": 50000,
+          "min_lr_ratio": 0.1,
+          "schema": "world_fixed50k_warmup1000_cosine_floor01_v1",
+          "warmup_updates": 1000
+        },
+        "last_epoch": 4,
+        "verbose": false
+      },
+      "seals": [
+        {
+          "complete_sha256": "770c49dec24ab2fe31b6e006f4ac5be081ea0120f6e5b1206a341882dae8500a",
+          "files_sha256": "8057b0456ba8d6abb278fcd0faacf78394bbf7ad1d6fb244b7e7b0f23f6719d2",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/False/checkpoints/update000000_inner0"
+        },
+        {
+          "complete_sha256": "6fa2b557d2d30c6fdf69fee2a007ade6b99b21e53dc75e190b3d41b35f941da8",
+          "files_sha256": "5e4e1202a496157b8ea38166379dc7b1c60302a64daefee5d40500d734cdc646",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/False/checkpoints/update000001_inner1"
+        },
+        {
+          "complete_sha256": "bef52566c6e6070442a38293f21e4f7dd837a6aceb6ad2fdaf38f67b8b29696a",
+          "files_sha256": "a182d4dd43b298fd2322e870512837ecefe531482e1e80fe3d9e2d08ef80e301",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/False/checkpoints/update000002_inner2"
+        },
+        {
+          "complete_sha256": "88e0f5c9b28fdcc7647fdd1dd30b7999b442e8b69f0b5901d2d11b109ab9907b",
+          "files_sha256": "057f69ee845167f4fd3da9bd93f1492517767d03e452f24a94ade7db8f4e1bea",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/False/checkpoints/update000003_inner3"
+        },
+        {
+          "complete_sha256": "13ed7eee70635e3fd2bbb4c0ce62197f590e4581a0cc2f17a2580bc5970dc4ff",
+          "files_sha256": "1f4ffad1d88ecd5cb9c58f36d8740ab034d01309116d3d21f8a6280623915e76",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/False/checkpoints/update000004_inner0"
+        }
+      ],
+      "world": 8
+    },
+    {
+      "arm": "STANDARD_COMBINED_G8",
+      "boundaries": [
+        "pending0",
+        "pending1",
+        "pending2",
+        "pending3",
+        "READY4"
+      ],
+      "fallback": true,
+      "fixture": "actual ScopeRecipeActor with tiny dimensions; mock Qwen/scorer",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/True",
+      "receipt_sha256": "28a126d4e1ebb55f3129d101b31d08bd191b38608a8891a836a25f701b523100",
+      "scheduler": {
+        "_get_lr_called_within_step": false,
+        "_last_lr": [
+          2.4980000000000003e-07,
+          2.4980000000000003e-08
+        ],
+        "_step_count": 5,
+        "base_lrs": [
+          5e-05,
+          5e-06
+        ],
+        "fixed_protocol": {
+          "horizon_updates": 50000,
+          "min_lr_ratio": 0.1,
+          "schema": "world_fixed50k_warmup1000_cosine_floor01_v1",
+          "warmup_updates": 1000
+        },
+        "last_epoch": 4,
+        "verbose": false
+      },
+      "seals": [
+        {
+          "complete_sha256": "3a49770e3af53377c709ba9c1f677dc35e44ef21418132d83f51055041e57ba6",
+          "files_sha256": "8b72d4894e599fe43c81d7bbf3f9daf50fd379fc76d80b732447844ccefd8bd1",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/True/checkpoints/update000000_inner0"
+        },
+        {
+          "complete_sha256": "9b423a5ebaa83f6545e9f9aa2ce943a3883151c1f408dbdf11283198bee6f3af",
+          "files_sha256": "bc4b2dc40c091bce9a72126fb8b99cc8965d1f38edc7921d9092b117aa1a9962",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/True/checkpoints/update000001_inner1"
+        },
+        {
+          "complete_sha256": "0c7c16803ab5bf7a1b61dfe4b9eaefc4ab7e1a09fd67b7cfc520591371b587f3",
+          "files_sha256": "b44dd29e21769c277d746bdaa411528dc7237e1eaaaa1ae69ec5b7e5cf762ade",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/True/checkpoints/update000002_inner2"
+        },
+        {
+          "complete_sha256": "2bc9018adf139ce83e06bf156c90eb63ae2d503ad4821c282659e64c954e086f",
+          "files_sha256": "fe0174331fec6461c9f96d7e6980e42adaa2acd713b628f07d6db8ad1eae4882",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/True/checkpoints/update000003_inner3"
+        },
+        {
+          "complete_sha256": "5ce1c0e4764cfaccfc99171f3fb94a13ffc1ff757af68589a606bcd7ed65cdea",
+          "files_sha256": "e3a29fda3de39141f05c8d557342e3ee67317e8d4cabc4d5f1d4be234731aa39",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_COMBINED_G8/True/checkpoints/update000004_inner0"
+        }
+      ],
+      "world": 8
+    },
+    {
+      "arm": "STANDARD_ENDPOINT_LR02_G8",
+      "boundaries": [
+        "pending0",
+        "pending1",
+        "pending2",
+        "pending3",
+        "READY4"
+      ],
+      "fallback": false,
+      "fixture": "actual ScopeRecipeActor with tiny dimensions; mock Qwen/scorer",
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_ENDPOINT_LR02_G8/False",
+      "receipt_sha256": "4390864bdad246758131d24b9988f3c2c568e780052c0e0e73a49cd94307ff8c",
+      "scheduler": {
+        "_get_lr_called_within_step": false,
+        "_last_lr": [
+          4.9960000000000005e-08,
+          4.9960000000000005e-09
+        ],
+        "_step_count": 5,
+        "base_lrs": [
+          1e-05,
+          1e-06
+        ],
+        "fixed_protocol": {
+          "horizon_updates": 50000,
+          "min_lr_ratio": 0.1,
+          "schema": "world_fixed50k_warmup1000_cosine_floor01_v1",
+          "warmup_updates": 1000
+        },
+        "last_epoch": 4,
+        "verbose": false
+      },
+      "seals": [
+        {
+          "complete_sha256": "f66b48f2c7c8decb9003c2b91cf5949aaeb12f22794824d193b725057ddec9b0",
+          "files_sha256": "9c7b83195c3196a722c19aa71cd8e5620c449cb146c4608076230ff6ccbf0ec2",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_ENDPOINT_LR02_G8/False/checkpoints/update000000_inner0"
+        },
+        {
+          "complete_sha256": "f873c462896b4954a23653e73adb79764d23b212229b723868572cef29279223",
+          "files_sha256": "c554e0d52c15a693f25516a9c13015b4ae1713e7c4095f75243aa99484fcfe25",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_ENDPOINT_LR02_G8/False/checkpoints/update000001_inner1"
+        },
+        {
+          "complete_sha256": "7b9f70bbfc4ad19377fbbc06d9be8dd9bb6323d422da6e1b36d0c029a176e0a0",
+          "files_sha256": "d4ccbaeaf3e6c641e462190329e46986d8f1a31bf0292557c089e5dc12bfd764",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_ENDPOINT_LR02_G8/False/checkpoints/update000002_inner2"
+        },
+        {
+          "complete_sha256": "24b5ab42eba26a8afe578760f2f80e71fbbf6c4638326e16eacd93edebe84902",
+          "files_sha256": "d53db8040f8dc6e505b2f9ebe1f3184c47e2f74a3cd2e1b33fe3738441c5ba49",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_ENDPOINT_LR02_G8/False/checkpoints/update000003_inner3"
+        },
+        {
+          "complete_sha256": "5672f12e1e854e0316e7eef7dbb29531ca468f9b933149228582934ad1197dc5",
+          "files_sha256": "f77f7ab2f59095526739e48d6acf5bc9cba01a8643ccb1bf571d475c3e68fd71",
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE/STANDARD_ENDPOINT_LR02_G8/False/checkpoints/update000004_inner0"
+        }
+      ],
+      "world": 8
+    }
+  ],
+  "native_cpu_archive": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_CPU_NATIVE",
+  "registration_or_dispatch": false,
+  "result": "5 passed",
+  "schema": "world_standardized_training_directed_CPU_check_v1",
+  "seconds": 16.37,
+  "source_files": {
+    "starVLA/rl/qwen_world_safety_exploration/combined_credit.py": "690f47736e44f24260b30dc8a4772ddc560282498dca4d4168c1b317c4f0fbc9",
+    "starVLA/rl/qwen_world_safety_exploration/endpoint_runtime.py": "8ed942a6fcee0ee65ec5f88637ace27330b2e8b3ca99c07a4fa7717bde0b6ae4",
+    "starVLA/rl/qwen_world_safety_exploration/runtime.py": "10ba1a405624828f15fcdb10d69a51ffdf8e48c8d07a89be29680294dc6c07fd",
+    "starVLA/rl/qwen_world_safety_exploration/standardized_recipe.py": "ac9a84c8246d8de8a900fa0c950ea80cb8b9fb1e8a2b779d661f46fe75d025dd",
+    "starVLA/rl/qwen_world_safety_exploration/standardized_runtime.py": "b660349d0aa51810b40454b6a5c6901853a2e761b0e11d22f88abd17ef099912",
+    "tests/test_world_standardized_training.py": "833287d555f62dbf656adf0e1d3ecbbd6e304537aced0a39a6b2a7695d07784b"
+  },
+  "status": "PASS_CPU_ONLY",
+  "unchanged_endpoint_AST": [
+    "collect_endpoint",
+    "EndpointLoss",
+    "source_anchor",
+    "sigma_matrix",
+    "ar1_from_raw"
+  ],
+  "verified": [
+    "Fixed warmup/cosine endpoints and relative .1 floor for BOTH optimizer groups",
+    "Actual scalar Adam/scheduler optimizer updates through10001; native torch.save/load at2000/5000/10000 preserves moments/fullscheduler and exactnextLR; wrong horizon/floor/absolute memoryLR rejected",
+    "Strict4arms recipe/router, actualF in identity, old nonstandard endpoint recipe/router fallback",
+    "Combined all3 gates mutually exclusive on originalSafetyA; group-sum conservation to1e-14 in CPU fixtures; original nonzero world64 std preserved; unrelated normalizedA/mask/loss/gradient bitexact",
+    "All8rank baseStd0 fallback uses complete updated world64 rawA including realDenseflags and Sat feedback; missing/invalid material rejected, sum preserved",
+    "Actual ScopeRecipeActor plus actual scene/predictive memory classes, freshactor native restore on pending0/1/2/3 andREADY4 for bothCombined andEndpoint, including a secondCombined allrank-fallback case",
+    "Adam/moments/scheduler/private rolloutGenerator/rolloutmaterial exact across native save/load; full source checkpoint globalRNG restore path unchanged",
+    "Endpointfresh joint ratio1 and complete finite trainable gradients; default endpoint PG/anchor/sampler math AST unchanged against555"
+  ]
+}
