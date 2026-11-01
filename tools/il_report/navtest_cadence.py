@@ -117,7 +117,7 @@ def enqueue(method, original, step):
         original_checkpoint=str(original), registered_unix=time.time())
 
 
-def tick(state):
+def tick(state, *, max_concurrent_models=2):
     # A user closure also cancels preexisting unstarted pins. Completed scores
     # remain published; this does not stop any other method or worker.
     for job in state['jobs']:
@@ -189,7 +189,7 @@ def tick(state):
             atomic(ROOT/'STATE.json', state)
     for job in state['jobs']:
         if job['status'] != 'PENDING': continue
-        if sum(j['status'] in ('RUNNING', 'DISPATCHING') for j in state['jobs']) >= 2: break
+        if sum(j['status'] in ('RUNNING', 'DISPATCHING') for j in state['jobs']) >= max_concurrent_models: break
         root = Path(job['root'])
         operator_source = Path(__file__).with_name('navtest_burst.py')
         operator = root/('BURST_OPERATOR_ops_'+sha(operator_source)[:12]+'.py')
@@ -222,6 +222,7 @@ def tick(state):
 
 def main():
     parser = argparse.ArgumentParser(__doc__); parser.add_argument('--once', action='store_true')
+    parser.add_argument('--max-concurrent-models', type=int, choices=(1,2,3,4), default=2)
     parser.add_argument('--interval-seconds', type=int, default=600); args = parser.parse_args()
     ROOT.mkdir(exist_ok=True)
     with (ROOT/'owner.lock').open('a') as lock:
@@ -236,7 +237,7 @@ def main():
         atomic(ROOT/'OWNER.json', owner)
         atomic(ROOT/'REGISTRATION.json', dict(interval_updates=2000, initial='latest eligible available sealed checkpoint',
             seed=2101, full_population=12146, metric='canonical_NAVSIM_v1.1', inference='single_cleanx_K10_shift5',
-            workers_per_model=32, max_concurrent_models=2, burst_mode=True, actual_placement='verified idle then qualified sharing',
+            workers_per_model=32, max_concurrent_models=args.max_concurrent_models, burst_mode=True, actual_placement='verified idle then qualified sharing',
             model_batch=1, original_actor_and_scorer_unchanged=True, metadata_only_wakeup_seconds=args.interval_seconds,
             no_training_log_polling=True, no_duplicate_existing_points=True, raw_completed_and_screened_arms_excluded=True,
             native_staging_retired_after_export_and_completed_evaluation=True, deployment_weights_and_scores_retained=True,
@@ -245,7 +246,7 @@ def main():
         while not stop.is_set():
             wake.clear()
             try:
-                tick(state)
+                tick(state, max_concurrent_models=args.max_concurrent_models)
             except Exception:
                 import traceback
                 atomic(ROOT/'FAILURE.json', dict(at=time.time(), error=traceback.format_exc(),
