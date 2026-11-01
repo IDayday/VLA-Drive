@@ -9,6 +9,25 @@ from tools.il_report import navtest_cadence as cadence
 
 
 class CadenceTests(unittest.TestCase):
+    def test_pending_older_abcd_point_does_not_lose_next_retained_boundary(self):
+        with tempfile.TemporaryDirectory() as d:
+            base=Path(d);old=base/'old';four=base/'four';control=base/'control'
+            for p in [old,four,control]:p.mkdir()
+            run=base/'run';checkpoint=run/'checkpoints/update004000';checkpoint.mkdir(parents=True)
+            (checkpoint/'COMPLETE').write_text('{}')
+            state=dict(jobs=[dict(method='ARCH_A',updates=2000,status='PENDING',root=str(base/'older'))])
+            def enqueue(method,path,step):
+                return dict(method=method,updates=step,status='PENDING',root=str(base/'newer'))
+            with patch.object(cadence,'OLD',old),patch.object(cadence,'FOUR',four),\
+                    patch.object(cadence,'ROOT',control),patch.object(cadence,'REPORT',base),\
+                    patch.object(cadence,'runs',return_value={'ARCH_A':run}),\
+                    patch.object(cadence,'registered_points',return_value={('ARCH_A',2000)}),\
+                    patch.object(cadence,'enqueue',side_effect=enqueue) as protect,\
+                    patch.object(cadence.shutil,'disk_usage',return_value=type('Space',(),{'free':10**13})()):
+                cadence.tick(state,max_concurrent_models=0)
+            protect.assert_called_once_with('ARCH_A',checkpoint,4000)
+            self.assertEqual([j['updates']for j in state['jobs']],[2000,4000])
+
     def test_at_least_two_thousand_after_existing_odd_checkpoint(self):
         self.assertEqual(cadence.choose_step([14000, 16000], [13000]), 16000)
         self.assertIsNone(cadence.choose_step([8000], [7000]))
