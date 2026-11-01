@@ -1,8 +1,9 @@
 """Independent finite asynchronous Safety NAVTEST owner; never launches training.
 
 Run with explicit WORLD_COMPARE_ROOT/TASK. Each registered frozen run.source is
-used for every export/evaluate/summarize command. Only proven pre-child resource
-75 is requeued. Other failures preserve receipts for review, never zero scores.
+used for every export/evaluate/summarize command. Pre-child resource75 is requeued; one confirmed CUDA OOM shard may be
+retried unchanged on an idle GPU while retaining all four leases. Other failures
+preserve receipts for review, never zero scores.
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
@@ -18,7 +19,6 @@ from starVLA.rl.qwen_world_safety_exploration.contracts import (ROOT, TASK, allo
 from starVLA.rl.qwen_world_safety_exploration.resources import probe, MODEL_PYTHON, gpu_activity_issue
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from .dispatch import launch, job_state
-from .notify import refresh
 from .notify import refresh
 
 SCHEMA = 'world_Safety_exploration_async_evaluation_owner_v1'
@@ -191,6 +191,18 @@ class EvaluationOwner:
             node['status'] = 'RUNNING'
             return False
         if value['returncode'] != 0:
+            command=node.get('command',[])
+            log=Path(node['job'])/'stdout.log'
+            text=log.read_text(errors='replace')if log.exists()else ''
+            oom=(value.get('returncode')==1 and value.get('status')=='FAILED' and not value.get('forced_expiry')
+                and 'tools.qwen_world_safety_exploration.evaluate'in command and '--rank'in command
+                and '--world'in command and '--summarize'not in command
+                and 'torch.OutOfMemoryError: CUDA out of memory.'in text)
+            if oom and not node.get('evaluation_exclusive_recovery'):
+                previous=dict(job=node['job'],result=value,stdout_sha256=file_sha(log),reason='CONFIRMED_CUDA_OOM_RETRY_SAME_SPEC_ON_IDLE_EXCLUSIVE_GPU')
+                node.setdefault('operator_failures',[]).append(previous);node.pop('job');node.pop('result',None)
+                node.update(status='RESOURCE_REQUEUE',evaluation_exclusive_recovery=True)
+                self.flush();return False
             node.update(status='FAILED_REVIEW_REQUIRED', result=value)
             return False
         node['status'] = 'EXITED'
@@ -208,6 +220,9 @@ class EvaluationOwner:
         if route:
             kwargs = dict(gpus=str(route['gpu']), expected_uuids=[route['uuid']],
                           share_minimum=self.minimum, lease_slot='evaluation')
+            if route.get('exclusive_recovery'):
+                kwargs=dict(gpus=str(route['gpu']),expected_uuids=[route['uuid']],minimum=61440,
+                    lease_slot='evaluation',exclusive_all_slots=True)
             node.update(host=route['host'], gpu_uuid=route['uuid'])
         try:
             launch(node['host'], run['source'], command, name,
@@ -384,7 +399,8 @@ class EvaluationOwner:
                         del claims[uuid]
                 except (KeyError, FileNotFoundError, ValueError):
                     pass  # Unknown claims remain reserved, never stolen.
-            routes = [dict(host=host, gpu=gpu['index'], uuid=gpu['uuid'])
+            routes = [dict(host=host,gpu=gpu['index'],uuid=gpu['uuid'],free_MiB=gpu['free_MiB'],
+                           has_owners=any(o['uuid']==gpu['uuid']for o in sample['owners']))
                 for host, sample in samples for gpu in sample['gpus']
                 if usable_gpu(gpu, sample, minimum=self.minimum, reserved=claims)]
             runs = {run['id']:run for run in self.registry['runs']}
@@ -400,7 +416,13 @@ class EvaluationOwner:
                     node = entry['ranks'].setdefault(str(rank), {})
                     if node.get('job') or node.get('status') in ('COMPLETE', 'FAILED_REVIEW_REQUIRED', 'DISPATCH_UNCERTAIN_REVIEW_REQUIRED'):
                         continue
-                    route = routes.pop(0);run = runs[entry['arm']]
+                    index=0
+                    if node.get('evaluation_exclusive_recovery'):
+                        index=next((i for i,r in enumerate(routes)if not r['has_owners']and r['free_MiB']>=61440 and
+                            all(lease_free(LEASES[name]/(r['uuid']+'.lock'))for name in ('primary','shared','research'))),None)
+                        if index is None:continue
+                    route=routes.pop(index);run=runs[entry['arm']]
+                    if node.get('evaluation_exclusive_recovery'):route['exclusive_recovery']=True
                     if not self.allow_new(run):
                         routes.insert(0, route)
                         continue

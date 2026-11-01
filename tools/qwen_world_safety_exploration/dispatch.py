@@ -9,7 +9,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
 def launch(host, source, command, name, *, gpus='', expected_uuids=None,
-           minimum=None, share_minimum=None, lease_slot=None, worker_source=None):
+           minimum=None, share_minimum=None, lease_slot=None, worker_source=None, exclusive_all_slots=False):
     if TASK != 'qwen_world_safety_exploration_20261031':
         raise ValueError('Explicit WORLD_COMPARE_TASK/ROOT required before importing dispatch')
     directory = ROOT/'jobs'/name
@@ -28,6 +28,7 @@ def launch(host, source, command, name, *, gpus='', expected_uuids=None,
     if share_minimum:
         args += ['--share-min-free-mib', str(share_minimum)]
     args += ['--lease-slot', lease_slot or ('shared' if share_minimum else 'primary')]
+    if exclusive_all_slots:args += ['--exclusive-all-slots']
     env = dict(WORLD_COMPARE_ROOT=str(ROOT), WORLD_COMPARE_TASK=TASK, PYTHONPATH=str(source),
                OMP_NUM_THREADS='4', MKL_NUM_THREADS='4', OPENBLAS_NUM_THREADS='1',
                CUBLAS_WORKSPACE_CONFIG=':4096:8', PYTHONUTF8='1', LC_ALL='C.UTF-8')

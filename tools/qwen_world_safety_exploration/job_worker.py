@@ -196,15 +196,23 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             # Also hold one legacy namespace for the full child lifetime.
             # Exclusive IL guardians reserve all three; this closes the
             # inventory-to-launch race without claiming every free slot.
-            legacy=None
-            for folder in (SHARED_LEASE_ROOT,RESEARCH_LEASE_ROOT,PRIMARY_LEASE_ROOT):
-                candidate=(folder/(mapping[index]+'.lock')).open('a')
-                try:fcntl.flock(candidate,fcntl.LOCK_EX|fcntl.LOCK_NB)
-                except BlockingIOError:
-                    candidate.close();continue
-                legacy=candidate;locks.append(candidate);break
-            if legacy is None:
-                raise ResourceRefused('All legacy namespaces reserved; evaluation must respect exclusive owner')
+            if getattr(args,'exclusive_all_slots',False):
+                for folder in (SHARED_LEASE_ROOT,RESEARCH_LEASE_ROOT,PRIMARY_LEASE_ROOT):
+                    candidate=(folder/(mapping[index]+'.lock')).open('a')
+                    try:fcntl.flock(candidate,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    except BlockingIOError as error:
+                        candidate.close();raise ResourceRefused('Exclusive recovery waits for all legacy leases')from error
+                    locks.append(candidate)
+            else:
+                legacy=None
+                for folder in (SHARED_LEASE_ROOT,RESEARCH_LEASE_ROOT,PRIMARY_LEASE_ROOT):
+                    candidate=(folder/(mapping[index]+'.lock')).open('a')
+                    try:fcntl.flock(candidate,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    except BlockingIOError:
+                        candidate.close();continue
+                    legacy=candidate;locks.append(candidate);break
+                if legacy is None:
+                    raise ResourceRefused('All legacy namespaces reserved; evaluation must respect exclusive owner')
         lease=({'primary':PRIMARY_LEASE_ROOT,'shared':SHARED_LEASE_ROOT,'research':RESEARCH_LEASE_ROOT,'evaluation':EVALUATION_LEASE_ROOT}[slot]/(mapping[index]+'.lock')).open('a')
         try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError as error:
@@ -221,11 +229,14 @@ def main():
     parser.add_argument('--expected-gpu-uuids-json');parser.add_argument('--command-json',required=True);parser.add_argument('--cwd',required=True)
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
     parser.add_argument('--lease-slot',choices=('primary','shared','research','evaluation'))
+    parser.add_argument('--exclusive-all-slots',action='store_true',help='One idle evaluation GPU; retain every legacy lease until the child exits')
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')
+    if args.exclusive_all_slots and (len(indices)!=1 or args.lease_slot!='evaluation' or args.share_min_free_mib or
+            (args.minimum_free_mib or 0)<60000):raise ValueError('Exclusive recovery needs one idle evaluation GPU and >=60000MiB measured headroom')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')
     expected=None if args.expected_gpu_uuids_json is None else json.loads(args.expected_gpu_uuids_json)
     if expected is not None and(not isinstance(expected,list)or len(expected)!=len(indices)or not all(isinstance(v,str)for v in expected)):
@@ -237,7 +248,7 @@ def main():
         start_unix=time.time(),gpus=indices,requested_gpu_uuids=expected,
         command=command,cwd=str(Path(args.cwd).resolve()),shared_headroom_MiB=args.share_min_free_mib)
     state.update(lease_slot=args.lease_slot or ('shared' if args.share_min_free_mib else 'primary'),
-        execution_worker=str(Path(__file__).resolve()),execution_worker_sha256=file_sha(__file__))
+        execution_worker=str(Path(__file__).resolve()),execution_worker_sha256=file_sha(__file__),exclusive_all_slots=args.exclusive_all_slots)
     try:
         try:require_dispatch(admit_long_job=True)
         except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error

@@ -1,6 +1,6 @@
 {
   "schema": "world_Safety_research_question_decision_ledger_v1",
-  "updated_unix": 1793491425.691055,
+  "updated_unix": 1793495713.077441,
   "purpose": "每个用户问题对应完整证据、代码/具体实验与当前状态",
   "items": [
     {
@@ -19,43 +19,43 @@
       "question": "全零组是否无法学习？",
       "finding": "140全canonical零组59仍有SafetyPG/81PG0；97成本tie细时序均可区分；74为NC/TTC通过但全部DAC失败且越界时长不同。",
       "method": "SAFETY_DAC_DENSE_G8，只对initial-legal全部DAC失败且原A0组按真实越界持续比例排序，其他组信用/分母不变。NGRPO为次选负学习，非虚构成功。",
-      "status": "DENSE_CODE_GPU_TRAINING"
+      "status": "DENSE_NATIVE_1000_COMPLETE_FULL_NAV_500_89p7673_1000_90p7823_SAME_BUDGET_CONTROL1000_PENDING"
     },
     {
       "question": "G8是否太少？",
       "finding": "不能由G8失败推断动作支持为零；也不能把6007 PG0全当失败，它们主要是成功饱和。",
       "method": "SAFETY_G16；同时比较G16@500 vsG8@1000同候选和G16@1000 vsG8@1000同曝光/更新。",
-      "status": "G16_GPU_TRAINING"
+      "status": "G16_NATIVE_1000_COMPLETE_FULL_NAV_500_90p1230_EQUIVALENT_CANDIDATE_COMPARISON_PENDING"
     },
     {
       "question": "除了增大G，还有哪些有效探索？",
       "finding": "晚W3扰动、初始根分布、训练SDE到部署ODE的支持转移需在相同theta分开测。",
       "method": "全156历史失败+156同physical-log训练对照；固定Safety10k，匹配根和创新，比较lateW3/mixed-timeW3/shared-root/ODE各16；实际std与全部查询计账。",
-      "status": "CODE_CPU_READY_PENDING_DISPATCH"
+      "status": "FULL312_SUPPORT_AND_STRUCTURED_AND_VARIANCE_CONTROLS_COMPLETE_44928_SUCCESSFUL_QUERIES"
     },
     {
       "question": "严格高质轨迹被怎样赋予优势？",
       "finding": "5910全安全EP1饱和组PG0，其中5552 Comfort不同。此前对所有feasible组混Comfort的q方法已负结果，不能重命名当成功。",
       "method": "先只读记录strict NC/DAC/TTC/Comfort1且score≥.9的正负A和PPO后有效权重；新SaturatedCredit仅在原A0/EP全1组启用canonical delta，不稀释其它EP组。",
-      "status": "QUALITY_DIAGNOSTICS_GPU_ACTIVE_SATURATED_CPU_IMPLEMENTING"
+      "status": "SATURATED_PROTECTED_INVERSION_ALL_NATIVE1000_COMPLETE_FULL_PAIRED_PENDING"
     },
     {
       "question": "课程和学习价值怎样迁移？",
       "finding": "canonical方差、Safety信用方差、learnability、learning progress不是同一量；全失败无witness也不能因筛选被称解决。",
       "method": "SAFETY_ACTIVE_DATA_G8；≥75%uniform；额外优先真实mixed/feasible-EPheadroom且SafetyA方差存在组，私有bank/TTL/cooldown/次数限制/完整native恢复。",
-      "status": "CURRICULUM_GPU_TRAINING_ACTIVATED"
+      "status": "CURRICULUM_NATIVE1000_COMPLETE_500_GAIN_CI_CROSSES0_HIGHCOHORT_REGRESSES_NOT_A_CONFIRMED_WIN"
     },
     {
       "question": "高分怎样不退化，如何安排后续优先级？",
       "finding": "SuccessMemory10k+0.02627CI跨0，修15新增34；Safety30k虽然零分少9个总分下降。固定高分保持比只计修复更关键。",
       "method": "完整配对、.9固定高分队列、正负增益质量、严格安全指标并列。SIL改进门控witness/CLEAR历史成功分布保持二选一后续独立试验，不无条件复制历史最优或打包多个trick。",
-      "status": "FULL_EVIDENCE_COMPLETE_NEXT_RETENTION_DESIGN"
+      "status": "FULL_EVIDENCE_AND_EXPLICIT_CONTINUATION_POLICY_ACTIVE"
     },
     {
       "question": "学习率和组合算法怎样安排？",
-      "finding": "当前actor5e-5/memory5e-6,warmup100后constant并非未配置调度；长训出现回退但未证明由LR单独导致。",
-      "method": "首批保持LR以归因；根据完整gate与实际clip/更新诊断再注册后段衰减或更低memoryLR。组合只选单项有收益且机制触发者；无多seed/无自动50k。",
-      "status": "CONTROLLED_BASE_SCHEDULE_ACTIVE"
+      "finding": "当前actor5e-5/memory5e-6，warmup100后constant；已做Safety10k完整Adam/RNG fork：LR×.2 12k相对同budget+.1516且CI>0，但14k−.0295CI跨0；cosine12/14k未见优势且只走完调度20%/40%，均未超过10k自身。",
+      "method": "不重复把已做LR×data2×2/cosine当新方向，也不外推全cosine失败；先解决候选支持/信用/保持，当前7臂保持同LR以归因。后续仅在实际稳定性证据需要时再登记独立调度。",
+      "status": "EXISTING_LR_FORK_EVIDENCE_REVIEWED_NEW_SEVEN_ARMS_KEEP_MATCHED_SCHEDULE"
     }
   ],
   "objective_PDMS": 92,
