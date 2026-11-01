@@ -190,6 +190,9 @@ class EvaluationOwner:
         if 'returncode' not in value:
             node['status'] = 'RUNNING'
             return False
+        from .resource_migration import requeue_clean_scene_pause
+        if requeue_clean_scene_pause(node,value,allowed_hosts()):
+            self.flush();return False
         if value['returncode'] != 0:
             command=node.get('command',[])
             log=Path(node['job'])/'stdout.log'

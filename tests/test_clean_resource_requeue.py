@@ -3,10 +3,22 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from tools.qwen_world_safety_exploration.resource_migration import requeue_clean_resource_pause
+from tools.qwen_world_safety_exploration.resource_migration import requeue_clean_resource_pause,requeue_clean_scene_pause
 
 
 class CleanResourceRequeue(unittest.TestCase):
+    def test_only_bound_clean_scene_pause_requeues(self):
+        with tempfile.TemporaryDirectory()as tmp:
+            root=Path(tmp);command=['python','-m','tools.qwen_world_safety_exploration.evaluate','--output',str(root),'--rank','2','--world','32']
+            (root/'rank2.json').write_text(json.dumps(dict(status='STOPPED_AT_SCENE_BOUNDARY',rank=2,world=32,host='withdrawn',identity='sealed-evaluator-identity')))
+            value=dict(host='withdrawn',command=command,returncode=0,status='EXITED')
+            node=dict(job='job1',host='withdrawn',command=command,attempt=1)
+            self.assertTrue(requeue_clean_scene_pause(node,value,['white']));self.assertNotIn('job',node);self.assertEqual(node['command'],command);self.assertEqual(node['attempt'],1)
+            for host,code in [('white',0),('withdrawn',1)]:
+                self.assertFalse(requeue_clean_scene_pause(dict(job='job1',host=host,command=command),dict(value,host=host,returncode=code),['white']))
+            (root/'rank2.json').write_text(json.dumps(dict(status='RUNNING',rank=2,world=32,host='withdrawn',identity='sealed-evaluator-identity')))
+            self.assertFalse(requeue_clean_scene_pause(dict(job='job1',host='withdrawn',command=command),value,['white']))
+
     def test_only_clean_withdrawn_native_boundaries_requeue(self):
         with tempfile.TemporaryDirectory()as tmp:
             root=Path(tmp);checkpoint=root/'checkpoints/update123_inner2';checkpoint.mkdir(parents=True)

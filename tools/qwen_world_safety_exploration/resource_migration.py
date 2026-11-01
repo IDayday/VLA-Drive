@@ -30,3 +30,23 @@ def requeue_clean_resource_pause(node,run,latest,receipt,allowed):
     node.setdefault('resource_migrations',[]).append(event)
     for key in ('job','host','resume','start_unix','dispatch_error'):node.pop(key,None)
     return True
+
+
+def requeue_clean_scene_pause(node,receipt,allowed):
+    """A verified scene-boundary stop keeps exact source/command/cache identity."""
+    command=node.get('command',[])
+    if (node.get('host')in allowed or receipt.get('returncode')!=0 or receipt.get('status')!='EXITED'
+            or receipt.get('host')!=node.get('host')or receipt.get('command')!=command
+            or 'tools.qwen_world_safety_exploration.evaluate'not in command
+            or '--rank'not in command or '--world'not in command or '--output'not in command or '--summarize'in command):return False
+    rank=int(command[command.index('--rank')+1]);world=int(command[command.index('--world')+1]);output=Path(command[command.index('--output')+1])
+    path=output/f'rank{rank}.json'
+    if not path.exists():return False
+    result=json.loads(path.read_text())
+    if (result.get('status')!='STOPPED_AT_SCENE_BOUNDARY'or result.get('rank')!=rank or result.get('world')!=world
+            or result.get('host')!=node['host']or not result.get('identity')):return False
+    node.setdefault('resource_pauses',[]).append(dict(job=node['job'],host=node['host'],
+        rank_receipt=str(path),rank_receipt_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),at_unix=time.time()))
+    for key in ('job','result','error'):node.pop(key,None)
+    node['status']='RESOURCE_REQUEUE'
+    return True
