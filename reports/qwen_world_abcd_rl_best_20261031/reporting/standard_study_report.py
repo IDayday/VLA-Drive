@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import re
+import time
 
 
 E_ROOT=Path('/mnt/project/qwen-world-safety-exploration-20261031')
@@ -24,6 +25,7 @@ def section_id(study):
 def section_links(studies):
     links=[(section_id(s),'历史方法复试'if is_revival(s)else '统一配方新研究'if Path(s['root'])==DEFAULT_ROOT else s.get('registration',{}).get('display_name',s['id']))for s in studies]
     if any(s.get('paired_reviews')for s in studies):links.insert(0,('rl-benefit','RL实质收益'))
+    if any(s.get('phase_potential',{}).get('status','').startswith('COMPLETE')for s in studies):links.insert(0,('rl-potential','下一步提升潜力'))
     return links
 
 
@@ -122,6 +124,10 @@ def load_related(h,warnings,inputs):
             snapshot['native_identity_sha256']=identity.get('scientific_identity',{}).get('sha256',identity.get('sha256'))
             snapshot['optimizer_parameter_groups']=identity.get('actual_optimizer',{}).get('parameter_groups',[])
             snapshot['observed_lr']=_observed_lr(snapshot,h)
+            if h.finite(snapshot.get('evidence_mtime')):
+                age=max(0,time.time()-snapshot['evidence_mtime'])
+                snapshot['progress_freshness']=dict(last_observed_utc=h.utc(snapshot['evidence_mtime']),age_seconds=age,threshold_seconds=7200,
+                    stale=age>7200 and snapshot.get('worker_receipt_status')=='RUNNING')
             runs.append(snapshot)
         entries=h.evaluation_entries(registry)+h.evaluation_entries(h.read_json(root/'RESULTS.json',warnings,inputs)or{})
         for state in states.values():
@@ -159,6 +165,8 @@ def load_related(h,warnings,inputs):
                 for row in audit.get(group,[]):
                     item={k:row[k]for k in ['id','priority','action','assessment','reason_zh','completed_updates','candidate_cost_relative_to_G8']if k in row}
                     item['full_NAVTEST_points']=[{k:p[k]for k in ['updates','PDMS','source','path','same_budget_control']if k in p}for p in row.get('full_NAVTEST_points',[])]
+                    if row.get('id')in ['PPO_SAFETY_LRLOW','PPO_SAFETY_LRCOS']:
+                        item['schedule_matched_evidence']=[{k:p[k]for k in ['label','target_PDMS','baseline_PDMS','delta_PDMS','CI95_PDMS']if k in p}for p in row.get('matched_evidence',[])if p.get('label','').endswith('_minus_SAFETY_same_updates')]
                     compact[group].append(item)
             audit=compact
         deployment_path=root/'analysis'/'ACTUAL_REVIVAL_DEPLOYMENT.json'
@@ -182,6 +190,14 @@ def load_related(h,warnings,inputs):
             shared.append(dict(study_id=source['id'],study_root=source['root'],registration_path=source['registration_path'],arm=arm,
                 results=[r for r in source['results']if r.get('arm')==arm and r.get('publishable_complete')]))
         study['shared_controls']=shared
+        if Path(study['root'])==DEFAULT_ROOT:
+            study['phase_potential_path']=str(E_ROOT/'analysis'/'LONG_RUN_PHASE_GAIN_RETENTION_AUDIT_20261101.json')
+            study['phase_potential']=h.read_json(Path(study['phase_potential_path']),warnings,inputs)or{}
+            study['phase_lr_path']=str(E_ROOT/'analysis'/'RL_PHASE_SCHEDULE_OBSERVATION_20261101.json')
+            study['phase_lr_observation']=h.read_json(Path(study['phase_lr_path']),warnings,inputs)or{}
+            study['four_route_oracle_path']=str(E_ROOT/'analysis'/'FOUR_ROUTE_STRICTSAFE_ORACLE_20261101'/'SUMMARY.json')
+            oracle=h.read_json(Path(study['four_route_oracle_path']),warnings,inputs)or{}
+            study['four_route_oracle']={k:v for k,v in oracle.items()if k in ['schema','status','population','policies','common','oracle','strict_high_quality_oracle','interpretation_zh']}
     return studies
 
 
@@ -293,12 +309,89 @@ def _benefit_front(report_root,studies,h):
         r=pair['result'];ci=r.get('PDMS_CI95');qualifier='阶段正向证据'if isinstance(ci,list)and ci[0]>0 else '该阶段负向证据'if isinstance(ci,list)and ci[1]<0 else '区间跨0'
         budget=h.number(u)+' vs '+h.number(ref_u)+('（同候选量）'if u!=ref_u else '（同更新）')
         rows.append([h.esc(names.get(arm,arm))+'<small>'+budget+'</small>',h.fmt(target['PDMS'],5)+'／'+h.fmt(baseline['PDMS'],5),h.fmt(r.get('PDMS_delta'),5)+'<small>'+ci_text(ci)+'</small>',h.number(r.get('repaired_zero'))+'／'+h.number(r.get('new_zero')),h.fmt(r.get('fixed_control_high',{}).get('mean_delta_PDMS'),4),qualifier+'<small>'+link(pair)+'</small>'])
-    if rows:body+='<h3>关键完整配对：预算与高分保持一并看</h3>'+h.table(['方法／预算','方法／Control PDMS','Δ PDMS／配对95%CI','零分修复／新增','固定Control≥.9队列均值Δ','当前证据'],rows)
+    if rows:body+='<details><summary>早期5／10k关键完整配对：预算与高分保持一并看</summary>'+h.table(['方法／预算','方法／Control PDMS','Δ PDMS／配对95%CI','零分修复／新增','固定Control≥.9队列均值Δ','当前证据'],rows)+'</details>'
     body+='<p>5k的饱和信用与纠偏提供正向证据；持续性要结合后续同预算配对，而非只选择最好检查点。饱和信用到10k转为负向证据，Dense10k也未确认优于Control。减少零分不保证总分或高分队列改善。</p>'
     pending=[names[a]+h.number(u)for a,u in [('STANDARD_INVERSION_G8',10000),('STANDARD_ENDPOINT_LR02_G8',5000),('STANDARD_COMBINED_G8',10000)]if not any((s['root'],a,u)in scores for s in studies)]
     if pending:body+='<p class="muted">尚未完整：'+h.esc('、'.join(pending))+'，保留为空。评测执行恢复与数值训练失败分开记录，不以部分均值替代完整成绩。</p>'
     body+='<p class="muted">均为12146场景全量、单训练seed与44物理日志配对bootstrap；历史与多阶段结果参与方法选择，未作多重比较校正。高队列由各对照Control条件选出，是保持诊断，不等同无偏总体收益。</p>'
     return '<section id="rl-benefit"><h2>RL目前的实质收益与边界</h2>'+body+'</section>'
+
+
+def _potential_front(report_root,studies,h):
+    standard=next((s for s in studies if Path(s['root'])==DEFAULT_ROOT),{})
+    audit=standard.get('phase_potential',{})
+    if not audit.get('status','').startswith('COMPLETE'):return ''
+    from research_report import figure
+    link=lambda path,title:h.relative_link(report_root,str(path),title)
+    ci_text=lambda v:'['+', '.join(h.fmt(x,4)for x in v)+']'if isinstance(v,list)and len(v)==2 else '未给区间'
+    complete=[r for s in studies for r in s['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'and h.finite(r.get('PDMS'))]
+    peak=max(complete,key=lambda r:r['PDMS'],default={})
+    body='<div class="notice"><b>仍有具体可检验的提升空间，但不能把阶段性收益外推为继续加步数必然变好。</b>本次已收完整最高 '+h.fmt(peak.get('PDMS',audit.get('absolute_best_completed_PDMS')),5)+'（'+h.esc(peak.get('arm','Control'))+'，'+h.number(peak.get('updates',10000))+'更新）。完整审计 '+h.number(audit.get('snapshot_complete_points'))+' 个全量检查点／'+h.number(len(audit.get('paired_phase_gains',[])))+' 组既有配对，快照 '+h.utc(audit.get('created_unix'))+'。</div>'
+    pairs=audit.get('paired_phase_gains',[]);phase_rows=[]
+    selected=[('REVIVAL_SATURATED_G8',u)for u in [5000,10000,14000,20000]]+[('STANDARD_INVERSION_G8',u)for u in [5000,16000,20000]]
+    for arm,u in selected:
+        r=next((r for r in pairs if r['arm']==arm and r['updates']==u and r.get('reference_updates')==u),None)
+        if not r:continue
+        ci=r.get('CI95_PDMS');verdict='正向配对证据'if isinstance(ci,list)and ci[0]>0 else '负向配对证据'if isinstance(ci,list)and ci[1]<0 else '区间跨0'
+        phase_rows.append(['饱和信用'if arm=='REVIVAL_SATURATED_G8'else '纠偏信用',h.number(u),h.fmt(r.get('absolute_PDMS'),5),h.fmt(r.get('delta_PDMS'),5)+'<small>'+ci_text(ci)+'</small>',verdict])
+    body+='<h3>能学到局部改善，优势还不持续</h3>'+h.table(['方法','同预算更新','方法绝对PDMS','对当点Control Δ／95%CI','证据'],phase_rows)
+    body+='<p>14k／16k的正向差是优于当点Control，绝对分数仍低于Control10k历史峰值。相邻阶段翻转说明需要识别共同阶段变化与方法独有影响，不能把单个正点判为稳定胜出，也不能把一个负点判为长期无效。</p>'
+    points={}
+    for s in studies:
+        for r in s['results']:
+            if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'and h.finite(r.get('PDMS')):points.setdefault(r['arm'],{})[r['updates']]=r['PDMS']
+    def draw(plt):
+        fig,axes=plt.subplots(1,2,figsize=(12.8,3.8),layout='constrained')
+        labels={'SAFETY_G8_CONTROL':'Control','STANDARD_INVERSION_G8':'Inversion','STANDARD_COMBINED_G8':'Combined','STANDARD_ENDPOINT_LR02_G8':'Endpoint LR02','REVIVAL_DENSE_G8':'DenseDAC','REVIVAL_SATURATED_G8':'Saturated','REVIVAL_ACTIVE_DATA_G8':'Active','REVIVAL_G16':'G16 (2x candidates/update)'}
+        panels=[['SAFETY_G8_CONTROL','REVIVAL_SATURATED_G8','STANDARD_INVERSION_G8','REVIVAL_DENSE_G8'],['SAFETY_G8_CONTROL','REVIVAL_ACTIVE_DATA_G8','REVIVAL_G16','STANDARD_COMBINED_G8','STANDARD_ENDPOINT_LR02_G8']]
+        colors={'SAFETY_G8_CONTROL':'#1f2937','STANDARD_INVERSION_G8':'#1769aa','STANDARD_COMBINED_G8':'#8655bd','STANDARD_ENDPOINT_LR02_G8':'#8a8a8a','REVIVAL_DENSE_G8':'#a268aa','REVIVAL_SATURATED_G8':'#15957d','REVIVAL_ACTIVE_DATA_G8':'#d97919','REVIVAL_G16':'#37a9b0'}
+        for ax,arms,title in zip(axes,panels,['Stage-gain methods and Control','Other routes; budget differs for G16']):
+            values=[]
+            for arm in arms:
+                curve=sorted(points.get(arm,{}).items())
+                if not curve:continue
+                ax.plot([u/1000 for u,v in curve],[v for u,v in curve],marker='o',ms=3,lw=2 if arm=='SAFETY_G8_CONTROL'else 1.4,color=colors[arm],label=labels[arm]);values.extend(v for u,v in curve)
+            if values:ax.set_ylim(min(values)-.09,max(values)+.1)
+            ax.set(title=title,xlabel='Optimizer updates (k)',ylabel='Complete NAVTEST PDMS');ax.grid(axis='y',alpha=.15);ax.legend(fontsize=7,frameon=False,ncol=2)
+        return fig
+    body+=figure(report_root,h,'long_run_complete_navtest_curves','完整部署曲线：阶段性优势与绝对峰值分别看',draw,'点只来自完整12146场景SUMMARY，线仅连接已观察点；两面板纵轴按各自数据范围显示。x轴相同更新数不代表G16相同候选成本；同预算配对CI见表，不给未完成评测补点。')
+    active=next((r for r in pairs if r['arm']=='REVIVAL_ACTIVE_DATA_G8'and r['updates']==18000 and r.get('reference_updates')==18000),{})
+    fixed=next((r for r in audit.get('fixed_IL70_same_cohort_between_arms',[])if r['arm']=='REVIVAL_ACTIVE_DATA_G8'and r['updates']==18000),{})
+    curve_map={r['arm']:r for r in audit.get('curves',[])}
+    if active and fixed:
+        masses=active.get('cohort_net_mass_PDMS',{});positive=sum(masses.get(k,0)for k in ['zero','low','middle']);fixed_rows=[]
+        for arm,name in [('REVIVAL_ACTIVE_DATA_G8','Active'),('SAFETY_G8_CONTROL','Control')]:
+            trajectory=next((r for r in curve_map.get(arm,{}).get('own10k_fixed_IL70_high_trajectory',[])if r.get('to_updates')==18000),{})
+            contribution=fixed.get('high_contribution_vs_IL70')if arm!='SAFETY_G8_CONTROL'else fixed.get('control_high_contribution_vs_IL70')
+            fixed_rows.append([name,h.fmt(contribution,5),h.fmt(trajectory.get('high_population_contribution_change'),5),h.fmt(trajectory.get('total_PDMS_change'),5)])
+        body+='<h3>修复低分与保持高分有净补偿；先用同一固定群体核对</h3><p>Active18k相对当点Control修复零分 '+h.number(active.get('repaired_zero'))+'、新增 '+h.number(active.get('new_zero'))+'；按当点Control分档的zero／low／middle贡献 '+h.fmt(positive,5)+'，被其high队列 '+h.fmt(masses.get('high'),5)+' 抵消，总差 '+h.fmt(active.get('delta_PDMS'),5)+'。这个high由当点Control条件选出，不能直接当作因果遗忘。</p>'
+        body+=h.table(['固定同一IL70≥.9群体（8724）','18k高群体相对IL的总分贡献','自身10→18k高群体贡献变化','自身10→18k总体PDMS变化'],fixed_rows)
+        body+='<p>在真正相同的8724个固定场景上，Active18k比Control18k的高群体贡献差 '+h.fmt(fixed.get('high_global_contribution_advantage'),5)+'；但两者自身10→18k高群体下降幅度相近。Active其他固定群体的补益抵消了共同高分回落，不能说这段是Active独有严重遗忘；数据阶段、优化状态与保持能力仍有混杂。</p>'
+        oracle=active.get('oracle',{})
+        body+='<p class="muted">只把选中high队列的<b>净缺口</b>设零的反事实为 '+h.fmt(oracle.get('PDMS_after_net_deficit_removed'),5)+'。这不是可实现收益，不是全部负损失修复的上界，也不能据此判92不可达。</p>'
+    pool=standard.get('four_route_oracle',{});strict=pool.get('strict_high_quality_oracle',{})
+    if pool.get('status','').startswith('COMPLETE')and strict.get('canonical_threshold')==.9:
+        body+='<h3>有限策略池确有互补行为；oracle不是新的部署分</h3><p>四个既有策略逐场景核对后，Control10k的 '+h.number(strict.get('control_zero_denominator'))+' 个零分场景中，'+h.number(strict.get('control_zero_with_any_strict_high_witness'))+' 个有其它策略的<b>NC／DAC／TTC／Comfort全通过且canonical≥.9</b>见证。仍有 '+h.number(pool.get('common',{}).get('all_four_canonical_zero'))+' 个四策略都零分；这只表示有限pool尚未提供解，不等于场景不可解。</p>'
+        body+='<details><summary>互补oracle诊断卡：不是实际排行榜或可部署策略</summary><p>只允许这些严格高质量改良、其余场景保留Control的未来标签oracle为 <b>'+h.fmt(strict.get('baseline_preserving_only_strict_high_improvements_PDMS'),5)+'</b>，零分为 '+h.number(strict.get('baseline_preserving_zero_after_oracle'))+'。该构造仍会保留部分原非strict轨迹；它不是可部署选择器、不是单策略分数、不是可实现收益承诺，<b>不能据此称已达到92</b>。不同更新数也不构成同预算算法排名；各单模型见证有重叠，不能相加。</p></details>'
+        body+='<p class="muted">互补行为还需要信息、信用与保持机制才能学到同一个策略，本审计没有证明这一步。NAVTEST标签仅作诊断，不写TRAIN列表或teacher bank。'+link(standard['four_route_oracle_path'],'完整四策略互补审计')+'</p>'
+    training=audit.get('training_evidence',{});exposure=training.get('active_cumulative_public_summary',{})
+    body+='<p class="muted">过程证据是各阶段末64更新／128个TRAIN组的限定窗口，不是全训练census；所选窗口全8rank同时PG0为0，减少局部PG0并未稳定提高部署分。Active20k公开记录 '+h.number(exposure.get('main_exposures'))+' 次曝光／'+h.number(exposure.get('distinct_seen'))+' 个unique／'+h.number(exposure.get('priority_exposures'))+' 次优先重采；rawA方差不等于已验证学习价值。</p>'
+    lr=standard.get('phase_lr_observation',{});observed=[r for r in lr.get('observed_rows',[])if r.get('optimizer_update')in [10000,20000]]
+    if observed:
+        body+='<h3>下一轮优先三项单独对照：均未注册、未部署</h3><p>已经启用warmup＋cosine；有cos不等于已进入强收敛阶段。下面是实际optimizer.step前使用值，action与memory分开列出，相关性尚不能证明LR导致回摆。</p>'+h.table(['实际step','action used LR','memory used LR','各自峰值比例'],[[h.number(r['optimizer_update']),f"{r['used_action_lr']:.8g}",f"{r['used_memory_lr']:.8g}",h.fmt(r['fraction_of_peak'],2,percent=True)+'%']for r in observed])
+    old_lr=[]
+    for study in studies:
+        for row in study.get('historical_audit',{}).get('R_arms',[]):
+            for r in row.get('schedule_matched_evidence',[]):old_lr.append([h.esc(row['id']),h.esc(r['label'].split('_u',1)[-1].split('_minus_',1)[0]),h.fmt(r.get('delta_PDMS'),5),ci_text(r.get('CI95_PDMS'))])
+    if old_lr:body+='<details><summary>已经研究过LR：旧10k native fork的完整对照仍保留</summary>'+h.table(['旧方法','全局更新','对旧Safety同预算Δ','95%CI'],old_lr)+'<p>旧低LR12k有正向证据，14k未保持；旧局部cos12／14k区间跨0，均未超旧Safety10k。新P0是fresh IL70／warmup1000下复审并扩展调度保持问题，不是首次LR尝试，也不恢复已停止旧fork。</p></details>'
+    directions=[['P0','复审并扩展调度保持问题','同IL70 fresh，20k总周期对照现有50k；warmup1000／floor.1／峰值与其他科学配方保持，均训练到20k。','检验完整衰减周期包；看全曲线、安全、zero与固定IL70-high保持，不只选最好点。'],['P1','扩大不同场景的优化批次','有效批次8→32个不同场景，保持每场景G8；当前是world8×每rank1场景、4inner。G16只增加同场景候选，不是场景batch扩展。','同时按更新数、fresh场景、候选查询和计算成本比较；单独验证，不能把多曝光当同预算胜出。'],['P2','质量门控的好RL行为保持／退化回放','先用TRAIN固定诊断确认退化或同θ ODE低分、G8有严格成功支持；确认实际激活后再设计独立保持约束。','区别旧SuccessMemory固定teacher和Protected取消所有负A；历史不混入on-policy优势，高分的合理相对负A仍允许。']]
+    body+=h.table(['优先级','要解决的问题','可审查的单变量方向（设计）','判据与边界'],directions)
+    body+='<p>减少4inner重用、分层顺序、真满分PG0组anchor门控只作后续单独诊断。现有全量顺序已经randperm打乱，不能把共同回摆直接归因于连续难块，也不能据局部非零anchor指认它造成遗忘。现有Inv／Sat长训不会因这些提案而提前停止；当前native不临时改参或重置时钟。</p>'
+    body+='<p class="muted"><a href="https://arxiv.org/html/2510.13786v1">ScaleRL</a>区分prompt批次和每prompt生成数，支持按计算预算检验批次；<a href="https://arxiv.org/html/1811.11682v2">CLEAR</a>以历史行为保持配合新经验学习。它们是机制参考，不是驾驶收益复现。<a href="https://arxiv.org/html/2607.04364v3">CPO</a>只用于讨论历史分布保持；其<a href="https://github.com/MaolinLuo/CPO#important-notice-dataset-update-2026-10-12">官方2026-10-12通告</a>披露MedBookVQA答案泄漏并正重评，不据其分数宣传。</p>'
+    body+='<p>'+link(standard['phase_potential_path'],'完整潜力／固定队列审计')+' · '+link(standard['phase_lr_path'],'实际LR与设计语义')+'。审计未新评分、未新bootstrap；上述方向仍是可证伪的迁移假说。</p>'
+    stale=[r for s in studies for r in s['runs']if r.get('progress_freshness',{}).get('stale')]
+    if stale:body+='<details open><summary>运行确认：旧RUNNING不能替代新进度</summary>'+h.table(['arm','最后共同更新','最后日志','当前解释'],[[h.esc(r['id']),h.number(r.get('updates')),h.esc(r['progress_freshness']['last_observed_utc']),'进度过期／当前运行未确认；不据此判数值或算法失败']for r in stale])+'</details>'
+    return '<section id="rl-potential"><h2>阶段性收益还有提升能力吗：最新诊断与下一步</h2>'+body+'</section>'
 
 
 def render_related(report_root,studies,h):
@@ -316,7 +409,10 @@ def render_related(report_root,studies,h):
         body+='<p class="muted">相关RL实现的调度依任务而异；统一warmup＋cosine是可检验的本轮设计，未被证明为所有任务最优。</p>'
         rows=[]
         for run in runs:
-            if run.get('worker_returncode')==75:status='资源准入等待（非科学失败）'
+            paused=any(token in str(run.get('status','')).upper()for token in ['PAUSED','USER_PAUSE'])
+            if paused:status='用户暂停，当前不推进'
+            elif run.get('progress_freshness',{}).get('stale'):status='<b>进度过期／当前运行未确认</b><small>最后日志 '+h.esc(run['progress_freshness']['last_observed_utc'])+'；距今 '+h.fmt(run['progress_freshness']['age_seconds']/3600,1)+' 小时。旧RUNNING回执不等于当前健康。</small>'
+            elif run.get('worker_returncode')==75:status='资源准入等待（非科学失败）'
             elif run.get('worker_returncode')not in(None,0):status='执行失败待审，原件保留'
             elif run.get('worker_receipt_status')=='RUNNING'and run.get('journal_ranks')==8 and h.finite(run.get('updates'))and run['updates']>0:status='实际八rank优化已见'
             elif run.get('worker_receipt_status')=='RUNNING':status='child启动，待实际更新'
@@ -393,4 +489,4 @@ def render_related(report_root,studies,h):
         if existing:body+='<p class="muted">'+ ' · '.join(label(p,'科学协议／CPU检查'if i==0 else '定向CPU检查')for i,p in enumerate(existing))+'；CPU检查不代表已获得部署收益。</p>'
         title=reg.get('display_name')or('复审历史判断：统一配方下的方法复试'if revival else '当前标准化子研究：统一warmup＋cosine与更充分训练')
         bodies.append('<section id="'+section_id(study)+'"><h2>'+h.esc(title)+'</h2><p class="deck">独立父身份／输出命名空间；配置、启动、真实LR与完整评测分层记录。</p>'+body+'</section>')
-    return _benefit_front(report_root,studies,h)+''.join(bodies)
+    return _potential_front(report_root,studies,h)+_benefit_front(report_root,studies,h)+''.join(bodies)
