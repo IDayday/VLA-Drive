@@ -29,6 +29,7 @@ from starVLA.rl.simwam_recipe.data_stream import make_scene_stream
 from starVLA.rl.simwam_recipe import checkpoint
 from starVLA.rl.simwam_recipe.recovery_state import boundary_phase,rollout_digest
 from starVLA.rl.qwen_world_safety_exploration.recovery import validate_structure as validate_boundary
+from starVLA.rl.qwen_world_safety_exploration.guard_return import boundary_signature,stopped_checkpoint
 from starVLA.rl.simwam_recipe.invocation import Invocation
 from starVLA.rl.simwam_recipe.lineage import scientific_identity,execution_identity,verify_migration
 from starVLA.rl.flow_grpo.reproducibility import configure_numerics
@@ -217,18 +218,25 @@ def main(runtime=None):
         if a.fault==point and worker==a.fault_rank and state['updates']==a.fault_at_update:
             raise RuntimeError('Qualification injected failure: '+point)
     def save_boundary():
+        nonlocal last_saved_signature
         begin=time.monotonic()
         result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,fault=fault,**checkpoint_validation)
         invocation.saved(result,time.monotonic()-begin)
+        last_saved_signature=boundary_signature(state,rollout)
         return result
     frozen_before=parameter_hash(actor,trainable=False) if a.qualification else None
     first_adapters=checkpoint.cpu_tree({n:p.clone() for n,p in actor.named_parameters() if p.requires_grad}) if a.qualification else None
-    started=time.monotonic();save_every=a.save_every or cfg['save_every_optimizer_updates'];last_saved=None
+    started=time.monotonic();save_every=a.save_every or cfg['save_every_optimizer_updates'];last_saved=str(a.resume) if a.resume else None
+    last_saved_signature=boundary_signature(state,rollout) if a.resume else None
     journal=(root/f'metrics_rank{rank}.jsonl').open('a',buffering=1)
     try:
         if not a.resume:last_saved=save_boundary()
         while state['updates']<cfg['max_steps']:
             dispatch()
+            if stop_requested(device):
+                last_saved,last_saved_signature=stopped_checkpoint(state,rollout,last_saved,last_saved_signature,save_boundary)
+                if rank==0:atomic_json(root/'progress.json',dict(public_state(),status='PAUSED',checkpoint=last_saved,host=host,invocation=invocation.id,invocation_start_update=invocation.record['start_update'],wall_seconds_this_invocation=time.monotonic()-started))
+                break
             if rollout is None:
                 state['phase']='COLLECTING';invocation.event('collection_start')
                 token,position=runtime.stream.at(state['scene_cursor'],rank)

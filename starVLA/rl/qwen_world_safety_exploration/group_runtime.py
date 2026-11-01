@@ -111,13 +111,8 @@ def collect_group(actor, condition, token, log, service, generator, *, group_siz
 class GroupRuntime(ResearchRuntime):
     """Subclass make_credit or the explicit stream/state hooks for new arms."""
     def require_dispatch(self):
-        from .contracts import require_dispatch, boundary_stop_due
-        host = require_dispatch()
-        if boundary_stop_due(host):
-            # Explicit callback also works when the trainer executes as __main__.
-            # Importing its canonical module here would create a second STOP flag.
-            self.request_stop()
-        return host
+        from .guard_return import native_dispatch
+        return native_dispatch(self)
 
     @staticmethod
     def source_files():
