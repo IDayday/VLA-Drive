@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "at_unix": 1793574821.5758705,
+  "scope": "Execution-control-only equivalence; no new performance qualification",
+  "changed_files": [
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py",
+    "starVLA/rl/qwen_world_safety_exploration/guard_return.py",
+    "tools/qwen_world_safety_exploration/train.py"
+  ],
+  "unchanged_source_file_count": 198,
+  "CPU_tests": {
+    "passed": 2,
+    "seconds": 0.17,
+    "command": "python -m pytest tests/test_world_guard_native_return.py"
+  },
+  "ordinary_math_rng_unchanged": true,
+  "existing_stop_saves_without_new_collect_or_Adam": true,
+  "new_dispatch_permission_not_relaxed": true,
+  "limitations": "No claim of new GPU performance or bitwise cross-host training; native strict restore still required"
+}

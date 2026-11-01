@@ -1,0 +1,2324 @@
+{
+  "schema": "world_finite_guard_native_failure_audit_v1",
+  "status": "COMPLETE",
+  "created_unix": 1793574333.4865298,
+  "scope": "Shared filesystem only, no SSH/GPU/proc operations; full7 affected exits, all56 per-rank failure evidences,7 full native metadata inventories and56 rank RNG payload hashes; optimizer bytes not loaded/read",
+  "population_arms": 7,
+  "rows": [
+    {
+      "arm": "SAFETY_G8_CONTROL",
+      "study": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+      "runroot": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+      "native_state_status": "FAILED_REVIEW_REQUIRED",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to042000_attempt001",
+      "result_path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to042000_attempt001/RESULT.json",
+      "result_file_sha256": "01e97fe01c97b24b8476ffd1c477852049c28488076d1a1af552b73b41c10938",
+      "result": {
+        "returncode": 1,
+        "status": "FAILED",
+        "host": "training-vlawm-zt",
+        "start_unix": 1793570910.5419812,
+        "end_unix": 1793571306.8491054,
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "migration_required": true,
+        "forced_expiry": null,
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+      },
+      "stop_file_exists": true,
+      "stop_file_mtime_unix": 1793571301.0,
+      "stdout_path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to042000_attempt001/stdout.log",
+      "stdout_tail_bytes": 27346,
+      "stdout_tail_sha256": "b2e2802c4f377a4a7be42b4343b8a7a17c92df7e22488cdbd5dfb314acfc6ed2",
+      "stdout_permission_hosts": [
+        "training-vlawm-zt"
+      ],
+      "failure_evidence": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank0-19badf14086d470f8296601dace82db7/evidence.json",
+          "file_sha256": "9599b394d8e90ba8b8323bd02447124a3016f729154ea308f385dc8131408174",
+          "rank": 0,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.3075697,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank1-fedfe5079dad4c5d9b839c88c64cf216/evidence.json",
+          "file_sha256": "c3c859d7724074df89eea9cd5760695ecc532630498a417dcd920c3e3edd2f48",
+          "rank": 1,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.2756157,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank2-0bc7a8fe62414b2ba4c81853b72e8f30/evidence.json",
+          "file_sha256": "99d926e35daefc6aa25904055b72d0a7a136e327bbf17d263a5fc2809ab02cb5",
+          "rank": 2,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.307926,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank3-19240f40aa77430684e18fabcea47258/evidence.json",
+          "file_sha256": "b7fce4e44c17dbe6d3d0f67b696ec17d68e558554ac5ad82fb10d629e0f627db",
+          "rank": 3,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.274893,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank4-f8aa37e72aa64383a16cf19010f3df0f/evidence.json",
+          "file_sha256": "5b795c3b780a5dda854241690229609a12ae4cabc951d0d99b6e8708360011fb",
+          "rank": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.2765074,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank5-633d9d1da98249a395825c8347e44611/evidence.json",
+          "file_sha256": "5e289d4d903e47c61c8190b2e0a0d9131d0d69ad6d37cef7544451e38f97872f",
+          "rank": 5,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.275928,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank6-ba530d7857d3415494931997104e6840/evidence.json",
+          "file_sha256": "1724a48091e86611d98e43c96b0b928318f0f39188ced0e2b482f2f7188a3750",
+          "rank": 6,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.2762165,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/failures/3dc637be45d2407b818afeacb33dc2d8/rank7-9b150bf4d3b84e1f9bd9cb31d1977055/evidence.json",
+          "file_sha256": "9bd00ca0471bd02e0d82726e50d1fd5c0cd15be80e7be8392b82b1476163c647",
+          "rank": 7,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8",
+          "updates": 40180,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 80360,
+          "collections": 10045,
+          "time_unix": 1793571300.275279,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        }
+      ],
+      "all8_failures_same_authorization_dispatch_exception": true,
+      "unique_exception_last_lines": [
+        "PermissionError: Host not authorized: training-vlawm-zt"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update040000_inner0",
+      "checkpoint_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 40000,
+        "next_inner": 0,
+        "files_sha256": "370358e949a29b2c710e7beffb08c44f3cf9aedf3116ee3be2d6999fe7c11539"
+      },
+      "checkpoint_identity_sha256": "21852067f719f087048221231b826c84a7a559269b96bc84b703b97d110829c6",
+      "checkpoint_inventory_sha256": "370358e949a29b2c710e7beffb08c44f3cf9aedf3116ee3be2d6999fe7c11539",
+      "checkpoint_lightweight_checks": {
+        "complete_schema2": true,
+        "complete_world8": true,
+        "publication_inventory_sha256": true,
+        "required_inventory": true,
+        "all_inventory_paths_safe": true,
+        "small_file_payload_sha256": {
+          "identity.json": true,
+          "rank0.pt": true,
+          "rank1.pt": true,
+          "rank2.pt": true,
+          "rank3.pt": true,
+          "rank4.pt": true,
+          "rank5.pt": true,
+          "rank6.pt": true,
+          "rank7.pt": true,
+          "transaction.json": true
+        },
+        "run_identity_equal": true,
+        "transaction_ranks8": true,
+        "transaction_counters_match": true,
+        "optimizer_present": true,
+        "optimizer_bytes": 633014690,
+        "optimizer_hash_load_deferred_to_native_restore": true
+      },
+      "checkpoint_transaction_counters": [
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        },
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        },
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        },
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        },
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        },
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        },
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        },
+        {
+          "updates": 40000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 10000,
+          "scene_cursor": 80000
+        }
+      ],
+      "last_native_journal_rows": [
+        {
+          "rank": 0,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        },
+        {
+          "rank": 1,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        },
+        {
+          "rank": 2,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        },
+        {
+          "rank": 3,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        },
+        {
+          "rank": 4,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        },
+        {
+          "rank": 5,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        },
+        {
+          "rank": 6,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        },
+        {
+          "rank": 7,
+          "updates": 40180,
+          "collection": 10045,
+          "inner_completed": 4,
+          "invocation": "3dc637be45d2407b818afeacb33dc2d8"
+        }
+      ],
+      "unsealed_optimizer_updates_after_latest_cp": [
+        180
+      ],
+      "owner_record_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update040000_inner0",
+      "owner_checkpoint_is_stale": false,
+      "classification": "RESOURCE_AUTHORIZATION_COOPERATIVE_SAVE_BUG_NOT_ALGORITHM_FAILURE",
+      "restore_status": "SEALED_NATIVE_CHECKPOINT_AVAILABLE_STRICT_NATIVE_RESTORE_REQUIRED",
+      "can_restore_failed_unsealed_state": false,
+      "lossless_recovery": false
+    },
+    {
+      "arm": "STANDARD_INVERSION_G8",
+      "study": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+      "runroot": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8",
+      "native_state_status": "FAILED_REVIEW_REQUIRED",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to038000_attempt001",
+      "result_path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to038000_attempt001/RESULT.json",
+      "result_file_sha256": "8f855e643c2a9836e7e1edb633c2d075b62669e0105b9c2f93b1daf2f23ceabd",
+      "result": {
+        "returncode": 1,
+        "status": "FAILED",
+        "host": "training-rl-zt2",
+        "start_unix": 1793569880.374088,
+        "end_unix": 1793571307.6986015,
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "migration_required": true,
+        "forced_expiry": null,
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+      },
+      "stop_file_exists": true,
+      "stop_file_mtime_unix": 1793571302.0,
+      "stdout_path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to038000_attempt001/stdout.log",
+      "stdout_tail_bytes": 27264,
+      "stdout_tail_sha256": "8a535c751fa633a57ab825eee8fec46ba45da35a1ef497e9702b384bdaf9c0b6",
+      "stdout_permission_hosts": [
+        "training-rl-zt2"
+      ],
+      "failure_evidence": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank0-db3090673f694f01813dd4c266a4cdcd/evidence.json",
+          "file_sha256": "7d61c0504d3b4ff447ff788ccfdec54fcaaec7a2c504534c0916bba6ab40af8d",
+          "rank": 0,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.7259626,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank1-ff30b4b1bb73450cb17266eb0e41ee77/evidence.json",
+          "file_sha256": "8717ea985e1c55cfa24279f96eaf6c6d127d851792dce96209925061c951f83a",
+          "rank": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.725179,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank2-23b1306e77944746908c2cb7a31037be/evidence.json",
+          "file_sha256": "420e818a970d4fe4fcb9ae5c15dcdd4fb4081be6fea4fbe3f3bf9aca7b7021cd",
+          "rank": 2,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.7262263,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank3-d7104439029b44f5bfbe65893510db6d/evidence.json",
+          "file_sha256": "6752ee3ed18491bf6dd57f605e6877b12df975cbe52361734f02030a068506aa",
+          "rank": 3,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.7269685,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank4-5809e04b490f467480a72cb8a81e8c3e/evidence.json",
+          "file_sha256": "0ec960737c27c602760f5fb3a4b2f85bcfdaa4200215facd54d92761fe398986",
+          "rank": 4,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.7264633,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank5-199aedefc299401fbecd13dfb32e1ddd/evidence.json",
+          "file_sha256": "bf6fdce30442af9f34c801f3a55faa646e55a3e789a7932a214f883d57d3cff0",
+          "rank": 5,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.727226,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank6-93aebb20707e42b8bd9e1fd4c2811ac6/evidence.json",
+          "file_sha256": "a6b26632dd9d2de9e57eab1cee11efac57d64407401eeacb795e09ffe80b4980",
+          "rank": 6,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.725717,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/failures/8c044349d03c43278ed77eafcd236059/rank7-ce1aa5bfb16a4d4cb5c708d4d0f31d57/evidence.json",
+          "file_sha256": "b59d27065152952615ca5c1a8e96e56707eb7296924d54ba605e1df9a2d59972",
+          "rank": 7,
+          "invocation": "8c044349d03c43278ed77eafcd236059",
+          "updates": 36977,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73960,
+          "collections": 9245,
+          "time_unix": 1793571301.7267256,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-rl-zt2\n",
+          "partial_rollout_exists": true
+        }
+      ],
+      "all8_failures_same_authorization_dispatch_exception": true,
+      "unique_exception_last_lines": [
+        "PermissionError: Host not authorized: training-rl-zt2"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/checkpoints/update036500_inner0",
+      "checkpoint_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 36500,
+        "next_inner": 0,
+        "files_sha256": "12ff63aef2f115c55afc87d743a273924a94b809ce1611e6df37563b9d2d4275"
+      },
+      "checkpoint_identity_sha256": "3ee9e88b8943faa9f42339d50f8a7829aa169957c3dd0264d278ea956d3ff1c8",
+      "checkpoint_inventory_sha256": "12ff63aef2f115c55afc87d743a273924a94b809ce1611e6df37563b9d2d4275",
+      "checkpoint_lightweight_checks": {
+        "complete_schema2": true,
+        "complete_world8": true,
+        "publication_inventory_sha256": true,
+        "required_inventory": true,
+        "all_inventory_paths_safe": true,
+        "small_file_payload_sha256": {
+          "identity.json": true,
+          "rank0.pt": true,
+          "rank1.pt": true,
+          "rank2.pt": true,
+          "rank3.pt": true,
+          "rank4.pt": true,
+          "rank5.pt": true,
+          "rank6.pt": true,
+          "rank7.pt": true,
+          "transaction.json": true
+        },
+        "run_identity_equal": true,
+        "transaction_ranks8": true,
+        "transaction_counters_match": true,
+        "optimizer_present": true,
+        "optimizer_bytes": 633014690,
+        "optimizer_hash_load_deferred_to_native_restore": true
+      },
+      "checkpoint_transaction_counters": [
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        }
+      ],
+      "last_native_journal_rows": [
+        {
+          "rank": 0,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        },
+        {
+          "rank": 1,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        },
+        {
+          "rank": 2,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        },
+        {
+          "rank": 3,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        },
+        {
+          "rank": 4,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        },
+        {
+          "rank": 5,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        },
+        {
+          "rank": 6,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        },
+        {
+          "rank": 7,
+          "updates": 36977,
+          "collection": 9245,
+          "inner_completed": 1,
+          "invocation": "8c044349d03c43278ed77eafcd236059"
+        }
+      ],
+      "unsealed_optimizer_updates_after_latest_cp": [
+        477
+      ],
+      "owner_record_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/checkpoints/update036000_inner0",
+      "owner_checkpoint_is_stale": true,
+      "classification": "RESOURCE_AUTHORIZATION_COOPERATIVE_SAVE_BUG_NOT_ALGORITHM_FAILURE",
+      "restore_status": "SEALED_NATIVE_CHECKPOINT_AVAILABLE_STRICT_NATIVE_RESTORE_REQUIRED",
+      "can_restore_failed_unsealed_state": false,
+      "lossless_recovery": false
+    },
+    {
+      "arm": "STANDARD_COMBINED_G8",
+      "study": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+      "runroot": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8",
+      "native_state_status": "FAILED_REVIEW_REQUIRED",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to036000_attempt001",
+      "result_path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to036000_attempt001/RESULT.json",
+      "result_file_sha256": "3ad3efce4fd0b5c3f51f4bd27a7ba225041d702e93951bbe0bdee2a21e23bf1f",
+      "result": {
+        "returncode": 1,
+        "status": "FAILED",
+        "host": "training-vlawm-zt",
+        "start_unix": 1793570147.1234343,
+        "end_unix": 1793571309.9177618,
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "migration_required": true,
+        "forced_expiry": null,
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+      },
+      "stop_file_exists": true,
+      "stop_file_mtime_unix": 1793571304.0,
+      "stdout_path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to036000_attempt001/stdout.log",
+      "stdout_tail_bytes": 27634,
+      "stdout_tail_sha256": "fb82cbb9bc6f2a7f94902641b34cbdf2800dcbe2aaf4bc05bc7c92873244f426",
+      "stdout_permission_hosts": [
+        "training-vlawm-zt"
+      ],
+      "failure_evidence": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank0-d6b87702e08d440299a2fa0a5117a7df/evidence.json",
+          "file_sha256": "6ea883ab0abee836fc5ad66e09c0e688d5ef3c078f42b05a6c6c7b7e8a232bd4",
+          "rank": 0,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.3767056,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank1-288851d7de7643d78862a74f00162f14/evidence.json",
+          "file_sha256": "3b00b72b8b5df06c89071da6b54b13264083ad6b80ac4056a97fb42e732079bb",
+          "rank": 1,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.3788304,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank2-2808e1b749634917b42f52dec11451fd/evidence.json",
+          "file_sha256": "18beed747a1a5a8c8313db0b47096ddc13061f993b6c559f492d2c4c0aefba93",
+          "rank": 2,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.3775952,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank3-7e2681ab1ab847d2a7d11d90f2e41188/evidence.json",
+          "file_sha256": "3737af9f583465817d1c6343b2e1a0249706880a0dbf3017f8ea7fe7004fd31c",
+          "rank": 3,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.378518,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank4-51386ad9bc3241bd8a7ae865c738d2db/evidence.json",
+          "file_sha256": "b91d49afc8644b12005630ac75c2045346b16179becf31d7a949a8739ba9a9c9",
+          "rank": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.3760464,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank5-1c00e8389ded455f9ccfaa65c1fb4739/evidence.json",
+          "file_sha256": "3ae3c158192733aa25e01bbccdb224b494f9f382bffa8dce77ef977e0fce4f42",
+          "rank": 5,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.3791206,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank6-b362d99b9f0e4194b96b12d7c0768c45/evidence.json",
+          "file_sha256": "dd4e9461a418850adfa95858038b9967e33a03e9394d6e88cbb47859c4ba97ef",
+          "rank": 6,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.378202,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/failures/2218d7712e11468a80e088fa38acdb17/rank7-3973276a9fc645ab96a9e5bf1d005a80/evidence.json",
+          "file_sha256": "a552d2cbd849a1c6cffae3cd14c449cde7e3f1b3152bbfcd378928db3dd0303b",
+          "rank": 7,
+          "invocation": "2218d7712e11468a80e088fa38acdb17",
+          "updates": 34636,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 69272,
+          "collections": 8659,
+          "time_unix": 1793571300.3773108,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_statsfix_v2/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": false
+        }
+      ],
+      "all8_failures_same_authorization_dispatch_exception": true,
+      "unique_exception_last_lines": [
+        "PermissionError: Host not authorized: training-vlawm-zt"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/checkpoints/update034500_inner0",
+      "checkpoint_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 34500,
+        "next_inner": 0,
+        "files_sha256": "b71362bce94512fdab77f08b20513cca225adbecc794f4435b9d9b3c3ab9a649"
+      },
+      "checkpoint_identity_sha256": "24d79a17db89b755d7d41cb70437ac7a387c4985769494ba362796975f921898",
+      "checkpoint_inventory_sha256": "b71362bce94512fdab77f08b20513cca225adbecc794f4435b9d9b3c3ab9a649",
+      "checkpoint_lightweight_checks": {
+        "complete_schema2": true,
+        "complete_world8": true,
+        "publication_inventory_sha256": true,
+        "required_inventory": true,
+        "all_inventory_paths_safe": true,
+        "small_file_payload_sha256": {
+          "identity.json": true,
+          "rank0.pt": true,
+          "rank1.pt": true,
+          "rank2.pt": true,
+          "rank3.pt": true,
+          "rank4.pt": true,
+          "rank5.pt": true,
+          "rank6.pt": true,
+          "rank7.pt": true,
+          "transaction.json": true
+        },
+        "run_identity_equal": true,
+        "transaction_ranks8": true,
+        "transaction_counters_match": true,
+        "optimizer_present": true,
+        "optimizer_bytes": 633014690,
+        "optimizer_hash_load_deferred_to_native_restore": true
+      },
+      "checkpoint_transaction_counters": [
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        },
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        },
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        },
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        },
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        },
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        },
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        },
+        {
+          "updates": 34500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8625,
+          "scene_cursor": 69000
+        }
+      ],
+      "last_native_journal_rows": [
+        {
+          "rank": 0,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        },
+        {
+          "rank": 1,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        },
+        {
+          "rank": 2,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        },
+        {
+          "rank": 3,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        },
+        {
+          "rank": 4,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        },
+        {
+          "rank": 5,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        },
+        {
+          "rank": 6,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        },
+        {
+          "rank": 7,
+          "updates": 34636,
+          "collection": 8659,
+          "inner_completed": 4,
+          "invocation": "2218d7712e11468a80e088fa38acdb17"
+        }
+      ],
+      "unsealed_optimizer_updates_after_latest_cp": [
+        136
+      ],
+      "owner_record_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/checkpoints/update034000_inner0",
+      "owner_checkpoint_is_stale": true,
+      "classification": "RESOURCE_AUTHORIZATION_COOPERATIVE_SAVE_BUG_NOT_ALGORITHM_FAILURE",
+      "restore_status": "SEALED_NATIVE_CHECKPOINT_AVAILABLE_STRICT_NATIVE_RESTORE_REQUIRED",
+      "can_restore_failed_unsealed_state": false,
+      "lossless_recovery": false
+    },
+    {
+      "arm": "REVIVAL_G16",
+      "study": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+      "runroot": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16",
+      "native_state_status": "FAILED_REVIEW_REQUIRED",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_G16/formal_to034000_attempt001",
+      "result_path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_G16/formal_to034000_attempt001/RESULT.json",
+      "result_file_sha256": "7f26664f128790cdc6ae451346c3726c894888300a1e298b9d76f842879fb8ba",
+      "result": {
+        "returncode": 1,
+        "status": "FAILED",
+        "host": "training-vlawm-zt",
+        "start_unix": 1793570316.1523266,
+        "end_unix": 1793571308.4409502,
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "migration_required": true,
+        "forced_expiry": null,
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+      },
+      "stop_file_exists": true,
+      "stop_file_mtime_unix": 1793571303.0,
+      "stdout_path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_G16/formal_to034000_attempt001/stdout.log",
+      "stdout_tail_bytes": 27282,
+      "stdout_tail_sha256": "0f63004f1daf86ada7e80bc3be815576fb67f09f4e89fecac4e49ee6e1ba5472",
+      "stdout_permission_hosts": [
+        "training-vlawm-zt"
+      ],
+      "failure_evidence": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank0-8ce404f45c4d44488006f2d2348397e9/evidence.json",
+          "file_sha256": "77b2aa2d0d1a787e7cb8bbf6e29ce5ad2ee2642d965d62b08d441eedf5f18d60",
+          "rank": 0,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.0719993,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank1-32cff063e94247eab6ab7ab716ea06ba/evidence.json",
+          "file_sha256": "0a79e036c2756f9a40896cdb54a84f78dc1c90dba96ff3537b7db6536adbaace",
+          "rank": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.082548,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank2-ddcd3c05e6a34d36be5a8b2bb221cc5e/evidence.json",
+          "file_sha256": "93156710906f7d6d160c90bd47007fad5ce4ed867017c8f440c8c4ae42a2ca2e",
+          "rank": 2,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.0737612,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank3-a15c9e6b87b64bc0aff0a47fcdb2d6dd/evidence.json",
+          "file_sha256": "f60019f0e3e080d95d4ffaad0bca17ebddb21ac93ef4f5e954a7cd5cd43a9ac1",
+          "rank": 3,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.0706255,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank4-b6a2d6f767dd408eb8bea1209ed31dac/evidence.json",
+          "file_sha256": "f3411d4537c530f12222b12e0813489d062aa6101de4d5b6ca08cc5a01436a9d",
+          "rank": 4,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.0829833,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank5-e1f96bf3acc945ce80d2d74bcc348613/evidence.json",
+          "file_sha256": "90f71e518e40b076416cefefe747ed28bcd28df68d67e159070718480d7493ef",
+          "rank": 5,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.072277,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank6-ea99dffae78f4b91b3425e9bd4eb83ae/evidence.json",
+          "file_sha256": "18a57e4d839ec596d4b34fb888adf55e192bbaf320cc54c0c9bc3fc9c02fc649",
+          "rank": 6,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.0713406,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/failures/d2a3387af4074025b95f6343698ff942/rank7-35e7cd8f692f43b0bb895cb11cedd98a/evidence.json",
+          "file_sha256": "83fdc6d9db7659cb6aa947751752a95baf37a4bbefd5b0ecf0adcdd741a5049e",
+          "rank": 7,
+          "invocation": "d2a3387af4074025b95f6343698ff942",
+          "updates": 32537,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 65080,
+          "collections": 8135,
+          "time_unix": 1793571302.0716953,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt\n",
+          "partial_rollout_exists": true
+        }
+      ],
+      "all8_failures_same_authorization_dispatch_exception": true,
+      "unique_exception_last_lines": [
+        "PermissionError: Host not authorized: training-vlawm-zt"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/checkpoints/update032500_inner0",
+      "checkpoint_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 32500,
+        "next_inner": 0,
+        "files_sha256": "cb68cdac0998a49a604d1be0c56763644061ee93f0b5b52bc7c49c879b5eb117"
+      },
+      "checkpoint_identity_sha256": "08991b7c19104ae8e5eff212bca0969af65f3a302d7931b308793162196b097c",
+      "checkpoint_inventory_sha256": "cb68cdac0998a49a604d1be0c56763644061ee93f0b5b52bc7c49c879b5eb117",
+      "checkpoint_lightweight_checks": {
+        "complete_schema2": true,
+        "complete_world8": true,
+        "publication_inventory_sha256": true,
+        "required_inventory": true,
+        "all_inventory_paths_safe": true,
+        "small_file_payload_sha256": {
+          "identity.json": true,
+          "rank0.pt": true,
+          "rank1.pt": true,
+          "rank2.pt": true,
+          "rank3.pt": true,
+          "rank4.pt": true,
+          "rank5.pt": true,
+          "rank6.pt": true,
+          "rank7.pt": true,
+          "transaction.json": true
+        },
+        "run_identity_equal": true,
+        "transaction_ranks8": true,
+        "transaction_counters_match": true,
+        "optimizer_present": true,
+        "optimizer_bytes": 633014690,
+        "optimizer_hash_load_deferred_to_native_restore": true
+      },
+      "checkpoint_transaction_counters": [
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        },
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        },
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        },
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        },
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        },
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        },
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        },
+        {
+          "updates": 32500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 8125,
+          "scene_cursor": 65000
+        }
+      ],
+      "last_native_journal_rows": [
+        {
+          "rank": 0,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        },
+        {
+          "rank": 1,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        },
+        {
+          "rank": 2,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        },
+        {
+          "rank": 3,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        },
+        {
+          "rank": 4,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        },
+        {
+          "rank": 5,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        },
+        {
+          "rank": 6,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        },
+        {
+          "rank": 7,
+          "updates": 32537,
+          "collection": 8135,
+          "inner_completed": 1,
+          "invocation": "d2a3387af4074025b95f6343698ff942"
+        }
+      ],
+      "unsealed_optimizer_updates_after_latest_cp": [
+        37
+      ],
+      "owner_record_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/checkpoints/update032000_inner0",
+      "owner_checkpoint_is_stale": true,
+      "classification": "RESOURCE_AUTHORIZATION_COOPERATIVE_SAVE_BUG_NOT_ALGORITHM_FAILURE",
+      "restore_status": "SEALED_NATIVE_CHECKPOINT_AVAILABLE_STRICT_NATIVE_RESTORE_REQUIRED",
+      "can_restore_failed_unsealed_state": false,
+      "lossless_recovery": false
+    },
+    {
+      "arm": "REVIVAL_SATURATED_G8",
+      "study": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+      "runroot": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8",
+      "native_state_status": "FAILED_REVIEW_REQUIRED",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_SATURATED_G8/formal_to038000_attempt001",
+      "result_path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_SATURATED_G8/formal_to038000_attempt001/RESULT.json",
+      "result_file_sha256": "c06702ae46c3973dca27678f401567caceca3863d3166b55de568a9a304b3efe",
+      "result": {
+        "returncode": 1,
+        "status": "FAILED",
+        "host": "training-vlawm-tsinghua-zt2",
+        "start_unix": 1793570360.321965,
+        "end_unix": 1793571312.3882403,
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "migration_required": true,
+        "forced_expiry": null,
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+      },
+      "stop_file_exists": true,
+      "stop_file_mtime_unix": 1793571302.0,
+      "stdout_path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_SATURATED_G8/formal_to038000_attempt001/stdout.log",
+      "stdout_tail_bytes": 27355,
+      "stdout_tail_sha256": "e2f7ea1492178e3fe887e716b532ea49fd04837f6812f08189b0af1b30d7dab1",
+      "stdout_permission_hosts": [
+        "training-vlawm-tsinghua-zt2"
+      ],
+      "failure_evidence": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank0-71e153d35881404fbcd13c0b97d32934/evidence.json",
+          "file_sha256": "4b987423bcdf18610ffcdba7504b80d214d8a49d1287e8bde2c932824263636e",
+          "rank": 0,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.7280502,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank1-de56798d392a40e88dcb2a682e7f32e9/evidence.json",
+          "file_sha256": "6dbc22d4f21a63303f692a5a558beb6e00c7ae7309d888264d14f1963de4ae0f",
+          "rank": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.7273555,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank2-3c107fa63979417f82798d0f08435674/evidence.json",
+          "file_sha256": "b5768600f1228f06ed83b1c9598b6202864058f6d43183b80538d5eb5d1633c4",
+          "rank": 2,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.7283063,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank3-38c5a24d8c39447687f3712029ddb8c8/evidence.json",
+          "file_sha256": "becaaef5f6be822956a43d49f8a4241ebe3d29b0a118d32b9fe16e78f0bb7a58",
+          "rank": 3,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.7291076,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank4-9d379b4db08d4643bd07fb378bbb871e/evidence.json",
+          "file_sha256": "9ab9cbafa212bd6991e8402545f397630bed2d69dc41acb2048847ce85e4ccc0",
+          "rank": 4,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.728567,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank5-af2b080208bc47a99d3dd1d095ea9275/evidence.json",
+          "file_sha256": "59eaf465456ed775ee9c3b05abe4e699a087c6f39cae4127b02ef1798692e501",
+          "rank": 5,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.727747,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank6-77994330f1d24bb28c21a2c474dd8def/evidence.json",
+          "file_sha256": "9362e8d29def297aa7acf5bcbcd1d003032c2c125eadaac046e1e2e5aa47e173",
+          "rank": 6,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.7270927,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/failures/7ddb80ff57a6415b86793c99665880e3/rank7-ee7ff1a16c8e426b88a3878e0fa97fdb/evidence.json",
+          "file_sha256": "a85903af09b58e331b2a3af142f40897421c6411cf99705c54eda43f7ad734bb",
+          "rank": 7,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3",
+          "updates": 36517,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 73040,
+          "collections": 9130,
+          "time_unix": 1793571301.728847,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-tsinghua-zt2\n",
+          "partial_rollout_exists": true
+        }
+      ],
+      "all8_failures_same_authorization_dispatch_exception": true,
+      "unique_exception_last_lines": [
+        "PermissionError: Host not authorized: training-vlawm-tsinghua-zt2"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/checkpoints/update036500_inner0",
+      "checkpoint_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 36500,
+        "next_inner": 0,
+        "files_sha256": "bc1806bab6cdd186ad1f85401ddc69755017c57210abbef207dbe722495eb7c3"
+      },
+      "checkpoint_identity_sha256": "d30bbba604c217f321c68513106ceda23f27446446ec7c9a92ff549c47006d3e",
+      "checkpoint_inventory_sha256": "bc1806bab6cdd186ad1f85401ddc69755017c57210abbef207dbe722495eb7c3",
+      "checkpoint_lightweight_checks": {
+        "complete_schema2": true,
+        "complete_world8": true,
+        "publication_inventory_sha256": true,
+        "required_inventory": true,
+        "all_inventory_paths_safe": true,
+        "small_file_payload_sha256": {
+          "identity.json": true,
+          "rank0.pt": true,
+          "rank1.pt": true,
+          "rank2.pt": true,
+          "rank3.pt": true,
+          "rank4.pt": true,
+          "rank5.pt": true,
+          "rank6.pt": true,
+          "rank7.pt": true,
+          "transaction.json": true
+        },
+        "run_identity_equal": true,
+        "transaction_ranks8": true,
+        "transaction_counters_match": true,
+        "optimizer_present": true,
+        "optimizer_bytes": 633014690,
+        "optimizer_hash_load_deferred_to_native_restore": true
+      },
+      "checkpoint_transaction_counters": [
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        },
+        {
+          "updates": 36500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 9125,
+          "scene_cursor": 73000
+        }
+      ],
+      "last_native_journal_rows": [
+        {
+          "rank": 0,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        },
+        {
+          "rank": 1,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        },
+        {
+          "rank": 2,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        },
+        {
+          "rank": 3,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        },
+        {
+          "rank": 4,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        },
+        {
+          "rank": 5,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        },
+        {
+          "rank": 6,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        },
+        {
+          "rank": 7,
+          "updates": 36517,
+          "collection": 9130,
+          "inner_completed": 1,
+          "invocation": "7ddb80ff57a6415b86793c99665880e3"
+        }
+      ],
+      "unsealed_optimizer_updates_after_latest_cp": [
+        17
+      ],
+      "owner_record_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/checkpoints/update036000_inner0",
+      "owner_checkpoint_is_stale": true,
+      "classification": "RESOURCE_AUTHORIZATION_COOPERATIVE_SAVE_BUG_NOT_ALGORITHM_FAILURE",
+      "restore_status": "SEALED_NATIVE_CHECKPOINT_AVAILABLE_STRICT_NATIVE_RESTORE_REQUIRED",
+      "can_restore_failed_unsealed_state": false,
+      "lossless_recovery": false
+    },
+    {
+      "arm": "IMPROVEMENT_EARLY_DECAY_G8",
+      "study": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+      "runroot": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+      "native_state_status": "FAILED_REVIEW_REQUIRED",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to016000_attempt001",
+      "result_path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to016000_attempt001/RESULT.json",
+      "result_file_sha256": "8dde716b3fb3a9fc7289baa146f528e5e6200a801292519ab731029beb10daa5",
+      "result": {
+        "returncode": 1,
+        "status": "FAILED",
+        "host": "training-vlawm-zt4",
+        "start_unix": 1793570145.785818,
+        "end_unix": 1793571308.1837838,
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "migration_required": true,
+        "forced_expiry": null,
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+      },
+      "stop_file_exists": true,
+      "stop_file_mtime_unix": 1793571303.0,
+      "stdout_path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to016000_attempt001/stdout.log",
+      "stdout_tail_bytes": 27355,
+      "stdout_tail_sha256": "8b3260da281c371168e463ebeba17d342df57dd99d6e99178540690c7267cef4",
+      "stdout_permission_hosts": [
+        "training-vlawm-zt4"
+      ],
+      "failure_evidence": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank0-93da2fb2ef144e79b3d7686fb8cb6e38/evidence.json",
+          "file_sha256": "e97d2281dd8684857197b4b96c2564fa9dfe27ea1581845f8daf1d580e9ce772",
+          "rank": 0,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.5643396,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank1-92be5235af0745f5807ae518565fa704/evidence.json",
+          "file_sha256": "77c3d4863fb28cdd3bcfff1b148c51fba497630dbb355354135e70d813dd800f",
+          "rank": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.564883,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank2-ffe639ba4cc548b7b64263aa3c2f04ea/evidence.json",
+          "file_sha256": "f300e9ff9713d94787fed61847030d4865052cf15c20cadb4691cd45dfefefb4",
+          "rank": 2,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.5707426,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank3-5380db2a01bf4f449b89b8507f23315b/evidence.json",
+          "file_sha256": "a09264d8285a06a07a96dddb892044a7a58e5a31d40870c19cbd885fb61a4cec",
+          "rank": 3,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.5640943,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank4-e9f89d27c56043f0b574500eb09a7189/evidence.json",
+          "file_sha256": "80e02b351242e045801a2063602d027ef0de0e011ba661c195b4b81d48e0f914",
+          "rank": 4,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.5645864,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank5-4a75670ed846494bb9840dd0184c3c6b/evidence.json",
+          "file_sha256": "93b1fcfff901ff58356adc4f91584b48ef27c6051f0cd6ef80844d2d612f816e",
+          "rank": 5,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.5698225,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank6-5923f5924a5f49efbc04732fec7fb7d8/evidence.json",
+          "file_sha256": "9d9255ede87320128455db8f4930c5c671c3107156346a0c1038cec2282a5aa8",
+          "rank": 6,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.570127,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/failures/73337ac459e44314a36ce89082685ade/rank7-5dfd328108bc4324af03f2e487cf943e/evidence.json",
+          "file_sha256": "3063c5cdefb986acf777f8f0bec9b4d749903af77d659e31d0d5135ef46bcac8",
+          "rank": 7,
+          "invocation": "73337ac459e44314a36ce89082685ade",
+          "updates": 14657,
+          "next_inner": 1,
+          "phase": "INNER_COMMITTED",
+          "scene_cursor": 29320,
+          "collections": 3665,
+          "time_unix": 1793571302.563591,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": true
+        }
+      ],
+      "all8_failures_same_authorization_dispatch_exception": true,
+      "unique_exception_last_lines": [
+        "PermissionError: Host not authorized: training-vlawm-zt4"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update014500_inner0",
+      "checkpoint_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 14500,
+        "next_inner": 0,
+        "files_sha256": "1cf350de4226eaa873fe14787ffcf6d4c5258dec00a8b82824cd924bd27dbb17"
+      },
+      "checkpoint_identity_sha256": "adc3880c9a8c1e851e1c5addf5ef454793757d62d94e3e7225d7c0c75d378286",
+      "checkpoint_inventory_sha256": "1cf350de4226eaa873fe14787ffcf6d4c5258dec00a8b82824cd924bd27dbb17",
+      "checkpoint_lightweight_checks": {
+        "complete_schema2": true,
+        "complete_world8": true,
+        "publication_inventory_sha256": true,
+        "required_inventory": true,
+        "all_inventory_paths_safe": true,
+        "small_file_payload_sha256": {
+          "identity.json": true,
+          "rank0.pt": true,
+          "rank1.pt": true,
+          "rank2.pt": true,
+          "rank3.pt": true,
+          "rank4.pt": true,
+          "rank5.pt": true,
+          "rank6.pt": true,
+          "rank7.pt": true,
+          "transaction.json": true
+        },
+        "run_identity_equal": true,
+        "transaction_ranks8": true,
+        "transaction_counters_match": true,
+        "optimizer_present": true,
+        "optimizer_bytes": 633014690,
+        "optimizer_hash_load_deferred_to_native_restore": true
+      },
+      "checkpoint_transaction_counters": [
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        },
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        },
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        },
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        },
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        },
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        },
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        },
+        {
+          "updates": 14500,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 3625,
+          "scene_cursor": 29000
+        }
+      ],
+      "last_native_journal_rows": [
+        {
+          "rank": 0,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        },
+        {
+          "rank": 1,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        },
+        {
+          "rank": 2,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        },
+        {
+          "rank": 3,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        },
+        {
+          "rank": 4,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        },
+        {
+          "rank": 5,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        },
+        {
+          "rank": 6,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        },
+        {
+          "rank": 7,
+          "updates": 14657,
+          "collection": 3665,
+          "inner_completed": 1,
+          "invocation": "73337ac459e44314a36ce89082685ade"
+        }
+      ],
+      "unsealed_optimizer_updates_after_latest_cp": [
+        157
+      ],
+      "owner_record_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update014000_inner0",
+      "owner_checkpoint_is_stale": true,
+      "classification": "RESOURCE_AUTHORIZATION_COOPERATIVE_SAVE_BUG_NOT_ALGORITHM_FAILURE",
+      "restore_status": "SEALED_NATIVE_CHECKPOINT_AVAILABLE_STRICT_NATIVE_RESTORE_REQUIRED",
+      "can_restore_failed_unsealed_state": false,
+      "lossless_recovery": false
+    },
+    {
+      "arm": "IMPROVEMENT_FP32_OUTPUT_G8",
+      "study": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+      "runroot": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8",
+      "native_state_status": "FAILED_REVIEW_REQUIRED",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_FP32_OUTPUT_G8/formal_to010000_attempt001",
+      "result_path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_FP32_OUTPUT_G8/formal_to010000_attempt001/RESULT.json",
+      "result_file_sha256": "56df725246d69965341ff094d6a0e5dec1671e48bacda7af5be672aefa40f19e",
+      "result": {
+        "returncode": 1,
+        "status": "FAILED",
+        "host": "training-vlawm-zt4",
+        "start_unix": 1793564066.0225441,
+        "end_unix": 1793571308.754075,
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "migration_required": true,
+        "forced_expiry": null,
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d"
+      },
+      "stop_file_exists": true,
+      "stop_file_mtime_unix": 1793571303.0,
+      "stdout_path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_FP32_OUTPUT_G8/formal_to010000_attempt001/stdout.log",
+      "stdout_tail_bytes": 27483,
+      "stdout_tail_sha256": "93e3c2066d24430be00fe4e5139c0043dea4d837627e84e5ac8e00a23a9e89b9",
+      "stdout_permission_hosts": [
+        "training-vlawm-zt4"
+      ],
+      "failure_evidence": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank0-858541dd634745be9f5de1164eeead19/evidence.json",
+          "file_sha256": "abfe16bb2e8325025c36a539d8676e9a879501a2a6a2ec8d3d4da4e50d2188fb",
+          "rank": 0,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.9337807,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank1-7741c85619f2423aa31997783b54b78f/evidence.json",
+          "file_sha256": "b571333b2c806b6f1a2e66a07f20c0bd18e15395cd2cf5b0385f1808f060ffc2",
+          "rank": 1,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.936921,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank2-7dad47108cab470aae41066896c74c43/evidence.json",
+          "file_sha256": "02025a476de414ec9438c8d1e640d8b92b950ca5d450f8d68001b935652bef4e",
+          "rank": 2,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.9356194,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank3-8578d30c146f4634a12d3f95bc5e91c8/evidence.json",
+          "file_sha256": "dfe60f2bb27c47823ca365fc1bb1425496f495da6d787864898b4d662eea1b64",
+          "rank": 3,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.9132154,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank4-a129db68fc354192b7f010f821021c7d/evidence.json",
+          "file_sha256": "6d347b341cd26ffca1759a176388b38a5e0dd4d27b6277692234e65106b497a4",
+          "rank": 4,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.9349182,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank5-3b801730b61242a2a5f5e38f293740e2/evidence.json",
+          "file_sha256": "09b2d3b7c7ed4583aa67db8c81e2b0566b1c61044e8cc16501619fa227a36d61",
+          "rank": 5,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.9363072,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank6-bb586d6ed2b7413695a3d097d629d670/evidence.json",
+          "file_sha256": "b67212b101fc7210dd34b62a4ad0426cdbc5a89cf87051cb36bbd58779133be2",
+          "rank": 6,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.935971,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/failures/416b624469c6467e974eff413a80d536/rank7-ecd0a17c182247df91ba24d0787e5b16/evidence.json",
+          "file_sha256": "d024aa86b7f0590838de24cf3515e1b9274102961b013aef3fa64ae0010d0035",
+          "rank": 7,
+          "invocation": "416b624469c6467e974eff413a80d536",
+          "updates": 9420,
+          "next_inner": 0,
+          "phase": "READY",
+          "scene_cursor": 18840,
+          "collections": 2355,
+          "time_unix": 1793571300.9366634,
+          "recoverable": false,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/tools/qwen_world_safety_exploration/train.py\", line 231, in main\n    dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/group_runtime.py\", line 115, in require_dispatch\n    host = require_dispatch()\n  File \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1/starVLA/rl/qwen_world_safety_exploration/contracts.py\", line 52, in require_dispatch\n    if host not in allowed_hosts(admit_long_job=admit_long_job):raise PermissionError('Host not authorized: '+host)\nPermissionError: Host not authorized: training-vlawm-zt4\n",
+          "partial_rollout_exists": false
+        }
+      ],
+      "all8_failures_same_authorization_dispatch_exception": true,
+      "unique_exception_last_lines": [
+        "PermissionError: Host not authorized: training-vlawm-zt4"
+      ],
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/checkpoints/update009000_inner0",
+      "checkpoint_seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 9000,
+        "next_inner": 0,
+        "files_sha256": "cd6f201912b9808e1eee87eeddc28cac977d9727a63e1b1532a564f52624ec10"
+      },
+      "checkpoint_identity_sha256": "ecf73894d92d17f57396251b14d37870bbc986ae8c8478c29026ce2738c57e8d",
+      "checkpoint_inventory_sha256": "cd6f201912b9808e1eee87eeddc28cac977d9727a63e1b1532a564f52624ec10",
+      "checkpoint_lightweight_checks": {
+        "complete_schema2": true,
+        "complete_world8": true,
+        "publication_inventory_sha256": true,
+        "required_inventory": true,
+        "all_inventory_paths_safe": true,
+        "small_file_payload_sha256": {
+          "identity.json": true,
+          "rank0.pt": true,
+          "rank1.pt": true,
+          "rank2.pt": true,
+          "rank3.pt": true,
+          "rank4.pt": true,
+          "rank5.pt": true,
+          "rank6.pt": true,
+          "rank7.pt": true,
+          "transaction.json": true
+        },
+        "run_identity_equal": true,
+        "transaction_ranks8": true,
+        "transaction_counters_match": true,
+        "optimizer_present": true,
+        "optimizer_bytes": 633014690,
+        "optimizer_hash_load_deferred_to_native_restore": true
+      },
+      "checkpoint_transaction_counters": [
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        },
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        },
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        },
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        },
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        },
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        },
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        },
+        {
+          "updates": 9000,
+          "phase": "READY",
+          "next_inner": 0,
+          "collections": 2250,
+          "scene_cursor": 18000
+        }
+      ],
+      "last_native_journal_rows": [
+        {
+          "rank": 0,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        },
+        {
+          "rank": 1,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        },
+        {
+          "rank": 2,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        },
+        {
+          "rank": 3,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        },
+        {
+          "rank": 4,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        },
+        {
+          "rank": 5,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        },
+        {
+          "rank": 6,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        },
+        {
+          "rank": 7,
+          "updates": 9420,
+          "collection": 2355,
+          "inner_completed": 4,
+          "invocation": "416b624469c6467e974eff413a80d536"
+        }
+      ],
+      "unsealed_optimizer_updates_after_latest_cp": [
+        420
+      ],
+      "owner_record_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/checkpoints/update005000_inner0",
+      "owner_checkpoint_is_stale": true,
+      "classification": "RESOURCE_AUTHORIZATION_COOPERATIVE_SAVE_BUG_NOT_ALGORITHM_FAILURE",
+      "restore_status": "SEALED_NATIVE_CHECKPOINT_AVAILABLE_STRICT_NATIVE_RESTORE_REQUIRED",
+      "can_restore_failed_unsealed_state": false,
+      "lossless_recovery": false
+    }
+  ],
+  "root_cause": {
+    "kind": "COOPERATIVE_STOP_AFTER_NEW_DISPATCH_AUTH_CHECK",
+    "trigger_global_prohibitions": {
+      "training-vlawm-zt": {
+        "new_task_dispatch_allowed": false,
+        "utc": "2026-11-01T22:15:00.057813+00:00",
+        "record": "/mnt/project/qwen-world-four-frameworks-20261029/resources/temporary_deadline_20261101T230000Z/PLAN.json",
+        "reason": "User temporary resource window; exit before 2026-11-02 07:00 Asia/Shanghai"
+      },
+      "training-rl-zt2": {
+        "new_task_dispatch_allowed": false,
+        "utc": "2026-11-01T22:15:00.057813+00:00",
+        "record": "/mnt/project/qwen-world-four-frameworks-20261029/resources/temporary_deadline_20261101T230000Z/PLAN.json",
+        "reason": "User temporary resource window; exit before 2026-11-02 07:00 Asia/Shanghai"
+      },
+      "training-vlawm-tsinghua-zt2": {
+        "new_task_dispatch_allowed": false,
+        "utc": "2026-11-01T22:15:00.057813+00:00",
+        "record": "/mnt/project/qwen-world-four-frameworks-20261029/resources/temporary_deadline_20261101T230000Z/PLAN.json",
+        "reason": "User temporary resource window; exit before 2026-11-02 07:00 Asia/Shanghai"
+      },
+      "training-vlawm-zt4": {
+        "new_task_dispatch_allowed": false,
+        "utc": "2026-11-01T22:15:00.057813+00:00",
+        "record": "/mnt/project/qwen-world-four-frameworks-20261029/resources/temporary_deadline_20261101T230000Z/PLAN.json",
+        "reason": "User temporary resource window; exit before 2026-11-02 07:00 Asia/Shanghai"
+      }
+    },
+    "task_grant_record": "/mnt/project/qwen-world-safety-exploration-20261031/resources/TEMPORARY_UNTIL_20261101T230000Z_EXCLUDING_VLA3/RESOURCE_AUTHORIZATION.json",
+    "guard_unix": 1793571300.0,
+    "deadline_unix": 1793574000.0,
+    "dispatch_default_admit_long_job": false,
+    "explanation_zh": "IL资源deadline owner在22:15:00.057813写入global新派发禁令；该禁令比任务grant origin新，allowed_hosts将host从existing-loop许可移除。GroupRuntime.require_dispatch先调用require_dispatch抛PermissionError，后续boundary_stop_due/request_stop未执行；trainer loop顶部dispatch异常使torchrun终止siblings，未到保存边界。worker结果code1/FAILED又被CPUowner当科学失败。"
+  },
+  "minimal_fix": {
+    "existing_run_runtime": "对已经成功admit并bind的正式invocation，先计算boundary_stop_due(含撤回/guard/ownSTOP)，8rank一致决定STOP；必要时保存当前已验证optimizer boundary并EXIT0，绝不能先执行新dispatch guard。仅新collection admission保持require_dispatch，首次启动仍严格require_dispatch(admit_long_job=True)。",
+    "trainer_order": "恢复后/循环顶部若stop_requested(device): save_boundary(current state, existing pending rollout); break. 该路径不能collect新样本/继续optimizerstep。rank间使用既有stop_requested的allreduce；恢复READY/INNER_COMMITTED均用原boundaryvalidator。",
+    "avoid_wrong_fix": "不得把returncode1或migration_required=True泛化为成功合作返回；该7历史case以exact stdout+8rankfailure+globalban+ownjob/identity+sealedCP形成专用恢复审阅收据。",
+    "native_recovery": "保留失败目录与old RESULT。Root明确批准后，从每臂最新COMPLETE恢复全部Adam/RNG/cursor/pending。Invocation原生会归档并quarantine超过CP的journal/behavior后缀；未封存optimizer进度不可恢复，不能称无损。所有新部署仅白名单合法资源，不延长旧授权。",
+    "frozen_source": "不热改旧runtime；新guard-only execution overlay需sourcefile变化清单/明确migration receipt，通过原identity和旧boundary validator恢复。"
+  },
+  "priority_resume": [
+    {
+      "arm": "IMPROVEMENT_EARLY_DECAY_G8",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update014500_inner0",
+      "updates": 14500,
+      "next_inner": 0,
+      "unsealed_updates": [
+        157
+      ]
+    },
+    {
+      "arm": "IMPROVEMENT_FP32_OUTPUT_G8",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/checkpoints/update009000_inner0",
+      "updates": 9000,
+      "next_inner": 0,
+      "unsealed_updates": [
+        420
+      ]
+    }
+  ],
+  "not_touched": [
+    "TIME_IL userterminated at22:56; must not restore",
+    "No original source/runtime/owner/config/registry/policy edits",
+    "No process signal or deployment"
+  ],
+  "source_files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/contracts.py": "2c8d922e88e1e86794077054a7e0bcba2bd604d90630677947552d189e58b268",
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py": "ebaa9964e21d25740c578007f4aabd0f2fa3ac0498b4ab057ab790a521a308bd",
+    "tools/qwen_world_safety_exploration/train.py": "bf346c0f7860a44ec90dc32ec13530c5989450714c211a1caef771fafb951093"
+  },
+  "temporary_authorization_status": "EXPIRED_2026-11-01T23:00:00Z; this audit never contacted any host",
+  "future_deployment_allowlist_for_this_recovery": [
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt5"
+  ],
+  "protected_exclusions": [
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt"
+  ],
+  "not_to_restore": "TIME_IL user-terminated at22:56; all former5 temporary nodes unavailable for research",
+  "sha256": "8421ea984ba98e317093f155066998caf0f640d2d92245b9a2ecf95d86780f54"
+}

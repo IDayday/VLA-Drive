@@ -1,0 +1,131 @@
+{
+  "schema": "world_native_guard_cooperative_return_fix_handoff_v1",
+  "status": "CPU_READY_NOT_DEPLOYED",
+  "created_unix": 1793574472.792446,
+  "source_root": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031",
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/guard_return.py": "418f1e23b7087a08ecef71b1cf0a68f765edfa34388032f6cfb84d07c47577f1",
+    "starVLA/rl/qwen_world_safety_exploration/group_runtime.py": "ad5211b4e66986f2c6c48961985d806b39c4093c8d141dd64aff5b1fc01a6c5f",
+    "tools/qwen_world_safety_exploration/train.py": "9a3d4ed419bfff9f06b90fbc641376209f39f6240106156b18b26861ba77f2f5",
+    "tests/test_world_guard_native_return.py": "636e4494d252bee35736d57adfcf8bc59c9ca915b98a57fcc31547f2f53aaa63"
+  },
+  "changes": [
+    "Bound native runtime checks resource boundary before new dispatch authorization; requests stop and returns original admitted host only for saving/return. Initial unbound runtime still uses strict admit_long_job=True.",
+    "PermissionError race receives one bound-resource-stop recheck; malformed/invalid grants do not bypass admission.",
+    "Trainer performs allrank stop immediately after dispatch and before collect/Adam; preserves READY or pending state using normal strict native save. Unchanged already-COMPLETE boundary is reused to avoid overwriting its immutable path.",
+    "No stop=False sampling, credit, optimizer, schedule or random generator math modified; extra collective stop check only."
+  ],
+  "cpu_check": {
+    "status": "PASS",
+    "tests": 2,
+    "wall_seconds": 0.13,
+    "command": "CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_guard_native_return.py",
+    "scope": [
+      "Startup refuses after authorization revocation, bound native return precedes permission and handles concurrent-ban race, no RNG mutation",
+      "Execute actual trainer loop prefix: unchanged READY CP reused, modified PENDING saved once, stop branch breaks before fake collect/Adam; stop=False continues"
+    ]
+  },
+  "failure_audit": "/mnt/project/qwen-world-safety-exploration-20261031/resources/GUARD_NATIVE_FAILURE_AUDIT_20261101.json",
+  "failure_audit_sha256": "8421ea984ba98e317093f155066998caf0f640d2d92245b9a2ecf95d86780f54",
+  "all7_exits_56rank_root_cause_verified": true,
+  "rollback_table": [
+    {
+      "arm": "SAFETY_G8_CONTROL",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update040000_inner0",
+      "resume_updates": 40000,
+      "resume_inner": 0,
+      "failed_unsealed_updates": [
+        40180
+      ],
+      "unsealed_loss": [
+        180
+      ]
+    },
+    {
+      "arm": "STANDARD_INVERSION_G8",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/checkpoints/update036500_inner0",
+      "resume_updates": 36500,
+      "resume_inner": 0,
+      "failed_unsealed_updates": [
+        36977
+      ],
+      "unsealed_loss": [
+        477
+      ]
+    },
+    {
+      "arm": "STANDARD_COMBINED_G8",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/checkpoints/update034500_inner0",
+      "resume_updates": 34500,
+      "resume_inner": 0,
+      "failed_unsealed_updates": [
+        34636
+      ],
+      "unsealed_loss": [
+        136
+      ]
+    },
+    {
+      "arm": "REVIVAL_G16",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16/checkpoints/update032500_inner0",
+      "resume_updates": 32500,
+      "resume_inner": 0,
+      "failed_unsealed_updates": [
+        32537
+      ],
+      "unsealed_loss": [
+        37
+      ]
+    },
+    {
+      "arm": "REVIVAL_SATURATED_G8",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8/checkpoints/update036500_inner0",
+      "resume_updates": 36500,
+      "resume_inner": 0,
+      "failed_unsealed_updates": [
+        36517
+      ],
+      "unsealed_loss": [
+        17
+      ]
+    },
+    {
+      "arm": "IMPROVEMENT_EARLY_DECAY_G8",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update014500_inner0",
+      "resume_updates": 14500,
+      "resume_inner": 0,
+      "failed_unsealed_updates": [
+        14657
+      ],
+      "unsealed_loss": [
+        157
+      ]
+    },
+    {
+      "arm": "IMPROVEMENT_FP32_OUTPUT_G8",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8/checkpoints/update009000_inner0",
+      "resume_updates": 9000,
+      "resume_inner": 0,
+      "failed_unsealed_updates": [
+        9420
+      ],
+      "unsealed_loss": [
+        420
+      ]
+    }
+  ],
+  "root_actions_review_only": [
+    "Keep old code1 results/failure dirs unchanged, do not classify all code1 as safe retry.",
+    "If Root approves recovery: pin latest COMPLETE paths from table, not stale owner.stage checkpoint; preserve original logical run/Adam/RNG/cursor and retain rolled-back histories via existing Invocation.",
+    "Use reviewed guard-only execution migration/source receipt; no hot edits to any old frozen source.",
+    "Resume Early first, FP32 second only on currentlypermanent qualified Tsh3/Tsh5. Preserve B/D hosts and all userterminated tasks. Temporary23:00 deadline already passed.",
+    "CPUowner failed flags require exact historical job/exception/sealedCP review adoption; source patch alone does not reset them."
+  ],
+  "not_performed": [
+    "No source commit/staging",
+    "No CPUowner adoption or owner/state/registry edits",
+    "No GPUforward/scoring/deployment/process signal",
+    "No SSH or temporaryhost probes"
+  ],
+  "sha256": "37c9d7cf4bb27ecc127e44c0a821da28155ae18f3d91e563b1faa6bbad4285b1"
+}
