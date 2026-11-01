@@ -208,6 +208,63 @@ class EvaluationOwner:
         node['status'] = 'EXITED'
         return True
 
+    def requeue_resource_boundary(self, entry, rank, node, rank_receipt):
+        """Resume only the SAME partial shard after a proven resource return.
+
+        Existing scene receipts, source, export, seed and world stay immutable.
+        A nonresource stop or failed/forced child retains the review path below.
+        """
+        from starVLA.rl.qwen_world_safety_exploration.contracts import authorization
+        value = self.receipt(node)
+        host = node.get('host')
+        if (not value or value.get('returncode') != 0 or value.get('forced_expiry')
+                or value.get('status') == 'FORCED_EXIT_REVIEW_REQUIRED'
+                or host in allowed_hosts(admit_long_job=True)
+                or rank_receipt.get('status') != 'STOPPED_AT_SCENE_BOUNDARY'):
+            return False
+        job = Path(node['job']).resolve()
+        if not job.is_relative_to((ROOT/'jobs/evaluation').resolve()):
+            return False
+        grant, _ = authorization()
+        guard = (host in grant.get('temporary_hosts', [])
+                 and time.time() >= grant['expires_unix']-grant['checkpoint_guard_seconds'])
+        if not ((job/'STOP_REQUESTED').exists() or guard):
+            return False
+        output = Path(entry['evaluation']).resolve()
+        identity = read(output/'identity.json', {})
+        spec = read(output/'SPEC.json', {})
+        identity_body = dict(identity);identity_sha = identity_body.pop('sha256', None)
+        spec_body = dict(spec);spec_sha = spec_body.pop('sha256', None)
+        if (not identity_sha or fingerprint(identity_body) != identity_sha
+                or spec_sha != entry.get('spec_sha256') or fingerprint(spec_body) != spec_sha
+                or spec.get('world') != entry['world'] or spec.get('seed') != 2101
+                or spec.get('cohort') != entry['cohort'] or spec.get('arm') != entry['arm']
+                or node.get('source') != spec.get('source')
+                or identity.get('seed') != 2101 or identity.get('cohort') != entry['cohort']
+                or rank_receipt.get('identity') != identity_sha
+                or rank_receipt.get('rank') != rank or rank_receipt.get('world') != entry['world']
+                or rank_receipt.get('host') != host or value.get('host') != host):
+            return False
+        command = node.get('command', [])
+        def argument(flag):
+            return command[command.index(flag)+1] if command.count(flag) == 1 and command.index(flag)+1 < len(command) else None
+        if (argument('-m') != 'tools.qwen_world_safety_exploration.evaluate'
+                or argument('--rank') != str(rank) or argument('--world') != str(entry['world'])
+                or argument('--seed') != '2101' or argument('--cohort') != entry['cohort']
+                or argument('--output') is None or Path(argument('--output')).resolve() != output
+                or value.get('command') != command
+                or Path(value.get('cwd', '')).resolve() != Path(node['source']).resolve()):
+            return False
+        node.setdefault('resource_returns', []).append(dict(job=str(job), result=value,
+            rank_receipt=rank_receipt, source=node['source'], command=list(command),
+            spec_sha256=spec_sha, identity_sha256=identity_sha,
+            reason='EXIT0_OWNED_SCENE_BOUNDARY_RESOURCE_RETURN', at_unix=time.time(),
+            same_source_world_rank_seed=True, completed_scene_cache_preserved=True))
+        node.pop('job');node.pop('result', None)
+        node.update(status='RESOURCE_REQUEUE')
+        self.flush()
+        return True
+
     def launch_job(self, run, node, command, family, route=None):
         attempt = int(node.get('attempt', 0))+1
         name = f'evaluation/{family}_attempt{attempt:03}'
@@ -352,6 +409,8 @@ class EvaluationOwner:
                 if self.finished(node):
                     rank_receipt = read(Path(entry['evaluation'])/f'rank{rank}.json', {})
                     if rank_receipt.get('status') != 'COMPLETE' or rank_receipt.get('world') != entry['world']:
+                        if self.requeue_resource_boundary(entry, rank, node, rank_receipt):
+                            continue
                         node.update(status='FAILED_REVIEW_REQUIRED', error='Worker exited without full fixed shard; no implicit retry')
                     else:
                         node['status'] = 'COMPLETE'

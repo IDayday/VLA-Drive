@@ -137,6 +137,13 @@ def owner_class():
                 if latest['updates']!=target:
                     if (ROOT_PATH/'STOP_REQUESTED').exists()or run.get('standard_disposition')=='CATASTROPHIC_REVIEW':
                         self.update(arm,status='STOPPED_AT_COOPERATIVE_BOUNDARY',updates=latest['updates'],checkpoint=str(checkpoint));raise StopBeforeDispatch('Cooperative boundary retained')
+                    from .resource_boundary import cooperative_return
+                    returned=cooperative_return(run,node,receipt,latest,target)
+                    if returned is not None:
+                        node.setdefault('cooperative_returns',[]).append(returned)
+                        node.pop('job');resume=returned['checkpoint']
+                        self.update(arm,status='WAITING_AUTHORIZED_MIGRATION',checkpoint=resume)
+                        continue
                     raise ValueError('Native completion outside registered stage')
                 if seal['updates']!=target or seal['world']!=8 or seal['next_inner']!=0:raise ValueError('Wrong formal8rank gate')
                 for rank in range(8):

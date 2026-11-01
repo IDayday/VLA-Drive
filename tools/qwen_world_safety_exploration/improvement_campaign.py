@@ -26,9 +26,11 @@ CONTROL_ROOT = ROOT_PATH.parent/'standard_training_20261101'
 SCHEMA = 'world_improvement_campaign_registry_v1'
 PROTECTED = {'training-vlawm-tsinghua-zt', 'training-vla-zt'}
 ROLES = {'IMPROVEMENT_EARLY_DECAY_G8': 'early_decay',
-         'IMPROVEMENT_MULTISCENE32_G8': 'multiscene32'}
-FACTOR = {'early_decay': 1, 'multiscene32': 4}
-CAPS = {'early_decay': (20000, 30000, 50000), 'multiscene32': (5000, 7500, 12500)}
+         'IMPROVEMENT_MULTISCENE32_G8': 'multiscene32',
+         'IMPROVEMENT_VERIFIED_RETENTION_G8': 'verified_retention'}
+FACTOR = {'early_decay': 1, 'multiscene32': 4, 'verified_retention': 1}
+CAPS = {'early_decay': (20000, 30000, 50000), 'multiscene32': (5000, 7500, 12500),
+        'verified_retention': (20000, 30000, 50000)}
 IMMUTABLE = ('id', 'root', 'source', 'config', 'config_sha256', 'parent_checkpoint',
              'group_size', 'trainer_module', 'improvement_role', 'owner_state')
 P0_PROTOCOL = dict(schema='world_fixed50k_warmup1000_cosine_end20k_floor01_v1',
@@ -38,12 +40,16 @@ BATCH_PROTOCOL = dict(schema='world_multiscene32_G8_sourcePPO_query_clock_v1',
     normalization_candidates=256, optimizer_horizon_updates=12500,
     optimizer_warmup_updates=250, initial_lr_ratio=.001, min_lr_ratio=.1,
     source_update_clock_multiplier=4)
+RETENTION_PROTOCOL = dict(schema='world_verified_RL_nominal_mean_retention_v1',
+    capacity=256, admission_start_update=2000, history_scenes_per_rank=1,
+    history_share=.25, min_score=.9, regression_margin=.01, upgrade_margin=1e-6,
+    ODE_seed=2101, bank_seed=42, reservoir='uniform_over_verified_admissions')
 
 
 def gates(role, cap):
     if role not in CAPS or cap not in CAPS[role]:
         raise ValueError('Explicit per-role Adam cap required')
-    if role == 'early_decay':
+    if role in ('early_decay','verified_retention'):
         return [2000, 5000, 10000]+list(range(12000, cap+1, 2000))
     return [500, 1250, 2500]+list(range(3000, cap+1, 500))
 
@@ -60,7 +66,10 @@ def budget(role, updates):
         F_reference_candidate_queries=nominal*16,
         scene_surplus_at_pending_boundary=scenes-nominal*2,
         candidate_surplus_at_pending_boundary=scenes*8-nominal*16,
-        strict_equal_candidate_budget=(updates % 4 == 0))
+        candidate_query_scope='fresh on-policy source-PG candidates only',
+        additional_official_query_accounting_required=(role=='verified_retention' and updates>2000),
+        strict_equal_source_candidate_budget=(updates % 4 == 0),
+        strict_equal_candidate_budget=(updates % 4 == 0 and not(role=='verified_retention' and updates>2000)))
 
 
 def configure(root):
@@ -102,10 +111,16 @@ def validate_registry(value, root=ROOT_PATH, *, pending_source=False):
         if role == 'early_decay':
             if research.get('family') != 'consolidation_training' or research.get('consolidation_training') != P0_PROTOCOL:
                 raise ValueError('Only frozen early-decay science is allowed')
-        elif (research.get('standard_role') != 'multiscene32'
+        elif role=='multiscene32' and (research.get('standard_role') != 'multiscene32'
                 or research.get('batch32') != BATCH_PROTOCOL
                 or research.get('structured_advantage') != 'world_SafetyEP_multiscene32_group_credit_v1'):
             raise ValueError('Only actual multi-scene32 protocol is allowed')
+        elif role=='verified_retention':
+            if (research.get('standard_role')!='verified_retention' or research.get('verified_retention')!=RETENTION_PROTOCOL
+                    or research.get('family') is not None
+                    or any(research.get(k) is not None for k in ['consolidation_training','batch32','standardized_training','revival_training'])
+                    or research.get('structured_advantage')!='world_SafetyEP_group_credit_v1'):
+                raise ValueError('Only registered verified-retention protocol; no other family')
         if not run.get('deployment_candidates'):
             raise ValueError('Explicit deployment routes required')
         if any(r['host'] in PROTECTED for r in run['deployment_candidates']):
@@ -310,7 +325,8 @@ def run_review(args):
                 comparison=review.compare(ev,base,label='READ_ONLY_F_CONTROL');material=budget(run['improvement_role'],u)
                 targetIL=review.compare(ev,BASELINES['IL70'],label='IL70')['result'];controlIL=review.compare(base,BASELINES['IL70'],label='IL70')['result']
                 high=targetIL['fixed_0p9_cohorts']['fixed_cohorts']['high']['mean_delta_PDMS']-controlIL['fixed_0p9_cohorts']['fixed_cohorts']['high']['mean_delta_PDMS']
-                payload=dict(schema='world_improvement_external_control_comparison_v1',status='COMPLETE',arm=run['id'],updates=u,reference_arm='SAFETY_G8_CONTROL',reference_updates=cu,external_control_root=str(CONTROL_ROOT),comparison=comparison,fixed_IL70_high_advantage_PDMS=high,actual_collection_budget=material,budget_contract='same_candidate_queries_and_scene_exposures_different_Adam_count' if material['strict_equal_candidate_budget'] else 'nominal_4x_clock_with_explicit_pending_material_surplus',F_evaluation_or_training_launched_here=False)
+                contract=('same_source_PG_candidates_and_scenes_additional_ODE_history_queries_separate' if material['additional_official_query_accounting_required'] else 'same_candidate_queries_and_scene_exposures_different_Adam_count' if material['strict_equal_candidate_budget'] else 'nominal_4x_clock_with_explicit_pending_material_surplus')
+                payload=dict(schema='world_improvement_external_control_comparison_v1',status='COMPLETE',arm=run['id'],updates=u,reference_arm='SAFETY_G8_CONTROL',reference_updates=cu,external_control_root=str(CONTROL_ROOT),comparison=comparison,fixed_IL70_high_advantage_PDMS=high,actual_collection_budget=material,budget_contract=contract,F_evaluation_or_training_launched_here=False)
                 payload['sha256']=fingerprint(payload);atomic_json(paired_path,payload);published.append(str(paired_path))
         state=dict(status='WAITING_COMPLETE_NAVTEST' if pending else 'COMPLETE_AT_REGISTERED_GATES',ready=ready,pending=pending,published=published,heartbeat_unix=time.time(),external_control_read_only=True,no_training_mutations=True)
         atomic_json(review.out/'STATE.json',state)
@@ -418,6 +434,8 @@ def main():
         assert budget('multiscene32',1250)['scene_exposures']==10016 and budget('multiscene32',1250)['candidate_queries']==80128
         assert budget('multiscene32',1250)['next_inner']==2 and not budget('multiscene32',1250)['strict_equal_candidate_budget']
         assert budget('multiscene32',5000)['candidate_queries']==budget('early_decay',20000)['candidate_queries']==320000
+        assert gates('verified_retention',20000)==gates('early_decay',20000)
+        assert budget('verified_retention',5000)['additional_official_query_accounting_required'] and not budget('verified_retention',5000)['strict_equal_candidate_budget']
         print('PASS: per-role gates, native pending1250 and explicit query/scheduler clocks; no dispatch');return
     configure(args.root)
     if args.registry and Path(args.registry).resolve()!=ROOT_PATH/'RUNS.json':raise ValueError('Only H registry')

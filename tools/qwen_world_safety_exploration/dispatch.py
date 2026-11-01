@@ -20,7 +20,8 @@ def launch(host, source, command, name, *, gpus='', expected_uuids=None,
     # worker. The child cwd/PYTHONPATH and scientific source remain unchanged.
     grant,_=authorization()
     override=grant.get('worker_execution_source')
-    executor = str(Path(worker_source or override or source)/'tools/qwen_world_safety_exploration/job_worker.py')
+    operations_source=Path(__file__).resolve().parents[2]
+    executor = str(Path(worker_source or override or operations_source)/'tools/qwen_world_safety_exploration/job_worker.py')
     if worker_source is None and override and file_sha(executor)!=grant.get('worker_execution_worker_sha256'):
         raise ValueError('Audited admission worker source differs from its authorization receipt')
     args = [MODEL_PYTHON, executor, '--receipt-root', str(directory), '--gpus', gpus,
