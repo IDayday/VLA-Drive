@@ -20,6 +20,10 @@ from .dispatch import launch, job_state
 from .notify import refresh
 
 
+class StopBeforeDispatch(RuntimeError):
+    pass
+
+
 class Owner:
     def __init__(self):
         self.directory = ROOT/'owners'/'RESEARCH_NATIVE'
@@ -83,6 +87,8 @@ class Owner:
         if node.get('complete'):
             return node['checkpoint']
         while True:
+            if not node.get('job') and (ROOT/'STOP_REQUESTED').exists():
+                raise StopBeforeDispatch('Stopped before launching a new native stage')
             if not node.get('job'):
                 self.update(arm, status='WAITING_RESOURCE', stage_target_updates=target)
                 chosen = self.candidate(run)
@@ -158,6 +164,8 @@ class Owner:
                 if (ROOT/'STOP_REQUESTED').exists():
                     self.update(arm, status='STOPPED_AT_REGISTERED_GATE'); return
             self.update(arm, status='COMPLETED_AT_REGISTERED_CAP', updates=run['target_updates'])
+        except StopBeforeDispatch:
+            self.update(arm,status='STOPPED_BEFORE_DISPATCH')
         except Exception:
             self.update(arm, status='FAILED_REVIEW_REQUIRED', error=traceback.format_exc())
 

@@ -441,7 +441,7 @@ class EvaluationOwner:
                 self.tick()
                 if self.done():
                     failures = (any(entry.get('status') == 'FAILED_REVIEW_REQUIRED' for entry in self.state['evaluations'].values())
-                        or any(gate.get('status') == 'FAILED_REVIEW_REQUIRED' for record in self.state['runs'].values() for gate in record['gates'].values()))
+                        or any(gate.get('status') in ('FAILED_REVIEW_REQUIRED','SKIPPED_NATIVE_TERMINAL') for record in self.state['runs'].values() for gate in record['gates'].values()))
                     self.state['status'] = 'FINISHED_WITH_REVIEW_REQUIRED' if failures else 'COMPLETE_AT_REGISTERED_GATES'
                     break
             except Exception:

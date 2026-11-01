@@ -13,7 +13,9 @@ def runtime_for_config(path):
         mixins.append(CurriculumRuntimeMixin)
     from .credit import STRUCTURED_SCHEMA
     if r['structured_advantage']!=STRUCTURED_SCHEMA:
-        from .dense_credit import DenseRuntimeMixin,SCHEMA
-        if r['structured_advantage']!=SCHEMA:raise ValueError('Unknown separately registered credit')
-        mixins.append(DenseRuntimeMixin)
+        from .dense_credit import DenseRuntimeMixin,SCHEMA as DENSE_SCHEMA
+        from .saturated_credit import SaturatedRuntimeMixin,SCHEMA as SATURATED_SCHEMA
+        if r['structured_advantage']==DENSE_SCHEMA:mixins.append(DenseRuntimeMixin)
+        elif r['structured_advantage']==SATURATED_SCHEMA:mixins.append(SaturatedRuntimeMixin)
+        else:raise ValueError('Unknown separately registered credit')
     return type('SafetyExplorationRuntime',tuple(mixins+[GroupRuntime]),{})()

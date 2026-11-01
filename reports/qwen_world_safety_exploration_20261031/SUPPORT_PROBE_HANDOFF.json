@@ -1,0 +1,86 @@
+{
+  "schema": "TRAIN_support_probe_handoff_v1",
+  "status": "CPU_READY_PREPARED_NOT_DISPATCHED",
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/probe_support.py": "8b5c7d9a1debcd1fc1eb861577128ad6c369ea1cfd803675814426b132da8f57",
+    "tests/test_world_safety_support_probe.py": "974b47faab6e8fff349539acbe105f6099f0cf46f6fc58ecbad39b062e66ff8c"
+  },
+  "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031/MANIFEST.json",
+  "manifest_body_sha256": "1cf846c4f75744c62205337339e8355c120c8a3ebc6b898d3188f9f8a2fea970",
+  "launch_plan": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031/LAUNCH_PLAN.json",
+  "output": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031/results",
+  "case_count": 312,
+  "failure_count": 156,
+  "control_count": 156,
+  "new_candidates": 19968,
+  "scored_candidates": 19968,
+  "extra_B1_candidates": 0,
+  "API": {
+    "prepare": "python -m tools.qwen_world_safety_exploration.probe_support prepare --ledger AUDIT/groups.jsonl --population OLDPOPULATION --config E/configs/SAFETY_G16.yaml --il-checkpoint R/IL_PARENT --parent-selection R/PARENT_SELECTION.json --rl-checkpoint ORIGINAL_SAFETY10K --manifest R/data/manifests/FULL_103288.json --data R/data/NAVTRAIN --output /mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031",
+    "run": "python -m tools.qwen_world_safety_exploration.probe_support run --manifest /mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031/MANIFEST.json --output /mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031/results --rank N --world 8",
+    "summarize": "python -m tools.qwen_world_safety_exploration.probe_support summarize --output /mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031/results"
+  },
+  "execution": {
+    "style": "eight independent one-GPU processes; no DDP/process-group initialization; cuda:0 mapped by CUDA_VISIBLE_DEVICES",
+    "torchrun": "NOT supported as an implicit8rank launcher: run explicit --rank N per one-GPU job; CLI rank is not read from env",
+    "partition": "cases[rank::8]; 39 scenes and2496 generated/scored candidates each",
+    "lease_stop": "new task authorization and boundary_stop_due before each scene; no other owner/resource controls touched",
+    "resume": "same manifest/source/identity/output; completed scene+NPZ adopted, rank lock prevents concurrent identical shard",
+    "model": "GroupRuntime G16 loads originalIL70; restore only all52.7M current trainable adapters/memory from Safety10k optimizer.pt; originalILref unchanged; no optimizer/grads/checkpoint",
+    "receipts": "rankN.json COMPLETE + exact expected/completed token lists; scene JSON and NPZ immutable hash; only all8 complete produce SUMMARY.json; infrastructure failures never zero/partial mean"
+  },
+  "science": {
+    "strategies": {
+      "A_late": {
+        "candidates": 16,
+        "stochastic_steps": [
+          7,
+          8,
+          9
+        ],
+        "eta": 0.1,
+        "shared_initial_root": false
+      },
+      "B_mixed": {
+        "candidates": 16,
+        "stochastic_steps": [
+          3,
+          6,
+          8
+        ],
+        "eta": 0.1,
+        "shared_initial_root": false
+      },
+      "C_shared_root": {
+        "candidates": 16,
+        "stochastic_steps": [
+          7,
+          8,
+          9
+        ],
+        "eta": 0.1,
+        "shared_initial_root": true
+      },
+      "D_ODE": {
+        "candidates": 16,
+        "stochastic_steps": [],
+        "eta": 0.1,
+        "shared_initial_root": false
+      }
+    },
+    "rng": "seed42 private per TRAIN token; full16 root draw and ordered3 innovations reset before ABC, D uses same roots only. B same innovation order at different diffusion times; actual std(t) explicitly reported; C reuses first root but consumes all16 original root draw.",
+    "B1": "D_ODE first candidate reused, seed42 training-private root; not old seed2101 canonical evaluation",
+    "nested8": "nested subset of the G16 draw; not an independently executed G8 batch/RNG stream",
+    "quality": "NC=DAC=TTC=Comfort1, score>=.9; DDC separately",
+    "readouts": "found-quality/feasible/unsafe/best-safe; paired support gains/losses; rawSafetyA PG support; current diagnosticB1; camera/prefill/generated/scored/actor-forward costs",
+    "limits": [
+      "TRAIN selected historical pool and controls are diagnostic; no NAV score/generalization result",
+      "Same eta and3steps at different times changes actual noise energy; not identical action perturbation",
+      "Nested first8 is not standalone old G8 forward/RNG stream",
+      "Historical witness/control labels are never reused as new generated-trajectory labels",
+      "No unextracted geometric margins/risk probability; no teacher or new actor observation"
+    ]
+  },
+  "receipt": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/SUPPORT_PROBE_CPU_CHECK.json",
+  "sha256": "b30707f72bc914664c6bf0f2cd01985e11433ae1f71aace14e9f4ad974c8748e"
+}

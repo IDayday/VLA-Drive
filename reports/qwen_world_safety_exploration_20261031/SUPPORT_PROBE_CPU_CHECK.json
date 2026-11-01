@@ -1,0 +1,35 @@
+{
+  "schema": "TRAIN_support_probe_CPU_checks_v1",
+  "status": "PASS_TWO_TARGETED_CHECKS",
+  "created_unix": 1793491166.90754,
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/probe_support.py": "8b5c7d9a1debcd1fc1eb861577128ad6c369ea1cfd803675814426b132da8f57",
+    "tests/test_world_safety_support_probe.py": "974b47faab6e8fff349539acbe105f6099f0cf46f6fc58ecbad39b062e66ff8c"
+  },
+  "tests": [
+    "actual unmodified vendor sampler K10 shift5 CPU: identical full16 raw roots, ordered3 innovations, ABC post-generator-state and C full-draw consumption; no global RNG use; per-instance override restored even on exception",
+    "full failure union>32 and no-replacement physical-log high controls; complete8 shard/16candidate/NPZ/requested-score bindings; partial never summarized"
+  ],
+  "actual_preparation": {
+    "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_SUPPORT_20261031/MANIFEST.json",
+    "file_sha256": "a4655fab50c175fcfedb4fc3b4840a06d3a64892ad391a177d954d2f722daecc",
+    "body_sha256": "1cf846c4f75744c62205337339e8355c120c8a3ebc6b898d3188f9f8a2fea970",
+    "selection": {
+      "failure_union": 156,
+      "controls": 156,
+      "cases": 312,
+      "canonical_allzero_unique": 140,
+      "additional_costtie_unique": 16,
+      "selection": "all canonical-allzero OR allfail-costtie TRAIN groups; no cap; one high same-physical-log control per failure",
+      "control": "all8 NC/DAC/TTC pass, historical group mean>=.9, at least one verified NC/DAC/TTC/Comfort1 score>=.9; no replacement",
+      "historical": "full-run TRAIN history may occur after fixed10k; never transfer historical scores to new trajectories"
+    }
+  },
+  "scope": {
+    "GPU": false,
+    "dispatch": false,
+    "commit": false,
+    "live_source_modified": false
+  },
+  "sha256": "04cfe64f871381e520cc36b5f6d9823178c9ca32c4a9fb3e02abe2588e989f43"
+}

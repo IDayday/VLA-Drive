@@ -1,0 +1,97 @@
+{
+  "schema": "world_Safety_research_question_decision_ledger_v1",
+  "updated_unix": 1793491425.691055,
+  "purpose": "每个用户问题对应完整证据、代码/具体实验与当前状态",
+  "items": [
+    {
+      "question": "哪些是固定难例，哪些是优化后回退？",
+      "finding": "17×12146全人口：Safety13点persistent-zero121/ever-zero553；不是均匀随机失败。已观察到同场景可行更优见证，但共享梯度冲突尚未因果确认。",
+      "method": "全场景迁移矩阵、固定基线高分队列、raw progress与安全事件联合；后续只有有必要时做分量梯度方向诊断。",
+      "status": "FULL_POPULATION_COMPLETE"
+    },
+    {
+      "question": "安全效率必然此消彼长吗？",
+      "finding": "官方EP会被安全门控；Memory新增34零分中20原始行驶更远，16有另一策略严格安全且同进度/不差Comfort的输出。",
+      "method": "避免仅按官方EP符号归因；使用真实原始进度、碰撞/越界/TTC事件；训练配对只取TRAIN。",
+      "status": "RAW_206482_SCENES_COMPLETE"
+    },
+    {
+      "question": "全零组是否无法学习？",
+      "finding": "140全canonical零组59仍有SafetyPG/81PG0；97成本tie细时序均可区分；74为NC/TTC通过但全部DAC失败且越界时长不同。",
+      "method": "SAFETY_DAC_DENSE_G8，只对initial-legal全部DAC失败且原A0组按真实越界持续比例排序，其他组信用/分母不变。NGRPO为次选负学习，非虚构成功。",
+      "status": "DENSE_CODE_GPU_TRAINING"
+    },
+    {
+      "question": "G8是否太少？",
+      "finding": "不能由G8失败推断动作支持为零；也不能把6007 PG0全当失败，它们主要是成功饱和。",
+      "method": "SAFETY_G16；同时比较G16@500 vsG8@1000同候选和G16@1000 vsG8@1000同曝光/更新。",
+      "status": "G16_GPU_TRAINING"
+    },
+    {
+      "question": "除了增大G，还有哪些有效探索？",
+      "finding": "晚W3扰动、初始根分布、训练SDE到部署ODE的支持转移需在相同theta分开测。",
+      "method": "全156历史失败+156同physical-log训练对照；固定Safety10k，匹配根和创新，比较lateW3/mixed-timeW3/shared-root/ODE各16；实际std与全部查询计账。",
+      "status": "CODE_CPU_READY_PENDING_DISPATCH"
+    },
+    {
+      "question": "严格高质轨迹被怎样赋予优势？",
+      "finding": "5910全安全EP1饱和组PG0，其中5552 Comfort不同。此前对所有feasible组混Comfort的q方法已负结果，不能重命名当成功。",
+      "method": "先只读记录strict NC/DAC/TTC/Comfort1且score≥.9的正负A和PPO后有效权重；新SaturatedCredit仅在原A0/EP全1组启用canonical delta，不稀释其它EP组。",
+      "status": "QUALITY_DIAGNOSTICS_GPU_ACTIVE_SATURATED_CPU_IMPLEMENTING"
+    },
+    {
+      "question": "课程和学习价值怎样迁移？",
+      "finding": "canonical方差、Safety信用方差、learnability、learning progress不是同一量；全失败无witness也不能因筛选被称解决。",
+      "method": "SAFETY_ACTIVE_DATA_G8；≥75%uniform；额外优先真实mixed/feasible-EPheadroom且SafetyA方差存在组，私有bank/TTL/cooldown/次数限制/完整native恢复。",
+      "status": "CURRICULUM_GPU_TRAINING_ACTIVATED"
+    },
+    {
+      "question": "高分怎样不退化，如何安排后续优先级？",
+      "finding": "SuccessMemory10k+0.02627CI跨0，修15新增34；Safety30k虽然零分少9个总分下降。固定高分保持比只计修复更关键。",
+      "method": "完整配对、.9固定高分队列、正负增益质量、严格安全指标并列。SIL改进门控witness/CLEAR历史成功分布保持二选一后续独立试验，不无条件复制历史最优或打包多个trick。",
+      "status": "FULL_EVIDENCE_COMPLETE_NEXT_RETENTION_DESIGN"
+    },
+    {
+      "question": "学习率和组合算法怎样安排？",
+      "finding": "当前actor5e-5/memory5e-6,warmup100后constant并非未配置调度；长训出现回退但未证明由LR单独导致。",
+      "method": "首批保持LR以归因；根据完整gate与实际clip/更新诊断再注册后段衰减或更低memoryLR。组合只选单项有收益且机制触发者；无多seed/无自动50k。",
+      "status": "CONTROLLED_BASE_SCHEDULE_ACTIVE"
+    }
+  ],
+  "objective_PDMS": 92,
+  "objective_achieved": false,
+  "report": "/mnt/project/qwen-world-rl-optimization-20261030/report.html",
+  "registered_pilots": "/mnt/project/qwen-world-safety-exploration-20261031/RUNS.json",
+  "sources": [
+    {
+      "paper": "DAPO",
+      "url": "https://arxiv.org/abs/2503.14476",
+      "transfer": "dynamic sampling有效梯度；不照搬canonical全零过滤"
+    },
+    {
+      "paper": "No Regrets / SFL",
+      "url": "https://arxiv.org/abs/2408.15099",
+      "transfer": "可学边界数据优先；信用方差仅代理"
+    },
+    {
+      "paper": "NGRPO",
+      "url": "https://arxiv.org/abs/2509.18851",
+      "transfer": "全失败负信用，不等于真实成功监督"
+    },
+    {
+      "paper": "Gradient Starvation",
+      "url": "https://arxiv.org/abs/2605.07689",
+      "transfer": "固定参考负学习理论；不直接覆盖本地W3 clamped surrogate"
+    },
+    {
+      "paper": "Self-Imitation Learning",
+      "url": "https://proceedings.mlr.press/v80/oh18b/oh18b.pdf",
+      "transfer": "有真实成功且优于当前基线才回放"
+    },
+    {
+      "paper": "CLEAR",
+      "url": "https://arxiv.org/abs/1811.11682",
+      "transfer": "历史成功行为保持，区别永久IL参考"
+    }
+  ]
+}

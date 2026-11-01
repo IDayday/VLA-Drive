@@ -1,0 +1,52 @@
+{
+  "schema": "world_success_saturation_credit_handoff_v1",
+  "status": "READY_FOR_ROOT_REVIEW_NOT_REGISTERED",
+  "created_utc": "2026-11-01T00:03:49.308789+00:00",
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031",
+  "source_files_sha256": {
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_safety_exploration/saturated_credit.py": "390a5eba8d936887757c0732ae586c6466d2783080edee004cdc0caef948d2b8",
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tests/test_world_safety_exploration_saturated.py": "ffd4600ad49a815787f5267f6c42f7f5cf3a3f56ff09b61fada6d351dd243372"
+  },
+  "entry_API": {
+    "credit": "starVLA.rl.qwen_world_safety_exploration.saturated_credit.SaturatedCredit(group_size)",
+    "runtime_mixin": "starVLA.rl.qwen_world_safety_exploration.saturated_credit.SaturatedRuntimeMixin",
+    "boundary_validator": "validate_saturated_boundary(..., credit=credit)",
+    "rank_validator": "validate_saturated_ranks(summaries, credit=credit)"
+  },
+  "configuration_fragment": {
+    "research": {
+      "structured_advantage": "world_SafetyEP_success_saturation_canonical_delta_fixed_base_std_v1"
+    }
+  },
+  "root_integration_required": "Explicitly select SaturatedRuntimeMixin for this schema in root-owned runtime router. Do not combine DenseRuntimeMixin. No scientific baseline fields need modification.",
+  "scope": "Only credit assignment in strictly safe EP-saturated canonical-variable groups; no sampler/loss/anchor/LR/G/data/reference changes.",
+  "eligibility": "Every candidate NC=DAC=TTC=1, EP=1, baseline Safety rawA exactly zero, original saved canonical FP32 reward labels differ.",
+  "credit": "Canonical FP32 R promoted FP64, deltaA=(R-Rfirst)-mean(R-Rfirst); keep A_safe=0, add delta to A_EP and rawA only. This is an explicitly new credit schema.",
+  "normalization": "Original fresh world*G baseline Safety rawA population std retained exactly if >0. If exactly0, all ranks reconstruct updated rawA from the same gathered complete material and use one updated population std. No tiny nonzero-threshold substitution.",
+  "pending_material": "rollout.saturated_credit stores eligibility/status/delta/canonical reward digest; original/effective std and full structured material survive native serialization. Boundary and 8-rank validators rederive decisions/scales/advantages/statistics.",
+  "metrics": [
+    "saturated_credit_subtype_groups",
+    "saturated_credit_activated_groups",
+    "saturated_credit_activated_candidates",
+    "saturated_credit_skipped_not_subtype",
+    "saturated_credit_skipped_canonical_tied",
+    "saturated_credit_original_normalization_std",
+    "saturated_credit_effective_normalization_std",
+    "saturated_credit_normalization_fallback",
+    "saturated_credit_delta_abs_mean",
+    "saturated_credit_adv_cap5_candidates"
+  ],
+  "metric_counting": "Activation is per fresh collection. Four inner journal rows repeat the same decision and must be deduplicated.",
+  "historical_motivation": {
+    "total_historical_groups": 62640,
+    "eligible_historical_groups": 5552,
+    "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/SAFETY_FULL_TRAINING_AUDIT_20261031/SUMMARY.json",
+    "caveat": "Historical census does not establish future activation rates or performance benefit."
+  },
+  "high_quality_diagnostic": "strict NC/DAC/TTC/Comfort1 and canonical score>=.9; not asserted for candidates receiving positive new credit",
+  "cpu_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/SATURATED_CREDIT_CPU_CHECK.json",
+  "gpu_dispatched": false,
+  "registration_modified": false,
+  "live_or_frozen_source_modified": false,
+  "committed_or_staged": false
+}

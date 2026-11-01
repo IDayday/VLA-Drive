@@ -1,0 +1,25 @@
+{
+  "schema": "world_success_saturation_credit_CPU_check_v1",
+  "status": "PASS",
+  "created_utc": "2026-11-01T00:03:49.308789+00:00",
+  "source_files_sha256": {
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_safety_exploration/saturated_credit.py": "390a5eba8d936887757c0732ae586c6466d2783080edee004cdc0caef948d2b8",
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tests/test_world_safety_exploration_saturated.py": "ffd4600ad49a815787f5267f6c42f7f5cf3a3f56ff09b61fada6d351dd243372"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -B -m pytest -q tests/test_world_safety_exploration_saturated.py",
+  "result": "3 passed, 1 warning in 12.15s",
+  "test_count": 3,
+  "backend": "8 CPU ranks with Gloo; CUDA_VISIBLE_DEVICES empty; CPU Adam CUDA graph probe disabled",
+  "checks": [
+    "G8/G16 exact eligibility; only strict NC/DAC/TTC=1 EP=1 original rawA0 canonical-varied groups activate; failed/progress/tied groups unchanged",
+    "A_safe and canonical rewards unchanged; unrelated advantages/mask/baseStd bitexact; common fallback from complete world*G material only when originalStd exactly0",
+    "Full pending eligibility/delta/reward digest/protocol/statistics roundtrip and tamper rejection at all four inners; Dense pollution and mixed mixin rejection",
+    "Actual unchanged native checkpoint save/restore across eight CPU ranks for pending inner0/1/2/3 and READY4, Adam steps/scheduler/RNG/rollout exact; unchanged source PPO loss+gradient for the same modified material"
+  ],
+  "initial_harness_attempt": {
+    "status": "CPU_HARNESS_FAILED",
+    "detail": "Two pure checks passed. CPU Adam graph-capture guard queried CUDA availability outside checkpoint context; CPU-only harness corrected with no scientific module change. Full three-check rerun passed."
+  },
+  "gpu_training_or_scoring_started": false,
+  "committed_or_staged": false
+}
