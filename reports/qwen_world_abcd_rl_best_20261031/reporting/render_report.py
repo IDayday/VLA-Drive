@@ -226,6 +226,13 @@ def journal_snapshot(run: dict, warnings: list, inputs: list) -> dict:
             all_recorded_gradient_norms_finite=bool(window)and all(finite(row.get('gradient_norm'))for row in window),
             dense_activated_groups=sum(dense)if dense and all(finite(x)for x in dense)else None,
             scope='bounded common all-rank journal suffix; first inner per fresh collection only')
+        credit={}
+        for key in ['saturated_credit_activated_groups','protected_credit_activated_groups',
+                    'inversion_credit_activated_groups','inversion_credit_new_PG0_groups',
+                    'inversion_credit_post_raw_PG0_groups']:
+            values=[row.get('metrics',{}).get(key)for row in fresh]
+            if values and all(finite(x)for x in values):credit[key]=sum(values)
+        if credit:snapshot['process_window']['credit_mechanisms']=credit
     return snapshot
 
 
@@ -455,8 +462,38 @@ def load_exploration_research(warnings: list,inputs: list) -> dict:
         launch=read_json(root/'owners'/'SUPPORT_PROBE'/'LAUNCH.json',warnings,inputs)or{},
         manifest=support_manifest,summary=support_summary,summary_path=str(support_summary_path))
     comparisons=read_json(root/'analysis'/'PILOT_COMPARISONS'/'STATE.json',warnings,inputs)or{}
+    paired_reviews=[]
+    for path in sorted((root/'analysis'/'PILOT_COMPARISONS').glob('*.json')):
+        if path.name in('STATE.json','OWNER.json','ERROR.json'):continue
+        document=read_json(path,warnings,inputs)or{}
+        if (document.get('arm')in run_map and document.get('status')=='COMPLETE'and
+                document.get('schema')in('world_Safety_exploration_full_population_review_v1','world_Safety_exploration_between_arms_v1')):
+            paired_reviews.append(dict(document,evidence=str(path)))
+    structured_dir=root/'data'/'probes'/'FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101'
+    structured_manifest=read_json(structured_dir/'MANIFEST.json',warnings,inputs)or{}
+    structured_manifest={k:v for k,v in structured_manifest.items()if k!='cases'}
+    structured_summary_path=structured_dir/'results'/'SUMMARY.json'
+    structured_summary=read_json(structured_summary_path,warnings,inputs)or{}
+    structured_summary={k:v for k,v in structured_summary.items()if k!='scenes'}
+    structured_owner={}
+    for path,state in states.items():
+        source=state.get('source','')
+        if isinstance(source,str)and Path(source)==root/'runtime'/'structured_v2':
+            launch=read_json(Path(path).with_name('LAUNCH.json'),warnings,inputs)or{}
+            if launch.get('source')==source:structured_owner=dict(state=state,launch=launch,state_path=path)
+    structured=dict(manifest=structured_manifest,summary=structured_summary,summary_path=str(structured_summary_path),owner=structured_owner)
+    noise_dir=root/'data'/'probes'/'FROZEN_SAFETY10K_NOISE_PROFILE_CONTROLS_20261101'
+    noise_summary_path=noise_dir/'results'/'SUMMARY.json'
+    noise_summary=read_json(noise_summary_path,warnings,inputs)or{}
+    noise_summary={k:v for k,v in noise_summary.items()if k!='scenes'}
+    continuation_dir=root/'owners'/'CONTINUATION'
+    continuation=dict(policy=read_json(root/'CONTINUATION_POLICY.json',warnings,inputs)or{},
+        state=states.get(str(continuation_dir/'STATE.json'),{}),
+        owner=read_json(continuation_dir/'OWNER.json',warnings,inputs)or{},
+        launch=read_json(continuation_dir/'LAUNCH.json',warnings,inputs)or{})
     return dict(root=str(root),registry=registry,runs=runs,results=list(results.values()),analyses=analyses,
-        state_paths=list(states),controllers=controllers,support_probe=support,pilot_comparisons=comparisons,
+        state_paths=list(states),controllers=controllers,support_probe=support,pilot_comparisons=comparisons,paired_reviews=paired_reviews,structured_probe=structured,
+        noise_profile_probe=dict(summary=noise_summary,summary_path=str(noise_summary_path)),continuation=continuation,
         source_worktree='/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031',report_dispatches_nothing=True)
 
 

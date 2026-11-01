@@ -42,7 +42,7 @@ def render_safety_focus_report(root,snapshot,history,h):
     if editorial.get('abcd_research',{}).get('parents'):
         import importlib,abcd_research_report
         importlib.reload(abcd_research_report)
-        replanning_front='<section id="replanning"><h2>研究判断与重规划</h2><p class="deck">先说明哪些假设得到支持、哪些配方应结束，以及下一步必须回答什么。</p>'+abcd_research_report.render_replanning(root,editorial['abcd_research'],h)+'</section>'
+        replanning_front='<section id="replanning"><h2>研究判断与重规划</h2><p class="deck">先说明最新完整阶段、哪些假设得到支持，以及下一步必须回答什么。</p>'+abcd_research_report.render_replanning(root,editorial['abcd_research'],h,editorial.get('exploration_research'))+'</section>'
         abcd_front='<section id="abcd"><h2>当前新研究：ABCD各自current-best父模型与RL适配</h2><p class="deck">最新方法结论、实际故障与恢复进展优先；父模型保护、原生学习与完整成绩分别判断。</p>'+abcd_research_report.render_abcd_research(root,editorial['abcd_research'],h,snapshot)+'</section>'
         if editorial.get('exploration_research'):
             exploration_front='<section id="exploration"><h2>研究点 → 代码 → 独立实验：新World研究</h2><p class="deck">与ABCD分开；设计、CPU、注册、真实学习和完整结果逐层核对。</p>'+abcd_research_report.render_exploration_research(root,editorial['exploration_research'],h)+'</section>'
