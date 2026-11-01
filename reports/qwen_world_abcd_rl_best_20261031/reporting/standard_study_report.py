@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import re
+import socket
 import time
 
 
@@ -47,6 +48,27 @@ def _run_status(run,h):
     if run.get('worker_returncode')==0:return '本原生阶段完成；完整评测另列'
     if run.get('journal_ranks')==8 and h.finite(run.get('updates'))and run['updates']>0:return '已有八rank更新；当前派发待child确认'
     return '已配置，未见实际启动'
+
+
+def _runtime_authorization(h,warnings,inputs):
+    path=Path('/mnt/project/server_dispatch_policy.json');policy=h.read_json(path,warnings,inputs)or{}
+    grant=policy.get('task_authorizations',{}).get('qwen_world_safety_exploration_20261031',{})
+    record=h.read_json(Path(grant['record']),warnings,inputs)if grant.get('record')else None
+    fields=['permanent_hosts','temporary_hosts','unbounded_temporary_hosts','starts_unix','expires_unix','checkpoint_guard_seconds','host_authorization_origin_unix']
+    matches=bool(record)and all(record.get(k)==grant.get(k)for k in fields)
+    selected=['training-vla-zt3','training-vlawm-zt2','training-vlawm-zt3','training-vlawm-zt5','training-vlawm-tsinghua-zt4']
+    bans={host:policy.get('global_dispatch_prohibitions',{}).get(host,{})for host in selected}
+    excluded={host for host,value in bans.items()if value.get('new_task_dispatch_allowed')is False}
+    permanent=set(grant.get('permanent_hosts',[]));unbounded=set(grant.get('unbounded_temporary_hosts',[]));temporary=set(grant.get('temporary_hosts',[]))
+    expiry=grant.get('expires_unix');guard=expiry-grant.get('checkpoint_guard_seconds',0)if h.finite(expiry)else None;now=time.time()
+    within=h.finite(expiry)and grant.get('starts_unix',0)<=now<expiry
+    long_window=within and h.finite(guard)and now<guard
+    authorized=(permanent|unbounded|(temporary if within else set()))-excluded
+    admit=(permanent|unbounded|(temporary if long_window else set()))-excluded
+    return dict(record=grant.get('record'),record_matches=matches,permanent_hosts=sorted(permanent-excluded),temporary_hosts=sorted(temporary-excluded),
+        authorized_now=sorted(authorized)if matches else[],long_admit_now=sorted(admit)if matches else[],global_bans=bans,
+        grant_contains_banned=sorted((permanent|temporary|unbounded)&excluded),guard_utc=h.utc(guard)if guard is not None else None,
+        deadline_utc=h.utc(expiry)if expiry is not None else None,checked_utc=h.utc(now))
 
 
 def _comparison_summary(value):
@@ -166,8 +188,14 @@ def load_related(h,warnings,inputs):
             if key and not(results.get(key,{}).get('publishable_complete')and not result.get('publishable_complete')):results[key]=result
         controllers={}
         for path,state in states.items():
-            folder=Path(path).parent;controllers[folder.name]=dict(state=state,state_path=path,
-                owner=h.read_json(folder/'OWNER.json',warnings,inputs)or{},launch=h.read_json(folder/'LAUNCH.json',warnings,inputs)or{})
+            folder=Path(path).parent;owner=h.read_json(folder/'OWNER.json',warnings,inputs)or{};launch=h.read_json(folder/'LAUNCH.json',warnings,inputs)or{}
+            host=owner.get('host')or launch.get('host');identity=None
+            if host==socket.gethostname():
+                try:
+                    process=Path('/proc',str(owner.get('pid',launch.get('pid'))),'stat').read_text().split()
+                    identity=int(process[21])==int(owner.get('start_ticks',launch.get('start_ticks')))and process[2]not in('Z','X')
+                except(OSError,ValueError,TypeError,IndexError):identity=False
+            controllers[folder.name]=dict(state=state,state_path=path,owner=owner,launch=launch,local_pid_start_matches=identity)
         protocol_path=Path(reg.get('scheduler_protocol')or root/'SCHEDULER_PROTOCOL.json')
         exposure_path=Path(reg.get('exposure')or root/'TRAINING_EXPOSURE.json')
         protocol=h.read_json(protocol_path,warnings,inputs)or{}
@@ -223,6 +251,9 @@ def load_related(h,warnings,inputs):
             study['common10k_audit_path']=str(folder/'COMMON_10K_REGRESSION_CONFIG_AUDIT.json')
             common=h.read_json(Path(study['common10k_audit_path']),warnings,inputs)or{}
             study['common10k_audit']={k:v for k,v in common.items()if k not in ['inputs','receipts','checkpoints','journal_windows','raw_rows']}
+            study['algorithm_mapping_path']=str(folder/'ALGORITHM_PROBLEM_MAPPING_20261101.json')
+            study['algorithm_mapping']=h.read_json(Path(study['algorithm_mapping_path']),warnings,inputs)or{}
+            study['runtime_authorization']=_runtime_authorization(h,warnings,inputs)
         if Path(study['root'])==DEFAULT_ROOT:
             study['phase_potential_path']=str(E_ROOT/'analysis'/'LONG_RUN_PHASE_GAIN_RETENTION_AUDIT_20261101.json')
             study['phase_potential']=h.read_json(Path(study['phase_potential_path']),warnings,inputs)or{}
@@ -304,6 +335,27 @@ def _deployment_block(study,h,label):
         rows.append([h.esc(r.get('id')),h.number(r.get('common_updates')),h.number(r.get('group_size')),h.number(r.get('observed_scene_exposures')),h.number(r.get('observed_unique_scenes')),h.number(r.get('observed_repeated_scenes'))])
     body+='<details><summary>部署时固定快照：原始曝光、unique与重复分别计数</summary>'+h.table(['arm','回执更新','G','scene曝光','unique','重复'],rows)+'<p class="muted">此固定审计快照与上方持续更新的训练进度时间不同；Active在112步的224次曝光只有184个unique、40次重复，不能把raw曝光比例称为已遍历人口。</p></details>'
     return body
+
+
+def _resource_block(study,h,label):
+    value=study.get('runtime_authorization',{})
+    if not value:return ''
+    bans=[name for name,row in value.get('global_bans',{}).items()if row.get('new_task_dispatch_allowed')is False]
+    body='<details><summary>当前授权与截止保护：GLOBAL禁派优先，旧库存不代表可用</summary><p>GLOBAL禁止新派发：'+h.esc('、'.join(bans))+'。现行E record与policy '+('一致'if value.get('record_matches')else '尚未核对一致，不能推断可派发')+'；当前许可 '+h.number(len(value.get('authorized_now',[])))+' host（永久 '+h.number(len(value.get('permanent_hosts',[])))+'／临时 '+h.number(len(value.get('temporary_hosts',[])))+'），不等于空闲或已准入。</p>'
+    body+='<p><b>提前保护 '+h.esc(value.get('guard_utc'))+'；最终截止 '+h.esc(value.get('deadline_utc'))+'。</b>新长期派发当前仅按 '+h.number(len(value.get('long_admit_now',[])))+' 个许可host及实时lease／headroom／owner校验；被撤回host不因历史授权或库存快照恢复可用。</p>'
+    if value.get('grant_contains_banned'):body+='<p class="warning">当前grant仍含GLOBAL禁派host：'+h.esc('、'.join(value['grant_contains_banned']))+'；本页不将其列为可派发。</p>'
+    body+='<p>'+label(value.get('record'),'实际最新task grant')+' · 核对 '+h.esc(value.get('checked_utc'))+'</p></details>'
+    return body
+
+
+def _campaign_health_block(studies,h):
+    rows=[]
+    for study in studies:
+        for name,value in study.get('controllers',{}).items():
+            if not name.endswith('CAMPAIGN'):continue
+            ok=value.get('local_pid_start_matches');health='本机pid／start匹配'if ok is True else '本机身份未匹配，待确认'if ok is False else '仅读回执，未验证异机进程'
+            rows.append([h.esc(study['id']),h.number(value['owner'].get('pid',value['launch'].get('pid'))),h.esc(value['launch'].get('source_commit','未记录')),h.esc(value['state'].get('status')),health])
+    return '<details><summary>F／G／H当前CPU协调身份：不替代模型更新或评测完成</summary>'+h.table(['研究','CPU PID','ops source','STATE','只读身份核验'],rows)+'</details>'if rows else ''
 
 
 def _benefit_front(report_root,studies,h):
@@ -436,12 +488,13 @@ def render_related(report_root,studies,h):
     for study in studies:
         reg=study['registration'];root=Path(study['root']);runs=study['runs'];schedule=reg.get('scheduler',{});protocol=study['scheduler_protocol'];exposure=study['exposure'];population=reg.get('data_population_count',reg.get('training_population',study['registry'].get('training_population',exposure.get('population'))))
         label=lambda p,t:h.relative_link(report_root,str(p),t)
-        revival=is_revival(study);improvement=is_improvement(study)
+        revival=is_revival(study);improvement=is_improvement(study);science_body=''
         body='<div class="notice"><b>新的独立标准化子研究；旧constant九臂作为历史。</b>登记状态 '+h.esc(reg.get('status','入口已发现，正式登记待补'))+'。'+('科学source准备／checkout尚未完成；CPU与启动状态分别以实际回执为准，不能据此称已开训。'if reg.get('source_pending')else '是否已真实学习以worker回执和八rank共同日志为准。')+'不是原constant系列延长后的cos单因素证据；父模型相同也不消除warmup、预算和配方差异。</div>'
         if revival:body='<h3>复审历史判断</h3><p>历史1k／3k观察支持当时固定配方与预算下的结论，不等同于长期无效。本轮保留旧负面配对CI与高分退化证据，在统一配方、更充分曝光下复试；不抹掉历史结果，也不预设长训必然改善。F现有长训并行推进，复试不重复训练其Control。ABCD等用户终止路线不恢复。</p>'+body
         if revival:body+=_historical_reassessment_block(study,h,label)
         if improvement:
             body='<div class="notice"><b>H已独立登记；每臂科学source／Adam时钟分别记录，F Control只读共享。</b>CPU协调启动、child启动、实际八rank更新与完整部署成绩分别判断。登记状态 '+h.esc(reg.get('status','待登记状态'))+'。</div>'
+            method_start=len(body)
             body+='<p>P0为同IL70 fresh：warmup1000，<b>20k完成cos衰减，之后保持0.1峰值floor</b>；初预算20k Adam，批准后才续30／50k。50k是原生预算上限，不能误画成F的整50k衰减。2k／5k／10k及后续每2k做完整NAVTEST；不因早期小差自动淘汰。</p>'
             if not any(r.get('improvement_role')=='multiscene32'for r in runs):body+='<p class="muted">Batch32科学CPU检查已准备；尚未登记为本研究运行臂，后续以独立run.source／实际worker为准，不沿用P0的source标记。</p>'
             else:body+='<p>Batch32使用独立Adam时钟：首5k Adam约对应F Control20k的数据量；500／1250／2500及后续每500 Adam评测。1250停于inner2，已采10016场景／80128候选，比名义F5000多16场景／128候选，不称严格等预算。后续7500／12500需独立批准。</p>'
@@ -450,6 +503,7 @@ def render_related(report_root,studies,h):
                 body+='<p>2k前不入库、不做额外评分；之后每collection在64个主PG候选之外最多8次fresh B1 ODE＋8次history B1复评，额外官方查询上限25%，与主候选分账。实际计数按8rank封存state.retention求和，不能将4inner重复日志相加。'+label(study.get('retention_handoff_path'),'P2科学协议与计费边界')+'；该CPU阶段文档的未派发标记不覆盖当前worker回执。</p>'
                 waiting=[r for r in runs if r.get('improvement_role')=='verified_retention'and h.finite(r.get('updates'))and r['updates']<2000]
                 if waiting:body+='<p class="muted">P2当前仍在2k启用门槛前；未激活是设计，不构成保持方法的效果检验。</p>'
+            science_body=body[method_start:];body=body[:method_start]
         else:body+='<p>同IL70 fresh，首预算 '+h.number(reg.get('initial_budget_updates'))+' 更新；2k／5k仅观测，10k第一次完整阶段评审，之后每2k完整NAVTEST。固定cos总周期 '+h.number(schedule.get('total_updates',protocol.get('horizon_updates')))+'、warmup '+h.number(schedule.get('warmup_updates'))+'、相对floor '+h.fmt(schedule.get('min_ratio'),3)+'；阶段不重置horizon。50k是调度时钟，不是未经审查的自动续满预算。</p>'
         body+='<p class="muted">相关RL实现的调度依任务而异；统一warmup＋cosine是可检验的本轮设计，未被证明为所有任务最优。</p>'
         rows=[]
@@ -465,6 +519,13 @@ def render_related(report_root,studies,h):
             rows.append([identity,h.esc(method),status+'<small>'+h.esc(run.get('host','未记录host'))+'</small>',count,h.number(raw)+'<small>'+ratio+' of eligible population</small>',h.number(run.get('new_candidates')),h.number(run.get('target_updates',reg.get('initial_budget_updates')))])
         body+=h.table(['本子研究arm','方法','实际状态','共同更新','实际scene曝光／人口','fresh候选','当前预算'],rows)
         if improvement:
+            completed=[r for r in study['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST']
+            if completed:body+='<h3>H完整NAVTEST：只发布全量结果</h3>'+h.table(['arm','Adam更新','场景','完整PDMS','证据'],[[h.esc(r['arm']),h.number(r.get('updates')),h.number(r.get('scenes')),h.fmt(r.get('PDMS'),6),label(r.get('evidence'),'SUMMARY')]for r in completed])
+            else:body+='<div class="notice"><b>H目前没有完整NAVTEST成绩。</b>原生训练、checkpoint导出与分片评测均不算提分证据；等待12146场景完整SUMMARY，不发布部分均分。</div>'
+            body+='<details><summary>三臂的机制、各自时钟与额外评分成本</summary>'+science_body+'</details>'
+            mapping=study.get('algorithm_mapping',{})
+            if mapping:body+='<details><summary>算法发展与当前问题如何对应</summary><p>本轮优先验证P0更早收敛、P1真正扩大不同场景批、P2质量门控历史RL保持。GRPO家族文献逐项区分已吸收机制、已有历史测试与后续假说；论文新不等于部署收益，CPU／实现映射不覆盖当前worker与完整评分状态。</p>'+label(study['algorithm_mapping_path'],'正式算法—问题对应及primary来源')+'</details>'
+            body+=_resource_block(study,h,label)+_campaign_health_block(studies,h)
             handoff=study.get('consolidation_handoff',{});samples=handoff.get('scheduler_clock',{}).get('samples',{})
             if samples:
                 planned_rows=[]
@@ -474,7 +535,7 @@ def render_related(report_root,studies,h):
                 body+='<details><summary>P0登记计划：20k结束衰减后保持floor（不是实际观测）</summary>'+h.table(['已完成Adam u','下一step倍率','action next LR','memory next LR'],planned_rows)+'<p>计划来自本臂科学协议；真实used LR在下方另列，不借F的50k衰减曲线。</p>'+label(study['consolidation_handoff_path'],'P0正式协议／CPU检查')+'</details>'
             common=study.get('common10k_audit',{})
             if common.get('status','').startswith('COMPLETE'):
-                body+='<details><summary>共同10k回落配置审计：未发现共同恢复断点，尚非根因证明</summary><p>8臂指定窗口共96,000日志行／24,000组，16份checkpoint仅检查mmap元数据；报告错误 '+h.number(common.get('total_errors'))+'。所查LR／Adam step／nexttoken／Active bank与RNG保持连续；未发现共同断点不等于证明没有错误。该时段未记录PG与anchor独立组件梯度，不能用标量loss比例指认原因。</p>'+label(study['common10k_audit_path'],'正式配置／恢复审计')+'</details>'
+                body+='<details><summary>共同10k回落配置审计：未发现reset，尚非根因证明</summary><p>8臂指定窗口共96,000日志行／24,000组，16份checkpoint仅检查mmap元数据；报告错误 '+h.number(common.get('total_errors'))+'。所查LR／Adam step／nexttoken／Active bank与RNG保持连续，未见共同reset。原F已经使用50k cosine，但第10k实际used LR仍约92.7%峰值；这不证明LR造成回落。未发现错误不等于证明没有错误；该时段未记录PG与anchor独立组件梯度，不能用标量loss比例指认原因。</p>'+label(study['common10k_audit_path'],'正式配置／恢复审计')+'</details>'
         body+=_deployment_block(study,h,label)
         if study.get('validator_recoveries'):
             body+='<details><summary>历史验证器故障与恢复证据；当前状态按当前job回执</summary><p>Combined与Inversion的离散统计在GPU极小非零数／CPU零数下曾触发验证拒绝；原失败保留，验证器定向修复后按原生状态恢复。它们是执行验证故障，不能记为算法负收益。</p>'+h.table(['恢复记录','定向检查','验证证据','原生身份迁移'],[[h.esc(r['name']),h.esc(r.get('status')),label(r['evidence'],'等价检查'),label(r['migration'],'迁移回执')]for r in study['validator_recoveries']])+'</details>'
@@ -535,8 +596,8 @@ def render_related(report_root,studies,h):
             if root==DEFAULT_ROOT:body+='<p>人口 '+h.number(population)+'；10k仅约19.36%首遍曝光，50k约96.82%，完整首遍需 '+h.number(exposure.get('full_pass_completed_update'))+' 更新。曝光不是掌握，重复曝光也不等于unique覆盖。u10k next-LR倍率约0.92714，因此10k只检验首段趋势，不能称完整cos周期结论。</p>'
             else:body+='<p>曝光数／eligible人口不自动代表unique覆盖；G16候选量、课程重采和各臂预算需分别计数。曝光不是掌握。</p>'
         complete=[r for r in study['results']if r.get('publishable_complete')]
-        if complete:body+=h.table(['本子研究完整结果','更新','cohort','场景','PDMS','证据'],[[h.esc(r.get('arm','')),h.number(r.get('updates')),h.esc(r.get('cohort','')),h.number(r.get('scenes')),h.fmt(r.get('PDMS'),5),label(r.get('evidence',''),'SUMMARY')]for r in complete])
-        else:body+='<p>本子研究尚无完整新成绩，不用旧constant成绩补点。</p>'
+        if complete and not improvement:body+=h.table(['本子研究完整结果','更新','cohort','场景','PDMS','证据'],[[h.esc(r.get('arm','')),h.number(r.get('updates')),h.esc(r.get('cohort','')),h.number(r.get('scenes')),h.fmt(r.get('PDMS'),5),label(r.get('evidence',''),'SUMMARY')]for r in complete])
+        elif not improvement:body+='<p>本子研究尚无完整新成绩，不用旧constant成绩补点。</p>'
         protocol_link=study.get('consolidation_handoff_path')if improvement else study.get('scheduler_protocol_path',root/'SCHEDULER_PROTOCOL.json')
         body+='<p>'+label(study['registration_path'],'实际REGISTRATION')+' · '+label(protocol_link,'科学时钟／计划证据')+' · '+label(study.get('exposure_path',root/'TRAINING_EXPOSURE.json'),'曝光账本')+'</p>'
         cpu_paths=[root/'analysis'/'STANDARDIZED_TRAINING_HANDOFF.json',root/'analysis'/'STANDARDIZED_TRAINING_CPU_CHECK.json']
