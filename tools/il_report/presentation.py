@@ -106,7 +106,9 @@ def render(s, history):
     raw_best=max(by['RAW'],key=lambda x:x['PDMS'],default=None)
     running=[r for r in runs if r['status'].startswith('训练更新中')]
     failed=[r for r in runs if r['status']=='训练故障 / 待恢复']
-    best=max((r for r in scores if not r['method'].startswith('ARCH_')),key=lambda x:x['PDMS'],default=None)
+    # All rows were already verified as complete IL Navtest observations.
+    # The headline covers the same population as the complete-results table.
+    best=max(scores,key=lambda x:x['PDMS'],default=None)
     current_run={r['id']:r for r in runs}
     def card(value,label,note=''):
         return f'<div class="card"><span>{escape(label)}</span><strong>{value}</strong><span>{escape(note)}</span></div>'
