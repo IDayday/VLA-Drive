@@ -117,8 +117,11 @@ def owner_class():
                         command=[MODEL_PYTHON,'-m','torch.distributed.run','--standalone','--nnodes=1','--nproc_per_node=8','-m',run['trainer_module'],
                             '--config',run['config'],'--manifest',self.registry['manifest'],'--il-checkpoint',run['parent_checkpoint'],'--data',self.registry['observation_data'],
                             '--parent-selection',self.registry['parent_selection'],'--output',run['root'],'--stop-after-update',str(target),'--save-every','500']
-                        if resume:command+=['--resume',resume]
-                        try:job=launch(route['host'],run['source'],command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[g['uuid']for g in sample['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'])
+                        if resume:
+                            command+=['--resume',resume]
+                            if run.get('execution_migration_receipt'):
+                                command+=['--migration-receipt',run['execution_migration_receipt']]
+                        try:job=launch(route['host'],run.get('execution_source',run['source']),command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[g['uuid']for g in sample['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'])
                         except Exception:
                             node.update(attempt=attempt,job=str(ROOT_PATH/'jobs'/name),dispatch_error=traceback.format_exc());self.update(arm,status='DISPATCH_TRANSPORT_REVIEW',job=node['job']);raise
                         node.update(attempt=attempt,job=str(job),host=route['host'],resume=resume,start_unix=time.time())
