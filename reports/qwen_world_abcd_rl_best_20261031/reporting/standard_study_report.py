@@ -32,7 +32,7 @@ def section_links(studies):
     links=[(section_id(s),'历史方法复试'if is_revival(s)else '统一配方新研究'if Path(s['root'])==DEFAULT_ROOT else s.get('registration',{}).get('display_name',s['id']))for s in studies if not is_improvement(s)]
     if any(s.get('paired_reviews')for s in studies):links.insert(0,('rl-benefit','RL实质收益'))
     if any(s.get('phase_potential',{}).get('status','').startswith('COMPLETE')for s in studies):links.insert(0,('rl-potential','下一步提升潜力'))
-    return current+links
+    return [('rl-latest-evidence','最新完整证据与资源优先级')]+current+links
 
 
 def _run_status(run,h):
@@ -84,7 +84,8 @@ def _paired_reviews(root,arms,h,warnings,inputs):
         if not any(path.name.startswith(arm+'_')for arm in arms):continue
         value=h.read_json(path,warnings,inputs)or{}
         if value.get('status')!='COMPLETE':continue
-        base=dict(arm=value.get('arm'),updates=value.get('updates'),evidence=str(path))
+        base=dict(arm=value.get('arm'),updates=value.get('updates'),evidence=str(path),
+            fixed_IL70_high_advantage_PDMS=value.get('fixed_IL70_high_advantage_PDMS'),actual_collection_budget=value.get('actual_collection_budget'))
         if value.get('schema')in ['world_Safety_exploration_full_population_review_v1','world_revival_full_population_review_v1','world_improvement_full_population_review_v1']:
             for label in ['IL70','SafetyEP10k']:
                 result=value.get('comparisons',{}).get(label,{}).get('result',{})
@@ -606,4 +607,9 @@ def render_related(report_root,studies,h):
         title=reg.get('display_name')or('复审历史判断：统一配方下的方法复试'if revival else '当前标准化子研究：统一warmup＋cosine与更充分训练')
         document='<section id="'+section_id(study)+'"><h2>'+h.esc(title)+'</h2><p class="deck">独立父身份／输出命名空间；配置、启动、真实LR与完整评测分层记录。</p>'+body+'</section>'
         (current_bodies if improvement else bodies).append(document)
-    return ''.join(current_bodies)+_potential_front(report_root,studies,h)+_benefit_front(report_root,studies,h)+''.join(bodies)
+    import importlib,latest_complete_report
+    importlib.reload(latest_complete_report)
+    latest=latest_complete_report.build_review(studies)
+    latest_path=report_root/'analysis'/'REPORT_LATEST_COMPLETE_REVIEW_20261101'/'SUMMARY.json'
+    h.atomic_json(latest_path,latest)
+    return latest_complete_report.render_review(report_root,latest,latest_path,h)+''.join(current_bodies)+_potential_front(report_root,studies,h)+_benefit_front(report_root,studies,h)+''.join(bodies)
