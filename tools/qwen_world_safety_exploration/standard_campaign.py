@@ -135,7 +135,8 @@ def owner_class():
                 if receipt['returncode']!=0:raise RuntimeError('Actual native failure retained, no automatic scientific retry: '+node['job'])
                 latest=read(latest_path);checkpoint=Path(latest['checkpoint']);seal=read(checkpoint/'COMPLETE')
                 if latest['updates']!=target:
-                    if (ROOT_PATH/'STOP_REQUESTED').exists()or run.get('standard_disposition')=='CATASTROPHIC_REVIEW':
+                    if ((ROOT_PATH/'STOP_REQUESTED').exists()
+                            or run.get('standard_disposition') in ('RESEARCH_RESERVE_REVIEW','CATASTROPHIC_REVIEW')):
                         self.update(arm,status='STOPPED_AT_COOPERATIVE_BOUNDARY',updates=latest['updates'],checkpoint=str(checkpoint));raise StopBeforeDispatch('Cooperative boundary retained')
                     from .resource_boundary import cooperative_return
                     returned=cooperative_return(run,node,receipt,latest,target)

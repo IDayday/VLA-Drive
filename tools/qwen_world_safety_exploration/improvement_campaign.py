@@ -28,10 +28,12 @@ PROTECTED = {'training-vlawm-tsinghua-zt', 'training-vla-zt'}
 ROLES = {'IMPROVEMENT_EARLY_DECAY_G8': 'early_decay',
          'IMPROVEMENT_MULTISCENE32_G8': 'multiscene32',
          'IMPROVEMENT_VERIFIED_RETENTION_G8': 'verified_retention',
-         'IMPROVEMENT_FP32_OUTPUT_G8': 'fp32_output'}
-FACTOR = {'early_decay': 1, 'multiscene32': 4, 'verified_retention': 1, 'fp32_output': 1}
+         'IMPROVEMENT_FP32_OUTPUT_G8': 'fp32_output',
+         'IMPROVEMENT_MIXED_NOISE_G8': 'mixed_noise'}
+FACTOR = {'early_decay': 1, 'multiscene32': 4, 'verified_retention': 1, 'fp32_output': 1, 'mixed_noise': 1}
 CAPS = {'early_decay': (20000, 30000, 50000), 'multiscene32': (5000, 7500, 12500),
-        'verified_retention': (20000, 30000, 50000), 'fp32_output': (20000, 30000, 50000)}
+        'verified_retention': (20000, 30000, 50000), 'fp32_output': (20000, 30000, 50000),
+        'mixed_noise': (20000, 30000, 50000)}
 IMMUTABLE = ('id', 'root', 'source', 'config', 'config_sha256', 'parent_checkpoint',
              'group_size', 'trainer_module', 'improvement_role', 'owner_state')
 P0_PROTOCOL = dict(schema='world_fixed50k_warmup1000_cosine_end20k_floor01_v1',
@@ -52,7 +54,7 @@ def gates(role, cap):
         raise ValueError('Explicit per-role Adam cap required')
     if role == 'fp32_output':
         return [0, 2000, 5000, 10000]+list(range(12000, cap+1, 2000))
-    if role in ('early_decay','verified_retention'):
+    if role in ('early_decay','verified_retention','mixed_noise'):
         return [2000, 5000, 10000]+list(range(12000, cap+1, 2000))
     return [500, 1250, 2500]+list(range(3000, cap+1, 500))
 
@@ -127,6 +129,9 @@ def validate_registry(value, root=ROOT_PATH, *, pending_source=False):
         elif role == 'fp32_output':
             from starVLA.rl.qwen_world_safety_exploration.precision_recipe import validate_precision_recipe
             validate_precision_recipe(cfg)
+        elif role == 'mixed_noise':
+            from starVLA.rl.qwen_world_safety_exploration.mixed_exploration_recipe import validate_mixed_recipe
+            validate_mixed_recipe(cfg)
         if not run.get('deployment_candidates'):
             raise ValueError('Explicit deployment routes required')
         if any(r['host'] in PROTECTED for r in run['deployment_candidates']):

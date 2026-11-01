@@ -7,6 +7,9 @@ from .quality import QualityDiagnosticsMixin
 
 def runtime_for_config(path):
     cfg=yaml.safe_load(Path(path).read_text());r=cfg['research']
+    if r.get('mixed_exploration') is not None:
+        from .mixed_exploration_runtime import mixed_runtime
+        return mixed_runtime(cfg)
     if r.get('precision_training') is not None:
         from .precision_runtime import precision_runtime
         return precision_runtime(cfg)

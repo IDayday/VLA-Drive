@@ -219,7 +219,6 @@ class EvaluationOwner:
         host = node.get('host')
         if (not value or value.get('returncode') != 0 or value.get('forced_expiry')
                 or value.get('status') == 'FORCED_EXIT_REVIEW_REQUIRED'
-                or host in allowed_hosts(admit_long_job=True)
                 or rank_receipt.get('status') != 'STOPPED_AT_SCENE_BOUNDARY'):
             return False
         job = Path(node['job']).resolve()
@@ -228,7 +227,13 @@ class EvaluationOwner:
         grant, _ = authorization()
         guard = (host in grant.get('temporary_hosts', [])
                  and time.time() >= grant['expires_unix']-grant['checkpoint_guard_seconds'])
-        if not ((job/'STOP_REQUESTED').exists() or guard):
+        authorized = host in allowed_hosts(admit_long_job=True)
+        priority_yield = None
+        if authorized:
+            from .native_priority import verified_yield
+            priority_yield = verified_yield(entry, rank, node, value, rank_receipt)
+        resource_return = not authorized and ((job/'STOP_REQUESTED').exists() or guard)
+        if not resource_return and priority_yield is None:
             return False
         output = Path(entry['evaluation']).resolve()
         identity = read(output/'identity.json', {})
@@ -258,7 +263,8 @@ class EvaluationOwner:
         node.setdefault('resource_returns', []).append(dict(job=str(job), result=value,
             rank_receipt=rank_receipt, source=node['source'], command=list(command),
             spec_sha256=spec_sha, identity_sha256=identity_sha,
-            reason='EXIT0_OWNED_SCENE_BOUNDARY_RESOURCE_RETURN', at_unix=time.time(),
+            reason='OWNED_NATIVE_PRIORITY_YIELD' if priority_yield is not None else 'EXIT0_OWNED_SCENE_BOUNDARY_RESOURCE_RETURN',
+            priority_yield_receipt=priority_yield, at_unix=time.time(),
             same_source_world_rank_seed=True, completed_scene_cache_preserved=True))
         node.pop('job');node.pop('result', None)
         node.update(status='RESOURCE_REQUEUE')
@@ -468,6 +474,8 @@ class EvaluationOwner:
                            has_owners=any(o['uuid']==gpu['uuid']for o in sample['owners']))
                 for host, sample in samples for gpu in sample['gpus']
                 if usable_gpu(gpu, sample, minimum=self.minimum, reserved=claims)]
+            from .native_priority import filter_eval_routes
+            routes = filter_eval_routes(routes, samples)
             runs = {run['id']:run for run in self.registry['runs']}
             # Round-robin ranks across registered full NAVTEST evaluations.
             entries = list(self.state['evaluations'].values())

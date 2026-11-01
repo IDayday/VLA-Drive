@@ -68,6 +68,8 @@ class Owner:
             if not journal.exists() or not journal.stat().st_size:
                 return None
         from .eval_owner import lease_free,LEASES,KNOWN_ROOTS
+        from .native_priority import refresh_advisory
+        refresh_advisory()  # advisory only; all existing admission checks remain
         samples={}
         for route in run['deployment_candidates']:
             if route['host'] not in allowed_hosts(admit_long_job=True):
