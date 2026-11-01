@@ -81,3 +81,38 @@ A IL 原生迁移队列在保存后只考虑未受 B/D 保护的固定 `tsinghua
 ```
 
 正常报告更新仍由现有 owner 完成，不新建监控进程。已有暂停/终止实验不恢复，原科学源码不热改，结果不重评分。
+
+## 截止后的实际核验与恢复审查
+
+2026-11-01 22:59:30 UTC 的守护审计已完成；23:05 后另外执行了更宽的实际 SSH `/proc` 与 NVML 检查，覆盖受信任务路径、继承的运行环境和辅助 worker，而非只匹配训练模块。五台到期节点均为本任务进程 0、可见 GPU 进程 0。原始证据为期限目录的 `FINAL_AUDIT.json` 和 `POST_DEADLINE_BROAD_AUDIT.json`。当前派发主机仅保留固定的 vla-zt、tsinghua-zt、tsinghua-zt3、tsinghua-zt5。
+
+退出与无损保存需要分别判断。A IL 正常保存至 48,351 后退出，原生迁移队列继续等待固定节点容量。多场景 batch32、历史保持两组已迁回固定节点；不为迁移挤占 B/D。
+
+发现七条 RL 任务未正常完成停止保存：22:15 的全局撤权先于其保存路径中的 `require_dispatch`，触发了明确的 `PermissionError: Host not authorized`。这是行政退出次序与旧运行时权限检查的冲突。没有证据表明这些退出由奖励、优化器或训练数值发散导致。失败凭证不改写为成功，也不能称全部无损。
+
+| 任务 | 合法恢复更新 | 旧日志末尾 | 需要重做的未提交更新 |
+|---|---:|---:|---:|
+| Control | 40,000 | 40,180 | 180 |
+| Inversion | 36,500 | 36,977 | 477 |
+| Combined | 34,500 | 34,636 | 136 |
+| G16 | 32,500 | 32,537 | 37 |
+| Saturated | 36,500 | 36,517 | 17 |
+| Early decay | 14,500 | 14,657 | 157 |
+| FP32 output | 9,000 | 9,420 | 420 |
+
+实际执行的只读资格审查逐条要求：退出精确落在守护后的 60 秒内；有本任务 STOP 意图；rank traceback 仅出现对应旧主机的权限异常；合法 READY/inner 阶段、完整八 rank/optimizer/transaction 文件清单与发布 seal；到期节点已经实际清空。七条全部满足后，才将各自原 stage 重新排入固定资源队列。
+
+操作只替换三个 CPU 主协调进程，保持各自原冻结源码、命令、预算和注册表；既有健康 GPU 学习进程、Eval/Review 和其他实验不发信号。旧失败 RESULT、旧阶段与日志保留。重新启动由原生 loader 检查完整文件 hash，并恢复对应 Adam/RNG/链/old probability/advantage；未保存后缀由已有 invocation 系统归档重做。无容量则等待，不放宽准入、精度或 B/D 保护。
+
+实际执行入口（已完成，重复执行会拒绝）：
+
+```bash
+/usr/bin/python3 -m tools.il_report.review_expired_resource_failures
+/usr/bin/python3 -u -m tools.il_report.review_expired_resource_failures --apply
+```
+
+收据：`/mnt/project/qwen-world-safety-exploration-20261031/operations/EXPIRED_RESOURCE_REVIEW_20261101/{QUALIFIED,APPLIED}.json`。当前 parent PID 以该目录新 LAUNCH 和实时 OWNER 为准，不恢复此前的旧 CPU owner。
+
+同日用户另行终止时间分布加权 IL：它已正常保存 85,711、returncode=0、实际进程全部退出，禁止自动恢复。该终止不属于等待迁移的实验。
+
+本次守护已经结束，不热改其冻结副本。若未来再次部署限时资源，必须先修正并验收“新派发撤权”与“既有任务保存退出”的权限边界，不能直接复用本次提前全局撤权的次序并承诺无损。
