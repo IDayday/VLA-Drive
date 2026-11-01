@@ -3,7 +3,7 @@ import json
 import os
 from pathlib import Path
 import time
-from starVLA.rl.qwen_world_safety_exploration.contracts import ROOT, TASK, file_sha
+from starVLA.rl.qwen_world_safety_exploration.contracts import ROOT, TASK, file_sha, authorization
 from starVLA.rl.qwen_world_safety_exploration.resources import remote, MODEL_PYTHON
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
@@ -16,7 +16,13 @@ def launch(host, source, command, name, *, gpus='', expected_uuids=None,
     directory.mkdir(parents=True, exist_ok=True)
     if (directory/'DISPATCH.json').exists():
         raise ValueError('Invocation already dispatched')
-    executor = str(Path(worker_source or source)/'tools/qwen_world_safety_exploration/job_worker.py')
+    # An explicit audited operations source may replace only the admission
+    # worker. The child cwd/PYTHONPATH and scientific source remain unchanged.
+    grant,_=authorization()
+    override=grant.get('worker_execution_source')
+    executor = str(Path(worker_source or override or source)/'tools/qwen_world_safety_exploration/job_worker.py')
+    if worker_source is None and override and file_sha(executor)!=grant.get('worker_execution_worker_sha256'):
+        raise ValueError('Audited admission worker source differs from its authorization receipt')
     args = [MODEL_PYTHON, executor, '--receipt-root', str(directory), '--gpus', gpus,
             '--command-json', json.dumps(command), '--cwd', str(source)]
     if expected_uuids is not None:

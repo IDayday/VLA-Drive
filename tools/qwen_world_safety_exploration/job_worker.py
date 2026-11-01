@@ -150,10 +150,13 @@ def _admission_sample():
 
 
 def shared_training_host(host,grant):
-    """Unbounded temporary sharing requires an explicit immutable task grant."""
+    """Measured sharing requires an explicit, currently valid task grant."""
     if host in grant['permanent_hosts']:return True
     explicit=grant.get('shared_training_hosts',[])
-    if host not in explicit or host not in grant.get('unbounded_temporary_hosts',[]):return False
+    unbounded=host in grant.get('unbounded_temporary_hosts',[])
+    finite=(host in grant.get('temporary_hosts',[]) and
+            grant['starts_unix']<=time.time()<grant['expires_unix']-grant['checkpoint_guard_seconds'])
+    if host not in explicit or not(unbounded or finite):return False
     original=json.loads(Path(grant['record']).read_text())
     if original.get('shared_training_hosts',[])!=explicit:
         raise PermissionError('Shared training host list differs from immutable task grant')

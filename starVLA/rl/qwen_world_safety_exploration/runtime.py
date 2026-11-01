@@ -7,6 +7,12 @@ from .quality import QualityDiagnosticsMixin
 
 def runtime_for_config(path):
     cfg=yaml.safe_load(Path(path).read_text());r=cfg['research']
+    if r.get('consolidation_training') is not None:
+        from .consolidation_runtime import consolidation_runtime
+        return consolidation_runtime(cfg)
+    if r.get('batch32') is not None:
+        from .batch32_runtime import batch32_runtime
+        return batch32_runtime(cfg)
     if r.get('revival_training') is not None:
         from .revival_runtime import revival_runtime
         return revival_runtime(cfg)
