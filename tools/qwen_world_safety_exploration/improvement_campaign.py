@@ -27,10 +27,11 @@ SCHEMA = 'world_improvement_campaign_registry_v1'
 PROTECTED = {'training-vlawm-tsinghua-zt', 'training-vla-zt'}
 ROLES = {'IMPROVEMENT_EARLY_DECAY_G8': 'early_decay',
          'IMPROVEMENT_MULTISCENE32_G8': 'multiscene32',
-         'IMPROVEMENT_VERIFIED_RETENTION_G8': 'verified_retention'}
-FACTOR = {'early_decay': 1, 'multiscene32': 4, 'verified_retention': 1}
+         'IMPROVEMENT_VERIFIED_RETENTION_G8': 'verified_retention',
+         'IMPROVEMENT_FP32_OUTPUT_G8': 'fp32_output'}
+FACTOR = {'early_decay': 1, 'multiscene32': 4, 'verified_retention': 1, 'fp32_output': 1}
 CAPS = {'early_decay': (20000, 30000, 50000), 'multiscene32': (5000, 7500, 12500),
-        'verified_retention': (20000, 30000, 50000)}
+        'verified_retention': (20000, 30000, 50000), 'fp32_output': (20000, 30000, 50000)}
 IMMUTABLE = ('id', 'root', 'source', 'config', 'config_sha256', 'parent_checkpoint',
              'group_size', 'trainer_module', 'improvement_role', 'owner_state')
 P0_PROTOCOL = dict(schema='world_fixed50k_warmup1000_cosine_end20k_floor01_v1',
@@ -49,6 +50,8 @@ RETENTION_PROTOCOL = dict(schema='world_verified_RL_nominal_mean_retention_v1',
 def gates(role, cap):
     if role not in CAPS or cap not in CAPS[role]:
         raise ValueError('Explicit per-role Adam cap required')
+    if role == 'fp32_output':
+        return [0, 2000, 5000, 10000]+list(range(12000, cap+1, 2000))
     if role in ('early_decay','verified_retention'):
         return [2000, 5000, 10000]+list(range(12000, cap+1, 2000))
     return [500, 1250, 2500]+list(range(3000, cap+1, 500))
@@ -121,6 +124,9 @@ def validate_registry(value, root=ROOT_PATH, *, pending_source=False):
                     or any(research.get(k) is not None for k in ['consolidation_training','batch32','standardized_training','revival_training'])
                     or research.get('structured_advantage')!='world_SafetyEP_group_credit_v1'):
                 raise ValueError('Only registered verified-retention protocol; no other family')
+        elif role == 'fp32_output':
+            from starVLA.rl.qwen_world_safety_exploration.precision_recipe import validate_precision_recipe
+            validate_precision_recipe(cfg)
         if not run.get('deployment_candidates'):
             raise ValueError('Explicit deployment routes required')
         if any(r['host'] in PROTECTED for r in run['deployment_candidates']):
@@ -174,6 +180,10 @@ def valid_checkpoint(run, updates, checkpoint, *, check_rank_results=False):
 def checkpoint_at_gate(run, updates):
     state = read(run['owner_state']) if Path(run['owner_state']).exists() else {}
     native = state.get('runs', {}).get(run['id'], {})
+    if run['improvement_role'] == 'fp32_output' and updates == 0:
+        checkpoint = Path(run['root'])/'checkpoints/update000000_inner0'
+        if (checkpoint/'COMPLETE').exists():return valid_checkpoint(run, 0, checkpoint), native
+        return None, native
     stage = native.get('stages', {}).get(str(updates), {})
     if not stage.get('complete'):return None, native
     return valid_checkpoint(run, updates, stage['checkpoint']), native
@@ -265,7 +275,10 @@ def owner_class():
                 while True:
                     run=self.current(arm)
                     if run.get('improvement_disposition'):self.update(arm,status='COMPLETED_AT_REGISTERED_CAP',disposition=run['improvement_disposition']);return
-                    for target in run['gates']:resume=self.run_stage(run,target,resume)
+                    for target in run['gates']:
+                        # Native0 is saved by the first normal invocation. It
+                        # is an evaluation gate, never a zero-budget trainer.
+                        if target != 0:resume=self.run_stage(run,target,resume)
                     if run['target_updates']>=run.get('continuation_max_updates',CAPS[run['improvement_role']][-1]):self.update(arm,status='COMPLETED_AT_REGISTERED_CAP');return
                     self.update(arm,status='WAITING_COMPLETE_LONG_GATE_REVIEW')
                     if self.campaign_done.wait(15):return
@@ -317,6 +330,7 @@ def run_review(args):
                 if not point.exists():
                     payload=dict(schema='world_improvement_full_population_review_v1',status='COMPLETE',arm=run['id'],updates=u,PDMS=value['PDMS'],evaluation=str(ev),summary_sha256=value['sha256'],actual_collection_budget=budget(run['improvement_role'],u),comparisons={name:review.compare(ev,path,label=name) for name,path in BASELINES.items()},NAVTEST_never_enters_training_selection=True)
                     payload['sha256']=fingerprint(payload);atomic_json(point,payload);published.append(str(point))
+                if u == 0:continue  # Initial execution precision vs IL70, no fictitious F-Control0.
                 base=CONTROL_ROOT/f'evaluations/SAFETY_G8_CONTROL_u{cu:06}/NAVTEST';paired_path=review.out/f"{run['id']}_{u}_vs_SAFETY_G8_CONTROL_{cu}.json"
                 if paired_path.exists():continue
                 if not (base/'SUMMARY.json').exists():pending.append(f'READ_ONLY_F_CONTROL_u{cu:06}');continue

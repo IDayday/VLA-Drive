@@ -77,7 +77,7 @@ class CleanXActor(nn.Module):
 
     def __init__(self, hidden_dim=1024, num_layers=20, num_heads=16, ffn_dim=4096,
                  action_tokens=8, action_dim=3, ego_dim=8, dropout=0.0,
-                 activation_checkpointing=False):
+                 activation_checkpointing=False, output_projection_fp32=False):
         super().__init__()
         if dropout != 0:
             raise ValueError('The fixed clean-x actor contract has dropout=0')
@@ -86,6 +86,9 @@ class CleanXActor(nn.Module):
         self.hidden_dim, self.action_tokens, self.action_dim, self.ego_dim = hidden_dim, action_tokens, action_dim, ego_dim
         self.num_layers = num_layers
         self.activation_checkpointing = bool(activation_checkpointing)
+        if type(output_projection_fp32) is not bool:
+            raise ValueError('Output projection precision must be an explicit boolean')
+        self.output_projection_fp32 = output_projection_fp32
         self.action_input = nn.Linear(action_dim, hidden_dim)
         self.action_position = nn.Parameter(torch.empty(action_tokens, hidden_dim))
         self.time_embedding = nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.SiLU(),
@@ -154,6 +157,11 @@ class CleanXActor(nn.Module):
         return self.output_norm(hidden) * (1 + scale[:, None]) + shift[:, None]
 
     def predict_x0(self, hidden):
+        if self.output_projection_fp32:
+            # Casting the BF16 result afterwards cannot recover projection
+            # precision. This opt-in is shared by rollout, replay and deployment.
+            with torch.autocast(hidden.device.type, enabled=False):
+                return self.action_output(hidden.float())
         return self.action_output(hidden).float()
 
     def forward(self, action_state, sigma, prepared_context):

@@ -47,6 +47,11 @@ def inspect_export(path):
         expected_qualification |= meta['RL_parent'].get('purpose') != 'formal'
     if meta['qualification'] != expected_qualification:
         raise ValueError('An RL qualification must remain diagnostic after export')
+    if (meta['model_config'].get('action', {}).get('output_projection_fp32') is not None
+            or (meta.get('RL_parent') is not None and
+                meta['RL_parent']['recipe'].get('research', {}).get('precision_training') is not None)):
+        from starVLA.rl.qwen_world_safety_exploration.precision_recipe import validate_export_precision
+        validate_export_precision(meta)
     return meta
 
 
@@ -158,7 +163,9 @@ def export_checkpoint(checkpoint, output, rl_checkpoint=None):
     processor = package_processor(staging/'processor')
     diagnostic = bool(parent['identity']['qualification']) or bool(
         rlmeta is not None and rlmeta.get('purpose') != 'formal')
-    meta = dict(schema=EXPORT_SCHEMA, model_config=parent['identity']['model_config'],
+    from starVLA.rl.qwen_world_safety_exploration.precision_recipe import export_model_config
+    deployment_config = export_model_config(parent['identity']['model_config'], rlmeta)
+    meta = dict(schema=EXPORT_SCHEMA, model_config=deployment_config,
         qwen_config=parent['identity']['qwen_config'], IL_parent=parent,
         RL_parent=rlmeta, rl_lora=rlcfg, model_sha256=file_sha(staging/'model.pt'),
         processor=processor, prediction_type='x0', action_shape=[8, 3],
