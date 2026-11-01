@@ -62,6 +62,12 @@ def load_native_snapshot(parent, export):
         if any(v.dtype != torch.float32 or not bool(torch.isfinite(v).all()) for v in payload.values()):
             raise ValueError('Native trainable tensors must be finite FP32')
         restore_adapters(actor, payload)
+        if cfg.get('research', {}).get('precision_training') is not None:
+            # Execution precision is not an adapter tensor. Reconstruct the
+            # same explicit flag as training/export, after strict recipe check.
+            from starVLA.rl.qwen_world_safety_exploration.precision_recipe import validate_precision_recipe
+            validate_precision_recipe(cfg)
+            model.actor.output_projection_fp32 = True
         model.eval().requires_grad_(False)
         del actor, payload
     return model.eval().requires_grad_(False).cuda(), info

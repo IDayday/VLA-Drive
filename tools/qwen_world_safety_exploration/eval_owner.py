@@ -137,8 +137,11 @@ class EvaluationOwner:
 
     @staticmethod
     def binding(run):
-        return {key: run[key] for key in ('id', 'architecture_id', 'root', 'source', 'config',
+        value = {key: run[key] for key in ('id', 'architecture_id', 'root', 'source', 'config',
                                           'config_sha256', 'parent_checkpoint', 'gates', 'target_updates')}
+        value.update(evaluation_source=run.get('evaluation_source'),
+                     evaluation_source_receipt=run.get('evaluation_source_receipt'))
+        return value
 
     def registry_now(self):
         value = read(self.registry_path)
@@ -151,11 +154,12 @@ class EvaluationOwner:
             if m.get('cohort')!=cohort or len(m.get('tokens',[]))!=COUNTS[cohort]:
                 raise ValueError('Missing or changed canonical evaluation population: '+str(location))
         for run in value['runs']:
+            from .evaluation_execution import evaluation_source
             if file_sha(run['config']) != run['config_sha256']:
                 raise ValueError('Registered scientific config bytes changed')
             if not Path(run['root']).resolve().is_relative_to(ROOT.resolve()/'runs'):
                 raise ValueError('Foreign run root')
-            if not (Path(run['source'])/'tools/qwen_world_safety_exploration/evaluate.py').is_file():
+            if not (Path(evaluation_source(run))/'tools/qwen_world_safety_exploration/evaluate.py').is_file():
                 raise ValueError('Frozen run source lacks the registered evaluator')
         return value
 
@@ -272,12 +276,14 @@ class EvaluationOwner:
         return True
 
     def launch_job(self, run, node, command, family, route=None):
+        from .evaluation_execution import evaluation_source
+        source = evaluation_source(run)
         attempt = int(node.get('attempt', 0))+1
         name = f'evaluation/{family}_attempt{attempt:03}'
         directory = ROOT/'jobs'/name
         # Persist intent before transport: an ambiguous Popen is never retried.
         node.update(attempt=attempt, job=str(directory), command=command,
-                    source=run['source'], status='DISPATCHING', dispatched_unix=time.time())
+                    source=source, status='DISPATCHING', dispatched_unix=time.time())
         self.flush()
         kwargs = {}
         if route:
@@ -288,7 +294,7 @@ class EvaluationOwner:
                     lease_slot='evaluation',exclusive_all_slots=True)
             node.update(host=route['host'], gpu_uuid=route['uuid'])
         try:
-            launch(node['host'], run['source'], command, name,
+            launch(node['host'], source, command, name,
                    worker_source=Path(__file__).resolve().parents[2], **kwargs)
             node['status'] = 'STARTING'
         except Exception:
@@ -339,8 +345,9 @@ class EvaluationOwner:
                 for cohort in COUNTS:
                     key = label+'_'+cohort
                     out = ROOT/'evaluations'/label/cohort
+                    from .evaluation_execution import evaluation_source
                     spec = dict(schema=SCHEMA, label=label, arm=run['id'], architecture_id=run['architecture_id'],
-                        updates=updates, checkpoint=cp, source=run['source'], config_sha256=run['config_sha256'],
+                        updates=updates, checkpoint=cp, source=evaluation_source(run), config_sha256=run['config_sha256'],
                         parent_checkpoint=run['parent_checkpoint'], parent_selection=self.registry['parent_selection'],
                         cohort=cohort, count=COUNTS[cohort], world=self.max_shards,
                         inference='single_candidate_cleanx_K10_shift5', seed=2101)
