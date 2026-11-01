@@ -214,7 +214,10 @@ def render_safety_focus_report(root,snapshot,history,h):
     header_title='核心RL研究：零分、探索、信用与课程'if abcd_closed else 'World与ABCD RL研究进展'
     deleted=editorial.get('abcd_research',{}).get('user_termination',{}).get('checkpoints_deleted_by_user')is True
     header_deck=('ABCD四组RL已终止归档，不再恢复或续训；'+('RL检查点已清除，代码／实验结果保留。'if deleted else '')+'ABCD IL独立保留，资源优先用于E核心问题。')if abcd_closed else '当前研究与历史方法按独立父模型、数据人口与原生协议分别呈现。'
-    return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：核心问题与实验进展</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · RL RESEARCH</small><h1>'+header_title+'</h1><p>'+header_deck+'配置、CPU检查与child启动不计为已完成训练或提分。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(front)+background+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
+    import latest_complete_report
+    summary_top=latest_complete_report.render_top_summary(root,snapshot,h)
+    css+=' .overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}.overview article{background:#fff;color:#172b43;border-radius:10px;padding:20px}.overview-score{font-size:34px;display:block;color:#106c53;line-height:1.4;margin:8px 0}.overview small,.overview span{color:#526b7d}.overview a{color:#1979aa}@media(max-width:750px){.overview{grid-template-columns:1fr}}'
+    return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：核心问题与实验进展</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · RL RESEARCH</small><h1>'+header_title+'</h1>'+summary_top+'<p>'+header_deck+'配置、CPU检查与child启动不计为已完成训练或提分。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(front)+background+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
 
 
 def _matched_mechanism_tables(mechanism,h,link,normalization=None):

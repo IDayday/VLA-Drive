@@ -5,6 +5,7 @@ No scene records, training selection, bootstrap, dispatch, or process mutations.
 from datetime import datetime, timezone
 import hashlib
 from pathlib import Path
+import time
 
 
 NAMES = {
@@ -19,6 +20,72 @@ NAMES = {
     'IMPROVEMENT_MIXED_NOISE_G8': 'H·固定G8混合探索',
 }
 CONTROL = 'SAFETY_G8_CONTROL'
+
+
+def render_top_summary(root, snapshot, h):
+    """Fresh current-job census, independent of old RUNNING files or registry counts."""
+    studies=snapshot.get('editorial_analysis',{}).get('standard_studies',[])
+    pool=list(snapshot.get('results',[]));known={r['id']for r in snapshot.get('runs',[])};run_index={}
+    for study in studies:
+        pool+=study['results'];known.update(r['id']for r in study['runs'])
+        for run in study['runs']:run_index[run['id']]=run
+    for name in ['exploration_research','abcd_research']:
+        value=snapshot.get('editorial_analysis',{}).get(name,{})
+        pool+=value.get('results',[]);known.update(r['id']for r in value.get('runs',[])if r.get('id'))
+    rl_update=lambda r:r.get('RL_updates')if h.finite(r.get('RL_updates'))else r.get('updates',0)
+    valid=[r for r in pool if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'
+           and r.get('scenes')==12146 and r.get('invalid_scenes',0)==0 and r.get('arm')in known
+           and(rl_update(r)or 0)>0 and 'oracle'not in str(r.get('schema','')).lower()]
+    best=max(valid,key=lambda r:r['PDMS'],default={});warnings=[];inputs=[];rows=[]
+    counts={k:0 for k in ['training','starting','waiting_resource','resource_reserved','exited_review','paused_saved','ended','unconfirmed']}
+    read=lambda p:h.read_json(Path(p),warnings,inputs)or{}
+    for study in studies:
+        for original in study['runs']:
+            owner=read(original['owner_state'])if original.get('owner_state')else{}
+            node=owner.get('runs',{}).get(original['id'],{})
+            run={**original,**node};job=Path(run['job'])if run.get('job')else None
+            result=read(job/'RESULT.json')if job else{};running=read(job/'RUNNING.json')if job else{}
+            rc=result.get('returncode',result.get('exit_code'));status=str(run.get('status','')).upper()
+            reserve=any('RESEARCH_RESERVE'in str(run.get(k,''))for k in ['standard_disposition','revival_disposition','disposition'])
+            now=time.time();ranks=[];started=running.get('start_unix')or 0
+            if running and not result:
+                for rank in range(8):
+                    p=Path(run['root'])/f'metrics_rank{rank}.jsonl';tail=h.read_tail(p,limit=1)
+                    if tail and p.exists():ranks.append(dict(rank=rank,updates=tail[-1].get('updates'),mtime=p.stat().st_mtime))
+            now=time.time()
+            fresh=len(ranks)==8 and all(isinstance(r['updates'],(int,float))and r['updates']>0
+                and 0<=now-r['mtime']<=180 and r['mtime']>=started-1 for r in ranks)
+            if not result and running.get('status')=='RUNNING'and fresh:category='training'
+            elif reserve and(result or not running):category='resource_reserved'
+            elif result and rc==75 and('WAITING'in status or result.get('child_not_started')is True):category='waiting_resource'
+            elif result and rc not in(None,0):category='exited_review'
+            elif any(v in status for v in ['PAUSE','MIGRATION','STOPPED_AT_COOPERATIVE_BOUNDARY']):category='paused_saved'
+            elif result:category='ended'
+            elif 'WAITING'in status or 'RESOURCE'in status:category='waiting_resource'
+            elif running and now-started<=180:category='starting'
+            else:category='unconfirmed'
+            counts[category]+=1
+            rows.append(dict(arm=run['id'],study_root=study['root'],category=category,host=run.get('host'),
+                native_status=status,job=str(job)if job else None,returncode=rc,running_receipt_present=bool(running),
+                terminal_receipt_present=bool(result),common_updates=min((r['updates']for r in ranks),default=None),
+                rank_last_updates={str(r['rank']):r['updates']for r in ranks},
+                rank_log_ages_seconds={str(r['rank']):now-r['mtime']for r in ranks}))
+    checkpoint=None;arm=best.get('arm');u=rl_update(best)
+    if arm in run_index and isinstance(u,(int,float)):
+        candidate=Path(run_index[arm]['root'])/'checkpoints'/f'update{int(u):06d}_inner{int(u)%4}'
+        if candidate.is_dir():checkpoint=str(candidate)
+    observed=h.utc();artifact=root/'reporting'/'FRONT_PAGE_SUMMARY.json'
+    summary=dict(schema='report_highest_full_RL_and_current_native_count_v1',observed_utc=observed,
+        best={k:best.get(k)for k in ['arm','PDMS','updates','RL_updates','evidence','model_sha256']},
+        best_checkpoint=checkpoint,counts=counts,runs=rows,training_scope='F/G/H registered current native stage jobs',
+        freshness_seconds=180,inputs=inputs,warnings=warnings,
+        definition='Current stage RUNNING and no RESULT; all8 rank journals newer than worker.start and <=180s. Count tasks, not GPUs.')
+    h.atomic_json(artifact,summary);snapshot['front_page_summary']=summary
+    link=lambda p,t:h.relative_link(root,p,t)
+    method='SafetyEP标准Control'if arm==CONTROL else NAMES.get(arm,arm or'等待完整结果')
+    best_html='<article><span>当前最高完整RL成绩 · 12,146场景／invalid0</span><b class="overview-score">'+h.fmt(best.get('PDMS'),8)+'</b><div>'+h.esc(method)+' · RL '+h.number(u)+'更新</div><small>'+link(best.get('evidence'),'完整SUMMARY')+' · '+(link(checkpoint,'checkpoint '+Path(checkpoint).name)if checkpoint else 'checkpoint见结果证据')+'</small></article>'
+    current='<article><span>当前实际正在训练 · F／G／H</span><b class="overview-score">'+h.number(counts['training'])+' 个任务</b><div>当前job RUNNING、无RESULT，且全部8rank日志新鲜</div><small>已退出待复核 '+h.number(counts['exited_review'])+' · 资源预留 '+h.number(counts['resource_reserved'])+' · 启动 '+h.number(counts['starting'])+' · 等资源 '+h.number(counts['waiting_resource'])+'</small><small>保存暂停 '+h.number(counts['paused_saved'])+' · 已结束 '+h.number(counts['ended'])+' · 运行未确认 '+h.number(counts['unconfirmed'])+'</small></article>'
+    return '<div class="overview">'+best_html+current+'</div><small>实时统计 '+h.esc(observed)+' · 数的是训练任务，不是独占物理GPU；新鲜阈值180秒。已退出待核不等于科学无效，也不代表已正常迁移。'+link(str(artifact),'逐任务实时证据')+'</small>'
 
 
 def build_review(studies):
@@ -132,6 +199,15 @@ def render_review(root, review, review_path, h):
     body+='<h3>当前H与共享Control：完整部署收益单列</h3>'+h.table(columns,current_rows)
     if historical_rows:body+='<details><summary>F／G长训全部路线的最新完整成绩与公平配对</summary>'+h.table(columns,historical_rows)+'</details>'
     body+='<p class="muted">方法行的高群体Δ是同一固定IL70高分8724场景相对当点Control的均值差，未给CI，不据此宣称显著。Control行则是相对IL70。G16用2倍、Batch32用4倍Control更新对齐source-PG查询；场景曝光、Adam和scheduler时钟仍不同。当前H保持臂未完整时留空；其2k后额外官方ODE评分仍单独分账。</p>'
+    recent=[]
+    for arm,u in [('IMPROVEMENT_VERIFIED_RETENTION_G8',5000),('IMPROVEMENT_EARLY_DECAY_G8',12000),('IMPROVEMENT_EARLY_DECAY_G8',14000),('IMPROVEMENT_MIXED_NOISE_G8',5000)]:
+        p=next((p for p in review['comparisons']if p['arm']==arm and p['updates']==u and p['reference_updates']==u),None)
+        if p:recent.append([h.esc(NAMES[arm]),h.number(u),h.fmt(p['target_PDMS'],5),h.fmt(p['delta_PDMS'],5)+'<small>'+ci(p['CI95_PDMS'])+'</small>',h.number(p['repaired_zero'])+'／'+h.number(p['new_zero']),h.fmt(p['fixed_IL70_high_mean_delta_PDMS'],4)])
+    if recent:
+        body+='<h3>新增收益：有正向证据，保持性仍要单独验证</h3>'+h.table(['H方法','同预算Adam','完整PDMS','对Control Δ／95%CI','零修复／新增','固定IL高均值Δ'],recent)
+        early=next((a for a in review['arms']if a['arm']=='IMPROVEMENT_EARLY_DECAY_G8'),{})
+        ep={p['updates']:p['PDMS']for p in early.get('curve',[])}
+        if 10000 in ep and 12000 in ep:body+='<p>更早衰减在12k／14k对当点Control连续有正证据，但自身10k '+h.fmt(ep[10000],5)+'→12k '+h.fmt(ep[12000],5)+'仍回落，不能把相对优势说成已解决后期下降。保持臂5k是新的正向结果，需后续预算验证持续性；Mixed5k为负向证据。Batch32／FP32当前完整同预算结果尚未确认收益，见最新配对表；FP32初始函数差异另列。</p>'
     g16 = next((a for a in review['arms'] if a['arm']=='REVIVAL_G16'), {})
     gp = g16.get('candidate_matched_points', [])
     if gp:
