@@ -1,0 +1,321 @@
+{
+  "schema": "bd_parallel_profile_summary_v1",
+  "generated_utc": "2026-11-01T10:43:26.189941+00:00",
+  "scientific_source": "5a2d5b50335e85fd84049ab1f1e5ebe34f537b4e",
+  "formal_scientific_files_unchanged": true,
+  "rows": [
+    {
+      "architecture": "B",
+      "production_updates": 32380,
+      "world_size": 8,
+      "sampled_at_utc": "2026-11-01T10:41:25.273417+00:00",
+      "production_window_updates": [
+        32317,
+        32380
+      ],
+      "production_mean_update_seconds": 4.191839024424553,
+      "data_wait_mean_seconds": 0.009287010616390035,
+      "remaining_active_training_hours": 78.73670967544119,
+      "eta_excludes": "checkpoint/export/evaluation/contention/downtime; extrapolation, not a completion promise",
+      "production_micro": 2,
+      "production_accumulation": 2,
+      "optimizer_global_steps": 32380,
+      "optimizer_skipped_steps": 0,
+      "FP32_gradient_GiB": 9.915554236620665,
+      "trainable_parameters": 2661686323,
+      "layout_probe": {
+        "snapshot_update": 32000,
+        "model_sha256": "bfe9ff9f1d849f230142cfd87349fb4d563c6e536bcef2279e57b41f4b56d29c",
+        "old_micro": 2,
+        "new_micro": 4,
+        "status": "LAYOUT_NOT_EQUIVALENT_AT_REGISTERED_TOLERANCE",
+        "rank_slice_speedup": 1.427179197785232,
+        "rank_slice_time_reduction": 0.2993171414270541,
+        "median_seconds": {
+          "2": 2.90703471750021,
+          "4": 2.036909395828843
+        },
+        "gradient": {
+          "compared_parameter_tensors": 1403,
+          "missing_gradient_mismatch": [],
+          "max_absolute_error": 6.25,
+          "relative_L2": 0.0799191789879109,
+          "max_loss_component_absolute_error": 0.00021438300609588623
+        },
+        "thresholds": {
+          "relative_gradient_L2": 1e-05,
+          "loss_absolute": 1e-06
+        },
+        "parameters_unchanged": true,
+        "RNG_unchanged": true,
+        "peak_allocated_GiB": 38.78995418548584,
+        "worker_wall_seconds": 122.59167909622192,
+        "optimizer_updates": 0,
+        "scorer_calls": 0,
+        "production_migrated": false,
+        "caveat": "One-rank F/B slice excluding optimizer/collectives; even PASS needs native8rank optimizer/resume qualification before formal change"
+      }
+    },
+    {
+      "architecture": "D",
+      "production_updates": 25435,
+      "world_size": 8,
+      "sampled_at_utc": "2026-11-01T10:41:25.317740+00:00",
+      "production_window_updates": [
+        25372,
+        25435
+      ],
+      "production_mean_update_seconds": 5.328650400042534,
+      "data_wait_mean_seconds": 0.003696499625220895,
+      "remaining_active_training_hours": 110.36967141088098,
+      "eta_excludes": "checkpoint/export/evaluation/contention/downtime; extrapolation, not a completion promise",
+      "production_micro": 1,
+      "production_accumulation": 4,
+      "optimizer_global_steps": 25435,
+      "optimizer_skipped_steps": 0,
+      "FP32_gradient_GiB": 8.271967124193907,
+      "trainable_parameters": 2220489267,
+      "layout_probe": {
+        "snapshot_update": 25000,
+        "model_sha256": "adaf8fa1054b58cc2bf239cefda6ed17ac14185ecc1a319fd71feeac2e568fa2",
+        "old_micro": 1,
+        "new_micro": 2,
+        "status": "LAYOUT_NOT_EQUIVALENT_AT_REGISTERED_TOLERANCE",
+        "rank_slice_speedup": 1.46919353206082,
+        "rank_slice_time_reduction": 0.3193544770120843,
+        "median_seconds": {
+          "1": 4.184704277664423,
+          "2": 2.8483002316206694
+        },
+        "gradient": {
+          "compared_parameter_tensors": 917,
+          "missing_gradient_mismatch": [],
+          "max_absolute_error": 0.796875,
+          "relative_L2": 0.06660671506347535,
+          "max_loss_component_absolute_error": 0.00022217165678739548
+        },
+        "thresholds": {
+          "relative_gradient_L2": 1e-05,
+          "loss_absolute": 1e-06
+        },
+        "parameters_unchanged": true,
+        "RNG_unchanged": true,
+        "peak_allocated_GiB": 34.62110900878906,
+        "worker_wall_seconds": 118.72691798210144,
+        "optimizer_updates": 0,
+        "scorer_calls": 0,
+        "production_migrated": false,
+        "caveat": "One-rank F/B slice excluding optimizer/collectives; even PASS needs native8rank optimizer/resume qualification before formal change"
+      }
+    }
+  ],
+  "TCP": {
+    "B": [
+      {
+        "streams": 1,
+        "repeat": 0,
+        "bytes": 134217728,
+        "seconds": 0.1043509878218174,
+        "GiB_s": 1.1978803709404404
+      },
+      {
+        "streams": 1,
+        "repeat": 1,
+        "bytes": 134217728,
+        "seconds": 0.08466053381562233,
+        "GiB_s": 1.476484902306792
+      },
+      {
+        "streams": 4,
+        "repeat": 0,
+        "bytes": 536870912,
+        "seconds": 0.20453905686736107,
+        "GiB_s": 2.444520903038282
+      },
+      {
+        "streams": 4,
+        "repeat": 1,
+        "bytes": 536870912,
+        "seconds": 0.19870423898100853,
+        "GiB_s": 2.516302634327737
+      },
+      {
+        "streams": 8,
+        "repeat": 0,
+        "bytes": 1073741824,
+        "seconds": 0.4231446720659733,
+        "GiB_s": 2.3632579257528454
+      },
+      {
+        "streams": 8,
+        "repeat": 1,
+        "bytes": 1073741824,
+        "seconds": 0.3981068190187216,
+        "GiB_s": 2.511888649546024
+      }
+    ],
+    "D": [
+      {
+        "streams": 1,
+        "repeat": 0,
+        "bytes": 134217728,
+        "seconds": 0.08766516111791134,
+        "GiB_s": 1.4258800007436543
+      },
+      {
+        "streams": 1,
+        "repeat": 1,
+        "bytes": 134217728,
+        "seconds": 0.2680998928844929,
+        "GiB_s": 0.4662441251099437
+      },
+      {
+        "streams": 4,
+        "repeat": 0,
+        "bytes": 536870912,
+        "seconds": 0.33184874057769775,
+        "GiB_s": 1.506710554723145
+      },
+      {
+        "streams": 4,
+        "repeat": 1,
+        "bytes": 536870912,
+        "seconds": 0.5711350813508034,
+        "GiB_s": 0.8754496376188968
+      },
+      {
+        "streams": 8,
+        "repeat": 0,
+        "bytes": 1073741824,
+        "seconds": 0.40223837830126286,
+        "GiB_s": 2.486087986490026
+      },
+      {
+        "streams": 8,
+        "repeat": 1,
+        "bytes": 1073741824,
+        "seconds": 0.5270091164857149,
+        "GiB_s": 1.8975003822862824
+      }
+    ]
+  },
+  "NCCL": {
+    "ranks": [
+      {
+        "status": "COMPLETE",
+        "host": "training-vlawm-zt2",
+        "rank": 0,
+        "rows": [
+          {
+            "MiB": 1,
+            "mean_seconds": 0.001341179758310318,
+            "payload_GiB_s": 0.7281369212060879
+          },
+          {
+            "MiB": 16,
+            "mean_seconds": 0.011932873353362083,
+            "payload_GiB_s": 1.3094080140888835
+          },
+          {
+            "MiB": 64,
+            "mean_seconds": 0.04819899685680866,
+            "payload_GiB_s": 1.2967074851303915
+          },
+          {
+            "MiB": 256,
+            "mean_seconds": 0.2084253914654255,
+            "payload_GiB_s": 1.1994699793641557
+          }
+        ],
+        "wall_seconds": 3.6725139375776052,
+        "peak_allocated_bytes": 268436480,
+        "model_optimizer_updates": 0,
+        "scope": "Two-host one-GPU-per-host collective, not full16rank model speedup"
+      },
+      {
+        "status": "COMPLETE",
+        "host": "training-vlawm-tsinghua-zt3",
+        "rank": 1,
+        "rows": [
+          {
+            "MiB": 1,
+            "mean_seconds": 0.0013651106506586074,
+            "payload_GiB_s": 0.7153724128727956
+          },
+          {
+            "MiB": 16,
+            "mean_seconds": 0.01160660982131958,
+            "payload_GiB_s": 1.3462156685321882
+          },
+          {
+            "MiB": 64,
+            "mean_seconds": 0.048166579380631444,
+            "payload_GiB_s": 1.2975802061030777
+          },
+          {
+            "MiB": 256,
+            "mean_seconds": 0.20857664495706557,
+            "payload_GiB_s": 1.19860015991465
+          }
+        ],
+        "wall_seconds": 3.0980332605540752,
+        "peak_allocated_bytes": 268436480,
+        "model_optimizer_updates": 0,
+        "scope": "Two-host one-GPU-per-host collective, not full16rank model speedup"
+      }
+    ],
+    "transport": "Socket",
+    "GPU_Direct_RDMA": false,
+    "scope": "Two spare hosts, one GPU each; not B/D sixteen-rank model training"
+  },
+  "RDMA": {
+    "user_authorized": true,
+    "platform_pod_permissions": [
+      {
+        "resource": "pods",
+        "verb": "get",
+        "allowed": false,
+        "denied": false
+      },
+      {
+        "resource": "pods",
+        "verb": "list",
+        "allowed": false,
+        "denied": false
+      },
+      {
+        "resource": "pods",
+        "verb": "patch",
+        "allowed": false,
+        "denied": false
+      },
+      {
+        "resource": "pods/exec",
+        "verb": "create",
+        "allowed": false,
+        "denied": false
+      },
+      {
+        "resource": "deployments",
+        "verb": "patch",
+        "allowed": false,
+        "denied": false
+      }
+    ],
+    "preflight_files": [
+      "RDMA_LOCAL_PREFLIGHT.json",
+      "RDMA_training-vlawm-zt2_PREFLIGHT.json",
+      "RDMA_training-vlawm-tsinghua-zt_PREFLIGHT.json"
+    ],
+    "container_device_nodes_and_libraries_ready": false,
+    "platform_action_required": true
+  },
+  "decision": "Keep qualified world8/micro layout; await actual RDMA and native optimizer redistribution qualification before topology migration",
+  "excluded_interpretations": [
+    "No measured 16-GPU model speedup",
+    "No production microbatch speedup applied",
+    "Gradient differences are not Navtest performance estimates",
+    "No optimizer reset or algorithm change",
+    "No new training or inference seeds"
+  ]
+}
