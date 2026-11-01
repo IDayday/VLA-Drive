@@ -255,7 +255,10 @@ def main(runtime=None):
                 except Exception:error=traceback.format_exc()
                 if not all_ok(error,device):raise RuntimeError('Collection not committed before advantage finalization')
                 finalizer(rollout)
-                state['collections']+=1;state['raw_scene_exposures']+=world;state['new_candidates']+=world*cfg['grpo']['sample']['group_size'];state['scene_cursor']+=world
+                if hasattr(runtime,'commit_collection_accounting'):
+                    runtime.commit_collection_accounting(rollout,state,world)
+                else:
+                    state['collections']+=1;state['raw_scene_exposures']+=world;state['new_candidates']+=world*cfg['grpo']['sample']['group_size'];state['scene_cursor']+=world
                 for k,v in rollout['seconds'].items():state['seconds_'+k]+=v
                 state['next_inner']=0
                 state['phase']='ROLLOUT_COMMITTED'
@@ -281,22 +284,29 @@ def main(runtime=None):
                 if not all_ok(error,device):raise RuntimeError('Behavior publication failed; no optimizer update')
             optimizer.zero_grad(set_to_none=True)
             begin=time.monotonic();error=None
-            try:total,metrics=model(rollout)
+            accumulated=hasattr(runtime,'backward_update')
+            try:
+                if accumulated:total,metrics,update_audit=runtime.backward_update(model,actor,rollout,state)
+                else:total,metrics=model(rollout)
             except Exception:
                 error=traceback.format_exc()
             if not all_ok(error,device):
                 raise RuntimeError('At least one rank failed source loss; last sealed boundary retained')
-            current=actor._probability_audit['current'];old=rollout['old_logp']
-            if hasattr(runtime,'policy_ratio'):
-                ratio=runtime.policy_ratio(actor,rollout)
+            if accumulated:
+                current={'source_clamp_hit_rate':update_audit['source_clamp_hit_rate']}
+                fresh_error=update_audit['fresh_error']
             else:
-                ratio=(current['source_clamped_logprob'].mean((-1,-2))-old).exp()
-            fresh_error=float((ratio-1).abs().max())
+                current=actor._probability_audit['current'];old=rollout['old_logp']
+                if hasattr(runtime,'policy_ratio'):
+                    ratio=runtime.policy_ratio(actor,rollout)
+                else:
+                    ratio=(current['source_clamped_logprob'].mean((-1,-2))-old).exp()
+                fresh_error=float((ratio-1).abs().max())
             error=None
             if state['next_inner']==0 and fresh_error>1e-4:error='Fresh saved-state ratio differs by '+str(fresh_error)
             if not all_ok(error,device):
                 raise ValueError('Fresh probability numerical error exceeds 1e-4; no rewritten old density')
-            total.backward()
+            if not accumulated:total.backward()
             grads=torch.stack([p.grad.float().norm() for p in trainable if p.grad is not None])
             grad_norm=float(grads.norm())
             error=None if np.isfinite(grad_norm) and len(grads)==len(trainable) else 'Missing/nonfinite adapter gradient'
@@ -317,7 +327,7 @@ def main(runtime=None):
                      token=rollout['token'],group_size=cfg['grpo']['sample']['group_size'],behavior=rollout['behavior_version'],lr=lr,loss=float(total.detach()),
                      gradient_norm=grad_norm,ratio_max_abs_from_one=fresh_error,
                      source_clamp_hit_rate=current['source_clamp_hit_rate'],seconds_update=elapsed,
-                     metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
+                     metrics={k:float(v) for k,v in metrics.items()},exploration=(runtime.exploration_summary(rollout) if hasattr(runtime,'exploration_summary') else exploration_summary(rollout)))
             if explicit_optimizer_groups is not None:
                 row['optimizer_group_lrs_used']=group_lrs_used
                 row['optimizer_group_lrs']={g['name']:g['lr'] for g in optimizer.param_groups}
