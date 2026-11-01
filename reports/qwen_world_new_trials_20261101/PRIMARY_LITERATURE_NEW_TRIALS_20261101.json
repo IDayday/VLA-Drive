@@ -1,0 +1,60 @@
+{
+  "schema": "world_primary_literature_to_new_trials_20261101_v2",
+  "at_unix": 1793554603.8814995,
+  "status": "FP32_AND_MIXED_EXPLORATION_ACTUALLY_DEPLOYED_EIGHT_RANK_TRAINING",
+  "sources": [
+    {
+      "paper": "ScaleRL",
+      "url": "https://arxiv.org/abs/2510.13786",
+      "evidence": "FP32 LM-head compute in generator and trainer reduces probability mismatch; text-model evidence only",
+      "task_hypothesis": "final clean-action projection currently BF16 compute then cast; test actual FP32 linear across current/ref/rollout/replay/deployment",
+      "implementation": "IMPROVEMENT_FP32_OUTPUT_G8",
+      "source": "d068341",
+      "initial_policy_function_changed": true,
+      "native0_full_evaluation": true
+    },
+    {
+      "paper": "Stepwise Credit Assignment for GRPO on Flow-Matching Models",
+      "url": "https://arxiv.org/abs/2603.28718",
+      "evidence": "denoising stages differ in effect and noise design affects sample quality",
+      "task_hypothesis": "fixed late W3 and mixed-time W3 find complementary strict-quality TRAIN trajectories; combine4/4 at fixedG8",
+      "implementation": "IMPROVEMENT_MIXED_NOISE_G8",
+      "full_paper_replication": false,
+      "stepwise_reward_not_implemented": true
+    },
+    {
+      "paper": "SuperFlow",
+      "url": "https://arxiv.org/abs/2512.17951",
+      "evidence": "sampling allocation and stepwise flow credit should reflect heterogeneous learning information",
+      "task_hypothesis": "sampling diversity should be allocated with measured strict-quality support, not simply increaseG everywhere",
+      "implementation": "fixedstrata kernel proposal informed by own support; not SuperFlow adaptive-group algorithm"
+    },
+    {
+      "paper": "GDPO",
+      "url": "https://arxiv.org/abs/2601.05242",
+      "evidence": "independent reward normalization can preserve multi-objective distinctions",
+      "decision": "not directly deployed: independently amplifying EP can break current safety priority; existing SafetyEP already conditions EP on feasible candidates"
+    },
+    {
+      "paper": "GD2PO",
+      "url": "https://arxiv.org/abs/2606.16771",
+      "evidence": "detect conflicting reward channels and reweight/filter severe disagreement",
+      "decision": "further diagnosis only; safety vs driving efficiency conflicts are meaningful scenarios, blanket discarding can erase necessary decision boundaries"
+    },
+    {
+      "paper": "AVSPO",
+      "url": "https://arxiv.org/abs/2605.21125",
+      "evidence": "virtual samples supply nonzero finite-group advantages under reward ties",
+      "decision": "not selected over verified exploration: creating nonzero A alone does not establish correct driving direction or discover safe trajectories"
+    }
+  ],
+  "claims": [
+    "No new performance improvement inferred from paper numbers or CPU checks",
+    "All selected trials keep same IL70/fullTRAIN103288 and no NAV-training feedback",
+    "Existing G16 late equal-candidate advantage is positive evidence but Adam/scene/scheduler clocks differ"
+  ],
+  "gate": "fullNAV zero repair/newzero/fixedILhigh and equal-budget comparisons; no early2k elimination",
+  "updated_unix": 1793557356.602298,
+  "deployment_proof": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/FIVE_ARM_ACTUAL_DEPLOYMENT_20261101.json",
+  "actual_early_signals": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/EARLY_MIXED_SIGNAL_AND_RETENTION_ACTIVATION_20261101.json"
+}

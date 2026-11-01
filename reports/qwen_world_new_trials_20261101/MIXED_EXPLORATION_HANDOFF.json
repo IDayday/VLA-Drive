@@ -1,0 +1,97 @@
+{
+  "schema": "world_mixed_exploration_implementation_handoff_v1",
+  "status": "READY_CPU_NOT_DISPATCHED",
+  "arm": "IMPROVEMENT_MIXED_NOISE_G8",
+  "campaign_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+  "template": "/mnt/project/qwen-world-safety-exploration-20261031/configs/improvement_training_templates/IMPROVEMENT_MIXED_NOISE_G8.yaml",
+  "API": {
+    "factory": "starVLA.rl.qwen_world_safety_exploration.mixed_exploration_runtime:mixed_runtime(cfg)",
+    "actor": "MixedScopeActor",
+    "loss": "MixedLoss",
+    "trainer": "tools.qwen_world_safety_exploration.train",
+    "role": "mixed_noise"
+  },
+  "configuration": {
+    "schema": "world_fixed4late4early_W3_sourcePPO_v1",
+    "group_size": 8,
+    "world_size": 8,
+    "late_candidates": 4,
+    "early_candidates": 4,
+    "late_steps": [
+      7,
+      8,
+      9
+    ],
+    "early_steps": [
+      3,
+      6,
+      8
+    ],
+    "innovation_slots_per_candidate": 3
+  },
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_recipe.py": "b3f902f842825af14af5d616bf7bdaa742d98021ba40901afebbc30228bdf28c",
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_actor.py": "2b9cae7b6edc142b2af93ec80541fdaa9edf87143421fe69f983e73387e2da17",
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_recovery.py": "bfaa3dcff937c23c2da31bd668f2341221f4a88fa7d288e15ffa2ad029a4f32e",
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_runtime.py": "9c7e4cab62bb41e2ebf22d1dc4ece7cd4c83842a4011190f27f69bd9905016b5",
+    "tests/test_world_mixed_exploration.py": "f1674cd97c918d4abc3c45d8eb6776ef71942365e141ad680591b205e00c1338"
+  },
+  "scientific_diff": {
+    "only_mechanism": "fixedsameG8group:4lateW3[7,8,9]+4earlierW3[3,6,8]",
+    "source_initializer": "grpo samplingknobs remain inherited; authoritative newresearch protocol and returned[8,3]matrix defineactualkernel, notlegacyone-dimensional helper",
+    "probability": "actualrow-specific states/times/stds, shapeold/currentlogp[8,3]ordinalslots; sourceclampedmean24proxy, nofakeone-dimensionalindices",
+    "sampler": "oneindependent8rootdraw +three8innovation draws, clipeps5, eta.1 rigorous,10batch8velocityforwards, exactly8originalscored candidates/rank",
+    "anchor": "beta50 old [.2,1,1] weightednominalmeanMSE;3slots/candidate remain, butactualstates/times differbybranch soanchorinputs are associatedscientificchange",
+    "unchanged": "IL70freshseed42,52.7Mscope,G8/world8,uniform103288,originalSafetyA/global64rawstd/cap5/PPOclip.005,referenceIL70,5e-5/5e-6peaks,1000warm/50kfixedcos/floor.1,4inner,singleODEdeploy",
+    "native": "actual[8,3]indices+oldnominalmean/std/probability andsamplingmean/std/3innovations+CPUgeneratorbefore/after allsealed; customstructure+originalSafetyvalidators+scheduler/rankvalidation",
+    "diagnostics": "mixed_late/early_strict_high_count,positive/negativehighcount,positive/negativeeffectivePPOweight andhighweight,ratio; countsrepeatedfourinner arenotnewqueries"
+  },
+  "actual_shapes": {
+    "chain": [
+      8,
+      11,
+      8,
+      3
+    ],
+    "stoch_idx": [
+      8,
+      3
+    ],
+    "old_logp": [
+      8,
+      3
+    ],
+    "old_mean": [
+      8,
+      3,
+      8,
+      3
+    ],
+    "old_std": [
+      8,
+      3
+    ]
+  },
+  "budget": {
+    "initial_optimizer_updates": 20000,
+    "initial_main_candidates": 320000,
+    "initial_scenes": 40000,
+    "source_schedule_horizon": 50000,
+    "later_reviews": [
+      30000,
+      50000
+    ]
+  },
+  "supporting_evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/MIXED_EXPLORATION_EXISTING_SUPPORT_AUDIT.json",
+  "primary_research": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/MIXED_EXPLORATION_PRIMARY_RESEARCH.json",
+  "CPU_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/MIXED_EXPLORATION_CPU_CHECK.json",
+  "caveats": [
+    "Coverage improvement in selectedTRAIN frozenTheta probe ismotivation, notactualNAVgain ortrainingefficiencyproof",
+    "Onhistoricalfailure late8strictsupport87->123,allcanonical0 21->11,PG0 19->14; complementarysplit similarlyPG0=14. OnhighcontrolsPG0 39->54 canbesuccessfulsaturation",
+    "Mixturecanstillallfail/tie; noartificialsuccesssupervision. Originalmixedfeasible unsafepositiveprotection remainsbySafetyA",
+    "Noextraqueriesequal64/collection, butbookkeeping/customprobability mayaddwalltime; logsprovideactualtime",
+    "Step0/1/2 areordinal notactualsharedtimesteps; auditreadersmustnotfillmissingstep7/8/9fieldswithfakezero"
+  ],
+  "GPU_dispatched": false,
+  "git_staged_or_committed": false
+}

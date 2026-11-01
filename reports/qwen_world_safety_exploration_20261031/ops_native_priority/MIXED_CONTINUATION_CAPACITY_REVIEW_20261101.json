@@ -1,0 +1,97 @@
+{
+  "schema": "world_mixed_continuation_capacity_readonly_review_v1",
+  "status": "COMPLETE_READ_ONLY_PREVIEW_NOT_EXECUTED",
+  "created_unix": 1793556018.4560523,
+  "inventory": "/mnt/project/qwen-world-safety-exploration-20261031/resources/TRAINING_CONTINUITY_RESOURCE_INVENTORY.json",
+  "hosts": [
+    {
+      "host": "training-vlawm-tsinghua-zt3",
+      "minimum_free_MiB": 19391,
+      "held": {
+        "primary": 8,
+        "research": 5,
+        "shared": 8
+      },
+      "unobservable_NVML_owner_count": 0,
+      "min_free_if_all_own_evals_exit_MiB": 30297
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt5",
+      "minimum_free_MiB": 40008,
+      "held": {
+        "primary": 8,
+        "research": 8,
+        "shared": 8
+      },
+      "unobservable_NVML_owner_count": 0,
+      "min_free_if_all_own_evals_exit_MiB": 50914
+    },
+    {
+      "host": "training-rl-zt2",
+      "minimum_free_MiB": 46479,
+      "held": {
+        "primary": 8,
+        "research": 8,
+        "shared": 0
+      },
+      "unobservable_NVML_owner_count": 16,
+      "min_free_if_all_own_evals_exit_MiB": 46479
+    },
+    {
+      "host": "training-vlawm-zt",
+      "minimum_free_MiB": 43609,
+      "held": {
+        "primary": 8,
+        "research": 8,
+        "shared": 8
+      },
+      "unobservable_NVML_owner_count": 0,
+      "min_free_if_all_own_evals_exit_MiB": 43609
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "minimum_free_MiB": 35383,
+      "held": {
+        "primary": 8,
+        "research": 8,
+        "shared": 8
+      },
+      "unobservable_NVML_owner_count": 0,
+      "min_free_if_all_own_evals_exit_MiB": 35399
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt6",
+      "minimum_free_MiB": 22116,
+      "held": {
+        "primary": 0,
+        "research": 8,
+        "shared": 8
+      },
+      "unobservable_NVML_owner_count": 0,
+      "min_free_if_all_own_evals_exit_MiB": 22116
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "minimum_free_MiB": 29041,
+      "held": {
+        "primary": 8,
+        "research": 8,
+        "shared": 8
+      },
+      "unobservable_NVML_owner_count": 0,
+      "min_free_if_all_own_evals_exit_MiB": 29041
+    }
+  ],
+  "immediately_qualified_unclaimed_lane_found": false,
+  "only_owned_eval_yieldable_whole_lane": {
+    "host": "training-vlawm-tsinghua-zt5",
+    "slot": "research",
+    "own_eval_workers": 8,
+    "priority": "Root Retention continuation first; needs fresh exact recheck"
+  },
+  "yield_preview": "/mnt/project/qwen-world-safety-exploration-20261031/resources/TSH5_OWNED_EVAL_PRIORITY_YIELD_PREVIEW.json",
+  "rl2_audit": "/mnt/project/qwen-world-safety-exploration-20261031/resources/RL2_NVML_PID_NAMESPACE_AUDIT_20261101.json",
+  "recommendation": "Tsh5 research8 can be formed by exact own eval cooperative returns; no second Mixed lane currently exists without foreign interference or unproven namespace exception. Await foreign wmzt primary/shared natural release. No signals, launches, policy, registry or owner-state edits performed.",
+  "observed_new_arm_null_updates_issue": "Mixed updates=null needs collect_waiters (n.get(updates) or0) handling; Root owns ops source/adoption",
+  "sha256": "4aff390f6a4a5cc99ee44a0f2698547a67be19674135e1b6b2b3252a91b648ed"
+}

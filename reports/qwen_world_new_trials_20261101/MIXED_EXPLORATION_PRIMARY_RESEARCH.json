@@ -1,0 +1,125 @@
+{
+  "schema": "world_single_mixed_exploration_mechanism_primary_review_v1",
+  "status": "IMPLEMENTED_CPU_READY_NOT_GPU_DEPLOYED",
+  "created_utc": "2026-11-01T17:44:40Z",
+  "question": "在保留原Safety信用下，增加部署近邻优质见证，同时保留late探索的有效组内对比",
+  "full_history": {
+    "groups": 62640,
+    "canonical_allzero": 140,
+    "canonical_allzero_with_SafetyPG": 59,
+    "canonical_allzero_without_PG": 81,
+    "allfail_costtie": 97,
+    "successful_EP1_PG0": 5910,
+    "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/SAFETY_FULL_TRAINING_AUDIT_20261031/SUMMARY.json",
+    "meaning": "allreward0不等于无Safety信号，大多数PG0是成功EP饱和；新探索不声称全解97个costtie"
+  },
+  "old_methods_distinguished": [
+    "G16只加样本量，不能解决SDE尾部损坏；LASTDET/W2同时少一个PG+anchor时刻且首1k负；Noise03整体降eta，均不同于固定G8内两个3slotkernel",
+    "Earlier[3,6,8]以前仅做过固定θ支持probe，未做正式训练；纯earlier质量更高但failurePG0达59/156，不能直接复制",
+    "DenseDAC/Saturated/Protected/Inversion改信用；ActiveData改场景曝光；Endpoint改终端条件Gaussian policy；本次全部不叠加",
+    "SuccessMemory/Retentions是历史函数或CFM约束；本次没有历史样本或额外评分"
+  ],
+  "sources": [
+    {
+      "name": "MixGRPO",
+      "date": "2025-07-29, official repo updated2026-02-03",
+      "paper": "https://arxiv.org/abs/2507.21802",
+      "official_code": "https://github.com/Tencent-Hunyuan/MixGRPO",
+      "mechanism": "仅指定窗口SDE/可优化概率，窗外ODE；说明随机性时刻本身是算法控制量。",
+      "transfer": "沿用source rigorous核，按candidate分固定late和early窗口；不照搬Flash求解器、CPS或文生图收益。"
+    },
+    {
+      "name": "TempFlow-GRPO",
+      "date": "2025-08-06",
+      "paper": "https://arxiv.org/abs/2508.04324",
+      "official_code": "https://github.com/Shredded-Pork/TempFlow-GRPO",
+      "mechanism": "不同去噪时刻的探索影响不同，branch机制与noise-aware权重。",
+      "transfer": "仅借鉴时间异质性；本次不加branch复制、额外processreward、noise权重，保持SafetyA单位。"
+    },
+    {
+      "name": "Stepwise-Flow-GRPO",
+      "date": "2026-03-30",
+      "paper": "https://arxiv.org/html/2603.28718v1",
+      "author_explanation": "https://www.cs.cmu.edu/~csd-phd-blog/2026/stepwise-flow-grpo/",
+      "mechanism": "用clean预测评分形成逐步gain并joint归一化，另研究DDIM式较干净采样。",
+      "not_selected": "当前Driving仍只8个endpoint评分；逐步官方评分增加成本，rawgain可能破安全优先；望文的telescoping不自动证明我们proxyPG无偏。本次不搬其改核或逐步gain。"
+    },
+    {
+      "name": "Smart-GRPO",
+      "date": "2025-10-03",
+      "paper": "https://arxiv.org/html/2510.02654",
+      "mechanism": "根据真实reward迭代优化noise扰动分布。",
+      "not_selected": "reward选择/截断会改变采样提议分布并增加评分；需显式提议概率与恢复协议，本次选固定独立于reward的两strata。"
+    },
+    {
+      "name": "GDPO",
+      "date": "2026-01, arxiv2601.05242",
+      "paper": "https://arxiv.org/html/2601.05242",
+      "mechanism": "multi-reward先分量中心化/标准化再汇总。",
+      "not_selected": "我们已Safety/feasibleEP分解；不受限独立放大EP可能破严格安全排序界，且不创造真的全tie监督。"
+    }
+  ],
+  "algebraic_rejections": {
+    "RLOO": "固定G8: R_i-mean_others=8/7*(R_i-groupmean)，仅常数；全局std同缩后基本抵消，不创造全0信号",
+    "no_std": "不产生新奖励对比，只改batch全局PG尺度与beta50相对强度；可作尺度对照，优先级低于已有真实支持的探索修改",
+    "SCST": "action-independent baseline并非自动改变真score-function目标；我们clamp/mean24 proxy亦不能直接套无偏论证；allzeroODE+allzeroSDE仍无真实成功指导"
+  },
+  "selected": {
+    "arm": "IMPROVEMENT_MIXED_NOISE_G8",
+    "hypothesis": "4条late保留逃逸范围/安全对比，4条early保留更接近部署的高质候选，组成可学的同scene组；未证明会提升部署",
+    "fixed_steps_per_candidate": [
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        3,
+        6,
+        8
+      ],
+      [
+        3,
+        6,
+        8
+      ],
+      [
+        3,
+        6,
+        8
+      ],
+      [
+        3,
+        6,
+        8
+      ]
+    ],
+    "change": "仅固定4/4候选SDE时刻strata；G8、每条3innovation、eta.1、SafetyA、global64std、原sourcePPOproxy/clip.005/beta50/IL70/LoRA+Memory/LR保持",
+    "schedule": "freshIL70/seed42, fixed50k cosine/warm1000/floor.1; first20k reviewed30/50k; stage2k/5k仅观察",
+    "costs": "每collection每rank仍8评分、G8×10head采样，旧/新概率及reference仍3ordinal调用；不读取NAV反馈或选择样本",
+    "limitations": [
+      "源anchor仍3slot平均，但实际state/time随kernel而变，不能声称anchor输入完全不变",
+      "所有真实分数与比率使用每row实际indices；ordinal编号不能冒充共享实际step",
+      "旧312scene组合不是新G8 forward证据；高控制PG0增加可能成功饱和，必须分类型报告",
+      "旧proxy保留，不能声称真实joint likelihood或无偏flowRL；新strata的mean conditional数学正确不消除旧proxy偏差"
+    ]
+  },
+  "existing_support_audit": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/MIXED_EXPLORATION_EXISTING_SUPPORT_AUDIT.json",
+  "priority": "ONE_NEW_ARM, no critic/extra teacher/normalization trick",
+  "GPU_started": false
+}

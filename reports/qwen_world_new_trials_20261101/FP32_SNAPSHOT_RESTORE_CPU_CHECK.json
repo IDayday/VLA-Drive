@@ -1,0 +1,29 @@
+{
+  "schema": "world_FP32_native_snapshot_precision_restore_CPU_regression_v1",
+  "status": "PASS",
+  "created_utc": "2026-11-01T18:11:10Z",
+  "cause": "output_projection_fp32 is execution configuration, not an adapter tensor; native snapshot restored LoRA/Memory but omitted declared precision, unlike the correct export",
+  "fix": "after real restore_adapters, cfg.research.precision_training nonNone invokes strictvalidate_precision_recipe then sets current model.actor.output_projection_fp32=True; legacy absentfield untouched",
+  "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest tests/test_world_fp32_snapshot_parity.py -q --disable-warnings --maxfail=1",
+  "result": "1 passed, 1 warning in 4.65s",
+  "coverage": [
+    "Real QwenWorldPostCoT with tiny action/Memory andFakeQwen; native loader constructs realScopeActor and restores nonzero LoRA andallMemory tensors fromoptimizer payload",
+    "Independent deployment install_deployment_lora/load_scope_trainable_state plus export_model_config reconstructs proper precision",
+    "Actual singlecandidate cleanxODE K10shift5 QwenWorldPostCoT.predict normalizedaction/requestedtrajectory bitwise native/export parity, FP32andlegacy BF16",
+    "Turning restored FP32 flag off reproduces normalizedaction difference; malformedprecisionoptin rejected byactualstrictvalidator"
+  ],
+  "confirmed_parity": {
+    "FP32_normalized_max_abs": 0,
+    "FP32_requested_max_abs": 0,
+    "legacy_normalized_max_abs": 0,
+    "legacy_requested_max_abs": 0
+  },
+  "limitations": "Only completeQwen/checkpointasset loader and.cuda mocked; actualScopeparameter restore, currentMemory, finalprojection andfullODE forward are realtiny CPU. Not aproductionGPU parity receipt.",
+  "changes_training_or_export_math": false,
+  "frozen_sources_modified": false,
+  "GPU_dispatched": false,
+  "files_sha256": {
+    "starVLA/rl/qwen_world_postcot/snapshot_navtest.py": "3d67053d7cf0c57b4109a9a8af27cafd87510eea8b0211a4604678776e8f88c0",
+    "tests/test_world_fp32_snapshot_parity.py": "b876a93bb695c7862da8f0104e12999abad9c154dd49562bff70fc947f3bc4be"
+  }
+}

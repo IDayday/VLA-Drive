@@ -1,0 +1,49 @@
+{
+  "schema": "world_native_priority_ops_handoff_v1",
+  "status": "READY_FOR_ROOT_REVIEW_NOT_ADOPTED",
+  "created_unix": 1793555249.2645907,
+  "source_root": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031",
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/native_priority.py": "b12ca72e2a018577a021ea2472d496f06fcdcb226c7f2ba2c8dd09850661426f",
+    "tools/qwen_world_safety_exploration/owner.py": "b822700afd8075a7636b1534fb5f863be2facdd81a72aa5b92345390b26fdb60",
+    "tools/qwen_world_safety_exploration/eval_owner.py": "bef81e9973a69a85acb2cc07e01b4b044e5a8fefc1aadc5099474927e26ae995",
+    "tests/test_world_native_priority_ops.py": "b64245ef8041850f9c7353ba304ec6ec90c825ebb9f7d367cd84743235ea970e",
+    "tests/test_world_finite_resource_eval.py": "7453fe47385156852816bc24a009dca0b203da89a4a098e5f2b0c6973bce3224",
+    "reports/qwen_world_safety_exploration_20261031/ops_native_priority/build_wm4_yield_preview.py": "e614c2c764302f57877f15f5ee31e0ba9125d8d731de96b7e17167f8ca1823e7"
+  },
+  "cpu_check": {
+    "status": "PASS",
+    "passed": 4,
+    "wall_seconds": 0.13,
+    "command": "CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_native_priority_ops.py tests/test_world_finite_resource_eval.py",
+    "contracts": [
+      "Only live, fresh, authorized waiting8rank native runs reserve a lane; native started releases reservation",
+      "Explicit Root yield-lane pin survives dispatch refresh and can select wm4",
+      "Exact owned priority-yield EXIT0 + actual stopped rank requeues same SPEC/cache on an allowed host",
+      "Manual/nonresource stop or nonzero remain science review; completed siblings/cache preserved"
+    ]
+  },
+  "apis": {
+    "demands": "native_priority.collect_waiters() read-only",
+    "automatic_advisory": "native_priority.refresh_advisory(samples); filter_eval_routes(routes,samples)",
+    "root_pin": "native_priority.reserve_yield_lane(demand_key,host) writes only shared advisory; call before STOP_REQUESTED to prevent E eval refilling wm4",
+    "root_intent": "native_priority.make_yield_receipt(entry,rank,node,requested_for) pure dict; Root atomic_json exactjob/OWNED_NATIVE_PRIORITY_YIELD.json then own exactjob/STOP_REQUESTED",
+    "harvest": "eval_owner.requeue_resource_boundary validates actual finished result, scene-boundary stop, identity/spec/world/rank/host/source/command/output/seed and receipt timestamp before RESOURCE_REQUEUE"
+  },
+  "preview": "/mnt/project/qwen-world-safety-exploration-20261031/resources/WM4_OWNED_EVAL_PRIORITY_YIELD_PREVIEW.json",
+  "adoption_plan": [
+    "Root freezes reviewed ops with finite job_worker and native_priority module; no change to scientific cwd/source/identity",
+    "Use CURRENT OWNER and /proc argv/start rather than stale LAUNCH; serialize per-owner CPU-only handoff and preserve native/eval children",
+    "Adopt F/G/H eval and native parents with their existing STATE/LOCK/specs; old Review may remain; no direct GPU/native/eval-child signal",
+    "On fresh Root recheck of wm4 exact lease worker identities, pin live Retention demand to wm4; then make/write exact per-job intents and STOP_REQUESTED; wait natural EXIT0/transport exit and existing worker lease release",
+    "Native owner performs normal UUID/owner/headroom/lease admission. No launch promised until those checks pass. Requeued eval ranks preserve old receipts/caches and may use other qualified hosts."
+  ],
+  "scope": "Only E/F/G/H evaluation dispatch respects advisory; foreign dispatchers remain unchanged and no foreign owner may be stopped",
+  "invariants": [
+    "No source/config/model/optimizer/RNG/scientific identity changes",
+    "No host authorization/headroom/visible owner/physical UUID/lease relaxation",
+    "No current policy/registry/owner-state mutation, owner adoption or process signal performed by this work",
+    "Existing eval shard world and scene cache never changed; sibling failures and successful shards retained"
+  ],
+  "endpoint_note": "Root owns RESEARCH_RESERVE_REVIEW cooperative-pause handling in standard_campaign.py; no edit here"
+}

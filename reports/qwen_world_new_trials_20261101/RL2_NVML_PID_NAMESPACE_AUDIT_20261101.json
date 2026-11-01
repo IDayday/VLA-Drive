@@ -1,0 +1,1526 @@
+{
+  "schema": "world_rl2_nvml_pid_namespace_readonly_audit_v1",
+  "status": "COMPLETE_READ_ONLY_NO_ADMISSION_CHANGE",
+  "created_unix": 1793555950.8241363,
+  "host": "training-rl-zt2",
+  "job_receipts": [
+    {
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to032000_attempt001",
+      "running": {
+        "status": "RUNNING",
+        "host": "training-rl-zt2",
+        "worker_pid": 971301,
+        "worker_start_ticks": 1491159387,
+        "start_unix": 1793553908.7161813,
+        "gpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "requested_gpu_uuids": [
+          "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+          "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+          "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+          "GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c",
+          "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+          "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+          "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+          "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e"
+        ],
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nnodes=1",
+          "--nproc_per_node=8",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "shared_headroom_MiB": 32768,
+        "lease_slot": "primary",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d",
+        "exclusive_all_slots": false,
+        "gpu_uuids": [
+          "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+          "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+          "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+          "GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c",
+          "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+          "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+          "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+          "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e"
+        ],
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "child_pid": 971309,
+        "child_start_ticks": 1491159426
+      },
+      "running_file_sha256": "078d6551da22e8944bcc31badb0d4f509f65ff82484aeab7898b426874438c5a"
+    },
+    {
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to010000_attempt001",
+      "running": {
+        "status": "RUNNING",
+        "host": "training-rl-zt2",
+        "worker_pid": 972136,
+        "worker_start_ticks": 1491160573,
+        "start_unix": 1793553920.7484436,
+        "gpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "requested_gpu_uuids": [
+          "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+          "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+          "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+          "GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c",
+          "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+          "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+          "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+          "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e"
+        ],
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nnodes=1",
+          "--nproc_per_node=8",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "shared_headroom_MiB": 32768,
+        "lease_slot": "research",
+        "execution_worker": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+        "execution_worker_sha256": "7c29bc6ec5ad99cb724b09d89c9040e0335e0e0c6836a4ee360ac5bc9e3d177d",
+        "exclusive_all_slots": false,
+        "gpu_uuids": [
+          "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+          "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+          "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+          "GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c",
+          "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+          "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+          "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+          "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e"
+        ],
+        "temporary": true,
+        "guard_unix": 1793571300.0,
+        "deadline_unix": 1793574000.0,
+        "child_pid": 972141,
+        "child_start_ticks": 1491160638
+      },
+      "running_file_sha256": "507424bbc86f718b327d5f13bdacb44f413b27c0d721cef1fd05b0c66f795dc3"
+    }
+  ],
+  "evidence": {
+    "at_unix": 1793555950.8164217,
+    "hostname": "training-rl-zt2-worker-0",
+    "nvml_raw": "662948, GPU-f9371c55-5054-e42c-71bf-f1314992af79, 17270, [Not Found]\n664374, GPU-f9371c55-5054-e42c-71bf-f1314992af79, 17270, [Not Found]\n662949, GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6, 17366, [Not Found]\n664375, GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6, 17366, [Not Found]\n662950, GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2, 17366, [Not Found]\n664376, GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2, 17366, [Not Found]\n662951, GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c, 17366, [Not Found]\n664377, GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c, 17366, [Not Found]\n662952, GPU-89896b99-8541-74ca-2e23-cd59843a102a, 17366, [Not Found]\n664378, GPU-89896b99-8541-74ca-2e23-cd59843a102a, 17366, [Not Found]\n662953, GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f, 17366, [Not Found]\n664379, GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f, 17366, [Not Found]\n662954, GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999, 17366, [Not Found]\n664380, GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999, 17366, [Not Found]\n662955, GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e, 17270, [Not Found]\n664381, GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e, 17270, [Not Found]\n",
+    "gpu_raw": "0, GPU-f9371c55-5054-e42c-71bf-f1314992af79, 46671\n1, GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6, 46479\n2, GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2, 46479\n3, GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c, 46479\n4, GPU-89896b99-8541-74ca-2e23-cd59843a102a, 46479\n5, GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f, 46479\n6, GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999, 46479\n7, GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e, 46671\n",
+    "own_exact_output_processes": [
+      {
+        "pid": 971309,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nnodes=1",
+          "--nproc_per_node=8",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159426,
+        "status": {
+          "Name": "pt_elastic",
+          "State": "S (sleeping)",
+          "Pid": "971309",
+          "PPid": "971301",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971309",
+          "NSpid": "971309"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7"
+        }
+      },
+      {
+        "pid": 971348,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971348",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971348",
+          "NSpid": "971348"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "0",
+          "RANK": "0",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 971349,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971349",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971349",
+          "NSpid": "971349"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "1",
+          "RANK": "1",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 971350,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971350",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971350",
+          "NSpid": "971350"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "2",
+          "RANK": "2",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 971351,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971351",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971351",
+          "NSpid": "971351"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "3",
+          "RANK": "3",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 971352,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971352",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971352",
+          "NSpid": "971352"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "4",
+          "RANK": "4",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 971353,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971353",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971353",
+          "NSpid": "971353"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "5",
+          "RANK": "5",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 971354,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971354",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971354",
+          "NSpid": "971354"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "6",
+          "RANK": "6",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 971355,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+          "--stop-after-update",
+          "32000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+        ],
+        "start_ticks": 1491159561,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "971355",
+          "PPid": "971309",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "971355",
+          "NSpid": "971355"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "7",
+          "RANK": "7",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "1948d16b-ad3d-46a6-9efe-91943e711a52"
+        }
+      },
+      {
+        "pid": 972141,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nnodes=1",
+          "--nproc_per_node=8",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160638,
+        "status": {
+          "Name": "pt_elastic",
+          "State": "S (sleeping)",
+          "Pid": "972141",
+          "PPid": "972136",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972141",
+          "NSpid": "972141"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7"
+        }
+      },
+      {
+        "pid": 972158,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972158",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972158",
+          "NSpid": "972158"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "0",
+          "RANK": "0",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      },
+      {
+        "pid": 972159,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972159",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972159",
+          "NSpid": "972159"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "1",
+          "RANK": "1",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      },
+      {
+        "pid": 972160,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972160",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972160",
+          "NSpid": "972160"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "2",
+          "RANK": "2",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      },
+      {
+        "pid": 972161,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972161",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972161",
+          "NSpid": "972161"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "3",
+          "RANK": "3",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      },
+      {
+        "pid": 972162,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972162",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972162",
+          "NSpid": "972162"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "4",
+          "RANK": "4",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      },
+      {
+        "pid": 972163,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972163",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972163",
+          "NSpid": "972163"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "5",
+          "RANK": "5",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      },
+      {
+        "pid": 972164,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972164",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972164",
+          "NSpid": "972164"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "6",
+          "RANK": "6",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      },
+      {
+        "pid": 972165,
+        "exists": true,
+        "argv": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-u",
+          "-m",
+          "tools.qwen_world_safety_exploration.train",
+          "--config",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+          "--manifest",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+          "--il-checkpoint",
+          "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+          "--data",
+          "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+          "--parent-selection",
+          "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+          "--output",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+          "--stop-after-update",
+          "10000",
+          "--save-every",
+          "500",
+          "--resume",
+          "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+        ],
+        "start_ticks": 1491160812,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "Pid": "972165",
+          "PPid": "972141",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "972165",
+          "NSpid": "972165"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+        "rank_environment": {
+          "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7",
+          "LOCAL_RANK": "7",
+          "RANK": "7",
+          "WORLD_SIZE": "8",
+          "TORCHELASTIC_RUN_ID": "ac8860f0-27ca-4445-a64d-3290bc844035"
+        }
+      }
+    ],
+    "proc": {
+      "ssh_self": {
+        "pid": 989216,
+        "exists": true,
+        "argv": [
+          "/usr/bin/python3",
+          "-c",
+          "import json,os,subprocess,time\nfrom pathlib import Path\noutputs=['/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL', '/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8'];known=[971301, 971309, 972136, 972141]\n\ndef rtext(p):\n try:return Path(p).read_text()\n except(OSError,PermissionError)as e:return dict(error=repr(e))\ndef inspect(pid):\n p=Path('/proc')/str(pid);row=dict(pid=pid,exists=p.exists())\n try:\n  row['argv']=[a for a in(p/'cmdline').read_bytes().decode().split('\\0')if a];row['start_ticks']=int((p/'stat').read_text().split()[21]);row['status']={line.split(':',1)[0]:line.split(':',1)[1].strip()for line in(p/'status').read_text().splitlines()if line.startswith(('Name:','State:','Pid:','PPid:','NSpid:','Uid:','NStgid:'))};row['cgroup']=(p/'cgroup').read_text();row['ns']={n:os.readlink(p/'ns'/n)for n in ['pid','pid_for_children','mnt','user']};row['cwd']=str((p/'cwd').resolve())\n  env=(p/'environ').read_bytes().decode().split('\\0');row['rank_environment']={v.split('=',1)[0]:v.split('=',1)[1]for v in env if v.startswith(('LOCAL_RANK=','RANK=','WORLD_SIZE=','CUDA_VISIBLE_DEVICES=','TORCHELASTIC_RUN_ID='))}\n except(OSError,ValueError,IndexError)as e:row['error']=repr(e)\n return row\nnvml=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid,used_memory,process_name','--format=csv,noheader,nounits'],text=True)\ngpus=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.free','--format=csv,noheader,nounits'],text=True)\nrows=[]\nfor p in Path('/proc').iterdir():\n if not p.name.isdigit():continue\n try:args=(p/'cmdline').read_bytes().decode().split('\\0')\n except(OSError,UnicodeDecodeError):continue\n if any(out in args for out in outputs):rows.append(inspect(int(p.name)))\nprocfields={'ssh_self':inspect(os.getpid()),'pid1':inspect(1),'known_worker_torchrun':[inspect(p)for p in known],'nvml_pids':[inspect(int(line.split(',',1)[0]))for line in nvml.splitlines()]}\nextra={}\nfor path in ['/proc/driver/nvidia/clients','/proc/1/root/proc/662948/status','/proc/1/root/proc/664374/status']:\n v=rtext(path);extra[path]=v[:8192]if isinstance(v,str)else v\nprint(json.dumps(dict(at_unix=time.time(),hostname=os.uname().nodename,nvml_raw=nvml,gpu_raw=gpus,own_exact_output_processes=rows,proc=procfields,proc_mounts=[s for s in Path('/proc/mounts').read_text().splitlines()if' proc 'in s],extra_readonly=extra)))"
+        ],
+        "start_ticks": 1491363589,
+        "status": {
+          "Name": "python3",
+          "State": "R (running)",
+          "Pid": "989216",
+          "PPid": "989205",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "989216",
+          "NSpid": "989216"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/root",
+        "rank_environment": {}
+      },
+      "pid1": {
+        "pid": 1,
+        "exists": true,
+        "argv": [
+          "/bin/bash",
+          "-c",
+          "while true; do echo hello; sleep 10; done"
+        ],
+        "start_ticks": 1455541484,
+        "status": {
+          "Name": "bash",
+          "State": "S (sleeping)",
+          "Pid": "1",
+          "PPid": "0",
+          "Uid": "0\t0\t0\t0",
+          "NStgid": "1",
+          "NSpid": "1"
+        },
+        "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+        "ns": {
+          "pid": "pid:[4026545143]",
+          "pid_for_children": "pid:[4026545143]",
+          "mnt": "mnt:[4026545142]",
+          "user": "user:[4026531837]"
+        },
+        "cwd": "/workspace",
+        "rank_environment": {}
+      },
+      "known_worker_torchrun": [
+        {
+          "pid": 971301,
+          "exists": true,
+          "argv": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+            "--receipt-root",
+            "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to032000_attempt001",
+            "--gpus",
+            "0,1,2,3,4,5,6,7",
+            "--command-json",
+            "[\"/mnt/project/flow-safe-improvement-20261013/venv/bin/python\", \"-m\", \"torch.distributed.run\", \"--standalone\", \"--nnodes=1\", \"--nproc_per_node=8\", \"-m\", \"tools.qwen_world_safety_exploration.train\", \"--config\", \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml\", \"--manifest\", \"/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json\", \"--il-checkpoint\", \"/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT\", \"--data\", \"/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN\", \"--parent-selection\", \"/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json\", \"--output\", \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL\", \"--stop-after-update\", \"32000\", \"--save-every\", \"500\", \"--resume\", \"/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0\"]",
+            "--cwd",
+            "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+            "--expected-gpu-uuids-json",
+            "[\"GPU-f9371c55-5054-e42c-71bf-f1314992af79\", \"GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6\", \"GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2\", \"GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c\", \"GPU-89896b99-8541-74ca-2e23-cd59843a102a\", \"GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f\", \"GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999\", \"GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e\"]",
+            "--share-min-free-mib",
+            "32768",
+            "--lease-slot",
+            "primary"
+          ],
+          "start_ticks": 1491159387,
+          "status": {
+            "Name": "python",
+            "State": "S (sleeping)",
+            "Pid": "971301",
+            "PPid": "1",
+            "Uid": "0\t0\t0\t0",
+            "NStgid": "971301",
+            "NSpid": "971301"
+          },
+          "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+          "ns": {
+            "pid": "pid:[4026545143]",
+            "pid_for_children": "pid:[4026545143]",
+            "mnt": "mnt:[4026545142]",
+            "user": "user:[4026531837]"
+          },
+          "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+          "rank_environment": {}
+        },
+        {
+          "pid": 971309,
+          "exists": true,
+          "argv": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nnodes=1",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.qwen_world_safety_exploration.train",
+            "--config",
+            "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+            "--manifest",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+            "--il-checkpoint",
+            "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+            "--data",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+            "--parent-selection",
+            "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+            "--output",
+            "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL",
+            "--stop-after-update",
+            "32000",
+            "--save-every",
+            "500",
+            "--resume",
+            "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update030000_inner0"
+          ],
+          "start_ticks": 1491159426,
+          "status": {
+            "Name": "pt_elastic",
+            "State": "S (sleeping)",
+            "Pid": "971309",
+            "PPid": "971301",
+            "Uid": "0\t0\t0\t0",
+            "NStgid": "971309",
+            "NSpid": "971309"
+          },
+          "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+          "ns": {
+            "pid": "pid:[4026545143]",
+            "pid_for_children": "pid:[4026545143]",
+            "mnt": "mnt:[4026545142]",
+            "user": "user:[4026531837]"
+          },
+          "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+          "rank_environment": {
+            "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7"
+          }
+        },
+        {
+          "pid": 972136,
+          "exists": true,
+          "argv": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1/tools/qwen_world_safety_exploration/job_worker.py",
+            "--receipt-root",
+            "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to010000_attempt001",
+            "--gpus",
+            "0,1,2,3,4,5,6,7",
+            "--command-json",
+            "[\"/mnt/project/flow-safe-improvement-20261013/venv/bin/python\", \"-m\", \"torch.distributed.run\", \"--standalone\", \"--nnodes=1\", \"--nproc_per_node=8\", \"-m\", \"tools.qwen_world_safety_exploration.train\", \"--config\", \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml\", \"--manifest\", \"/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json\", \"--il-checkpoint\", \"/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT\", \"--data\", \"/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN\", \"--parent-selection\", \"/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json\", \"--output\", \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8\", \"--stop-after-update\", \"10000\", \"--save-every\", \"500\", \"--resume\", \"/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0\"]",
+            "--cwd",
+            "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+            "--expected-gpu-uuids-json",
+            "[\"GPU-f9371c55-5054-e42c-71bf-f1314992af79\", \"GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6\", \"GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2\", \"GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c\", \"GPU-89896b99-8541-74ca-2e23-cd59843a102a\", \"GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f\", \"GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999\", \"GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e\"]",
+            "--share-min-free-mib",
+            "32768",
+            "--lease-slot",
+            "research"
+          ],
+          "start_ticks": 1491160573,
+          "status": {
+            "Name": "python",
+            "State": "S (sleeping)",
+            "Pid": "972136",
+            "PPid": "1",
+            "Uid": "0\t0\t0\t0",
+            "NStgid": "972136",
+            "NSpid": "972136"
+          },
+          "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+          "ns": {
+            "pid": "pid:[4026545143]",
+            "pid_for_children": "pid:[4026545143]",
+            "mnt": "mnt:[4026545142]",
+            "user": "user:[4026531837]"
+          },
+          "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+          "rank_environment": {}
+        },
+        {
+          "pid": 972141,
+          "exists": true,
+          "argv": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nnodes=1",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.qwen_world_safety_exploration.train",
+            "--config",
+            "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+            "--manifest",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+            "--il-checkpoint",
+            "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+            "--data",
+            "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+            "--parent-selection",
+            "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+            "--output",
+            "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+            "--stop-after-update",
+            "10000",
+            "--save-every",
+            "500",
+            "--resume",
+            "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8/checkpoints/update005000_inner0"
+          ],
+          "start_ticks": 1491160638,
+          "status": {
+            "Name": "pt_elastic",
+            "State": "S (sleeping)",
+            "Pid": "972141",
+            "PPid": "972136",
+            "Uid": "0\t0\t0\t0",
+            "NStgid": "972141",
+            "NSpid": "972141"
+          },
+          "cgroup": "12:freezer:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n11:perf_event:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n10:rdma:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n9:pids:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n8:net_cls,net_prio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n7:cpu,cpuacct:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n6:blkio:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n5:devices:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n4:cpuset:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n3:memory:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n2:hugetlb:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n1:name=systemd:/kubepods/besteffort/podcbc66c2f-1411-4bbd-9226-0bc344c60bda/50003ac88cd7cfaf8645b1bd1ec979c2ac853ccd24b349358941165816cdd33b\n0::/\n",
+          "ns": {
+            "pid": "pid:[4026545143]",
+            "pid_for_children": "pid:[4026545143]",
+            "mnt": "mnt:[4026545142]",
+            "user": "user:[4026531837]"
+          },
+          "cwd": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+          "rank_environment": {
+            "CUDA_VISIBLE_DEVICES": "0,1,2,3,4,5,6,7"
+          }
+        }
+      ],
+      "nvml_pids": [
+        {
+          "pid": 662948,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664374,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 662949,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664375,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 662950,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664376,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 662951,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664377,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 662952,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664378,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 662953,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664379,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 662954,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664380,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 662955,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        },
+        {
+          "pid": 664381,
+          "exists": false,
+          "error": "FileNotFoundError(2, 'No such file or directory')"
+        }
+      ]
+    },
+    "proc_mounts": [
+      "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:10:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:16:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:48:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:4c:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:8a:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:8f:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:c6:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/driver/nvidia/gpus/0000:ca:00.0 proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0"
+    ],
+    "extra_readonly": {
+      "/proc/driver/nvidia/clients": {
+        "error": "FileNotFoundError(2, 'No such file or directory')"
+      },
+      "/proc/1/root/proc/662948/status": {
+        "error": "FileNotFoundError(2, 'No such file or directory')"
+      },
+      "/proc/1/root/proc/664374/status": {
+        "error": "FileNotFoundError(2, 'No such file or directory')"
+      }
+    }
+  },
+  "no_signals": true,
+  "no_unknown_owner_rule_relaxation": true,
+  "exact_nspid_mapping": [],
+  "exact_all16_nvml_mapping_proven": false,
+  "interpretation": {
+    "ssh_and_both_own_workers_and16ranks_same_pid_namespace": true,
+    "shared_pid_namespace": "pid:[4026545143]",
+    "ssh_vs_learner_namespace_difference_proven": false,
+    "nvml_pid_namespace_origin": "NVML reports16 foreign-to-visible-proc IDs with process_name [Not Found]; consistent with outer host PID reporting, but no accessible host-proc mapping certifies pair identities.",
+    "nvml_vs_requested_physical_uuid_sets_equal": true,
+    "physical_uuid_count": 8,
+    "own_exact_visible_rank_count": 16,
+    "own_control_local_ranks": [
+      971348,
+      971349,
+      971350,
+      971351,
+      971352,
+      971353,
+      971354,
+      971355
+    ],
+    "own_early_local_ranks": [
+      972158,
+      972159,
+      972160,
+      972161,
+      972162,
+      972163,
+      972164,
+      972165
+    ],
+    "each_process_NSpid_only_contains_local_PID": true,
+    "exact_nvml_to_visible_pid_mapping_count": 0,
+    "ready_for_unknown_owner_exception": false,
+    "conclusion_zh": "自有worker/torchrun/16rank与SSH同一PIDnamespace，不能说SSH与learner各在不同namespace。NVML的16个PID不可见且进程名Not Found，与NVML报告外层PID相符；当前NSpid只给内层PID，无法完成16对16精确映射。相同8UUID、两组rank0..7和内存数量仅支持一致性，不能替代逐PID归属证明。",
+    "minimal_next_step": "仅在可读取合法host-proc或调度平台可信 PID mapping 后，按 hostPID→containerPID→start_ticks→PPid chain→exact job/UUID做窄映射收据；当前不放宽owner准入，等待其它合法lane自然释放。"
+  },
+  "sha256": "24cbb0aee09938a39161a1e557cb23aed284c6df2efa493ae1bad5a3ba17edc2"
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "world_fp32_final_projection_CPU_check_v1",
+  "status": "PASS",
+  "at_unix": 1793554331.7052696,
+  "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_fp32_projection.py --disable-warnings --maxfail=1",
+  "tests": 3,
+  "seconds": 4.87,
+  "actual_checks": [
+    "default BF16 compute bitexact; FP32 output matmul equals full FP32 reference and differs from posthoc cast",
+    "actual small ScopeRecipeActor G8 sample vs oldprob recompute means exactly equal; four real Adam updates; action+scene+predictive gradient paths finite and nonzero",
+    "trained real scope state installed with deployment loader; B1 K10 ODE output bitexact; explicit precision export metadata and native0 evaluation contract"
+  ],
+  "limits": [
+    "small actual modules on CPU; mock driving reward; not full52.7M GPU qualification or performance evidence",
+    "same IL70 stored weights but initial execution function changes; native0 fullNAV explicitly scheduled"
+  ]
+}

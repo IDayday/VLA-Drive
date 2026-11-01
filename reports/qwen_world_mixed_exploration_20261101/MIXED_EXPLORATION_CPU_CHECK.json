@@ -1,0 +1,84 @@
+{
+  "schema": "world_mixed_exploration_targeted_CPU_check_v1",
+  "status": "PASS",
+  "created_utc": "2026-11-01T17:50:09Z",
+  "result": "2 passed, 1 warning in 12.22s",
+  "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest tests/test_world_mixed_exploration.py -q --disable-warnings --maxfail=1",
+  "native_proof": {
+    "world": 8,
+    "matrix": [
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        7,
+        8,
+        9
+      ],
+      [
+        3,
+        6,
+        8
+      ],
+      [
+        3,
+        6,
+        8
+      ],
+      [
+        3,
+        6,
+        8
+      ],
+      [
+        3,
+        6,
+        8
+      ]
+    ],
+    "native": [
+      "pending0",
+      "pending1",
+      "pending2",
+      "pending3",
+      "READY4"
+    ],
+    "fresh_ratio_error": 0,
+    "sampled_recomputed_BF16mean_error": 0,
+    "queries_perrank": 8,
+    "optimizer": "AdamW two groups, fixed50k/warm1000cos",
+    "fixture": "actualScopeRecipeActor tiny dimensions, FakeQwen/mockcanonical, actual8rankCPU DDP; not productionGPU/52.7M efficacy"
+  },
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_recipe.py": "b3f902f842825af14af5d616bf7bdaa742d98021ba40901afebbc30228bdf28c",
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_actor.py": "2b9cae7b6edc142b2af93ec80541fdaa9edf87143421fe69f983e73387e2da17",
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_recovery.py": "bfaa3dcff937c23c2da31bd668f2341221f4a88fa7d288e15ffa2ad029a4f32e",
+    "starVLA/rl/qwen_world_safety_exploration/mixed_exploration_runtime.py": "9c7e4cab62bb41e2ebf22d1dc4ece7cd4c83842a4011190f27f69bd9905016b5",
+    "tests/test_world_mixed_exploration.py": "f1674cd97c918d4abc3c45d8eb6776ef71942365e141ad680591b205e00c1338"
+  },
+  "template_sha256": "8bf733c29c9419305c13a280a4210c1f07b9e344b28a20f68390c71bd21e9bf2",
+  "checks": [
+    "ActualBF16 ScopeActor sampledmean/recomputedmean bitwise equal, stdmatrix[8,3] andordinal timesteps correct, freshratio1",
+    "Same mainCPU generatorstate as defaultScope after8root+3innovation draws; first4late chains bitwise match unmodifiedScopeActor; legacyactor remains one-dimensional[7,8,9]",
+    "SourcePPOclip.005 loss exactly matches explicitpolicy_gradient_objective+50weighted nominalmeanMSE; true currentLoRA/Memory gradients finite",
+    "Actual8CPU Gloo DDP nativepending0/1/2/3/READY4 preserve fullweights/Adam/RNG/50kschedule/chain/matrix/oldprob/material; pollutedstd/noise/index rejected",
+    "Noextra head/scorer work for late/early strict-high andpositive/negativeeffectivePPOweights metrics; original trainerlogging accepts scalarfields"
+  ],
+  "limitations": [
+    "Real ScopeRecipeActor with tiny dimensions/FakeQwen/mockscorer, not production52.7M/GPU efficacy",
+    "Existing312scene support data generatedG16 atSafety10k; candidate subset/composition isnot newG8 modelbatch evidence",
+    "Old source dimensionmean24/clampedproxy preserved; nottruejointflowdensity/unbiasedPPO claim"
+  ]
+}
