@@ -1,0 +1,1720 @@
+{
+  "schema": "world_standard_long_run_research_design_v1",
+  "status": "ANALYSIS_COMPLETE_STANDARD_SOURCE_ROOT_LAUNCHED_OPERATIONS_OWNED_BY_ROOT",
+  "created_unix": 1793506520.3157878,
+  "main_conclusion_zh": "旧1k/3k只覆盖1.94%/5.81%合法数据，且方法曲线/信用激活率不同，不能用.02单点差和短预算否定潜力。新四臂至少10k，统一固定50k warmup+cosine身份；长训仍需完整高分与安全/零分证据，不能把延长本身称提升。",
+  "standard_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+  "parent": "Same pinned complete IL70, fresh Adam/seed42/update0 for each standardarm",
+  "parent_selection": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json::parent_selection",
+  "old_ABCD": "Permanently exited by explicit user instruction; never adopted/revived here",
+  "old_complete_evidence": {
+    "root": "/mnt/project/qwen-world-safety-exploration-20261031",
+    "snapshot_complete_NAVTEST_summaries": 21,
+    "unique_methods": 9,
+    "scenes_per_point": 12146,
+    "total_existing_scene_scores": 255066,
+    "old_early_schedule": "warmup100 thenconstant; oldreference may includeG16/different data/sampler. Newwarmup1000+cosine is not an executioncontinuation or sameoptimizer identity.",
+    "curves": [
+      {
+        "arm": "SAFETY_ACTIVE_DATA_G8",
+        "points": [
+          {
+            "arm": "SAFETY_ACTIVE_DATA_G8",
+            "updates": 500,
+            "PDMS": 90.08525698211798,
+            "means": {
+              "score": 0.9008525698211798,
+              "no_at_fault_collisions": 0.9888440638893463,
+              "drivable_area_compliance": 0.9810637246830232,
+              "time_to_collision_within_bound": 0.9678083319611395,
+              "ego_progress": 0.8241521604209324,
+              "comfort": 0.9994236785773094,
+              "driving_direction_compliance": 0.9854273011691091
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_ACTIVE_DATA_G8_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "b07b6b4e85b825774c6a99b3fcd9c7eecfdaf5ab499f37fe05acbb52c7037728",
+            "identity_sha256": "0acd9e04130c9e96387087161eef710d75b166f194400eb1ae8bc76db3c0dc18",
+            "same_budget_control": {
+              "PDMS_delta": 0.22942935385971666,
+              "PDMS_CI95": [
+                -0.17346325646853564,
+                0.6165844331495353
+              ],
+              "repaired_zero": 95,
+              "new_zero": 45,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -0.643028742478185,
+                "global_contribution_PDMS": -0.4462977358052939,
+                "to_zero": 28,
+                "below_high": 222
+              },
+              "G_plus_PDMS": 0.8651941775133679,
+              "G_minus_PDMS": -0.6357648236536513,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 10,
+                  "repaired_failure": 15,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 38,
+                  "repaired_failure": 83,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 32,
+                  "repaired_failure": 31,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ACTIVE_DATA_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "b07f05600e3cca428d75e1297124bd9aaa44337e4b5e4acd42094fd22bddfc70",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_ACTIVE_DATA_G8",
+            "updates": 1000,
+            "PDMS": 90.51030902891506,
+            "means": {
+              "score": 0.9051030902891506,
+              "no_at_fault_collisions": 0.990120204182447,
+              "drivable_area_compliance": 0.9874855919644328,
+              "time_to_collision_within_bound": 0.9721719084472255,
+              "ego_progress": 0.8207812230483856,
+              "comfort": 0.9995060102091223,
+              "driving_direction_compliance": 0.9832043471101597
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_ACTIVE_DATA_G8_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "11bd4c50fc5e88991192bd8c8bf7a959ac9b7551dc30a630d572e63acc181187",
+            "identity_sha256": "b9931a887d7fb3cd1bc6e30ee7e71d94b77a6394cf15e3e0e81d741658112485",
+            "same_budget_control": {
+              "PDMS_delta": -0.19729915095547773,
+              "PDMS_CI95": [
+                -0.3945216554188423,
+                -0.00205902371112487
+              ],
+              "repaired_zero": 82,
+              "new_zero": 25,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -0.9320580110896586,
+                "global_contribution_PDMS": -0.6643963658829461,
+                "to_zero": 15,
+                "below_high": 661
+              },
+              "G_plus_PDMS": 0.8574418417728965,
+              "G_minus_PDMS": -1.054740992728374,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 14,
+                  "repaired_failure": 38,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 12,
+                  "repaired_failure": 50,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 31,
+                  "repaired_failure": 97,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ACTIVE_DATA_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "4cfc7e7f01408139e13b1badd166f3a901e8225b9a7a9aa76ff08f3e1bb22069",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.4250520467970773,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 1000,
+        "last_PDMS": 90.51030902891506,
+        "best_observed_PDMS": 90.51030902891506,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_DAC_DENSE_G8",
+        "points": [
+          {
+            "arm": "SAFETY_DAC_DENSE_G8",
+            "updates": 500,
+            "PDMS": 89.76728250213152,
+            "means": {
+              "score": 0.8976728250213152,
+              "no_at_fault_collisions": 0.9881854108348428,
+              "drivable_area_compliance": 0.9766178165651244,
+              "time_to_collision_within_bound": 0.9694549645973983,
+              "ego_progress": 0.8213725472522707,
+              "comfort": 0.9999176683681871,
+              "driving_direction_compliance": 0.9843569899555409
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_DAC_DENSE_G8_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "3ea782458484b9709eebcb697825d5fb34c2e8b781f27ebda98b40a087e7c0bc",
+            "identity_sha256": "1ec32d4c68ca5131a9f00af7b8255f4929ded8c7701a1724ed2889d1348d81ea",
+            "same_budget_control": {
+              "PDMS_delta": -0.08854512612713562,
+              "PDMS_CI95": [
+                -0.2043009587227831,
+                0.04453819554078881
+              ],
+              "repaired_zero": 18,
+              "new_zero": 29,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -0.32196255369621896,
+                "global_contribution_PDMS": -0.22345993147201765,
+                "to_zero": 16,
+                "below_high": 100
+              },
+              "G_plus_PDMS": 0.27553852097532433,
+              "G_minus_PDMS": -0.36408364710245994,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 10,
+                  "repaired_failure": 6,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 22,
+                  "repaired_failure": 13,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 14,
+                  "repaired_failure": 33,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_DAC_DENSE_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "cf7c2c3d5cb9113808805084b5736bfcbeb38fd8f87d8d4ed22cc031dede9316",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_DAC_DENSE_G8",
+            "updates": 1000,
+            "PDMS": 90.78227045775206,
+            "means": {
+              "score": 0.9078227045775207,
+              "no_at_fault_collisions": 0.9883500740984686,
+              "drivable_area_compliance": 0.9846039848509798,
+              "time_to_collision_within_bound": 0.9677260003293265,
+              "ego_progress": 0.8358218209357492,
+              "comfort": 0.9995060102091223,
+              "driving_direction_compliance": 0.9837806685328503
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_DAC_DENSE_G8_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "1beaae218882a8b343b9cf6b53993008a9db813425aa6dba744413c809848acc",
+            "identity_sha256": "432978845a8838fdfce5f3ac19949879ebd3a749ab99f7b30c90cc2eb9e4b84c",
+            "same_budget_control": {
+              "PDMS_delta": 0.07466227788113836,
+              "PDMS_CI95": [
+                -0.014440708509765447,
+                0.15647341203286375
+              ],
+              "repaired_zero": 18,
+              "new_zero": 14,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -0.12072824157520888,
+                "global_contribution_PDMS": -0.08605838264104712,
+                "to_zero": 8,
+                "below_high": 59
+              },
+              "G_plus_PDMS": 0.2572236503406512,
+              "G_minus_PDMS": -0.18256137245951287,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 4,
+                  "repaired_failure": 5,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 11,
+                  "repaired_failure": 14,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 7,
+                  "repaired_failure": 19,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_DAC_DENSE_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "c41957ba1236cb4a6b9134c31386158c34ad2bfc6a60193421786cf1c912c87e",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 1.0149879556205406,
+              "CI_not_computed": true
+            }
+          },
+          {
+            "arm": "SAFETY_DAC_DENSE_G8",
+            "updates": 3000,
+            "PDMS": 90.94885366817145,
+            "means": {
+              "score": 0.9094885366817145,
+              "no_at_fault_collisions": 0.9881030792030298,
+              "drivable_area_compliance": 0.9850979746418574,
+              "time_to_collision_within_bound": 0.9644327350568088,
+              "ego_progress": 0.8430307848775276,
+              "comfort": 0.9997530051045612,
+              "driving_direction_compliance": 0.9840688292441956
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_DAC_DENSE_G8_u003000/NAVTEST/SUMMARY.json",
+            "source_sha256": "e58dbfdd88c290695ef068fe625fd715e16695405fe99e3d2657dfc7820fda58",
+            "identity_sha256": "96e4661da0f474b225494e4f4c81d49c370cd59de8b97a8210f4a4ab3887d429",
+            "same_budget_control": {
+              "PDMS_delta": -0.06485754641758978,
+              "PDMS_CI95": [
+                -0.18658293340378962,
+                0.040992421241434866
+              ],
+              "repaired_zero": 21,
+              "new_zero": 22,
+              "fixed_control_high": {
+                "count": 8936,
+                "mean_delta_PDMS": -0.3061001702581249,
+                "global_contribution_PDMS": -0.22520262814314213,
+                "to_zero": 18,
+                "below_high": 111
+              },
+              "G_plus_PDMS": 0.2771490329805924,
+              "G_minus_PDMS": -0.3420065793981822,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 3,
+                  "repaired_failure": 5,
+                  "baseline_pass": 11993,
+                  "baseline_failure": 153
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 20,
+                  "repaired_failure": 16,
+                  "baseline_pass": 11969,
+                  "baseline_failure": 177
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 21,
+                  "repaired_failure": 20,
+                  "baseline_pass": 11715,
+                  "baseline_failure": 431
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_DAC_DENSE_G8_3000_vs_SAFETY_G8_CONTROL_3000.json",
+              "paired_source_sha256": "ff8bd799cb6efec1685d398fe5486de2633f01d139b5073cd627323dfa304c58",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 1000,
+              "PDMS_delta": 0.16658321041938962,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 3000,
+        "last_PDMS": 90.94885366817145,
+        "best_observed_PDMS": 90.94885366817145,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
+        "points": [
+          {
+            "arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
+            "updates": 500,
+            "PDMS": 89.31826215082205,
+            "means": {
+              "score": 0.8931826215082205,
+              "no_at_fault_collisions": 0.984274658323728,
+              "drivable_area_compliance": 0.9725012349744772,
+              "time_to_collision_within_bound": 0.9558702453482628,
+              "ego_progress": 0.8310615256762492,
+              "comfort": 0.9994236785773094,
+              "driving_direction_compliance": 0.9850156430100444
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_ENDPOINT_RAMP_AR1_G8_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "cc00c1f0c1c06b571c3e8217f834cfad628d77e8d79201deea8ce1026068b86c",
+            "identity_sha256": "d23a01fa7ef8ce11a9b0955e4e517b087bc548cd82457da8a0de3f31568ca67e",
+            "same_budget_control": {
+              "PDMS_delta": -0.5375654774364871,
+              "PDMS_CI95": [
+                -0.8447356526760883,
+                -0.2427010394671899
+              ],
+              "repaired_zero": 52,
+              "new_zero": 160,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -1.3370562173694576,
+                "global_contribution_PDMS": -0.9279914303000598,
+                "to_zero": 86,
+                "below_high": 275
+              },
+              "G_plus_PDMS": 1.1217088428232858,
+              "G_minus_PDMS": -1.6592743202597726,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 65,
+                  "repaired_failure": 14,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 99,
+                  "repaired_failure": 40,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 172,
+                  "repaired_failure": 26,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ENDPOINT_RAMP_AR1_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "0744c2134199b1f04ec3e76fe5814fee67b0536ef3d2d7e78acb53a202793d86",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
+            "updates": 1000,
+            "PDMS": 89.55004583105357,
+            "means": {
+              "score": 0.8955004583105357,
+              "no_at_fault_collisions": 0.9859212909599868,
+              "drivable_area_compliance": 0.9761238267742467,
+              "time_to_collision_within_bound": 0.96278610242055,
+              "ego_progress": 0.8247473561842883,
+              "comfort": 0.998682693890993,
+              "driving_direction_compliance": 0.9843158241396345
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_ENDPOINT_RAMP_AR1_G8_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "950b7b67f331de17f8a9510b76207ce260bc2956f4e5c418a2fa7e9bbb1796b8",
+            "identity_sha256": "f33f80d980cfcf11b5bca2d3701e16867fe8619824e7bfb3b2db6a6df9e91b30",
+            "same_budget_control": {
+              "PDMS_delta": -1.1575623488172309,
+              "PDMS_CI95": [
+                -1.6619958843109683,
+                -0.686269712766381
+              ],
+              "repaired_zero": 45,
+              "new_zero": 175,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -2.174996415981457,
+                "global_contribution_PDMS": -1.550396753628145,
+                "to_zero": 138,
+                "below_high": 467
+              },
+              "G_plus_PDMS": 0.7748504831286411,
+              "G_minus_PDMS": -1.932412831945872,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 44,
+                  "repaired_failure": 15,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 137,
+                  "repaired_failure": 37,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 117,
+                  "repaired_failure": 69,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ENDPOINT_RAMP_AR1_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "a80765e003701a1557397e866d2e4bf4d3844fb11d2cb21f8d1c784e64df7215",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.23178368023151563,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 1000,
+        "last_PDMS": 89.55004583105357,
+        "best_observed_PDMS": 89.55004583105357,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_ENDPOINT_RAMP_AR1_LR02_G8",
+        "points": [
+          {
+            "arm": "SAFETY_ENDPOINT_RAMP_AR1_LR02_G8",
+            "updates": 500,
+            "PDMS": 89.25617635620414,
+            "means": {
+              "score": 0.8925617635620413,
+              "no_at_fault_collisions": 0.984274658323728,
+              "drivable_area_compliance": 0.9732422196607937,
+              "time_to_collision_within_bound": 0.9545529392392558,
+              "ego_progress": 0.8287838048922235,
+              "comfort": 0.9998353367363741,
+              "driving_direction_compliance": 0.9850156430100444
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_ENDPOINT_RAMP_AR1_LR02_G8_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "07ecf0a8bce0e625b5a615814b1b491f9d58a2b6e469ca05d27ed923e7cc3fcf",
+            "identity_sha256": "17cbe9c83bdc0020cd73e6f78337dd32d45dc271e9d74f0d8e46bb53bdc6a502",
+            "same_budget_control": {
+              "PDMS_delta": -0.5996512720541923,
+              "PDMS_CI95": [
+                -1.0211754512643958,
+                -0.1764976786131823
+              ],
+              "repaired_zero": 65,
+              "new_zero": 162,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -1.4696206149096172,
+                "global_contribution_PDMS": -1.0199985002213134,
+                "to_zero": 89,
+                "below_high": 308
+              },
+              "G_plus_PDMS": 1.1485124687306936,
+              "G_minus_PDMS": -1.748163740784886,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 63,
+                  "repaired_failure": 10,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 106,
+                  "repaired_failure": 56,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 188,
+                  "repaired_failure": 26,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ENDPOINT_RAMP_AR1_LR02_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "e440f20876baada0fedef1487290cdfe52cdfe4f0eda6c0bf6c9ee6de1ab758c",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_ENDPOINT_RAMP_AR1_LR02_G8",
+            "updates": 1000,
+            "PDMS": 89.32094034613756,
+            "means": {
+              "score": 0.8932094034613757,
+              "no_at_fault_collisions": 0.9860036225917997,
+              "drivable_area_compliance": 0.9732422196607937,
+              "time_to_collision_within_bound": 0.9582578626708381,
+              "ego_progress": 0.82635064008106,
+              "comfort": 0.9998353367363741,
+              "driving_direction_compliance": 0.9853038037213897
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_ENDPOINT_RAMP_AR1_LR02_G8_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "3fdcdf32f95e73f791caae1ff7234087bb04e65b4db04c596d5e72c1248c38f9",
+            "identity_sha256": "1858e461992c262e98c8586ca715e167e1b961d43fb055362a0bf7f08dcbea86",
+            "same_budget_control": {
+              "PDMS_delta": -1.3866678337329927,
+              "PDMS_CI95": [
+                -1.8923086601518493,
+                -0.8863102603151367
+              ],
+              "repaired_zero": 28,
+              "new_zero": 187,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -2.041332981347893,
+                "global_contribution_PDMS": -1.4551178126551996,
+                "to_zero": 121,
+                "below_high": 456
+              },
+              "G_plus_PDMS": 0.7583037266348809,
+              "G_minus_PDMS": -2.1449715603678734,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 45,
+                  "repaired_failure": 13,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 152,
+                  "repaired_failure": 17,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 153,
+                  "repaired_failure": 50,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_ENDPOINT_RAMP_AR1_LR02_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "68ea2dce1268e088e851b567f31f8d8366068b6c144dab07a0af45196a7a3091",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.06476398993342514,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 1000,
+        "last_PDMS": 89.32094034613756,
+        "best_observed_PDMS": 89.32094034613756,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_G16",
+        "points": [
+          {
+            "arm": "SAFETY_G16",
+            "updates": 500,
+            "PDMS": 90.12303482995438,
+            "means": {
+              "score": 0.9012303482995438,
+              "no_at_fault_collisions": 0.9876502552280586,
+              "drivable_area_compliance": 0.9794994236785773,
+              "time_to_collision_within_bound": 0.9655030462703771,
+              "ego_progress": 0.8294785773669274,
+              "comfort": 0.9999176683681871,
+              "driving_direction_compliance": 0.9849333113782315
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_G16_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "9c60e4b6f9de2cfe7ca8e7ea725d30872ecfb468a74da2b53e00d90b387dd21f",
+            "identity_sha256": "cc677b74eaa8381ec1f7054fc47dcde42904e1756687bd21fd04b66215abc960",
+            "same_budget_control": {
+              "PDMS_delta": 0.2672072016960441,
+              "PDMS_CI95": [
+                -0.0846959542444681,
+                0.6076993900105253
+              ],
+              "repaired_zero": 91,
+              "new_zero": 73,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -0.6895038286997208,
+                "global_contribution_PDMS": -0.4785540322689484,
+                "to_zero": 41,
+                "below_high": 208
+              },
+              "G_plus_PDMS": 1.096437979798877,
+              "G_minus_PDMS": -0.829230778102833,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 24,
+                  "repaired_failure": 14,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 54,
+                  "repaired_failure": 80,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 65,
+                  "repaired_failure": 36,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_G16_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "69d205f9a2e712fa21db0e72fff752eacc3f5e271d81b0ab37c69b22c4798171",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_G16",
+            "updates": 1000,
+            "PDMS": 90.83636832083948,
+            "means": {
+              "score": 0.9083636832083949,
+              "no_at_fault_collisions": 0.9887205664416269,
+              "drivable_area_compliance": 0.9864976123826774,
+              "time_to_collision_within_bound": 0.9697019594928371,
+              "ego_progress": 0.8329083680266297,
+              "comfort": 0.9997530051045612,
+              "driving_direction_compliance": 0.9834101761896921
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_G16_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "b8cc79dd400a4f9eb0e19647f349eecbe43ce7ac03d1acd78a3e4b276e627857",
+            "identity_sha256": "0cca1088630a27e01fb99cd35e1fa92a5e36e9dcef46a69afd2693c7c0b8e631",
+            "same_budget_control": {
+              "PDMS_delta": 0.1287601409686256,
+              "PDMS_CI95": [
+                -0.1890463946992758,
+                0.36335442715275973
+              ],
+              "repaired_zero": 79,
+              "new_zero": 49,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -0.7331029221308769,
+                "global_contribution_PDMS": -0.5225757533187166,
+                "to_zero": 35,
+                "below_high": 306
+              },
+              "G_plus_PDMS": 0.8840237712980902,
+              "G_minus_PDMS": -0.7552636303294645,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 19,
+                  "repaired_failure": 24,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 32,
+                  "repaired_failure": 58,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 41,
+                  "repaired_failure": 77,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_G16_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "6bbd80085d1ccb501144f8af911fda99879992b4bee2305d25c052a293e650ba",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.7133334908851054,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 1000,
+        "last_PDMS": 90.83636832083948,
+        "best_observed_PDMS": 90.83636832083948,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_G8_CONTROL",
+        "points": [
+          {
+            "arm": "SAFETY_G8_CONTROL",
+            "updates": 500,
+            "PDMS": 89.85582762825824,
+            "means": {
+              "score": 0.8985582762825824,
+              "no_at_fault_collisions": 0.988391239914375,
+              "drivable_area_compliance": 0.9773588012514408,
+              "time_to_collision_within_bound": 0.9678906635929524,
+              "ego_progress": 0.8238831804055521,
+              "comfort": 0.9999176683681871,
+              "driving_direction_compliance": 0.9843158241396345
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_G8_CONTROL_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "793b79a2bd6bca1d25c4633b2b604ef273130450ab949f228c8d808ffefec339",
+            "identity_sha256": "bbb55d52a0f44fe0fc59d6cb650f3ede78ae44e3f41a97dd3d1da39d27f99722"
+          },
+          {
+            "arm": "SAFETY_G8_CONTROL",
+            "updates": 1000,
+            "PDMS": 90.70760817987055,
+            "means": {
+              "score": 0.9070760817987055,
+              "no_at_fault_collisions": 0.9882677424666557,
+              "drivable_area_compliance": 0.9843569899555409,
+              "time_to_collision_within_bound": 0.9667380207475712,
+              "ego_progress": 0.8354621770644339,
+              "comfort": 0.9995060102091223,
+              "driving_direction_compliance": 0.983657171085131
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_G8_CONTROL_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "f6b526f4b8327aea8c3b07462b8e1f2effb0b8c4a49052b2348e89bb8ad5acba",
+            "identity_sha256": "416f6743e48baf9f9e92e7938173e656ea12e318c07cdbbe87de7a536701f51e",
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.8517805516123076,
+              "CI_not_computed": true
+            }
+          },
+          {
+            "arm": "SAFETY_G8_CONTROL",
+            "updates": 3000,
+            "PDMS": 91.01371121458914,
+            "means": {
+              "score": 0.9101371121458913,
+              "no_at_fault_collisions": 0.9879384159394039,
+              "drivable_area_compliance": 0.9854273011691091,
+              "time_to_collision_within_bound": 0.9645150666886217,
+              "ego_progress": 0.8442909436593025,
+              "comfort": 0.9995883418409353,
+              "driving_direction_compliance": 0.9838630001646632
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_G8_CONTROL_u003000/NAVTEST/SUMMARY.json",
+            "source_sha256": "c605e8622855bfda73b1ed69b9b0f00fc249d69572a79f64c4cc2db9c04c697c",
+            "identity_sha256": "5662d186f1f0f502dc68a56b07b0beb4405d85a76dc66de8e3903f605998ee94",
+            "absolute_change_from_previous_full": {
+              "previous_updates": 1000,
+              "PDMS_delta": 0.30610303471858913,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 3000,
+        "last_PDMS": 91.01371121458914,
+        "best_observed_PDMS": 91.01371121458914,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_INVERSION_CANCEL_G8",
+        "points": [
+          {
+            "arm": "SAFETY_INVERSION_CANCEL_G8",
+            "updates": 500,
+            "PDMS": 89.85853686340842,
+            "means": {
+              "score": 0.8985853686340841,
+              "no_at_fault_collisions": 0.9881854108348428,
+              "drivable_area_compliance": 0.9772764696196279,
+              "time_to_collision_within_bound": 0.9674790054338877,
+              "ego_progress": 0.8245349794004149,
+              "comfort": 1.0,
+              "driving_direction_compliance": 0.9835748394533179
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_INVERSION_CANCEL_G8_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "408a0f66a064551b25995fa999523eaa2867a28ff1d9635314ad9869985e4ab5",
+            "identity_sha256": "32c0d793a2fb054c1b7851a9e25530dd5fcc53ec470346605ab92e166b39bfe8",
+            "same_budget_control": {
+              "PDMS_delta": 0.0027092351501657955,
+              "PDMS_CI95": [
+                -0.11670445749757936,
+                0.12514097693321494
+              ],
+              "repaired_zero": 22,
+              "new_zero": 26,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -0.21418984863995527,
+                "global_contribution_PDMS": -0.1486596759455642,
+                "to_zero": 12,
+                "below_high": 74
+              },
+              "G_plus_PDMS": 0.3033576535021679,
+              "G_minus_PDMS": -0.3006484183520021,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 9,
+                  "repaired_failure": 5,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 20,
+                  "repaired_failure": 19,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 24,
+                  "repaired_failure": 19,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_INVERSION_CANCEL_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "461437e454f71e3515a4bd542544f16f3d4e6de7d88dd1479a54a6214f458fa0",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_INVERSION_CANCEL_G8",
+            "updates": 1000,
+            "PDMS": 90.70964846940436,
+            "means": {
+              "score": 0.9070964846940436,
+              "no_at_fault_collisions": 0.9885147373620945,
+              "drivable_area_compliance": 0.9851803062736704,
+              "time_to_collision_within_bound": 0.9675613370657007,
+              "ego_progress": 0.8333702354347434,
+              "comfort": 0.9999176683681871,
+              "driving_direction_compliance": 0.9839864976123827
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_INVERSION_CANCEL_G8_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "617a7dc637c759d0282c6b6729fd3fca7e7c953b4c7b0e3b5b6dfd2e6917a303",
+            "identity_sha256": "214aa07d4a7981cd66b264df4dd419e3faed9af99b162386aa39f27403a7c40f",
+            "same_budget_control": {
+              "PDMS_delta": 0.0020402895337119594,
+              "PDMS_CI95": [
+                -0.08203863680195535,
+                0.08043291714438876
+              ],
+              "repaired_zero": 19,
+              "new_zero": 6,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -0.2240650173699762,
+                "global_contribution_PDMS": -0.15971965423919426,
+                "to_zero": 4,
+                "below_high": 138
+              },
+              "G_plus_PDMS": 0.23567318319771727,
+              "G_minus_PDMS": -0.23363289366400533,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 2,
+                  "repaired_failure": 5,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 5,
+                  "repaired_failure": 15,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 12,
+                  "repaired_failure": 22,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_INVERSION_CANCEL_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "dfbc6a6b52e629c9bd61cdc028b3b32eeeaaa02e0a1de30d6031676c3df54de4",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.8511116059959392,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 1000,
+        "last_PDMS": 90.70964846940436,
+        "best_observed_PDMS": 90.70964846940436,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_PROTECTED_HIGH_G8",
+        "points": [
+          {
+            "arm": "SAFETY_PROTECTED_HIGH_G8",
+            "updates": 500,
+            "PDMS": 89.90424107916142,
+            "means": {
+              "score": 0.8990424107916143,
+              "no_at_fault_collisions": 0.9889675613370656,
+              "drivable_area_compliance": 0.9776881277786926,
+              "time_to_collision_within_bound": 0.9706076074427795,
+              "ego_progress": 0.8217509472226308,
+              "comfort": 0.9999176683681871,
+              "driving_direction_compliance": 0.9841511608760085
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_PROTECTED_HIGH_G8_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "70ad110169ab1308cdc645067f0422a53efc4959a14228179b08b6e83503d6b8",
+            "identity_sha256": "0e81512a2d22f49653278ff485869c2a2409cb6358f2835dcde83c384a64e858",
+            "same_budget_control": {
+              "PDMS_delta": 0.04841345090307276,
+              "PDMS_CI95": [
+                -0.05710201681823246,
+                0.17305796923097505
+              ],
+              "repaired_zero": 24,
+              "new_zero": 14,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -0.22547072830923706,
+                "global_contribution_PDMS": -0.15648923428675027,
+                "to_zero": 8,
+                "below_high": 117
+              },
+              "G_plus_PDMS": 0.31561199388119143,
+              "G_minus_PDMS": -0.2671985429781187,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 4,
+                  "repaired_failure": 10,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 12,
+                  "repaired_failure": 16,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 8,
+                  "repaired_failure": 41,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_PROTECTED_HIGH_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "fefee1ec4da5973fd596f7431073f5e04392c1a1609cde37d533afd492f23ec8",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_PROTECTED_HIGH_G8",
+            "updates": 1000,
+            "PDMS": 90.65762476120436,
+            "means": {
+              "score": 0.9065762476120436,
+              "no_at_fault_collisions": 0.9881854108348428,
+              "drivable_area_compliance": 0.9837806685328503,
+              "time_to_collision_within_bound": 0.9666556891157583,
+              "ego_progress": 0.8352147505655229,
+              "comfort": 0.9995883418409353,
+              "driving_direction_compliance": 0.9840688292441956
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_PROTECTED_HIGH_G8_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "018dddcdd66cca38c9bffa1e09523e8c5d6079b2d3a8988133bc7e36f5018d77",
+            "identity_sha256": "5f089fea059dc3fa98ee7d59af91ba6337a26dfb3e3a14795dcbec42d125a468",
+            "same_budget_control": {
+              "PDMS_delta": -0.04998341866602948,
+              "PDMS_CI95": [
+                -0.13860429929700677,
+                0.02939167980908559
+              ],
+              "repaired_zero": 8,
+              "new_zero": 15,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -0.17301976529576754,
+                "global_contribution_PDMS": -0.12333320664669481,
+                "to_zero": 10,
+                "below_high": 47
+              },
+              "G_plus_PDMS": 0.16153882478738427,
+              "G_minus_PDMS": -0.21152224345341372,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 4,
+                  "repaired_failure": 2,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 13,
+                  "repaired_failure": 6,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 13,
+                  "repaired_failure": 12,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_PROTECTED_HIGH_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "f8ed3ff67e1da0c2540f19f28aabb53c040829483eae4b7b19cc9aaf37279a58",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.7533836820429372,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 1000,
+        "last_PDMS": 90.65762476120436,
+        "best_observed_PDMS": 90.65762476120436,
+        "no_late_unobserved_values_imputed": true
+      },
+      {
+        "arm": "SAFETY_SATURATED_G8",
+        "points": [
+          {
+            "arm": "SAFETY_SATURATED_G8",
+            "updates": 500,
+            "PDMS": 89.7897395894959,
+            "means": {
+              "score": 0.897897395894959,
+              "no_at_fault_collisions": 0.9883089082825621,
+              "drivable_area_compliance": 0.9767001481969373,
+              "time_to_collision_within_bound": 0.9680553268565782,
+              "ego_progress": 0.8230875706462778,
+              "comfort": 0.9999176683681871,
+              "driving_direction_compliance": 0.983657171085131
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_SATURATED_G8_u000500/NAVTEST/SUMMARY.json",
+            "source_sha256": "9f7aa630c2448f950fd36bdee46726fb562f020a775745ecd85c027713bec8d5",
+            "identity_sha256": "99460d1499db7654c3c5c568e66a283a795437b8a365ef41c5b186d38ad48cf0",
+            "same_budget_control": {
+              "PDMS_delta": -0.06608803876268438,
+              "PDMS_CI95": [
+                -0.1704731900983445,
+                0.05885203895997733
+              ],
+              "repaired_zero": 14,
+              "new_zero": 23,
+              "fixed_control_high": {
+                "count": 8430,
+                "mean_delta_PDMS": -0.214602694102622,
+                "global_contribution_PDMS": -0.14894621367405758,
+                "to_zero": 12,
+                "below_high": 72
+              },
+              "G_plus_PDMS": 0.21979834405842535,
+              "G_minus_PDMS": -0.28588638282110973,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 5,
+                  "repaired_failure": 3,
+                  "baseline_pass": 11998,
+                  "baseline_failure": 148
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 20,
+                  "repaired_failure": 12,
+                  "baseline_pass": 11871,
+                  "baseline_failure": 275
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 18,
+                  "repaired_failure": 20,
+                  "baseline_pass": 11756,
+                  "baseline_failure": 390
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_SATURATED_G8_500_vs_SAFETY_G8_CONTROL_500.json",
+              "paired_source_sha256": "e26e835264a77ce2d37c04cf1fa5d8e8bd4777ef1dbdde2be56b72d09ff106b3",
+              "existing_bootstrap_reused": true
+            }
+          },
+          {
+            "arm": "SAFETY_SATURATED_G8",
+            "updates": 1000,
+            "PDMS": 90.7258756925155,
+            "means": {
+              "score": 0.907258756925155,
+              "no_at_fault_collisions": 0.988555903178001,
+              "drivable_area_compliance": 0.9850156430100444,
+              "time_to_collision_within_bound": 0.9674790054338877,
+              "ego_progress": 0.8340483352331347,
+              "comfort": 0.9998353367363741,
+              "driving_direction_compliance": 0.9837395027169439
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_SATURATED_G8_u001000/NAVTEST/SUMMARY.json",
+            "source_sha256": "94a0caae6d7e8f9f835ee0f172669ccac025cea2a1503855cd92613065efdca5",
+            "identity_sha256": "06febf42cf1766a40e17e797c93839300cd7269c1c85dab3b5e77e448bc2227e",
+            "same_budget_control": {
+              "PDMS_delta": 0.018267512645015468,
+              "PDMS_CI95": [
+                -0.08010551248911287,
+                0.10517786579302378
+              ],
+              "repaired_zero": 21,
+              "new_zero": 9,
+              "fixed_control_high": {
+                "count": 8658,
+                "mean_delta_PDMS": -0.15454271622975055,
+                "global_contribution_PDMS": -0.11016226223589498,
+                "to_zero": 5,
+                "below_high": 92
+              },
+              "G_plus_PDMS": 0.22843800254910737,
+              "G_minus_PDMS": -0.2101704899040919,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 3,
+                  "repaired_failure": 6,
+                  "baseline_pass": 11997,
+                  "baseline_failure": 149
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 8,
+                  "repaired_failure": 16,
+                  "baseline_pass": 11956,
+                  "baseline_failure": 190
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 7,
+                  "repaired_failure": 16,
+                  "baseline_pass": 11742,
+                  "baseline_failure": 404
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_SATURATED_G8_1000_vs_SAFETY_G8_CONTROL_1000.json",
+              "paired_source_sha256": "fff2e9fe8d02a77829924cdbd29b3a4cc8824968f83210729062610edc26da53",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 500,
+              "PDMS_delta": 0.9361361030196065,
+              "CI_not_computed": true
+            }
+          },
+          {
+            "arm": "SAFETY_SATURATED_G8",
+            "updates": 3000,
+            "PDMS": 90.91101778188444,
+            "means": {
+              "score": 0.9091101778188444,
+              "no_at_fault_collisions": 0.9886794006257204,
+              "drivable_area_compliance": 0.9845216532191668,
+              "time_to_collision_within_bound": 0.9645150666886217,
+              "ego_progress": 0.842847792452986,
+              "comfort": 0.9992590153136836,
+              "driving_direction_compliance": 0.9831631812942533
+            },
+            "count": 12146,
+            "source": "/mnt/project/qwen-world-safety-exploration-20261031/evaluations/SAFETY_SATURATED_G8_u003000/NAVTEST/SUMMARY.json",
+            "source_sha256": "310af99765266d8b76287f1c8f390578d2a95092be3913e74ac492fd38b3329d",
+            "identity_sha256": "aeeeed36f4fad655b48e8b97d99360c280059c402c3236525982be5d531bf527",
+            "same_budget_control": {
+              "PDMS_delta": -0.10269343270475219,
+              "PDMS_CI95": [
+                -0.21754995671215016,
+                0.0030092036287566234
+              ],
+              "repaired_zero": 21,
+              "new_zero": 23,
+              "fixed_control_high": {
+                "count": 8936,
+                "mean_delta_PDMS": -0.22421392298520243,
+                "global_contribution_PDMS": -0.16495764990908685,
+                "to_zero": 10,
+                "below_high": 134
+              },
+              "G_plus_PDMS": 0.29485187439120547,
+              "G_minus_PDMS": -0.39754530709595765,
+              "safety_transitions": {
+                "no_at_fault_collisions": {
+                  "new_failure": 3,
+                  "repaired_failure": 12,
+                  "baseline_pass": 11993,
+                  "baseline_failure": 153
+                },
+                "drivable_area_compliance": {
+                  "new_failure": 20,
+                  "repaired_failure": 9,
+                  "baseline_pass": 11969,
+                  "baseline_failure": 177
+                },
+                "time_to_collision_within_bound": {
+                  "new_failure": 27,
+                  "repaired_failure": 27,
+                  "baseline_pass": 11715,
+                  "baseline_failure": 431
+                }
+              },
+              "paired_source": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PILOT_COMPARISONS/SAFETY_SATURATED_G8_3000_vs_SAFETY_G8_CONTROL_3000.json",
+              "paired_source_sha256": "aa4b3d7cb125c66722e8db6c99d582c08fcf46fd2b8314830bfc75317a46ce78",
+              "existing_bootstrap_reused": true
+            },
+            "absolute_change_from_previous_full": {
+              "previous_updates": 1000,
+              "PDMS_delta": 0.18514208936893795,
+              "CI_not_computed": true
+            }
+          }
+        ],
+        "last_updates": 3000,
+        "last_PDMS": 90.91101778188444,
+        "best_observed_PDMS": 90.91101778188444,
+        "no_late_unobserved_values_imputed": true
+      }
+    ],
+    "bootstrap": "Existing full matched44physical-log pairedintervals reused; no new bootstrap, scene scoring, model forward or image/weight read.",
+    "lessons_zh": [
+      "Control50089.8558→1k90.7076→3k91.0137持续提高，不支持1k终止全部研究。",
+      "Dense1k相对control约+.07466，3k约−.06486；Saturated1k+.01827，3k−.10269；小早期名次与固定阈值不是长程潜力证明。",
+      "Inversion1k约+.00204：稀疏信用改动需要足够曝光；不能因低于旧.02阈值就定义无效，也不能先宣称有效。",
+      "Endpoint及其低LR短程不佳是实际负证据；但低LR的学习速度和1k/3k样本覆盖不足使其无法代表固定cosine长程结果。后续仍要针对train-to-ODE转移与高分回退解释。",
+      "新组合臂是有明确互斥激活域的假设，并非三个旧技巧已分别获胜后无条件叠加；所有最终收益尚待新标准研究。"
+    ]
+  },
+  "exposure_contract": {
+    "population_count": 103288,
+    "world": 8,
+    "group_size": 8,
+    "inner_updates_per_collection": 4,
+    "scene_formula": "scenes=updates/4*8=2*updates",
+    "candidate_formula": "candidates=16*updates",
+    "coverage": [
+      {
+        "optimizer_updates": 1000,
+        "collections": 250,
+        "unique_uniform_scenes": 2000,
+        "candidates_G8": 16000,
+        "eligible_population": 103288,
+        "unique_population_percent": 1.9363333591511114,
+        "onepass_no_replacement": true
+      },
+      {
+        "optimizer_updates": 3000,
+        "collections": 750,
+        "unique_uniform_scenes": 6000,
+        "candidates_G8": 48000,
+        "eligible_population": 103288,
+        "unique_population_percent": 5.809000077453335,
+        "onepass_no_replacement": true
+      },
+      {
+        "optimizer_updates": 10000,
+        "collections": 2500,
+        "unique_uniform_scenes": 20000,
+        "candidates_G8": 160000,
+        "eligible_population": 103288,
+        "unique_population_percent": 19.363333591511115,
+        "onepass_no_replacement": true
+      },
+      {
+        "optimizer_updates": 20000,
+        "collections": 5000,
+        "unique_uniform_scenes": 40000,
+        "candidates_G8": 320000,
+        "eligible_population": 103288,
+        "unique_population_percent": 38.72666718302223,
+        "onepass_no_replacement": true
+      },
+      {
+        "optimizer_updates": 30000,
+        "collections": 7500,
+        "unique_uniform_scenes": 60000,
+        "candidates_G8": 480000,
+        "eligible_population": 103288,
+        "unique_population_percent": 58.090000774533344,
+        "onepass_no_replacement": true
+      },
+      {
+        "optimizer_updates": 50000,
+        "collections": 12500,
+        "unique_uniform_scenes": 100000,
+        "candidates_G8": 800000,
+        "eligible_population": 103288,
+        "unique_population_percent": 96.81666795755557,
+        "onepass_no_replacement": true
+      }
+    ],
+    "requested_display_percent": {
+      "u1000": 1.94,
+      "u3000": 5.81,
+      "u10000": 19.36,
+      "u50000": 96.82
+    },
+    "uniform_onepass": "All4new arms uniform sameFULL103288, first50k=100000 unique scenes below103288, noepochrepeat. Old8uniform arms also firstpass; oldACTIVE is an explicit480/2000repeat exception, not silently called onepass.",
+    "source_population": "FormerDEV is included as TRAIN diagnostic. NAVTEST sceneIDs/logs/failure labels never train selectors."
+  },
+  "arms": [
+    {
+      "id": "SAFETY_G8_CONTROL",
+      "role": "w3_control",
+      "purpose": "Matched long-run standardized baseline",
+      "difference": "Only common standardized scheduler compared with oldE; newF comparisons are within same schedule",
+      "peak": [
+        5e-05,
+        5e-06
+      ]
+    },
+    {
+      "id": "STANDARD_INVERSION_G8",
+      "role": "w3_inversion",
+      "purpose": "Single credit rule: sum-preserving canonical inversion cancellation",
+      "difference": "VsFcontrol only this credit, sameG8/W3/data/parent/scope/schedule",
+      "peak": [
+        5e-05,
+        5e-06
+      ]
+    },
+    {
+      "id": "STANDARD_COMBINED_G8",
+      "role": "w3_combined",
+      "purpose": "Disjoint DenseDAC failedties + success-saturation + inversion",
+      "difference": "No common group silently given overlapping transforms; preserve originalnormalization when nonzero and globally synchronized fallback onlyifzero. VsInversion tests Dense+Sat bundle, not their separate contributions.",
+      "peak": [
+        5e-05,
+        5e-06
+      ]
+    },
+    {
+      "id": "STANDARD_ENDPOINT_LR02_G8",
+      "role": "endpoint_lr02",
+      "purpose": "FixedrampAR1 terminal exploration with conditional joint likelihood, peakLRscale.2",
+      "difference": "Explicit exception: endpoint peaks1e-5/1e-6. AcrossW3 includes different sampler/conditional likelihood/learning-rate scale, not a singlefactor covariance claim.",
+      "peak": [
+        1e-05,
+        1e-06
+      ]
+    }
+  ],
+  "scheduler": {
+    "schema": "world_fixed50k_warmup1000_cosine_floor01_v1",
+    "warmup_updates": 1000,
+    "total_updates": 50000,
+    "min_ratio": 0.1,
+    "initial_ratio": 0.001,
+    "clock": "u completed optimizer updates; last_epoch=u; configured multiplier is next update(u+1) LR",
+    "formula": "f(u)=.001+.999*u/1000 for0<=u<=1000; f(u)=.1+.9*(1+cos(pi*(u-1000)/49000))/2 for1000<=u<=50000",
+    "groups": {
+      "W3_peak": {
+        "action_lora": 5e-05,
+        "scene_predictive_memory": 5e-06
+      },
+      "Endpoint_peak": {
+        "action_lora": 1e-05,
+        "scene_predictive_memory": 1e-06
+      },
+      "ratio_action_memory": 10
+    },
+    "samples": {
+      "0": {
+        "W3_next_lrs": [
+          5.0000000000000004e-08,
+          5e-09
+        ],
+        "completed_updates": 0,
+        "endpoint_next_lrs": [
+          1e-08,
+          1e-09
+        ],
+        "factor": 0.001,
+        "next_update": 1
+      },
+      "1000": {
+        "W3_next_lrs": [
+          5e-05,
+          5e-06
+        ],
+        "completed_updates": 1000,
+        "endpoint_next_lrs": [
+          1e-05,
+          1e-06
+        ],
+        "factor": 1.0,
+        "next_update": 1001
+      },
+      "10000": {
+        "W3_next_lrs": [
+          4.6356982360066416e-05,
+          4.635698236006642e-06
+        ],
+        "completed_updates": 10000,
+        "endpoint_next_lrs": [
+          9.271396472013284e-06,
+          9.271396472013282e-07
+        ],
+        "factor": 0.9271396472013282,
+        "next_update": 10001
+      },
+      "1001": {
+        "W3_next_lrs": [
+          4.99999999537555e-05,
+          4.99999999537555e-06
+        ],
+        "completed_updates": 1001,
+        "endpoint_next_lrs": [
+          9.9999999907511e-06,
+          9.999999990751099e-07
+        ],
+        "factor": 0.99999999907511,
+        "next_update": 1002
+      },
+      "2000": {
+        "W3_next_lrs": [
+          4.995377133688257e-05,
+          4.995377133688257e-06
+        ],
+        "completed_updates": 2000,
+        "endpoint_next_lrs": [
+          9.990754267376514e-06,
+          9.990754267376512e-07
+        ],
+        "factor": 0.9990754267376514,
+        "next_update": 2001
+      },
+      "20000": {
+        "W3_next_lrs": [
+          3.527071372447942e-05,
+          3.5270713724479424e-06
+        ],
+        "completed_updates": 20000,
+        "endpoint_next_lrs": [
+          7.054142744895885e-06,
+          7.054142744895884e-07
+        ],
+        "factor": 0.7054142744895884,
+        "next_update": 20001
+      },
+      "30000": {
+        "W3_next_lrs": [
+          2.1098129300801765e-05,
+          2.1098129300801765e-06
+        ],
+        "completed_updates": 30000,
+        "endpoint_next_lrs": [
+          4.219625860160353e-06,
+          4.219625860160353e-07
+        ],
+        "factor": 0.4219625860160353,
+        "next_update": 30001
+      },
+      "49999": {
+        "W3_next_lrs": [
+          5.000000046244504e-06,
+          5.000000046244504e-07
+        ],
+        "completed_updates": 49999,
+        "endpoint_next_lrs": [
+          1.0000000092489007e-06,
+          1.0000000092489007e-07
+        ],
+        "factor": 0.10000000092489007,
+        "next_update": 50000
+      },
+      "5000": {
+        "W3_next_lrs": [
+          4.926413441837816e-05,
+          4.926413441837817e-06
+        ],
+        "completed_updates": 5000,
+        "endpoint_next_lrs": [
+          9.852826883675634e-06,
+          9.852826883675632e-07
+        ],
+        "factor": 0.9852826883675633,
+        "next_update": 5001
+      },
+      "50000": {
+        "W3_next_lrs": [
+          5e-06,
+          5.000000000000001e-07
+        ],
+        "completed_updates": 50000,
+        "endpoint_next_lrs": [
+          1.0000000000000002e-06,
+          1e-07
+        ],
+        "factor": 0.1,
+        "next_update": 50001
+      },
+      "999": {
+        "W3_next_lrs": [
+          4.9950050000000005e-05,
+          4.995005000000001e-06
+        ],
+        "completed_updates": 999,
+        "endpoint_next_lrs": [
+          9.990010000000002e-06,
+          9.99001e-07
+        ],
+        "factor": 0.999001,
+        "next_update": 1000
+      }
+    },
+    "samples_role": "Formula/CPU verified planned schedule, not observed GPU LR logs",
+    "observed_LR_fields": {
+      "lr": "action group0 LR used BEFORE optimizer.step",
+      "optimizer_group_lrs_used": "allnamed group LRs used BEFORE optimizer.step",
+      "optimizer_group_lrs": "allnamed group LRs AFTER scheduler.step for next update; oneupdate offset"
+    },
+    "offset_examples": [
+      "update1000 uses factor(u999)=.999001; completed1000 publishes nextfactor1; update1001 uses peak",
+      "at10k runtimecap nextfactor.9271396472, NOT cosinefloor.1; do not change horizon when resuming to20/30/50k"
+    ],
+    "resume": "Native Adam/RNG/cursor/phase and scheduler state restored exactly, no warmup restart; only runtime stop-after target changes",
+    "source_handoff": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/analysis/STANDARDIZED_TRAINING_HANDOFF.json",
+    "source_handoff_sha256": "f8f045fd9053fa714021dc54a932b7decba9f768d76e7c801707a15913af1fde"
+  },
+  "initial_runtime_budget": 10000,
+  "initial_evaluation_gates": [
+    2000,
+    5000,
+    10000
+  ],
+  "after10k_NAVTEST_cadence": {
+    "interval_updates": 2000,
+    "gates_if50k": [
+      2000,
+      5000,
+      10000,
+      12000,
+      14000,
+      16000,
+      18000,
+      20000,
+      22000,
+      24000,
+      26000,
+      28000,
+      30000,
+      32000,
+      34000,
+      36000,
+      38000,
+      40000,
+      42000,
+      44000,
+      46000,
+      48000,
+      50000
+    ],
+    "cohort": "full12146",
+    "inference": "singleODE K10shift5 seed2101",
+    "shards_max": 32,
+    "max_live_worker_claims": 64,
+    "training_independent": "2k->5k->10k do not wait for eval; each arm continues independently, no slowest-arm barrier",
+    "gate_adoption": "Budget update first cooperatively stops exactF Eval CPUowner, preserves all liveGPU/eval receipts, modifies RUNS underlock, then removes ownedSTOP marker/restarts CPU adoption; no GPU/process signal",
+    "planned_full_NAV_points_if_all50k": 92,
+    "planned_NAV_candidate_queries_if_all50k": 1117432,
+    "not_actual_queries": true
+  },
+  "continuation_policy": {
+    "minimum_updates_all_healthy": 10000,
+    "first_pruning_eligible_gate": 20000,
+    "initial_gates": [
+      2000,
+      5000,
+      10000
+    ],
+    "early_policy": "2k/5k only observe. No .02delta/max2/1k/3k futility; numerical/runtime/scorer errors preserved and reviewed separately.",
+    "phases": [
+      {
+        "from_updates": 10000,
+        "to_updates": 20000,
+        "rule": "Healthy defaultcontinue; do not require immediate positive mean/CI. Evidence pending is recorded, not failure."
+      },
+      {
+        "from_updates": 20000,
+        "to_updates": 30000,
+        "rule": "Continue unless two long matched gates10k/20k both show delta<-1PDMS and CIupper<-.5, own10->20 mean<=0 and CIupper<=0, and no safety/high/zero benefit."
+      },
+      {
+        "from_updates": 30000,
+        "to_updates": 50000,
+        "rule": "Same conservative two-long-gate rule20k/30k; positive trend, usefulcomponent benefit or uncertainty continues."
+      },
+      {
+        "from_updates": 50000,
+        "to_updates": null,
+        "rule": "Stop at approved50k, collect complete required evaluations, retain best/last native states; no implicit beyond50k."
+      }
+    ],
+    "benefit_prevents_futility": {
+      "safety": "At least25 more repaired than newlyfailed NC/DAC/TTC scenes in full paired population",
+      "fixed_IL70_high": "target advantage>=.1PDMS on the SAME fixedIL70 high cohort",
+      "zero": "repaired_zero > new_zero"
+    },
+    "uncertainty": "Missing paired control/owntrend data cannot establish futility; policy continues within root-authorized50k maximum and marks evidence pending.",
+    "reserve": "RESEARCH_RESERVE_REVIEW retains exact native state and evidence, not algorithm invalidity; no stop of other healthy arms and no globalcontrol-missing campaign exit.",
+    "control": "MatchedW3control continues through gates to50k unless a genuine numerical/runtime catastrophe/operator stop; fastest arms do not wait for slowerEndpoint.",
+    "diagnostics": [
+      "full PDMS pairedphysical-logCI",
+      "owncurve/lastlonggate trend",
+      "fixedIL70high retention",
+      "zero repair/newzero/high->zero",
+      "NC/DAC/TTC/EP and rawphysicalprogress",
+      "gain/loss mass",
+      "actual scene coverage and sampler/credit activation"
+    ],
+    "numerical_catastrophe": "Native nonfinite/missinggradient/science code1 stops only that arm immediately; no automatic scientific retry. Prechild75 capacity refusal requeues unchanged.",
+    "score_catastrophe": "Fullscore catastrophe may be operator-stopped cooperatively. Current code exposes a conservative pure predicate(delta<-5PDMS, CIupper<-3 and >=243 netnewfailures), but does NOT call it as an automatic stop in this version. Do not claim an active score-catastrophe monitor.",
+    "max_updates": 50000,
+    "authorization": "Actual coordinator --allow-continuation flag is root-reviewed bounded extension authorization; F registry initialtarget10k is distinct from scientific50k horizon."
+  },
+  "owner": {
+    "module": "tools.qwen_world_safety_exploration.standard_campaign",
+    "source": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/standard_campaign.py",
+    "source_sha256": "a76b36ee0d8ce50ea975973155b7c61521559f19fbfc5120149fed6ab1bb430e",
+    "binding": "F only; fourexactIDs/roles/configSHA/source/parent/owner tuple; same qualifiedglobalphysicalUUID leases/resourceowner checks",
+    "native_state": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/STANDARD_NATIVE/STATE.json",
+    "campaign_state": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/STANDARD_CAMPAIGN/STATE.json",
+    "evaluation_helper": "tools.qwen_world_safety_exploration.standard_evaluation",
+    "evaluation_placement": "Rootnarrowfilter excludesprotectedB/D hosts; no newGPUqualification bythisanalysis",
+    "launch_command": [
+      "MODEL",
+      "-u",
+      "-m",
+      "tools.qwen_world_safety_exploration.standard_campaign",
+      "run",
+      "--root",
+      "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+      "--allow-continuation"
+    ],
+    "CPU_host": "CoordinatormusthaveallauthorizedSSHroutes; rootmovedfromTsh2 afteractualaliaslimits. Exacthost/pid/start tracked, never interpretremotePIDaslocal.",
+    "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/STANDARD_CAMPAIGN_CPU_CHECK.json",
+    "lineage": "save_every500, exactnativeoptimizer/scheduler/phase/RNG/pendingrollout, monotoniclatestresume; prechild75 iscapacity notscientificfailure; no blind code1 retry."
+  },
+  "actual_deployment_metadata_snapshot": {
+    "registration": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/REGISTRATION.json",
+    "registration_file_sha256": "bf182de2098f1a7fec9519833608904a069d3f048e423f6d9ff7b6ab4eaf2908",
+    "status": "ACTUAL_LEARNING_NATIVE_RELOCATION_IN_PROGRESS",
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runtime/standard_v1",
+    "source_commit": "9760172ba24859042391a2b963ee78ab9a4a276d",
+    "note": "Deployment/startup/adoption byRoot; thisworker onlyread registry/checks and wroteEanalysis/reports, never Fowners/state or launchedGPU."
+  },
+  "unchanged": [
+    "oldE RUNS/source/owners",
+    "globalauthorization/leases",
+    "protectedIL jobs",
+    "pinnedparent/singletrainingseed",
+    "root-owned scientificmodule files"
+  ],
+  "what_would_count_as_success": "Complete newF matchedbudget canonicalPDMS withgain/loss masses, fixed-high retention andzero/safety transitions. Normalrunning/longerbudget/probequality/creditactivation alone is not success.",
+  "not_done_here": {
+    "new_GPU": 0,
+    "new_scorer_calls": 0,
+    "model_loads": 0,
+    "live_registry_or_owner_mutations": 0,
+    "source_or_config_hot_edits": 0,
+    "git_stage_or_commit": false
+  }
+}
