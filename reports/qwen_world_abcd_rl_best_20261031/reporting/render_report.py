@@ -760,6 +760,8 @@ def load_snapshot(root: Path) -> dict:
     controller_status=readonly_controller_status(root,warnings,inputs)
     abcd_research=load_abcd_research(warnings,inputs)
     exploration_research=load_exploration_research(warnings,inputs)
+    import standard_study_report
+    standard_studies=standard_study_report.load_related(sys.modules[__name__],warnings,inputs)
     registration = read_json(root/'REGISTRATION.json', warnings, inputs) or {}
     runs_input = read_json(root/'RUNS.json', warnings, inputs) or {}
     state = read_json(root/'STATE.json', warnings, inputs) or {}
@@ -1227,6 +1229,7 @@ def load_snapshot(root: Path) -> dict:
                     readonly_controller_status=controller_status,
                     abcd_research=abcd_research,
                     exploration_research=exploration_research,
+                    standard_studies=standard_studies,
                     llm_trick_transfer=llm_trick_transfer,
                     safety_credit_gradient=safety_credit_gradient,safety_policy_cases=safety_policy_cases,safety_normalization=safety_normalization,
                     safety_focus=dict(policy=safety_focus_policy,stop_summary=safety_focus_stop),

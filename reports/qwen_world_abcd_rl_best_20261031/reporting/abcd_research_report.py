@@ -87,15 +87,32 @@ def render_exploration_headline(root,research,h):
     initial_expected=sum(len([u for u in r.get('gates',[500,1000])if u in(500,1000)])for r in registered if r.get('id')in initial_ids)
     done=[r for r in runs if r.get('id')in initial_ids and h.finite(r.get('updates'))and r['updates']>=1000]
     continuation=research.get('continuation',{});state=continuation.get('state',{});pid=continuation.get('owner',{}).get('pid',continuation.get('launch',{}).get('pid'))
+    closed=state.get('status')=='COMPLETE_NO_PROMISING_EXTENSION'
     evaluation=research.get('controllers',{}).get('RESEARCH_EVALUATION',{})
     body='<h3>最新阶段判断：初期完整对照与当前有限续训分开</h3><div class="notice"><b>'+h.number(len(done))+' / '+h.number(len(initial_ids))+'臂已完成初期前1k原生训练；'+h.number(len(initial_complete))+' / '+h.number(initial_expected)+'份初期NAVTEST完整发布。</b>包括新增阶段的当前全部登记评测为 '+h.number(len(complete))+' / '+h.number(expected)+'份完整，其余仅显示进度。当前评测CPU owner '+h.number(evaluation.get('owner',{}).get('pid'))+'；自动续训owner '+h.number(pid)+' 当前 '+h.esc(state.get('status','待状态'))+'。OOM或排队不记作零分、不合并partial均值。</div>'
+    if closed:body='<h3>旧constant有限系列：九臂、21份完整NAVTEST已结束</h3><div class="notice"><b>本批全部原生训练／完整评测自然结束，无待预算复核。</b>已完成 '+h.number(len(complete))+' / '+h.number(expected)+'份完整NAVTEST。COMPLETE_NO_PROMISING_EXTENSION仅关闭这批有限constant配方，不代表整个RL研究结束；新统一warmup＋cosine研究按独立登记、输出和预算前置展示。旧结果不混作cos单因素证据。</div>'
+    if closed:
+        rows=[]
+        for run in runs:
+            point=max((r for r in complete if r.get('arm')==run['id']),key=lambda r:r.get('updates',0),default=None)
+            if not point:continue
+            pair=latest_control_review(research,run['id']);result=pair.get('comparison',{}).get('result',{})if pair else{};ci=result.get('PDMS_CI95',[])
+            interval='['+', '.join(f'{v:+.5f}'for v in ci)+']'if len(ci)==2 else '控制基准'
+            conclusion='旧constant基准；有限阶段结束'if run['id']=='SAFETY_G8_CONTROL'else '该预算未确认超过同预算控制'
+            if len(ci)==2 and ci[1]<0:conclusion='该constant配方在此预算为负结果'
+            rows.append([h.esc(run['id']),h.number(point.get('updates')),h.fmt(point.get('PDMS'),5),h.fmt(result.get('PDMS_delta'),5)if pair else '—',interval,conclusion])
+        body+=h.table(['旧九臂最新完整点','预算更新','PDMS','相对同预算Control','95%配对CI','结论'],rows)
+        direct=next((r for r in research.get('paired_reviews',[])if r.get('arm')=='SAFETY_ENDPOINT_RAMP_AR1_LR02_G8'and r.get('reference_arm')=='SAFETY_ENDPOINT_RAMP_AR1_G8'and r.get('updates')==r.get('reference_updates')==1000),None)
+        if direct:
+            q=direct['comparison']['result'];ci=q.get('PDMS_CI95',[])
+            if len(ci)==2:body+='<p>旧低LR端点1k相对旧原端点1k，Δ '+h.fmt(q.get('PDMS_delta'),5)+'、CI['+', '.join(f'{v:+.5f}'for v in ci)+']；不能把它当作新warmup1k／cosine／10k训练预算已经失败或成功的证据。</p>'
     body+=endpoint_deployment_result(root,research,h)
     credit=research.get('analyses',{}).get('ENDPOINT_CREDIT_INTERACTION_500.json',{}).get('arms',{}).get('SAFETY_ENDPOINT_RAMP_AR1_G8',{})
     if credit:
         pg=credit.get('PG0_partition',{});semantics=credit.get('negative_high_semantics',{})
         body+='<p><b>不把较多PG0／高分负A当成待叠trick的危机：</b>端点首500的PG0中 '+h.number(pg.get('true_canonical_all1'))+' 组是canonical全1；'+h.number(semantics.get('total'))+' 个负high中 '+h.number(semantics.get('without_inversion_with_actual_higher_strict_quality_positive_witness'))+' 个在同组有更高canonical的strict4正A替代，是正常相对排序。只按总数推断信用错误会误判；完整分解见新研究卡。</p>'
     decision=max(continuation.get('decisions',[]),key=lambda d:d.get('from_updates',0),default={})
-    if decision:
+    if decision and not closed:
         selected=decision.get('selected_novels',[]);active=[r for r in runs if r.get('id')in state.get('active',[])]
         active_text='；'.join(r['id']+' '+h.number(r.get('updates'))+'更新'+('，真实八rank在训'if r.get('worker_receipt_status')=='RUNNING'and r.get('journal_ranks')==8 else '，'+str(r.get('status','待状态')))for r in active)
         body+='<p><b>已实际进入有限续训：</b>'+h.esc('、'.join(selected))+'＋G8控制，从'+h.number(decision.get('from_updates'))+'原生继承至'+h.number(decision.get('to_updates'))+'，Adam／RNG／cursor保留。'+h.esc(active_text)+'。这是有上限的继续探索，不是确认新胜出或已达92；其余路线的本轮取舍见当前实验表。'+h.relative_link(root,decision.get('evidence',''),'已执行自动决策与完整证据')+'</p>'
@@ -107,12 +124,12 @@ def render_exploration_headline(root,research,h):
     endpoint=next((r for r in runs if r.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_G8'),None)
     if endpoint:
         learning=endpoint.get('worker_receipt_status')=='RUNNING'and endpoint.get('journal_ranks')==8 and h.finite(endpoint.get('updates'))and endpoint['updates']>0
-        stage=('八rank真实GPU优化，共同 '+h.number(endpoint.get('updates'))+' 更新'if learning else '已正式登记／派发，实际状态见新研究卡')
+        stage=('本旧配方原生1k与完整评测已结束'if closed else '八rank真实GPU优化，共同 '+h.number(endpoint.get('updates'))+' 更新'if learning else '该原生阶段已完成，完整评测另列'if endpoint.get('worker_returncode')==0 else '已正式登记／派发，实际状态见新研究卡')
         body+='<p><b>第八条独立研究线：</b>ODE prefix＋递增AR1端点探索＋joint24条件Gaussian PPO末步回放，'+stage+'；同IL70 fresh、有限500／1k评测。它改变采样／密度／回放与anchor状态，不是ρ单消融；当前无新NAV提分证据，完整机制与实际日志另列。</p>'
     lr=next((r for r in runs if r.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_LR02_G8'),None)
     if lr:
         learning=lr.get('worker_receipt_status')=='RUNNING'and lr.get('journal_ranks')==8 and h.finite(lr.get('updates'))and lr['updates']>0
-        body+='<p><b>第九条单变量验证：</b>同端点runtime仅两组峰值LR×0.2，action 1e−5／memory 1e−6；'+('实际八rank共同 '+h.number(lr.get('updates'))+' 更新'if learning else '登记／执行状态见当前表')+'。不叠信用变换，初期500／1k有限预算，尚无新性能结论。</p>'
+        body+='<p><b>历史第九条单变量验证：</b>同端点runtime仅两组峰值LR×0.2，action 1e−5／memory 1e−6；'+('原生1k与完整评测已结束，未证明该constant低LR配方改进'if closed else '实际八rank共同 '+h.number(lr.get('updates'))+' 更新'if learning else '登记／执行状态见当前表')+'。不叠信用变换；与新标准化warmup／预算不同。</p>'
     if complete:
         best=max(complete,key=lambda r:r.get('PDMS',-1))
         body+='<p>当前本轮已完成阶段的最高观察点：'+h.esc(best.get('arm',''))+'，'+h.number(best.get('updates'))+'更新，PDMS '+h.fmt(best.get('PDMS'),5)+'；只代表当前已齐的预算点，不与未完成路线排序，也不冒充更高预算历史best被超越。</p>'
@@ -533,6 +550,7 @@ def render_endpoint_research(root,research,h):
     run=next((r for r in research.get('runs',[])if r.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_G8'),None)
     if not run:return ''
     project=Path(research['root']);analyses=research.get('analyses',{});handoff=analyses.get('ENDPOINT_RUNTIME_HANDOFF.json',{});registration=analyses.get('ENDPOINT_FORMAL_REGISTRATION.json',{})
+    old_closed=research.get('continuation',{}).get('state',{}).get('status')=='COMPLETE_NO_PROMISING_EXTENSION'
     protocol=handoff.get('protocol',{});objective=handoff.get('objective',{});identity=run.get('endpoint_native_identity',{});window=run.get('process_window',{});actual=window.get('endpoint_native',{})
     if run.get('worker_returncode')==75:status='已登记；资源准入等待，非科学失败'
     elif run.get('worker_returncode')not in(None,0):status='实际执行已退出，保留失败待审'
@@ -541,7 +559,7 @@ def render_endpoint_research(root,research,h):
     elif run.get('worker_returncode')==0:status='该原生阶段已完成，性能另看完整评测'
     else:status='正式登记／CPU协调已启动；待实际GPU证据'
     full_nav=any(r.get('arm')==run['id']and r.get('cohort')=='NAVTEST'and r.get('publishable_complete')for r in research.get('results',[]))
-    body='<article class="callout"><h3>新研究线：把探索移到动作端点，用条件Gaussian PPO更新</h3><p><b>SAFETY_ENDPOINT_RAMP_AR1_G8 · '+h.esc(status)+'</b>。'+h.esc(run.get('host','待host'))+'；独立fresh同IL70、Adam／seed42／update0，登记门槛 '+ '／'.join(h.number(u)for u in run.get('gates',[]))+'、上限 '+h.number(run.get('target_updates'))+'。Control／Dense／Sat的原生3k继续路径不变；'+('本臂完整NAV与同预算配对见结果表，过程证据不作性能替代。'if full_nav else '本臂尚无完整NAV结果，不把训练候选改善称为部署提分。')+'</p>'
+    body='<article class="callout"><h3>'+('旧constant端点runtime：机制与已完成证据'if old_closed else '研究线：把探索移到动作端点，用条件Gaussian PPO更新')+'</h3><p><b>SAFETY_ENDPOINT_RAMP_AR1_G8 · '+h.esc(status)+'</b>。'+h.esc(run.get('host','待host'))+'；独立fresh同IL70、Adam／seed42／update0，登记门槛 '+ '／'.join(h.number(u)for u in run.get('gates',[]))+'、上限 '+h.number(run.get('target_updates'))+'。'+('该constant批次已结束，新标准化子研究独立登记。'if old_closed else 'Control／Dense／Sat的原生3k路径独立。')+('本臂完整NAV与同预算配对见结果表，过程证据不作性能替代。'if full_nav else '本臂尚无完整NAV结果，不把训练候选改善称为部署提分。')+'</p>'
     evaluations=research.get('controllers',{}).get('RESEARCH_EVALUATION',{}).get('state',{}).get('evaluations',{})
     stage500=next((node for node in evaluations.values()if node.get('arm')==run['id']and node.get('updates')==500 and node.get('cohort')=='NAVTEST'),{})
     if stage500:
@@ -568,9 +586,11 @@ def render_endpoint_research(root,research,h):
 
 def render_exploration_research(root,research,h):
     project=Path(research.get('root','/mnt/project/qwen-world-safety-exploration-20261031'));runs=research.get('runs',[]);analyses=research.get('analyses',{})
+    closed=research.get('continuation',{}).get('state',{}).get('status')=='COMPLETE_NO_PROMISING_EXTENSION'
     body='<div class="notice"><b>最新执行要求：研究点逐项落实为代码与有对照实验。</b>新研究位于旧World IL70体系的独立目录，与ABCD架构实验分开；现有live不热改。代码完成、CPU检查、正式注册、child启动、八rank真实更新和完整性能分层记录。</div><p>组内G16不改变轨迹horizon8或world8。online priority／learning-value、DenseDAC tie信用等分别开发；不能把准备状态写成已训练，也不能把新信用当成已提分。每个arm的数据合同、单变量与预算以本轮登记为准。</p>'
-    body+=render_endpoint_research(root,research,h)
-    body+=render_endpoint_lr_research(root,research,h)
+    if closed:body='<div class="notice"><b>旧constant九臂有限系列已自然完成，21份NAVTEST完整。</b>此处保留真实过程与结论，不再新增旧配方预算；整个研究继续，新标准化4臂使用独立root／登记。</div>'
+    endpoint_body=render_endpoint_research(root,research,h)+render_endpoint_lr_research(root,research,h)
+    body+=('<details><summary>旧端点／低LR：运行机制、首50／500与全量信用证据</summary>'+endpoint_body+'</details>')if closed else endpoint_body
     registered={r.get('id')for r in runs}
     priorities=[('1','SAFETY_INVERSION_CANCEL_G8','Inversion：同组canonical反序','抵消strict4高分负A与更低canonical的strict3正A；保组和，优先直接检验局部目标冲突'),('2','SAFETY_PROTECTED_HIGH_G8','Protected：高分负信用保护','仅将strict4高分负A置0；其它正A不动，单独检验去除负信用'),('3','SAFETY_SATURATED_G8','Saturated：补信用饱和','仅safe EP1、原A0且canonical可分时恢复组内canonical信用；不覆盖active负high')]
     phase2=[row for row in priorities if row[1]in registered]
@@ -582,8 +602,8 @@ def render_exploration_research(root,research,h):
         body+='<p><b>下一条新runtime已CPU交付，尚未注册／启动：</b>固定ramp-AR1端点条件Gaussian joint24，保存ODE prefix并回放terminal；Safety信用与IL70参考保持，anchor输入改为ODE states，因此不是只改ρ或完整flow边缘密度。定向CPU与8rank native pending四inner恢复通过，tiny fixture有数值敏感性，不能写已稳定或提分；实际评分对象是endpoint action，chain末端仅未评分ODE mean。'+h.relative_link(root,str(project/'analysis'/'ENDPOINT_RUNTIME_HANDOFF.json'),'endpoint正式CPU交付与边界')+'</p>'
     continuation=research.get('continuation',{});policy=continuation.get('policy',{});cont_state=continuation.get('state',{});launch=continuation.get('launch',{})
     if policy:
-        body+='<h3>七臂有限阶段与自动续训：等待证据，不是人工预算待审</h3><p>'
-        body+=('自动Continuation CPU已实际启动，PID '+h.number(continuation.get('owner',{}).get('pid',launch.get('pid')))+'，当前状态 '+h.esc(cont_state.get('status','待状态'))+'。'if launch.get('pid')and cont_state else '自动续训policy已登记，待实际owner启动证据。')
+        body+='<h3>'+('已结束constant批次的有限续训规则（历史）'if closed else '七臂有限阶段与自动续训：等待证据，不是人工预算待审')+'</h3><p>'
+        body+=('本批协调已自然结束，文件状态 '+h.esc(cont_state.get('status','待状态'))+'；不是整个研究结束，也无待人工预算复核。'if closed else '自动Continuation CPU已实际启动，PID '+h.number(continuation.get('owner',{}).get('pid',launch.get('pid')))+'，当前状态 '+h.esc(cont_state.get('status','待状态'))+'。'if launch.get('pid')and cont_state else '自动续训policy已登记，待实际owner启动证据。')
         stages=policy.get('bounded_stages',[])
         body+='初期七臂各训练至1,000；训练完成与完整评测完成分开。全部1k配对和原协调退出后，最多 '+h.number(policy.get('max_novel_arms'))+' 条新臂＋G8控制，按 '+ '／'.join(h.number(u)for u in stages)+' 更新逐阶段审查，保留各自原source、Adam／scheduler／RNG／cursor／pending，非fresh重开，也不自动50k。</p>'
         actual=max(continuation.get('decisions',[]),key=lambda d:d.get('from_updates',0),default={})
@@ -595,7 +615,8 @@ def render_exploration_research(root,research,h):
             if g:guards.append([title,h.fmt(g.get('delta_PDMS_min'),3),'CI上界 > '+h.fmt(g.get('CI_upper_gt'),3),h.number(g.get('net_new_zero_max')),h.fmt(g.get('fixed_IL70_high_relative_mean_delta_min'),3)])
         body+=h.table(['自动决策阶段','相对控制均分Δ下界','配对区间要求','净新增zero上限','固定IL高分保持差下界'],guards)
         body+='<p class="muted">连续两阶段绝对均分增量≤0.02触发plateau停止；未完成的新阶段不预填后续获准名单。NAVTEST反复用于模型选择，场景／log CI不等于训练seed不确定性；NAV token不进入训练采样。'+h.relative_link(root,str(project/'CONTINUATION_POLICY.json'),'正式续训与止损policy')+' · '+h.relative_link(root,str(project/'owners'/'CONTINUATION'/'STATE.json'),'当前自动决策状态')+'</p>'
-    body+=render_exploration_results(root,research,h)
+    result_body=render_exploration_results(root,research,h)
+    body+=('<details><summary>旧21份完整成绩与全部配对CI（不同预算分开）</summary>'+result_body+'</details>')if closed else result_body
     body+=render_exploration_diagnostics(root,research,h)
     development=[]
     for filename,title in [('GROUP_FOUNDATION_HANDOFF.json','G8/G16基础、形状与恢复'),('CURRICULUM_HANDOFF.json','在线priority／learning-value课程'),('DENSE_DAC_HANDOFF.json','DenseDAC真实出界时长信用')]:
@@ -620,6 +641,7 @@ def render_exploration_research(root,research,h):
         disposition=review.get('decision')if isinstance(review,dict)else None
         if run.get('worker_returncode')==0 and disposition in('STOP_AT_REGISTERED_CAP','LOWER_PRIORITY_WITHIN_MAX_TWO_CONTINUATIONS'):
             status=('本轮结束：未达延长门槛'if disposition=='STOP_AT_REGISTERED_CAP'else '本轮不延长：两条名额内优先级较低')
+        if closed and run.get('worker_returncode')==0:status='旧constant配方已完成，不续长'
         arm_label=h.esc(run.get('name_zh',run.get('id','')))
         if run.get('host'):arm_label+='<small>'+h.esc(run['host'])+'</small>'
         if run.get('job'):arm_label+='<small>'+h.relative_link(root,run['job'],Path(run['job']).name)+'</small>'

@@ -38,7 +38,11 @@ def render_safety_focus_report(root,snapshot,history,h):
     research_best=max((row for row in all_test if row.get('arm')in(SAFETY,*FRESH_ARMS)),key=lambda row:row['PDMS'],default={})
     chapters=[]
     def section(key,title,deck,body):chapters.append('<section id="'+key+'"><h2>'+title+'</h2><p class="deck">'+deck+'</p>'+body+'</section>')
-    abcd_front='';replanning_front='';exploration_front=''
+    abcd_front='';replanning_front='';exploration_front='';standard_front=''
+    if editorial.get('standard_studies'):
+        import importlib,standard_study_report
+        importlib.reload(standard_study_report)
+        standard_front=standard_study_report.render_related(root,editorial['standard_studies'],h)
     abcd_closed=editorial.get('abcd_research',{}).get('user_termination',{}).get('training_authorized')is False
     if editorial.get('abcd_research',{}).get('parents'):
         import importlib,abcd_research_report
@@ -48,7 +52,10 @@ def render_safety_focus_report(root,snapshot,history,h):
         abcd_deck='按用户指令不再恢复或续训；ABCD IL保留，代码与结果归档。'if abcd_closed else '父模型身份、原生学习与完整成绩分别判断。'
         abcd_front='<section id="abcd"><h2>'+abcd_title+'</h2><p class="deck">'+abcd_deck+'</p>'+abcd_research_report.render_abcd_research(root,editorial['abcd_research'],h,snapshot)+'</section>'
         if editorial.get('exploration_research'):
-            exploration_front='<section id="exploration"><h2>研究点 → 代码 → 独立实验：新World研究</h2><p class="deck">与ABCD分开；设计、CPU、注册、真实学习和完整结果逐层核对。</p>'+abcd_research_report.render_exploration_research(root,editorial['exploration_research'],h)+'</section>'
+            closed=editorial['exploration_research'].get('continuation',{}).get('state',{}).get('status')=='COMPLETE_NO_PROMISING_EXTENSION'
+            title='旧constant九臂：完整阶段结论与历史证据'if closed else '研究点 → 代码 → 独立实验：World研究'
+            deck='该有限批次已自然结束，不是整个研究结束；标准化新配方独立记录，不能混作cos单因素结论。'if closed else '与ABCD分开；设计、CPU、注册、真实学习和完整结果逐层核对。'
+            exploration_front='<section id="exploration"><h2>'+title+'</h2><p class="deck">'+deck+'</p>'+abcd_research_report.render_exploration_research(root,editorial['exploration_research'],h)+'</section>'
     safety_stop=stopped.get(SAFETY,{})
     stop_result=safety_stop.get('result',{})
     safety_stopped=(safety_stop.get('native_job_exited')is True and stop_result.get('returncode',stop_result.get('exit_code'))==0)
@@ -199,11 +206,11 @@ def render_safety_focus_report(root,snapshot,history,h):
     import importlib
     import current_research_report
     importlib.reload(current_research_report)
-    front=([replanning_front]if replanning_front else[])+([exploration_front]if exploration_front else[])+([abcd_front]if abcd_front else[])+current_research_report.build_current_sections(root,snapshot,h)
+    front=([standard_front]if standard_front else[])+([replanning_front]if replanning_front else[])+([exploration_front]if exploration_front else[])+([abcd_front]if abcd_front else[])+current_research_report.build_current_sections(root,snapshot,h)
     css+=current_research_report.CSS
     titles=['SafetyEP历史收益与停止依据','历史对照曲线与分量归因','零分场景与高分保持诊断','信用分配、真实梯度与策略案例','四组实验的完整设计、文献与配对分析','已结束路线与原始证据']
     background='<section id="background"><h2>机制、场景诊断与历史资料</h2><p class="deck">当前工作与最新结果已在前方汇总；需要追溯方法、证据或历史路线时再展开。</p>'+''.join('<details class="background-chapter"><summary>'+title+'</summary>'+chapter+'</details>'for title,chapter in zip(titles,chapters))+'</section>'
-    nav=([('replanning','研究判断与全量审计')]if replanning_front else[])+([('exploration','核心E研究与实验')]if exploration_front else[])+([('abcd','ABCD RL归档'if abcd_closed else 'ABCD研究')]if abcd_front else[])+[('current','原World实验进度'),('current-results','原World评测结果'),('current-analysis','原World结论与下一步'),('background','机制与历史资料')]
+    nav=([('standard-training','统一配方新研究')]if standard_front else[])+([('replanning','研究判断与全量审计')]if replanning_front else[])+([('exploration','旧E有限系列'if standard_front else '核心E研究与实验')]if exploration_front else[])+([('abcd','ABCD RL归档'if abcd_closed else 'ABCD研究')]if abcd_front else[])+[('current','原World实验进度'),('current-results','原World评测结果'),('current-analysis','原World结论与下一步'),('background','机制与历史资料')]
     header_title='核心RL研究：零分、探索、信用与课程'if abcd_closed else 'World与ABCD RL研究进展'
     deleted=editorial.get('abcd_research',{}).get('user_termination',{}).get('checkpoints_deleted_by_user')is True
     header_deck=('ABCD四组RL已终止归档，不再恢复或续训；'+('RL检查点已清除，代码／实验结果保留。'if deleted else '')+'ABCD IL独立保留，资源优先用于E核心问题。')if abcd_closed else '当前研究与历史方法按独立父模型、数据人口与原生协议分别呈现。'
