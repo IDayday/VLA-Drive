@@ -215,18 +215,39 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     devices,owners=_admission_sample();verify(devices,owners,locked=True)
 
 
+def admission_with_wait(args,host,indices,expected,mapping,locks,state,root):
+    """Bounded pre-child wait; never retain partial leases or run CUDA."""
+    deadline=time.monotonic()+args.admission_wait_seconds
+    while True:
+        try:require_dispatch(admit_long_job=True)
+        except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error
+        grant,_=authorization()
+        try:
+            _gpu_admission(args,host,grant,indices,expected,mapping,locks)
+            return grant
+        except ResourceRefused as error:
+            for stream in locks:stream.close()
+            locks.clear();mapping.clear()
+            if time.monotonic()>=deadline:raise
+            state.update(status='WAITING_RESOURCE',reason=str(error),child_not_started=True,last_check_unix=time.time())
+            write(root/'ADMISSION_WAIT.json',state)
+            time.sleep(min(15,max(0,deadline-time.monotonic())))
+
+
 def main():
     parser=argparse.ArgumentParser(__doc__)
     parser.add_argument('--receipt-root',required=True);parser.add_argument('--gpus',default='')
     parser.add_argument('--expected-gpu-uuids-json');parser.add_argument('--command-json',required=True);parser.add_argument('--cwd',required=True)
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
     parser.add_argument('--lease-slot',choices=('primary','shared'))
+    parser.add_argument('--admission-wait-seconds',type=int,default=0)
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')
+    if not 0<=args.admission_wait_seconds<=1800:raise ValueError('Pre-child resource wait must be finite')
     expected=None if args.expected_gpu_uuids_json is None else json.loads(args.expected_gpu_uuids_json)
     if expected is not None and(not isinstance(expected,list)or len(expected)!=len(indices)or not all(isinstance(v,str)for v in expected)):
         raise ValueError('Expected physical GPU identities must match requested indices')
@@ -239,9 +260,7 @@ def main():
     state.update(lease_slot=args.lease_slot or ('shared' if args.share_min_free_mib else 'primary'),
         execution_worker=str(Path(__file__).resolve()),execution_worker_sha256=file_sha(__file__))
     try:
-        try:require_dispatch(admit_long_job=True)
-        except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error
-        grant,_=authorization();_gpu_admission(args,host,grant,indices,expected,mapping,locks)
+        grant=admission_with_wait(args,host,indices,expected,mapping,locks,state,root)
     except ResourceRefused as error:
         state.update(status='REFUSED_RESOURCE',child_not_started=True,returncode=75,reason=str(error),end_unix=time.time(),
             gpu_uuids=[mapping[i]for i in indices]if all(i in mapping for i in indices)else[])
