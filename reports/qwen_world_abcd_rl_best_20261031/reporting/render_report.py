@@ -233,6 +233,20 @@ def journal_snapshot(run: dict, warnings: list, inputs: list) -> dict:
             values=[row.get('metrics',{}).get(key)for row in fresh]
             if values and all(finite(x)for x in values):credit[key]=sum(values)
         if credit:snapshot['process_window']['credit_mechanisms']=credit
+        if run.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_G8':
+            metrics=[row.get('metrics',{})for row in window]
+            low=[m.get('step9_ratio_min')for m in metrics];high=[m.get('step9_ratio_max')for m in metrics]
+            underflow=[m.get('endpoint_ratio_underflow_candidates')for m in metrics]
+            grads=[row.get('gradient_norm')for row in window]
+            snapshot['process_window']['endpoint_native']=dict(
+                ratio_min=min(low)if low and all(finite(x)for x in low)else None,
+                ratio_max=max(high)if high and all(finite(x)for x in high)else None,
+                underflow_update_candidate_events=sum(underflow)if underflow and all(finite(x)for x in underflow)else None,
+                gradient_norm_min=min(grads)if grads and all(finite(x)for x in grads)else None,
+                gradient_norm_max=max(grads)if grads and all(finite(x)for x in grads)else None,
+                norm_above_one_rank_update_rows=sum(g>1 for g in grads)if grads and all(finite(x)for x in grads)else None,
+                blocked_fraction=numeric_mean(window,('metrics','ppo_blocked_fraction')),
+                source='actual common native journal suffix only; not reduced CPU fixtures')
     return snapshot
 
 
@@ -408,6 +422,14 @@ def load_exploration_research(warnings: list,inputs: list) -> dict:
         snapshot=run_snapshot(row,warnings,inputs,registry_mtime=(root/'RUNS.json').stat().st_mtime if(root/'RUNS.json').exists()else 0)
         snapshot['status']=row.get('status')
         if not snapshot.get('journal_ranks')or snapshot.get('journal_ranks')!=snapshot.get('expected_ranks'):snapshot['updates']=None
+        if arm=='SAFETY_ENDPOINT_RAMP_AR1_G8':
+            identity_path=Path(row['root'])/'identity.json'
+            identity=read_json(identity_path,warnings,inputs)or{}
+            if identity:snapshot['endpoint_native_identity']=dict(
+                trainable_numel=identity.get('parameter_contract',{}).get('trainable_numel'),
+                optimizer_parameter_groups=identity.get('actual_optimizer',{}).get('parameter_groups',[]),
+                parent_model_sha256=identity.get('IL_parent',{}).get('model_sha256'),
+                probability=identity.get('policy_ratio'),schema=identity.get('schema'),evidence=str(identity_path))
         if arm=='SAFETY_ACTIVE_DATA_G8':
             progress=snapshot.get('progress_receipt',{});checkpoint=progress.get('checkpoint')
             if checkpoint:
@@ -446,7 +468,7 @@ def load_exploration_research(warnings: list,inputs: list) -> dict:
                     'checkpoint0_claims_ignored_by_report':True}
             analyses[path.name]=document
     controllers={}
-    for role in ['RESEARCH_NATIVE','PHASE2_NATIVE','RESEARCH_EVALUATION']:
+    for role in ['RESEARCH_NATIVE','PHASE2_NATIVE','ENDPOINT_NATIVE','RESEARCH_EVALUATION']:
         path=root/'owners'/role/'STATE.json';state=states.get(str(path),{})
         if state:controllers[role]=dict(state=state,state_path=str(path),owner=read_json(path.with_name('OWNER.json'),warnings,inputs)or{})
     support_dir=root/'data'/'probes'/'FROZEN_SAFETY10K_SUPPORT_20261031'
@@ -491,6 +513,15 @@ def load_exploration_research(warnings: list,inputs: list) -> dict:
         state=states.get(str(continuation_dir/'STATE.json'),{}),
         owner=read_json(continuation_dir/'OWNER.json',warnings,inputs)or{},
         launch=read_json(continuation_dir/'LAUNCH.json',warnings,inputs)or{})
+    decisions=[]
+    for path in sorted(continuation_dir.glob('DECISION_u*.json')):
+        document=read_json(path,warnings,inputs)or{}
+        if document.get('status')=='DECIDED':decisions.append(dict(document,evidence=str(path)))
+    continuation['decisions']=decisions
+    latest=max(decisions,key=lambda x:x.get('from_updates',0),default={})
+    decision_map={r.get('arm'):r for r in latest.get('decisions',[])}
+    for run in runs:
+        if run['id']in decision_map:run['report_continuation_review']=dict(decision_map[run['id']],evidence=latest.get('evidence'))
     return dict(root=str(root),registry=registry,runs=runs,results=list(results.values()),analyses=analyses,
         state_paths=list(states),controllers=controllers,support_probe=support,pilot_comparisons=comparisons,paired_reviews=paired_reviews,structured_probe=structured,
         noise_profile_probe=dict(summary=noise_summary,summary_path=str(noise_summary_path)),continuation=continuation,
