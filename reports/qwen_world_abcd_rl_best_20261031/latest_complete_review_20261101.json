@@ -1,9 +1,9 @@
 {
   "schema": "report_existing_complete_long_run_comparison_v1",
   "status": "COMPLETE_SNAPSHOT_OF_AVAILABLE_FULL_RESULTS",
-  "created_utc": "2026-11-01T17:28:57.159713+00:00",
-  "complete_points": 67,
-  "complete_comparisons": 58,
+  "created_utc": "2026-11-01T18:23:36.865110+00:00",
+  "complete_points": 69,
+  "complete_comparisons": 59,
   "arms": [
     {
       "arm": "IMPROVEMENT_EARLY_DECAY_G8",
@@ -20,29 +20,31 @@
           "zeros": 283,
           "fixed_IL70_high_mean_delta_PDMS": -1.3144704729723973,
           "fixed_IL70_high_count": 8724
+        },
+        {
+          "arm": "IMPROVEMENT_EARLY_DECAY_G8",
+          "updates": 5000,
+          "PDMS": 90.76015261743206,
+          "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+          "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u005000/NAVTEST/SUMMARY.json",
+          "scenes": 12146
         }
       ],
       "latest_complete": {
         "arm": "IMPROVEMENT_EARLY_DECAY_G8",
-        "updates": 2000,
-        "PDMS": 90.55458763565318,
+        "updates": 5000,
+        "PDMS": 90.76015261743206,
         "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
-        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u002000/NAVTEST/SUMMARY.json",
-        "scenes": 12146,
-        "zeros": 283,
-        "fixed_IL70_high_mean_delta_PDMS": -1.3144704729723973,
-        "fixed_IL70_high_count": 8724
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u005000/NAVTEST/SUMMARY.json",
+        "scenes": 12146
       },
       "observed_peak": {
         "arm": "IMPROVEMENT_EARLY_DECAY_G8",
-        "updates": 2000,
-        "PDMS": 90.55458763565318,
+        "updates": 5000,
+        "PDMS": 90.76015261743206,
         "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
-        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u002000/NAVTEST/SUMMARY.json",
-        "scenes": 12146,
-        "zeros": 283,
-        "fixed_IL70_high_mean_delta_PDMS": -1.3144704729723973,
-        "fixed_IL70_high_count": 8724
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u005000/NAVTEST/SUMMARY.json",
+        "scenes": 12146
       },
       "latest_candidate_matched": {
         "arm": "IMPROVEMENT_EARLY_DECAY_G8",
@@ -132,22 +134,92 @@
       ],
       "current_native": {
         "id": "IMPROVEMENT_EARLY_DECAY_G8",
-        "updates": 5072,
+        "updates": 7329,
         "status": "TRAINING",
         "host": "training-rl-zt2",
         "journal_ranks": 8,
-        "new_candidates": 81152,
-        "raw_scene_exposures": 10144,
+        "new_candidates": 117312,
+        "raw_scene_exposures": 14664,
         "worker_returncode": null,
         "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:43 UTC",
-          "age_seconds": 2.084984540939331,
+          "last_observed_utc": "2026-11-01 18:23:22 UTC",
+          "age_seconds": 0.3440544605255127,
           "threshold_seconds": 7200,
           "stale": false
         },
         "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to010000_attempt001",
-        "improvement_role": "early_decay"
+        "improvement_role": "early_decay",
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
+      }
+    },
+    {
+      "arm": "IMPROVEMENT_FP32_OUTPUT_G8",
+      "name": "H·真FP32动作投影",
+      "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+      "curve": [],
+      "latest_complete": null,
+      "observed_peak": null,
+      "latest_candidate_matched": null,
+      "candidate_matched_points": [],
+      "current_native": {
+        "id": "IMPROVEMENT_FP32_OUTPUT_G8",
+        "updates": 1001,
+        "status": "TRAINING",
+        "host": "training-vlawm-zt4",
+        "journal_ranks": 8,
+        "new_candidates": 16064,
+        "raw_scene_exposures": 2008,
+        "worker_returncode": null,
+        "worker_receipt_status": "RUNNING",
+        "progress_freshness": {
+          "last_observed_utc": "2026-11-01 18:23:22 UTC",
+          "age_seconds": 0.7173905372619629,
+          "threshold_seconds": 7200,
+          "stale": false
+        },
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_FP32_OUTPUT_G8/formal_to002000_attempt001",
+        "improvement_role": "fp32_output",
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
+      }
+    },
+    {
+      "arm": "IMPROVEMENT_MIXED_NOISE_G8",
+      "name": "H·固定G8混合探索",
+      "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+      "curve": [],
+      "latest_complete": null,
+      "observed_peak": null,
+      "latest_candidate_matched": null,
+      "candidate_matched_points": [],
+      "current_native": {
+        "id": "IMPROVEMENT_MIXED_NOISE_G8",
+        "updates": 701,
+        "status": "TRAINING",
+        "host": "training-vlawm-tsinghua-zt5",
+        "journal_ranks": 8,
+        "new_candidates": 11264,
+        "raw_scene_exposures": 1408,
+        "worker_returncode": null,
+        "worker_receipt_status": "RUNNING",
+        "progress_freshness": {
+          "last_observed_utc": "2026-11-01 18:23:22 UTC",
+          "age_seconds": 0.8060152530670166,
+          "threshold_seconds": 7200,
+          "stale": false
+        },
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_MIXED_NOISE_G8/formal_to002000_attempt001",
+        "improvement_role": "mixed_noise",
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     },
     {
@@ -277,51 +349,175 @@
       ],
       "current_native": {
         "id": "IMPROVEMENT_MULTISCENE32_G8",
-        "updates": 930,
+        "updates": 1428,
         "status": "TRAINING",
-        "host": "training-vlawm-tsinghua-zt6",
+        "host": "training-vlawm-zt",
         "journal_ranks": 8,
-        "new_candidates": 59648,
-        "raw_scene_exposures": 7456,
+        "new_candidates": 91392,
+        "raw_scene_exposures": 11424,
         "worker_returncode": null,
         "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:44 UTC",
-          "age_seconds": 1.1684751510620117,
+          "last_observed_utc": "2026-11-01 18:23:14 UTC",
+          "age_seconds": 8.524446964263916,
           "threshold_seconds": 7200,
           "stale": false
         },
-        "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_MULTISCENE32_G8/formal_to001250_attempt001",
-        "improvement_role": "multiscene32"
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_MULTISCENE32_G8/formal_to002500_attempt002",
+        "improvement_role": "multiscene32",
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     },
     {
       "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
       "name": "H·质量门控历史RL保持",
       "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
-      "curve": [],
-      "latest_complete": null,
-      "observed_peak": null,
-      "latest_candidate_matched": null,
-      "candidate_matched_points": [],
+      "curve": [
+        {
+          "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+          "updates": 2000,
+          "PDMS": 90.62746459334812,
+          "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+          "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_VERIFIED_RETENTION_G8_u002000/NAVTEST/SUMMARY.json",
+          "scenes": 12146,
+          "zeros": 280,
+          "fixed_IL70_high_mean_delta_PDMS": -1.217352729083451,
+          "fixed_IL70_high_count": 8724
+        }
+      ],
+      "latest_complete": {
+        "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+        "updates": 2000,
+        "PDMS": 90.62746459334812,
+        "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_VERIFIED_RETENTION_G8_u002000/NAVTEST/SUMMARY.json",
+        "scenes": 12146,
+        "zeros": 280,
+        "fixed_IL70_high_mean_delta_PDMS": -1.217352729083451,
+        "fixed_IL70_high_count": 8724
+      },
+      "observed_peak": {
+        "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+        "updates": 2000,
+        "PDMS": 90.62746459334812,
+        "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_VERIFIED_RETENTION_G8_u002000/NAVTEST/SUMMARY.json",
+        "scenes": 12146,
+        "zeros": 280,
+        "fixed_IL70_high_mean_delta_PDMS": -1.217352729083451,
+        "fixed_IL70_high_count": 8724
+      },
+      "latest_candidate_matched": {
+        "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+        "updates": 2000,
+        "reference_updates": 2000,
+        "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+        "target_PDMS": 90.62746459334812,
+        "baseline_PDMS": 90.62746459334812,
+        "delta_PDMS": 0.0,
+        "CI95_PDMS": [
+          0.0,
+          0.0
+        ],
+        "repaired_zero": 0,
+        "new_zero": 0,
+        "baseline_zeros": 280,
+        "target_zeros": 280,
+        "fixed_IL70_high_mean_delta_PDMS": 0.0,
+        "fixed_IL70_high_population_mass_delta_PDMS": 0.0,
+        "fixed_IL70_high_count": 8724,
+        "fixed_IL70_high_CI95_PDMS": null,
+        "fixed_Control_high_mean_delta_PDMS": 0.0,
+        "nominal_source_candidate_matched": true,
+        "source_update_clock_multiplier": 1,
+        "budget_contract": "same_candidate_queries_and_scene_exposures_different_Adam_count",
+        "actual_collection_budget": {
+          "optimizer_updates": 2000,
+          "F_reference_updates": 2000,
+          "source_update_clock_multiplier": 1,
+          "next_inner": 0,
+          "scene_exposures": 4000,
+          "candidate_queries": 32000,
+          "F_reference_scene_exposures": 4000,
+          "F_reference_candidate_queries": 32000,
+          "scene_surplus_at_pending_boundary": 0,
+          "candidate_surplus_at_pending_boundary": 0,
+          "candidate_query_scope": "fresh on-policy source-PG candidates only",
+          "additional_official_query_accounting_required": false,
+          "strict_equal_source_candidate_budget": true,
+          "strict_equal_candidate_budget": true
+        },
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_VERIFIED_RETENTION_G8_2000_vs_SAFETY_G8_CONTROL_2000.json"
+      },
+      "candidate_matched_points": [
+        {
+          "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+          "updates": 2000,
+          "reference_updates": 2000,
+          "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+          "target_PDMS": 90.62746459334812,
+          "baseline_PDMS": 90.62746459334812,
+          "delta_PDMS": 0.0,
+          "CI95_PDMS": [
+            0.0,
+            0.0
+          ],
+          "repaired_zero": 0,
+          "new_zero": 0,
+          "baseline_zeros": 280,
+          "target_zeros": 280,
+          "fixed_IL70_high_mean_delta_PDMS": 0.0,
+          "fixed_IL70_high_population_mass_delta_PDMS": 0.0,
+          "fixed_IL70_high_count": 8724,
+          "fixed_IL70_high_CI95_PDMS": null,
+          "fixed_Control_high_mean_delta_PDMS": 0.0,
+          "nominal_source_candidate_matched": true,
+          "source_update_clock_multiplier": 1,
+          "budget_contract": "same_candidate_queries_and_scene_exposures_different_Adam_count",
+          "actual_collection_budget": {
+            "optimizer_updates": 2000,
+            "F_reference_updates": 2000,
+            "source_update_clock_multiplier": 1,
+            "next_inner": 0,
+            "scene_exposures": 4000,
+            "candidate_queries": 32000,
+            "F_reference_scene_exposures": 4000,
+            "F_reference_candidate_queries": 32000,
+            "scene_surplus_at_pending_boundary": 0,
+            "candidate_surplus_at_pending_boundary": 0,
+            "candidate_query_scope": "fresh on-policy source-PG candidates only",
+            "additional_official_query_accounting_required": false,
+            "strict_equal_source_candidate_budget": true,
+            "strict_equal_candidate_budget": true
+          },
+          "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_VERIFIED_RETENTION_G8_2000_vs_SAFETY_G8_CONTROL_2000.json"
+        }
+      ],
       "current_native": {
         "id": "IMPROVEMENT_VERIFIED_RETENTION_G8",
-        "updates": 2000,
-        "status": "WAITING_AUTHORIZED_RESOURCE",
-        "host": "training-vlawm-tsinghua-zt2",
+        "updates": 2348,
+        "status": "TRAINING",
+        "host": "training-vlawm-tsinghua-zt6",
         "journal_ranks": 8,
-        "new_candidates": 32000,
-        "raw_scene_exposures": 4000,
-        "worker_returncode": 0,
-        "worker_receipt_status": "EXITED",
+        "new_candidates": 37568,
+        "raw_scene_exposures": 4696,
+        "worker_returncode": null,
+        "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:13:32 UTC",
-          "age_seconds": 913.2288959026337,
+          "last_observed_utc": "2026-11-01 18:23:15 UTC",
+          "age_seconds": 7.635342836380005,
           "threshold_seconds": 7200,
           "stale": false
         },
-        "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_VERIFIED_RETENTION_G8/formal_to002000_attempt001",
-        "improvement_role": "verified_retention"
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_VERIFIED_RETENTION_G8/formal_to005000_attempt002",
+        "improvement_role": "verified_retention",
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     },
     {
@@ -726,7 +922,7 @@
       "current_native": {
         "id": "REVIVAL_ACTIVE_DATA_G8",
         "updates": 26000,
-        "status": "WAITING_RESOURCE",
+        "status": "COMPLETED_AT_REGISTERED_CAP",
         "host": "training-vlawm-tsinghua-zt5",
         "journal_ranks": 8,
         "new_candidates": 416000,
@@ -735,12 +931,16 @@
         "worker_receipt_status": "EXITED",
         "progress_freshness": {
           "last_observed_utc": "2026-11-01 17:18:51 UTC",
-          "age_seconds": 593.6203286647797,
+          "age_seconds": 3870.7527475357056,
           "threshold_seconds": 7200,
           "stale": false
         },
         "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_ACTIVE_DATA_G8/formal_to026000_attempt001",
-        "improvement_role": null
+        "improvement_role": null,
+        "standard_disposition": null,
+        "revival_disposition": "RESEARCH_RESERVE_REVIEW",
+        "disposition": "RESEARCH_RESERVE_REVIEW",
+        "resource_priority_pause_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/operations/NEW_TRIALS_NATIVE_PRIORITY_20261101/ACTIVE26K_RESOURCE_PRIORITY_RESERVE.json"
       }
     },
     {
@@ -1106,22 +1306,26 @@
       ],
       "current_native": {
         "id": "REVIVAL_DENSE_G8",
-        "updates": 26600,
-        "status": "TRAINING",
+        "updates": 28000,
+        "status": "STOPPED_AT_COOPERATIVE_BOUNDARY",
         "host": "training-vlawm-zt",
         "journal_ranks": 8,
-        "new_candidates": 425600,
-        "raw_scene_exposures": 53200,
-        "worker_returncode": null,
-        "worker_receipt_status": "RUNNING",
+        "new_candidates": 448000,
+        "raw_scene_exposures": 56000,
+        "worker_returncode": 0,
+        "worker_receipt_status": "EXITED",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:42 UTC",
-          "age_seconds": 2.3880438804626465,
+          "last_observed_utc": "2026-11-01 18:08:09 UTC",
+          "age_seconds": 912.4633681774139,
           "threshold_seconds": 7200,
           "stale": false
         },
         "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_DENSE_G8/formal_to028000_attempt001",
-        "improvement_role": null
+        "improvement_role": null,
+        "standard_disposition": null,
+        "revival_disposition": "RESEARCH_RESERVE_REVIEW",
+        "disposition": null,
+        "resource_priority_pause_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/operations/NEW_TRIALS_NATIVE_PRIORITY_20261101/DENSE28K_NATURAL_BOUNDARY_RESERVE.json"
       }
     },
     {
@@ -1303,22 +1507,26 @@
       ],
       "current_native": {
         "id": "REVIVAL_G16",
-        "updates": 22544,
+        "updates": 24414,
         "status": "TRAINING",
-        "host": "training-vlawm-tsinghua-zt2",
+        "host": "training-vlawm-zt",
         "journal_ranks": 8,
-        "new_candidates": 721408,
-        "raw_scene_exposures": 45088,
+        "new_candidates": 781312,
+        "raw_scene_exposures": 48832,
         "worker_returncode": null,
         "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:41 UTC",
-          "age_seconds": 3.1416711807250977,
+          "last_observed_utc": "2026-11-01 18:23:20 UTC",
+          "age_seconds": 1.3366029262542725,
           "threshold_seconds": 7200,
           "stale": false
         },
-        "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_G16/formal_to024000_attempt001",
-        "improvement_role": null
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_G16/formal_to026000_attempt001",
+        "improvement_role": null,
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     },
     {
@@ -1722,22 +1930,26 @@
       ],
       "current_native": {
         "id": "REVIVAL_SATURATED_G8",
-        "updates": 26627,
+        "updates": 28519,
         "status": "TRAINING",
         "host": "training-vlawm-zt4",
         "journal_ranks": 8,
-        "new_candidates": 426048,
-        "raw_scene_exposures": 53256,
+        "new_candidates": 456320,
+        "raw_scene_exposures": 57040,
         "worker_returncode": null,
         "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:44 UTC",
-          "age_seconds": 0.5491013526916504,
+          "last_observed_utc": "2026-11-01 18:23:21 UTC",
+          "age_seconds": 0.6908109188079834,
           "threshold_seconds": 7200,
           "stale": false
         },
-        "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_SATURATED_G8/formal_to028000_attempt001",
-        "improvement_role": null
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_SATURATED_G8/formal_to030000_attempt001",
+        "improvement_role": null,
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     },
     {
@@ -1893,22 +2105,26 @@
       "candidate_matched_points": [],
       "current_native": {
         "id": "SAFETY_G8_CONTROL",
-        "updates": 30080,
+        "updates": 32220,
         "status": "TRAINING",
-        "host": "training-rl-zt2",
+        "host": "training-vlawm-tsinghua-zt2",
         "journal_ranks": 8,
-        "new_candidates": 481280,
-        "raw_scene_exposures": 60160,
+        "new_candidates": 515520,
+        "raw_scene_exposures": 64440,
         "worker_returncode": null,
         "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:40 UTC",
-          "age_seconds": 3.27821946144104,
+          "last_observed_utc": "2026-11-01 18:23:16 UTC",
+          "age_seconds": 4.003621816635132,
           "threshold_seconds": 7200,
           "stale": false
         },
-        "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to032000_attempt001",
-        "improvement_role": null
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to034000_attempt001",
+        "improvement_role": null,
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     },
     {
@@ -2312,22 +2528,26 @@
       ],
       "current_native": {
         "id": "STANDARD_COMBINED_G8",
-        "updates": 26588,
+        "updates": 28480,
         "status": "TRAINING",
         "host": "training-vlawm-zt4",
         "journal_ranks": 8,
-        "new_candidates": 425408,
-        "raw_scene_exposures": 53176,
+        "new_candidates": 455680,
+        "raw_scene_exposures": 56960,
         "worker_returncode": null,
         "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:43 UTC",
-          "age_seconds": 0.5073285102844238,
+          "last_observed_utc": "2026-11-01 18:23:19 UTC",
+          "age_seconds": 1.4792537689208984,
           "threshold_seconds": 7200,
           "stale": false
         },
-        "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to028000_attempt001",
-        "improvement_role": null
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to030000_attempt001",
+        "improvement_role": null,
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     },
     {
@@ -2541,22 +2761,26 @@
       ],
       "current_native": {
         "id": "STANDARD_ENDPOINT_LR02_G8",
-        "updates": 16000,
-        "status": "DISPATCHED",
+        "updates": 16657,
+        "status": "STOPPED_AT_COOPERATIVE_BOUNDARY",
         "host": "training-vlawm-tsinghua-zt5",
         "journal_ranks": 8,
-        "new_candidates": 256000,
-        "raw_scene_exposures": 32000,
-        "worker_returncode": null,
-        "worker_receipt_status": "RUNNING",
+        "new_candidates": 266560,
+        "raw_scene_exposures": 33320,
+        "worker_returncode": 0,
+        "worker_receipt_status": "EXITED",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:32 UTC",
-          "age_seconds": 11.626206874847412,
+          "last_observed_utc": "2026-11-01 17:54:17 UTC",
+          "age_seconds": 1743.6411228179932,
           "threshold_seconds": 7200,
           "stale": false
         },
         "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_ENDPOINT_LR02_G8/formal_to018000_attempt001",
-        "improvement_role": null
+        "improvement_role": null,
+        "standard_disposition": "RESEARCH_RESERVE_REVIEW",
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/operations/NEW_TRIALS_NATIVE_PRIORITY_20261101/ENDPOINT_RESOURCE_PRIORITY_PAUSE_REQUEST.json"
       }
     },
     {
@@ -2960,22 +3184,26 @@
       ],
       "current_native": {
         "id": "STANDARD_INVERSION_G8",
-        "updates": 26220,
+        "updates": 28082,
         "status": "TRAINING",
         "host": "training-vlawm-tsinghua-zt2",
         "journal_ranks": 8,
-        "new_candidates": 419520,
-        "raw_scene_exposures": 52440,
+        "new_candidates": 449344,
+        "raw_scene_exposures": 56168,
         "worker_returncode": null,
         "worker_receipt_status": "RUNNING",
         "progress_freshness": {
-          "last_observed_utc": "2026-11-01 17:28:41 UTC",
-          "age_seconds": 2.388056993484497,
+          "last_observed_utc": "2026-11-01 18:23:19 UTC",
+          "age_seconds": 1.3124268054962158,
           "threshold_seconds": 7200,
           "stale": false
         },
-        "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to028000_attempt001",
-        "improvement_role": null
+        "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to030000_attempt001",
+        "improvement_role": null,
+        "standard_disposition": null,
+        "revival_disposition": null,
+        "disposition": null,
+        "resource_priority_pause_receipt": null
       }
     }
   ],
@@ -4586,6 +4814,48 @@
         "strict_equal_candidate_budget": true
       },
       "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_MULTISCENE32_G8_500_vs_SAFETY_G8_CONTROL_2000.json"
+    },
+    {
+      "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+      "updates": 2000,
+      "reference_updates": 2000,
+      "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+      "target_PDMS": 90.62746459334812,
+      "baseline_PDMS": 90.62746459334812,
+      "delta_PDMS": 0.0,
+      "CI95_PDMS": [
+        0.0,
+        0.0
+      ],
+      "repaired_zero": 0,
+      "new_zero": 0,
+      "baseline_zeros": 280,
+      "target_zeros": 280,
+      "fixed_IL70_high_mean_delta_PDMS": 0.0,
+      "fixed_IL70_high_population_mass_delta_PDMS": 0.0,
+      "fixed_IL70_high_count": 8724,
+      "fixed_IL70_high_CI95_PDMS": null,
+      "fixed_Control_high_mean_delta_PDMS": 0.0,
+      "nominal_source_candidate_matched": true,
+      "source_update_clock_multiplier": 1,
+      "budget_contract": "same_candidate_queries_and_scene_exposures_different_Adam_count",
+      "actual_collection_budget": {
+        "optimizer_updates": 2000,
+        "F_reference_updates": 2000,
+        "source_update_clock_multiplier": 1,
+        "next_inner": 0,
+        "scene_exposures": 4000,
+        "candidate_queries": 32000,
+        "F_reference_scene_exposures": 4000,
+        "F_reference_candidate_queries": 32000,
+        "scene_surplus_at_pending_boundary": 0,
+        "candidate_surplus_at_pending_boundary": 0,
+        "candidate_query_scope": "fresh on-policy source-PG candidates only",
+        "additional_official_query_accounting_required": false,
+        "strict_equal_source_candidate_budget": true,
+        "strict_equal_candidate_budget": true
+      },
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_VERIFIED_RETENTION_G8_2000_vs_SAFETY_G8_CONTROL_2000.json"
     }
   ],
   "input_files": {
@@ -5341,6 +5611,14 @@
       "sha256": "28e2800386c028cb3121d7ca277add9b407be0a716763d3716ff1863f2da2e63",
       "size_bytes": 1680
     },
+    "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_VERIFIED_RETENTION_G8_u002000/NAVTEST/SUMMARY.json": {
+      "sha256": "8a9484d87ea7365f98d2d0e2a3328cc8ca37474209d6daaa4b92d062bc24e80b",
+      "size_bytes": 1688
+    },
+    "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u005000/NAVTEST/SUMMARY.json": {
+      "sha256": "0368dea543eb5b3fcd56499d44ea9a535a32b38dacc097890b9c99bb4f59566d",
+      "size_bytes": 1680
+    },
     "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_EARLY_DECAY_G8_2000_vs_SAFETY_G8_CONTROL_2000.json": {
       "sha256": "8258e2f4333f7e7802f11753e6e45ee44f1cd915ab2934434d65374fb0743a87",
       "size_bytes": 4737
@@ -5356,6 +5634,14 @@
     "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_MULTISCENE32_G8_u000500.json": {
       "sha256": "1eed619580e1ff73a7a42bca6e7753b54e6ef99a377e47f71e767eb4322d7b15",
       "size_bytes": 12348
+    },
+    "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_VERIFIED_RETENTION_G8_2000_vs_SAFETY_G8_CONTROL_2000.json": {
+      "sha256": "8b53cc2b15de323a925305dbed8768a9f90ec34a89403f927257c53d03a19da0",
+      "size_bytes": 4399
+    },
+    "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/PILOT_COMPARISONS/IMPROVEMENT_VERIFIED_RETENTION_G8_u002000.json": {
+      "sha256": "63a73a43b4e638a62dffc57d2a507632899d4b0f7bcd6d5574f2d3b0d0dcf649",
+      "size_bytes": 12361
     }
   },
   "scope": "F/G/H only; existing complete12146/invalid0 summaries and sealed paired artifacts; no new score/bootstrap.",

@@ -15,6 +15,8 @@ NAMES = {
     'IMPROVEMENT_EARLY_DECAY_G8': 'H·更早衰减',
     'IMPROVEMENT_MULTISCENE32_G8': 'H·不同场景Batch32',
     'IMPROVEMENT_VERIFIED_RETENTION_G8': 'H·质量门控历史RL保持',
+    'IMPROVEMENT_FP32_OUTPUT_G8': 'H·真FP32动作投影',
+    'IMPROVEMENT_MIXED_NOISE_G8': 'H·固定G8混合探索',
 }
 CONTROL = 'SAFETY_G8_CONTROL'
 
@@ -34,7 +36,8 @@ def build_review(studies):
             runs[(root, run['id'])] = {k: run.get(k) for k in
                 ['id', 'updates', 'status', 'host', 'journal_ranks', 'new_candidates',
                  'raw_scene_exposures', 'worker_returncode', 'worker_receipt_status',
-                 'progress_freshness', 'job', 'improvement_role']}
+                 'progress_freshness', 'job', 'improvement_role', 'standard_disposition',
+                 'revival_disposition', 'disposition', 'resource_priority_pause_receipt']}
         for result in study['results']:
             if not result.get('publishable_complete') or result.get('cohort') != 'NAVTEST':
                 continue
@@ -86,13 +89,13 @@ def build_review(studies):
         matched = sorted([p for p in comparisons if p['study_root'] == root and p['arm'] == arm
                           and p['nominal_source_candidate_matched']], key=lambda p:p['updates'])
         arms.append(dict(arm=arm, name=NAMES.get(arm, arm), study_root=root, curve=curve,
-            latest_complete=curve[-1] if curve else None, observed_peak=max(curve, key=lambda p:p['PDMS']) if curve else None,
+            latest_complete=curve[-1] if curve else None, observed_peak=max((p for p in curve if p['updates']>0), key=lambda p:p['PDMS'], default=None),
             latest_candidate_matched=matched[-1] if matched else None,
             candidate_matched_points=matched, current_native=runs.get((root, arm), {})))
     return dict(schema='report_existing_complete_long_run_comparison_v1',
         status='COMPLETE_SNAPSHOT_OF_AVAILABLE_FULL_RESULTS', created_utc=datetime.now(timezone.utc).isoformat(),
         complete_points=len(points), complete_comparisons=len(comparisons), arms=arms,
-        observed_peak=max(points.values(), key=lambda p:p['PDMS']) if points else None,
+        observed_peak=max((p for p in points.values() if p['updates']>0), key=lambda p:p['PDMS'], default=None),
         comparisons=comparisons, input_files=inputs,
         scope='F/G/H only; existing complete12146/invalid0 summaries and sealed paired artifacts; no new score/bootstrap.',
         limitations=['All reported CIs reused: one training seed,44 physical logs,2000 cluster-bootstrap draws,seed42.',
@@ -115,27 +118,34 @@ def render_review(root, review, review_path, h):
         if latest is None:
             rows.append([h.esc(arm['name']), '等待完整NAVTEST', '—', '—', '—', '—'])
             continue
-        label = h.number(latest['updates'])+'／'+h.fmt(latest['PDMS'], 5)+'<small>零分 '+h.number(latest.get('zeros'))+'；'+link(latest['evidence'], '全量SUMMARY')+'</small>'
+        label = h.number(latest['updates'])+'／'+h.fmt(latest['PDMS'], 5)+'<small>'+('native0初始函数，非RL学习收益；' if latest['updates']==0 else '')+'零分 '+h.number(latest.get('zeros'))+'；'+link(latest['evidence'], '全量SUMMARY')+'</small>'
         if p:
             budget=h.number(p['updates'])+' vs Control '+h.number(p['reference_updates'])
             stale='；较新点尚无匹配Control' if latest['updates'] != p['updates'] else ''
             rows.append([h.esc(arm['name']),label, budget+'<small>'+h.fmt(p['delta_PDMS'],5)+'／'+ci(p['CI95_PDMS'])+stale+'</small>',
                 h.number(p['repaired_zero'])+'／'+h.number(p['new_zero']),h.fmt(p['fixed_IL70_high_mean_delta_PDMS'],4),link(p['evidence'],'完整配对')])
         else:
-            rows.append([h.esc(arm['name']),label,'只作对照，不与自身配对','—',h.fmt(latest.get('fixed_IL70_high_mean_delta_PDMS'),4)+'<small>此行为对IL70自身基准</small>','—'])
-    body+='<h3>最新完整结果：同候选预算、零修复与固定高分保持一起看</h3>'+h.table(['路线','最新完整Adam／PDMS','最近同候选量比较：更新／Δ及95%CI','零修复／新增','固定IL70≥.9均值Δ','证据'], rows)
+            rows.append([h.esc(arm['name']),label,'只作对照，不与自身配对'if arm['arm']==CONTROL else '尚无完整同预算配对','—',h.fmt(latest.get('fixed_IL70_high_mean_delta_PDMS'),4)+'<small>此行为对IL70自身基准</small>','—'])
+    columns=['路线','最新完整Adam／PDMS','最近主PG候选同量比较：更新／Δ及95%CI','零修复／新增','固定IL70≥.9均值Δ','证据']
+    current_rows=[row for arm,row in zip(ordered,rows)if arm['arm'].startswith('IMPROVEMENT_')or arm['arm']==CONTROL]
+    historical_rows=[row for arm,row in zip(ordered,rows)if not arm['arm'].startswith('IMPROVEMENT_')and arm['arm']!=CONTROL]
+    body+='<h3>当前H与共享Control：完整部署收益单列</h3>'+h.table(columns,current_rows)
+    if historical_rows:body+='<details><summary>F／G长训全部路线的最新完整成绩与公平配对</summary>'+h.table(columns,historical_rows)+'</details>'
     body+='<p class="muted">方法行的高群体Δ是同一固定IL70高分8724场景相对当点Control的均值差，未给CI，不据此宣称显著。Control行则是相对IL70。G16用2倍、Batch32用4倍Control更新对齐source-PG查询；场景曝光、Adam和scheduler时钟仍不同。当前H保持臂未完整时留空；其2k后额外官方ODE评分仍单独分账。</p>'
     g16 = next((a for a in review['arms'] if a['arm']=='REVIVAL_G16'), {})
     gp = g16.get('candidate_matched_points', [])
     if gp:
         body+='<p><b>G16不能再只按早期负点判断：</b>'+ '；'.join(h.number(p['updates'])+' vs Control '+h.number(p['reference_updates'])+'：Δ'+h.fmt(p['delta_PDMS'],5)+'，CI '+ci(p['CI95_PDMS']) for p in gp) +'。后期出现同候选量正向证据，值得保留一个后续公平复核点；这不是纯探索量单因素，也未超过当前绝对峰值。</p>'
     decisions = [
-        ['P0：优先完成H最小检验','更早衰减／Batch32／质量保持','H仅有首个完整点，Early2k与Batch500对F2k区间跨0；不能据早期结果停止。优先收5k及对应物理预算点，保持臂必须跨2k激活后再看作用。'],
+        ['P0：优先完成H最小检验','更早衰减／Batch32／质量保持','首个Early2k与Batch500对F2k区间跨0；不能据早期结果停止。后续按最新完整预算点复核，保持臂必须跨2k激活后再看作用。'],
+        ['新单变量，等待完整评测','真FP32动作投影／固定G8混合探索','按本臂worker和全rank日志判断启动；无完整NAV则留空。FP32先用native0区分初始执行函数变化；Mixed的旧候选重组仅是探索支持假说，不是已获部署收益。'],
         ['P1：有条件保留','G16、饱和信用、纠偏信用','G16已有后期同候选量正点；Sat／Inv有阶段正向但20–22k未持续。保留预定后续复核，不默认一直加到50k，也不把单个负点判永久无效。'],
         ['P2：不优先额外扩预算','DenseDAC、三信用组合、原Active课程','长训已有多点，最新完整对照未形成持续优势；可把超出已批准复核点的资源让给新问题。Active的22k反弹需与20k负点同时看，禁止把低分修复当总分增益。'],
         ['P3：建议优先让出当前配方资源','旧Endpoint低LR','已有多个完整长期点显著低于Control，12k仍未恢复；有限过程的候选支持改善未转成部署收益。是当前配方的配置分配建议，不否定endpoint算法族；是否停训由root按实际收据处理。'],
     ]
     body+='<details open><summary>资源优先级建议：依据完整长曲线，不执行自动淘汰</summary>'+h.table(['优先级','路线','建议与证据边界'], decisions)+'</details>'
-    body+='<p>最新证据仅支持研究分配建议，未发停止或迁移信号。历史负面CI、高分退化和早期正点全部保留；后续新算法按实际登记／启动证据接入。NAVTEST名单、未来标签和互补oracle均不进入TRAINbank。</p>'
+    reserved=[a['name'] for a in review['arms'] if any('RESEARCH_RESERVE' in str(a['current_native'].get(k,'')) for k in ['standard_disposition','revival_disposition','disposition'])]
+    if reserved:body+='<p><b>已执行的资源安排：</b>'+h.esc('、'.join(reserved))+'已纳入资源优先级预留，当前实际停止／边界见下方运行表；现有代码、checkpoint与评测保留。未完成的新阶段分数不据此判差，方法族未被否定。</p>'
+    body+='<p>本报告只汇总研究分配建议与实际回执，不发停止或迁移信号。历史负面CI、高分退化和早期正点全部保留；NAVTEST名单、未来标签和互补oracle均不进入TRAINbank。</p>'
     body+='<p class="muted">'+link(str(review_path),'完整曲线／全部配对及输入SHA清单')+' · 生成 '+h.esc(review['created_utc'])+'。单seed／44日志配对区间，未校正多重比较；观测峰不是无偏最优值。完整曲线图见下方。</p>'
     return '<section id="rl-latest-evidence"><h2>最新完整证据与下一轮资源优先级</h2>'+body+'</section>'

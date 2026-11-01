@@ -38,6 +38,11 @@ def section_links(studies):
 def _run_status(run,h):
     status=str(run.get('status','')).upper()
     if any(s in status for s in ['PAUSED','USER_PAUSE']):return '用户暂停，当前不推进'
+    reserve=any('RESEARCH_RESERVE'in str(run.get(k,''))for k in ['standard_disposition','revival_disposition','disposition'])
+    if reserve and(run.get('worker_returncode')==0 or status=='STOPPED_AT_COOPERATIVE_BOUNDARY'):
+        return '已保存边界，资源优先级预留<small>资源转新研究；非方法族无效结论</small>'
+    if reserve and run.get('worker_receipt_status')=='RUNNING':
+        return '当前阶段仍在完成，之后预留资源<small>尚未退出，不记为已释放</small>'
     if 'WAITING_AUTHORIZED_MIGRATION'in status:return '已保存边界，等待授权host恢复'
     if run.get('progress_freshness',{}).get('stale'):
         fresh=run['progress_freshness'];return '<b>进度过期／当前运行未确认</b><small>最后日志 '+h.esc(fresh['last_observed_utc'])+'；距今 '+h.fmt(fresh['age_seconds']/3600,1)+' 小时。旧RUNNING回执不等于当前健康。</small>'
@@ -255,6 +260,25 @@ def load_related(h,warnings,inputs):
             study['algorithm_mapping_path']=str(folder/'ALGORITHM_PROBLEM_MAPPING_20261101.json')
             study['algorithm_mapping']=h.read_json(Path(study['algorithm_mapping_path']),warnings,inputs)or{}
             study['runtime_authorization']=_runtime_authorization(h,warnings,inputs)
+            study['new_trials_literature_path']=str(folder/'PRIMARY_LITERATURE_NEW_TRIALS_20261101.json')
+            study['new_trials_literature']=h.read_json(Path(study['new_trials_literature_path']),warnings,inputs)or{}
+            study['fp32_check_path']=str(folder/'FP32_OUTPUT_CPU_CHECK_20261101.json')
+            study['fp32_check']=h.read_json(Path(study['fp32_check_path']),warnings,inputs)or{}
+            study['fp32_snapshot_check_path']=str(folder/'FP32_SNAPSHOT_RESTORE_CPU_CHECK.json')
+            study['fp32_snapshot_check']=h.read_json(Path(study['fp32_snapshot_check_path']),warnings,inputs)or{}
+            study['five_arm_deployment_path']=str(folder/'FIVE_ARM_ACTUAL_DEPLOYMENT_20261101.json')
+            five=h.read_json(Path(study['five_arm_deployment_path']),warnings,inputs)or{}
+            study['five_arm_deployment']={k:v for k,v in five.items()if k!='arms'}
+            study['early_mixed_retention_path']=str(folder/'EARLY_MIXED_SIGNAL_AND_RETENTION_ACTIVATION_20261101.json')
+            early=h.read_json(Path(study['early_mixed_retention_path']),warnings,inputs)or{}
+            study['early_mixed_retention']={k:({a:b for a,b in v.items()if a!='source_windows'}if isinstance(v,dict)else v)for k,v in early.items()}
+            study['fp32_gpu_parity_path']=str(Path(study['root'])/'evaluations'/'IMPROVEMENT_FP32_OUTPUT_G8_u000000'/'NAVTEST'/'native_export_parity.json')
+            study['fp32_gpu_parity']=h.read_json(Path(study['fp32_gpu_parity_path']),warnings,inputs)or{}
+            study['mixed_handoff_path']=str(folder/'MIXED_EXPLORATION_HANDOFF.json')
+            study['mixed_handoff']=h.read_json(Path(study['mixed_handoff_path']),warnings,inputs)or{}
+            study['mixed_support_path']=str(folder/'MIXED_EXPLORATION_EXISTING_SUPPORT_AUDIT.json')
+            mixed=h.read_json(Path(study['mixed_support_path']),warnings,inputs)or{}
+            study['mixed_support']={k:v for k,v in mixed.items()if k not in ['rows','tokens','receipts']}
         if Path(study['root'])==DEFAULT_ROOT:
             study['phase_potential_path']=str(E_ROOT/'analysis'/'LONG_RUN_PHASE_GAIN_RETENTION_AUDIT_20261101.json')
             study['phase_potential']=h.read_json(Path(study['phase_potential_path']),warnings,inputs)or{}
@@ -359,10 +383,27 @@ def _campaign_health_block(studies,h):
     return '<details><summary>F／G／H当前CPU协调身份：不替代模型更新或评测完成</summary>'+h.table(['研究','CPU PID','ops source','STATE','只读身份核验'],rows)+'</details>'if rows else ''
 
 
+def _improvement_cards(study,h,label):
+    descriptions={
+        'early_decay':('P0 · 更早收敛','20k结束cos衰减后保持floor，检验共同后期回摆是否与调度阶段有关。','不是已证LR根因。'),
+        'multiscene32':('P1 · 不同场景Batch32','每rank四个不同scene，G8不变；按source查询量对齐F Control。','Adam／计算成本另列。'),
+        'verified_retention':('P2 · 质量门控历史RL保持','2k后通过实际ODE质量门槛入库；退化时分配原β预算25%给历史均值保持。','额外官方ODE查询最多25%。'),
+        'fp32_output':('P3 · 真FP32动作投影','末层在FP32做matmul；rollout／replay／reference／export／eval一致。','先评native0，隔离初始数值函数变化。'),
+        'mixed_noise':('P4 · 固定G8混合探索','4个候选在[7,8,9]加噪，4个在[3,6,8]加噪；每个仍三slots。','64个主评分不增，支持重组不是NAV增益。'),
+    }
+    cards=[]
+    for run in study['runs']:
+        role=run.get('improvement_role')
+        if role not in descriptions:continue
+        title,mechanism,boundary=descriptions[role]
+        cards.append('<article><h3>'+h.esc(title)+'</h3><p>'+h.esc(mechanism)+'</p><small>'+_run_status(run,h)+'；共同更新 '+h.number(run.get('updates'))+'</small><small>'+h.esc(boundary)+'</small></article>')
+    return '<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr))">'+''.join(cards)+'</div>'
+
+
 def _benefit_front(report_root,studies,h):
     source={s['root']:s for s in studies};standard=source.get(str(DEFAULT_ROOT))
     if not standard:return ''
-    scores={(s['root'],r['arm'],r.get('updates')):r for s in studies for r in s['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'}
+    scores={(s['root'],r['arm'],r.get('updates')):r for s in studies for r in s['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'and r.get('updates',0)>0}
     all_pairs=[r|{'study_root':s['root']}for s in studies for r in s.get('paired_reviews',[])if (s['root'],r['arm'],r['updates'])in scores]
     control10=scores.get((str(DEFAULT_ROOT),'SAFETY_G8_CONTROL',10000))
     if not control10:return ''
@@ -410,7 +451,7 @@ def _potential_front(report_root,studies,h):
     from research_report import figure
     link=lambda path,title:h.relative_link(report_root,str(path),title)
     ci_text=lambda v:'['+', '.join(h.fmt(x,4)for x in v)+']'if isinstance(v,list)and len(v)==2 else '未给区间'
-    complete=[r for s in studies for r in s['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'and h.finite(r.get('PDMS'))]
+    complete=[r for s in studies for r in s['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'and h.finite(r.get('PDMS'))and r.get('updates',0)>0]
     peak=max(complete,key=lambda r:r['PDMS'],default={})
     body='<div class="notice"><b>仍有具体可检验的提升空间，但不能把阶段性收益外推为继续加步数必然变好。</b>本次已收完整最高 '+h.fmt(peak.get('PDMS',audit.get('absolute_best_completed_PDMS')),5)+'（'+h.esc(peak.get('arm','Control'))+'，'+h.number(peak.get('updates',10000))+'更新）。完整审计 '+h.number(audit.get('snapshot_complete_points'))+' 个全量检查点／'+h.number(len(audit.get('paired_phase_gains',[])))+' 组既有配对，快照 '+h.utc(audit.get('created_unix'))+'。</div>'
     pairs=audit.get('paired_phase_gains',[]);phase_rows=[]
@@ -495,6 +536,7 @@ def render_related(report_root,studies,h):
         if revival:body+=_historical_reassessment_block(study,h,label)
         if improvement:
             body='<div class="notice"><b>H已独立登记；每臂科学source／Adam时钟分别记录，F Control只读共享。</b>CPU协调启动、child启动、实际八rank更新与完整部署成绩分别判断。登记状态 '+h.esc(reg.get('status','待登记状态'))+'。</div>'
+            body+=_improvement_cards(study,h,label)
             method_start=len(body)
             body+='<p>P0为同IL70 fresh：warmup1000，<b>20k完成cos衰减，之后保持0.1峰值floor</b>；初预算20k Adam，批准后才续30／50k。50k是原生预算上限，不能误画成F的整50k衰减。2k／5k／10k及后续每2k做完整NAVTEST；不因早期小差自动淘汰。</p>'
             if not any(r.get('improvement_role')=='multiscene32'for r in runs):body+='<p class="muted">Batch32科学CPU检查已准备；尚未登记为本研究运行臂，后续以独立run.source／实际worker为准，不沿用P0的source标记。</p>'
@@ -504,6 +546,15 @@ def render_related(report_root,studies,h):
                 body+='<p>2k前不入库、不做额外评分；之后每collection在64个主PG候选之外最多8次fresh B1 ODE＋8次history B1复评，额外官方查询上限25%，与主候选分账。实际计数按8rank封存state.retention求和，不能将4inner重复日志相加。'+label(study.get('retention_handoff_path'),'P2科学协议与计费边界')+'；该CPU阶段文档的未派发标记不覆盖当前worker回执。</p>'
                 waiting=[r for r in runs if r.get('improvement_role')=='verified_retention'and h.finite(r.get('updates'))and r['updates']<2000]
                 if waiting:body+='<p class="muted">P2当前仍在2k启用门槛前；未激活是设计，不构成保持方法的效果检验。</p>'
+            if any(r.get('improvement_role')=='fp32_output'for r in runs):
+                body+='<p><b>真FP32末层：</b>原实现是在BF16 autocast计算action_output后才.float()；新臂明确以FP32进行末层线性投影，且采集、概率重算、冻结reference及部署均使用同一精度路径。借鉴ScaleRL的数值精度研究，但LM head不能直接等同动作投影，当前不是已证明的precision bug。相同IL权重也会改变初始执行函数，额外native0全量NAVTEST单列，不计为RL学习收益。'+label(study.get('fp32_check_path'),'FP32路径CPU证据')+'</p>'
+            if any(r.get('improvement_role')=='mixed_noise'for r in runs):
+                body+='<p><b>固定G8的时段混合：</b>4late[7,8,9]＋4early[3,6,8]，每候选三innovation slots，实际stoch_idx为[8,3]；仍使用原source clamped-mean proxy而非exact joint density。时段及anchor所见states同时改变，不能解释成只换噪声索引。'+label(study.get('mixed_handoff_path'),'Mixed正式科学协议')+'</p>'
+                support=study.get('mixed_support',{});cohorts=support.get('cohorts',{});failure=cohorts.get('historical_failure',{});high=cohorts.get('matched_high_control',{})
+                if support.get('status','').startswith('COMPLETE')and failure:
+                    a=failure.get('late8',{});b=failure.get('split4late4early',{});ha=high.get('late8',{});hb=high.get('split4late4early',{})
+                    body+='<p class="muted">旧θSafety10k的156个选定TRAIN失败场景中，已有G16候选重组的严格见证（审计口径） '+h.number(a.get('found_quality'))+'→'+h.number(b.get('found_quality'))+'，allcanonical0 '+h.number(a.get('canonical_allzero'))+'→'+h.number(b.get('canonical_allzero'))+'，PG0 '+h.number(a.get('PG0'))+'→'+h.number(b.get('PG0'))+'；156个高对照的见证覆盖保持，但PG0 '+h.number(ha.get('PG0'))+'→'+h.number(hb.get('PG0'))+'。这是已有候选子集重组，无新G8 forward、不是NAVTEST提分，也不是新训练过程效果。'+label(study.get('mixed_support_path'),'旧候选支持审计')+'</p>'
+            if study.get('new_trials_literature'):body+='<p class="muted">'+label(study['new_trials_literature_path'],'新试验的primary文献、迁移机制及限制')+'；文献／CPU文档中的未部署状态是历史开发阶段，当前启动以worker与全部rank日志为准。</p>'
             science_body=body[method_start:];body=body[:method_start]
         else:body+='<p>同IL70 fresh，首预算 '+h.number(reg.get('initial_budget_updates'))+' 更新；2k／5k仅观测，10k第一次完整阶段评审，之后每2k完整NAVTEST。固定cos总周期 '+h.number(schedule.get('total_updates',protocol.get('horizon_updates')))+'、warmup '+h.number(schedule.get('warmup_updates'))+'、相对floor '+h.fmt(schedule.get('min_ratio'),3)+'；阶段不重置horizon。50k是调度时钟，不是未经审查的自动续满预算。</p>'
         body+='<p class="muted">相关RL实现的调度依任务而异；统一warmup＋cosine是可检验的本轮设计，未被证明为所有任务最优。</p>'
@@ -516,14 +567,34 @@ def render_related(report_root,studies,h):
             count=h.number(run.get('updates'))
             if improvement and h.finite(run.get('updates')):count+='<small>名义F数据clock '+h.number(run['updates']*(4 if run.get('improvement_role')=='multiscene32'else 1))+'</small>'
             method=run.get('algorithm',run.get('standard_role','待方法'))
-            if improvement:method={'early_decay':'更早衰减并保持floor','multiscene32':'32个不同场景的真实梯度累积','verified_retention':'质量门控的历史RL行为保持'}.get(run.get('improvement_role'),method)
+            if improvement:method={'early_decay':'更早衰减并保持floor','multiscene32':'32个不同场景的真实梯度累积','verified_retention':'质量门控的历史RL行为保持','fp32_output':'真FP32末层动作投影','mixed_noise':'固定G8：4late＋4early混合探索'}.get(run.get('improvement_role'),method)
             rows.append([identity,h.esc(method),status+'<small>'+h.esc(run.get('host','未记录host'))+'</small>',count,h.number(raw)+'<small>'+ratio+' of eligible population</small>',h.number(run.get('new_candidates')),h.number(run.get('target_updates',reg.get('initial_budget_updates')))])
         body+=h.table(['本子研究arm','方法','实际状态','共同更新','实际scene曝光／人口','fresh候选','当前预算'],rows)
         if improvement:
+            if study.get('five_arm_deployment'):body+='<p class="muted">'+label(study['five_arm_deployment_path'],'五臂独立8rank实际学习证据')+'；这里只证明真实更新，不能替代完整部署成绩。</p>'
+            early=study.get('early_mixed_retention',{});mix=early.get('mixed_actual_training_prefix',{});retain=early.get('retention_actual_training_window',{})
+            if mix or retain:
+                evidence_rows=[]
+                if mix:
+                    evidence_rows.append(['Mixed首'+h.number(mix.get('optimizer_prefix_end'))+'更新／'+h.number(mix.get('groups'))+'组','early严格高质量 '+h.number(mix.get('early',{}).get('strict_high_count'))+'／'+h.number(mix.get('per_branch_candidates'))+'；late '+h.number(mix.get('late',{}).get('strict_high_count'))+'／'+h.number(mix.get('per_branch_candidates')),'early-only '+h.number(mix.get('groups_only_early_has_strict_high'))+'组、late-only '+h.number(mix.get('groups_only_late_has_strict_high'))+'组；PG0 '+h.number(mix.get('zero_PG_groups'))+'／allcanonical0 '+h.number(mix.get('allcanonicalzero_groups'))])
+                if retain:
+                    banks=list(retain.get('latest_observed_bank_size_by_rank',{}).values());window=retain.get('optimizer_window',[])
+                    evidence_rows.append(['保持臂更新'+('–'.join(h.number(u)for u in window))+'／'+h.number(retain.get('groups'))+'组','主PG '+h.number(retain.get('mainPG_queries'))+'次；额外fresh ODE '+h.number(retain.get('extra_fresh_ODE_queries'))+'＋history '+h.number(retain.get('extra_history_ODE_queries')),'退化gate '+h.number(retain.get('regression_gate_activations'))+'组；各rank bank '+(h.number(min(banks))+'–'+h.number(max(banks))if banks else '待记录')])
+                body+='<details open><summary>机制已实际启动，但尚非NAVTEST收益证明</summary>'+h.table(['限定TRAIN窗口','真实候选／官方查询','互补支持／激活'],evidence_rows)+'<p>每collection只计inner1一次；四inner复用不乘成四次新查询。Mixed是正在变化的训练策略内两分支统计，不是冻结θ因果或heldout改进；保持臂额外查询按主PG分母计，不能宣称总query与Control相等。'+label(study['early_mixed_retention_path'],'正式前缀与激活统计')+'</p></details>'
             completed=[r for r in study['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST']
-            if completed:body+='<h3>H完整NAVTEST：只发布全量结果</h3>'+h.table(['arm','Adam更新','场景','完整PDMS','证据'],[[h.esc(r['arm']),h.number(r.get('updates')),h.number(r.get('scenes')),h.fmt(r.get('PDMS'),6),label(r.get('evidence'),'SUMMARY')]for r in completed])
-            else:body+='<div class="notice"><b>H目前没有完整NAVTEST成绩。</b>原生训练、checkpoint导出与分片评测均不算提分证据；等待12146场景完整SUMMARY，不发布部分均分。</div>'
-            body+='<details><summary>三臂的机制、各自时钟与额外评分成本</summary>'+science_body+'</details>'
+            initial=[r for r in completed if r.get('updates')==0];trained=[r for r in completed if r.get('updates',0)>0]
+            if study.get('fp32_snapshot_check')and any(r.get('improvement_role')=='fp32_output'for r in runs):
+                fp32_initial=any(r['arm']=='IMPROVEMENT_FP32_OUTPUT_G8'for r in initial)
+                note='native0完整重评已收齐；下述问题保留为评测适配历史。'if fp32_initial else '评测适配已修复／native0完整重评进行中；暂无可发布初始分数。'if study.get('fp32_gpu_parity',{}).get('status')=='PASS'else '评测适配修复／等待native0完整重评；暂无可发布初始分数。'
+                body+='<p class="'+('muted'if fp32_initial else 'warning')+'"><b>FP32：'+note+'</b>辅助native_snapshot加载器曾漏读精度flag而触发parity拒绝；训练／导出此前正确，不是科学loss失败或方法无效。旧u0分片整体归档，不与新evaluation_source混拼。'+label(study['fp32_snapshot_check_path'],'独立snapshot恢复CPU回归')+'</p>'
+                parity=study.get('fp32_gpu_parity',{})
+                if parity.get('status')=='PASS':body+='<p class="muted">修复后实际GPU native／export一致性已PASS，normalized／requested最大误差 '+h.fmt(parity.get('normalized_max_abs'),6)+'／'+h.fmt(parity.get('requested_max_abs'),6)+'；完整重评未齐前不填分。'+label(study['fp32_gpu_parity_path'],'GPU parity原始回执')+'</p>'
+                evaluation_sources=list(dict.fromkeys(str(r['evaluation_source'])for r in runs if r.get('improvement_role')=='fp32_output'and r.get('evaluation_source')))
+                if evaluation_sources:body+='<p class="muted">FP32独立评测适配source：'+' · '.join(label(p,Path(p).name)for p in evaluation_sources)+'；原训练source与child不变。</p>'
+            if initial:body+='<h3>初始执行函数检查：不计为RL学习收益</h3>'+h.table(['arm','Adam更新','场景','初始PDMS','证据'],[[h.esc(r['arm']),'0（未优化）',h.number(r.get('scenes')),h.fmt(r.get('PDMS'),6),label(r.get('evidence'),'SUMMARY')]for r in initial])
+            if trained:body+='<h3>H完整NAVTEST：只发布全量结果</h3>'+h.table(['arm','Adam更新','场景','完整PDMS','证据'],[[h.esc(r['arm']),h.number(r.get('updates')),h.number(r.get('scenes')),h.fmt(r.get('PDMS'),6),label(r.get('evidence'),'SUMMARY')]for r in trained])
+            else:body+='<div class="notice"><b>H目前没有优化后的完整NAVTEST成绩。</b>原生训练、初始函数检查、checkpoint导出与分片评测均不算提分证据；等待12146场景完整SUMMARY，不发布部分均分。</div>'
+            body+='<details><summary>各臂的机制、时钟、初始函数与额外评分成本</summary>'+science_body+'</details>'
             mapping=study.get('algorithm_mapping',{})
             if mapping:body+='<details><summary>算法发展与当前问题如何对应</summary><p>本轮优先验证P0更早收敛、P1真正扩大不同场景批、P2质量门控历史RL保持。GRPO家族文献逐项区分已吸收机制、已有历史测试与后续假说；论文新不等于部署收益，CPU／实现映射不覆盖当前worker与完整评分状态。</p>'+label(study['algorithm_mapping_path'],'正式算法—问题对应及primary来源')+'</details>'
             body+=_resource_block(study,h,label)+_campaign_health_block(studies,h)
@@ -605,6 +676,7 @@ def render_related(report_root,studies,h):
         existing=[p for p in cpu_paths if p.is_file()]
         if existing:body+='<p class="muted">'+ ' · '.join(label(p,'科学协议／CPU检查'if i==0 else '定向CPU检查')for i,p in enumerate(existing))+'；CPU检查不代表已获得部署收益。</p>'
         title=reg.get('display_name')or('复审历史判断：统一配方下的方法复试'if revival else '当前标准化子研究：统一warmup＋cosine与更充分训练')
+        if improvement and any(r.get('improvement_role')in ['fp32_output','mixed_noise']for r in runs):title='H当前研究：调度、场景批、保持、精度与探索'
         document='<section id="'+section_id(study)+'"><h2>'+h.esc(title)+'</h2><p class="deck">独立父身份／输出命名空间；配置、启动、真实LR与完整评测分层记录。</p>'+body+'</section>'
         (current_bodies if improvement else bodies).append(document)
     import importlib,latest_complete_report
