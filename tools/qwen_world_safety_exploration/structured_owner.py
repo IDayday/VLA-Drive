@@ -11,14 +11,24 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 from .notify import refresh
 
 
+def validate_plan(plan,module):
+    if module=='probe_structured':
+        budget=14976;cpu=plan.get('CPU_only') is True;actual=plan.get('new_official_queries')
+    elif module=='probe_noise_profiles':
+        budget=9984;cpu=(plan.get('schema')=='TRAIN_Safety10k_terminal_noise_profile_controls_CPU_FP32_v1_launch'
+            and plan.get('CPU_threads_max')==2 and plan.get('scorer_processes_per_rank')==1)
+        actual=plan.get('new_queries')
+    else:raise ValueError('Unknown finite CPU probe')
+    if not cpu or plan.get('world')!=8 or actual!=budget:raise ValueError('Wrong known finite CPU plan/budget')
+    return budget
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--plan',required=True)
     p.add_argument('--owner-name',choices=('STRUCTURED_PROBE','NOISE_PROFILE_CONTROLS'),default='STRUCTURED_PROBE')
     p.add_argument('--module',choices=('probe_structured','probe_noise_profiles'),default='probe_structured');a=p.parse_args()
     require_dispatch();plan=json.loads(Path(a.plan).read_text())
-    expected_queries=14976 if a.module=='probe_structured' else 9984
-    if plan['CPU_only'] is not True or plan['world']!=8 or plan['new_official_queries']!=expected_queries:
-        raise ValueError('Only the finite registered CPU proposal plan')
+    expected_queries=validate_plan(plan,a.module)
     directory=ROOT/'owners'/a.owner_name;directory.mkdir(parents=True,exist_ok=True)
     lock=(directory/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     if (directory/'STATE.json').exists():raise ValueError('Existing CPU invocation requires explicit adoption, not duplicate scoring')
