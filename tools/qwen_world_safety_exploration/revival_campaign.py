@@ -155,6 +155,9 @@ def owner_class():
                 if receipt['returncode']!=0:raise RuntimeError('Actual native failure retained, no automatic scientific retry: '+node['job'])
                 latest=read(latest_path);checkpoint=Path(latest['checkpoint']);seal=read(checkpoint/'COMPLETE')
                 if latest['updates']!=target:
+                    from .resource_migration import requeue_clean_resource_pause
+                    if requeue_clean_resource_pause(node,run,latest,receipt,allowed_hosts(admit_long_job=True)):
+                        self.update(arm,status='WAITING_RESOURCE_MIGRATION',updates=latest['updates'],checkpoint=str(checkpoint));continue
                     if (ROOT_PATH/'STOP_REQUESTED').exists()or run.get('revival_disposition')=='CATASTROPHIC_REVIEW':
                         self.update(arm,status='STOPPED_AT_COOPERATIVE_BOUNDARY',updates=latest['updates'],checkpoint=str(checkpoint));raise StopBeforeDispatch('Cooperative boundary retained')
                     raise ValueError('Native completion outside registered stage')
