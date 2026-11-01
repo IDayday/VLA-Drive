@@ -218,6 +218,8 @@ def load_related(h,warnings,inputs):
             study['consolidation_handoff']=h.read_json(Path(study['consolidation_handoff_path']),warnings,inputs)or{}
             study['multiscene_handoff_path']=str(folder/'MULTISCENE32_HANDOFF.json')
             study['multiscene_handoff']=h.read_json(Path(study['multiscene_handoff_path']),warnings,inputs)or{}
+            study['retention_handoff_path']=str(folder/'VERIFIED_RETENTION_HANDOFF.json')
+            study['retention_handoff']=h.read_json(Path(study['retention_handoff_path']),warnings,inputs)or{}
             study['common10k_audit_path']=str(folder/'COMMON_10K_REGRESSION_CONFIG_AUDIT.json')
             common=h.read_json(Path(study['common10k_audit_path']),warnings,inputs)or{}
             study['common10k_audit']={k:v for k,v in common.items()if k not in ['inputs','receipts','checkpoints','journal_windows','raw_rows']}
@@ -415,7 +417,7 @@ def _potential_front(report_root,studies,h):
         for row in study.get('historical_audit',{}).get('R_arms',[]):
             for r in row.get('schedule_matched_evidence',[]):old_lr.append([h.esc(row['id']),h.esc(r['label'].split('_u',1)[-1].split('_minus_',1)[0]),h.fmt(r.get('delta_PDMS'),5),ci_text(r.get('CI95_PDMS'))])
     if old_lr:body+='<details><summary>已经研究过LR：旧10k native fork的完整对照仍保留</summary>'+h.table(['旧方法','全局更新','对旧Safety同预算Δ','95%CI'],old_lr)+'<p>旧低LR12k有正向证据，14k未保持；旧局部cos12／14k区间跨0，均未超旧Safety10k。新P0是fresh IL70／warmup1000下复审并扩展调度保持问题，不是首次LR尝试，也不恢复已停止旧fork。</p></details>'
-    directions=[['P0','复审并扩展调度保持问题','同IL70 fresh，20k完成cos衰减后保持floor至批准预算；对照原50k衰减，warmup1000／floor.1／峰值与其他科学配方保持。','检验完整衰减周期包；看全曲线、安全、zero与固定IL70-high保持，不只选最好点。'],['P1','扩大不同场景的优化批次','有效批次8→32个不同场景，保持每场景G8；当前是world8×每rank1场景、4inner。G16只增加同场景候选，不是场景batch扩展。','同时按更新数、fresh场景、候选查询和计算成本比较；单独验证，不能把多曝光当同预算胜出。'],['P2','质量门控的好RL行为保持／退化回放','先用TRAIN固定诊断确认退化或同θ ODE低分、G8有严格成功支持；确认实际激活后再设计独立保持约束。','区别旧SuccessMemory固定teacher和Protected取消所有负A；历史不混入on-policy优势，高分的合理相对负A仍允许。']]
+    directions=[['P0','复审并扩展调度保持问题','同IL70 fresh，20k完成cos衰减后保持floor至批准预算；对照原50k衰减，warmup1000／floor.1／峰值与其他科学配方保持。','检验完整衰减周期包；看全曲线、安全、zero与固定IL70-high保持，不只选最好点。'],['P1','扩大不同场景的优化批次','有效批次8→32个不同场景，保持每场景G8；当前是world8×每rank1场景、4inner。G16只增加同场景候选，不是场景batch扩展。','同时按更新数、fresh场景、候选查询和计算成本比较；单独验证，不能把多曝光当同预算胜出。'],['P2','质量门控的历史RL行为保持','本run TRAIN真实ODE质量通过后入库；同场景当前ODE退化时，把原β预算25%转给历史RL均值保持，fresh PG不改。','区别旧SuccessMemory固定teacher和Protected取消所有负A；2k前不激活，额外ODE／history评分成本单列。']]
     active={r['id']:r for s in studies for r in s['runs']}
     for row,arm in zip(directions,['IMPROVEMENT_EARLY_DECAY_G8','IMPROVEMENT_MULTISCENE32_G8','IMPROVEMENT_VERIFIED_RETENTION_G8']):row.append(_run_status(active[arm],h)if arm in active else '待诊断／未登记训练')
     body+=h.table(['优先级','要解决的问题','可审查的单变量方向','判据与边界','实际执行状态'],directions)
@@ -443,7 +445,11 @@ def render_related(report_root,studies,h):
             body+='<p>P0为同IL70 fresh：warmup1000，<b>20k完成cos衰减，之后保持0.1峰值floor</b>；初预算20k Adam，批准后才续30／50k。50k是原生预算上限，不能误画成F的整50k衰减。2k／5k／10k及后续每2k做完整NAVTEST；不因早期小差自动淘汰。</p>'
             if not any(r.get('improvement_role')=='multiscene32'for r in runs):body+='<p class="muted">Batch32科学CPU检查已准备；尚未登记为本研究运行臂，后续以独立run.source／实际worker为准，不沿用P0的source标记。</p>'
             else:body+='<p>Batch32使用独立Adam时钟：首5k Adam约对应F Control20k的数据量；500／1250／2500及后续每500 Adam评测。1250停于inner2，已采10016场景／80128候选，比名义F5000多16场景／128候选，不称严格等预算。后续7500／12500需独立批准。</p>'
-            if any(r.get('improvement_role')=='verified_retention'for r in runs):body+='<p>Verified-retention另用原50k／warm1000配方与1×Adam参考时钟。2k前不建bank／额外评分；其后fresh ODE与history复评的官方查询成本单列，不把source-PG候选数冒充总评分量。独立source与启动状态以本臂回执为准。</p>'
+            if any(r.get('improvement_role')=='verified_retention'for r in runs):
+                body+='<p><b>P2：质量门控的历史RL行为保持。</b>另用原50k／warm1000配方与1×Adam参考时钟。只保存本run TRAIN中NC／DAC／TTC／Comfort全过且canonical≥.9的真实ODE行为；当前同场景ODE失去该质量或比存量分数低.01时，激活原β50预算的0.75 IL＋0.25历史RL均值保持，非激活组仍为原β50 IL。fresh PG／优势不改，25%预算不等于25%梯度强度。</p>'
+                body+='<p>2k前不入库、不做额外评分；之后每collection在64个主PG候选之外最多8次fresh B1 ODE＋8次history B1复评，额外官方查询上限25%，与主候选分账。实际计数按8rank封存state.retention求和，不能将4inner重复日志相加。'+label(study.get('retention_handoff_path'),'P2科学协议与计费边界')+'；该CPU阶段文档的未派发标记不覆盖当前worker回执。</p>'
+                waiting=[r for r in runs if r.get('improvement_role')=='verified_retention'and h.finite(r.get('updates'))and r['updates']<2000]
+                if waiting:body+='<p class="muted">P2当前仍在2k启用门槛前；未激活是设计，不构成保持方法的效果检验。</p>'
         else:body+='<p>同IL70 fresh，首预算 '+h.number(reg.get('initial_budget_updates'))+' 更新；2k／5k仅观测，10k第一次完整阶段评审，之后每2k完整NAVTEST。固定cos总周期 '+h.number(schedule.get('total_updates',protocol.get('horizon_updates')))+'、warmup '+h.number(schedule.get('warmup_updates'))+'、相对floor '+h.fmt(schedule.get('min_ratio'),3)+'；阶段不重置horizon。50k是调度时钟，不是未经审查的自动续满预算。</p>'
         body+='<p class="muted">相关RL实现的调度依任务而异；统一warmup＋cosine是可检验的本轮设计，未被证明为所有任务最优。</p>'
         rows=[]
@@ -454,7 +460,9 @@ def render_related(report_root,studies,h):
             if improvement:identity+='<small>source '+h.esc(Path(run['source']).name)+'／'+h.esc(run.get('source_commit','见本臂source'))+'</small>'
             count=h.number(run.get('updates'))
             if improvement and h.finite(run.get('updates')):count+='<small>名义F数据clock '+h.number(run['updates']*(4 if run.get('improvement_role')=='multiscene32'else 1))+'</small>'
-            rows.append([identity,h.esc(run.get('algorithm',run.get('standard_role','待方法'))),status+'<small>'+h.esc(run.get('host','未记录host'))+'</small>',count,h.number(raw)+'<small>'+ratio+' of eligible population</small>',h.number(run.get('new_candidates')),h.number(run.get('target_updates',reg.get('initial_budget_updates')))])
+            method=run.get('algorithm',run.get('standard_role','待方法'))
+            if improvement:method={'early_decay':'更早衰减并保持floor','multiscene32':'32个不同场景的真实梯度累积','verified_retention':'质量门控的历史RL行为保持'}.get(run.get('improvement_role'),method)
+            rows.append([identity,h.esc(method),status+'<small>'+h.esc(run.get('host','未记录host'))+'</small>',count,h.number(raw)+'<small>'+ratio+' of eligible population</small>',h.number(run.get('new_candidates')),h.number(run.get('target_updates',reg.get('initial_budget_updates')))])
         body+=h.table(['本子研究arm','方法','实际状态','共同更新','实际scene曝光／人口','fresh候选','当前预算'],rows)
         if improvement:
             handoff=study.get('consolidation_handoff',{});samples=handoff.get('scheduler_clock',{}).get('samples',{})
