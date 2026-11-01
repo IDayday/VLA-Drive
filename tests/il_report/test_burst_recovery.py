@@ -4,10 +4,23 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 
-from tools.il_report.navtest_burst import adopt_four_jobs, prechild_refusal
+from tools.il_report.navtest_burst import Pool, adopt_four_jobs, prechild_refusal
 
 
 class BurstRecoveryTest(unittest.TestCase):
+    def test_inventory_uses_the_qualified_tasks_probe(self):
+        calls=[]
+        def probe(host):
+            calls.append(host)
+            return dict(gpus=[dict(index=0,uuid='GPU-test',total_MiB=80000,free_MiB=80000,utilization=0)],
+                owners=[],MemAvailable_bytes=500*1024**3,worker_python_exists=True)
+        delegate=SimpleNamespace(allowed_hosts=lambda:['authorized-task-host'],probe=probe,
+            remote=lambda host,args:json.dumps(dict(accepted=['GPU-test'],rejected={})))
+        routes,inventory=Pool(delegate,admission_source='/frozen/source').available()
+        self.assertEqual(len(routes),1)
+        self.assertEqual(calls,['authorized-task-host']*2)
+        self.assertFalse(inventory['errors'])
+
     def test_resource_wait_only_before_child(self):
         good=dict(status='REFUSED_RESOURCE',child_not_started=True,returncode=75)
         self.assertTrue(prechild_refusal(good))

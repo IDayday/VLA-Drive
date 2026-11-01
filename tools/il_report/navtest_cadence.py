@@ -175,7 +175,8 @@ def tick(state):
             if any(j['method'] == method and j['status'] in ('FAILED_REVIEW_REQUIRED', 'BLOCKED_OWNER_EXIT_WITHOUT_COMPLETE') for j in state['jobs']): continue
             # At most one queued checkpoint per method. Pin the latest eligible
             # available boundary; do not backfill an unlimited history.
-            if any(j['method'] == method and j['status'] == 'PENDING' for j in state['jobs']): continue
+            if (not method.startswith('ARCH_')
+                    and any(j['method'] == method and j['status'] == 'PENDING' for j in state['jobs'])): continue
             available = {int(p.name[6:]): p for p in (run/'checkpoints').glob('update*')
                          if p.name[6:].isdigit() and (p/'COMPLETE').exists()}
             step = choose_step(available, [u for m, u in existing if m == method])
@@ -190,9 +191,10 @@ def tick(state):
         if job['status'] != 'PENDING': continue
         if sum(j['status'] in ('RUNNING', 'DISPATCHING') for j in state['jobs']) >= 2: break
         root = Path(job['root'])
-        operator = root/('BURST_OPERATOR_recovery_20261101.py' if job.get('resume_reviewed') else 'BURST_OPERATOR.py')
+        operator_source = Path(__file__).with_name('navtest_burst.py')
+        operator = root/('BURST_OPERATOR_ops_'+sha(operator_source)[:12]+'.py')
         if not operator.exists():
-            operator.write_bytes(Path(__file__).with_name('navtest_burst.py').read_bytes())
+            operator.write_bytes(operator_source.read_bytes())
         job['operator_sha256'] = sha(operator)
         command = [PYTHON, '-u', str(operator),
             '--root', str(root), '--source', job['source'], '--family', job['family'], '--workers', '32']

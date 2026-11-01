@@ -58,11 +58,11 @@ class Pool:
     def available(self, min_free_MiB=32768):
         if self.sample is not None and time.monotonic()-self.at < 15:
             return self.sample
-        from starVLA.rl.qwen_world_postcot.resources import probe, gpu_activity_issue
+        from starVLA.rl.qwen_world_postcot.resources import gpu_activity_issue
         hosts = self.delegate.allowed_hosts()
         def get(host):
             try:
-                observed = probe(host)
+                observed = self.delegate.probe(host)
                 if self.admission_source:
                     # The old qualified worker has a narrower owner allowlist
                     # than the generic scheduler. Use its EXACT read-only guard;
