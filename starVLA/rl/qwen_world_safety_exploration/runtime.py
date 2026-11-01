@@ -15,7 +15,9 @@ def runtime_for_config(path):
     if r['structured_advantage']!=STRUCTURED_SCHEMA:
         from .dense_credit import DenseRuntimeMixin,SCHEMA as DENSE_SCHEMA
         from .saturated_credit import SaturatedRuntimeMixin,SCHEMA as SATURATED_SCHEMA
+        from .protected_credit import ProtectedRuntimeMixin,SCHEMA as PROTECTED_SCHEMA
         if r['structured_advantage']==DENSE_SCHEMA:mixins.append(DenseRuntimeMixin)
         elif r['structured_advantage']==SATURATED_SCHEMA:mixins.append(SaturatedRuntimeMixin)
+        elif r['structured_advantage']==PROTECTED_SCHEMA:mixins.append(ProtectedRuntimeMixin)
         else:raise ValueError('Unknown separately registered credit')
     return type('SafetyExplorationRuntime',tuple(mixins+[GroupRuntime]),{})()

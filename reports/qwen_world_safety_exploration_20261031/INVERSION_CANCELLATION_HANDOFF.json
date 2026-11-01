@@ -1,0 +1,59 @@
+{
+  "schema": "world_inversion_cancellation_pure_math_handoff_v1",
+  "status": "READY_PURE_CPU_ONLY_NOT_REGISTERED",
+  "created_unix": 1793492092.6179304,
+  "protocol": "world_strict_quality_canonical_inversion_pair_cancellation_math_v1",
+  "source_files_sha256": {
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_safety_exploration/inversion_cancellation.py": "a1c9d001ac435b0c0ebbf7f2a3ec3c0762f2bc7408c8ee00ae6a611a74f52da4",
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tests/test_world_safety_inversion_cancellation.py": "1416dddee494794d1baad9af9f505bc0600eecc20b67c67ecd0e0f9a548732f0"
+  },
+  "API": {
+    "module": "starVLA.rl.qwen_world_safety_exploration.inversion_cancellation",
+    "function": "cancel_inversions(raw_A, canonical_scores, components, comfort, high_threshold=.9)",
+    "inputs": "Detached FP64[S,G] raw_A / official score / Comfort; FP64[S,G,4] NC,DAC,TTC,EP. G8/G16. Official FP64 scores validated against current canonical formula; do not pass rounded FP32 reward labels.",
+    "outputs": [
+      "delta",
+      "updated_rawA",
+      "pairs",
+      "counts",
+      "group_sum_before",
+      "group_sum_after",
+      "max_group_sum_roundoff"
+    ],
+    "output_device": "CPU FP64; caller explicitly moves delta if needed"
+  },
+  "guards": "Negative endpoint NC=DAC=TTC=Comfort=1, canonical>=.9, originalrawA<0; positive endpoint NC=DAC=TTC=1, rawA>0, strictly lower canonical. Each m=min(-A_high,A_lower), A_high+=m,A_lower-=m.",
+  "sorting": "Exact previous replay: negative endpoint canonical descending/index ascending; positive endpoint canonical ascending/index ascending. Stable original candidate order resolves ties.",
+  "integration": "Pure standalone module only. Future independently registered credit transform adds delta to A_EP/rawA, retains A_safe/rewards/mask/globalStd/original baseline normalization unless a separately registered specification explicitly says otherwise. No re-centering or normalization in this function. Fullpending/schema recovery integration remains future work; do not import into live baseline implicitly.",
+  "invariants": [
+    "Unchanged input tensors; untouched output locations bitexact",
+    "Only strictly feasible positions change; no positive unsafe credit created",
+    "Group rawA sum conserved mathematically; measured FP64 rounding recorded rather than hidden by recentering",
+    "Negative-high candidates may remain after all lowercanonical positive mass is exhausted",
+    "Distinct from high-negative one-sided zeroing, which retains lowcanonical positive A and permits a positive groupmean"
+  ],
+  "non_features": [
+    "No runtime or entry",
+    "No configuration registration",
+    "No scheduler/data/anchor/sampler change",
+    "No GPU/forward/scoring/optimizer step",
+    "No automatic claim that raw credit sign equals parameter gradient or final score improvement"
+  ],
+  "remaining_negative_high_explanation": {
+    "original_negative_high": 16546,
+    "had_lower_score_positive_witness": 14190,
+    "original_without_witness": 2356,
+    "cleared_by_cancellation": 9793,
+    "remaining_total": 6753,
+    "remaining_already_without_witness": 2356,
+    "remaining_with_original_witness_but_positive_budget_exhausted": 4397,
+    "remaining_original_witness_partly_relieved": 3510,
+    "remaining_original_witness_untouched_after_prior_pairs_spent_positive_budget": 887,
+    "remaining_qualifying_pairs": 0
+  },
+  "explanation_zh": "原16546个负high中2356个起初没有更低分正A见证，原样保留。其余14190个中9793个清零，4397个仍负（3510个部分减弱、887个在轮到前低分正优势已花完）。所以剩6753个负high，但任何一个都已无更低canonical的正A配对；规则取消反序符号组合，并不保证把每个绝对高分负A归零。",
+  "exact_evidence": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/HIGH_SCORE_CREDIT_BEHAVIOR_VERIFICATION.json",
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/INVERSION_CANCELLATION_CPU_CHECK.json",
+  "committed_or_staged": false,
+  "GPU_dispatched": false
+}

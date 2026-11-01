@@ -1,0 +1,59 @@
+{
+  "schema": "world_verified_high_protection_handoff_v1",
+  "status": "CPU_READY_NOT_REGISTERED",
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/protected_credit.py": "82492599bc04fe40cba587ded6b4a6391d4a6018e209bdd833afc1d0a0750215",
+    "tests/test_world_safety_exploration_protected.py": "a6a5cbe3821d99abee30c23624d437a3021c60f56d6af0e3b3913482d8068d0b"
+  },
+  "module": "starVLA.rl.qwen_world_safety_exploration.protected_credit",
+  "runtime_mixin": "ProtectedRuntimeMixin",
+  "runtime_composition": "class Runtime(ProtectedRuntimeMixin,GroupRuntime): pass",
+  "config_fragment": {
+    "research": {
+      "structured_advantage": "world_SafetyEP_verified_high_negative_A_zero_fixed_base_std_v1"
+    }
+  },
+  "group_sizes": [
+    8,
+    16
+  ],
+  "math": {
+    "quality": "original records NC=DAC=TTC=Comfort1 and true FP64canonical score>=.9; do not threshold FP32reward",
+    "gate": "quality && originalRawA<0",
+    "delta": "-originalRawA for eligible else0",
+    "update": "A_safe unchanged; A_EP+=delta; eligible rawA_i=0; other rawA unchanged",
+    "normalized": "only eligible originalnormalizedA_i becomes0; all other values and originalgroup PGmask unchanged",
+    "scale": "original world*G baselineSafetyRawStd +eps1e-8 strictly retained, no recenter/fallback; eligible withstd0 rejected",
+    "bias": "updated groupmean may become positive; custom task-gated advantage bias, not unbiasedGRPO or Sign reproduction"
+  },
+  "audit": {
+    "payload": "actualComfort+FP64score/qualityflags/eligible/originalrawA/delta/digests",
+    "restore": "originalRawA checked against original formula within1e-14 CPU/GPU reduction tolerance, then preserve actual saved sign for gate; exact input/material hashes retain stored bits",
+    "native": "independent scope/credit protocol; original checkpoint transaction with paired validators atsave+restore",
+    "metrics": "protected_credit_* group/candidate activation, qualitycount, removedmass, rawmean before/after, baseStd, caps; repeated4inners count freshcollection once"
+  },
+  "limits": [
+    "No new positive good credit, no teacher, no change to permanent IL70 anchor/PPO/.005/LR/data/52.7M scope",
+    "Lower-canonical positiveA candidates deliberately retain their old reinforcement; Inversion cancellation is a different future candidate",
+    "No added credit for EP1 successful saturation; mutually exclusive with Saturated/Dense",
+    "Shared parameters and other losses can still harm protected trajectories; no safety/performance guarantee"
+  ],
+  "extension": {
+    "decision_hook": "ProtectedCredit.make_decision(records,components,original_raw)",
+    "parts_hook": "ProtectedCredit.update_parts(components,info)",
+    "future": "second independent Inversion schema may share engine after separate source freeze; currentvalidators remain specifically Protected"
+  },
+  "evidence": [
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/HIGH_SCORE_CREDIT_CENSUS.json",
+      "file_sha256": "3c76ffd4188c4de4f2ca79861338346ae792d7c88d245edc5b57ce1860eb484b"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/HIGH_SCORE_CREDIT_BEHAVIOR_VERIFICATION.json",
+      "file_sha256": "89c4464f508b2076c04d5ac1c59273f0534068bdd1f894f03142d709ff29e333"
+    }
+  ],
+  "receipt": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/PROTECTED_CREDIT_CPU_CHECK.json",
+  "no_GPU_registration_or_commit": true,
+  "sha256": "5a893d227d6a1d883c327efd8846aef1e9f7474e4ae1814511f9688e567dcd40"
+}

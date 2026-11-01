@@ -1,0 +1,53 @@
+{
+  "schema": "world_inversion_cancellation_CPU_check_v1",
+  "status": "PASS",
+  "created_unix": 1793492092.5885339,
+  "source_files_sha256": {
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_safety_exploration/inversion_cancellation.py": "a1c9d001ac435b0c0ebbf7f2a3ec3c0762f2bc7408c8ee00ae6a611a74f52da4",
+    "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tests/test_world_safety_inversion_cancellation.py": "1416dddee494794d1baad9af9f505bc0600eecc20b67c67ecd0e0f9a548732f0"
+  },
+  "unit_tests": {
+    "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -B -m pytest -q tests/test_world_safety_inversion_cancellation.py",
+    "result": "2 passed, 1 warning in 1.20s",
+    "tests": 2
+  },
+  "bounded_cached_full_replay": {
+    "groups": 8700,
+    "candidate_records": 69600,
+    "cached_ledger": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/HIGH_SCORE_CREDIT_BEHAVIOR_20261101/groups.jsonl",
+    "cached_ledger_sha256": "a8c7e2059a02ccb84ccd45d8fd03153e3916bf52d1cc1e37517a9c338c6b1e66",
+    "no_original_behavior_reread": true,
+    "no_new_scoring_or_forward": true,
+    "seconds": 3.6460401732474566,
+    "updated_rawA_bitexact_to_previous_numpy_replay": true,
+    "every_pair_record_and_order_exact_to_previous_replay": true,
+    "counts": {
+      "groups": 8700,
+      "candidates": 69600,
+      "original_negative_high": 16546,
+      "original_qualifying_pairs": 30858,
+      "triggered_groups": 7578,
+      "transfers": 20290,
+      "changed_groups": 7578,
+      "changed_candidates": 27868,
+      "negative_high_cleared": 9793,
+      "remaining_negative_high": 6753,
+      "remaining_qualifying_pairs": 0,
+      "newly_allzero_groups": 48
+    },
+    "max_group_sum_roundoff": 1.6653345369377348e-16,
+    "CUDA_initialized": false
+  },
+  "remaining_negative_high_explanation": {
+    "original_negative_high": 16546,
+    "had_lower_score_positive_witness": 14190,
+    "original_without_witness": 2356,
+    "cleared_by_cancellation": 9793,
+    "remaining_total": 6753,
+    "remaining_already_without_witness": 2356,
+    "remaining_with_original_witness_but_positive_budget_exhausted": 4397,
+    "remaining_original_witness_partly_relieved": 3510,
+    "remaining_original_witness_untouched_after_prior_pairs_spent_positive_budget": 887,
+    "remaining_qualifying_pairs": 0
+  }
+}

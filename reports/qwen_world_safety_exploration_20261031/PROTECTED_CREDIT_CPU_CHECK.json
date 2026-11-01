@@ -1,0 +1,95 @@
+{
+  "schema": "world_verified_high_protection_CPU_check_v1",
+  "status": "PASS_THREE_TARGETED_CHECKS",
+  "at_unix": 1793492169.8793435,
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/protected_credit.py": "82492599bc04fe40cba587ded6b4a6391d4a6018e209bdd833afc1d0a0750215",
+    "tests/test_world_safety_exploration_protected.py": "a6a5cbe3821d99abee30c23624d437a3021c60f56d6af0e3b3913482d8068d0b"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q tests/test_world_safety_exploration_protected.py",
+  "result": "3 passed in10.37s",
+  "checks": [
+    "G8/G16 candidate gates use true official FP64 score and strict4; eligible originalnegative setzero; every other raw/normalizedA and all masks/Asafe/baseStd bitexact; explicit biased groupmean; impossible eligible+zeroStd rejected",
+    "one64/128 original-material gather; all8rank recovered parts/quality/eligible/originalA/delta/std/mask/statistics revalidated; canonical and saturation/Dense contamination rejected",
+    "actual8 CPU Gloo processes and original nativecheckpoint.save/restore pending0/1/2/3 + READY4; full8rank files at5seals; exact Adam/RNG/material restore; ProtectedLoss total/gradient equals original ResearchLoss on same finalizedA"
+  ],
+  "native_seals": [
+    {
+      "path": "/tmp/pytest-of-root/pytest-1318/test_actual_native_eight_CPU_r0/native/checkpoints/update000000_inner0",
+      "seal": {
+        "schema": 2,
+        "phase": "ROLLOUT_COMMITTED",
+        "world": 8,
+        "updates": 0,
+        "next_inner": 0,
+        "files_sha256": "997abbee5222a1843b43be187751e50c67dcc07b17a80dd9b7f69f020a89b0da"
+      },
+      "rank_files": 8,
+      "files_sha256": "997abbee5222a1843b43be187751e50c67dcc07b17a80dd9b7f69f020a89b0da",
+      "transaction_sha256": "c53bcce82f40a3d1400ac875700b6451a3c1f2513cde8814921f648bfe8befe0"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1318/test_actual_native_eight_CPU_r0/native/checkpoints/update000001_inner1",
+      "seal": {
+        "schema": 2,
+        "phase": "INNER_COMMITTED",
+        "world": 8,
+        "updates": 1,
+        "next_inner": 1,
+        "files_sha256": "63c609f9746cda22ea7c1c29a38a43613659e550bb96b405309540149c57709b"
+      },
+      "rank_files": 8,
+      "files_sha256": "63c609f9746cda22ea7c1c29a38a43613659e550bb96b405309540149c57709b",
+      "transaction_sha256": "b96260f01e3b799a5cc3b7deb6fc6a4a1ff73516eda17d687907aa42f9d12d16"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1318/test_actual_native_eight_CPU_r0/native/checkpoints/update000002_inner2",
+      "seal": {
+        "schema": 2,
+        "phase": "INNER_COMMITTED",
+        "world": 8,
+        "updates": 2,
+        "next_inner": 2,
+        "files_sha256": "184e7edec0b268964551b3566a0aae8f1df7f96d4945e40e7ca7b9498f16a011"
+      },
+      "rank_files": 8,
+      "files_sha256": "184e7edec0b268964551b3566a0aae8f1df7f96d4945e40e7ca7b9498f16a011",
+      "transaction_sha256": "3cd4c0536b11e75f851ce81eb72be3f6baf9193e854eeba43fe41f49cf26a68d"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1318/test_actual_native_eight_CPU_r0/native/checkpoints/update000003_inner3",
+      "seal": {
+        "schema": 2,
+        "phase": "INNER_COMMITTED",
+        "world": 8,
+        "updates": 3,
+        "next_inner": 3,
+        "files_sha256": "aed294b0fdc6d77d785ea9ddd08468230daa0affd722a747aa85f4bdb3d861f2"
+      },
+      "rank_files": 8,
+      "files_sha256": "aed294b0fdc6d77d785ea9ddd08468230daa0affd722a747aa85f4bdb3d861f2",
+      "transaction_sha256": "d264ba6f9460dcc43793c66d70d05781e2271c7000096a2c2e5ee070f03dd61d"
+    },
+    {
+      "path": "/tmp/pytest-of-root/pytest-1318/test_actual_native_eight_CPU_r0/native/checkpoints/update000004_inner0",
+      "seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 4,
+        "next_inner": 0,
+        "files_sha256": "6307068f2c63729caf7d006f0e79e387264a973e332dc84f4223a6b3638c0cd2"
+      },
+      "rank_files": 8,
+      "files_sha256": "6307068f2c63729caf7d006f0e79e387264a973e332dc84f4223a6b3638c0cd2",
+      "transaction_sha256": "bfea3a33944e15a7821824c86685777eb0e54ed4c30dc5c31ff2927d43e68c49"
+    }
+  ],
+  "scope": {
+    "GPU": false,
+    "registered": false,
+    "committed": false,
+    "initial_or_support_source_changed": false
+  },
+  "sha256": "920eb42d31749a7007d9a36016cf0eca522da53e1652dec824f3a065ecd26588"
+}
