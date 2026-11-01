@@ -1,0 +1,86 @@
+{
+  "schema": "world_actual_phase_lr_observation_v1",
+  "status": "COMPLETE_CPU_EXISTING_JOURNAL_READ",
+  "created_unix": 1793543386.7347422,
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/metrics_rank0.jsonl",
+  "prefix_final_update": 20000,
+  "prefix_sha256": "48410a85b676bbaca5555fe2b12f71ad881b3d349c043c4e0e78a1969c06e9f4",
+  "observed_rows": [
+    {
+      "optimizer_update": 1000,
+      "used_action_lr": 4.9950050000000005e-05,
+      "used_memory_lr": 4.995005000000001e-06,
+      "fraction_of_peak": 0.999001
+    },
+    {
+      "optimizer_update": 5000,
+      "used_action_lr": 4.9264500287645656e-05,
+      "used_memory_lr": 4.9264500287645656e-06,
+      "fraction_of_peak": 0.985290005752913
+    },
+    {
+      "optimizer_update": 10000,
+      "used_action_lr": 4.6357769292530405e-05,
+      "used_memory_lr": 4.635776929253041e-06,
+      "fraction_of_peak": 0.9271553858506081
+    },
+    {
+      "optimizer_update": 12000,
+      "used_action_lr": 4.463346914166775e-05,
+      "used_memory_lr": 4.4633469141667755e-06,
+      "fraction_of_peak": 0.892669382833355
+    },
+    {
+      "optimizer_update": 16000,
+      "used_action_lr": 4.037380798058502e-05,
+      "used_memory_lr": 4.0373807980585025e-06,
+      "fraction_of_peak": 0.8074761596117004
+    },
+    {
+      "optimizer_update": 20000,
+      "used_action_lr": 3.527206751307374e-05,
+      "used_memory_lr": 3.527206751307374e-06,
+      "fraction_of_peak": 0.7054413502614748
+    }
+  ],
+  "interpretation_zh": [
+    "当前已用warmup1000/cosine50k/floor.1，并非缺少scheduler。",
+    "10k仍使用92.7%峰值，20k70.5%；多方法共同回落使较早降低更新强度值得独立对照。",
+    "这些LR是实际optimizer.step前记录；相关性不能证明LR导致退化。"
+  ],
+  "new_training_or_scoring": 0,
+  "proposed_experiments": [
+    {
+      "id": "EARLIER_CONSOLIDATION_SCHEDULE",
+      "status": "DESIGN_ONLY_NOT_REGISTERED_OR_LAUNCHED",
+      "fresh_parent": "same original IL70, optimizer/RNG42 fresh; no historical warmstart",
+      "change": "cosine decay horizon20k thenfloor0.1, vs existing50k; samewarmup1000/initialfactor.001/peak5e-5and5e-6",
+      "unchanged": "data103288/uniform,G8,world8,4inner,Safety credit andILbeta50,52.7M trainable scope",
+      "gates": [
+        2000,
+        5000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000
+      ],
+      "decision": "PDMS with safety/zero/fixedIL70high retention at allfullgates; does not rely on a singlepeak",
+      "causal_scope": "Tests a wholedecay-horizon package, not everyLRhyperparameter orcausal proof ofcurrentdecline",
+      "initial_runtime_budget_updates": 20000,
+      "conditional_later_runtime_budgets": [
+        30000,
+        50000
+      ],
+      "horizon_and_runtime_budget_are_distinct": true,
+      "not_tested_to_completion": true
+    },
+    {
+      "id": "NATIVE10K_SMOOTH_LR_FORK",
+      "status": "ALTERNATIVE_DESIGN_REQUIRES_EXPLICIT_SCIENTIFIC_FORK_NOT_EXECUTION_MIGRATION",
+      "change": "Keep same10k model/Adam/scheduler/RNG/cursor/pending, addpersisted500update linearwarmdown to0.25× originalusedLR; otherwiseidentical continuation",
+      "caveat": "Not implemented orlaunched; requiresnewscientificidentity/nativefork support andscope-safe immutable source; do not silently change existingrun orrestartAdam"
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "schema": "world_four_observed_policy_strictsafe_population_oracle_v1",
+  "status": "COMPLETE_FULL12146_ALL_FOUR_PREDICTIONS_VERIFIED",
+  "created_unix": 1793543718.9928982,
+  "population": 12146,
+  "physical_logs": 44,
+  "policies": [
+    {
+      "label": "Control10k",
+      "PDMS": 91.4535975616644,
+      "canonical_zero": 265,
+      "strict_safe_candidates": 11634,
+      "strict_safe_unique_witness": 18,
+      "canonical_positive_unique_witness": 12,
+      "rescued_control_zero_canonical_positive": 0,
+      "rescued_control_zero_strict_positive": 0,
+      "strict_witness_when_control_not_strict": 0
+    },
+    {
+      "label": "Inversion16k",
+      "PDMS": 91.19144063665394,
+      "canonical_zero": 282,
+      "strict_safe_candidates": 11586,
+      "strict_safe_unique_witness": 10,
+      "canonical_positive_unique_witness": 5,
+      "rescued_control_zero_canonical_positive": 40,
+      "rescued_control_zero_strict_positive": 31,
+      "strict_witness_when_control_not_strict": 71
+    },
+    {
+      "label": "Saturated14k",
+      "PDMS": 91.02094390312176,
+      "canonical_zero": 254,
+      "strict_safe_candidates": 11666,
+      "strict_safe_unique_witness": 40,
+      "canonical_positive_unique_witness": 17,
+      "rescued_control_zero_canonical_positive": 65,
+      "rescued_control_zero_strict_positive": 41,
+      "strict_witness_when_control_not_strict": 133
+    },
+    {
+      "label": "Active18k",
+      "PDMS": 90.87035688466382,
+      "canonical_zero": 255,
+      "strict_safe_candidates": 11672,
+      "strict_safe_unique_witness": 30,
+      "canonical_positive_unique_witness": 23,
+      "rescued_control_zero_canonical_positive": 69,
+      "rescued_control_zero_strict_positive": 44,
+      "strict_witness_when_control_not_strict": 122
+    }
+  ],
+  "common": {
+    "all_four_canonical_zero": 167,
+    "all_four_below05": 191,
+    "no_strict_safe_policy": 329,
+    "any_strict_safe_policy": 11817,
+    "strictsafe_positive_repair_of_control_zero": 63,
+    "strictsafe_positive_repair_union_among_control_non_strict": 183
+  },
+  "oracle": {
+    "strict_safe_definition": "NC=DAC=TTC=Comfort=1 exactly",
+    "strict_safe_best_PDMS_zero_if_no_strict_candidate": 92.05152053146017,
+    "baseline_preserving_strict_safe_improvements_PDMS": 92.61196262526774,
+    "baseline_preserving_gain_PDMS": 1.158365063603364,
+    "baseline_preserving_improved_scenes": 5180,
+    "unconstrained_best_PDMS_diagnostic_only": 92.78562654401709,
+    "no_new_trajectory_generated": true,
+    "not_a_deployable_selector": true,
+    "selected_using_future_metric_labels": true,
+    "not_an_achievable_gain_bound_for_training": true
+  },
+  "sources": [
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST",
+      "summary_file_sha256": "3f0671a711c1d88a571bf19bb591f32edd304983cc0402116ccd2ed4d18f30f8",
+      "identity_file_sha256": "950c8b12d8603dfc6b7b1c754748b411b75e0fa2a3643c4e07c974ffe21e671c",
+      "identity_seal": "ba56664ecc900739f3c54a4f4d9acb69efed37849375f3961760c695cc9f1526",
+      "validated_scene_count": 12146,
+      "ordered_scene_receipt_seals_sha256": "1616e66e7f30e33902ddc1f70ef14714907c6d2ecff15ceed997ce8e71100a4b"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/STANDARD_INVERSION_G8_u016000/NAVTEST",
+      "summary_file_sha256": "cb67b44ba9cfad69859b66c06555c4a86513498d07640d0fe1611c2c27480c27",
+      "identity_file_sha256": "11316d330576fef939b4dd6ebb56b65cdbca883852565fbe9d1038a1d81a109d",
+      "identity_seal": "ed974c6c286ebe38503b83ded0f4087eb3875d3a8ce0dc0b8ca27dd22e858e93",
+      "validated_scene_count": 12146,
+      "ordered_scene_receipt_seals_sha256": "1bbc9a0fe604ae91e10cc0bafd46e9edc60f8b987f8c232cd6c7992dcb90ed0f"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_SATURATED_G8_u014000/NAVTEST",
+      "summary_file_sha256": "bd56f2c9c374b4d62f3585b710626267ac9e8f125d0cc040d67d5153d8e9c865",
+      "identity_file_sha256": "4d21d27f9befa03c5f2ac5d53c9b25de2dcb32e94993644531bbc3547b7a6351",
+      "identity_seal": "919c2e2378a3f2940509d7b9743ef67ffca934f8999e81f023bcad0a568b958e",
+      "validated_scene_count": 12146,
+      "ordered_scene_receipt_seals_sha256": "f40dbacf24b3c60c4ca80b413d5d81b906a67a1158fbd3dc949b09a2520bcb43"
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_ACTIVE_DATA_G8_u018000/NAVTEST",
+      "summary_file_sha256": "03495a296c0810b7b3d4448dbddc48305c028beabc987d6188405f8976ce49d2",
+      "identity_file_sha256": "b85689b9e3331d40dfa6dd004ea6e9e42c8b42995efe982ee21e386631ad8bc1",
+      "identity_seal": "b78cae5d8d20f92f254722a01956e03a2ccc38cc70a1325a8dd309b7da273343",
+      "validated_scene_count": 12146,
+      "ordered_scene_receipt_seals_sha256": "0404cab59e975b8f6439d8f052fb13a021a161f794da8b2a298e25095c83b0bb"
+    }
+  ],
+  "artifacts": {
+    "ledger": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/FOUR_ROUTE_STRICTSAFE_ORACLE_20261101/ledger.jsonl",
+      "sha256": "5f6f61e42edafd70ab6d0a09d3ab1a2af7274845e01630de57c1f18962c1d969"
+    },
+    "metrics": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/FOUR_ROUTE_STRICTSAFE_ORACLE_20261101/verified_metrics.npz",
+      "sha256": "c14b92cbd18a2089821ea56b4a4c66d2be8b1a9208042fc422d76d1194f9ad54"
+    }
+  },
+  "interpretation_zh": [
+    "这是四个已观察策略的逐场景未来指标oracle，只表明该有限策略池有互补见证；不等于可部署选路器、可学习收益或所有物理可解场景上界。",
+    "四策略来自不同更新数，不作同预算算法排名；未解决组不等于无安全解。",
+    "严格安全oracle无候选时记0；保留Control的改良oracle可能保留原非strict轨迹，不能称最终全场景strict。",
+    "NAVTEST token只写诊断ledger，绝不构造TRAIN列表、teacherbank或采样权重。"
+  ],
+  "scope": {
+    "new_scores": 0,
+    "new_bootstrap": 0,
+    "model_or_image_or_weight_loads": 0,
+    "GPU": 0,
+    "training_or_live_source_or_registry_actions": 0
+  },
+  "strict_high_quality_oracle": {
+    "definition": "NC=DAC=TTC=Comfort=1 exactly AND canonicalscore>=.9",
+    "canonical_threshold": 0.9,
+    "control_zero_denominator": 265,
+    "control_zero_with_any_strict_high_witness": 50,
+    "control_zero_without_any_strict_high_witness": 215,
+    "per_policy": [
+      {
+        "label": "Control10k",
+        "strict_high_count": 8959,
+        "control_zero_strict_high_witness": 0,
+        "unique_strict_high_witness_among_four": 101
+      },
+      {
+        "label": "Inversion16k",
+        "strict_high_count": 8950,
+        "control_zero_strict_high_witness": 26,
+        "unique_strict_high_witness_among_four": 132
+      },
+      {
+        "label": "Saturated14k",
+        "strict_high_count": 8574,
+        "control_zero_strict_high_witness": 33,
+        "unique_strict_high_witness_among_four": 68
+      },
+      {
+        "label": "Active18k",
+        "strict_high_count": 8472,
+        "control_zero_strict_high_witness": 34,
+        "unique_strict_high_witness_among_four": 35
+      }
+    ],
+    "baseline_preserving_only_strict_high_improvements_PDMS": 92.39742226054858,
+    "baseline_preserving_only_strict_high_gain_PDMS": 0.943824698884205,
+    "baseline_preserving_only_strict_high_improved_scenes": 3566,
+    "baseline_preserving_zero_after_oracle": 215,
+    "verified_metrics_file_sha256": "c14b92cbd18a2089821ea56b4a4c66d2be8b1a9208042fc422d76d1194f9ad54",
+    "reused_existing_validated_cache_only": true,
+    "not_deployable_or_achievable_gain_promise": true,
+    "not_TRAIN_selection": true
+  },
+  "sha256": "148954fcd1df7f96eebb90801ff20de233663d589b32ce89a593f6d43a40361c"
+}

@@ -1,0 +1,460 @@
+{
+  "actions": {
+    "commit": false,
+    "new_tests_or_scoring": false,
+    "owner_registry_or_GPU_touched": false,
+    "source_modified": false
+  },
+  "created_UTC": "2026-11-01T14:43:39.439200+00:00",
+  "directions": [
+    {
+      "CPU_required": [
+        "B1与旧loss/grad/计账逐值兼容；独立手算256 std含zero组",
+        "2CPUrank真DDP累积等于显式scene均值，只推进一次Adam/scheduler",
+        "8rank四inner恢复全4scene材料/RNG/cursor，污染behavior/token/oldprob/std被拒绝"
+      ],
+      "accounting": {
+        "new": {
+          "Adam_per_window": 4,
+          "amortized_fresh_queries_per_Adam": 64,
+          "fresh_queries": 256,
+          "scenes_per_window": 32
+        },
+        "old": {
+          "Adam_per_window": 4,
+          "amortized_fresh_queries_per_Adam": 16,
+          "fresh_queries": 64,
+          "scenes_per_window": 8
+        }
+      },
+      "budget_caveat": "同10k Adam会多4倍data/query，不能称等成本；等data又有4倍少的Adam/权衰/矩更新次数。data-clock对齐不能抹掉该差异，完整window/gate预算准确、inner内部query呈块状。",
+      "formula": {
+        "advantage": "原SafetyEP逐scene rawA/gate不变；一次全局256 rawA populationstd，包含zero组；四inner固定，loss仍cap5。",
+        "collection": "B4×world8×G8=256候选；所有32scene在同一theta_old下采集，之后四inner复用。",
+        "data_clock": "factor_new(u)=factor_old50k(4u)，optimizer decayhorizon12500/warm250，floor.1；暖起初倍率仍.001，不机械变为1/250=.004。",
+        "gradient": "四microbatch各(L_b/4).backward；前3次DDP.no_sync必须包住forward和backward，最后同步；仅一次clip1/Adam.step/scheduler.step。",
+        "loss": "L=(1/8)sum_rank (1/4)sum_scene (L_sourcePG+50*C_IL70)，按scene等权，包括PG0的场景；不能只对active组重归一化。"
+      },
+      "hypothesis": "扩大独立场景批次可能降低更新被少量场景主导、减少跨场景遗忘；不消除真实任务冲突，也不保证涨分。",
+      "id": "MULTISCENE32_G8",
+      "matched_query_gates": [
+        {
+          "control_Adam": 10000,
+          "new_Adam": 2500,
+          "queries": 160000,
+          "scenes": 20000
+        },
+        {
+          "control_Adam": 20000,
+          "new_Adam": 5000,
+          "queries": 320000,
+          "scenes": 40000
+        },
+        {
+          "control_Adam": 30000,
+          "new_Adam": 7500,
+          "queries": 480000,
+          "scenes": 60000
+        },
+        {
+          "control_Adam": 50000,
+          "new_Adam": 12500,
+          "queries": 800000,
+          "scenes": 100000
+        }
+      ],
+      "minimal_code": [
+        "独立BatchRuntime收4个叶子rollout，记录共同behaviorVersion、各cond/chain/oldprob/scorer和真实token顺序；历史actor样本不进onpolicy。",
+        "trainer只加opt-in窗口计账与microbatch backward hook；通用gradcheck/clip/Adam/scheduler仍原一次。无需复制重写trainer。",
+        "新窗口恢复schema必须核32scene/256candidate、4组material和一次std；不能把stacked材料伪装旧单组概率。",
+        "保留每叶子G8 context，四场景不强行拼入one-scene Memory；仅缓存4份frozenQwen/ref features，不能缓存currentMemory/KV图。四loss相加后才backward会同时留4张图，不是真正省显存累积。"
+      ],
+      "no_bundling": [
+        "G仍8",
+        "不改credit/reward/peakLR",
+        "不加ActiveData/teacher/retention"
+      ],
+      "priority": 1,
+      "readouts": [
+        "等query完整NAV/44logCI与fixedILhigh/zero修复保持",
+        "少量预定更新测scene梯度cosine，分LoRA/Memory；loss标量不能代表干扰",
+        "实际unique scene/log覆盖、ratio/clip/完整gradnorm与模型时间"
+      ],
+      "risks": [
+        "平均可能压制罕见救援梯度",
+        "更大旧policy窗口可能增加clip/staleness",
+        "256std改变有效PG/anchor相对尺度，不能把全部收益归场景多样性"
+      ],
+      "source_ids": [
+        "ScaleRL",
+        "DPPO"
+      ],
+      "status": "PROPOSAL_ONLY",
+      "title_zh": "每次Adam汇总32个不同场景：窗口新采样，四inner复用"
+    },
+    {
+      "CPU_required": [
+        "空bank/offgate loss与所有梯度原样；teacher无梯度、currentLoRA和两Memory有有效梯度",
+        "teacher初始均值一致，Memory扰动能被约束；G8重复carrier等于单见证均值",
+        "TRAIN/root/cache/version/gate/更好current关闭拉回的边界与污染检查",
+        "8rank每inner恢复bank/RNG/目标版本/私有probeclock，不消耗主SDE RNG"
+      ],
+      "cost": "主onpolicy账保持不变；256panel每2k一次，到20k额外2560个B1评分，约主320k查询的0.8%，还需真实模型时间记账。历史当前均值调用增加Memory重建，跳过fresh IL ref调用，不能称完全免费。",
+      "difference_from_old": {
+        "CPO": "借鉴旧分布KL错配诊断，不直接搬movement-topmask；LoRA重参数化/Adam/cosine会影响位移≈Fisher假设。",
+        "Protected": "不清除fresh负优势；保护来自已评分行为约束，不是单边改A符号。",
+        "Rescue": "不从Safety10k weights-only重置、不引入旧固定9low/512high、不改W2；全部fresh同IL70/W3。",
+        "SuccessMemory": "旧SDE winner EP>=.5、每4collection的.1 CFM endpoint辅助且保留ILanchor；新的是ODE严格高质量/真实回归门控的历史policy均值保持，无CFM目标。"
+      },
+      "formula": "L=LfreshPG+50*((1-I)*C_IL(fresh)+I*C_RL(history)); C_RL在保存的teacher W3状态上，按原weights[.2,1,1]均值MSE匹配stopgrad(mu_teacherRL)。不是LMKL、完整flowKL或端点密度保证。",
+      "hypothesis": "在旧TRAIN场景保留已验证好的RL函数输出，补足只在freshscene拉IL70的分布盲区；不预设ILanchor已致退化。",
+      "id": "VERIFIED_RL_BEHAVIOR_RETENTION",
+      "implementation": [
+        "独立bank/runtime利用已有finalize/bind/on_collection_committed/native hooks，不需重写optimizer循环。",
+        "ResearchLoss anchor-provider opt-in：off路径逐bit原IL；on路径在历史条件/状态重建currentMemory并算3步nominalmeans，目标直接用缓存RL均值，不交换模型权重。",
+        "teachermeans用teacher当时的currentLoRA+Memory产生；不能use_ref=True冒充RLteacher，该标志仍指冻结IL70。",
+        "单verified ODEchain可显式重复8份适配G8 context carrier，均值不变；这只是一个评分见证，不能记成8个独立候选或放进PG。",
+        "fresh+history frozenfeature LRU可复用旧helper，禁止currentMemory/KV图跨inner缓存。bank/选择RNG/版本/最近真实回归分数全部封native。"
+      ],
+      "main_change": "用质量门控的历史RL anchor替换一部分现有IL anchor slots，总beta50不增加；freshPG/优势/采样完全不变。",
+      "priority": 2,
+      "readouts": [
+        "fullNAV总分与fixedILhigh/newzero保持，同时不能吞掉低分修复",
+        "TRAIN已学high队列实际回归和target年龄/覆盖",
+        "少量预定PG/ILanchor/RLanchor梯度范数+cosine，不能只比loss"
+      ],
+      "risks": [
+        "单root/有限panel不是人类最优或全rootsafety，可能保留偶然好策略或过拟合panel",
+        "只保W3局部向量场仍可能因早期ODEprefix改变而退化",
+        "陈旧target可能妨碍更好行为；必须有可核验升级/关门规则",
+        "beta相同不代表约束梯度尺度相同；若未激活/梯度极弱，不能据无收益否定保留路线"
+      ],
+      "source_ids": [
+        "CLEAR",
+        "PolicyConsolidation",
+        "RunThenWalk",
+        "CPO"
+      ],
+      "status": "PROPOSAL_ONLY",
+      "teacher_protocol": [
+        "bank从同IL70 fresh开始为空，不导入旧Safety10k。",
+        "示例预注册固定256个合法TRAIN panel，每2k更新用固定private trainroot42与ODE10shift5+官方scorer检查；Control被动做同panel匹配成本。NAV只报告，不建bank。",
+        "仅NC=DAC=TTC=Comfort1且score>=.9的真实ODE端点入库；绑定LoRA+scene/predictiveMemory完整teacher版本、root、codec/cache/protocol/action hashes。",
+        "仅当同root current ODE丢失已通过strict指标，或score低于teacher超过预定数值margin，才激活；current确有更优strict结果则升级/关闭拉回，不无条件EMA/全局ref刷新。",
+        "示例每4freshcollection一个历史slot，使用私有bankRNG；模式/teacher/状态/目标冻结4inner；无合格回归则原ILanchor。频率/margin/bankcap是待注册参数，不宣称最优。"
+      ],
+      "title_zh": "质量/回归门控的同run RL行为保持"
+    }
+  ],
+  "latest_evidence": {
+    "Active18k": {
+      "high_contribution": -1.04772,
+      "new_zero": 58,
+      "repaired_zero": 104,
+      "total_delta": -0.06588,
+      "zero_low_mid_contribution": 0.98185
+    },
+    "Control24k_PDMS": 91.29571,
+    "Inversion": "16k+.15236 CI正，20k-.11895 CI跨0。",
+    "Sat": "5k+.184 CI正，10k负，14k+.09269 CI正，20k-.10744 CI跨0。",
+    "provenance": "Root supplied completed paired readouts; 本次未重复bootstrap或新评测。",
+    "strict_NAV_oracle_diagnostic_only": {
+      "Control10k_zeros": 265,
+      "all_four_zero": 167,
+      "checkpoint_budget_note": "各模型具体checkpoint/训练预算以adaptive全量诊断原件为准；这里不推断同预算协同收益。",
+      "meaning": "说明存在跨策略互补，并未训练出该单策略；NAVbank不能进入训练，oracle不是实际92分。",
+      "models": 4,
+      "overlap": true,
+      "posthoc_oracle_PDMS": 92.39742,
+      "scenes": 12146,
+      "witness_Active": 34,
+      "witness_Inv": 26,
+      "witness_Sat": 33,
+      "zeros_with_other_strict4_score_ge09_witness": 50
+    }
+  },
+  "minimal_experiment_matrix": {
+    "existing_control": "F.SAFETY_G8_CONTROL，原50kcos/warm1000，继续保留，不重复开完整Control。",
+    "outcome": "实际完整NAV PDMS目标>=92；44physical-log paired bootstrap2000 seed42与分项/固定高低队列；oracle92.397不是实际策略得分。",
+    "priority_rule": "Root先选P0与Batch32；B若资源/实现允许再独立，不先混合。20k是阶段，2k/5k仅观测，不凭微小差异判无效。若P0成为新基线，后续B与对应Control必须同curve。",
+    "rows": [
+      {
+        "arm": "NEW_SCHEDULE20K_FLOORTAIL",
+        "fresh": true,
+        "initial_Adam": 20000,
+        "later_Adam": [
+          30000,
+          50000
+        ],
+        "main_queries": 320000,
+        "only_factor": "decayhorizon20k后holdfloor，运行预算仍可50k",
+        "priority": 0,
+        "scenes": 40000
+      },
+      {
+        "arm": "NEW_MULTISCENE32_DATACLOCK",
+        "compare_to_control_Adam": 20000,
+        "fresh": true,
+        "initial_Adam": 5000,
+        "later_Adam": [
+          7500,
+          12500
+        ],
+        "main_queries": 320000,
+        "only_mechanism": "32scene梯度批，按queryclock调度，Adam次数差必须披露",
+        "priority": 1,
+        "scenes": 40000
+      },
+      {
+        "arm": "NEW_VERIFIED_RL_ANCHOR",
+        "example_probe_queries": 2560,
+        "fresh": true,
+        "initial_Adam": 20000,
+        "later_Adam": [
+          30000,
+          50000
+        ],
+        "main_queries": 320000,
+        "only_mechanism": "质量门控RL anchor，先保原50k曲线",
+        "priority": 2,
+        "scenes": 40000
+      }
+    ]
+  },
+  "primary_sources": [
+    {
+      "date": "2025-10-15",
+      "id": "ScaleRL",
+      "limit": "不是连续flow驾驶实证，不迁移LMhead/clip等参数。",
+      "sections": "5/globalbatch;A.12/A.13",
+      "support": "LLM长训更大promptbatch后期更强，小batch可早领先；固定总batch时G变化较小。",
+      "url": "https://arxiv.org/html/2510.13786v1"
+    },
+    {
+      "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+      "date": "2024-12-09",
+      "id": "DPPO",
+      "limit": "带critic/GAE，外层iteration时钟不等于我们optimizerupdate。",
+      "lines": {
+        "Adamstep": 370,
+        "bufferpopulation": 306,
+        "minibatches": 312,
+        "scheduler": 408
+      },
+      "official_code": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/agent/finetune/train_ppo_diffusion_agent.py",
+      "section": "AppendixB",
+      "support": "真实多环境/去噪两轴buffer；部分任务较小batch反而省样本。",
+      "url": "https://arxiv.org/html/2409.00588v3"
+    },
+    {
+      "date": "2019-11-26",
+      "formula": "E_history KL(mu_history||pi_current)；完整算法另含V-trace与value cloning。",
+      "id": "CLEAR",
+      "limit": "不实现其critic/V-trace，不给历史轨迹伪造onpolicyA；本次未核得官方实现。",
+      "section": "3/4.1",
+      "support": "旧经验上的历史行为保持有助减少遗忘，并区分遗忘和任务冲突。",
+      "url": "https://arxiv.org/html/1811.11682v2"
+    },
+    {
+      "commit": "8e3710c1123eb1f01af7522fa4e69244f069a5a9",
+      "date": "2019-06",
+      "id": "PolicyConsolidation",
+      "limit": "不搬多网络cascade，W3 mean-MSE仅局部surrogate。",
+      "lines": {
+        "cascade": 178,
+        "oldpolicyKL": 173,
+        "weightedKL": 205
+      },
+      "official_code": "https://github.com/ChristosKap/policy_consolidation/blob/8e3710c1123eb1f01af7522fa4e69244f069a5a9/tc.py",
+      "support": "连续控制多时间尺度policy保持；原文说明单步条件KL不同于轨迹KL。",
+      "url": "https://proceedings.mlr.press/v97/kaplanis19a.html"
+    },
+    {
+      "date": "2026-10-07",
+      "id": "RunThenWalk",
+      "limit": "论文同时改变reward/reference/LR，不能单因归功reference；我们不照搬。",
+      "official_code": "https://github.com/haha-yuki-haha/AutoDrive-P3_with_Run-then-walk",
+      "section": "4.2",
+      "support": "后阶段用Run policy reference保进度。",
+      "url": "https://arxiv.org/html/2609.25831v2"
+    },
+    {
+      "commit": "381f8bb52ef934081e5aea6bf56518b5c1e8bccc",
+      "date": "2026-09-28",
+      "empirical_notice": {
+        "date": "2026-10-12",
+        "detail": "官方披露MedBookVQA选项间距答案泄漏，已改数据并重评；不把报告数值当已复核结论。",
+        "url": "https://github.com/MaolinLuo/CPO/blob/381f8bb52ef934081e5aea6bf56518b5c1e8bccc/README.md"
+      },
+      "formula": "L_RL+lambda/|mask|*||mask*(theta-theta_prev)||1；累计tensor内topmovement。",
+      "id": "CPO",
+      "official_code": "https://github.com/MaolinLuo/CPO/tree/381f8bb52ef934081e5aea6bf56518b5c1e8bccc",
+      "support": "当前分布KL不能直接保护历史分布；movement-Fisher需局部假设。",
+      "url": "https://arxiv.org/html/2607.04364v3"
+    }
+  ],
+  "priority0_schedule": {
+    "CPU_required": [
+      "0/999/1000/20k/30k/50k倍率和两组relativefloor",
+      "真2k/10k/20k保存恢复，续30k仍floor",
+      "旧50k默认路径不变"
+    ],
+    "actual_used_LR": {
+      "fraction_at20000": 0.7054413502,
+      "fraction_of_peak_at10000": 0.9271553858,
+      "memory": "同倍率；usedLR看完成u-1后的scheduler state。",
+      "update10000": 4.635776929e-05,
+      "update20000": 3.527206751e-05
+    },
+    "code_plan": [
+      "新独立schedule schema分别保存decay_horizon20k/run_max50k/after_horizon hold_floor，不改旧PROTOCOL。",
+      "native验证base_lrs/last_epoch/actual usedLR/Adam组，同一stage恢复不重置曲线。",
+      "若改用exact新F10k nativefork省成本，必须完整保Adam/RNG/cursor/pending并单独注册平滑分支，不能冒充fresh试验；首轮不同时开两种。"
+    ],
+    "hypothesis": "所有方法共同在高LR阶段下降，先验证公共控制变量；并未证明LR就是原因。",
+    "id": "SCHEDULE20K_FLOORTAIL",
+    "prior_LR_studies": {
+      "COS12k_delta": -0.06991,
+      "COS14k_delta": -0.05408,
+      "COS_CIs_cross0": true,
+      "LRLOW12k": {
+        "CI95": [
+          0.02351,
+          0.27924
+        ],
+        "delta": 0.1515875
+      },
+      "LRLOW14k": {
+        "CI_crosses0": true,
+        "delta": -0.02954
+      },
+      "already_tested": true,
+      "artifact": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/FROZEN_LR_EXISTING_EVIDENCE_REVIEW_20261031.json",
+      "stopped": "因用户focus于15.7k/15.8k停止，低于自己10k父；未证长期无效。",
+      "type": "旧constant/warm100 Safety10k exact-native fork，保Adam/RNG；不是fresh20khorizon。"
+    },
+    "priority": 0,
+    "single_change": "decay_horizon=20000，warmup=1000，relativefloor=.1；u>=20000保持floor。run最大预算仍50k，与调度horizon分离；首次授权20k，后续30/50k明确决策。",
+    "status": "PROPOSAL_ONLY",
+    "unchanged": "同IL70 fresh/Adam0/seed42/G8/W3/SafetyEP/uniform103288，peak action5e-5/memory5e-6，clip.005/beta50均不变。"
+  },
+  "schedule_used_LR_samples": [
+    {
+      "new20k_action": 5.0000000000000004e-08,
+      "new20k_factor": 0.001,
+      "new20k_memory": 5e-09,
+      "old50k_factor": 0.001,
+      "state_before": 0,
+      "update": 1
+    },
+    {
+      "new20k_action": 4.9950050000000005e-05,
+      "new20k_factor": 0.999001,
+      "new20k_memory": 4.995005000000001e-06,
+      "old50k_factor": 0.999001,
+      "state_before": 999,
+      "update": 1000
+    },
+    {
+      "new20k_action": 5e-05,
+      "new20k_factor": 1.0,
+      "new20k_memory": 5e-06,
+      "old50k_factor": 1.0,
+      "state_before": 1000,
+      "update": 1001
+    },
+    {
+      "new20k_action": 2.9361742848066485e-05,
+      "new20k_factor": 0.5872348569613297,
+      "new20k_memory": 2.9361742848066488e-06,
+      "old50k_factor": 0.9271553858506081,
+      "state_before": 9999,
+      "update": 10000
+    },
+    {
+      "new20k_action": 2.1980183081501954e-05,
+      "new20k_factor": 0.43960366163003906,
+      "new20k_memory": 2.1980183081501953e-06,
+      "old50k_factor": 0.8926693828333551,
+      "state_before": 11999,
+      "update": 12000
+    },
+    {
+      "new20k_action": 5.000000307570774e-06,
+      "new20k_factor": 0.10000000615141548,
+      "new20k_memory": 5.000000307570774e-07,
+      "old50k_factor": 0.7054413502614748,
+      "state_before": 19999,
+      "update": 20000
+    },
+    {
+      "new20k_action": 5e-06,
+      "new20k_factor": 0.1,
+      "new20k_memory": 5.000000000000001e-07,
+      "old50k_factor": 0.42199024515158035,
+      "state_before": 29999,
+      "update": 30000
+    },
+    {
+      "new20k_action": 5e-06,
+      "new20k_factor": 0.1,
+      "new20k_memory": 5.000000000000001e-07,
+      "old50k_factor": 0.10000000092489007,
+      "state_before": 49999,
+      "update": 50000
+    }
+  ],
+  "schema": "world_RL_multiscene_and_verified_retention_readonly_designs_v1",
+  "source_audit": {
+    "files": {
+      "starVLA/rl/qwen_world_postcot/scope_actor.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_postcot/scope_actor.py",
+        "sha256": "1ff1a473e545c3792c04e25d21beac37282994ead2899be2bad301ff2bcf5fa2"
+      },
+      "starVLA/rl/qwen_world_research_algorithms/policy.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_research_algorithms/policy.py",
+        "sha256": "58dcf2a9f6df8da6df8211ac955412327d895e10513f58736221689696675761"
+      },
+      "starVLA/rl/qwen_world_research_algorithms/rescue_auxiliary.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_research_algorithms/rescue_auxiliary.py",
+        "sha256": "87778507c9559fd12c0a736c4ac22002b6c1908addeba094aaa0730520748ab7"
+      },
+      "starVLA/rl/qwen_world_research_algorithms/success_memory.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_research_algorithms/success_memory.py",
+        "sha256": "8e238f45b3817a4bd6d03b97cc485fa5fb3633613581a6a5248448d152acfdcd"
+      },
+      "starVLA/rl/qwen_world_safety_exploration/credit.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_safety_exploration/credit.py",
+        "sha256": "5daebd1e4a289b0608fd22214b3a1f99cd409ee53da76a10a4ad32a01ef19eff"
+      },
+      "starVLA/rl/qwen_world_safety_exploration/recovery.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_safety_exploration/recovery.py",
+        "sha256": "52fa198694585b6cf4677f9a15d6fac53ca723b55c85364afddb17398357cba5"
+      },
+      "starVLA/rl/qwen_world_safety_exploration/standardized_recipe.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/starVLA/rl/qwen_world_safety_exploration/standardized_recipe.py",
+        "sha256": "ac9a84c8246d8de8a900fa0c950ea80cb8b9fb1e8a2b779d661f46fe75d025dd"
+      },
+      "tools/qwen_world_safety_exploration/train.py": {
+        "path": "/mnt/project/VLA-Drive-qwen-world-safety-exploration-20261031/tools/qwen_world_safety_exploration/train.py",
+        "sha256": "bf346c0f7860a44ec90dc32ec13530c5989450714c211a1caef771fafb951093"
+      }
+    },
+    "finding": "当前驱动完全不消费rollout_buffer_batches/gradient_accumulation_steps；cfg-only修改无效或被strictrecipe拒绝。",
+    "independent_new_arm_feasible": true,
+    "locations": {
+      "credit.py84_126": "raw math能处理[scene,G]，现finalize/schema/recovery仍单scene",
+      "policy.py164_196": "固定IL mean-MSE anchor内联，适合独立provider hook",
+      "scope_actor.py82_96": "每场景currentMemory/KV独立生命周期",
+      "train.py234_257": "每rank只采1scene并finalize",
+      "train.py258_260": "每collection固定world8计账",
+      "train.py285_325": "一次forward/backward/Adam/scheduler；next_inner==4清rollout"
+    },
+    "trainer_rewrite_required": false
+  },
+  "status": "PROPOSALS_ONLY_NOT_IMPLEMENTED_OR_REGISTERED",
+  "summary_zh": [
+    "阶段正收益反复消失，不能据此宣称天花板。优先隔离公共调度变量，再分别验证场景批次与历史好行为保留。",
+    "两个算法候选各有明确对象：Batch32降低单次更新的场景偏置；质量门控RL anchor约束已验证旧场景。两者不立即混合，不把相关现象当已证因果。"
+  ]
+}
