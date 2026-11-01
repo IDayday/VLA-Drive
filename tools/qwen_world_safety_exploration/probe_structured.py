@@ -22,7 +22,8 @@ import numpy as np
 from tools.qwen_world_research.probe_zero_rollouts import sha, sealed, read_sealed, atomic
 from .probe_support import SCHEMA as SUPPORT_SCHEMA, good, describe, validate_train
 
-SCHEMA='TRAIN_Safety10k_ODE16_structured_terminal_proposal_CPU_v1'
+SCHEMA='TRAIN_Safety10k_ODE16_structured_terminal_proposal_CPU_v2'
+PRIOR_SCHEMA='TRAIN_Safety10k_ODE16_structured_terminal_proposal_CPU_v1'
 STRATEGIES=('E_terminal_Gaussian','F_terminal_AR1','G_terminal_ramped_AR1')
 BASELINES=('A_late','B_mixed','D_ODE')
 STD=np.array([1.4864179440431657,.9354143489633349,.07861934885334695],dtype=np.float64)
@@ -35,6 +36,8 @@ SOURCE_FILES=('tools/qwen_world_safety_exploration/probe_structured.py',
  'starVLA/rl/qwen_world_safety_exploration/contracts.py',
  'starVLA/rl/qwen_world_research/runtime.py',
  'starVLA/rl/simwam_recipe/reward_readouts.py',
+ 'starVLA/model/modules/qwen_world_postcot/candidate_bank.py',
+ 'tools/qwen_world_postcot/evaluate.py',
  'starVLA/rl/safe_flow_improvement/v1_reward.py',
  'scripts/analysis/constrained_flow_noise/batched_canonical_score.py')
 
@@ -63,12 +66,19 @@ def propose(base,token):
     private=np.random.Generator(np.random.PCG64(seed))
     z=private.standard_normal((16,8,3),dtype=np.float64)
     noise,ar=noise_from_innovations(z)
-    requested=(base.astype(np.float64)[None]+noise).reshape(48,8,3)
-    return requested,dict(innovations=z,stationary_AR1=ar,noise=noise),dict(
+    raw_requested=(base.astype(np.float64)[None]+noise).reshape(48,8,3)
+    # Canonical feedback requires coordinates exactly representable as FP32.
+    # Round before scoring and persist those same values; never relabel old scores.
+    requested=raw_requested.astype(np.float32)
+    quantization_error=requested.astype(np.float64)-raw_requested
+    return requested,dict(innovations=z,stationary_AR1=ar,noise=noise,raw_requested=raw_requested),dict(
         seed=seed,seed_base=42,generator='private numpy.PCG64, no global RNG mutation',
         independent_innovations_hash=array_hash(z),stationary_AR1_hash=array_hash(ar),
         independent_draw_count=16*8*3,noise_hashes={k:array_hash(noise[i]) for i,k in enumerate(STRATEGIES)},
         requested_hashes={k:array_hash(requested[i*16:(i+1)*16]) for i,k in enumerate(STRATEGIES)},
+        raw_requested_hashes={k:array_hash(raw_requested[i*16:(i+1)*16]) for i,k in enumerate(STRATEGIES)},
+        request_precision='FP64 base+noise -> explicit np.float32 BEFORE official service; score/store/hash identical FP32 values',
+        quantization_max_abs_per_axis=np.max(np.abs(quantization_error),axis=(0,1)).tolist(),
         realized_noise_squared_energy={k:float((noise[i]**2).sum()) for i,k in enumerate(STRATEGIES)},
         marginal_variance='Gaussian/AR1: STD_axis^2 at every horizon; ramped: STD_axis^2*(t/4)^2',
         same_expected_energy_Gaussian_AR1=True,finite_realization_energy_not_forced_equal=True,
@@ -131,6 +141,20 @@ def prepare(args):
         identity_sha256=identity['sha256'],identity_file_sha256=sha(folder/'identity.json'),
         summary_file_sha256=sha(folder/'SUMMARY.json'),protocol_sha256=identity['protocol']['sha256'],
         checkpoint=old['rl_checkpoint'],checkpoint_optimizer_sha256=old['checkpoint_optimizer_sha256'])
+    prior_path=Path(args.prior_failed_manifest).resolve();prior=read_sealed(prior_path)
+    if (prior['schema']!=PRIOR_SCHEMA or prior['source_probe']!=source or prior['count']!=312):
+        raise ValueError('Explicit same312-case failed FP64 predecessor required')
+    previous_cases={r['token']:r for r in prior['cases']}
+    failure_files={};failed_output=Path(prior['required_output'])
+    for rank in range(8):
+        failure_path=failed_output/f'rank{rank}.json';failure=json.loads(failure_path.read_text())
+        if (failure['status']!='FAILED_REQUIRES_REVIEW' or failure['completed_tokens']
+                or 'Coordinates were not exact FP32' not in failure.get('error','')):
+            raise ValueError('Prior failure differs; require explicit cost/identity review')
+        failure_files[str(rank)]=dict(path=str(failure_path),sha256=sha(failure_path),
+            official_queries_spent=48,valid_scene_commits=0)
+    if any((failed_output/'scenes').glob('*.json')):
+        raise ValueError('Prior failed output unexpectedly has valid scenes')
     cases=[]
     for old_case in old['cases']:
         token=old_case['token'];row=read_sealed(folder/'scenes'/f'{token}.json')
@@ -143,9 +167,16 @@ def prepare(args):
             source_arrays_sha256=row['arrays']['sha256'],source_root_hash=array_hash(roots),
             source_ODE_requested_hash=array_hash(base),cache_sha256=cache.pop())
         _,_,case['expected_noise_audit']=propose(base,token)
+        previous=previous_cases[token]
+        if (case['source_root_hash']!=previous['source_root_hash']
+                or case['expected_noise_audit']['independent_innovations_hash']!=previous['expected_noise_audit']['independent_innovations_hash']
+                or case['expected_noise_audit']['noise_hashes']!=previous['expected_noise_audit']['noise_hashes']
+                or case['expected_noise_audit']['raw_requested_hashes']!=previous['expected_noise_audit']['requested_hashes']):
+            raise ValueError('Precision repair must retain original FP64 innovations/noise/raw proposals')
         load_source(case,source);cases.append(case)
     destination=Path(args.output).resolve()
-    if destination==folder or folder in destination.parents:raise ValueError('Never write into old SUPPORT output')
+    if (destination==folder or folder in destination.parents or destination==prior_path.parent
+            or prior_path.parent in destination.parents):raise ValueError('Never write into old SUPPORT/failed FP64 output')
     cfg=old['inputs']['config']
     if sha(cfg['path'])!=cfg['sha256']:raise ValueError('Pinned service configuration changed')
     body=dict(schema=SCHEMA,status='PREPARED_NOT_DISPATCHED',purpose='selected TRAIN endpoint proposal quality only; not StructRL training or NAV improvement',
@@ -158,6 +189,10 @@ def prepare(args):
         pairing='candidate index0..15 inherits the exact existing D_ODE root and clean endpoint; private token42 independent terminal innovation reused across all3 proposals',
         no_actor_or_optimizer=True,no_model_checkpoint_load=True,no_logp_or_probability_claim=True,
         original_canonical_single_ODE_not_called=True,source_B1='old private42 D_ODE[0], not formal seed2101 deployment',
+        precision='FP64 innovation/noise/raw proposal retained; submitted requested is explicit FP32 before scoring',
+        prior_failed_attempt=dict(manifest=str(prior_path),manifest_sha256=prior['sha256'],manifest_file_sha256=sha(prior_path),
+            output=str(failed_output),rank_failure_receipts=failure_files,official_queries_spent=384,
+            valid_scene_commits=0,failed_feedback_reused=False,scientific_change='Precision interface repair only; all312 raw FP64 proposal/noise hashes match v1'),
         scientific_sources={p:sha(p) for p in SOURCE_FILES})
     manifest=sealed(body);path=destination/'MANIFEST.json'
     if path.exists() and read_sealed(path)!=manifest:raise FileExistsError('Immutable structured proposal manifest differs')
@@ -165,6 +200,7 @@ def prepare(args):
     atomic(destination/'LAUNCH_PLAN.json',sealed(dict(schema=SCHEMA+'_launch',status='READY_NOT_DISPATCHED',manifest=str(path),
         manifest_sha256=manifest['sha256'],output=body['required_output'],CPU_only=True,world=8,CPU_threads_per_rank_max=2,
         scoring_workers_per_rank=1,cases_per_rank=39,new_official_queries=14976,no_GPU_dispatched=True,
+        prior_failed_official_queries=384,total_official_queries_if_new_run_completes=15360,
         command_template=['python','-u','-m','tools.qwen_world_safety_exploration.probe_structured','run','--manifest',str(path),
             '--output',body['required_output'],'--rank','RANK0..7','--world','8','--cpu-threads','2'],
         summarize=['python','-m','tools.qwen_world_safety_exploration.probe_structured','summarize','--output',body['required_output']])) )
@@ -197,7 +233,9 @@ def validate_scene(row,case,identity,output):
                 or audit!=case['expected_noise_audit']
                 or not np.array_equal(a['innovations'],noise['innovations'])
                 or not np.array_equal(a['stationary_AR1'],noise['stationary_AR1'])
-                or not np.array_equal(a['noise'],noise['noise'])):
+                or not np.array_equal(a['noise'],noise['noise'])
+                or not np.array_equal(a['raw_requested'],noise['raw_requested'])
+                or requested.dtype!=np.float32):
             raise ValueError('Changed base/root/private innovations or proposal kernel')
     for k,name in enumerate(STRATEGIES):
         records=row['strategies'][name]['records']
@@ -206,7 +244,7 @@ def validate_scene(row,case,identity,output):
             validate_feedback(r,token=case['token'],log=case['log'],requested=requested[16*k+j],protocol_sha256=identity['protocol']['sha256'])
             if (r['cache']['sha256']!=case['cache_sha256']
                     or not np.array_equal(np.asarray(r['requested_trajectory']),requested[16*k+j])):
-                raise ValueError('Changed official cache or exact FP64 scored request')
+                raise ValueError('Changed official cache or exact FP32 scored request')
     return row
 
 
@@ -218,6 +256,7 @@ def run(args):
     from starVLA.rl.qwen_world_safety_exploration.contracts import require_dispatch,boundary_stop_due
     from scripts.analysis.qwen_sourceflow.evaluate_policy import json_feedback
     from tools.qwen_world_postcot.evaluate import validate_feedback
+    from starVLA.model.modules.qwen_world_postcot.candidate_bank import trajectory_hash
     host=require_dispatch();m=read_sealed(args.manifest)
     if (m['schema']!=SCHEMA or args.world!=8 or not 0<=args.rank<8 or not 1<=args.cpu_threads<=2
             or str(Path(args.output).resolve())!=m['required_output'] or m['queries']!=14976):
@@ -253,13 +292,14 @@ def run(args):
             tick=time.monotonic();source,base,roots=load_source(case,m['source_probe'])
             requested,arrays,audit=propose(base,token)
             if audit!=case['expected_noise_audit']:raise ValueError('Presealed private noise/hash changed')
+            for submitted in requested:trajectory_hash(submitted)  # Contract before paying for any scoring.
             feedback=service.score((token,case['log'],requested))
             if len(feedback)!=48:raise ValueError('Partial labels cannot count as complete evidence')
             for j,r in enumerate(feedback):
                 validate_feedback(r,token=token,log=case['log'],requested=requested[j],protocol_sha256=service.protocol['sha256'])
                 if (r['cache']['sha256']!=case['cache_sha256']
                         or not np.array_equal(np.asarray(r['requested_trajectory']),requested[j])):
-                    raise ValueError('Source/proposal context or exact scored FP64 request differs')
+                    raise ValueError('Source/proposal context or exact scored FP32 request differs')
             npz=out/'scenes'/f'{token}.npz';temp=npz.with_name(npz.name+'.writing-'+str(os.getpid()))
             with temp.open('xb') as f:
                 np.savez_compressed(f,source_ODE_requested=base,source_roots=roots,requested=requested,**arrays)
@@ -324,7 +364,10 @@ def summarize(output):
     result=sealed(dict(schema=SCHEMA+'_summary',status='COMPLETE',count=312,world=8,
         identity_sha256=identity['sha256'],cohorts=cohorts,scenes=scenes,
         costs=dict(new_official_queries=sum(r['new_official_queries'] for r in rows),actor_forward_calls=0,optimizer_steps=0,reused_old_candidates=312*16*3),
-        interpretation='Selected TRAIN proposal quality only. E/F equal marginal std and expected noise energy, common innovations; G additionally ramps horizon variance. Same-root endpoints reused, no policy logp/training/NAV score.'))
+        prior_failed_attempt=m['prior_failed_attempt'],
+        interpretation='Selected TRAIN proposal quality only. FP64 noise/raw proposals rounded to FP32 before all new official queries; no old FP64 labels reused. E/F equal prequantization marginal std/expected energy, common innovations; G additionally ramps horizon variance. No policy training/NAV score.'))
+    result['costs'].update(prior_failed_official_queries=384,total_official_queries_including_failed_v1=14976+384)
+    result.pop('sha256');result=sealed(result)
     if result['costs']['new_official_queries']!=14976:raise ValueError('Budget mismatch')
     path=out/'SUMMARY.json'
     if path.exists() and read_sealed(path)!=result:raise ValueError('Immutable complete summary changed')
@@ -333,10 +376,11 @@ def summarize(output):
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('mode',choices=('prepare','run','summarize'))
-    p.add_argument('--output',required=True);p.add_argument('--baseline-manifest');p.add_argument('--manifest')
+    p.add_argument('--output',required=True);p.add_argument('--baseline-manifest');p.add_argument('--manifest');p.add_argument('--prior-failed-manifest')
     p.add_argument('--rank',type=int,default=0);p.add_argument('--world',type=int,default=8);p.add_argument('--cpu-threads',type=int,default=2)
     a=p.parse_args()
     if a.mode=='prepare' and not a.baseline_manifest:p.error('--baseline-manifest required')
+    if a.mode=='prepare' and not a.prior_failed_manifest:p.error('--prior-failed-manifest required for explicit FP64-failure provenance')
     if a.mode=='run' and not a.manifest:p.error('--manifest required')
     result=prepare(a) if a.mode=='prepare' else run(a) if a.mode=='run' else summarize(a.output)
     print(json.dumps(dict(status=result.get('status'),count=result.get('count'),rank=result.get('rank'),output=a.output,sha256=result.get('sha256'))),flush=True)

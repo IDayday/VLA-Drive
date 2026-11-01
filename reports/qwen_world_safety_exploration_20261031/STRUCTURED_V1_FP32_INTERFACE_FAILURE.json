@@ -1,0 +1,66 @@
+{
+  "schema": "world_structured_v1_request_precision_failure_receipt_v1",
+  "status": "FAILED_REQUIRES_REVIEW_PRESERVED_NOT_RELABELED",
+  "created_unix": 1793493283.3121421,
+  "cause": "Canonical candidate_bank.trajectory_hash requires coordinates exactly representable as FP32. v1 submitted new FP64 proposals; after48 actual scores per rank strict validation rejected them, before any scene commit.",
+  "original_manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/MANIFEST.json",
+  "original_output": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results",
+  "immutable_source": "/mnt/project/qwen-world-safety-exploration-20261031/runtime/structured_v1",
+  "source_revision_root_reported": "968495d",
+  "original_source_file_sha256": "2008154c737721c27d0d115aea602c9279758628d4127b6d35b23ca6a8c97653",
+  "failure_receipts": {
+    "0": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank0.json",
+      "sha256": "674463b3c1ddfdc428eac08e68025e89a04f72142bf7ddbfca5d7ea285a03513",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    },
+    "1": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank1.json",
+      "sha256": "8bcc6c0d8773d0c086f1903584a3b3001906708fd637971bf5dbacb9576465c7",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    },
+    "2": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank2.json",
+      "sha256": "59ee333ad03b60df2a81e85bee1f88054e962b68d201673eb24582f42b8bd9c2",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    },
+    "3": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank3.json",
+      "sha256": "0fa30ae8a8ef04f7cb944713974eabd7f54c640e3c33d8ed6dda67b8900d39c1",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    },
+    "4": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank4.json",
+      "sha256": "bf0fe32e19a76857ab2920393da6cf7d7d81c77a056d6eb6e9d8314bf68b1a74",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    },
+    "5": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank5.json",
+      "sha256": "3d172e0aaff52da3965360b15c794eeb5d521bcf92177242b90b7747758d2d50",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    },
+    "6": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank6.json",
+      "sha256": "d59ec63d0fd5c716f10acc994b821be79a0b7a5ba2963b7b8bc3248d3233e93f",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    },
+    "7": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results/rank7.json",
+      "sha256": "3d84dc9a9f51c04d8a4b1c5b7a04d232b7068c460a95b4679cbd93b88efbe5c4",
+      "official_queries_spent": 48,
+      "valid_scene_commits": 0
+    }
+  },
+  "official_queries_spent": 384,
+  "valid_committed_scenes": 0,
+  "all_feedback_not_reused": true,
+  "fix": "Newv2 output; quantize before scoring, score/store/hash identical FP32 values. FP64 private innovations/noise/raw proposals retained, no old labels transplanted.",
+  "original_files_modified": false
+}

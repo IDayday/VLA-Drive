@@ -1,0 +1,66 @@
+{
+  "schema": "world_structured_terminal_FP32_proposal_handoff_v2",
+  "status": "READY_PREPARED_NOT_DISPATCHED",
+  "created_unix": 1793493283.3197606,
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/probe_structured.py": "e9fd343f69cfd44c2a33a2d3fc6d4ead9dd7091a936aab4664603d44b8e98d00",
+    "tests/test_world_structured_proposal_probe.py": "a6eecb09d8c418a971ce94527dc4f541dab87b6caa1d3de7157873e7acb24f0a"
+  },
+  "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/MANIFEST.json",
+  "manifest_sha256": "28dc19f6df720ad1afd7b274766775ba44259ee4d36b056c766839d8ddcb9922",
+  "manifest_file_sha256": "6de187a470b51e9465be4c495a34d196145368543db7225a3cc1343495333c9e",
+  "launch_plan": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/LAUNCH_PLAN.json",
+  "output": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/results",
+  "CLI": [
+    "python",
+    "-u",
+    "-m",
+    "tools.qwen_world_safety_exploration.probe_structured",
+    "run",
+    "--manifest",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/MANIFEST.json",
+    "--output",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/results",
+    "--rank",
+    "RANK0..7",
+    "--world",
+    "8",
+    "--cpu-threads",
+    "2"
+  ],
+  "summarize_CLI": [
+    "python",
+    "-m",
+    "tools.qwen_world_safety_exploration.probe_structured",
+    "summarize",
+    "--output",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/results"
+  ],
+  "precision_protocol": "FP64 private z/AR/noise and base+noise raw_requested preserved; requested=raw_requested.astype(np.float32) BEFORE official service. Store/score/validate/hash those exact same FP32 values. Raw and quantized hashes and errors recorded separately.",
+  "unchanged_science": "All312 v1 noise hashes/raw requested hashes bit-identical to v2 prequantization; same roots/scales/rho/ramp/private seed/budget. This repairs the scoring precision contract, not the noise distribution design.",
+  "scientific_schema": "TRAIN_Safety10k_ODE16_structured_terminal_proposal_CPU_v2",
+  "source_B1_and_NAV": "No actor, optimizer, B1 generation or NAV evaluation; selected312 TRAIN proposal diagnosis only",
+  "new_CPU_layout": {
+    "world": 8,
+    "cases_per_rank": 39,
+    "queries_per_rank": 1872,
+    "official_scorer_workers_per_rank": 1,
+    "threads_max": 2
+  },
+  "costs": {
+    "failed_v1_official_queries": 384,
+    "failed_v1_valid_scene_commits": 0,
+    "new_v2_queries_planned": 14976,
+    "new_v2_executed": 0,
+    "total_if_v2_complete": 15360
+  },
+  "before_service_guard": "Calls real candidate_bank.trajectory_hash for all48 submitted trajectories BEFORE service.score; feedback afterward also checks exact coordinates, protocol/cache and canonical formula.",
+  "arrays": "NewNPZ includes innovations FP64, stationary_AR1 FP64, noise FP64, raw_requested FP64, requested FP32, original ODE/root arrays",
+  "prior_failure": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/STRUCTURED_V1_FP32_INTERFACE_FAILURE.json",
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/STRUCTURED_PROPOSAL_FP32_CPU_CHECK.json",
+  "primary_research": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/STRUCTRL_PRIMARY_PROPOSAL_RESEARCH.json",
+  "root_action": "Root freezes structured_v2, creates separate CPU owner/deployment/output, and explicitly dispatches. No automatic dispatch here.",
+  "old_manifest_results_or_runtime_edited": false,
+  "registered_or_dispatched": false,
+  "staged_or_committed": false
+}

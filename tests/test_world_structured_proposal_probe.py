@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from tools.qwen_world_safety_exploration import probe_structured as P
+from starVLA.model.modules.qwen_world_postcot.candidate_bank import trajectory_hash
 
 
 def test_stationary_covariance_same_independent_budget_ramp_and_private_RNG():
@@ -25,8 +26,16 @@ def test_stationary_covariance_same_independent_budget_ramp_and_private_RNG():
     first,arrays,audit=P.propose(base,'TRAIN_fixture_a');second,_,again=P.propose(base,'TRAIN_fixture_a')
     np.testing.assert_array_equal(first,second);assert audit==again
     after=np.random.get_state();assert state[0]==after[0] and np.array_equal(state[1],after[1]) and state[2:]==after[2:]
-    assert first.shape==(48,8,3) and first.dtype==np.float64 and audit['independent_draw_count']==384
-    np.testing.assert_array_equal(first.reshape(3,16,8,3),base[None].astype(np.float64)+arrays['noise'])
+    assert first.shape==(48,8,3) and first.dtype==np.float32 and audit['independent_draw_count']==384
+    np.testing.assert_array_equal(arrays['raw_requested'].reshape(3,16,8,3),base[None].astype(np.float64)+arrays['noise'])
+    np.testing.assert_array_equal(first,arrays['raw_requested'].astype(np.float32))
+    assert arrays['raw_requested'].dtype==np.float64
+    # Exercise the actual canonical request precision contract, not a mock hash.
+    for submitted in first:
+        assert trajectory_hash(submitted)==trajectory_hash(submitted.tolist())
+    with pytest.raises(ValueError,match='not exact FP32'):
+        trajectory_hash(arrays['raw_requested'][0])
+    assert audit['raw_requested_hashes']!=audit['requested_hashes']
     assert not np.array_equal(first,P.propose(base,'TRAIN_fixture_b')[0])
 
 

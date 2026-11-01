@@ -1,0 +1,43 @@
+{
+  "schema": "world_structured_terminal_FP32_precision_CPU_check_v2",
+  "status": "PASS_PREPARED_NOT_DISPATCHED",
+  "created_unix": 1793493283.3172688,
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/probe_structured.py": "e9fd343f69cfd44c2a33a2d3fc6d4ead9dd7091a936aab4664603d44b8e98d00",
+    "tests/test_world_structured_proposal_probe.py": "a6eecb09d8c418a971ce94527dc4f541dab87b6caa1d3de7157873e7acb24f0a"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -B -m pytest -q tests/test_world_structured_proposal_probe.py",
+  "result": "2 passed, 1 warning in 1.51s",
+  "checks": [
+    "Exact stationary AR1 covariance / shared private FP64 z / unchanged global RNG / ramp; output requested now FP32 and equals rawFP64.astype(np.float32)",
+    "Real candidate_bank.trajectory_hash accepts every submitted fixture FP32 trajectory and its JSON list roundtrip; rejects original non-exact FP64 raw; full8x39 shard gate still rejects partial/wrongworld"
+  ],
+  "full312_preparation": {
+    "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_FP32_20261101/MANIFEST.json",
+    "manifest_sha256": "28dc19f6df720ad1afd7b274766775ba44259ee4d36b056c766839d8ddcb9922",
+    "case_count": 312,
+    "raw_FP64_noises_and_requested_hashes_match_failed_v1_for_all312": true,
+    "exact_source_root_hashes_retained": true,
+    "source_manifest_results_unchanged": true,
+    "recorded_raw_and_quantized_hashes": 1872,
+    "max_quantization_abs_per_axis": [
+      1.9072435151201717e-06,
+      9.43846988121777e-07,
+      5.9563574295040667e-08
+    ],
+    "units": [
+      "meters",
+      "meters",
+      "radians"
+    ]
+  },
+  "failed_v1_cost": {
+    "official_queries": 384,
+    "valid_scenes": 0,
+    "receipt": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/STRUCTURED_V1_FP32_INTERFACE_FAILURE.json"
+  },
+  "new_queries_planned": 14976,
+  "new_queries_executed": 0,
+  "GPU_started": false,
+  "actor_loaded": false
+}
