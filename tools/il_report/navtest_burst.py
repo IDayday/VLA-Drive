@@ -58,7 +58,9 @@ g=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.total,mem
 gpus=[dict(index=int(i),uuid=u.strip(),total_MiB=int(t),free_MiB=int(f),utilization=int(v))for i,u,t,f,v in(x.split(',')for x in g.splitlines())]
 o=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid,used_memory','--format=csv,noheader,nounits'],text=True);owners=[]
 for line in o.splitlines():
- p,u,m=line.split(',');owners.append(dict(pid=int(p),uuid=u.strip(),used_MiB=int(m)if m.strip().isdigit()else None,visible=(Path('/proc')/p.strip()/'cmdline').is_file()))
+ p,u,m=line.split(',');path=Path('/proc')/p.strip()/'cmdline';args=path.read_bytes().decode().split(chr(0))if path.is_file()else[]
+ prefixes=['/mnt/project/qwen-','/mnt/project/VLA-Drive-qwen','/mnt/project/VLA-AD/experiments/recogdrive','/mnt/project/recogdrive']
+ owners.append(dict(pid=int(p),uuid=u.strip(),used_MiB=int(m)if m.strip().isdigit()else None,visible=bool(args),known_project=any(a.startswith(prefix)for a in args for prefix in prefixes)))
 free=next(int(x.split()[1])*1024 for x in Path('/proc/meminfo').read_text().splitlines()if x.startswith('MemAvailable:'))
 limit=Path('/sys/fs/cgroup/memory.max');current=Path('/sys/fs/cgroup/memory.current')
 if limit.exists()and current.exists()and limit.read_text().strip()!='max':free=min(free,max(0,int(limit.read_text())-int(current.read_text())))
@@ -142,6 +144,7 @@ print(json.dumps(dict(accepted=accepted,rejected=rejected)))'''.replace('__SOURC
                         or any(self.admission_source and b['uuid'] not in s['qualified_worker_admission']['accepted'] for s in (before,after))
                         or not after['worker_python_exists']
                         or any(not o['visible'] for s in (before, after) for o in s['owners'] if o['uuid'] == b['uuid'])
+                        or any(not self.admission_source and o.get('known_project')is not True for s in(before,after)for o in s['owners']if o['uuid']==b['uuid'])
                         or gpu_activity_issue(a, before['owners']) or gpu_activity_issue(b, after['owners'])):
                     continue
                 seen.add(b['uuid'])
@@ -301,7 +304,7 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
                 existing_registration_and_scene_identity_preserved=True))
         # The façade changes administrative probing only, no worker imports.
         if args.family == 'world':
-            request.resources = Pool(request.resources,admission_source=request.source)
+            request.resources = Pool(request.resources)
         else:
             # Match this task's grant rather than the older SourceFlow grant.
             # The probe and worker guards still independently reject sharing.
