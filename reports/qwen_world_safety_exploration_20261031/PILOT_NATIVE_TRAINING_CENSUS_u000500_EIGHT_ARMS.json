@@ -1,0 +1,1340 @@
+{
+  "schema": "world_full_pilot_native_metric_census_v1",
+  "status": "COMPLETE",
+  "created_unix": 1793499837.3406715,
+  "updates_per_arm": 500,
+  "arms": {
+    "SAFETY_G8_CONTROL": {
+      "arm": "SAFETY_G8_CONTROL",
+      "updates": 500,
+      "group_size": 8,
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "all_zero_groups": 6,
+        "tied_groups": 7,
+        "safety_differing_groups": 719,
+        "progress_only_groups": 7,
+        "journal_adv_mask_zero_groups": 60,
+        "true_zero_advantage_groups": 60,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 2,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 2670,
+        "quality_feasible_count": 5826,
+        "quality_positive_high_count": 2168,
+        "quality_negative_high_count": 220,
+        "groups_with_strict_high": 815,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 1000,
+        "repeated_scene_exposures": 0
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.6803605429953926,
+        "NC": 0.9508125,
+        "DAC": 0.86,
+        "TTC": 0.838,
+        "EP": 0.6946014822610425,
+        "safe_fraction": 0.72825
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.1947210323724721,
+          "quality_active_negative_high_weight": 0.0030563984966429417,
+          "quality_active_positive_unsafe_weight": 0.0016227298676967622
+        },
+        "2": {
+          "clipfrac": 0.021333333898335697,
+          "ppo_blocked_fraction": 0.010958333648741245,
+          "quality_active_positive_high_weight": 0.19301958362787264,
+          "quality_active_negative_high_weight": 0.0030096396249136887,
+          "quality_active_positive_unsafe_weight": 0.001552658811211586
+        },
+        "3": {
+          "clipfrac": 0.033458334144204856,
+          "ppo_blocked_fraction": 0.01950000048428774,
+          "quality_active_positive_high_weight": 0.1916338688606338,
+          "quality_active_negative_high_weight": 0.002976328753851703,
+          "quality_active_positive_unsafe_weight": 0.001597158893942833
+        },
+        "4": {
+          "clipfrac": 0.04729166775196791,
+          "ppo_blocked_fraction": 0.028750000681728123,
+          "quality_active_positive_high_weight": 0.18945828047351096,
+          "quality_active_negative_high_weight": 0.0029820945727842625,
+          "quality_active_positive_unsafe_weight": 0.0015723641440272332
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 0.021970192892476915,
+          "minimum": 0.009162014350295067,
+          "maximum": 0.05620352923870087,
+          "above_one_count": 0
+        },
+        "source_clamp_hit_rate": {
+          "mean": 0.0003359375027066562,
+          "minimum": 0.0,
+          "maximum": 0.0052083334885537624,
+          "above_one_count": 0
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.0040857791006565095,
+          "minimum": 0.0,
+          "maximum": 0.025081157684326172,
+          "above_one_count": 0
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "5d40e2f4704737cbb81dee3e6ae701d6c072b3612f70812b793944c99080c5fc"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "f49e08f8cd3479b344a227c4fb738952f6abfa8ace2205040742a5cf076c0502"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "0c94a76c2fc596702abdd229f7cfd1b3e8abf1044b0ce45e92fbc41b65af34df"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "bf132c349cccdde8a544e192ad7a00541c9980d69295c6b7121e2e99bce28feb"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "c287d855ce55a7345c9765e672448be87ee6df41799fe337c660011eb2bf73a3"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "3e3b37daa57163956f50fc303c35cdda8d5596f0b2b0ae9f809b19d7d35258ab"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "42edef10f38a96be68c0e72c5a0100b2c9d473c819959363170b21e47f062904"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G8_CONTROL/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "a7e24742337d5b5d4c52c7546b8ff86d259e38ba1cef6df196ac976fa8b63db3"
+        }
+      ],
+      "scene_order_sha256": "3698a0640d1ee127c3ee788a5ff5498c507de4b00ee507b67771d0c88102d4de",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 1000,
+        "total": 1000
+      }
+    },
+    "SAFETY_G16": {
+      "arm": "SAFETY_G16",
+      "updates": 500,
+      "group_size": 16,
+      "counts": {
+        "groups": 1000,
+        "candidates": 16000,
+        "all_zero_groups": 1,
+        "tied_groups": 2,
+        "safety_differing_groups": 831,
+        "progress_only_groups": 0,
+        "journal_adv_mask_zero_groups": 26,
+        "true_zero_advantage_groups": 26,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 1,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 5230,
+        "quality_feasible_count": 11732,
+        "quality_positive_high_count": 4682,
+        "quality_negative_high_count": 292,
+        "groups_with_strict_high": 886,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 1000,
+        "repeated_scene_exposures": 0
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.6872498805596607,
+        "NC": 0.9548125,
+        "DAC": 0.8666875,
+        "TTC": 0.8375,
+        "EP": 0.7024113479037919,
+        "safe_fraction": 0.73325
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.1939032116717426,
+          "quality_active_negative_high_weight": 0.002239676745637553,
+          "quality_active_positive_unsafe_weight": 0.0002835386097431183
+        },
+        "2": {
+          "clipfrac": 0.022270833825692535,
+          "ppo_blocked_fraction": 0.011375000279396773,
+          "quality_active_positive_high_weight": 0.1919054674409126,
+          "quality_active_negative_high_weight": 0.002188078805775149,
+          "quality_active_positive_unsafe_weight": 0.0002717019319534302
+        },
+        "3": {
+          "clipfrac": 0.03454166753217578,
+          "ppo_blocked_fraction": 0.0188958337046206,
+          "quality_active_positive_high_weight": 0.1898987292748061,
+          "quality_active_negative_high_weight": 0.0021827932122105266,
+          "quality_active_positive_unsafe_weight": 0.00027174681425094603
+        },
+        "4": {
+          "clipfrac": 0.04850000131502748,
+          "ppo_blocked_fraction": 0.028291667073965073,
+          "quality_active_positive_high_weight": 0.18873942513029032,
+          "quality_active_negative_high_weight": 0.0021709123535547407,
+          "quality_active_positive_unsafe_weight": 0.0002715643346309662
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 0.016775278955698015,
+          "minimum": 0.007918969728052616,
+          "maximum": 0.04181165620684624,
+          "above_one_count": 0
+        },
+        "source_clamp_hit_rate": {
+          "mean": 0.00031315104421810244,
+          "minimum": 0.0,
+          "maximum": 0.0026041667442768812,
+          "above_one_count": 0
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.005265885949134827,
+          "minimum": 0.0,
+          "maximum": 0.03299880027770996,
+          "above_one_count": 0
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "1b291aac353ea4bbad290d478f3bdedc2a5acd69162c7a7114be8e3684bf236e"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "0621d5e41846bd8608aba294cb6cfe405d2af00e5fc8d752f3442032c9b21e83"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "eae49c35b84089b86cb0b1bef6ee85d7baa99a4953179959dc039ef6429bead3"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "6fac687cb9632e42da88c9f177c7326ffcb8805f05af0819e4b9e0e93f8166d5"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "08081f694de4861f22e81516df8cf3f745eec71c94efececf9f13ee7b65a0e19"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "766c12e148233794388bf88ecf2fa90fae1d5f882f3273c44f0d6115b86992c9"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "75524455e270b97bb710154f075b1c8af3dd4db3024eae6f1b8a6291e19907d7"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_G16/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "2ad10088f0bd874a82758fc45f72437a5247430861113f505197b7043f7d1830"
+        }
+      ],
+      "scene_order_sha256": "3698a0640d1ee127c3ee788a5ff5498c507de4b00ee507b67771d0c88102d4de",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 1000,
+        "total": 1000
+      }
+    },
+    "SAFETY_DAC_DENSE_G8": {
+      "arm": "SAFETY_DAC_DENSE_G8",
+      "updates": 500,
+      "group_size": 8,
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "all_zero_groups": 6,
+        "tied_groups": 8,
+        "safety_differing_groups": 715,
+        "progress_only_groups": 7,
+        "journal_adv_mask_zero_groups": 59,
+        "true_zero_advantage_groups": 59,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 0,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 2650,
+        "quality_feasible_count": 5819,
+        "quality_positive_high_count": 2149,
+        "quality_negative_high_count": 215,
+        "groups_with_strict_high": 819,
+        "dense_dac_subtype_groups": 2.0,
+        "dense_dac_activated_groups": 2.0,
+        "dense_dac_activated_candidates": 16.0,
+        "dense_dac_adv_cap5_candidates": 0.0,
+        "dense_dac_failed_positive_candidates": 5.0,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 1000,
+        "repeated_scene_exposures": 0
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.6790460513651058,
+        "NC": 0.9508125,
+        "DAC": 0.858875,
+        "TTC": 0.839,
+        "EP": 0.6937452800934469,
+        "safe_fraction": 0.727375
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.19341961555590387,
+          "quality_active_negative_high_weight": 0.0028394781236420388,
+          "quality_active_positive_unsafe_weight": 0.002559001676738262
+        },
+        "2": {
+          "clipfrac": 0.021625000569969417,
+          "ppo_blocked_fraction": 0.011250000305473804,
+          "quality_active_positive_high_weight": 0.19197417100833264,
+          "quality_active_negative_high_weight": 0.0027989897503866816,
+          "quality_active_positive_unsafe_weight": 0.0024988593161106108
+        },
+        "3": {
+          "clipfrac": 0.03270833413302898,
+          "ppo_blocked_fraction": 0.017916667144745588,
+          "quality_active_positive_high_weight": 0.1904341469553765,
+          "quality_active_negative_high_weight": 0.0027675309109617954,
+          "quality_active_positive_unsafe_weight": 0.0025126935020089148
+        },
+        "4": {
+          "clipfrac": 0.04929166787862778,
+          "ppo_blocked_fraction": 0.030291667334735393,
+          "quality_active_positive_high_weight": 0.18825557916564867,
+          "quality_active_negative_high_weight": 0.002805915757198818,
+          "quality_active_positive_unsafe_weight": 0.0024187174811959268
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 0.022359342303127052,
+          "minimum": 0.007805369794368744,
+          "maximum": 0.05371547490358353,
+          "above_one_count": 0
+        },
+        "source_clamp_hit_rate": {
+          "mean": 0.00033289930821047163,
+          "minimum": 0.0,
+          "maximum": 0.0052083334885537624,
+          "above_one_count": 0
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.004155030950903893,
+          "minimum": 0.0,
+          "maximum": 0.02458357810974121,
+          "above_one_count": 0
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "33e2c76174d15683fff3fc3c8dfebb489f18ece47a7e035dc9daad390a88d0df"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "8cae3ce3f2aaaf8335b7455e37a2a8e825235b645ba9b68034f260fb3e1769dd"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "77a195a81a44d7bf44d675c4ed5ce4d86337fedf2ff058e5fc67d5ff8414fa41"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "185504209233d513c94fa92ff36036efd4dfd1be1d109865c5316cd368efa865"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "c03b13492b0c1772f5b67e5f6de8caf40811b8a1f420f89501a328ec4c852559"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "7bf383e0f3b2c262ec1c87b76caa114893d1be1596c9dcaad958cbdcf71b9e34"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "3280cc31751d6dbbf39716aebcf4dc80459ca6e787c4d6abc5ea4f85cb22e3ca"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_DAC_DENSE_G8/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "5b8741154502dbbc8ce62c302613ac47bdd3d271195c6221c593e2129379b74f"
+        }
+      ],
+      "scene_order_sha256": "3698a0640d1ee127c3ee788a5ff5498c507de4b00ee507b67771d0c88102d4de",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 1000,
+        "total": 1000
+      },
+      "activation_and_divergence": {
+        "first_activated_update": 81,
+        "first_behavior_parameter_hash_difference": [
+          85,
+          0
+        ],
+        "first_chain_hash_difference": [
+          85,
+          0
+        ],
+        "first_activation_records": [
+          {
+            "updates": 81,
+            "rank": 5,
+            "token": "0fdee18a6a4c53de"
+          }
+        ],
+        "exact_hashes_do_not_quantify_functional_or_gradient_interference": true
+      }
+    },
+    "SAFETY_ACTIVE_DATA_G8": {
+      "arm": "SAFETY_ACTIVE_DATA_G8",
+      "updates": 500,
+      "group_size": 8,
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "all_zero_groups": 5,
+        "tied_groups": 7,
+        "safety_differing_groups": 768,
+        "progress_only_groups": 6,
+        "journal_adv_mask_zero_groups": 60,
+        "true_zero_advantage_groups": 60,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 2,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 2517,
+        "quality_feasible_count": 5708,
+        "quality_positive_high_count": 2066,
+        "quality_negative_high_count": 178,
+        "groups_with_strict_high": 780,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 768,
+        "repeated_scene_exposures": 232
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.6693059628689241,
+        "NC": 0.9523125,
+        "DAC": 0.85075,
+        "TTC": 0.83,
+        "EP": 0.6823648149012781,
+        "safe_fraction": 0.7135
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.1851593897411367,
+          "quality_active_negative_high_weight": 0.0025558680284302683,
+          "quality_active_positive_unsafe_weight": 0.00212024362385273
+        },
+        "2": {
+          "clipfrac": 0.022250000596046447,
+          "ppo_blocked_fraction": 0.011750000327825546,
+          "quality_active_positive_high_weight": 0.18324889244767836,
+          "quality_active_negative_high_weight": 0.0025263593881390987,
+          "quality_active_positive_unsafe_weight": 0.0020762526094913482
+        },
+        "3": {
+          "clipfrac": 0.03304166749492288,
+          "ppo_blocked_fraction": 0.019708333805203437,
+          "quality_active_positive_high_weight": 0.1818203057719511,
+          "quality_active_negative_high_weight": 0.0025066494802013038,
+          "quality_active_positive_unsafe_weight": 0.00208352842181921
+        },
+        "4": {
+          "clipfrac": 0.04620833445340395,
+          "ppo_blocked_fraction": 0.02875000059232116,
+          "quality_active_positive_high_weight": 0.17981609525030945,
+          "quality_active_negative_high_weight": 0.0025079538753489034,
+          "quality_active_positive_unsafe_weight": 0.0020605118870735168
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 0.022117385046556592,
+          "minimum": 0.009961037896573544,
+          "maximum": 0.045503854751586914,
+          "above_one_count": 0
+        },
+        "source_clamp_hit_rate": {
+          "mean": 0.00033072916930541396,
+          "minimum": 0.0,
+          "maximum": 0.0052083334885537624,
+          "above_one_count": 0
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.004028083190321922,
+          "minimum": 0.0,
+          "maximum": 0.025500237941741943,
+          "above_one_count": 0
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "c8524f357a1735d961067abc0aca23aca9404dc285471fe15e644a1cf9f41070"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "c930a4f70553ff8a91e6f8bc8dd50d4e95ae4a366fcf4fadd2cfc08904fbd898"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "24f9fa3c952e4784c4e55e5279bee7c45723d185d686133b349c8042843861b8"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "eb3ce2934be070d09d0dfcdb8ad4e6e7960e66345c9d690e4321f6f243e9af8f"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "93883b76996dedaeb089d97705d3e43a7b751d3e89d06586fd33304a58a2e1ae"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "a5dfe122381c417748e9fe489df414fe5bb45b3dde3e2173dc3ba4b9a0bc73e3"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "24550d57676c28c9c24a51cd7d9c6778571faf88332362b930393b9d7a2adbf8"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ACTIVE_DATA_G8/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "276965f5c6377b467c31668a90968439ed16ce2528578063b6725e2eece94037"
+        }
+      ],
+      "scene_order_sha256": "313857ccaffbd902dc66b30a1f759a23e9a52c9af5e30a9b54ea5abbf4ba4a9a",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 88,
+        "total": 1000
+      }
+    },
+    "SAFETY_SATURATED_G8": {
+      "arm": "SAFETY_SATURATED_G8",
+      "updates": 500,
+      "group_size": 8,
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "all_zero_groups": 6,
+        "tied_groups": 7,
+        "safety_differing_groups": 719,
+        "progress_only_groups": 7,
+        "journal_adv_mask_zero_groups": 3,
+        "true_zero_advantage_groups": 3,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 2,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 2663,
+        "quality_feasible_count": 5816,
+        "quality_positive_high_count": 2444,
+        "quality_negative_high_count": 211,
+        "groups_with_strict_high": 818,
+        "saturated_credit_subtype_groups": 59.0,
+        "saturated_credit_activated_groups": 58.0,
+        "saturated_credit_activated_candidates": 464.0,
+        "saturated_credit_adv_cap5_candidates": 0.0,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 1000,
+        "repeated_scene_exposures": 0
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.6794279505704777,
+        "NC": 0.9505,
+        "DAC": 0.859625,
+        "TTC": 0.8375,
+        "EP": 0.6943728965202751,
+        "safe_fraction": 0.727
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.19992033547494795,
+          "quality_active_negative_high_weight": 0.0027818275064637418,
+          "quality_active_positive_unsafe_weight": 0.0019898300543427466
+        },
+        "2": {
+          "clipfrac": 0.02287500062957406,
+          "ppo_blocked_fraction": 0.012500000361353158,
+          "quality_active_positive_high_weight": 0.19804451787058497,
+          "quality_active_negative_high_weight": 0.002758552814309951,
+          "quality_active_positive_unsafe_weight": 0.0019097979068756104
+        },
+        "3": {
+          "clipfrac": 0.03504166755452752,
+          "ppo_blocked_fraction": 0.02054166715219617,
+          "quality_active_positive_high_weight": 0.19627955763236968,
+          "quality_active_negative_high_weight": 0.0027380044650490163,
+          "quality_active_positive_unsafe_weight": 0.001827307976782322
+        },
+        "4": {
+          "clipfrac": 0.04787500114366412,
+          "ppo_blocked_fraction": 0.031125000674277543,
+          "quality_active_positive_high_weight": 0.19403567369806116,
+          "quality_active_negative_high_weight": 0.002719187650931417,
+          "quality_active_positive_unsafe_weight": 0.001845465026795864
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 0.022146603640168905,
+          "minimum": 0.011365109123289585,
+          "maximum": 0.056186433881521225,
+          "above_one_count": 0
+        },
+        "source_clamp_hit_rate": {
+          "mean": 0.0003328993082686793,
+          "minimum": 0.0,
+          "maximum": 0.0052083334885537624,
+          "above_one_count": 0
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.00418374639749527,
+          "minimum": 0.0,
+          "maximum": 0.02718043327331543,
+          "above_one_count": 0
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "5464c07b332ee7eec6e1e31eaec3850e39df6019afa964f5b4295d94eb90c85d"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "83921a8f9cd3453388f27590a6cefd17e68bef7b8e8e9c413178025090a26757"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "8e8db1c496192f21d4f5adf217e30bcad241e7b280d7465050aa8b5b38971c56"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "ad751af67d202fb1c83d13642c74f5bb6c4dfd997d1dcf360bb9bd4aa85ca38d"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "aabfe09df9a65985dbc1fc771d5a51d2d09bc9e4670505b394ed8b28cb11a547"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "aae0d7a03c61c143d76f4a6c9bef4365a0e60503693d20d8220eb99d8132a592"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "fd901e216a4b2f6dfc2f1095b7c1474477702e909299e84a0967f08d7ca7dbd2"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_SATURATED_G8/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "c1e57b19e89ff49adbf94247c48ded41c5bcb683ccf2466f1f8824e33aed9ab7"
+        }
+      ],
+      "scene_order_sha256": "3698a0640d1ee127c3ee788a5ff5498c507de4b00ee507b67771d0c88102d4de",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 1000,
+        "total": 1000
+      },
+      "activation_and_divergence": {
+        "first_activated_update": 1,
+        "first_behavior_parameter_hash_difference": [
+          5,
+          0
+        ],
+        "first_chain_hash_difference": [
+          5,
+          0
+        ],
+        "first_activation_records": [
+          {
+            "updates": 1,
+            "rank": 2,
+            "token": "37b65daae05e5787"
+          },
+          {
+            "updates": 1,
+            "rank": 7,
+            "token": "846e0c67ae9652a4"
+          }
+        ],
+        "exact_hashes_do_not_quantify_functional_or_gradient_interference": true
+      }
+    },
+    "SAFETY_PROTECTED_HIGH_G8": {
+      "arm": "SAFETY_PROTECTED_HIGH_G8",
+      "updates": 500,
+      "group_size": 8,
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "all_zero_groups": 6,
+        "tied_groups": 8,
+        "safety_differing_groups": 722,
+        "progress_only_groups": 7,
+        "journal_adv_mask_zero_groups": 59,
+        "true_zero_advantage_groups": 59,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 2,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 2674,
+        "quality_feasible_count": 5811,
+        "quality_positive_high_count": 2179,
+        "quality_negative_high_count": 0,
+        "groups_with_strict_high": 817,
+        "protected_credit_activated_groups": 101.0,
+        "protected_credit_quality_candidates": 2674.0,
+        "protected_credit_activated_candidates": 213.0,
+        "protected_credit_unchanged_candidates": 7787.0,
+        "protected_credit_adv_cap5_candidates": 0.0,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 1000,
+        "repeated_scene_exposures": 0
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.6783846579941649,
+        "NC": 0.9498125,
+        "DAC": 0.858125,
+        "TTC": 0.837875,
+        "EP": 0.6925584844437478,
+        "safe_fraction": 0.726375
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.19424851189117182,
+          "quality_active_negative_high_weight": 0.0,
+          "quality_active_positive_unsafe_weight": 0.001930427461862564
+        },
+        "2": {
+          "clipfrac": 0.020875000573694708,
+          "ppo_blocked_fraction": 0.011327381268143654,
+          "quality_active_positive_high_weight": 0.19246941882491228,
+          "quality_active_negative_high_weight": 0.0,
+          "quality_active_positive_unsafe_weight": 0.0019297192096710204
+        },
+        "3": {
+          "clipfrac": 0.03304166746884584,
+          "ppo_blocked_fraction": 0.019131746526807547,
+          "quality_active_positive_high_weight": 0.1914302222043043,
+          "quality_active_negative_high_weight": 0.0,
+          "quality_active_positive_unsafe_weight": 0.0019229516759514808
+        },
+        "4": {
+          "clipfrac": 0.04570833446085453,
+          "ppo_blocked_fraction": 0.02767738154903054,
+          "quality_active_positive_high_weight": 0.18846405321071508,
+          "quality_active_negative_high_weight": 0.0,
+          "quality_active_positive_unsafe_weight": 0.0019237879440188407
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 0.022226519791409372,
+          "minimum": 0.01085609383881092,
+          "maximum": 0.0536884143948555,
+          "above_one_count": 0
+        },
+        "source_clamp_hit_rate": {
+          "mean": 0.00032986111380159855,
+          "minimum": 0.0,
+          "maximum": 0.0052083334885537624,
+          "above_one_count": 0
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.004073214247822762,
+          "minimum": 0.0,
+          "maximum": 0.030454277992248535,
+          "above_one_count": 0
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "866004deaaa911122734ced06758842334147c83d467bfdaa58b2f06840c107b"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "3a77dd3d150506ee679ef53c6db8e96ddfd1a579e75ee77abfe69520347cc96d"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "2ceb284c99bc3b04e330bd189b00e5d88095f4c9bdb62d815ff4ff85d10a62f3"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "47dca9031e3884b8823546647bef16b9b75d411186aa71776e81369304179c08"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "77482d48d413487db087ff0212143cd324907108d80f975bd2291219fee85934"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "1145b9e8dec840bcdddf3c2d8e3de1e5b29df02452c4e94ce6bc3621b7eb6594"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "e7bf033b810d5221f43e3b64a378fa32e3976d0855b820c81a4d625e9ae33333"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_PROTECTED_HIGH_G8/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "6f2333731612937f2e3ff7c499fbe4c8b4830042a1ec12a37339dfb094d0f2d6"
+        }
+      ],
+      "scene_order_sha256": "3698a0640d1ee127c3ee788a5ff5498c507de4b00ee507b67771d0c88102d4de",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 1000,
+        "total": 1000
+      },
+      "activation_and_divergence": {
+        "first_activated_update": 5,
+        "first_behavior_parameter_hash_difference": [
+          9,
+          0
+        ],
+        "first_chain_hash_difference": [
+          9,
+          0
+        ],
+        "first_activation_records": [
+          {
+            "updates": 5,
+            "rank": 7,
+            "token": "994196c4ab345449"
+          }
+        ],
+        "exact_hashes_do_not_quantify_functional_or_gradient_interference": true
+      }
+    },
+    "SAFETY_INVERSION_CANCEL_G8": {
+      "arm": "SAFETY_INVERSION_CANCEL_G8",
+      "updates": 500,
+      "group_size": 8,
+      "counts": {
+        "groups": 1000,
+        "candidates": 8000,
+        "all_zero_groups": 6,
+        "tied_groups": 7,
+        "safety_differing_groups": 716,
+        "progress_only_groups": 7,
+        "journal_adv_mask_zero_groups": 61,
+        "true_zero_advantage_groups": 61,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 2,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 2673,
+        "quality_feasible_count": 5823,
+        "quality_positive_high_count": 2171,
+        "quality_negative_high_count": 91,
+        "groups_with_strict_high": 821,
+        "inversion_credit_activated_groups": 82.0,
+        "inversion_credit_quality_candidates": 2673.0,
+        "inversion_credit_activated_candidates": 293.0,
+        "inversion_credit_original_negative_high": 214.0,
+        "inversion_credit_original_qualifying_pairs": 336.0,
+        "inversion_credit_transfers": 211.0,
+        "inversion_credit_remaining_negative_high": 91.0,
+        "inversion_credit_remaining_qualifying_pairs": 0.0,
+        "inversion_credit_new_PG0_groups": 0.0,
+        "inversion_credit_post_raw_PG0_groups": 61.0,
+        "inversion_credit_adv_cap5_candidates": 0.0,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 1000,
+        "repeated_scene_exposures": 0
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.6793744655782146,
+        "NC": 0.9495625,
+        "DAC": 0.859125,
+        "TTC": 0.838875,
+        "EP": 0.6931949645024464,
+        "safe_fraction": 0.727875
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.19497610703355167,
+          "quality_active_negative_high_weight": 0.001182062927458901,
+          "quality_active_positive_unsafe_weight": 0.002097802869975567
+        },
+        "2": {
+          "clipfrac": 0.02254166727513075,
+          "ppo_blocked_fraction": 0.010890476487576961,
+          "quality_active_positive_high_weight": 0.1930997876280453,
+          "quality_active_negative_high_weight": 0.0011447938912024255,
+          "quality_active_positive_unsafe_weight": 0.0020096293687820433
+        },
+        "3": {
+          "clipfrac": 0.034375000853091475,
+          "ppo_blocked_fraction": 0.019222222696989776,
+          "quality_active_positive_high_weight": 0.19181064242031426,
+          "quality_active_negative_high_weight": 0.0011102837872458621,
+          "quality_active_positive_unsafe_weight": 0.002053398683667183
+        },
+        "4": {
+          "clipfrac": 0.048375001177191734,
+          "ppo_blocked_fraction": 0.02940515934675932,
+          "quality_active_positive_high_weight": 0.18989676012808923,
+          "quality_active_negative_high_weight": 0.001143290215433808,
+          "quality_active_positive_unsafe_weight": 0.001984039768576622
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 0.02242999294400215,
+          "minimum": 0.009713931940495968,
+          "maximum": 0.05606282502412796,
+          "above_one_count": 0
+        },
+        "source_clamp_hit_rate": {
+          "mean": 0.0003324652804585639,
+          "minimum": 0.0,
+          "maximum": 0.0052083334885537624,
+          "above_one_count": 0
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.004094887718558311,
+          "minimum": 0.0,
+          "maximum": 0.030156612396240234,
+          "above_one_count": 0
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "7afad388fe2fd40bdd6f6b353425e75d93af529ade73bf0ed87a07216a72fd17"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "4b09749c465cfa1e43c0fb2dbb77bae4f26e7e7a788a543968591db2af8ddb73"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "0734f84227324d683e4aeffb2f4158079f1b20e25b637c3b32f642e2708a64f9"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "63b47646807083443b0f91dd0454b90890a36d1380f5349b000c28e486fbd67c"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "76694da9351cb2326d67272f546374acd58b21eea79d8a158646c17a76034528"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "fecebd1949fb16368f15aab0699771efd193f86dcae291314574230fd75f1588"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "4f08b0db284d3c84ad372788f9ed7d1145dff53c5a7507b92ea2f3ab04ef3f0c"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_INVERSION_CANCEL_G8/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "885f0cb9af775e56991a11cf689a8284727c372029d63919cb56d73c4966009a"
+        }
+      ],
+      "scene_order_sha256": "3698a0640d1ee127c3ee788a5ff5498c507de4b00ee507b67771d0c88102d4de",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 1000,
+        "total": 1000
+      },
+      "activation_and_divergence": {
+        "first_activated_update": 5,
+        "first_behavior_parameter_hash_difference": [
+          9,
+          0
+        ],
+        "first_chain_hash_difference": [
+          9,
+          0
+        ],
+        "first_activation_records": [
+          {
+            "updates": 5,
+            "rank": 7,
+            "token": "994196c4ab345449"
+          }
+        ],
+        "exact_hashes_do_not_quantify_functional_or_gradient_interference": true
+      }
+    },
+    "SAFETY_ENDPOINT_RAMP_AR1_G8": {
+      "arm": "SAFETY_ENDPOINT_RAMP_AR1_G8",
+      "updates": 500,
+      "group_size": 8,
+      "counts": {
+        "source_clamp_not_applicable_rank_updates": 4000,
+        "groups": 1000,
+        "candidates": 8000,
+        "all_zero_groups": 0,
+        "tied_groups": 109,
+        "safety_differing_groups": 554,
+        "progress_only_groups": 228,
+        "journal_adv_mask_zero_groups": 135,
+        "true_zero_advantage_groups": 135,
+        "nonzero_mask_but_zero_advantage_groups": 0,
+        "all_zero_and_zero_advantage_groups": 0,
+        "positive_unsafe_with_safe_alternative_candidates": 0,
+        "quality_strict_high_count": 4756,
+        "quality_feasible_count": 6627,
+        "quality_positive_high_count": 3268,
+        "quality_negative_high_count": 447,
+        "groups_with_strict_high": 902,
+        "globally_all_eight_ranks_zero_PG_collections": 0,
+        "unique_scene_tokens": 1000,
+        "repeated_scene_exposures": 0
+      },
+      "mean_first_inner_exploration": {
+        "canonical_random_mean": 0.8030425682397208,
+        "NC": 0.9740625,
+        "DAC": 0.901375,
+        "TTC": 0.912,
+        "EP": 0.759855878784938,
+        "safe_fraction": 0.828375
+      },
+      "by_inner_mean": {
+        "1": {
+          "clipfrac": 0.0,
+          "ppo_blocked_fraction": 0.0,
+          "quality_active_positive_high_weight": 0.26396435045258887,
+          "quality_active_negative_high_weight": 0.006614696174050551,
+          "quality_active_positive_unsafe_weight": 0.0
+        },
+        "2": {
+          "clipfrac": 0.82925,
+          "ppo_blocked_fraction": 0.359875,
+          "quality_active_positive_high_weight": 0.13986148500058504,
+          "quality_active_negative_high_weight": 0.003996952031539234,
+          "quality_active_positive_unsafe_weight": 0.0
+        },
+        "3": {
+          "clipfrac": 0.885375,
+          "ppo_blocked_fraction": 0.391125,
+          "quality_active_positive_high_weight": 0.12350598689957087,
+          "quality_active_negative_high_weight": 0.004563275750223975,
+          "quality_active_positive_unsafe_weight": 0.0
+        },
+        "4": {
+          "clipfrac": 0.918,
+          "ppo_blocked_fraction": 0.4125,
+          "quality_active_positive_high_weight": 0.11740346259490628,
+          "quality_active_negative_high_weight": 0.0035257767687388447,
+          "quality_active_positive_unsafe_weight": 0.0
+        }
+      },
+      "update_statistics": {
+        "preclip_gradient_norm": {
+          "mean": 3.132356327056885,
+          "minimum": 0.4614044427871704,
+          "maximum": 11.583828926086426,
+          "above_one_count": 3864
+        },
+        "ratio_max_abs_from_one": {
+          "mean": 0.48307590173880616,
+          "minimum": 0.0,
+          "maximum": 14.55134897193958,
+          "above_one_count": 362
+        },
+        "actual_used_lr_action_lora": {
+          "mean": 4.500049999999739e-05,
+          "minimum": 5.000000000000001e-07,
+          "maximum": 5e-05,
+          "above_one_count": 0
+        },
+        "actual_used_lr_scene_predictive_memory": {
+          "mean": 4.500050000000041e-06,
+          "minimum": 5.0000000000000004e-08,
+          "maximum": 5e-06,
+          "above_one_count": 0
+        }
+      },
+      "curriculum_exact_cap_result_stats": {},
+      "sources": [
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank0.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "115499021381f70bc0e7efdd34cad4808c42e908f511450d4914db0d3439d862"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank1.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "d129aa4c2eb165cca1c1bb579883c1e50b42599ab91463bf6a363bc20757de15"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank2.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "c63a4810ec93729335187edeab02b39cde26fcb800a706ece355f859c327698b"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank3.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "2775a4a2c959adb687df42345edd6884b8a6e7b830751f472b0472bfc9c8db4c"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank4.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "5d9c70ff9b9c2ae0cd5b83a66b89da45ffdddc54843ed46a5d23252089412f77"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank5.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "dddbebc3c607256673f82299831474bbbf5cefb6c662d457420cb8f78bbcbd3f"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank6.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "0b7d55f27c0d40f5b6d482367e9236b2d11cbf7420ddd4ab6ccc912f79b7222d"
+        },
+        {
+          "path": "/mnt/project/qwen-world-safety-exploration-20261031/runs/SAFETY_ENDPOINT_RAMP_AR1_G8/metrics_rank7.jsonl",
+          "prefix_updates": 500,
+          "prefix_sha256": "50ebacc55059a460bde312472e9ecb418978351ab9d91aa29fd9b73e4aedcea1"
+        }
+      ],
+      "scene_order_sha256": "3698a0640d1ee127c3ee788a5ff5498c507de4b00ee507b67771d0c88102d4de",
+      "metric_rows": 4000,
+      "counts_are_local_rank_observations_not_global_update_counts": true,
+      "strict_high": "NC=DAC=TTC=Comfort=1 and canonical score>=.9",
+      "noncausal_limits": [
+        "Surrogate coefficients are not parameter-gradient norms",
+        "Different changing policies can visit different actions even under identical scene order",
+        "No claim that all frozen-Qwen representations are sufficient",
+        "No new rollout, scorer call, optimizer update, GPU dispatch or source mutation"
+      ],
+      "same_rank_collection_scene_as_control": {
+        "matched": 1000,
+        "total": 1000
+      }
+    }
+  },
+  "registry_path": "/mnt/project/qwen-world-safety-exploration-20261031/RUNS.json",
+  "registry_snapshot_sha256": "2a15f4e8e468cf84a669583e4c4e9cf9499996e1a61df8a5e92a142fbab11740",
+  "metric_rows": 32000,
+  "groups": 8000,
+  "candidate_observations": 72000,
+  "incomplete_or_sampled_population": false,
+  "sha256": "ae4b6a55474cd7d78945c8e9d6c4b47d23a3915311d859b8d5cab5bcf01f87f3"
+}
