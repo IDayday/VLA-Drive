@@ -10,6 +10,16 @@ ARCHITECTURES={
 }
 
 
+def abcd_termination_notice(root,research,h):
+    termination=research.get('user_termination',{})
+    if termination.get('training_authorized')is not False:return ''
+    complete=termination.get('status')=='TERMINATED_BY_USER'and termination.get('all_training_rank_processes_exited')is True
+    deleted=termination.get('checkpoints_deleted_by_user')is True
+    title='ABCD四组RL已终止归档，不再恢复或续训。'if complete else '用户已要求终止ABCD四组RL，正在核验保存与退出。'
+    project=Path(research['root'])
+    return '<div class="notice"><b>'+title+'</b>'+('四组原生RL检查点已按用户要求清除，训练代码、实验结果与model-only deployment exports保留。'if deleted else '训练代码与实验结果保留。')+'ABCD IL独立保留、未触碰；新RL训练／评测派发和自动重启均已禁止，资源优先用于E的零／低分修复、探索、信用与课程问题。'+('四job均EXITED0、32个rank已正常退出，ABCD活动评测GPU任务为0。'if complete else '旧owner的TRAINING／RUNNING字段仅作执行历史，不当作继续推进。')+h.relative_link(root,str(project/'USER_TERMINATION.json'),'用户终止决定与实际回执')+'</div>'
+
+
 def latest_control_review(research,arm):
     rows=[r for r in research.get('paired_reviews',[])if r.get('arm')==arm and r.get('reference_arm')=='SAFETY_G8_CONTROL'and r.get('updates')==r.get('reference_updates')]
     return max(rows,key=lambda r:r.get('updates',0),default=None)
@@ -126,7 +136,8 @@ def render_replanning(root,research,h,exploration=None):
     abcd_complete=[r for r in research.get('results',[])if r.get('publishable_complete')and r.get('cohort')=='NAVTEST']
     exploration_complete=[r for r in(exploration or{}).get('results',[])if r.get('publishable_complete')and r.get('cohort')=='NAVTEST']
     target=('当前研究已有完整NAVTEST达到92，具体身份与预算见结果表。'if any(r.get('PDMS',0)>=92 for r in abcd_complete+exploration_complete)else '92目标仍未达成。')
-    body=render_exploration_headline(root,exploration,h)+render_pilot_native_census(root,exploration,h)
+    abcd_closed=research.get('user_termination',{}).get('training_authorized')is False
+    body=abcd_termination_notice(root,research,h)+render_exploration_headline(root,exploration,h)+render_pilot_native_census(root,exploration,h)
     body+='<div class="notice"><b>历史World对照尚未证明Memory可信优于SafetyEP；'+target+'</b>Memory10k观察点91.37616，比Safety10k仅+0.02627，配对95%CI[-0.11956,+0.15879]；零分反而净增19且NC／TTC下降。这个结果不能当作成功改进。接下来按问题与判据推进，优先完成可区分假设的对照。</div>'
     population=analyses.get('SAFETY_FULL_POPULATION_AUDIT_20261031/SUMMARY.json',{})
     population_complete=population.get('status')=='COMPLETE'and population.get('population',{}).get('scenes')==12146
@@ -174,7 +185,11 @@ def render_replanning(root,research,h,exploration=None):
         mechanism_value=route.get('mechanism_evidence_zh');mechanism=prose(mechanism_value[:1]if isinstance(mechanism_value,list)else mechanism_value)
         if mechanism:evidence.append(mechanism)
         decision=decisions.get(route.get('disposition'),'按完整证据复核')
-        rows.append(['<b>'+h.esc(route.get('title_zh',route.get('id','路线')))+'</b><small>'+prose(route.get('hypothesis_zh'))+'</small>','<br>'.join(evidence)or'尚无完整结果',prose(route.get('conclusion_zh')),'<b>'+h.esc(decision)+'</b><small>'+prose(route.get('continue_recommendation'))+'</small>'])
+        recommendation=prose(route.get('continue_recommendation'))
+        conclusion=prose(route.get('conclusion_zh'))
+        if abcd_closed and route.get('disposition')=='ACTIVE_NEW_ARCHITECTURE_RESEARCH_NOT_SCORE_PROVEN':
+            decision='用户终止归档，不再恢复或续训';recommendation='ABCD IL保留，资源转E核心问题；此取舍不等同架构因果否决。';conclusion='ABCD RL已按用户指令终止；检查点已清除，代码与完整结果作为历史保留。'
+        rows.append(['<b>'+h.esc(route.get('title_zh',route.get('id','路线')))+'</b><small>'+prose(route.get('hypothesis_zh'))+'</small>','<br>'.join(evidence)or'尚无完整结果',conclusion,'<b>'+h.esc(decision)+'</b><small>'+recommendation+'</small>'])
     if not rows:
         rows=[['SafetyEP：分解安全／可行内效率信用','10k相对原FULL +0.3304；CI排除0；存在NC代价','有收益证据，长训未持续；保留10k对照','保留基线，不默认续满50k'],
             ['成功Memory：真实成功轨迹保持','10k+0.02627且CI跨0；zero修复15／新增34','辅助确实激活，尚未证明部署收益','保留模型；不据最高均值自动续长'],
@@ -191,6 +206,7 @@ def render_replanning(root,research,h,exploration=None):
         body+='<details><summary>新证据：PG信用多，不代表更符合安全—效率目标</summary><p>四组首1k使用相同顺序的2,000个TRAIN scene group；这是不同策略随训练变化的采样记录，未冻结同θ，也不是参数梯度或部署分数比较。</p>'+h.table(['架构','同序TRAIN组','PG信用零组（总计）','其中无严格可行候选','有严格可行替代仍正A的unsafe候选'],signal_rows)+'<p>D的总PG信用零组更少，但出现308个有严格可行替代仍为正A的unsafe候选；ABC为0。TTC的canonical软分与SafetyEP严格门不同，不能把这308个全称为canonical错误。D同时改变架构、父模型、目标、学习率和噪声截断，当前不能据此单独归因或排序。'+h.relative_link(root,str(project/'analysis'/'ABCD_MATCHED_TRAIN1K_CREDIT.json'),'同TRAIN顺序信用核对')+'</p></details>'
     bottlenecks=retrospective.get('core_bottlenecks',[])
     if bottlenecks:
+        if abcd_closed:body+='<details><summary>前轮候选瓶颈与设计记录（含已终止ABCD，不作为当前续训计划）</summary>'
         body+='<h3>候选瓶颈：以全量事实约束，仍需因果对照</h3><div class="research-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">'
         for item in bottlenecks[:3]:
             contrast=item.get('next_minimal_contrast',{})
@@ -198,12 +214,14 @@ def render_replanning(root,research,h,exploration=None):
             if contrast:body+='<p>最小可区分对照：'+prose(contrast.get('single_change'))+'；关键判据：'+prose(contrast.get('decisive_metrics'))+'</p>'
             body+='</article>'
         body+='</div>'
+        if abcd_closed:body+='</details>'
     corrections=retrospective.get('experiment_design_corrections',[])
     if corrections:
         correction_rows=[[prose(item.get('issue_zh')),prose(item.get('actual_correction_zh')),prose(item.get('lesson_zh'))]for item in corrections if isinstance(item,dict)]
         body+='<details><summary>这轮研究设计要纠正什么：运营修复与性能收益分开</summary>'+h.table(['原来的安排／问题','已做的纠正','下一轮规则'],correction_rows)+'</details>'
     if next_research:
         body+='<details><summary>前一轮算法备选：文档建议与最新落实状态分开</summary>'
+        if abcd_closed:body+='<p>ABCD RL已按用户要求终止；以下涉及D的旧研究建议仅作历史文献与设计记录，不是当前GPU计划，不会自动恢复。</p>'
         for key in ['executive_summary_zh','main_conclusions_zh','conclusions_zh']:
             if next_research.get(key):body+='<p>'+prose(next_research[key])+'</p>';break
         papers={p.get('id'):p for p in next_research.get('papers',[])if isinstance(p,dict)}
@@ -448,6 +466,21 @@ def render_endpoint_first50(root,research,h):
     return body
 
 
+def render_endpoint_first500(root,research,h):
+    doc=research.get('analyses',{}).get('PILOT_NATIVE_TRAINING_CENSUS_u000500_EIGHT_ARMS.json',{})
+    if doc.get('status')!='COMPLETE'or doc.get('incomplete_or_sampled_population')is not False:return ''
+    arms=doc.get('arms',{});keys=['SAFETY_G8_CONTROL','SAFETY_ENDPOINT_RAMP_AR1_G8']
+    if not all(key in arms for key in keys):return ''
+    items=[arms[key]for key in keys];counts=[v.get('counts',{})for v in items]
+    rows=[['strict-high／可行候选',*[h.number(c.get('quality_strict_high_count'))+' / '+h.number(c.get('quality_feasible_count'))for c in counts]],
+        ['有strict-high见证组／canonical全0组',*[h.number(c.get('groups_with_strict_high'))+' / '+h.number(c.get('all_zero_groups'))for c in counts]],
+        ['真实PG0组／strict-high负A候选',*[h.number(c.get('true_zero_advantage_groups'))+' / '+h.number(c.get('quality_negative_high_count'))for c in counts]],
+        ['第四inner实际PPO阻断；norm>1日志行',*[h.fmt(v.get('by_inner_mean',{}).get('4',{}).get('ppo_blocked_fraction'),3,percent=True)+'%；'+h.number(v.get('update_statistics',{}).get('preclip_gradient_norm',{}).get('above_one_count'))+' / '+h.number(v.get('metric_rows'))for v in items]]]
+    body='<h4>新增首500过程：探索支持改善，信用与尺度仍待分析</h4><p>全八臂首500完整census覆盖 '+h.number(doc.get('metric_rows'))+' 条rank-update、'+h.number(doc.get('groups'))+' 个fresh组、'+h.number(doc.get('candidate_observations'))+'候选观测。以下两臂各1,000组／8,000候选，同scene顺序、θ随训练变化；不是冻结θ单因素反事实，也不替代上面的首50封存分析。</p>'+h.table(['首500累计（每臂8,000候选）','G8控制','端点runtime'],rows)
+    body+='<p>更高候选质量与更少canonical全0并未消除高分负信用或PG0；负A也不自动等于错误参数更新。下一步应分别审查相对信用、总优化尺度和实际部署保持，不能根据此表直接调新系数或宣称NAV提分。norm统计以rank-update行计，不把八rank重复norm当独立global steps；PPO保护的正常机制与clipfrac／真正阻断仍需区分。'+h.relative_link(root,str(Path(research['root'])/'analysis'/'PILOT_NATIVE_TRAINING_CENSUS_u000500_EIGHT_ARMS.json'),'全八臂首500原生census')+'</p>'
+    return body
+
+
 def render_endpoint_research(root,research,h):
     run=next((r for r in research.get('runs',[])if r.get('id')=='SAFETY_ENDPOINT_RAMP_AR1_G8'),None)
     if not run:return ''
@@ -459,7 +492,14 @@ def render_endpoint_research(root,research,h):
     elif run.get('worker_receipt_status')=='RUNNING':status='GPU child已启动，待八rank实际共同更新'
     elif run.get('worker_returncode')==0:status='该原生阶段已完成，性能另看完整评测'
     else:status='正式登记／CPU协调已启动；待实际GPU证据'
-    body='<article class="callout"><h3>新研究线：把探索移到动作端点，用条件Gaussian PPO更新</h3><p><b>SAFETY_ENDPOINT_RAMP_AR1_G8 · '+h.esc(status)+'</b>。'+h.esc(run.get('host','待host'))+'；独立fresh同IL70、Adam／seed42／update0，登记门槛 '+ '／'.join(h.number(u)for u in run.get('gates',[]))+'、上限 '+h.number(run.get('target_updates'))+'。Control／Dense／Sat的原生3k继续路径不变；新臂尚无完整NAV收益证据。</p>'
+    full_nav=any(r.get('arm')==run['id']and r.get('cohort')=='NAVTEST'and r.get('publishable_complete')for r in research.get('results',[]))
+    body='<article class="callout"><h3>新研究线：把探索移到动作端点，用条件Gaussian PPO更新</h3><p><b>SAFETY_ENDPOINT_RAMP_AR1_G8 · '+h.esc(status)+'</b>。'+h.esc(run.get('host','待host'))+'；独立fresh同IL70、Adam／seed42／update0，登记门槛 '+ '／'.join(h.number(u)for u in run.get('gates',[]))+'、上限 '+h.number(run.get('target_updates'))+'。Control／Dense／Sat的原生3k继续路径不变；'+('本臂完整NAV与同预算配对见结果表，过程证据不作性能替代。'if full_nav else '本臂尚无完整NAV结果，不把训练候选改善称为部署提分。')+'</p>'
+    evaluations=research.get('controllers',{}).get('RESEARCH_EVALUATION',{}).get('state',{}).get('evaluations',{})
+    stage500=next((node for node in evaluations.values()if node.get('arm')==run['id']and node.get('updates')==500 and node.get('cohort')=='NAVTEST'),{})
+    if stage500:
+        ranks=list(stage500.get('ranks',{}).values());done=sum(r.get('status')=='COMPLETE'for r in ranks);running=sum(r.get('status')=='RUNNING'for r in ranks)
+        zt5=sum(r.get('host')=='training-vlawm-tsinghua-zt5'and r.get('status')in('RUNNING','COMPLETE')for r in ranks)
+        body+='<p><b>500步完整NAV评测：</b>实际world '+h.number(stage500.get('world'))+'，完整分片 '+h.number(done)+'、运行中 '+h.number(running)+'；清华zt5运行／完成分片 '+h.number(zt5)+'。这里只报进度，未完整时不计算partial均分；正式source／seed／人口保持。</p>'
     body+='<p><b>为什么是新算法runtime：</b>先以确定性ODE生成prefix，再在动作端点加入近端较小、远端递增、ρ='+h.fmt(protocol.get('rho'),1)+'的AR1相关噪声；末latent保存后，每inner重建current memory并回放末步。被评分的是独立保存的endpoint action，chain末端只是未评分ODE mean。旧W3维均值／clamped transition代理改为FP64 joint24条件Gaussian logp与ratio，不做旧source clamp；PPO .005 clip与A cap5仍保留。它不是只改ρ的单因素，也不是完整flow边缘密度或StructRL完整复现。</p>'
     body+='<p>配置继承的W3字段用于nominal IL anchor：β50公式保留，但anchor输入改为保存的ODE states；有效PG由research.endpoint_policy覆盖，连续密度在实际评分的FP32坐标上计算。部署仍为single ODE10／shift5，训练端点噪声不带入部署。SafetyEP原信用为0时，新概率目标也不会凭空产生PG。</p>'
     groups=identity.get('optimizer_parameter_groups',[])
@@ -472,6 +512,7 @@ def render_endpoint_research(root,research,h):
     review=analyses.get('ENDPOINT_PRODUCTION_FIRST50_REVIEW.json',{})
     if review:body+=render_endpoint_first50(root,research,h)or'<p>'+h.relative_link(root,str(project/'analysis'/'ENDPOINT_PRODUCTION_FIRST50_REVIEW.json'),'生产首50分析：'+str(review.get('status','待状态')))+'；只解释初期原生过程，finite不等于稳定／部署提升。</p>'
     else:body+='<p class="muted">生产首50分析待正式产物；上面的native指标只覆盖真实共同日志尾窗，不外推后续稳定性。</p>'
+    body+=render_endpoint_first500(root,research,h)
     body+='<details><summary>CPU验证、概率边界与科学身份</summary><p>CPU定向与8CPU-rank pending四inner恢复使用reduced fixture／fake评分；其大梯度与ratio不是52.7M生产数值。当前只承诺有限pilot与实际检查，不把测试通过称生产稳定。条件密度给定保存的last latent、prefix停止梯度；连续密度也不是FP32量化格子的概率质量。'+h.relative_link(root,str(project/'analysis'/'ENDPOINT_RUNTIME_HANDOFF.json'),'完整runtime交付')+' · '+h.relative_link(root,str(project/'analysis'/'ENDPOINT_FORMAL_REGISTRATION.json'),'正式登记／冻结source')+'</p><p>本臂科学source '+h.esc(run.get('source_commit',registration.get('source_commit','待source')))+'，与旧initial_v1／credit_v2分开保存；旧三臂不热改。</p></details></article>'
     return body
 
@@ -738,12 +779,36 @@ def render_completed_methods(root,research,snapshot,h):
         conclusions=review.get('what_we_learned_zh',[])
         if isinstance(conclusions,list):body+='<details><summary>完整方法结论与因果边界</summary><p>'+'</p><p>'.join(h.esc(s)for s in conclusions if isinstance(s,str))+'</p></details>'
         body+='<p>'+h.relative_link(root,str(Path(research['root'])/'analysis'/'NEW_METHODS_COMPLETED_REVIEW_20261031.json'),'完整方法复核、组件与边界')+'</p>'
-    body+='<p><b>优先级：</b>先恢复ABCD的原生续训与完整NAVTEST，按各自IL父模型作同人口配对；保留Safety10k与Memory10k，按零分新增／修复和固定IL高分保持审查，不自动延长最高均值配方。未曝光、真实all-fail打平局、已有安全见证但ODE失败需分别处理。FPO、时间扩展及质量信用的这些完整负结果不支持直接续长或盲叠组件；新方案须另作单变量注册。</p>'
+    priority=('ABCD RL已用户终止归档，不再恢复或续训；资源转向E的零分／探索／信用／课程问题。'if research.get('user_termination',{}).get('training_authorized')is False else '先核对ABCD完整结果与原生状态，按各自IL父模型作同人口配对。')
+    body+='<p><b>优先级：</b>'+priority+'保留Safety10k与Memory10k的历史结果，按零分新增／修复和固定IL高分保持审查，不自动延长最高均值配方。未曝光、真实all-fail打平局、已有安全见证但ODE失败需分别处理。FPO、时间扩展及质量信用的这些完整负结果不支持直接续长或盲叠组件；新方案须另作单变量注册。</p>'
+    return body
+
+
+def render_abcd_archive(root,research,h,world_snapshot=None):
+    project=Path(research['root']);termination=research.get('termination_complete')or research.get('user_termination',{});parents=research.get('parents',{}).get('selected',{})
+    body=abcd_termination_notice(root,research,h);rows=[]
+    for node in sorted(termination.get('stopped_runs',[]),key=lambda x:x.get('arm','')):
+        rows.append([h.esc(node.get('arm','')),h.number(node.get('updates'))+'／inner'+h.number(node.get('next_inner')),h.esc(node.get('result_status','待核'))+' / '+h.number(node.get('returncode')),h.number(len(node.get('all8rank_boundary_results',[]))),h.esc(node.get('host',''))])
+    if rows:body+=h.table(['已归档RL','最终停止位置','job退出状态／code','正常退出rank','原host'],rows)
+    cleanup=research.get('checkpoint_cleanup',{})
+    if cleanup.get('status')=='COMPLETE':
+        counts=cleanup.get('counts',{});allocated=counts.get('unique_allocated_bytes')
+        body+='<p><b>检查点清理已完成：</b>'+h.number(counts.get('checkpoint_directories'))+' 个目录／'+h.number(counts.get('files'))+' 个文件，记录allocated '+(h.fmt(allocated/(1024**3),2)+' GiB'if h.finite(allocated)else '待记录')+'；'+h.number(cleanup.get('retained_artifacts_verified'))+' 项保留评测／元数据／日志hash全部不变。IL和其它RL未删，model-only exports保留；原生checkpoint不再存在，不作恢复安排。</p><p>'+h.relative_link(root,str(project/'termination_20261101'/'CHECKPOINT_CLEANUP_COMPLETE.json'),'清理完成回执')+' · '+h.relative_link(root,cleanup.get('native_metadata_archive',''),'已归档的native seal／inventory元数据')+'</p>'
+    body+='<p>'+h.relative_link(root,str(project/'termination_20261101'/'COMPLETE.json'),'四组终止完成回执')+' · '+h.relative_link(root,str(project/'RUNS.json'),'实验登记与历史source')+' · '+h.relative_link(root,research.get('source_worktree',''),'保留训练代码')+'</p>'
+    results=[r for r in research.get('results',[])if r.get('publishable_complete')and r.get('cohort')in('NAVTEST','DEV')]
+    if results:
+        body+='<details><summary>已完成完整成绩：NAVTEST与DEV分开保留</summary>'+h.table(['架构／arm','RL更新','人口','完整scene','PDMS','证据'],[[h.esc(r.get('architecture_id',r.get('arm',''))),h.number(r.get('updates')),h.esc(r.get('cohort','')),h.number(r.get('scenes')),h.fmt(r.get('PDMS'),6),h.relative_link(root,r.get('evidence',''),'SUMMARY')]for r in sorted(results,key=lambda x:(x.get('cohort',''),x.get('architecture_id',x.get('arm','')),x.get('updates',0)))])+'<p class="muted">未完成评测不补均值、不再新增派发。跨架构父模型与算法不同，DEV不能替代NAVTEST。</p></details>'
+    body+='<details><summary>归档身份、方法与早期过程：不再用于续训安排</summary>'+h.table(['架构','锁定IL更新','父模型完整NAVTEST PDMS','结构／原方法'],[[h.esc(key),h.number(parent.get('updates')),h.fmt(parent.get('PDMS'),6),h.esc(ARCHITECTURES.get(key,('',''))[0])+('；SafetyEP＋PPO/W3'if key in'ABC'else '；JaT启发action-only joint-Gaussian PPO')]for key,parent in sorted(parents.items())])
+    body+='<p>'+h.relative_link(root,research.get('parent_path',''),'原锁定父身份')+'；仅保留历史身份与分析，不再恢复或续训ABCD RL。</p>'
+    body+=render_early_process(root,project,research.get('analyses',{}).get('ABCD_EARLY_NATIVE_PROCESS.json',{}),h)
+    body+='</details><details><summary>保留的完整分析与历史source／故障证据入口</summary><p>'+' · '.join(h.relative_link(root,str(project/'analysis'/name),name)for name in research.get('analyses',{}))+'</p></details>'
+    body+='<details><summary>原World四组已完成方法复核</summary>'+render_completed_methods(root,research,world_snapshot or{},h)+'</details>'
     return body
 
 
 def render_abcd_research(root,research,h,world_snapshot=None):
     if not research.get('parents'):return ''
+    if research.get('user_termination',{}).get('training_authorized')is False:return render_abcd_archive(root,research,h,world_snapshot)
     esc,fmt,number,table=h.esc,h.fmt,h.number,h.table
     project=Path(research['root']);parents=research['parents'].get('selected',{})
     link=lambda path,label:h.relative_link(root,str(path),label)

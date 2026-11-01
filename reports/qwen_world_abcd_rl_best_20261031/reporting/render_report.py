@@ -325,6 +325,9 @@ def load_abcd_research(warnings: list, inputs: list) -> dict:
     parents=read_json(parent_path,warnings,inputs) or {}
     candidates=read_json(root/'PARENT_CANDIDATES.json',warnings,inputs) or {}
     registry=read_json(root/'RUNS.json',warnings,inputs) or {}
+    user_termination=read_json(root/'USER_TERMINATION.json',warnings,inputs)or{}
+    termination_complete=read_json(root/'termination_20261101'/'COMPLETE.json',warnings,inputs)or{}
+    checkpoint_cleanup=read_json(root/'termination_20261101'/'CHECKPOINT_CLEANUP_COMPLETE.json',warnings,inputs)or{}
     declared=registry.get('runs',registry.get('architectures',[]))if isinstance(registry,dict)else registry
     run_map={row['id']:row for row in object_rows(declared,'runs')if row.get('id')}
     if not run_map and isinstance(registry,dict):
@@ -357,6 +360,13 @@ def load_abcd_research(warnings: list, inputs: list) -> dict:
         if not all_ranks:snapshot['updates']=None
         snapshot['updates_source']='common committed minimum across all expected rank metric journals'if all_ranks else 'awaiting all-rank committed metric journals'
         snapshot['checkpoint_updates_are_not_live_updates']=True
+        if user_termination.get('training_authorized')is False:
+            snapshot['status_before_user_termination']=snapshot.get('status')
+            snapshot['status']=user_termination.get('status','STOPPING_BY_USER')
+            snapshot['user_requested_termination']=True
+            snapshot['automatic_resume_authorized']=False
+            snapshot['recoverable']=False
+            snapshot['checkpoints_deleted_by_user']=user_termination.get('checkpoints_deleted_by_user',False)
         if snapshot.get('worker_returncode')not in(None,0)and snapshot.get('job'):
             error_log=Path(snapshot['job'])/'stdout.log'
             if error_log.is_file():
@@ -401,6 +411,7 @@ def load_abcd_research(warnings: list, inputs: list) -> dict:
         if path.exists():analyses[name]=read_json(path,warnings,inputs) or {}
     return dict(root=str(root),parent_path=str(parent_path),parents_locked=parent_path==locked,
         parents=parents,candidates=candidates,registry=registry,runs=runs,results=list(results.values()),analyses=analyses,controllers=controllers,evaluation_operations=operations,
+        user_termination=user_termination,termination_complete=termination_complete,checkpoint_cleanup=checkpoint_cleanup,
         source_worktree='/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031',new_training_or_scoring_by_report=False)
 
 

@@ -39,11 +39,14 @@ def render_safety_focus_report(root,snapshot,history,h):
     chapters=[]
     def section(key,title,deck,body):chapters.append('<section id="'+key+'"><h2>'+title+'</h2><p class="deck">'+deck+'</p>'+body+'</section>')
     abcd_front='';replanning_front='';exploration_front=''
+    abcd_closed=editorial.get('abcd_research',{}).get('user_termination',{}).get('training_authorized')is False
     if editorial.get('abcd_research',{}).get('parents'):
         import importlib,abcd_research_report
         importlib.reload(abcd_research_report)
         replanning_front='<section id="replanning"><h2>研究判断与重规划</h2><p class="deck">先说明最新完整阶段、哪些假设得到支持，以及下一步必须回答什么。</p>'+abcd_research_report.render_replanning(root,editorial['abcd_research'],h,editorial.get('exploration_research'))+'</section>'
-        abcd_front='<section id="abcd"><h2>当前新研究：ABCD各自current-best父模型与RL适配</h2><p class="deck">最新方法结论、实际故障与恢复进展优先；父模型保护、原生学习与完整成绩分别判断。</p>'+abcd_research_report.render_abcd_research(root,editorial['abcd_research'],h,snapshot)+'</section>'
+        abcd_title='ABCD RL：已终止归档'if abcd_closed else 'ABCD各自current-best父模型与RL适配'
+        abcd_deck='按用户指令不再恢复或续训；ABCD IL保留，代码与结果归档。'if abcd_closed else '父模型身份、原生学习与完整成绩分别判断。'
+        abcd_front='<section id="abcd"><h2>'+abcd_title+'</h2><p class="deck">'+abcd_deck+'</p>'+abcd_research_report.render_abcd_research(root,editorial['abcd_research'],h,snapshot)+'</section>'
         if editorial.get('exploration_research'):
             exploration_front='<section id="exploration"><h2>研究点 → 代码 → 独立实验：新World研究</h2><p class="deck">与ABCD分开；设计、CPU、注册、真实学习和完整结果逐层核对。</p>'+abcd_research_report.render_exploration_research(root,editorial['exploration_research'],h)+'</section>'
     safety_stop=stopped.get(SAFETY,{})
@@ -200,8 +203,11 @@ def render_safety_focus_report(root,snapshot,history,h):
     css+=current_research_report.CSS
     titles=['SafetyEP历史收益与停止依据','历史对照曲线与分量归因','零分场景与高分保持诊断','信用分配、真实梯度与策略案例','四组实验的完整设计、文献与配对分析','已结束路线与原始证据']
     background='<section id="background"><h2>机制、场景诊断与历史资料</h2><p class="deck">当前工作与最新结果已在前方汇总；需要追溯方法、证据或历史路线时再展开。</p>'+''.join('<details class="background-chapter"><summary>'+title+'</summary>'+chapter+'</details>'for title,chapter in zip(titles,chapters))+'</section>'
-    nav=([('replanning','研究判断与全量审计')]if replanning_front else[])+([('exploration','新World代码与实验')]if exploration_front else[])+([('abcd','ABCD新研究')]if abcd_front else[])+[('current','原World实验进度'),('current-results','原World评测结果'),('current-analysis','原World结论与下一步'),('background','机制与历史资料')]
-    return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：ABCD新研究与既有实验进展</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · RL RESEARCH</small><h1>ABCD新架构与既有RL研究进展</h1><p>最新主研究以ABCD各自当前best IL为起点，按原生动作路径适配RL；原World四条路线的真实进度、完整结果与机制证据保留在后。配置、CPU检查与child启动不计为已完成训练或提分。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(front)+background+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
+    nav=([('replanning','研究判断与全量审计')]if replanning_front else[])+([('exploration','核心E研究与实验')]if exploration_front else[])+([('abcd','ABCD RL归档'if abcd_closed else 'ABCD研究')]if abcd_front else[])+[('current','原World实验进度'),('current-results','原World评测结果'),('current-analysis','原World结论与下一步'),('background','机制与历史资料')]
+    header_title='核心RL研究：零分、探索、信用与课程'if abcd_closed else 'World与ABCD RL研究进展'
+    deleted=editorial.get('abcd_research',{}).get('user_termination',{}).get('checkpoints_deleted_by_user')is True
+    header_deck=('ABCD四组RL已终止归档，不再恢复或续训；'+('RL检查点已清除，代码／实验结果保留。'if deleted else '')+'ABCD IL独立保留，资源优先用于E核心问题。')if abcd_closed else '当前研究与历史方法按独立父模型、数据人口与原生协议分别呈现。'
+    return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：核心问题与实验进展</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · RL RESEARCH</small><h1>'+header_title+'</h1><p>'+header_deck+'配置、CPU检查与child启动不计为已完成训练或提分。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(front)+background+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
 
 
 def _matched_mechanism_tables(mechanism,h,link,normalization=None):
