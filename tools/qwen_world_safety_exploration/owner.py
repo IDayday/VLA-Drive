@@ -67,11 +67,14 @@ class Owner:
             journal = Path(dependency)/'metrics_rank0.jsonl'
             if not journal.exists() or not journal.stat().st_size:
                 return None
+        from .eval_owner import lease_free,LEASES,KNOWN_ROOTS
+        samples={}
         for route in run['deployment_candidates']:
             if route['host'] not in allowed_hosts(admit_long_job=True):
                 continue
             try:
-                sample = probe(route['host'])
+                if route['host']not in samples:samples[route['host']]=probe(route['host'])
+                sample=samples[route['host']]
                 if len(sample['gpus']) != 8 or not sample['worker_python_exists']:
                     continue
                 if sample['MemAvailable_bytes'] < 100*2**30:
@@ -82,6 +85,10 @@ class Owner:
                     continue
                 if min(g['free_MiB'] for g in sample['gpus']) < route['minimum_free_MiB']:
                     continue
+                if any(not row.get('visible')or not isinstance(row.get('output'),str)or
+                       not row['output'].startswith(KNOWN_ROOTS)for row in sample['owners']):continue
+                slot=route['lease_slot']
+                if any(not lease_free(LEASES[slot]/(g['uuid']+'.lock'))for g in sample['gpus']):continue
                 # The worker repeats owners/headroom under physical UUID locks.
                 return route, sample
             except Exception:

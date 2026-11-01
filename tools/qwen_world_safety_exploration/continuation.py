@@ -61,6 +61,9 @@ class Continuation:
         self.lock=(self.out/'owner.lock').open('a');fcntl.flock(self.lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         self.path=self.out/'STATE.json'
         self.state=read(self.path)if self.path.exists()else dict(status='WAITING_COMPLETE_PILOT_REVIEWS',current_update=1000,stage_index=0,novels=None)
+        if self.state.get('status')=='STOPPED_CPU_REVIEW_ONLY':
+            self.state['status']='WAITING_COMPLETE_PILOT_REVIEWS' if self.state['current_update']==1000 else 'WAITING_CONTINUED_FULL_EVALUATIONS'
+        self.state.setdefault('initial_candidate_ids',[r['id']for r in read(ROOT/'RUNS.json')['runs']if r['id']!=CONTROL])
         self.source=Path(__file__).resolve().parents[2]
         atomic_json(self.out/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),source=__file__,source_sha256=file_sha(__file__)))
 
@@ -76,7 +79,7 @@ class Continuation:
     def evidence(self,registry):
         update=self.state['current_update'];root=ROOT/'analysis/PILOT_COMPARISONS'
         arms=self.state['novels']
-        if arms is None:arms=[r['id']for r in registry['runs']if r['id']!=CONTROL]
+        if arms is None:arms=self.state['initial_candidate_ids']
         cp=root/f'{CONTROL}_u{update:06}.json'
         if not cp.exists():return None
         control=sealed(cp);high=control['comparisons']['IL70']['result']['fixed_0p9_cohorts']['fixed_cohorts']['high']['mean_delta_PDMS']
