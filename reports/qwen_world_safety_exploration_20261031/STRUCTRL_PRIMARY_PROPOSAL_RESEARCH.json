@@ -1,0 +1,73 @@
+{
+  "schema": "world_StructRL_primary_endpoint_proposal_research_v1",
+  "status": "PRIMARY_AND_OFFICIAL_PAGE_READ_CODE_NOT_VERIFIED",
+  "created_unix": 1793492824.3298714,
+  "primary": {
+    "title": "StructRL: Structured Action-Space Exploration for Flow-Based VLAs",
+    "arxiv": "2608.15139v1",
+    "version_date": "2026-08-15",
+    "url": "https://arxiv.org/html/2608.15139v1",
+    "sections": [
+      "4.2",
+      "4.3",
+      "5.2",
+      "Appendix C"
+    ]
+  },
+  "official_page": {
+    "url": "https://flyfaerss.github.io/structrl/",
+    "access": "READ_SUCCESS_THIS_TURN",
+    "code_status": "No official code hyperlink observed on the accessible project page. Official implementation not inspected or verified."
+  },
+  "primary_summary_zh": "StructRL保持ODE解码确定性，把随机性放在动作端点，以AR(1)时间相关噪声和按动作组限制的尺度探索。更新时保存动作及末段状态，仅回放末步，使用端点扰动的结构化密度；仿真用PPO，真实交互用AWAC。论文区分注噪位置与协方差：前者带来主要OOD收益，结构更稳定体现为学习效率，最终成绩并非总高于端点Gaussian。其证据来自机器人操作，不能直接证明驾驶策略收益。",
+  "primary_equations": {
+    "endpoint": "a=x_clean+Delta",
+    "AR1": "eps[0]=z[0]; eps[t]=rho*eps[t-1]+sqrt(1-rho^2)*z[t], z iid N(0,1)",
+    "scale": "Delta[t,d]=sigma[t,d]*eps[t,d]",
+    "replay": "recompute terminal jump xhat_clean; residual=a-xhat_clean",
+    "density": "sum_d logN(eps[0,d];0,1)+sum_t,d logN(eps[t,d];rho*eps[t-1,d],1-rho^2)-sum_t,d log sigma[t,d]"
+  },
+  "engineering_inferences_not_paper_claims": [
+    "Current World clean-x action head requires its exact sigma/velocity conversion and physical ActionCodec scaling; a velocity-head replay formula cannot be pasted unchanged.",
+    "A future endpoint likelihood would be conditional on the recorded root/late state; it is not the exact marginalized density of all deterministic-ODE roots. Last-step replay truncates the current-parameter dependence through earlier rollout states.",
+    "Current W3 dimension-mean clamped transition logprob is a proxy, not exact importance sampling. It cannot be reused as an endpoint AR1 density or compared without explicit units/reduction changes.",
+    "If proposal quality is useful, a separate registered training variant must store root, late state, raw terminal innovations, executed endpoint, old conditional density/scales and RNG; recompute current trainable memory each inner; validate all native pending materials.",
+    "rho=.8 and fixed physical scales here are diagnostic choices, not learned state-conditioned scale heads or a reproduction of all StructRL training components.",
+    "The Gaussian-versus-AR1 pair isolates covariance given the same ODE endpoint/independent innovations and equal marginal variance. Comparing either with old W3 also changes decoder history/conditional center, so it is not a pure injection-location causal comparison."
+  ],
+  "probe_design": {
+    "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/MANIFEST.json",
+    "manifest_sha256": "131e1ef8f80e7f8bfd3bb8c6d54a66067b3a81c99004b7fb2b964e3a8219fb0d",
+    "TRAIN_scenes": 312,
+    "roles": {
+      "historical_failure": 156,
+      "matched_high_control": 156
+    },
+    "theta": "existing sealed Safety10k only",
+    "source_roots": "exact existing D_ODE16 roots/endpoints; no actor rerun",
+    "new_strategies": [
+      "E_terminal_Gaussian",
+      "F_terminal_AR1",
+      "G_terminal_ramped_AR1"
+    ],
+    "physical_std": [
+      1.4864179440431657,
+      0.9354143489633349,
+      0.07861934885334695
+    ],
+    "rho": 0.8,
+    "stationary": "AR1 initialized with N(0,1) at first horizon to preserve per-axis marginal standard deviation at all8 horizons",
+    "ramped": "AR1 multiplied by horizon t/4 for t=.5,1,...,4 seconds; changes horizon variance and total noise budget",
+    "ramped_expected_squared_energy_ratio": 0.3984375,
+    "finite_energy": "Equal expected Gaussian/AR1 trace, not forced identical realized sample energy; no empirical renormalization or clipping",
+    "all_new_queries": "312*3*16=14976 independent official reference-candidate pair scores",
+    "no_GPU_or_model_load": true
+  },
+  "decision_criteria": [
+    "Compare feasible/strict4>=.9 endpoint counts and per-scene support, separately in historical failure and matched high control cohorts.",
+    "Use same-root safety repair/degradation and quality gains/losses versus old ODE16/Late16/Mixed16, not only best-of16 mean.",
+    "A future sampler/loss experiment requires improved failure support without disproportionate high-control loss. Positive proposal diagnostics alone are not training or NAV improvement."
+  ],
+  "prior_evidence": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/SUPPORT_COVERAGE_PHYSICAL_SPREAD.json",
+  "registration_or_GPU_started": false
+}

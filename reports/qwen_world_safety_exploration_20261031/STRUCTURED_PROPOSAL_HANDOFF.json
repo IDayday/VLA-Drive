@@ -1,0 +1,78 @@
+{
+  "schema": "world_structured_terminal_proposal_handoff_v1",
+  "status": "READY_PREPARED_NOT_DISPATCHED",
+  "created_unix": 1793492824.334432,
+  "files_sha256": {
+    "tools/qwen_world_safety_exploration/probe_structured.py": "2008154c737721c27d0d115aea602c9279758628d4127b6d35b23ca6a8c97653",
+    "tests/test_world_structured_proposal_probe.py": "d0a78e8e4352977ba8517a5e02595aae23b3c1ad4eb32022cf73d671074958fc"
+  },
+  "tool": "tools.qwen_world_safety_exploration.probe_structured",
+  "manifest": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/MANIFEST.json",
+  "manifest_sha256": "131e1ef8f80e7f8bfd3bb8c6d54a66067b3a81c99004b7fb2b964e3a8219fb0d",
+  "manifest_file_sha256": "f6b7f0a571a16050e43610d36a998dac2bd6e736247522e286f128639cd6815f",
+  "launch_plan": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/LAUNCH_PLAN.json",
+  "output": "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results",
+  "CLI": [
+    "python",
+    "-u",
+    "-m",
+    "tools.qwen_world_safety_exploration.probe_structured",
+    "run",
+    "--manifest",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/MANIFEST.json",
+    "--output",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results",
+    "--rank",
+    "RANK0..7",
+    "--world",
+    "8",
+    "--cpu-threads",
+    "2"
+  ],
+  "summarize_CLI": [
+    "python",
+    "-m",
+    "tools.qwen_world_safety_exploration.probe_structured",
+    "summarize",
+    "--output",
+    "/mnt/project/qwen-world-safety-exploration-20261031/data/probes/FROZEN_SAFETY10K_STRUCTURED_TERMINAL_20261101/results"
+  ],
+  "service_start": "runtime=GroupRuntime(); runtime.cfg=validate_recipe(yaml.safe_load(pinned_config)); service=runtime.make_reward_service(). No load_recipe/make_actor/parent checkpoint access. One spawned canonical CPU scorer per rank.",
+  "resources": {
+    "explicit_rank_processes": 8,
+    "world": 8,
+    "cases_per_rank": 39,
+    "queries_per_rank": 1872,
+    "torch_and_BLAS_threads_max": 2,
+    "official_service_worker_count_per_rank": 1,
+    "CUDA_VISIBLE_DEVICES": ""
+  },
+  "science": {
+    "strategies": [
+      "E_terminal_Gaussian",
+      "F_terminal_AR1",
+      "G_terminal_ramped_AR1"
+    ],
+    "candidates_per_strategy": 16,
+    "physical_std": [
+      1.4864179440431657,
+      0.9354143489633349,
+      0.07861934885334695
+    ],
+    "rho": 0.8,
+    "common_innovations": "one private token42 PCG64 [16,8,3] draw per scene reused exactly across all3 kernels",
+    "noise_budget": "Gaussian/AR1 equal analytic marginal std and expected trace; ramp t/4 additionally changes variance, expected energy .3984375x",
+    "query_count": 14976,
+    "scorer": "unchanged v1 reference+one candidate independent pair normalization; batch simulation only",
+    "canonical_ODE_B1": "old private42 D_ODE[0] reused if needed, never new seed2101 canonical eval",
+    "no_actor_or_optimizer": true,
+    "not_StructRL_training": true,
+    "no_policy_likelihood_claim": true
+  },
+  "summary": "Only all8 exact39-case rank states and all312 sealed rows/NPZ/official labels can produce COMPLETE SUMMARY; quality/feasible/EP/component means and same-root safety effects versus original Late/Mixed/ODE; no partial result extrapolation",
+  "research": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/STRUCTRL_PRIMARY_PROPOSAL_RESEARCH.json",
+  "CPU_check": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/STRUCTURED_PROPOSAL_CPU_CHECK.json",
+  "root_action": "Root reviews and adds narrow CPU worker whitelist/source freeze/real8CPUjob dispatch. No dispatch or operator changes made here.",
+  "staged_or_committed": false,
+  "GPU_dispatched": false
+}
