@@ -1,0 +1,368 @@
+{
+  "schema": "world_live_RL_routes_and_renewed_WM45_v1",
+  "observed_utc": "2026-11-02T01:15:21.471782+00:00",
+  "active_training": 4,
+  "runs": [
+    {
+      "arm": "SAFETY_G8_CONTROL",
+      "algorithm": "SafetyEP W3 with standardized schedule",
+      "training_confirmed": false,
+      "status": "WAITING_RESOURCE",
+      "target_updates": 42000,
+      "host": "training-vlawm-zt",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 26000,
+        "PDMS": 91.20672616145701,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u026000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "STANDARD_INVERSION_G8",
+      "algorithm": "SafetyEP W3 + verified canonical-inversion pair cancellation",
+      "training_confirmed": false,
+      "status": "WAITING_RESOURCE",
+      "target_updates": 38000,
+      "host": "training-rl-zt2",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 22000,
+        "PDMS": 91.09840319970442,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/STANDARD_INVERSION_G8_u022000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "STANDARD_COMBINED_G8",
+      "algorithm": "SafetyEP W3 + disjoint DenseDAC/Saturated/Inversion credit",
+      "training_confirmed": true,
+      "status": "TRAINING",
+      "target_updates": 36000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [
+        {
+          "rank": 0,
+          "updates": 35464,
+          "age_s": 1.3323602676391602
+        },
+        {
+          "rank": 1,
+          "updates": 35464,
+          "age_s": 1.3365201950073242
+        },
+        {
+          "rank": 2,
+          "updates": 35464,
+          "age_s": 1.341066598892212
+        },
+        {
+          "rank": 3,
+          "updates": 35464,
+          "age_s": 1.3448379039764404
+        },
+        {
+          "rank": 4,
+          "updates": 35464,
+          "age_s": 1.3489136695861816
+        },
+        {
+          "rank": 5,
+          "updates": 35464,
+          "age_s": 1.3528141975402832
+        },
+        {
+          "rank": 6,
+          "updates": 35464,
+          "age_s": 1.35676908493042
+        },
+        {
+          "rank": 7,
+          "updates": 35464,
+          "age_s": 1.3608901500701904
+        }
+      ],
+      "latest_full_evaluation": {
+        "updates": 22000,
+        "PDMS": 91.07857113118574,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/STANDARD_COMBINED_G8_u022000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "STANDARD_ENDPOINT_LR02_G8",
+      "algorithm": "ramped AR1 terminal conditional PPO, peak LR x0.2",
+      "training_confirmed": false,
+      "status": "COMPLETED_AT_REGISTERED_CAP",
+      "target_updates": 18000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 12000,
+        "PDMS": 88.80161971984279,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/STANDARD_ENDPOINT_LR02_G8_u012000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "REVIVAL_G16",
+      "algorithm": "组内采样16",
+      "training_confirmed": false,
+      "status": "WAITING_RESOURCE",
+      "target_updates": 36000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 18000,
+        "PDMS": 91.05827683038912,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_G16_u018000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "REVIVAL_DENSE_G8",
+      "algorithm": "全失败DAC平分时的真实越界时长信用",
+      "training_confirmed": false,
+      "status": "COMPLETED_AT_REGISTERED_CAP",
+      "target_updates": 28000,
+      "host": "training-vlawm-zt",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 20000,
+        "PDMS": 90.96921980541836,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_DENSE_G8_u020000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "REVIVAL_SATURATED_G8",
+      "algorithm": "成功饱和组的canonical增量信用",
+      "training_confirmed": false,
+      "status": "WAITING_RESOURCE",
+      "target_updates": 42000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 22000,
+        "PDMS": 91.15501066628364,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_SATURATED_G8_u022000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "REVIVAL_ACTIVE_DATA_G8",
+      "algorithm": "原在线信号优先课程，保留75%均匀采样",
+      "training_confirmed": false,
+      "status": "COMPLETED_AT_REGISTERED_CAP",
+      "target_updates": 28000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 22000,
+        "PDMS": 91.07657409517186,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_ACTIVE_DATA_G8_u022000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "IMPROVEMENT_EARLY_DECAY_G8",
+      "algorithm": "SafetyEP with warmup1000/cosine decay end20k then held0.1floor; budget50k independent",
+      "training_confirmed": true,
+      "status": "TRAINING",
+      "target_updates": 18000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [
+        {
+          "rank": 0,
+          "updates": 17796,
+          "age_s": 3.3746256828308105
+        },
+        {
+          "rank": 1,
+          "updates": 17796,
+          "age_s": 3.378199815750122
+        },
+        {
+          "rank": 2,
+          "updates": 17796,
+          "age_s": 3.381697654724121
+        },
+        {
+          "rank": 3,
+          "updates": 17796,
+          "age_s": 3.3850629329681396
+        },
+        {
+          "rank": 4,
+          "updates": 17796,
+          "age_s": 3.3883581161499023
+        },
+        {
+          "rank": 5,
+          "updates": 17796,
+          "age_s": 3.391704797744751
+        },
+        {
+          "rank": 6,
+          "updates": 17796,
+          "age_s": 3.3950488567352295
+        },
+        {
+          "rank": 7,
+          "updates": 17796,
+          "age_s": 3.3982391357421875
+        }
+      ],
+      "latest_full_evaluation": {
+        "updates": 14000,
+        "PDMS": 91.06706873725862,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u014000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "IMPROVEMENT_MULTISCENE32_G8",
+      "algorithm": "32 distinct scenes/G8; true microbatch accumulation;256 rawA normalization; query-clock50k equivalent",
+      "training_confirmed": true,
+      "status": "TRAINING",
+      "target_updates": 5000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [
+        {
+          "rank": 0,
+          "updates": 4736,
+          "age_s": 6.404262542724609
+        },
+        {
+          "rank": 1,
+          "updates": 4736,
+          "age_s": 6.4068474769592285
+        },
+        {
+          "rank": 2,
+          "updates": 4736,
+          "age_s": 6.4097044467926025
+        },
+        {
+          "rank": 3,
+          "updates": 4736,
+          "age_s": 6.412463665008545
+        },
+        {
+          "rank": 4,
+          "updates": 4736,
+          "age_s": 6.415922403335571
+        },
+        {
+          "rank": 5,
+          "updates": 4736,
+          "age_s": 6.419026613235474
+        },
+        {
+          "rank": 6,
+          "updates": 4736,
+          "age_s": 6.420973300933838
+        },
+        {
+          "rank": 7,
+          "updates": 4736,
+          "age_s": 6.423680305480957
+        }
+      ],
+      "latest_full_evaluation": {
+        "updates": 3000,
+        "PDMS": 90.734182180364,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_MULTISCENE32_G8_u003000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+      "algorithm": "TRAIN trueB1 verified historicalRL mean-anchor reservoir;regression-gated25%ofbeta50budget;freshSafetyPG unchanged",
+      "training_confirmed": true,
+      "status": "TRAINING",
+      "target_updates": 10000,
+      "host": "training-vlawm-tsinghua-zt3",
+      "ranks": [
+        {
+          "rank": 0,
+          "updates": 7200,
+          "age_s": 3.4281880855560303
+        },
+        {
+          "rank": 1,
+          "updates": 7200,
+          "age_s": 3.4484658241271973
+        },
+        {
+          "rank": 2,
+          "updates": 7200,
+          "age_s": 3.452298164367676
+        },
+        {
+          "rank": 3,
+          "updates": 7200,
+          "age_s": 3.4559214115142822
+        },
+        {
+          "rank": 4,
+          "updates": 7200,
+          "age_s": 3.4596493244171143
+        },
+        {
+          "rank": 5,
+          "updates": 7200,
+          "age_s": 3.46345591545105
+        },
+        {
+          "rank": 6,
+          "updates": 7200,
+          "age_s": 3.467128038406372
+        },
+        {
+          "rank": 7,
+          "updates": 7200,
+          "age_s": 3.4711649417877197
+        }
+      ],
+      "latest_full_evaluation": {
+        "updates": 5000,
+        "PDMS": 91.00395949736324,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_VERIFIED_RETENTION_G8_u005000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "IMPROVEMENT_FP32_OUTPUT_G8",
+      "algorithm": "SafetyEP/W3/G8 with actual FP32 final action projection; fixed50k cosine warm1000 floor.1; evaluate native0 execution change",
+      "training_confirmed": false,
+      "status": "WAITING_AUTHORIZED_RESOURCE",
+      "target_updates": 10000,
+      "host": "training-vlawm-zt4",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 5000,
+        "PDMS": 90.77838750724602,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_FP32_OUTPUT_G8_u005000/NAVTEST/SUMMARY.json"
+      }
+    },
+    {
+      "arm": "IMPROVEMENT_MIXED_NOISE_G8",
+      "algorithm": "SafetyEP/G8 fixed4late4early W3 candidate kernels; unchanged global64 advantage; fixed50k cosine warm1000 floor.1",
+      "training_confirmed": false,
+      "status": "WAITING_AUTHORIZED_RESOURCE",
+      "target_updates": 12000,
+      "host": "training-vlawm-tsinghua-zt5",
+      "ranks": [],
+      "latest_full_evaluation": {
+        "updates": 5000,
+        "PDMS": 90.35600130376002,
+        "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_MIXED_NOISE_G8_u005000/NAVTEST/SUMMARY.json"
+      }
+    }
+  ],
+  "new_combo": "PREPARED_NOT_REGISTERED_NOT_TRAINED",
+  "new_resource_use": "wm4 evaluation backlog priority per shared existing operator; wm5 SSH connection refused",
+  "authorization_record": "/mnt/project/qwen-world-safety-exploration-20261031/resources/UNBOUNDED_WM45_20261102/RESOURCE_AUTHORIZATION.json",
+  "coordination_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/operations/UNBOUNDED_WM45_COMBINATION_20261102/COORDINATION_DEFERRED_TO_EVAL_OPERATOR.json",
+  "best": {
+    "arm": "SAFETY_G8_CONTROL",
+    "updates": 10000,
+    "PDMS": 91.45359756166451,
+    "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+    "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json",
+    "scenes": 12146,
+    "zeros": 265,
+    "fixed_IL70_high_mean_delta_PDMS": -0.7764922134794212,
+    "fixed_IL70_high_count": 8724
+  }
+}
