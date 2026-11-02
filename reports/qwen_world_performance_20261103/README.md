@@ -99,7 +99,7 @@ python -m tools.qwen_world_performance.evaluate --help
 
 S7永久槽位等待器只观察旧I自然完成已承诺10k，不提前停止旧I或占用B/D。之后仍需满足最多2个已知native与显存准入：root操作员在第三方D44 D0迁入后实测TSH5同卡已有oldI/S1/D0，可用仅14657–14963MiB，低于已测NAV推理peak21,370,439,680bytes。不能降低门槛硬塞或停止foreign任务；旧I完成也不保证立刻有足够容量。当前等待状态独立记录，评测未齐不发布均分，资源等待不判算法无效；未有实际分配回执前不称迁移成功。[等待快照](results/S7_PERMANENT_WAIT_SNAPSHOT.json)。
 
-本分支已汇总原 S0–S5、冻结参考缓存、PACK4、S6与S7的已验证实现。在线训练仍固定各自已验证的源码，不因仓库整合而热切换：基础 `5e5220c`、S1 缓存执行 `c8a0440`、FAST `cc45f9b`、S6 `8067e13`、S7 `c5f1fd1`；当前CPU运营source由实际owner的ops_v8回执确定。完整来源及实测证据见 [结果索引](results/NEW_EVIDENCE_INDEX.json) 与 [进度快照](results/PROGRESS_20261102T2059Z.json)。
+本分支已汇总原 S0–S5、冻结参考缓存、PACK4、S6与S7的已验证实现。在线训练仍固定各自已验证的源码，不因仓库整合而热切换：基础 `5e5220c`、S1 缓存执行 `c8a0440`、FAST `cc45f9b`、S6 `8067e13`、S7 `c5f1fd1`。CPU owners 已采用 `ops_v9`（`d0e33bb`），为 S2/S3 登记唯一日志检查差异的执行迁移；S3 原失败记录保留，恢复到资源等待，S2 原资源让位保留。真实八 rank CPU 原生检查通过，尚无修复后的 GPU 续训结果：[M2 恢复说明](M2_RECOVERY.md)。完整来源及实测证据见 [结果索引](results/NEW_EVIDENCE_INDEX.json) 与 [进度快照](results/PROGRESS_20261102T2059Z.json)。
 
 CPU 调度随后更新为 `b09694b`：精确识别已登记共用任务、保持 32GiB 准入余量，并显式允许每卡最多两个已知评测，锁前后均复核。算法源码与 Adam/RNG/scheduler 不变。FAST 已从自身 u808 原生恢复，八 rank 首次 fresh ratio 均为 0。自有全 TRAIN IL70 B1 诊断暂存于 74935/103288，保留全部逐场景缓存，优先把资源用于正式 NAVTEST；未把该未齐诊断均值当作完整结果。[操作记录](results/OPS6_OPERATIONAL_ADOPTION.json)
 
