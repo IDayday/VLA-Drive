@@ -6,7 +6,7 @@ exporter. No policy scoring is implemented a second time here.
 """
 import argparse,gc,json,os,socket,time
 from pathlib import Path
-from .launch import ROOT,TASK,PROTECTED,ORDER,FAST,QUALITY,INDEPENDENT_FAMILIES,bootstrap,read,sha,publish,validate_registry,inspect_native
+from .launch import ROOT,TASK,PROTECTED,ORDER,FAST,QUALITY,INDEPENDENT_FAMILIES,bootstrap,read,sha,publish,validate_registry,inspect_native,register_native_priority_study
 
 
 def native_claim_startup_hold(host,claim,sample,run):
@@ -132,6 +132,7 @@ def strict_export(parent,output,checkpoint):
 def owner_class(max_known_evaluations_per_gpu=1):
     if max_known_evaluations_per_gpu not in(1,2):raise ValueError('Explicit known-evaluator cap must be one or two')
     bootstrap()
+    register_native_priority_study()
     from tools.qwen_world_safety_exploration import eval_owner as E
     from starVLA.rl.qwen_world_safety_exploration.resources import MODEL_PYTHON
     E.KNOWN_ROOTS=tuple(dict.fromkeys(E.KNOWN_ROOTS+(str(ROOT)+'/',)))

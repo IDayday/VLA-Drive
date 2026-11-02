@@ -242,6 +242,17 @@ def priority_needs_admission(run,state):
     return True
 
 
+
+def priority_reserved_hosts(run,registered_runs,states):
+    """Reserve only higher waiting learners' actual registered route hosts."""
+    held=set()
+    for higher in registered_runs:
+        if higher['priority']>=run['priority']:continue
+        if priority_needs_admission(higher,states.get(higher['id'],{})):
+            held.update(route['host']for route in higher['deployment_candidates'])
+    return held
+
+
 def inspect_native(run,cp):
     """Lightweight publication/ownership check. Full tensor restore remains native."""
     cp=Path(cp).resolve();root=Path(run['root']).resolve()
@@ -283,8 +294,16 @@ def resource_return(run,node,result,latest,target,*,authorized_hosts,grant,now=N
         full_tensor_hashes_and_Adam_RNG_restore='required by unchanged strict native restore',at_unix=now)
 
 
+def register_native_priority_study():
+    """Register only this opt-in process; canonical projects keep defaults."""
+    from tools.qwen_world_safety_exploration import native_priority
+    native_priority.STUDIES=tuple(dict.fromkeys(native_priority.STUDIES+(ROOT.resolve(),)))
+    return native_priority
+
+
 def owner_class():
     bootstrap()
+    register_native_priority_study()
     from tools.qwen_world_safety_exploration.owner import Owner,StopBeforeDispatch
     from tools.qwen_world_safety_exploration import dispatch,eval_owner
     from starVLA.rl.qwen_world_safety_exploration.resources import probe,MODEL_PYTHON,gpu_activity_issue
@@ -305,18 +324,15 @@ def owner_class():
             if any(run.get(k)!=v for k,v in self.immutable[arm].items()):raise ValueError('Frozen native identity/config/parent/execution binding changed; explicit CPU adoption required')
             return run
         def candidate(self,run):
-            # Admit the two designated primary studies before lower priorities,
-            # without preempting any already running learner.
-            for higher in self.runs:
-                if higher['priority']>=run['priority']:continue
-                if priority_needs_admission(higher,self.state['runs'].get(higher['id'],{})):
-                    return None
+            # Protect only overlapping routes for higher waiting learners;
+            # unrelated hosts remain eligible, without preempting live jobs.
+            priority_hosts=priority_reserved_hosts(run,self.runs,self.state['runs'])
             claims=read(ROOT/'resources/NATIVE_HOST_CLAIMS.json',{})
             claims_runs={r['id']:r for r in self.registry['runs']}
             known=eval_owner.KNOWN_ROOTS+(str(ROOT)+'/',)
             for route in run['deployment_candidates']:
                 host=route['host']
-                if host in PROTECTED or host not in allowed_hosts(admit_long_job=True):continue
+                if host in priority_hosts or host in PROTECTED or host not in allowed_hosts(admit_long_job=True):continue
                 try:
                     s=probe(host);g=s['gpus']
                     if(len(g)!=8 or len({x['uuid']for x in g})!=8 or not s['worker_python_exists']or s['MemAvailable_bytes']<100*2**30 or s['load1']>s['CPU_affinity']*1.5):continue
