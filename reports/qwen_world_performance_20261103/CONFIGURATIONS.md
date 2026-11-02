@@ -109,10 +109,48 @@ failed at least one strict condition: construction alone never certifies safety.
 These are privileged TRAIN teacher-discovery results, with no new GPU forward,
 Adam update or post-update B1 evaluation. Generation/cost differs from the SDE
 pool; this is not a fair observation-only policy ablation, deployment score or
-proof of learned improvement. S7 is a separate development route, not activated
-by this diagnostic; no teacher from it is silently inserted into S6. Sources:
+proof of learned improvement. S7 is an independently registered route; the
+diagnostic itself changed no running recipe or S6 teacher bank. Sources:
 `P/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/RESEARCH_READOUT.json` and
 `P/analysis/S6_FIRST_WINDOW_SYNTHETIC_PROGRESS_AUDIT/SUMMARY.json`.
+
+## S7 registered after real native qualification
+
+Independent S7_STRUCTURED_PROGRESS is registered from the same complete IL70,
+fresh Adam0, source `P/runtime/structured_progress_v1@c5f1fd1`. Its formal
+training status comes only from the current stage and eight-rank new journals;
+registration/model initialization is not counted as actual learning. No native
+qualification or other RL weights initialize it.
+
+Original mainG16/W3 SafetyEP PG, PG-EMA calibration and alpha.02/.05 beta50
+budget replacement stay unchanged. Only when true B1/mainG16/old-extraSDE16
+all lack strict-high does S7 score up to16 structured GT/B1-path proposals.
+Strict4, score≥.9 and gain≥.02 are mandatory. Qualified proposals feed the
+existing .75CFM+.25 true ODE-last auxiliary, never PPO/old-logp/std/deployment
+selection. Privileged TRAIN GT is not a deployment input; extra queries are
+separate costs.
+
+Real world8/B64/G16/M4 continuous4/split2/resume4 passed full52.7M native
+qualification: weights/Adam/RNG/stream/auxiliary recovery agree; only declared
+timing/Invocation metadata is excluded from scientific-material comparison.
+The first64 qualification scenes naturally produced35 teachers (20 alpha.02,
+15 alpha.05), with4 from structured proposals and64 actual structured queries.
+This is engineering/activation evidence, not B1 absorption or NAVTEST gain.
+Proof: `P/qualification/S7_STRUCTURED_PROGRESS_NATIVE_V1/COMPLETE.json`.
+
+A separate32-query CPU test on the two true B1-zero TRAIN cases lacking both
+G16/G32 high witnesses found10 eligible GT-path proposals, covering2/2. Their
+best diagnostic teacher scores were.971158/.944913; all16 B1-path proposals
+failed DAC. Geometry was exactly reused from the original112-query protocol;
+no model forward/Adam update or bank admission occurred. These are not repaired
+B1 policies or deployment scores. Evidence:
+`P/analysis/TRAIN_ZERO2_STRUCTURED_PROGRESS_AUDIT/RESEARCH_READOUT.json`.
+
+The first complete S5 NAVTEST at Adam1616/0.25epoch scored90.93054358, while
+FAST808 scored90.87256484. S5 was still phase1 base-SafetyEP coverage, with no
+rescue/history activated. These early points have different clocks/batches and
+do not establish component causality or sustained superiority; current observed
+global peak remains Control10k91.45359756 unless a higher full result arrives.
 
 Config files:
 - `/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103/configs/qwen_world_performance_rl/s0_large_safetyep.yaml` (SHA256 `199b56b6a1e1cfc3285051a5877b3b3c6a6ebfb549ff0e6fd5ed2b0fefc53364`)
