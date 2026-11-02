@@ -23,6 +23,7 @@ post_start_epoch: 4.0
 positive_weight: 0.05
 last_weight: 0.02
 post_weight: 0.05
+nominal_seed: 2101
 mc_samples: 4
 save_every: 100
 scoring_workers: 2
@@ -47,5 +48,7 @@ stochastic_steps:
 innovation_clip: null
 coordinate_reduction: sum24
 dtype: FP32_parameters_states_probability_BF16_forward
+checkpoint_policy: all_off
+probability_layout: sequential
 sampler_selection: fixed_K10_shift5_no_scorer
 training_uses_navtest: false

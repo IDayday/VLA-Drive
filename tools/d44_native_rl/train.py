@@ -24,6 +24,7 @@ from starVLA.rl.d44_native_rl.conditions import DConditions
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.batch_runtime import collect_scene
 from starVLA.rl.d44_native_rl.safety_credit import raw_credit,normalize
+from starVLA.rl.d44_native_rl.two_stage_reward import endpoint_quality
 from starVLA.rl.d44_native_rl.adaptive_kl import AdaptiveKL
 from starVLA.rl.d44_native_rl.expanded_scope import groups
 from starVLA.rl.d44_native_rl.scheduler import scene_lr
@@ -56,8 +57,10 @@ class SceneScheduler:
 def code_identity():
     roots=['starVLA/rl/d44_native_rl','tools/d44_native_rl','starVLA/model/modules/qwen_world_compare',
            'starVLA/rl/qwen_world_compare','starVLA/rl/qwen_world_abcd_research','starVLA/rl/simwam_recipe',
-           'starVLA/model/modules/qwen_world_postcot','starVLA/model/modules/qwen_sourceflow']
-    return {str(p):file_sha(p)for folder in roots for p in sorted(Path(folder).glob('*.py'))}
+           'starVLA/model/modules/qwen_world_postcot','starVLA/model/modules/qwen_sourceflow',
+           'starVLA/rl/flow_grpo','starVLA/rl/safe_flow_improvement',
+           'scripts/analysis/constrained_flow_noise']
+    return {str(p):file_sha(p)for folder in roots for p in sorted(Path(folder).rglob('*.py'))}
 
 
 def consensus_stop(device):
@@ -159,24 +162,22 @@ def main():
                 try:
                     for j in range(cfg['global_scenes']//world):
                         token,padding=stream.at(state['scene_cursor'],rank,j,world)
-                        r=collect_scene(actor,conditions.get(token),token,stream.logs[token],service,generator,cfg,epoch,version)
+                        r=collect_scene(actor,conditions.get(token),token,stream.logs[token],service,generator,cfg,epoch,version,cost=attempt.add_cost)
                         r['padding']=padding;r['beta']=dual.beta;r['expect_fresh']=True;scenes.append(r)
-                        attempt.record['physical_candidates']+=r['physical_candidates']
                 except Exception:
                     error=traceback.format_exc()
                     if checkpoint.fatal_device_error(error):raise
                 checkpoint.check_errors(error)
                 if a.fault=='before_finalize':raise RuntimeError('Injected collection not finalized; latest unchanged')
-                factors=torch.stack([r['factors']for r in scenes]);endpoint=None
+                factors=torch.stack([r['factors']for r in scenes]);endpoint=None;endpoint_confidence=None
                 if cfg['arm']=='D1'and epoch>=2:
-                    endpoints=[]
+                    endpoints=[];confidence=[]
                     for r in scenes:
                         gt=stream.data.target(r['token']).to(device)
-                        distance=(torch.as_tensor(np.stack([x['requested_trajectory']for x in r['records']]),device=device)[:,-1,:2]-gt[-1,:2]).norm(dim=-1)
-                        if not torch.isfinite(distance).all():raise ValueError('Invalid TRAIN endpoint')
-                        endpoints.append(torch.exp(-distance/3.))
-                    endpoint=torch.stack(endpoints)
-                raw,feasible=raw_credit(factors,endpoint=endpoint,stage2=endpoint is not None)
+                        quality,weight=endpoint_quality(gt,torch.as_tensor(np.stack([x['requested_trajectory']for x in r['records']]),device=device))
+                        endpoints.append(quality);confidence.append(weight)
+                    endpoint=torch.stack(endpoints);endpoint_confidence=torch.stack(confidence)[:,None]
+                raw,feasible=raw_credit(factors,endpoint=endpoint,endpoint_confidence=endpoint_confidence,stage2=endpoint is not None)
                 if cfg['arm']=='D0_CANONICAL_CREDIT':
                     canonical=torch.tensor([[v['metrics']['score']for v in r['records']]for r in scenes],device=device,dtype=torch.float64)
                     offsets=canonical-canonical[:,:1];raw=offsets-offsets.mean(1,keepdim=True)
@@ -206,7 +207,7 @@ def main():
                 state['phase']='ROLLOUT_COMMITTED';state['next_inner']=0
                 Boundary.validate_ranks(checkpoint.gather(Boundary.validate_boundary(state,batch,identity)))
                 path=root/'behavior'/attempt.id/f'collection{state["collections"]:06}'/f'rank{rank}.pt';checkpoint.atomic_torch(path,batch)
-            begin=time.monotonic();optimizer.zero_grad(set_to_none=True);totals={}
+            begin=time.monotonic();optimizer.zero_grad(set_to_none=True);totals={};valid_kl_sum=0.
             multiplier=scene_lr(state['valid_scene_exposures']/stream.n,warmup=cfg['warmup_epochs'],hold=cfg['hold_until_epoch'],end=cfg['cosine_end_epoch'],floor=cfg['min_lr_ratio'])
             for group in optimizer.param_groups:
                 stage_multiplier=.5 if cfg['arm']=='D1'and batch['epoch']>=2 and group['name']=='text_lora'else 1.
@@ -218,6 +219,7 @@ def main():
                     loss,metrics=ddp(r)
                     weighted=loss*(0. if r['padding']else world/batch['valid_scenes']);weighted.backward()
                 for key,value in metrics.items():totals[key]=totals.get(key,0.)+float(value.detach())/len(batch['scenes'])
+                if not r['padding']:valid_kl_sum+=float(metrics['reference_KL_joint'].detach())
             norm=torch.nn.utils.clip_grad_norm_(trainables,1.)
             if not torch.isfinite(norm):raise FloatingPointError('Nonfinite native gradient')
             grad_roles={}
@@ -240,8 +242,9 @@ def main():
             print(json.dumps(dict(event='optimizer_committed',rank=rank,updates=state['updates'],collection=state['collections'],
                 scene_epochs=row['scene_epochs'],grad_norm=float(norm),fresh_ratio_error=totals['fresh_ratio_error'])),flush=True)
             if state['next_inner']==cfg['inner_updates']:
-                kval=torch.tensor(totals['reference_KL_joint'],device=device,dtype=torch.float64)
-                if world>1:dist.all_reduce(kval);kval/=world
+                kval=torch.tensor(valid_kl_sum,device=device,dtype=torch.float64)
+                if world>1:dist.all_reduce(kval)
+                kval/=batch['valid_scenes']
                 dual.update(float(kval));state['adaptive_kl']=dual.state_dict();batch=None;state['next_inner']=0;state['phase']='READY'
             gates=[]if batch is not None or a.qualification else [e for e in(.5,1,2,3,4,6,8,12,20)if e not in state['evaluation_gates']and state['valid_scene_exposures']>=e*stream.n]
             state['evaluation_gates']+=gates

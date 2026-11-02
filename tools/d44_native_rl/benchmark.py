@@ -29,6 +29,8 @@ def main():
     material=conds.materialize(conds.get(stream.tokens[0]),device);trainable=[p for p in actor.parameters()if p.requires_grad]
     records=[]
     for group in (8,16,32):
+        # Never let a failed experimental layout redefine the next group's old density.
+        actor.study_config['probability_layout']='sequential'
         condition=dict(material,context=torch.zeros(group,1,1,device=device));gen=torch.Generator().manual_seed(42)
         with torch.no_grad():
             chain,times,deltas,_=actor.sample_action_chain(condition,8,generator=gen)
@@ -57,6 +59,7 @@ def main():
             records.append(row);atomic_json(a.output,dict(status='RUNNING',records=records,scorer_calls=0,optimizer_updates=0))
     atomic_json(a.output,dict(status='PASS'if all(r['status']=='PASS'for r in records)else'FAIL',records=records,
         scorer_calls=0,optimizer_updates=0,precision='FP32 storage and gradients/BF16 forward, identical source kernel/mask/state'))
+    if any(r['status']!='PASS'for r in records):raise SystemExit(2)
 
 
 if __name__=='__main__':main()

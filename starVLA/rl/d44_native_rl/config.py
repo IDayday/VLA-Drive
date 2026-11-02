@@ -47,4 +47,5 @@ def read(path):
         raise ValueError('Unregistered batch/group/inner combination')
     if cfg['innovation_clip']is not None or cfg['coordinate_reduction']!='sum24':raise ValueError('Gaussian probability contract changed')
     if cfg['seed']!=42 or cfg['evaluation_seed']!=2101 or cfg['training_uses_navtest']:raise ValueError('Data/seed contract changed')
+    if cfg.get('probability_layout','sequential')!='sequential':raise ValueError('Packed W3 probability layout is not qualified for training')
     return cfg

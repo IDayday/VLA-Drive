@@ -69,6 +69,13 @@ class Attempt:
         elif state['updates']:raise ValueError('Missing effective learning journal')
         atomic_json(self.path,self.record)
 
+    def add_cost(self,**values):
+        # Physical work is append-attempt accounting, independent of committed
+        # logical samples and never rolled back with a checkpoint.
+        for key,value in values.items():self.record[key]=self.record.get(key,0)+value
+        self.record['last_physical_work_unix']=time.time()
+        atomic_json(self.path,self.record)
+
     def finish(self,state,status):
         elapsed=time.monotonic()-self.started;delta=state['updates']-self.record['start_update']
         self.record.update(status=status,end_update=state['updates'],worker_wall_seconds=elapsed,

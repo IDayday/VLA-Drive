@@ -74,3 +74,21 @@ def test_collecting_never_publishes_latest(tmp_path):
 def test_tied_decimal_cost_has_no_fake_signal():
     f=torch.ones(3,32,6);f[...,:3]=torch.tensor([0.,.5,0.])
     a,_=raw_credit(f);assert torch.equal(a,torch.zeros_like(a))
+
+
+@pytest.mark.parametrize('failure',['rank_write','before_complete'])
+def test_failed_publication_does_not_advance_latest_and_new_attempt_works(tmp_path,failure):
+    identity=dict(world=1,sha256='own',recipe=dict(inner_updates=2,global_scenes=32))
+    actor=nn.Linear(1,1);optimizer=torch.optim.AdamW(actor.parameters());generator=torch.Generator()
+    class Scheduler:
+        def state_dict(self):return dict(last_epoch=0)
+    def inject(where,rank):
+        if where==failure:raise OSError('injected native publication failure')
+    with pytest.raises(RuntimeError,match='Uncommitted'):
+        checkpoint.save(tmp_path,actor,optimizer,Scheduler(),generator,state(),None,identity,fault=inject,runtime=Boundary())
+    assert not(tmp_path/'latest.json').exists()
+    incomplete=list((tmp_path/'checkpoints').glob('*.incomplete.*'));assert incomplete
+    assert not any((p/'COMPLETE').exists()for p in incomplete)
+    published=Path(checkpoint.save(tmp_path,actor,optimizer,Scheduler(),generator,state(),None,identity,runtime=Boundary()))
+    assert json.loads((tmp_path/'latest.json').read_text())['checkpoint']==str(published)
+    assert len(list((tmp_path/'checkpoints').glob('*.incomplete.*')))==len(incomplete)

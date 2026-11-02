@@ -52,3 +52,22 @@ def test_new_lora_zero_delta_and_nonzero_second_gradient():
     opt=torch.optim.AdamW([p for p in m.parameters()if p.requires_grad],lr=.01)
     m(torch.ones(2,3)).sum().backward();assert m[0].lora_B.grad.abs().sum()>0
     opt.step();opt.zero_grad();m(torch.ones(2,3)).sum().backward();assert m[0].lora_A.grad.abs().sum()>0
+
+
+def test_teacher_strict_high_includes_comfort_and_real_nominal_improvement():
+    good=dict(no_at_fault_collisions=1.,drivable_area_compliance=1.,time_to_collision_within_bound=1.,comfort=1.,score=.95)
+    records=[dict(metrics=dict(good,comfort=.5)),dict(metrics=good)]
+    assert verified_index(records,0.,improvement=0.)==1
+    assert verified_index(records[:1],0.,improvement=0.)is None
+    assert verified_index(records,.94) is None
+    assert verified_index(records,.90)==1
+
+
+def test_endpoint_invalid_or_stationary_does_not_override_safety():
+    from starVLA.rl.d44_native_rl.two_stage_reward import endpoint_quality
+    req=torch.zeros(16,8,3);gt=torch.zeros(8,3)
+    q,w=endpoint_quality(gt,req);assert w==0
+    qbad,wbad=endpoint_quality(gt*float('nan'),req);assert wbad==0 and torch.isfinite(qbad).all()
+    factors=torch.ones(1,16,6);factors[:,0,0]=0
+    a,_=raw_credit(factors,endpoint=q[None],endpoint_confidence=w.reshape(1,1),stage2=True)
+    assert torch.isfinite(a).all()and(a[:,1:]>=a[:,:1]).all()

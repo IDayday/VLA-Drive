@@ -7,7 +7,7 @@ FACTORS = ('no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collis
 
 
 @torch.no_grad()
-def raw_credit(factors, *, endpoint=None, stage2=False):
+def raw_credit(factors, *, endpoint=None, endpoint_confidence=None, stage2=False):
     values = factors.detach().double()
     if values.ndim != 3 or values.shape[-1] != 6 or not torch.isfinite(values).all():
         raise ValueError('Expected finite [scene,G,6] official factors')
@@ -24,7 +24,10 @@ def raw_credit(factors, *, endpoint=None, stage2=False):
     if stage2:
         if endpoint is None or endpoint.shape != quality.shape:
             raise ValueError('StageII requires explicit TRAIN endpoint quality')
-        quality = .70*quality+.15*values[..., 4]+.15*endpoint.detach().double()
+        confidence=torch.ones_like(quality)if endpoint_confidence is None else endpoint_confidence.detach().double().expand_as(quality)
+        if not torch.isfinite(endpoint).all()or not torch.isfinite(confidence).all()or not((confidence>=0)&(confidence<=1)).all():
+            raise ValueError('Invalid TRAIN endpoint quality/confidence')
+        quality=(.70*quality+.15*values[...,4]+.15*confidence*endpoint.detach().double())/(.85+.15*confidence)
     first=quality.gather(1,feasible.long().argmax(1,keepdim=True))
     offsets=quality-first
     average = (offsets*feasible).sum(1, keepdim=True)/count.clamp_min(1)

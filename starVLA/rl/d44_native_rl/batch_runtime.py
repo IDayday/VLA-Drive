@@ -25,10 +25,21 @@ def deployment_chain(actor,condition,generator):
 
 
 @torch.no_grad()
-def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version):
+def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None):
+    def add(**value):
+        if cost is not None:cost(**value)
+    def generate(count,forward):
+        add(candidate_requests=count);tick=time.monotonic()
+        try:
+            result=forward();add(physical_candidates=count);return result
+        finally:add(generation_worker_seconds=time.monotonic()-tick)
+    def score(request):
+        add(scorer_candidate_attempts=len(request[2]));tick=time.monotonic()
+        try:return service.score(request)
+        finally:add(scoring_wait_worker_seconds=time.monotonic()-tick)
     start=time.monotonic()
-    chain,times,deltas,idx=actor.sample_action_chain(descriptor,8,generator=generator)
     g=cfg['group']
+    chain,times,deltas,idx=generate(g,lambda:actor.sample_action_chain(descriptor,8,generator=generator))
     if chain.shape!=(g,11,8,3)or idx.tolist()!=[7,8,9]or not torch.isfinite(chain).all():raise ValueError('Native D chain contract changed')
     sampled=copy.deepcopy(actor.sampling_terms)
     mean,std=actor.transition_terms(descriptor,chain,times,deltas)
@@ -39,7 +50,7 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
     if not torch.equal(std,refstd):raise ValueError('Reference kernel variance changed')
     torch.cuda.synchronize();generation=time.monotonic()-start
     requested=ActionCodec.denorm_odo(chain[:,-1]).cpu().numpy();begin=time.monotonic()
-    records=service.score((token,log,requested));score_seconds=time.monotonic()-begin
+    records=score((token,log,requested));score_seconds=time.monotonic()-begin
     if len(records)!=g or any(r['status']!='OK'for r in records):raise ValueError('Incomplete real scorer response')
     factors=torch.tensor([[r['metrics'][k]for k in FACTORS]for r in records],device=actor.device,dtype=torch.float64)
     r=dict(token=token,log=log,condition=descriptor,chain=chain,timesteps=times,deltas=deltas,
@@ -50,13 +61,13 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
     if cfg['arm']in('D2','D6')and epoch>=cfg['rescue_start_epoch']:
         material=actor.materialize(descriptor);one=dict(material,context=material['context'][:1])
         nominal_generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',cfg.get('nominal_seed',2101),token))
-        nominal,nominal_grid=deployment_chain(actor,one,nominal_generator)
-        nominal_records=service.score((token,log,ActionCodec.denorm_odo(nominal[:,-1]).cpu().numpy()))
+        nominal,nominal_grid=generate(1,lambda:deployment_chain(actor,one,nominal_generator))
+        nominal_records=score((token,log,ActionCodec.denorm_odo(nominal[:,-1]).cpu().numpy()))
         base=nominal_records[0]['metrics']['score'];teacher_records=records;teacher_chain=chain;r['extra_B1']=1;r['physical_candidates']+=1
-        strict=any(all(x['metrics'][k]==1 for k in FACTORS[:3])and x['metrics']['score']>=.9 for x in records)
+        strict=verified_index(records,0.,improvement=0.)is not None
         if g==16 and base<.90 and not strict:
-            extra,_,_,_=actor.sample_action_chain(descriptor,8,generator=generator)
-            extra_records=service.score((token,log,ActionCodec.denorm_odo(extra[:,-1]).cpu().numpy()))
+            extra,_,_,_=generate(g,lambda:actor.sample_action_chain(descriptor,8,generator=generator))
+            extra_records=score((token,log,ActionCodec.denorm_odo(extra[:,-1]).cpu().numpy()))
             teacher_records=records+extra_records;teacher_chain=torch.cat((chain,extra));r['extra_G32']=g;r['physical_candidates']+=g
         selected=verified_index(teacher_records,base);r['nominal_score']=base
         if selected is not None:
