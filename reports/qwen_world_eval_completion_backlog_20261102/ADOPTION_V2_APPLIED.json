@@ -1,0 +1,62 @@
+{
+  "status": "APPLIED_CPU_ONLY",
+  "at": 1793628370.8312414,
+  "launches": [
+    {
+      "study": "revival_training_20261101",
+      "directory": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/RESEARCH_EVALUATION",
+      "pid": 3706427,
+      "start_ticks": 1506698396,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/runtime/completion_v2",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.eval_completion_owner",
+        "--study",
+        "G",
+        "--registry",
+        "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/RUNS.json",
+        "--interval",
+        "30"
+      ],
+      "at_unix": 1793628370.7930665,
+      "operation": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102",
+      "replaces": {
+        "pid": 3704487,
+        "start_ticks": 1506656918
+      }
+    },
+    {
+      "study": "improvement_training_20261101",
+      "directory": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_EVAL",
+      "pid": 3706428,
+      "start_ticks": 1506698398,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/runtime/completion_v2",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.eval_completion_owner",
+        "--study",
+        "H",
+        "--registry",
+        "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/RUNS.json",
+        "--interval",
+        "30"
+      ],
+      "at_unix": 1793628370.816083,
+      "operation": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102",
+      "replaces": {
+        "pid": 3704513,
+        "start_ticks": 1506657050
+      }
+    }
+  ],
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/runtime/completion_v2",
+  "F": "unchanged V1 CPU3704486",
+  "reason": "G newadmission32; H currentRetention oldest10/12/14; allcurrentGPUworkersfinishnaturally",
+  "no_policy_training_science_or_worker_signal_changes": true
+}

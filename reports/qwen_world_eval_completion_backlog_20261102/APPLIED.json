@@ -1,0 +1,213 @@
+{
+  "status": "APPLIED_CPU_ONLY_EVALUATION_COMPLETION_FIRST",
+  "at": 1793627957.3500717,
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/runtime/completion_v1",
+  "source_freeze": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/SOURCE_FREEZE.json",
+  "launches": [
+    {
+      "study": "standard_training_20261101",
+      "directory": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/RESEARCH_EVALUATION",
+      "pid": 3704486,
+      "start_ticks": 1506656893,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/runtime/completion_v1",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.eval_completion_owner",
+        "--study",
+        "F",
+        "--registry",
+        "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json",
+        "--interval",
+        "30"
+      ],
+      "at_unix": 1793627955.7616417,
+      "operation": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102",
+      "replaces": {
+        "pid": 3494449,
+        "start_ticks": 1502080151
+      }
+    },
+    {
+      "study": "revival_training_20261101",
+      "directory": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/RESEARCH_EVALUATION",
+      "pid": 3704487,
+      "start_ticks": 1506656918,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/runtime/completion_v1",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.eval_completion_owner",
+        "--study",
+        "G",
+        "--registry",
+        "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/RUNS.json",
+        "--interval",
+        "30"
+      ],
+      "at_unix": 1793627956.0085864,
+      "operation": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102",
+      "replaces": {
+        "pid": 3494295,
+        "start_ticks": 1502079867
+      }
+    },
+    {
+      "study": "improvement_training_20261101",
+      "directory": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_EVAL",
+      "pid": 3704513,
+      "start_ticks": 1506657050,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/runtime/completion_v1",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-u",
+        "-m",
+        "tools.qwen_world_safety_exploration.eval_completion_owner",
+        "--study",
+        "H",
+        "--registry",
+        "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/RUNS.json",
+        "--interval",
+        "30"
+      ],
+      "at_unix": 1793627957.3379989,
+      "operation": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102",
+      "replaces": {
+        "pid": 3491961,
+        "start_ticks": 1502057046
+      }
+    }
+  ],
+  "requeued_exact_cases": [
+    {
+      "study": "standard_training_20261101",
+      "key": "STANDARD_COMBINED_G8_u040000_NAVTEST",
+      "rank": 28,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/evaluation/STANDARD_COMBINED_G8_u040000/NAVTEST/rank28_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/F/STANDARD_COMBINED_G8_u040000_NAVTEST/rank28"
+    },
+    {
+      "study": "revival_training_20261101",
+      "key": "REVIVAL_SATURATED_G8_u042000_NAVTEST",
+      "rank": 22,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/evaluation/REVIVAL_SATURATED_G8_u042000/NAVTEST/rank22_attempt003",
+      "attempt_preserved": 3,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/G/REVIVAL_SATURATED_G8_u042000_NAVTEST/rank22"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_MULTISCENE32_G8_u004000_NAVTEST",
+      "rank": 14,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_MULTISCENE32_G8_u004000/NAVTEST/rank14_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_MULTISCENE32_G8_u004000_NAVTEST/rank14"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_MIXED_NOISE_G8_u010000_NAVTEST",
+      "rank": 14,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_MIXED_NOISE_G8_u010000/NAVTEST/rank14_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_MIXED_NOISE_G8_u010000_NAVTEST/rank14"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_EARLY_DECAY_G8_u016000_NAVTEST",
+      "rank": 14,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_EARLY_DECAY_G8_u016000/NAVTEST/rank14_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_EARLY_DECAY_G8_u016000_NAVTEST/rank14"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_MULTISCENE32_G8_u004500_NAVTEST",
+      "rank": 14,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_MULTISCENE32_G8_u004500/NAVTEST/rank14_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_MULTISCENE32_G8_u004500_NAVTEST/rank14"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_MULTISCENE32_G8_u005000_NAVTEST",
+      "rank": 13,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_MULTISCENE32_G8_u005000/NAVTEST/rank13_attempt002",
+      "attempt_preserved": 2,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_MULTISCENE32_G8_u005000_NAVTEST/rank13"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_FP32_OUTPUT_G8_u010000_NAVTEST",
+      "rank": 13,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_FP32_OUTPUT_G8_u010000/NAVTEST/rank13_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_FP32_OUTPUT_G8_u010000_NAVTEST/rank13"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_VERIFIED_RETENTION_G8_u010000_NAVTEST",
+      "rank": 11,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_VERIFIED_RETENTION_G8_u010000/NAVTEST/rank11_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_VERIFIED_RETENTION_G8_u010000_NAVTEST/rank11"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_FP32_OUTPUT_G8_u014000_NAVTEST",
+      "rank": 13,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_FP32_OUTPUT_G8_u014000/NAVTEST/rank13_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_FP32_OUTPUT_G8_u014000_NAVTEST/rank13"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_FP32_OUTPUT_G8_u016000_NAVTEST",
+      "rank": 14,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_FP32_OUTPUT_G8_u016000/NAVTEST/rank14_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_FP32_OUTPUT_G8_u016000_NAVTEST/rank14"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_MIXED_NOISE_G8_u014000_NAVTEST",
+      "rank": 11,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_MIXED_NOISE_G8_u014000/NAVTEST/rank11_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_MIXED_NOISE_G8_u014000_NAVTEST/rank11"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_FP32_OUTPUT_G8_u018000_NAVTEST",
+      "rank": 11,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_FP32_OUTPUT_G8_u018000/NAVTEST/rank11_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_FP32_OUTPUT_G8_u018000_NAVTEST/rank11"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_FP32_OUTPUT_G8_u020000_NAVTEST",
+      "rank": 11,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_FP32_OUTPUT_G8_u020000/NAVTEST/rank11_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_FP32_OUTPUT_G8_u020000_NAVTEST/rank11"
+    },
+    {
+      "study": "improvement_training_20261101",
+      "key": "IMPROVEMENT_MIXED_NOISE_G8_u016000_NAVTEST",
+      "rank": 11,
+      "old_job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/evaluation/IMPROVEMENT_MIXED_NOISE_G8_u016000/NAVTEST/rank11_attempt001",
+      "attempt_preserved": 1,
+      "evidence": "/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/FAILURE_EVIDENCE/H/IMPROVEMENT_MIXED_NOISE_G8_u016000_NAVTEST/rank11"
+    }
+  ],
+  "failures_requeued": 15,
+  "scientific_specs_models_sources_seeds_shards_unchanged": true,
+  "existing_workers_unsignalled": true,
+  "training_registry_and_owners_untouched": true,
+  "I_untouched": true
+}
