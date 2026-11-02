@@ -1,5 +1,5 @@
 """CPU validation/comparison and strict export for the new packed recipe."""
-import argparse,gc,json
+import argparse,gc,json,re
 from pathlib import Path
 import numpy as np
 import torch
@@ -86,6 +86,7 @@ def compare(left,right):
     a=load_validated(left);b=load_validated(right)
     assert_equal(a['identity'],b['identity'],'identity')
     for field in ('adapters','optimizer','scheduler'):assert_equal(a['common'][field],b['common'][field],field)
+    administrative_invocations=[]
     for rank,(x,y)in enumerate(zip(a['ranks'],b['ranks'])):
         assert_equal(x['rng'],y['rng'],f'rank{rank}.all_native_RNG')
         assert_equal(learning_state(x['state']),learning_state(y['state']),f'rank{rank}.learning_state')
@@ -94,11 +95,21 @@ def compare(left,right):
             #Native rollout includes measured wallclock times. Compare all
             #scientific fields through independently validated summaries/hashes
             #after only dropping explicit timing dictionaries.
-            assert_equal(scientific_rollout(x['rollout']),scientific_rollout(y['rollout']),f'rank{rank}.pending_rollout')
+            scientific=[scientific_rollout(z['rollout'])for z in (x,y)]
+            ids=[z.get('invocation')for z in scientific]
+            if any(z is not None for z in ids):
+                if any(not isinstance(z,str)or re.fullmatch('[0-9a-f]{32}',z)is None for z in ids):
+                    raise ValueError('Missing/invalid top-level administrative Invocation UUID')
+                administrative_invocations.append(dict(rank=rank,left=ids[0],right=ids[1]))
+                for z in scientific:z.pop('invocation')
+            #Only this exact top-level field is administrative. In particular,
+            #teacher ancestry/version and nested invocation metadata stay exact.
+            assert_equal(scientific[0],scientific[1],f'rank{rank}.pending_rollout')
     result=dict(schema='world_coherent_packed_native_comparison_v1',status='PASS',left=a['path'],right=b['path'],
         identity_sha256=a['identity']['sha256'],exact=['all actual trainables','Adam moments/steps/groups','scheduler',
             '8rank Python/Numpy/TorchCPU/CUDA/source-generator RNG','all learning state including scene_stream/selection plan','pending scientific source chains/probabilities/advantages'],
-        excluded='explicit measured wallclock seconds only',counts=a['counts'],world=8,
+        excluded='explicit measured wallclock seconds and top-level independent-run Invocation UUID only',
+        administrative_invocations=administrative_invocations,counts=a['counts'],world=8,
         phase=a['seal']['phase'],micro_scenes=a['identity']['packed_execution']['micro_scenes'])
     return result
 

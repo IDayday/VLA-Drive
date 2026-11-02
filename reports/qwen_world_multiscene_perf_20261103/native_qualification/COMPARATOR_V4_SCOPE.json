@@ -1,0 +1,47 @@
+{
+  "schema": "world_packed_comparator_v4_scope_v1",
+  "status": "CPU_TEST_PASS_EXISTING_GPU_CHECKPOINT_REVIEW_PENDING",
+  "created_utc": "2026-11-02T19:33:00.294315+00:00",
+  "training_source_commit": "cc45f9b801752b4dbd6ff593457b6cc917350162",
+  "training_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/multiscene_native_v3",
+  "actual_GPU_steps": [
+    {
+      "name": "continuous4",
+      "returncode": 0,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "split2",
+      "returncode": 0,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "resume2to4",
+      "returncode": 0,
+      "status": "COMPLETE"
+    }
+  ],
+  "original_driver_returncode": 1,
+  "original_failure": "CPU comparison rejects rank0.pending_rollout.invocation, a distinct OS-random top-level administrative Invocation UUID in independent runs",
+  "minimal_change": "Strip only the top-level pending-rollout invocation UUID after verifying both present and valid32hex; record actual UUIDs in result. All trajectory, probability, A, teacher/version, weights/Adam/scheduler/scene-stream/8rank RNG remain exact. Nested teacher invocation remains compared.",
+  "source_files": {
+    "tools/qwen_world_multiscene/native_review.py": "b31c05c279a3ce4324d08c699f0ca942c196a6b1779772ea0e2968adcbb60a35",
+    "tests/test_world_packed_native_tools.py": "c646ee4c98fda31b493136b91b5fd42316fb8b66d9d0c168a976278b70e2479d"
+  },
+  "tests": {
+    "passed": 2,
+    "seconds": 4.47,
+    "CUDA_VISIBLE_DEVICES": "",
+    "new_checks": [
+      "Independent top-level UUID difference accepted and values recorded",
+      "Nested teacher invocation difference still rejected",
+      "Missing or invalid UUID still rejected"
+    ]
+  },
+  "preservation": "Frozen v3, original rc1/STATE/logs, all actual checkpoints unchanged; evidence copies sealed separately. No GPU rerun or new allocation.",
+  "evidence": {
+    "DRIVER_STATE.json": "9c6132649b0bc5bac968355b7cc2cbe786fafeae93be40b9eab994cdfaf51f8e",
+    "RESULT.json": "ca36493232f01bf67f4c9c3c401458d0720d83d957ef9edec26a73645fb5adda",
+    "stdout.log": "58afc1b3d37455a71e232a2302afe248455cf18b572b8e205e30f14015735e7d"
+  }
+}
