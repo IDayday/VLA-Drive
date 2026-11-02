@@ -1,6 +1,6 @@
 {
   "schema": "report_highest_full_RL_and_current_native_count_v1",
-  "observed_utc": "2026-11-02 01:19:48 UTC",
+  "observed_utc": "2026-11-02 04:08:46 UTC",
   "best": {
     "arm": "SAFETY_G8_CONTROL",
     "PDMS": 91.45359756166451,
@@ -11,40 +11,100 @@
   },
   "best_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/SAFETY_G8_CONTROL/checkpoints/update010000_inner0",
   "counts": {
-    "training": 4,
-    "starting": 0,
-    "waiting_resource": 6,
-    "resource_reserved": 3,
+    "training": 3,
+    "starting": 1,
+    "waiting_resource": 3,
+    "resource_reserved": 5,
     "exited_review": 0,
     "paused_saved": 0,
-    "ended": 0,
+    "ended": 2,
     "unconfirmed": 0
+  },
+  "by_study": {
+    "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101": {
+      "training": 0,
+      "starting": 1,
+      "waiting_resource": 0,
+      "resource_reserved": 3,
+      "exited_review": 0,
+      "paused_saved": 0,
+      "ended": 0,
+      "unconfirmed": 0
+    },
+    "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102": {
+      "training": 1,
+      "starting": 0,
+      "waiting_resource": 0,
+      "resource_reserved": 0,
+      "exited_review": 0,
+      "paused_saved": 0,
+      "ended": 0,
+      "unconfirmed": 0
+    },
+    "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101": {
+      "training": 0,
+      "starting": 0,
+      "waiting_resource": 2,
+      "resource_reserved": 2,
+      "exited_review": 0,
+      "paused_saved": 0,
+      "ended": 0,
+      "unconfirmed": 0
+    },
+    "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101": {
+      "training": 2,
+      "starting": 0,
+      "waiting_resource": 1,
+      "resource_reserved": 0,
+      "exited_review": 0,
+      "paused_saved": 0,
+      "ended": 2,
+      "unconfirmed": 0
+    }
   },
   "runs": [
     {
       "arm": "SAFETY_G8_CONTROL",
       "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
-      "category": "waiting_resource",
-      "host": "training-vlawm-tsinghua-zt2",
-      "native_status": "WAITING_RESOURCE",
-      "job": null,
+      "category": "starting",
+      "host": "training-vlawm-tsinghua-zt5",
+      "native_status": "TRAINING",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to042000_attempt002",
       "returncode": null,
-      "running_receipt_present": false,
+      "running_receipt_present": true,
       "terminal_receipt_present": false,
-      "common_updates": null,
-      "rank_last_updates": {},
-      "rank_log_ages_seconds": {}
+      "common_updates": 40180,
+      "rank_last_updates": {
+        "0": 40180,
+        "1": 40180,
+        "2": 40180,
+        "3": 40180,
+        "4": 40180,
+        "5": 40180,
+        "6": 40180,
+        "7": 40180
+      },
+      "rank_log_ages_seconds": {
+        "0": 21226.345865488052,
+        "1": 21226.345865488052,
+        "2": 21226.345865488052,
+        "3": 21226.345865488052,
+        "4": 21226.345865488052,
+        "5": 21226.345865488052,
+        "6": 21226.345865488052,
+        "7": 21226.345865488052
+      }
     },
     {
       "arm": "STANDARD_INVERSION_G8",
       "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
-      "category": "waiting_resource",
-      "host": "training-rl-zt2",
-      "native_status": "WAITING_RESOURCE",
-      "job": null,
-      "returncode": null,
-      "running_receipt_present": false,
-      "terminal_receipt_present": false,
+      "category": "resource_reserved",
+      "host": "training-vlawm-tsinghua-zt5",
+      "native_status": "STOPPED_AT_COOPERATIVE_BOUNDARY",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to042000_attempt001",
+      "returncode": 0,
+      "running_receipt_present": true,
+      "terminal_receipt_present": true,
       "common_updates": null,
       "rank_last_updates": {},
       "rank_log_ages_seconds": {}
@@ -52,34 +112,16 @@
     {
       "arm": "STANDARD_COMBINED_G8",
       "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
-      "category": "training",
+      "category": "resource_reserved",
       "host": "training-vlawm-tsinghua-zt5",
-      "native_status": "TRAINING",
-      "job": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to036000_attempt003",
+      "native_status": "STOPPED_AT_COOPERATIVE_BOUNDARY",
+      "job": null,
       "returncode": null,
-      "running_receipt_present": true,
+      "running_receipt_present": false,
       "terminal_receipt_present": false,
-      "common_updates": 35623,
-      "rank_last_updates": {
-        "0": 35623,
-        "1": 35623,
-        "2": 35623,
-        "3": 35623,
-        "4": 35623,
-        "5": 35623,
-        "6": 35623,
-        "7": 35623
-      },
-      "rank_log_ages_seconds": {
-        "0": 1.2341091632843018,
-        "1": 1.2341091632843018,
-        "2": 1.2341091632843018,
-        "3": 1.2341091632843018,
-        "4": 1.2341091632843018,
-        "5": 1.2341091632843018,
-        "6": 1.2341091632843018,
-        "7": 1.2341091632843018
-      }
+      "common_updates": null,
+      "rank_last_updates": {},
+      "rank_log_ages_seconds": {}
     },
     {
       "arm": "STANDARD_ENDPOINT_LR02_G8",
@@ -94,6 +136,38 @@
       "common_updates": null,
       "rank_last_updates": {},
       "rank_log_ages_seconds": {}
+    },
+    {
+      "arm": "INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC",
+      "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102",
+      "category": "training",
+      "host": "training-vlawm-tsinghua-zt5",
+      "native_status": "TRAINING",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/jobs/INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC/formal_to000250_attempt001",
+      "returncode": null,
+      "running_receipt_present": true,
+      "terminal_receipt_present": false,
+      "common_updates": 59,
+      "rank_last_updates": {
+        "0": 59,
+        "1": 59,
+        "2": 59,
+        "3": 59,
+        "4": 59,
+        "5": 59,
+        "6": 59,
+        "7": 59
+      },
+      "rank_log_ages_seconds": {
+        "0": 6.392131805419922,
+        "1": 6.392131805419922,
+        "2": 6.392131805419922,
+        "3": 6.392131805419922,
+        "4": 6.392131805419922,
+        "5": 6.392131805419922,
+        "6": 6.392131805419922,
+        "7": 6.392131805419922
+      }
     },
     {
       "arm": "REVIVAL_G16",
@@ -154,66 +228,30 @@
     {
       "arm": "IMPROVEMENT_EARLY_DECAY_G8",
       "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
-      "category": "training",
+      "category": "ended",
       "host": "training-vlawm-tsinghua-zt5",
-      "native_status": "TRAINING",
-      "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to018000_attempt001",
-      "returncode": null,
+      "native_status": "WAITING_COMPLETE_LONG_GATE_REVIEW",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to020000_attempt001",
+      "returncode": 0,
       "running_receipt_present": true,
-      "terminal_receipt_present": false,
-      "common_updates": 17960,
-      "rank_last_updates": {
-        "0": 17960,
-        "1": 17960,
-        "2": 17960,
-        "3": 17960,
-        "4": 17960,
-        "5": 17960,
-        "6": 17960,
-        "7": 17960
-      },
-      "rank_log_ages_seconds": {
-        "0": 2.358821392059326,
-        "1": 2.358821392059326,
-        "2": 2.358821392059326,
-        "3": 2.358821392059326,
-        "4": 2.358821392059326,
-        "5": 2.358821392059326,
-        "6": 2.358821392059326,
-        "7": 2.358821392059326
-      }
+      "terminal_receipt_present": true,
+      "common_updates": null,
+      "rank_last_updates": {},
+      "rank_log_ages_seconds": {}
     },
     {
       "arm": "IMPROVEMENT_MULTISCENE32_G8",
       "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
-      "category": "training",
+      "category": "ended",
       "host": "training-vlawm-tsinghua-zt5",
-      "native_status": "TRAINING",
+      "native_status": "WAITING_COMPLETE_LONG_GATE_REVIEW",
       "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_MULTISCENE32_G8/formal_to005000_attempt001",
-      "returncode": null,
+      "returncode": 0,
       "running_receipt_present": true,
-      "terminal_receipt_present": false,
-      "common_updates": 4782,
-      "rank_last_updates": {
-        "0": 4782,
-        "1": 4782,
-        "2": 4782,
-        "3": 4782,
-        "4": 4782,
-        "5": 4782,
-        "6": 4782,
-        "7": 4782
-      },
-      "rank_log_ages_seconds": {
-        "0": 2.4172024726867676,
-        "1": 2.4172024726867676,
-        "2": 2.4172024726867676,
-        "3": 2.4172024726867676,
-        "4": 2.4172024726867676,
-        "5": 2.4172024726867676,
-        "6": 2.4172024726867676,
-        "7": 2.4172024726867676
-      }
+      "terminal_receipt_present": true,
+      "common_updates": null,
+      "rank_last_updates": {},
+      "rank_log_ages_seconds": {}
     },
     {
       "arm": "IMPROVEMENT_VERIFIED_RETENTION_G8",
@@ -225,41 +263,59 @@
       "returncode": null,
       "running_receipt_present": true,
       "terminal_receipt_present": false,
-      "common_updates": 7242,
+      "common_updates": 8956,
       "rank_last_updates": {
-        "0": 7242,
-        "1": 7242,
-        "2": 7242,
-        "3": 7242,
-        "4": 7242,
-        "5": 7242,
-        "6": 7242,
-        "7": 7242
+        "0": 8956,
+        "1": 8956,
+        "2": 8956,
+        "3": 8956,
+        "4": 8956,
+        "5": 8956,
+        "6": 8956,
+        "7": 8956
       },
       "rank_log_ages_seconds": {
-        "0": 2.490732431411743,
-        "1": 2.490732431411743,
-        "2": 2.490732431411743,
-        "3": 2.490732431411743,
-        "4": 2.490732431411743,
-        "5": 2.490732431411743,
-        "6": 2.490732431411743,
-        "7": 2.490732431411743
+        "0": 12.405725002288818,
+        "1": 12.405725002288818,
+        "2": 12.405725002288818,
+        "3": 12.405725002288818,
+        "4": 12.405725002288818,
+        "5": 12.405725002288818,
+        "6": 12.405725002288818,
+        "7": 12.405725002288818
       }
     },
     {
       "arm": "IMPROVEMENT_FP32_OUTPUT_G8",
       "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
-      "category": "waiting_resource",
-      "host": "training-vlawm-zt4",
-      "native_status": "WAITING_AUTHORIZED_RESOURCE",
-      "job": null,
+      "category": "training",
+      "host": "training-vlawm-tsinghua-zt5",
+      "native_status": "TRAINING",
+      "job": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_FP32_OUTPUT_G8/formal_to012000_attempt001",
       "returncode": null,
-      "running_receipt_present": false,
+      "running_receipt_present": true,
       "terminal_receipt_present": false,
-      "common_updates": null,
-      "rank_last_updates": {},
-      "rank_log_ages_seconds": {}
+      "common_updates": 10157,
+      "rank_last_updates": {
+        "0": 10157,
+        "1": 10157,
+        "2": 10157,
+        "3": 10157,
+        "4": 10157,
+        "5": 10157,
+        "6": 10157,
+        "7": 10157
+      },
+      "rank_log_ages_seconds": {
+        "0": 0.46793270111083984,
+        "1": 0.46793270111083984,
+        "2": 0.46793270111083984,
+        "3": 0.46793270111083984,
+        "4": 0.46793270111083984,
+        "5": 0.46793270111083984,
+        "6": 0.46793270111083984,
+        "7": 0.46793270111083984
+      }
     },
     {
       "arm": "IMPROVEMENT_MIXED_NOISE_G8",
@@ -276,38 +332,50 @@
       "rank_log_ages_seconds": {}
     }
   ],
-  "training_scope": "F/G/H registered current native stage jobs",
+  "training_scope": "Registered related-study current native stage jobs; includes I only after real admission",
   "freshness_seconds": 180,
   "inputs": [
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/STANDARD_NATIVE/STATE.json",
-      "mtime": 1793582379.0,
-      "sha256": "9c9ea1e49c76d769ebc1bd6fe2529e067f693617df943e4e589d57b09a421d54",
-      "bytes": 51453
+      "mtime": 1793592520.0,
+      "sha256": "7ba515f9910b383de1fd9ca543a3b9df5916fc89d3981591095eb24a1964ed02",
+      "bytes": 55215
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/SAFETY_G8_CONTROL/formal_to042000_attempt002/RUNNING.json",
+      "mtime": 1793592510.0,
+      "sha256": "1c14ed0c3798133118d09dea5abbf072f299494b5bf37b575412e104c9d4cdfc",
+      "bytes": 2799
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/STANDARD_NATIVE/STATE.json",
-      "mtime": 1793582379.0,
-      "sha256": "9c9ea1e49c76d769ebc1bd6fe2529e067f693617df943e4e589d57b09a421d54",
-      "bytes": 51453
+      "mtime": 1793592520.0,
+      "sha256": "7ba515f9910b383de1fd9ca543a3b9df5916fc89d3981591095eb24a1964ed02",
+      "bytes": 55215
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to042000_attempt001/RESULT.json",
+      "mtime": 1793591763.0,
+      "sha256": "73c89fd4339a758a10c932732b80ee1697f74d77b5f35a8987710fdb8ed0e975",
+      "bytes": 3102
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_INVERSION_G8/formal_to042000_attempt001/RUNNING.json",
+      "mtime": 1793591638.0,
+      "sha256": "44c3054722da341a35a22f988b11e6094e366e66100b7cd9a07bffe3621efc27",
+      "bytes": 2989
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/STANDARD_NATIVE/STATE.json",
-      "mtime": 1793582379.0,
-      "sha256": "9c9ea1e49c76d769ebc1bd6fe2529e067f693617df943e4e589d57b09a421d54",
-      "bytes": 51453
-    },
-    {
-      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_COMBINED_G8/formal_to036000_attempt003/RUNNING.json",
-      "mtime": 1793580461.0,
-      "sha256": "e6e492f3f5101860c476213c543c1f4b60199a7aa78a3bdad2a7533b8a418d03",
-      "bytes": 2985
+      "mtime": 1793592520.0,
+      "sha256": "7ba515f9910b383de1fd9ca543a3b9df5916fc89d3981591095eb24a1964ed02",
+      "bytes": 55215
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/owners/STANDARD_NATIVE/STATE.json",
-      "mtime": 1793582379.0,
-      "sha256": "9c9ea1e49c76d769ebc1bd6fe2529e067f693617df943e4e589d57b09a421d54",
-      "bytes": 51453
+      "mtime": 1793592520.0,
+      "sha256": "7ba515f9910b383de1fd9ca543a3b9df5916fc89d3981591095eb24a1964ed02",
+      "bytes": 55215
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/jobs/STANDARD_ENDPOINT_LR02_G8/formal_to018000_attempt001/RESULT.json",
@@ -322,16 +390,28 @@
       "bytes": 2809
     },
     {
-      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
-      "mtime": 1793582380.0,
-      "sha256": "0020ae5ec91a987ea97cbe11ce1445e63c6f41d5c13d3198de55aab005a6f8e8",
-      "bytes": 45208
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/owners/INTEGRATED_NATIVE/STATE.json",
+      "mtime": 1793592526.0,
+      "sha256": "1576321f67d047dbff3b03479867c6b76e7b354856050e34411c99d6c8fb2b48",
+      "bytes": 811
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/jobs/INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC/formal_to000250_attempt001/RUNNING.json",
+      "mtime": 1793591772.0,
+      "sha256": "c912fe02d2ea23d51c47daa23fd842d50f66816c6157b34d23c04b8e8ac9763c",
+      "bytes": 2699
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
-      "mtime": 1793582380.0,
-      "sha256": "0020ae5ec91a987ea97cbe11ce1445e63c6f41d5c13d3198de55aab005a6f8e8",
-      "bytes": 45208
+      "mtime": 1793592518.0,
+      "sha256": "5fe17b3a735b53537ca7f36889885ca4511549ec4b3e4234b21da73ab50ebd75",
+      "bytes": 46770
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
+      "mtime": 1793592518.0,
+      "sha256": "5fe17b3a735b53537ca7f36889885ca4511549ec4b3e4234b21da73ab50ebd75",
+      "bytes": 46770
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/jobs/REVIVAL_DENSE_G8/formal_to028000_attempt001/RESULT.json",
@@ -347,33 +427,45 @@
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
-      "mtime": 1793582380.0,
-      "sha256": "0020ae5ec91a987ea97cbe11ce1445e63c6f41d5c13d3198de55aab005a6f8e8",
-      "bytes": 45208
+      "mtime": 1793592518.0,
+      "sha256": "5fe17b3a735b53537ca7f36889885ca4511549ec4b3e4234b21da73ab50ebd75",
+      "bytes": 46770
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
-      "mtime": 1793582380.0,
-      "sha256": "0020ae5ec91a987ea97cbe11ce1445e63c6f41d5c13d3198de55aab005a6f8e8",
-      "bytes": 45208
+      "mtime": 1793592518.0,
+      "sha256": "5fe17b3a735b53537ca7f36889885ca4511549ec4b3e4234b21da73ab50ebd75",
+      "bytes": 46770
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
-      "mtime": 1793582382.0,
-      "sha256": "93830211232466e75a6038c4dd5ce8091f3e7e3b843abdbf34f2af8f65371065",
-      "bytes": 43362
+      "mtime": 1793592526.0,
+      "sha256": "8f08126accda8e73429f2d2590968a607dd4005e058ca169c1a71dd3709c1cd7",
+      "bytes": 48576
     },
     {
-      "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to018000_attempt001/RUNNING.json",
-      "mtime": 1793579154.0,
-      "sha256": "27cec8be50f4315dc805bb49c5e85cee68cd454e28f8d3bf1e3f07aec3146b3a",
-      "bytes": 2823
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to020000_attempt001/RESULT.json",
+      "mtime": 1793585740.0,
+      "sha256": "a59b5f7b1073981a0dcaaa99ad65719fd2236aa59df02372fcfb97792cf5773d",
+      "bytes": 4365
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_EARLY_DECAY_G8/formal_to020000_attempt001/RUNNING.json",
+      "mtime": 1793582465.0,
+      "sha256": "346ec9bbbb119e3ae273d81b719b234d6d304b4c1e64fcb94002f3eaace06001",
+      "bytes": 2835
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
-      "mtime": 1793582382.0,
-      "sha256": "93830211232466e75a6038c4dd5ce8091f3e7e3b843abdbf34f2af8f65371065",
-      "bytes": 43362
+      "mtime": 1793592526.0,
+      "sha256": "8f08126accda8e73429f2d2590968a607dd4005e058ca169c1a71dd3709c1cd7",
+      "bytes": 48576
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_MULTISCENE32_G8/formal_to005000_attempt001/RESULT.json",
+      "mtime": 1793583657.0,
+      "sha256": "0f5df0513bc68ae0e0eaa874308e51da4fd43722465df3bf77366d4bb6581b71",
+      "bytes": 4366
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_MULTISCENE32_G8/formal_to005000_attempt001/RUNNING.json",
@@ -383,9 +475,9 @@
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
-      "mtime": 1793582382.0,
-      "sha256": "93830211232466e75a6038c4dd5ce8091f3e7e3b843abdbf34f2af8f65371065",
-      "bytes": 43362
+      "mtime": 1793592526.0,
+      "sha256": "8f08126accda8e73429f2d2590968a607dd4005e058ca169c1a71dd3709c1cd7",
+      "bytes": 48576
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_VERIFIED_RETENTION_G8/formal_to010000_attempt002/RUNNING.json",
@@ -395,15 +487,21 @@
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
-      "mtime": 1793582382.0,
-      "sha256": "93830211232466e75a6038c4dd5ce8091f3e7e3b843abdbf34f2af8f65371065",
-      "bytes": 43362
+      "mtime": 1793592526.0,
+      "sha256": "8f08126accda8e73429f2d2590968a607dd4005e058ca169c1a71dd3709c1cd7",
+      "bytes": 48576
+    },
+    {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/jobs/IMPROVEMENT_FP32_OUTPUT_G8/formal_to012000_attempt001/RUNNING.json",
+      "mtime": 1793592197.0,
+      "sha256": "28e6248d0f8a27dab6ba475131deb3b7a4391d8206f7ce7f004c8f6d998085b9",
+      "bytes": 2839
     },
     {
       "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
-      "mtime": 1793582382.0,
-      "sha256": "93830211232466e75a6038c4dd5ce8091f3e7e3b843abdbf34f2af8f65371065",
-      "bytes": 43362
+      "mtime": 1793592526.0,
+      "sha256": "8f08126accda8e73429f2d2590968a607dd4005e058ca169c1a71dd3709c1cd7",
+      "bytes": 48576
     }
   ],
   "warnings": [],

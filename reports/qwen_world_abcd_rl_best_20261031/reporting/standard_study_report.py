@@ -21,6 +21,10 @@ def is_improvement(study):
     return study.get('registration',{}).get('study_kind')=='configuration_improvement'or Path(study['root']).name.startswith('improvement_')
 
 
+def is_integrated(study):
+    return Path(study['root']).name.startswith('integrated_')or study.get('registration',{}).get('study_kind')=='integrated_recipe'
+
+
 def section_id(study):
     if Path(study['root'])==DEFAULT_ROOT:return 'standard-training'
     name=re.sub('[^A-Za-z0-9_-]+','-',study.get('id',Path(study['root']).name))
@@ -28,8 +32,8 @@ def section_id(study):
 
 
 def section_links(studies):
-    current=[(section_id(s),'当前H改进实验')for s in studies if is_improvement(s)]
-    links=[(section_id(s),'历史方法复试'if is_revival(s)else '统一配方新研究'if Path(s['root'])==DEFAULT_ROOT else s.get('registration',{}).get('display_name',s['id']))for s in studies if not is_improvement(s)]
+    current=[(section_id(s),'当前I综合试验')for s in studies if is_integrated(s)]+[(section_id(s),'当前H改进实验')for s in studies if is_improvement(s)]
+    links=[(section_id(s),'历史方法复试'if is_revival(s)else '统一配方新研究'if Path(s['root'])==DEFAULT_ROOT else s.get('registration',{}).get('display_name',s['id']))for s in studies if not is_improvement(s)and not is_integrated(s)]
     if any(s.get('paired_reviews')for s in studies):links.insert(0,('rl-benefit','RL实质收益'))
     if any(s.get('phase_potential',{}).get('status','').startswith('COMPLETE')for s in studies):links.insert(0,('rl-potential','下一步提升潜力'))
     return [('rl-latest-evidence','最新完整证据与资源优先级')]+current+links
@@ -86,21 +90,21 @@ def _comparison_summary(value):
     return result
 
 
-def _paired_reviews(root,arms,h,warnings,inputs):
+def _paired_reviews(root,arms,h,warnings,inputs,external_control_root=None):
     rows=[]
     for path in sorted((root/'analysis'/'PILOT_COMPARISONS').glob('*.json')):
         if not any(path.name.startswith(arm+'_')for arm in arms):continue
         value=h.read_json(path,warnings,inputs)or{}
         if value.get('status')!='COMPLETE':continue
-        base=dict(arm=value.get('arm'),updates=value.get('updates'),evidence=str(path),
+        base=dict(arm=value.get('arm'),updates=value.get('updates'),evidence=str(path),comparison_axis=value.get('comparison_axis',value.get('budget_axis')),
             fixed_IL70_high_advantage_PDMS=value.get('fixed_IL70_high_advantage_PDMS'),actual_collection_budget=value.get('actual_collection_budget'))
-        if value.get('schema')in ['world_Safety_exploration_full_population_review_v1','world_revival_full_population_review_v1','world_improvement_full_population_review_v1']:
-            for label in ['IL70','SafetyEP10k']:
+        if not value.get('reference_arm')and isinstance(value.get('comparisons'),dict):
+            for label in ['IL70','SafetyEP10k','FIXED_GLOBAL_BEST']:
                 result=value.get('comparisons',{}).get(label,{}).get('result',{})
                 if result.get('scene_denominator')==12146:rows.append(base|dict(kind='historical',reference=label,result=_comparison_summary(result)))
         elif value.get('reference_arm'):
             result=value.get('comparison',{}).get('result',{})
-            if result.get('scene_denominator')==12146:rows.append(base|dict(kind='between_arms',reference=value['reference_arm'],reference_updates=value.get('reference_updates'),reference_root=value.get('external_control_root',str(root)),budget_contract=value.get('budget_contract'),result=_comparison_summary(result)))
+            if result.get('scene_denominator')==12146:rows.append(base|dict(kind='between_arms',reference=value['reference_arm'],reference_updates=value.get('reference_updates'),reference_root=value.get('external_control_root',external_control_root or str(root)),budget_contract=value.get('budget_contract'),result=_comparison_summary(result)))
     return rows
 
 
@@ -144,7 +148,8 @@ def load_related(h,warnings,inputs):
     """An existing REGISTRATION or RELATED_STUDIES is the admission gate."""
     pointer=h.read_json(E_ROOT/'RELATED_STUDIES.json',warnings,inputs)or{}
     specs=[]
-    if (DEFAULT_ROOT/'REGISTRATION.json').is_file():specs.append(dict(root=str(DEFAULT_ROOT)))
+    for explicit_root in [DEFAULT_ROOT,E_ROOT/'integrated_training_20261102']:
+        if (explicit_root/'REGISTRATION.json').is_file():specs.append(dict(root=str(explicit_root)))
     for row in h.object_rows(pointer.get('studies',pointer.get('related_studies',[])),'studies'):
         if row.get('root'):specs.append(row)
     studies=[];seen=set()
@@ -237,11 +242,12 @@ def load_related(h,warnings,inputs):
             registration=reg,registry=registry,runs=runs,results=list(results.values()),controllers=controllers,
             scheduler_protocol=protocol,scheduler_protocol_path=str(protocol_path),exposure=exposure,exposure_path=str(exposure_path),production_prefix=prefix,
             historical_audit=audit or{},historical_audit_path=audit_path,deployment=deployment,deployment_path=str(deployment_path),validator_recoveries=recoveries,discovery_path=str(E_ROOT/'RELATED_STUDIES.json')))
-        studies[-1]['paired_reviews']=_paired_reviews(root,run_map,h,warnings,inputs)
+        external=(reg.get('external_control')or registry.get('external_control',{})).get('root')
+        studies[-1]['paired_reviews']=_paired_reviews(root,run_map,h,warnings,inputs,external)
     by_root={s['root']:s for s in studies}
     for study in studies:
         shared=[];refs=h.object_rows(study['registration'].get('shared_controls',[]),'shared_controls')
-        external=study['registration'].get('external_control',{})
+        external=study['registration'].get('external_control',study['registry'].get('external_control',{}))
         if external.get('read_only')is True:refs.append(dict(study_root=external.get('root'),arm=external.get('arm')))
         for ref in refs:
             source=by_root.get(ref.get('study_root'));arm=ref.get('arm')
@@ -379,7 +385,11 @@ def _resource_block(study,h,label):
     else:body+='<p>当前grant没有有限到期host；保留的兼容expires字段不作为wm4／wm5的到期限制。其余被撤回host不因本次两台新增授权而恢复。</p>'
     body+='<p>当前长期任务授权范围 '+h.number(len(value.get('long_admit_now',[])))+' host；授权数量不是已部署数量。</p>'
     if study.get('wm45_coordination'):
-        body+='<p>本轮协调决定：wm4优先用于当前评测积压恢复；wm5本次SSH连接被拒，不能凭授权视为可实际部署。新组合登记与训练另按实际回执判断。'+label(study['wm45_coordination_path'],'评测优先与资源协调收据')+'</p>'
+        wm5_use=Path('/mnt/project/qwen-world-il-research-20261030/maintenance/wm5_runtime_recovery_20261102/ACTUAL_PROGRESS_VERIFIED.json')
+        wm5_recovered=wm5_use.is_file()and 'training-vlawm-zt5'in value.get('authorized_now',[])
+        state='wm4／wm5均已实际用于IL／RL并行评测；wm5在01:53修复环境，旧SSH拒绝仅为历史'if wm5_recovered else 'wm4优先用于当前评测积压恢复；wm5该次SSH连接被拒，实际使用需新回执'
+        body+='<p>评测优先的实际状态：'+state+'。新训练另按注册与worker事实判断。'+label(study['wm45_coordination_path'],'历史协调及零信号收据')+'</p>'
+        if wm5_recovered:body+='<p>'+label(wm5_use,'wm5修复后8GPU／22worker及真实IL／RL场景进度')+'；这是实际评测快照，不是新增训练任务数。</p>'
         wm4_use=Path(study['wm45_coordination_path']).parent/'WM4_ACTUAL_GPU_USE.json'
         if wm4_use.is_file():body+='<p>实际使用快照：wm4的8张GPU均已投入IL／RL并行分片评测，15个GPU进程；这不是新组合训练，也不代表空闲lane。'+label(wm4_use,'wm4实际GPU使用与评测entrypoint证据')+'</p>'
     if value.get('grant_contains_banned'):body+='<p class="warning">当前grant仍含GLOBAL禁派host：'+h.esc('、'.join(value['grant_contains_banned']))+'；本页不将其列为可派发。</p>'
@@ -541,11 +551,16 @@ def _potential_front(report_root,studies,h):
     return '<section id="rl-potential"><h2>阶段性收益还有提升能力吗：最新诊断与下一步</h2>'+body+'</section>'
 
 
-def render_related(report_root,studies,h):
+def render_related(report_root,studies,h,native_summary=None):
     if not studies:return ''
     from research_report import figure
-    bodies=[];current_bodies=[]
+    bodies=[];current_bodies=[];integrated_bodies=[];has_integrated=any(is_integrated(s)for s in studies)
     for study in studies:
+        if is_integrated(study):
+            import importlib,integrated_study_report
+            importlib.reload(integrated_study_report)
+            integrated_bodies.append(integrated_study_report.render_integrated(report_root,study,h,section_id(study),native_summary))
+            continue
         reg=study['registration'];root=Path(study['root']);runs=study['runs'];schedule=reg.get('scheduler',{});protocol=study['scheduler_protocol'];exposure=study['exposure'];population=reg.get('data_population_count',reg.get('training_population',study['registry'].get('training_population',exposure.get('population'))))
         label=lambda p,t:h.relative_link(report_root,str(p),t)
         revival=is_revival(study);improvement=is_improvement(study);science_body=''
@@ -558,7 +573,10 @@ def render_related(report_root,studies,h):
             if study.get('wm45_coordination')and not any(r['id']=='IMPROVEMENT_RETENTION_EARLY_DECAY_G8'for r in runs):
                 wm4_use=Path(study['wm45_coordination_path']).parent/'WM4_ACTUAL_GPU_USE.json'
                 wm4_state='wm4实测8张GPU已投入IL／RL并行评测以清理积压'if wm4_use.is_file()else 'wm4优先清理评测积压'
-                body+='<p class="notice">新增wm4／wm5已获无到期临时授权；'+wm4_state+'，wm5本次SSH连接被拒。保持＋更早衰减组合仍为准备态，未登记、未派发；现有五臂与实际训练数量分别记录。'+label(study['wm45_coordination_path'],'当前协调状态')+'</p>'
+                wm5_use=Path('/mnt/project/qwen-world-il-research-20261030/maintenance/wm5_runtime_recovery_20261102/ACTUAL_PROGRESS_VERIFIED.json')
+                wm5_state='wm5环境已修复并实际运行IL／RL评测，旧SSH拒绝仅为历史'if wm5_use.is_file()else 'wm5该次SSH拒绝，实际使用待新回执'
+                combo_state='旧H两因素prepared计划不启动，已由前方独立I综合方案取代'if has_integrated else 'H保持＋更早衰减组合仍为准备态，未登记、未派发'
+                body+='<p class="notice">wm4／wm5已获无到期临时授权；'+wm4_state+'；'+wm5_state+'。'+combo_state+'；H仍五臂，与实际训练数分开。'+label(study['wm45_coordination_path'],'历史协调记录')+'</p>'
             method_start=len(body)
             body+='<p>P0为同IL70 fresh：warmup1000，<b>20k完成cos衰减，之后保持0.1峰值floor</b>；初预算20k Adam，批准后才续30／50k。50k是原生预算上限，不能误画成F的整50k衰减。2k／5k／10k及后续每2k做完整NAVTEST；不因早期小差自动淘汰。</p>'
             if not any(r.get('improvement_role')=='multiscene32'for r in runs):body+='<p class="muted">Batch32科学CPU检查已准备；尚未登记为本研究运行臂，后续以独立run.source／实际worker为准，不沿用P0的source标记。</p>'
@@ -706,4 +724,4 @@ def render_related(report_root,studies,h):
     latest=latest_complete_report.build_review(studies)
     latest_path=report_root/'analysis'/'REPORT_LATEST_COMPLETE_REVIEW_20261101'/'SUMMARY.json'
     h.atomic_json(latest_path,latest)
-    return latest_complete_report.render_review(report_root,latest,latest_path,h)+''.join(current_bodies)+_potential_front(report_root,studies,h)+_benefit_front(report_root,studies,h)+''.join(bodies)
+    return ''.join(integrated_bodies)+latest_complete_report.render_review(report_root,latest,latest_path,h)+''.join(current_bodies)+_potential_front(report_root,studies,h)+_benefit_front(report_root,studies,h)+''.join(bodies)

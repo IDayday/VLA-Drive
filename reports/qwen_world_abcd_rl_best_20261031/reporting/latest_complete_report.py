@@ -20,6 +20,7 @@ NAMES = {
     'IMPROVEMENT_FP32_OUTPUT_G8': 'H·真FP32动作投影',
     'IMPROVEMENT_MIXED_NOISE_G8': 'H·固定G8混合探索',
     'IMPROVEMENT_RETENTION_EARLY_DECAY_G8': 'H·质量保持＋更早衰减',
+    'INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC': 'I·B64／G16保持＋WKC综合',
 }
 CONTROL = 'SAFETY_G8_CONTROL'
 
@@ -40,6 +41,7 @@ def render_top_summary(root, snapshot, h):
            and(rl_update(r)or 0)>0 and 'oracle'not in str(r.get('schema','')).lower()]
     best=max(valid,key=lambda r:r['PDMS'],default={});warnings=[];inputs=[];rows=[]
     counts={k:0 for k in ['training','starting','waiting_resource','resource_reserved','exited_review','paused_saved','ended','unconfirmed']}
+    by_study={s['root']:dict.fromkeys(counts,0)for s in studies}
     read=lambda p:h.read_json(Path(p),warnings,inputs)or{}
     for study in studies:
         for original in study['runs']:
@@ -77,6 +79,7 @@ def render_top_summary(root, snapshot, h):
             elif running and now-started<=180:category='starting'
             else:category='unconfirmed'
             counts[category]+=1
+            by_study[study['root']][category]+=1
             rows.append(dict(arm=run['id'],study_root=study['root'],category=category,host=run.get('host'),
                 native_status=status,job=str(job)if job else None,returncode=rc,running_receipt_present=bool(running),
                 terminal_receipt_present=bool(result),common_updates=min((r['updates']for r in ranks),default=None),
@@ -89,14 +92,15 @@ def render_top_summary(root, snapshot, h):
     observed=h.utc();artifact=root/'reporting'/'FRONT_PAGE_SUMMARY.json'
     summary=dict(schema='report_highest_full_RL_and_current_native_count_v1',observed_utc=observed,
         best={k:best.get(k)for k in ['arm','PDMS','updates','RL_updates','evidence','model_sha256']},
-        best_checkpoint=checkpoint,counts=counts,runs=rows,training_scope='F/G/H registered current native stage jobs',
+        best_checkpoint=checkpoint,counts=counts,by_study=by_study,runs=rows,training_scope='Registered related-study current native stage jobs; includes I only after real admission',
         freshness_seconds=180,inputs=inputs,warnings=warnings,
         definition='Current stage RUNNING and no RESULT; all8 rank journals newer than worker.start and <=180s. Count tasks, not GPUs.')
     h.atomic_json(artifact,summary);snapshot['front_page_summary']=summary
     link=lambda p,t:h.relative_link(root,p,t)
     method='SafetyEP标准Control'if arm==CONTROL else NAMES.get(arm,arm or'等待完整结果')
     best_html='<article><span>当前最高完整RL成绩 · 12,146场景／invalid0</span><b class="overview-score">'+h.fmt(best.get('PDMS'),8)+'</b><div>'+h.esc(method)+' · RL '+h.number(u)+'更新</div><small>'+link(best.get('evidence'),'完整SUMMARY')+' · '+(link(checkpoint,'checkpoint '+Path(checkpoint).name)if checkpoint else 'checkpoint见结果证据')+'</small></article>'
-    current='<article><span>当前实际正在训练 · F／G／H</span><b class="overview-score">'+h.number(counts['training'])+' 个任务</b><div>当前job RUNNING、无RESULT，且全部8rank日志新鲜</div><small>已退出待复核 '+h.number(counts['exited_review'])+' · 资源预留 '+h.number(counts['resource_reserved'])+' · 启动 '+h.number(counts['starting'])+' · 等资源 '+h.number(counts['waiting_resource'])+'</small><small>保存暂停 '+h.number(counts['paused_saved'])+' · 已结束 '+h.number(counts['ended'])+' · 运行未确认 '+h.number(counts['unconfirmed'])+'</small></article>'
+    scope_label='F／G／H／I'if any(Path(s['root']).name.startswith('integrated_')for s in studies)else 'F／G／H'
+    current='<article><span>当前实际正在训练 · '+scope_label+'</span><b class="overview-score">'+h.number(counts['training'])+' 个任务</b><div>当前job RUNNING、无RESULT，且全部8rank日志新鲜</div><small>已退出待复核 '+h.number(counts['exited_review'])+' · 资源预留 '+h.number(counts['resource_reserved'])+' · 启动 '+h.number(counts['starting'])+' · 等资源 '+h.number(counts['waiting_resource'])+'</small><small>保存暂停 '+h.number(counts['paused_saved'])+' · 已结束 '+h.number(counts['ended'])+' · 运行未确认 '+h.number(counts['unconfirmed'])+'</small></article>'
     return '<div class="overview">'+best_html+current+'</div><small>实时统计 '+h.esc(observed)+' · 数的是训练任务，不是独占物理GPU；新鲜阈值180秒。已退出待核不等于科学无效，也不代表已正常迁移。'+link(str(artifact),'逐任务实时证据')+'</small>'
 
 
@@ -158,7 +162,7 @@ def build_review(studies):
         base = points.get((control_root, CONTROL, pair.get('reference_updates')))
         if not base:
             continue
-        r = pair['result']; factor = 2 if pair['arm'] == 'REVIVAL_G16' else 4 if pair['arm'] == 'IMPROVEMENT_MULTISCENE32_G8' else 1
+        r = pair['result']; factor = 16 if pair['arm']=='INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC'else 2 if pair['arm'] == 'REVIVAL_G16' else 4 if pair['arm'] == 'IMPROVEMENT_MULTISCENE32_G8' else 1
         a = target.get('fixed_IL70_high_mean_delta_PDMS'); b = base.get('fixed_IL70_high_mean_delta_PDMS')
         fixed_delta = a-b if isinstance(a, (int, float)) and isinstance(b, (int, float)) else pair.get('fixed_IL70_high_advantage_PDMS')
         comparisons.append(dict(arm=pair['arm'], updates=pair['updates'], reference_updates=base['updates'],
@@ -172,6 +176,9 @@ def build_review(studies):
             fixed_Control_high_mean_delta_PDMS=r.get('fixed_control_high', {}).get('mean_delta_PDMS'),
             nominal_source_candidate_matched=base['updates'] == factor*pair['updates'],
             source_update_clock_multiplier=factor, budget_contract=pair.get('budget_contract'),
+            source_scene_clock_multiplier=8 if pair['arm']=='INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC'else 1 if pair['arm']=='REVIVAL_G16'else factor,
+            source_candidate_clock_multiplier=factor,
+            comparison_axis=pair.get('comparison_axis'),
             actual_collection_budget=pair.get('actual_collection_budget'), evidence=pair['evidence']))
     arms = []
     for root, arm in sorted({(root, arm) for root, arm, u in points} | set(runs)):
@@ -186,7 +193,8 @@ def build_review(studies):
         status='COMPLETE_SNAPSHOT_OF_AVAILABLE_FULL_RESULTS', created_utc=datetime.now(timezone.utc).isoformat(),
         complete_points=len(points), complete_comparisons=len(comparisons), arms=arms,
         observed_peak=max((p for p in points.values() if p['updates']>0), key=lambda p:p['PDMS'], default=None),
-        comparisons=comparisons, actual_training_query_budgets=query_budgets, combination_preparation=combination_preparation, input_files=inputs,
+        comparisons=comparisons, actual_training_query_budgets=query_budgets, combination_preparation=combination_preparation,
+        integrated_studies=[dict(root=s['root'],registration=s['registration_path'],status=s['registration'].get('status'))for s in studies if Path(s['root']).name.startswith('integrated_')], input_files=inputs,
         scope='F/G/H only; existing complete12146/invalid0 summaries and sealed paired artifacts; no new score/bootstrap.',
         limitations=['All reported CIs reused: one training seed,44 physical logs,2000 cluster-bootstrap draws,seed42.',
             'Repeated checkpoint selection and multiple comparisons are not corrected; observed peaks are descriptive.',
@@ -235,6 +243,9 @@ def _render_stage_gain_context(review,h,link,ci):
         ['质量门控的历史RL保持','2k后收集本run实际ODE验证的高质量行为；抽历史场景用当前ODE重评，退化时在原β50内分配0.75 IL＋0.25历史RL均值保持','fresh PG／优势与原50k cosine不变；额外官方验证查询单列'],
         ['G16','每场景候选8→16，同更新数主候选为2倍；与Control20k的候选预算对齐并不对齐Adam／场景／scheduler时钟','同原IL70 fresh、SafetyEP与基础scope；不是32个不同场景的batch扩展'],
     ])+'</details>'
+    if review.get('integrated_studies'):
+        body+='<p><b>新计划已改为独立I综合试验：</b>旧H两因素prepared方案不启动；I从同原IL70 fresh验证B64不同场景、G16、历史保持与WKC组合，实际状态见前方独立I卡。多组件结果不能按上表涨幅相加，也不能单独归因。原H已测单因素数据继续保留作比较依据。</p>'
+        return body
     combo=next((a for a in review['arms']if a['arm']=='IMPROVEMENT_RETENTION_EARLY_DECAY_G8'),None)
     if combo:
         n=combo['current_native'];state='已登记，等待实际更新'
@@ -255,7 +266,8 @@ def render_review(root, review, review_path, h):
     body = '<div class="notice"><b>已出现多个阶段的配对正点，但尚未形成持续的新方法领先。</b>当前F/G/H完整观测峰仍为 '+h.esc(NAMES.get(peak.get('arm'), peak.get('arm')))+' '+h.number(peak.get('updates'))+'更新 '+h.fmt(peak.get('PDMS'), 5)+'；'+('尚未达到92。' if peak.get('PDMS', 0)<92 else '已达92，保持性另检。')+'本次汇总 '+h.number(review['complete_points'])+' 个完整NAVTEST点／'+h.number(review['complete_comparisons'])+' 组既有Control配对；不把部分评测补成成绩。</div>'
     body+=_render_stage_gain_context(review,h,link,ci)
     rows = []
-    ordered = sorted(review['arms'], key=lambda r:(not r['arm'].startswith('IMPROVEMENT_'), r['arm'] != CONTROL, r['arm']))
+    is_current=lambda a:a.startswith(('IMPROVEMENT_','INTEGRATED_'))
+    ordered = sorted(review['arms'], key=lambda r:(not is_current(r['arm']), r['arm'] != CONTROL, r['arm']))
     for arm in ordered:
         latest = arm['latest_complete']; p = arm['latest_candidate_matched']
         if latest is None:
@@ -270,9 +282,9 @@ def render_review(root, review, review_path, h):
         else:
             rows.append([h.esc(arm['name']),label,'只作对照，不与自身配对'if arm['arm']==CONTROL else '尚无完整同预算配对','—',h.fmt(latest.get('fixed_IL70_high_mean_delta_PDMS'),4)+'<small>此行为对IL70自身基准</small>','—'])
     columns=['路线','最新完整Adam／PDMS','最近主PG候选同量比较：更新／Δ及95%CI','零修复／新增','固定IL70≥.9均值Δ','证据']
-    current_rows=[row for arm,row in zip(ordered,rows)if arm['arm'].startswith('IMPROVEMENT_')or arm['arm']==CONTROL]
-    historical_rows=[row for arm,row in zip(ordered,rows)if not arm['arm'].startswith('IMPROVEMENT_')and arm['arm']!=CONTROL]
-    body+='<h3>当前H与共享Control：完整部署收益单列</h3>'+h.table(columns,current_rows)
+    current_rows=[row for arm,row in zip(ordered,rows)if is_current(arm['arm'])or arm['arm']==CONTROL]
+    historical_rows=[row for arm,row in zip(ordered,rows)if not is_current(arm['arm'])and arm['arm']!=CONTROL]
+    body+='<h3>当前独立研究与共享Control：完整部署收益单列</h3>'+h.table(columns,current_rows)
     if historical_rows:body+='<details><summary>F／G长训全部路线的最新完整成绩与公平配对</summary>'+h.table(columns,historical_rows)+'</details>'
     body+='<p class="muted">方法行的高群体Δ是同一固定IL70高分8724场景相对当点Control的均值差，未给CI，不据此宣称显著。Control行则是相对IL70。G16用2倍、Batch32用4倍Control更新对齐source-PG查询；场景曝光、Adam和scheduler时钟仍不同。当前H保持臂未完整时留空；其2k后额外官方ODE评分仍单独分账。</p>'
     recent=[]
