@@ -14,12 +14,15 @@ OWNER='PERFORMANCE_NATIVE'
 BASE_ORDER=['S1_NOMINAL_RESCUE','S5_PERFORMANCE_MAX','S0_LARGE_SAFETYEP','S2_CONSERVATIVE_AWFM','S3_LARGE_FPO','S4_TEMPORAL_RESCUE','S0_LOW_LR']
 FAST='S0_FAST_PACK4'
 QUALITY='S6_VERIFIED_QUALITY'
-ORDER=BASE_ORDER[:2]+[QUALITY]+BASE_ORDER[2:-1]+[FAST]+BASE_ORDER[-1:]
+STRUCTURED='S7_STRUCTURED_PROGRESS'
+ORDER=BASE_ORDER[:1]+[STRUCTURED]+BASE_ORDER[1:2]+[QUALITY]+BASE_ORDER[2:-1]+[FAST]+BASE_ORDER[-1:]
 INDEPENDENT_FAMILIES={
     FAST:dict(trainer='tools.qwen_world_multiscene.train',recipe='starVLA.rl.qwen_world_multiscene.recipe',
         native_review='tools.qwen_world_multiscene.native_review'),
     QUALITY:dict(trainer='tools.qwen_world_verified_quality.train',recipe='starVLA.rl.qwen_world_verified_quality.recipe',
         native_review='tools.qwen_world_verified_quality.native_review'),
+    STRUCTURED:dict(trainer='tools.qwen_world_structured_progress.train',recipe='starVLA.rl.qwen_world_structured_progress.recipe',
+        native_review='tools.qwen_world_structured_progress.native_review'),
 }
 EPOCHS=[.25,.5,1,2,3,4,6,8,12,20]
 QUALITY_EPOCHS=[.0625,.125]+EPOCHS
@@ -110,7 +113,7 @@ def seal_source():
 
 
 def validate_run_recipe(run):
-    """Three exact trainer families; registration cannot supply module names."""
+    """Exact trainer families; registration cannot supply arbitrary module names."""
     if run['id']in INDEPENDENT_FAMILIES:
         family=INDEPENDENT_FAMILIES[run['id']]
         if run['trainer_module']!=family['trainer']:raise ValueError('Wrong exact independent-family trainer')
@@ -193,19 +196,87 @@ def quality_registration(registry,config,source,*,worker_source):
     return validate_registry(r)
 
 
+
+def validate_structured_qualification(run,cfg):
+    """Require the real S7 native proof; CPU fixtures never grant deployment."""
+    proof=run.get('native_qualification',{})
+    if set(proof)!={'path','file_sha256'}or sha(proof['path'])!=proof['file_sha256']:
+        raise ValueError('S7 requires exact actual native qualification evidence')
+    value=read(proof['path']);protocol=cfg['research']['structured_progress']
+    from starVLA.rl.qwen_world_research_data.manifest import fingerprint
+    digest=fingerprint(protocol);classes=value.get('actual_first_collection_teacher_classes',{})
+    if(value.get('schema')!='world_structured_progress_actual_world8_native_qualification_v1'
+       or value.get('status')!='PASS'or value.get('world')!=8 or value.get('B')!=64
+       or value.get('G')!=16 or value.get('M')!=4 or value.get('full_IL70')is not True
+       or value.get('trainable_numel')!=52_707_840 or value.get('actual_initial_epoch')!=0.
+       or value.get('qualification_only')is not True or value.get('native_bitexact_at_inner2_and4')is not True
+       or value.get('structured_progress_protocol_sha256')!=digest
+       or any(not isinstance(classes.get(k),int)or classes[k]<1 for k in('.02','.05','structured'))):
+        raise ValueError('S7 requires actual world8 pending-resume/teacher activation PASS')
+    reviews=value.get('strict_reviews',{})
+    if set(reviews)!={'continuous2','continuous4','split2','split4'}:
+        raise ValueError('S7 qualification lacks all four strict native endpoints')
+    for review in reviews.values():
+        if(review.get('schema')!='world_structured_progress_export_native_validation_v1'
+           or review.get('status')!='PASS'or review.get('world')!=8 or review.get('qualification')is not True
+           or Path(review.get('source','')).resolve()!=Path(run['source']).resolve()
+           or review.get('structured_progress_protocol_sha256')!=digest
+           or review.get('parent_model_sha256')!=cfg['research']['performance']['parent_model_sha256']):
+            raise ValueError('S7 qualification is not bound to this exact frozen science source/IL70')
+    return proof
+
+
+def structured_registration(registry,config,source,*,worker_source,qualification):
+    """Pure S7 proposal after actual native qualification; never writes RUNS."""
+    r=copy.deepcopy(validate_registry(registry))
+    if any(x['id']==STRUCTURED for x in r['runs']):raise ValueError('S7 already registered; never duplicate lineage')
+    source=Path(source).resolve();config=Path(config).resolve()
+    if not source.is_dir():raise ValueError('Freeze actual structured-progress source before proposing registration')
+    commit=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip()
+    dirty=subprocess.check_output(['git','-C',str(source),'status','--porcelain'],text=True).splitlines()
+    if any(x not in ('?? FROZEN_SOURCE.json','?? FROZEN_SOURCE')for x in dirty):raise ValueError('S7 requires actual clean frozen scientific source')
+    base=next(x for x in r['runs']if x['id']=='S1_NOMINAL_RESCUE')
+    run=dict(id=STRUCTURED,architecture_id=base['architecture_id'],root=str(ROOT/'runs'/STRUCTURED),
+        source=str(source),source_commit=commit,source_pending=False,worker_source=str(Path(worker_source).resolve()),
+        config=str(config),config_sha256=sha(config),parent_checkpoint=base['parent_checkpoint'],
+        group_size=16,inner_updates=4,minimum_epochs=3.,optional_epoch_cap=20.,optional_extensions=[8.,12.,20.],
+        trainer_module=INDEPENDENT_FAMILIES[STRUCTURED]['trainer'],save_every=base['save_every'],
+        owner_state=str(ROOT/'owners'/OWNER/'STATE.json'),status='REGISTERED',priority=ORDER.index(STRUCTURED),NavtestSelected=True,
+        native_qualification=dict(path=str(Path(qualification).resolve()),file_sha256=sha(qualification)))
+    from .continuous import PROTOCOL as CONTINUOUS
+    from .continuation import ALIAS,PROTOCOL_V2
+    placement=next(x for x in r['runs']if x['id']=='S0_LARGE_SAFETYEP')
+    primaries=[copy.deepcopy(x)for x in placement['deployment_candidates']if x['lease_slot']=='primary'
+        and x['host']not in PROTECTED|{'training-vlawm-tsinghua-zt5'}]
+    run.update(native_execution=copy.deepcopy(CONTINUOUS),resource_protocol=copy.deepcopy(PROTOCOL_V2),
+        execution_output_root=str(ALIAS/'runs'/STRUCTURED),
+        deployment_candidates=[dict(x,lease_slot=slot)for x in primaries for slot in('shared','research')]+primaries)
+    cfg=validate_run_recipe(run);validate_structured_qualification(run,cfg);mapping=exposure_gates(cfg)
+    run.update(exposure_mapping=mapping,native_gates=[point(mapping,e)['updates']for e in QUALITY_EPOCHS if e<=6],
+        navtest_epochs=[e for e in QUALITY_EPOCHS if e<=6],gates=[point(mapping,e)['updates']for e in QUALITY_EPOCHS if e<=6],
+        target_updates=point(mapping,6)['updates'],target_epochs=6.)
+    r['runs'].append(run)
+    for row in r['runs']:row['priority']=ORDER.index(row['id'])
+    r['runs'].sort(key=lambda x:x['priority'])
+    from starVLA.rl.qwen_world_research_data.manifest import fingerprint
+    r['registration_sha256']=fingerprint({k:v for k,v in r.items()if k!='registration_sha256'})
+    return validate_registry(r)
+
+
 def validate_registry(r,*,allow_pending=False):
     ids={v['id']for v in r['runs']}
     if(r['task']!=TASK or Path(r['root']).resolve()!=ROOT or r['training_population']!=103288
        or not set(BASE_ORDER)<=ids or not ids<=set(ORDER)or len(r['runs'])!=len(ids)):
-        raise ValueError('Only original seven arms plus exact independent FAST_PACK4/S6 families')
+        raise ValueError('Only original seven arms plus exact independent FAST_PACK4/S6/S7 families')
     if sha(r['manifest'])!=r['manifest_sha256']:raise ValueError('Registered data manifest changed')
     for run in r['runs']:
         cfg=validate_run_recipe(run);mapping=exposure_gates(cfg);cap=run['target_epochs']
-        epochs=QUALITY_EPOCHS if run['id']==QUALITY else EPOCHS
+        if run['id']==STRUCTURED:validate_structured_qualification(run,cfg)
+        epochs=QUALITY_EPOCHS if run['id']in(QUALITY,STRUCTURED)else EPOCHS
         nav_epochs=run['navtest_epochs']
-        if run['id']==QUALITY and(cfg['research']['performance']['evaluation_epochs']!=QUALITY_EPOCHS
+        if run['id']in(QUALITY,STRUCTURED)and(cfg['research']['performance']['evaluation_epochs']!=QUALITY_EPOCHS
                 or nav_epochs!=[e for e in QUALITY_EPOCHS if e<=cap]):
-            raise ValueError('S6 requires its exact registered early/full exposure cadence')
+            raise ValueError('S6/S7 requires its exact registered early/full exposure cadence')
         if sorted(set(nav_epochs))!=nav_epochs or not set(nav_epochs)<=set(e for e in epochs if e<=cap)or cap not in nav_epochs:
             raise ValueError('Explicit registered full-NAV exposure cadence required')
         if cap not in(6,8,12,20)or run['optional_epoch_cap']!=20:raise ValueError('Only registered6initial/20optional cap')
@@ -317,6 +388,7 @@ def owner_class():
             for run in self.runs:
                 self.immutable[run['id']].update({k:run.get(k)for k in FIELDS})
                 self.immutable[run['id']]['native_execution']=run.get('native_execution')
+                self.immutable[run['id']]['native_qualification']=run.get('native_qualification')
             self.runs.sort(key=lambda r:r['priority']);self.handoff=False
             publish(self.directory/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),host=socket.gethostname(),source=__file__,source_sha256=sha(__file__),started_unix=time.time()))
         def current(self,arm):

@@ -6,7 +6,7 @@ exporter. No policy scoring is implemented a second time here.
 """
 import argparse,gc,json,os,socket,time
 from pathlib import Path
-from .launch import ROOT,TASK,PROTECTED,ORDER,FAST,QUALITY,INDEPENDENT_FAMILIES,bootstrap,read,sha,publish,validate_registry,inspect_native,register_native_priority_study
+from .launch import ROOT,TASK,PROTECTED,ORDER,FAST,QUALITY,STRUCTURED,INDEPENDENT_FAMILIES,bootstrap,read,sha,publish,validate_registry,inspect_native,register_native_priority_study
 
 
 def native_claim_startup_hold(host,claim,sample,run):
@@ -65,9 +65,30 @@ def validate_native_export_receipt(run,checkpoint,receipt):
            or receipt.get('counts',{}).get('updates')!=checkpoint['updates']
            or not isinstance(protocol,dict)or protocol_sha!=fingerprint(protocol)):
             raise ValueError('S6 export lacks its own exact quality native validation receipt')
+    elif run['id']==STRUCTURED:
+        from .continuation import same_path
+        from starVLA.rl.qwen_world_research_data.manifest import fingerprint
+        import yaml
+        cfg=yaml.safe_load(Path(run['config']).read_text())
+        if(receipt.get('schema')!='world_structured_progress_export_native_validation_v1'or receipt.get('status')!='PASS'
+           or not same_path(receipt.get('checkpoint'),checkpoint['path'])
+           or receipt.get('files_sha256')!=checkpoint['files_sha256']or receipt.get('counts',{}).get('updates')!=checkpoint['updates']
+           or receipt.get('counts',{}).get('next_inner')!=0 or receipt.get('world')!=8 or receipt.get('qualification')is not False
+           or receipt.get('parent_model_sha256')!=cfg['research']['performance']['parent_model_sha256']
+           or receipt.get('structured_progress_protocol_sha256')!=fingerprint(cfg['research']['structured_progress'])):
+            raise ValueError('S7 export lacks its exact structured-progress native validation receipt')
     elif(receipt.get('status')!='PASS'or receipt.get('checkpoint',{}).get('files_sha256')!=checkpoint['files_sha256']):
         raise ValueError('A performance export lacks native validation')
     return receipt
+
+
+
+def native_adoption_command(run,parent,checkpoint,python):
+    """Exact family-native API, including S7's required parent argument."""
+    module=INDEPENDENT_FAMILIES[run['id']]['native_review']
+    if run['id']==STRUCTURED:
+        return [python,'-c',f'import sys;from {module} import load_validated;load_validated(sys.argv[1],sys.argv[2])',str(parent),str(checkpoint)]
+    return [python,'-c',f'import sys;from {module} import load_validated;load_validated(sys.argv[1])',str(checkpoint)]
 
 
 def strict_export(parent,output,checkpoint):
@@ -93,8 +114,7 @@ def strict_export(parent,output,checkpoint):
                 '--parent-checkpoint',str(parent),'--rl-checkpoint',cp['path'],'--output',str(output)],cwd=source,env=env)
         else:
             # Adoption still validates the actual packed pending/cursor schema.
-            subprocess.check_call([MODEL_PYTHON,'-c',
-                f'import sys;from {module} import load_validated;load_validated(sys.argv[1])',cp['path']],cwd=source,env=env)
+            subprocess.check_call(native_adoption_command(run,parent,cp['path'],MODEL_PYTHON),cwd=source,env=env)
         meta=inspect_export(output)
         if meta.get('RL_checkpoint_files_sha256')!=cp['files_sha256']or meta.get('RL_updates')!=cp['updates']:raise ValueError('Independent-family export bound to another checkpoint')
         receipt=Path(output).with_name(Path(output).name+'.native_validation.json')
