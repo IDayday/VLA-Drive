@@ -1,0 +1,24 @@
+{
+  "schema": "world_packed_qualification_PGID_CPU_proof_v1",
+  "status": "PASS",
+  "CUDA_VISIBLE_DEVICES": "",
+  "GPU_operations": false,
+  "owner_pgid": 3823034,
+  "rank_rows": [
+    {
+      "pid": 3823186,
+      "pgid": 3823034,
+      "rank": 0,
+      "expected": 3823034
+    },
+    {
+      "pid": 3823187,
+      "pgid": 3823034,
+      "rank": 1,
+      "expected": 3823034
+    }
+  ],
+  "exact_same_launch_route": "torchrun --run-path --start-method spawn, subprocess start_new_session=False",
+  "bounded_timeout_cleanup": "PASS; only known descendant PID/starttime/PGID; no group/host signals",
+  "source_sha256": "9044877e940ec2d0deaaa7fad4086a65d5881768146556532769731d10d99d02"
+}

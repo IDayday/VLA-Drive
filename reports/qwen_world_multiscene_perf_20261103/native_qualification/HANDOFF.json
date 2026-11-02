@@ -1,0 +1,101 @@
+{
+  "schema": "world_packed_native_qualification_tools_handoff_v1",
+  "status": "CPU_READY_8GPU_QUALIFICATION_NOT_RUN",
+  "created_utc": "2026-11-02T18:56:39.470786+00:00",
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-multiscene-perf-20261103",
+  "base_coherent_commit": "5e43f6edada615fb2e97905e2fedbb3c48fb1c91",
+  "qualification_driver": {
+    "module": "tools.qwen_world_multiscene.native_qualification",
+    "run": "Requires --run; without it only writes PLAN. Owner must hold eight GPU UUID leases before invocation.",
+    "sequence": [
+      "same B128G16/M4 recipe continuous4 with save_every2",
+      "independent same IL70/Adam0 split2",
+      "same split root/checkpoint inner2 native resume to4",
+      "CPU compare both update2 pending checkpoints",
+      "CPU compare both update4 READY checkpoints"
+    ],
+    "scheduling": "None: no SSH, no dispatch, no grants or controller writes",
+    "source_math": "tools.qwen_world_multiscene.train unchanged; all original source sampler/credit/physical anchor/schedule",
+    "scoring": "4096 logical PG scoring requests across two equivalent initial global128 windows; no new NAVTEST or multi-seed training",
+    "process_lifetime": "torchrun --run-path --start-method spawn uses callable multiprocessing; unlike ordinary torchrun -m it does not setsid the rank workers. subprocess start_new_session=False. Bounded per-leg timeout1200s(default), cooperative agent SIGTERM then bounded cleanup of exact known descendant PID/starttime/PGID only.",
+    "output": "PLAN/STATE, 3 original logs, COMPARE_u000002/u000004, COMPLETE only after every real input and comparison pass"
+  },
+  "comparison": {
+    "module": "tools.qwen_world_multiscene.native_review compare --left CP --right CP --output OUT",
+    "validation": "Every COMPLETE/files SHA, exact identity, all eight actual rank-native new boundary validators and sealed transaction summaries, actual Adam/scheduler/stream state, cross-rank valid population and recomputed global std",
+    "exact": [
+      "full current trainables",
+      "Adam step/moments/group state",
+      "scheduler",
+      "8rank Python/Numpy/TorchCPU/CUDA/source-generator RNG",
+      "all learning state including full scene_stream/selection plan",
+      "all pending scientific rollout material including official temporal feedback"
+    ],
+    "excluded": "Only named measured elapsed-runtime fields. Official time-to-collision/infraction seconds remain compared.",
+    "padding": "Actual first window has128valid and0padding expected; exact actual counts are reported. GPU tail-padding claim is not made. Prior coherent CPU tests exercised true invalid slots with zero all-loss weight."
+  },
+  "export_API": {
+    "module": "tools.qwen_world_multiscene.native_review export --parent-checkpoint IL --rl-checkpoint CP --output OUT",
+    "function": "export_native(parent,output,checkpoint,allow_qualification=False)",
+    "CPU_native_validator": "load_validated(cp), then original unmerged deployment.export_checkpoint/inspect_export",
+    "qualification": "Default rejects qualification weights; optional --allow-qualification makes explicitly diagnostic export only; original exporter retains qualification=True",
+    "receipt": "OUT.with_name(OUT.name+'.native_validation.json')",
+    "receipt_schema": "world_packed_export_native_validation_v1",
+    "receipt_fields": {
+      "checkpoint": "resolved CP path string",
+      "files_sha256": "COMPLETE.files_sha256",
+      "identity_sha256": "actual identity SHA",
+      "counts": "actual updates/phase/scene/candidate counts",
+      "micro_scenes": "2 or4"
+    },
+    "evaluation": "Original true B1 native_snapshot loader and model deployment need no mathematical change; only ops must route the strict export guard to this variant-aware module."
+  },
+  "CPU_tests": {
+    "status": "PASS",
+    "passed": 2,
+    "seconds": 4.94,
+    "CUDA_VISIBLE_DEVICES": "",
+    "test": "tests/test_world_packed_native_tools.py",
+    "checks": [
+      "Timing-only differences accepted; rank7 CUDA RNG, rank4 scene cursor and Adam contamination rejected",
+      "Actual TinyScope trainable closure restored through original deployment helper yields exact genuine B1 seed2101 K10shift5 ODE output",
+      "Official temporal seconds are preserved by scientific comparator"
+    ]
+  },
+  "PGID_CPU_proof": {
+    "schema": "world_packed_qualification_PGID_CPU_proof_v1",
+    "status": "PASS",
+    "CUDA_VISIBLE_DEVICES": "",
+    "GPU_operations": false,
+    "owner_pgid": 3823034,
+    "rank_rows": [
+      {
+        "pid": 3823186,
+        "pgid": 3823034,
+        "rank": 0,
+        "expected": 3823034
+      },
+      {
+        "pid": 3823187,
+        "pgid": 3823034,
+        "rank": 1,
+        "expected": 3823034
+      }
+    ],
+    "exact_same_launch_route": "torchrun --run-path --start-method spawn, subprocess start_new_session=False",
+    "bounded_timeout_cleanup": "PASS; only known descendant PID/starttime/PGID; no group/host signals",
+    "source_sha256": "9044877e940ec2d0deaaa7fad4086a65d5881768146556532769731d10d99d02"
+  },
+  "prepare_smoke": "/mnt/project/qwen-world-performance-rl-20261103/benchmarks/NATIVE_PACK4_PLAN_CPU/PLAN.json",
+  "source_files": {
+    "tools/qwen_world_multiscene/native_qualification.py": "9044877e940ec2d0deaaa7fad4086a65d5881768146556532769731d10d99d02",
+    "tools/qwen_world_multiscene/native_review.py": "e8a652f0d373d8c4aab2e44de774d4ba374f1f25e0b353038651ac98db32f093",
+    "tests/test_world_packed_native_tools.py": "00dc743deb452585fc66bf4ba9844b00e739ede5413b665bea7aecef7a58a053"
+  },
+  "limitations": [
+    "No eight-GPU job launched by this agent; the requested full52.7M DDP/native equality remains the next owner-run gate",
+    "CPU B1 proof uses actual TinyScope and original deployment adapters, not a full2B Qwen export or new score",
+    "Formal source_v1/coherent_v2 and currently running jobs unchanged; new scripts only"
+  ],
+  "next_frozen_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/multiscene_native_v3"
+}
