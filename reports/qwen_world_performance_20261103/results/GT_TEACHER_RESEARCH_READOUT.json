@@ -1,0 +1,642 @@
+{
+  "GT_failure_examples": [
+    {
+      "GT": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 1.0,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.8333333333333334,
+        "time_to_collision_within_bound": 1.0
+      },
+      "baseline": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 1.0,
+        "no_at_fault_collisions": 1.0,
+        "score": 1.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "gain": -0.16666666666666663,
+      "log": "2021.06.23.17.31.36_veh-16_02795_04024",
+      "scene_path": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/scenes/5394b1365bbe5636.json",
+      "token": "5394b1365bbe5636"
+    }
+  ],
+  "artifacts": {
+    "budget": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/BUDGET_LEDGER.json",
+    "completion": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/COMPLETE.json",
+    "input_join": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/INPUT_JOIN_AND_VALIDITY.json",
+    "per_scene_json": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/scenes",
+    "protocol": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/PROTOCOL.json",
+    "scene_table": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/SCENES.jsonl",
+    "summary": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/SUMMARY.json",
+    "trajectory_npz": "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/TRAJECTORIES.npz"
+  },
+  "created_at": "2026-11-02T20:09:48.573250+00:00",
+  "limitations": [
+    "TRAIN2048 diagnostic only; no NAVTEST trajectory/label/teacher; not new generalization score.",
+    "Logged human GT is privileged offline TRAIN supervision, not an oracle or actor input.",
+    "Scores use fixed official reference plus exactly one GT candidate per scene; reference never replaced.",
+    "Raw timing-invalid whole trajectories are unscored, not zero rewards; no interpolation.",
+    "GT has no on-policy log probability/advantage and is not eligible for PPO credit.",
+    "A good GT alongside a bad B1 alone does not prove G16 has no successful candidate.",
+    "No GT teacher has been admitted into any bank, S6, registered algorithm or current run.",
+    "FP32 norm/denorm can change requested bits; this score certifies original physical FP32 GT only."
+  ],
+  "matched_legal_2035": {
+    "B1_mean_PDMS": 93.97438472574758,
+    "GT_privileged_trajectory_mean_PDMS": 94.91274637253704,
+    "delta_PDMS": 0.9383616467894651,
+    "full2048_B1_PDMS": 93.9811345243349,
+    "not_a_learned_policy_improvement": true
+  },
+  "next_hypothesis": {
+    "avoid_blind_imitation": "\u5df2strict\u4e14GT\u65e0\u5b9e\u9645\u6539\u5584\u8005\u4e0d\u5e94\u5f3a\u62c9\uff1b\u672c\u6b21GT\u4e0b\u964d\u5206\u5e03\u76f4\u63a5\u652f\u6301\u8d28\u91cf\u548cgain\u53cc\u95e8\u3002",
+    "does_not_prove_G16_starvation": "\u672c\u6b21\u6ca1\u6709\u540ctheta G16\u9010scene\u5019\u9009\uff0c\u4e0d\u80fd\u628a15\u4e2aB1\u96f6\u5206\u5168\u79f0\u63a2\u7d22\u4e0d\u5230\uff1b\u9700\u8981\u5148\u5408\u6cd5join\u5df2\u6709\u540ctheta sampled candidates\u3002",
+    "mechanism": "\u5f53\u771f\u5b9eTRAIN B1\u4e0d\u5408\u683c\u4e14\u540ctheta G16\u65e0\u9ad8\u8d28\u91cf\u89c1\u8bc1\u65f6\uff0c\u72ec\u7acb\u65b0\u5bf9\u7167\u53ef\u8003\u8651\u4e25\u683c\u9a8c\u8bc1\u4e14\u589e\u76ca\u8db3\u591f\u7684\u5408\u6cd5TRAIN GT\u4f5c\u4e3a\u989d\u5916CFM/ODE-last\u76d1\u7763\uff1bGT\u4e0d\u5f97\u8fdb\u5165PPO rewards/oldlogp/advantage\u3002",
+    "scope": "\u4ec5\u53d1\u73b0\u6027\u8bca\u65ad\uff1b\u4efb\u4f55\u65b0teacher\u89c4\u8303\u3001\u5f52\u4e00\u5316\u7aef\u70b9\u91cd\u65b0\u8bc4\u5206\u3001\u635f\u5931\u6743\u91cd\u4e0eGPU\u8bad\u7ec3\u9700\u5355\u72ec\u660e\u786e\u767b\u8bb0\u3002",
+    "status": "UNREGISTERED_NOT_IMPLEMENTED"
+  },
+  "normalization_roundtrip": {
+    "bitexact_count": 0,
+    "future_normalized_teacher_must_revalidate_if_request_bits_change": true,
+    "max_abs_error_by_dimension": [
+      3.814697265625e-06,
+      2.86102294921875e-06,
+      1.7881393432617188e-07
+    ],
+    "total": 2048
+  },
+  "population": {
+    "NAVTEST_token_and_physical_disjoint": true,
+    "NAVTEST_trajectory_or_label_read": false,
+    "baseline_metric_mean_max_error": 2.4424906541753444e-15,
+    "baseline_strict_high": 1616,
+    "baseline_zero": 15,
+    "input_count": 2048,
+    "input_files_sha256": {
+      "/mnt/project/qwen-world-performance-rl-20261103/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/PREPARED.json": "85630ac85cf68a295ff1cc481352f101004301092e64c80c3b74633fc757ccbd",
+      "/mnt/project/qwen-world-performance-rl-20261103/diagnostics/IL70_TRAIN2048/identity.json": "03fb55c62301f7214172c29e7af2977533c85406398656616e079a126bbbba12",
+      "/mnt/project/qwen-world-performance-rl-20261103/diagnostics/TRAIN2048.json": "7cd2c892dc8c2bd2cb16e6cba05a2bbd9dc8fe3d51e7138837aa45e50f780aa0"
+    },
+    "invalid_time_count": 13,
+    "invalid_time_details": [
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          -0.00028600000000000847,
+          -0.0005500000000000504,
+          0.4996559999999999,
+          0.5000179999999999,
+          0.5003789999999997,
+          0.5001939999999996,
+          0.4998969999999998,
+          0.49964299999999984
+        ],
+        "log": "2021.06.14.17.26.26_veh-38_01860_02729",
+        "raw_future_dt_seconds": [
+          0.499714,
+          0.499736,
+          1.000206,
+          0.500362,
+          0.500361,
+          0.499815,
+          0.499703,
+          0.499746
+        ],
+        "token": "019cf9fb0bbe560c"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          7.999999999996898e-05,
+          0.5001989999999998,
+          0.5001720000000001,
+          0.500013,
+          0.49979700000000005,
+          0.4996260000000001,
+          0.4994390000000002,
+          0.4995060000000002
+        ],
+        "log": "2021.06.23.16.52.00_veh-26_01043_03099",
+        "raw_future_dt_seconds": [
+          0.50008,
+          1.000119,
+          0.499973,
+          0.499841,
+          0.499784,
+          0.499829,
+          0.499813,
+          0.500067
+        ],
+        "token": "0692f3f8ff0950d7"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          -5.8000000000002494e-05,
+          4.8000000000048004e-05,
+          0.00021500000000007624,
+          0.0002300000000001745,
+          0.49984600000000023,
+          0.499676,
+          0.4997220000000002,
+          0.500108
+        ],
+        "log": "2021.06.14.14.03.45_veh-38_00780_01007",
+        "raw_future_dt_seconds": [
+          0.499942,
+          0.500106,
+          0.500167,
+          0.500015,
+          0.999616,
+          0.49983,
+          0.500046,
+          0.500386
+        ],
+        "token": "2ba0ec93e88b580a"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          2.9999999999752447e-06,
+          9.900000000007125e-05,
+          0.000320000000000098,
+          0.0005779999999999674,
+          0.0005730000000001567,
+          0.000396000000000285,
+          0.5004530000000003,
+          0.5004800000000005
+        ],
+        "log": "2021.06.07.17.46.49_veh-35_04084_04828",
+        "raw_future_dt_seconds": [
+          0.500003,
+          0.500096,
+          0.500221,
+          0.500258,
+          0.499995,
+          0.499823,
+          1.000057,
+          0.500027
+        ],
+        "token": "308ca6dda6eb515a"
+      },
+      {
+        "IL_action_valid_mask": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          0.5005299999999999,
+          0.5006749999999998,
+          0.5004139999999997,
+          0.5001609999999999,
+          0.49992899999999985,
+          0.49984899999999977,
+          0.5002139999999997,
+          0.5004469999999994
+        ],
+        "log": "2021.06.08.18.18.30_veh-38_01241_01417",
+        "raw_future_dt_seconds": [
+          1.00053,
+          0.500145,
+          0.499739,
+          0.499747,
+          0.499768,
+          0.49992,
+          0.500365,
+          0.500233
+        ],
+        "token": "3f6202b6069a56c2"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          0.00022200000000005549,
+          0.5004930000000001,
+          0.5007700000000002,
+          0.5010120000000002,
+          0.5009740000000003,
+          0.5005810000000004,
+          0.500191,
+          0.4998079999999998
+        ],
+        "log": "2021.06.14.11.44.56_veh-35_03389_04017",
+        "raw_future_dt_seconds": [
+          0.500222,
+          1.000271,
+          0.500277,
+          0.500242,
+          0.499962,
+          0.499607,
+          0.49961,
+          0.499617
+        ],
+        "token": "5dfee19584bd5eef"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          -0.00015700000000001824,
+          -0.0004750000000000032,
+          -0.0007239999999999469,
+          -0.0009459999999998914,
+          -0.0007340000000000124,
+          0.499752,
+          0.4999380000000002,
+          0.9994529999999999
+        ],
+        "log": "2021.06.14.17.26.26_veh-38_03414_03761",
+        "raw_future_dt_seconds": [
+          0.499843,
+          0.499682,
+          0.499751,
+          0.499778,
+          0.500212,
+          1.000486,
+          0.500186,
+          0.999515
+        ],
+        "token": "769a48d198a951a7"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          -0.00027199999999999447,
+          -0.00043799999999993844,
+          -0.00045600000000001195,
+          -0.00034700000000009723,
+          -0.0003370000000000317,
+          -0.0002849999999998687,
+          0.4996430000000003,
+          0.4997240000000005
+        ],
+        "log": "2021.06.23.15.18.10_veh-26_00165_02848",
+        "raw_future_dt_seconds": [
+          0.499728,
+          0.499834,
+          0.499982,
+          0.500109,
+          0.50001,
+          0.500052,
+          0.999928,
+          0.500081
+        ],
+        "token": "85146783b2825af3"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          0.0001100000000000545,
+          0.0001820000000001265,
+          0.00023499999999998522,
+          0.0003859999999997754,
+          0.0004450000000000287,
+          0.5008049999999997,
+          0.5008459999999992,
+          0.5007199999999994
+        ],
+        "log": "2021.06.23.15.18.10_veh-26_00165_02848",
+        "raw_future_dt_seconds": [
+          0.50011,
+          0.500072,
+          0.500053,
+          0.500151,
+          0.500059,
+          1.00036,
+          0.500041,
+          0.499874
+        ],
+        "token": "cb9cf2fa49665c78"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          0.000144000000000033,
+          0.00022400000000000198,
+          0.00034800000000001496,
+          0.00042600000000003746,
+          0.500318,
+          0.5004430000000002,
+          0.5005190000000006,
+          0.5008200000000009
+        ],
+        "log": "2021.06.08.14.14.51_veh-35_00893_01188",
+        "raw_future_dt_seconds": [
+          0.500144,
+          0.50008,
+          0.500124,
+          0.500078,
+          0.999892,
+          0.500125,
+          0.500076,
+          0.500301
+        ],
+        "token": "e025f8b7925553a4"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          6.999999999979245e-06,
+          -8.500000000000174e-05,
+          -9.199999999998099e-05,
+          0.4998610000000001,
+          0.49978900000000026,
+          0.4996360000000002,
+          0.4994160000000001,
+          0.4991960000000004
+        ],
+        "log": "2021.06.14.16.48.02_veh-12_01020_01720",
+        "raw_future_dt_seconds": [
+          0.500007,
+          0.499908,
+          0.499993,
+          0.999953,
+          0.499928,
+          0.499847,
+          0.49978,
+          0.49978
+        ],
+        "token": "e4092327ac7456e5"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          0.00027999999999994696,
+          0.0005139999999999034,
+          0.0005959999999998189,
+          0.5000119999999999,
+          0.49965899999999985,
+          0.999333,
+          0.9994509999999996,
+          0.9996639999999992
+        ],
+        "log": "2021.06.14.13.27.42_veh-35_01472_01666",
+        "raw_future_dt_seconds": [
+          0.50028,
+          0.500234,
+          0.500082,
+          0.999416,
+          0.499647,
+          0.999674,
+          0.500118,
+          0.500213
+        ],
+        "token": "e9b0d4743b3f5256"
+      },
+      {
+        "IL_action_valid_mask": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "fixed_time_error_seconds": [
+          5.8000000000002494e-05,
+          0.00024399999999991095,
+          0.00035399999999996545,
+          0.00042600000000003746,
+          0.0004789999999998962,
+          0.0006300000000001305,
+          0.0006890000000003837,
+          0.5010490000000001
+        ],
+        "log": "2021.06.23.15.18.10_veh-26_00165_02848",
+        "raw_future_dt_seconds": [
+          0.500058,
+          0.500186,
+          0.50011,
+          0.500072,
+          0.500053,
+          0.500151,
+          0.500059,
+          1.00036
+        ],
+        "token": "f6e6bf57582d5373"
+      }
+    ],
+    "max_abs_time_error_seconds_valid": 0.014877000000000251,
+    "normalized_outside_minus1_plus1_count": 0,
+    "official_FP32_GT_reconstruction_bitexact_count": 2048,
+    "old_DEV_in_existing_NAVTRAIN_count": 40,
+    "physical_log_count": 156,
+    "raw_log_segment_count": 733,
+    "schema": "world_TRAIN_GT_input_join_validity_v1",
+    "sha256": "3b4b7c81d0f56f121f96457c3a711653f294dd8c6d30f2487c66be76372f053b",
+    "source_TRAIN_count": 2008,
+    "status": "PASS",
+    "token_lists_exact": true,
+    "token_log_joins_exact": true,
+    "valid_whole_trajectory_count": 2035
+  },
+  "quality": {
+    "comfort": {
+      "equal_one": 2034,
+      "mean": 0.9995085995085995
+    },
+    "drivable_area_compliance": {
+      "equal_one": 2035,
+      "mean": 1.0
+    },
+    "driving_direction_compliance": {
+      "equal_one": 1989,
+      "mean": 0.9845208845208845
+    },
+    "ego_progress": {
+      "equal_one": 774,
+      "mean": 0.8781024731374495
+    },
+    "no_at_fault_collisions": {
+      "equal_one": 2035,
+      "mean": 1.0
+    },
+    "score": {
+      "equal_one": 773,
+      "mean": 0.9491274637253705
+    },
+    "time_to_collision_within_bound": {
+      "equal_one": 2035,
+      "mean": 1.0
+    }
+  },
+  "query_budget": {
+    "GPU_model_forwards": 0,
+    "GT_candidates_per_scene": 1,
+    "actual": 2035,
+    "baseline_feedback_reused": 2048,
+    "baseline_rescored": 0,
+    "duplicate_token_queries": 0,
+    "maximum_new_PDM_candidate_queries": 2048,
+    "new_CPU_scoring_wall_seconds": 129.375065,
+    "official_reference_proposal_rows": 2035,
+    "pilot_queries": 31,
+    "pilot_repeated_in_full": 0,
+    "preflight_attempt001": "SUMMARY schema integer-vs-dict reader bug; corrected before any PDM query; original log retained",
+    "remaining_full_queries": 2004,
+    "total_simulated_reference_plus_GT_proposal_rows": 4070,
+    "training_updates": 0,
+    "unused": 13,
+    "workers": 4
+  },
+  "schema": "world_TRAIN_GT_teacher_research_readout_v1",
+  "sha256": "db2972ac41221ad8478e549d972f013ce09d6d978f29c36e9a3b2a093c36c218",
+  "status": "COMPLETE_DISCOVERY_ONLY_NOT_TRAINING",
+  "summary_zh": [
+    "2048\u573a\u666f\u7684\u539fIL\u6807\u7b7e\u5168\u90e8\u4e0e\u5b98\u65b9Scene\u4ece\u771f\u5b9eTRAIN\u65e5\u5fd7\u91cd\u5efa\u7684FP32\u4f4d\u59ff\u9010\u4f4d\u76f8\u540c\uff1b\u540e\u8f74\u5c40\u90e8\u5750\u6807\u30018\u70b90.5\u52304\u79d2\u3001\u76f8\u5bf9heading\u5f27\u5ea6\u5df2\u6838\u3002",
+    "13\u6761\u539f\u59cb\u65e5\u5fd7\u5b58\u5728\u65f6\u95f4\u7f3a\u53e3\uff0c8\u70b9IL\u65f6\u95f4mask\u4e0d\u5168\u901a\u8fc7\uff1b\u6574\u6761\u4e0d\u8bc4\u5206\u3001\u4e0d\u5f53\u96f6\u5206\u3002\u5176\u4f592035\u573a\u666f\u7684cache SHA\u3001rear-axle\u521d\u59cb\u4f4d\u59ff\u53catimestamp\u4e0e\u539fIL70 B1\u4e25\u683c\u4e00\u81f4\u3002",
+    "\u539fB1\u96f6\u520615\u4e2a\uff1aGT\u5168\u90e8NC/DAC/TTC/Comfort\u901a\u8fc7\uff0c11\u4e2ascore>=.9\uff1b\u53e6\u59164\u4e2ascore\u5728.8564\u5230.8913\uff0c\u5b89\u5168\u4f46\u4e0d\u6ee1\u8db3\u672c\u6b21\u9ad8\u5206\u6559\u5e08\u95e8\u69db\u3002",
+    "\u5168\u4f53\u6709245\u6761GT strict-high\u4e14\u76f8\u5bf9\u771f\u5b9eB1 gain>.005\uff0c67\u6761gain>=.02\uff1bB1\u672c\u5df2strict4\u8005\u5206\u522b223/45\uff0cB1\u672c\u5df2strict-high\u8005\u5206\u522b197/33\u3002",
+    "GT\u4e0d\u662f\u65e0\u6761\u4ef6\u66f4\u597d\uff1a255/2035\u6761GT\u6bd4B1\u4e0b\u964d>.005\uff1b\u57281606\u4e2a\u5df2strict-high\u4e14\u65f6\u95f4\u5408\u6cd5\u7684B1\u573a\u666f\u4e2d\u6709170\u6761\u4e0b\u964d\u3002\u5b58\u57281\u6761GT Comfort=0\u3002",
+    "\u8fd9\u662f\u65b0\u79bb\u7ebf\u76d1\u7763\u673a\u4f1a\u7684\u53d1\u73b0\uff0c\u4e0d\u662f\u65b0\u7b56\u7565\u5206\u6570\uff1b\u6ca1\u6709\u8bad\u7ec3\u3001\u6ca1\u6709\u4fee\u6539S6\u6216\u6b63\u5f0frun\uff0c\u4e5f\u6ca1\u6709\u628a\u5386\u53f2GT\u6df7\u5165on-policy\u4f18\u52bf\u3002"
+  ],
+  "title": "\u771f\u5b9eTRAIN GT\u80fd\u5426\u4e3aB1\u96f6\u5206\u4e0e\u4f4e\u6548\u573a\u666f\u63d0\u4f9b\u5df2\u9a8c\u8bc1\u6559\u5e08",
+  "verified_opportunity": {
+    "B1_low_but_strict4_GT_strict_high_gain_gt005": 26,
+    "B1_low_but_strict4_count": 401,
+    "B1_strict4_GT_gain_gt005_without_high_gate": 315,
+    "B1_strict4_GT_strict_high_gain_ge02": 45,
+    "B1_strict4_GT_strict_high_gain_gt005": 223,
+    "B1_strict4_count": 2007,
+    "B1_strict_high_GT_strict_high_gain_ge02": 33,
+    "B1_strict_high_GT_strict_high_gain_gt005": 197,
+    "B1_strict_high_count": 1606,
+    "all_ge02": 67,
+    "all_gt005": 245,
+    "source_breakdown": {
+      "old_DEV_in_existing_NAVTRAIN": {
+        "scored": 40,
+        "witness_ge02": 4,
+        "witness_gt005": 6
+      },
+      "source_TRAIN": {
+        "scored": 1995,
+        "witness_ge02": 63,
+        "witness_gt005": 239
+      }
+    },
+    "strong_witnesses_by_baseline": {
+      "other_positive": 23,
+      "strict_high": 33,
+      "zero": 11
+    },
+    "zero_GT_score_range": [
+      0.8564095416775945,
+      1.0
+    ],
+    "zero_count": 15,
+    "zero_strict4": 15,
+    "zero_strict_high": 11
+  }
+}

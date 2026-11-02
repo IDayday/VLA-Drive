@@ -89,7 +89,8 @@ def test_immutable_cache_hits_copy_zero_and_preserve_values_gradients(monkeypatc
     from starVLA.rl.qwen_world_multiscene.recovery import validate_boundary
     c=yaml.safe_load(open('/mnt/project/qwen-world-performance-rl-20261103/configs/S0_LARGE_SAFETYEP.yaml'));c=build_recipe(c,2)
     rt=FastPackedRuntime();rt.cfg=c;rt.spec=c['research']['performance'];rt.actor=a;rt.group_size=16
-    args=SimpleNamespace(manifest='/mnt/project/qwen-world-performance-rl-20261103/data/NAVTRAIN_SCENES.json')
+    args=SimpleNamespace(manifest='/mnt/project/qwen-world-performance-rl-20261103/data/NAVTRAIN_SCENES.json',frozen_reference_cache=False)
+    rt.args=args
     stream=rt.make_scene_stream(c,args,8);optimizer=rt.make_optimizer(a,c);scheduler=rt.make_scheduler(optimizer,c)
     state=dict(updates=0,collections=0,raw_scene_exposures=0,new_candidates=0,next_inner=0,scene_cursor=0,phase='READY')
     ident=dict(recipe=c,sha256='CPU_coherent_ready',world=8,data_stream_identity=stream.identity,packed_execution=c['research']['packed_execution'])

@@ -14,6 +14,9 @@ def sealed(v):return dict(v,sha256=fingerprint(v))
 
 def test_existing_seven_and_optional_only_eighth_family_with_exact_packed_export_receipt(tmp_path,monkeypatch):
     real=L.read(L.ROOT/'RUNS.json');L.validate_registry(real)
+    # Model the pre-admission registry even after optional families are live.
+    # This is a private fixture; the actual campaign is never rewritten.
+    real['runs']=[r for r in real['runs']if r['id']in L.BASE_ORDER]
     # Recipe mathematics is separately qualified by the packed science source.
     # This fixture tests family admission without importing or changing it.
     base=next(r for r in real['runs']if r['id']=='S0_LARGE_SAFETYEP');cfg=yaml.safe_load(Path(base['config']).read_text())
