@@ -147,6 +147,24 @@ def train19_evidence(root):
         cohorts=value.get('cohorts',{}),budget=value.get('actual_budget',{}))
 
 
+def S6_live_evidence(root):
+    path=root/'analysis/S6_LIVE_ACTIVATION_REVIEW.json';value=read(path,{})
+    if (value.get('schema')!='world_S6_live_activation_research_review_v1'
+            or not value.get('status','').startswith(('INITIAL_PREFIX_','COMPLETE'))
+            or value.get('rank_count')!=8 or value.get('common_updates',0)<1):return {}
+    cases=[c for c in value.get('allzero_PG0_cases',[]) if c.get('rawA_PG0')]
+    gradients=value.get('gradient_diagnostics',{})
+    return dict(path=str(path),file_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        status=value['status'],analysis_at=value.get('analysis_at'),common_updates=value['common_updates'],
+        rank_count=value['rank_count'],rank_update_rows=value.get('rank_update_rows'),
+        quality=value.get('window_quality_counts',{}),gates=value.get('teacher_gates',{}),
+        alpha=value.get('alpha_budget',{}),queries=value.get('query_cost',{}),
+        PG0_cases_observed=len(cases),PG0_B1_full_score=sum(c.get('nominal_score')==1. for c in cases),
+        local_components=gradients.get('conditional_teacher_slot_component_norms',{}),
+        DDP_total=gradients.get('actual_DDP_reduced_total_gradient_norm',{}),
+        combined_aux_gradient_norm=gradients.get('combined_aux_gradient_norm'))
+
+
 def current_runs(root, registry, owner):
     now=time.time();runs=[]
     for registered in registry.get('runs',[]):
@@ -250,6 +268,7 @@ def snapshot(root=ROOT):
         TRAIN2048_quality=read(root/'diagnostics/IL70_TRAIN2048/QUALITY.json',{}),
         verified_quality=verified_quality_evidence(root),TRAIN_GT=train_GT_evidence(root),TRAIN19=train19_evidence(root),
         S6_fresh=read(root/'operations/S6_FORMAL_LAUNCH/FRESH_IL70_ADAM0_PROOF.json',{}),
+        S6_live=S6_live_evidence(root),
         full_TRAIN_census=read(root/'diagnostics/FULL_TRAIN_REGISTRATION.json',{}))
 
 
@@ -267,6 +286,21 @@ def verified_quality_fragment(s):
     if (fresh.get('status')=='PASS' and fresh.get('optimizer_state_entries')==0
             and fresh.get('from_other_RL_checkpoint') is False and fresh.get('qualification_weights_used') is False):
         body+='<p>正式 native0 已核对同一 IL70、空 Adam 状态与零场景曝光；不是从资格或其它 RL 权重继续。<a href="'+esc(ROOT/'operations/S6_FORMAL_LAUNCH/FRESH_IL70_ADAM0_PROOF.json')+'">fresh IL70 / Adam0 启动证据</a>。实际在训数量仍只由八 rank 新日志决定。</p>'
+    live=s['S6_live']
+    if live:
+        quality=live['quality'];g=live['gates'];a=live['alpha'];q=live['queries']
+        body+='<aside style="background:#edf7f4;border-left:4px solid #16816c;padding:12px 16px"><h4>正式 S6 已验证到什么</h4><p>分析截至共同 Adam '+esc(live['common_updates'])+'，覆盖八 rank 的 '+esc(live['rank_update_rows'])+' 条更新日志、'+esc(quality.get('valid_scenes'))+' 个去重新鲜 TRAIN 场景；分析时间 '+esc(live['analysis_at'])+'。</p>'
+        body+=table(['实际机制','已观测结果'],[
+            ('真实教师门控','修复 '+str(g.get('repair_enabled'))+'/'+str(g.get('repair_scenes'))+'，α='+str(a.get('alpha_repair'))+'；已高分精修 '+str(g.get('already_strict_high_enabled'))+'/'+str(g.get('already_strict_high_scenes'))+'，α='+str(a.get('alpha_already_strict_high'))),
+            ('全场景平均原 β 预算',f'IL {100*a["reconstructed_IL_share_all_valid"]:.2f}% / 辅助 {100*a["mean_alpha_all_valid_scenes"]:.2f}%；是系数预算，不是梯度比例'),
+            ('实际评分分账','PG '+str(q.get('main_fresh_PG'))+' + 真 B1 '+str(q.get('true_B1'))+' + 条件独立 G16 '+str(q.get('conditional_teacher_only_extra_G16'))+' = '+str(q.get('total_actual_candidate_queries'))+f'；额外/PG {100*q["additional_over_PG_fraction"]:.2f}%（不是 GPU 时间）'),
+            ('两种零分别核对','候选官方全零组 '+str(g.get('main_canonical_allzero'))+'；rawA 全零 PG0 组 '+str(g.get('main_rawA_PG0'))+'；PG0 明细中 B1 满分 '+str(live['PG0_B1_full_score'])+'/'+str(live['PG0_cases_observed']))])
+        local=live['local_components'];ddp=live['DDP_total']
+        cfm=local.get('nominal_scaled_cfm_gradient_norm_last_measured',{}).get('mean')
+        ode=local.get('nominal_scaled_ode_gradient_norm_last_measured',{}).get('mean')
+        if cfm is not None and ode is not None and ddp.get('mean') is not None:
+            body+='<p>已测条件局部分量范数均值：scaled CFM '+esc(f'{cfm:.6g}')+'、ODE '+esc(f'{ode:.6g}')+'；DDP 归约后总梯度范数均值 '+esc(f'{ddp["mean"]:.6g}')+'。两者归约与分母不同，不能直接相除；辅助联合向量范数和梯度夹角尚未记录。</p>'
+        body+='<p><b>这里只证明门控与有效辅助路径已激活，未证明更新后的 B1 吸收或 NAVTEST 提升。</b>同一 collection 的四 inner 不重复计新评分；条件额外池是独立 G16，不是 TRAIN19 的真 batch32。无信号的采样组与部署 B1 失败也不能互相等同。<a href="'+esc(live['path'])+'">完整正式激活审核</a></p></aside>'
     if proof:
         classes=proof['teacher_classes'];summary=proof['summary'];r=proof['rank0']
         state=r.get('final_calibration_state',{});norms=state.get('last_norms',{})
