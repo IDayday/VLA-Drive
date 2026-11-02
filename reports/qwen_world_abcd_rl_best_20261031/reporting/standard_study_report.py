@@ -573,7 +573,7 @@ def _potential_front(report_root,studies,h):
     return '<section id="rl-potential"><h2>阶段性收益还有提升能力吗：最新诊断与下一步</h2>'+body+'</section>'
 
 
-def render_related(report_root,studies,h,native_summary=None):
+def render_related(report_root,studies,h,native_summary=None,review=None):
     if not studies:return ''
     from research_report import figure
     bodies=[];current_bodies=[];integrated_bodies=[];has_integrated=any(is_integrated(s)for s in studies)
@@ -743,7 +743,7 @@ def render_related(report_root,studies,h,native_summary=None):
         (current_bodies if improvement else bodies).append(document)
     import importlib,latest_complete_report
     importlib.reload(latest_complete_report)
-    latest=latest_complete_report.build_review(studies)
+    latest=review if review is not None else latest_complete_report.build_review(studies)
     latest_path=report_root/'analysis'/'REPORT_LATEST_COMPLETE_REVIEW_20261101'/'SUMMARY.json'
     h.atomic_json(latest_path,latest)
     return ''.join(integrated_bodies)+latest_complete_report.render_review(report_root,latest,latest_path,h)+''.join(current_bodies)+_potential_front(report_root,studies,h)+_benefit_front(report_root,studies,h)+''.join(bodies)
