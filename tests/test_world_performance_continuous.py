@@ -59,24 +59,31 @@ def test_prechild75_and_pending_resource_return_never_redispatch_short_attempt(t
  from tools.qwen_world_safety_exploration import dispatch as D
  from starVLA.rl.qwen_world_safety_exploration import contracts as CT
  monkeypatch.setattr(CT,'authorization',lambda:({},None));monkeypatch.setattr(CT,'allowed_hosts',lambda **kw:[]);monkeypatch.setattr(CT,'ROOT',L.ROOT)
- Owner=L.owner_class();monkeypatch.setattr(L,'ROOT',tmp_path);monkeypatch.setattr(L.time,'sleep',lambda s:None)
+ Owner=L.owner_class();monkeypatch.setattr(L,'ROOT',tmp_path);monkeypatch.setattr(L.time,'sleep',lambda s:(_ for _ in()).throw(AssertionError('confirmed legacy return must handoff directly, not loop or sleep')))
  o=Owner.__new__(Owner);o.mutex=threading.RLock();o.directory=tmp_path/'owner';o.directory.mkdir();o.handoff=False
- run=dict(id='S1',native_execution=C.PROTOCOL,target_updates=16,root=str(tmp_path/'runs/S1'),source='fixed')
- node=dict(job=str(tmp_path/'jobs/S1/old'),host='h');o.stage=lambda *a:node;o.current=lambda a:run;o.update=lambda *a,**kw:None
+ run=dict(id='S1',native_execution=C.PROTOCOL,native_gates=[8,16],target_updates=16,root=str(tmp_path/'runs/S1'),source='fixed')
+ command=['fixed-trainer','--stop-after-update','8'];node=dict(job=str(tmp_path/'jobs/S1/old'),host='h',command=list(command));o.stage=lambda *a:node;o.current=lambda a:run;o.update=lambda *a,**kw:None
  o.candidate=lambda r:(_ for _ in()).throw(AssertionError('no short redispatch'))
  monkeypatch.setattr(D,'job_state',lambda p:dict(returncode=75,child_not_started=True))
  assert o.run_stage(run,8,None)is None
  assert not node.get('complete')and node['future_attempt_target_updates']==16 and len(node['resource_refusals'])==1
+ assert node['command']==command and C.attempt_targets(run,dict(stages={'8':node}),tmp_path)==[16]
  # A legitimate source-boundary EXIT0 with inner3 similarly carries its
  # exact pending checkpoint onward; no new rollout/Adam step occurs here.
- node.clear();node.update(job=str(tmp_path/'jobs/S1/old2'),host='h')
+ node.clear();node.update(job=str(tmp_path/'jobs/S1/old2'),host='h',command=list(command))
  dump(Path(run['root'])/'latest.json',dict(updates=7,checkpoint='own-sealed-inner3'))
  monkeypatch.setattr(D,'job_state',lambda p:dict(returncode=0))
  monkeypatch.setattr(L,'inspect_native',lambda r,p:dict(updates=7,next_inner=3,path=p))
  monkeypatch.setattr(L,'resource_return',lambda *a,**kw:dict(reason='EXACT_NATIVE_RESOURCE_BOUNDARY'))
  assert o.run_stage(run,8,None)=='own-sealed-inner3'
  assert not node.get('complete')and len(node['resource_returns'])==1
+ assert node['command']==command and node['future_attempt_target_updates']==16 and C.attempt_targets(run,dict(stages={'8':node}),tmp_path)==[16]
  # A true child failure is retained, never converted to cap continuation.
  node.clear();node.update(job=str(tmp_path/'jobs/S1/failed'),host='h');monkeypatch.setattr(D,'job_state',lambda p:dict(returncode=1))
+ with pytest.raises(RuntimeError,match='Real child failure'):o.run_stage(run,8,None)
+ assert node['job'].endswith('/failed')
+
+ # An unproven75 with child_started/unknown is a failure, not a capacity handoff.
+ monkeypatch.setattr(D,'job_state',lambda p:dict(returncode=75,child_not_started=False))
  with pytest.raises(RuntimeError,match='Real child failure'):o.run_stage(run,8,None)
  assert node['job'].endswith('/failed')

@@ -362,12 +362,7 @@ def owner_class():
                 if not node.get('job')and((ROOT/'STOP_REQUESTED').exists()or run.get('disposition')):raise StopBeforeDispatch('Explicit stop/reserve prevents new work')
                 from .continuous import enabled
                 if not node.get('job')and enabled(run)and target!=run['target_updates']:
-                    # The old exact job was harvested/refused/returned. Never
-                    # launch another short attempt or mark this gate complete.
-                    with self.mutex:
-                        node.update(status='LEGACY_ATTEMPT_RETURNED_CONTINUE_TO_CAP',future_attempt_target_updates=run['target_updates'])
-                        self.update(arm,status='CONTINUING_TO_REGISTERED_CAP')
-                    return resume
+                    raise ValueError('Continuous planner must not dispatch a new short attempt')
                 if not node.get('job'):
                     exact=Path(run['root'])/'checkpoints'/f'update{target:06}_inner0'
                     if(exact/'COMPLETE').exists():
@@ -403,7 +398,12 @@ def owner_class():
                 self.update(arm,status='TRAINING'if result.get('status')=='RUNNING'else result.get('status','STARTING'),updates=u,stage_target_updates=target,job=node['job'],host=node['host'])
                 if result.get('returncode')==75 and result.get('child_not_started')is True:
                     with self.mutex:
-                        node.setdefault('resource_refusals',[]).append(dict(job=node.pop('job'),result=result));self.update(arm,status='WAITING_RESOURCE')
+                        node.setdefault('resource_refusals',[]).append(dict(job=node.pop('job'),result=result))
+                        if enabled(run)and target!=run['target_updates']:
+                            node.update(status='LEGACY_ATTEMPT_RETURNED_CONTINUE_TO_CAP',future_attempt_target_updates=run['target_updates'])
+                            self.update(arm,status='CONTINUING_TO_REGISTERED_CAP')
+                            return resume  # Confirmed pre-child75; next attempt uses approved cap.
+                        self.update(arm,status='WAITING_RESOURCE')
                     time.sleep(30);continue
                 if'returncode'not in result:time.sleep(10);continue
                 if result['returncode']!=0:raise RuntimeError('Real child failure retained, no scientific retry: '+node['job'])
@@ -414,7 +414,12 @@ def owner_class():
                     grant,_=authorization();returned=resource_return(run,node,result,latest,target,authorized_hosts=allowed_hosts(admit_long_job=True),grant=grant)
                     if returned is None:raise ValueError('Unexpected early native exit, preserve evidence')
                     with self.mutex:
-                        node.setdefault('resource_returns',[]).append(returned);node.pop('job');resume=cp['path'];self.update(arm,status='WAITING_AUTHORIZED_RESOURCE',checkpoint=resume,updates=cp['updates'])
+                        node.setdefault('resource_returns',[]).append(returned);node.pop('job');resume=cp['path']
+                        if enabled(run)and target!=run['target_updates']:
+                            node.update(status='LEGACY_ATTEMPT_RETURNED_CONTINUE_TO_CAP',future_attempt_target_updates=run['target_updates'])
+                            self.update(arm,status='CONTINUING_TO_REGISTERED_CAP',checkpoint=resume,updates=cp['updates'])
+                            return resume  # Verified EXIT0/8rank resource return retains pending native.
+                        self.update(arm,status='WAITING_AUTHORIZED_RESOURCE',checkpoint=resume,updates=cp['updates'])
                     continue
                 for rank in range(8):
                     rr=read(Path(run['root'])/f'result_rank{rank}.json',{})
