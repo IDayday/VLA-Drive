@@ -265,6 +265,48 @@ def S5_review_evidence(root,complete_results):
         phase={k:phase[k]for k in ('phase','actual_exposure_epoch','extra_true_B1_queries','extra_teacher_SDE_queries','extra_history_queries','global_scene_exposures','global_main_PG_queries','matched_compute')})
 
 
+def TRAIN2048_pair_evidence(root):
+    directory=root/'analysis/TRAIN2048_S0u400_S5u800_REVIEW'
+    path=directory/'SUMMARY.json';value=read(path,{})
+    readout=read(directory/'RESEARCH_READOUT.json',{})
+    body=dict(value);seal=body.pop('sha256',None);population=value.get('population',{})
+    if (value.get('status')!='COMPLETE' or readout.get('status')!='COMPLETE'
+            or population.get('scenes')!=2048 or population.get('invalid')!=0
+            or population.get('cohort')!='TRAIN_DIAGNOSTIC'
+            or population.get('same_tokens_logs_cache_protocol_numerics') is not True
+            or hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=seal
+            or hashlib.sha256(path.read_bytes()).hexdigest()!=readout.get('summary_file_sha256')):return {}
+    return dict(path=str(path),readout_path=str(directory/'RESEARCH_READOUT.json'),
+        population=population,
+        evaluations={k:{field:v[field]for field in ('PDMS','bins','strict4_high')}for k,v in value['evaluations'].items()},
+        cohorts={k:{field:v[field]for field in ('fixed_IL70_high','fixed_IL70_low')}for k,v in value['strict_high_and_fixed_IL_cohorts'].items()},
+        zero=value['cross_arm_zero_sets'],headlines=readout.get('headline_zh',[]),
+        budget={k:{field:v[field]for field in ('updates','scene_exposures','actual_PG_queries','extra_queries')}for k,v in value['native_budget_metadata'].items()},
+        figures=[str(p)for p in sorted(directory.glob('*.svg'))])
+
+
+def TRAIN2048_pair_fragment(s):
+    value=s['TRAIN2048_pair']
+    if not value:return ''
+    rows=[]
+    for label in ('IL70','S0_u400','S5_u800'):
+        point=value['evaluations'][label];contrast=value['cohorts'].get(label.split('_')[0]+'_vs_IL70')
+        rows.append((label,f'{point["PDMS"]:.5f}',point['bins']['zero'],point['strict4_high'],
+            f'{contrast["fixed_IL70_low"]["net_global_PDMS"]:+.5f}'if contrast else '基准',
+            f'{contrast["fixed_IL70_high"]["net_global_PDMS"]:+.5f}'if contrast else '基准'))
+    body='<details id="performance-train2048-pair"><summary>TRAIN2048 配对诊断：低分修复与高分退化相抵，不是 NAVTEST 成绩</summary>'
+    body+='<p>同 '+esc(value['population']['scenes'])+' 个 TRAIN 场景 / '+esc(value['population']['physical_logs'])+' 个物理 log，invalid0；相同 token、cache、scorer 与真实 B1。末两列是固定 IL 队列对整个 TRAIN2048 均分的贡献，不能与 NAVTEST 排行榜混用。</p>'
+    body+=table(['检查点','TRAIN PDMS','零分','strict-high','IL低分432贡献','IL高分1616贡献'],rows)
+    for line in value['headlines'][2:]:body+='<p>'+esc(line)+'</p>'
+    body+='<p><b>12 个零分修复中 11 个尚未直接曝光，表明本 TRAIN 人口内存在跨场景参数迁移，不能解释为只记住已见 token。</b>这仍不是独立泛化验证；同一检查点只评一次 B1，旧 IL70 采样见证不是当前 RL 同 θ 材料。均值、EP 分解和曝光关联不能证明梯度因果或最终上限；两臂此时都未激活 rescue/history，且 B/Adam 不同。</p>'
+    body+='<p><a href="'+esc(value['path'])+'">完整配对审计</a> · <a href="'+esc(value['readout_path'])+'">研究简报与限制</a></p>'
+    if value['figures']:
+        body+='<details><summary>已有 TRAIN 分布与转移图</summary>'
+        for path in value['figures']:body+='<img loading="lazy" style="max-width:100%" src="'+esc(path)+'" alt="TRAIN2048 诊断图">'
+        body+='</details>'
+    return body+'</details>'
+
+
 def current_runs(root, registry, owner):
     now=time.time();runs=[]
     for registered in registry.get('runs',[]):
@@ -374,6 +416,7 @@ def snapshot(root=ROOT):
         S7=S7_evidence(root,registry),zero2=zero2_evidence(root),
         credit_lineage=credit_lineage_evidence(root),
         S5_review=S5_review_evidence(root,complete),
+        TRAIN2048_pair=TRAIN2048_pair_evidence(root),
         resource_window=read(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/WINDOW_CORRECTION.json',{}),
         resource_restore=read(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/RESTORATION_RECEIPT.json',{}),
         S7_permanent_wait=read(root/'operations/S7_PERMANENT_CAPACITY_WAIT/STATE.json',{}),
@@ -676,6 +719,7 @@ def render_fragment(root=ROOT):
                 body+='<p>S5 与 Control10k 的零分总数同为 '+esc(z['target'])+'，但修复 '+esc(z['repaired'])+'、新增 '+esc(z['new'])+'；固定 IL70 高分队列相 Control 的全局差额 '+esc(f'{f["global_PDMS_contribution"]:+.6f}')+' 点，其余 '+esc(f'{f["other_scenes_global_contribution"]:+.6f}')+' 点。八 rank 原生审计确认曝光 '+esc(f'{p["actual_exposure_epoch"]:.6f}')+' epoch，B1/额外教师/history查询均为0，尚未检验 PMax 的后续吸收/保持机制。<a href="'+esc(review['path'])+'">S5全量分析</a> · <a href="'+esc(review['phase_path'])+'">实际阶段与预算</a>；描述性关联，非等算力因果结论。</p>'
     else:body+='<p><b>本轮尚无完整正式 NAVTEST 分数。</b>后续只接受 sealed SPEC + identity、全12146/invalid0/44log、seed2101 的既有结果。</p>'
     body+=FAST_review_fragment(s)
+    body+=TRAIN2048_pair_fragment(s)
     body+=S7_fragment(s)
     if s['legacy_current_runs']:
         body+=table(['独立继续的旧实验','服务器','实际 Adam（8rank最小）','状态'],[(j['id'],j['host'],j['updates'],j['status']) for j in s['legacy_current_runs']])

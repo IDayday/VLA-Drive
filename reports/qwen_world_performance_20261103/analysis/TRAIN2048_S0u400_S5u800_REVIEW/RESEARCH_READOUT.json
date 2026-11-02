@@ -1,0 +1,141 @@
+{
+  "schema": "world_fixed_TRAIN2048_pair_research_readout_v1",
+  "status": "COMPLETE",
+  "at": "2026-11-02T23:53:45.054354+00:00",
+  "summary": "/mnt/project/qwen-world-performance-rl-20261103/analysis/TRAIN2048_S0u400_S5u800_REVIEW/SUMMARY.json",
+  "summary_file_sha256": "014d67ddddbaf8c353062cd90fd0e65d3f0ca55cd067176234606d0c9843607c",
+  "headline_zh": [
+    "全部2048 TRAIN/156physical logs/invalid0；三者同token/log/cache/scorer/2101单轨真实B1，未读NAVTEST。",
+    "TRAIN PDMS：IL70 93.98113，S0u400 93.89103(−.09010)，S5u800 94.03471(+.05358)。不把TRAIN均值当独立泛化代理。",
+    "两臂均修复同12/15原zero，保留同3zero，新增同2zero(均原IL高分)；总zero15→5，不支持本点是不同失败集合随机迁移。",
+    "固定IL低分432scene贡献S0+.50124/S5+.54895，而固定IL高分1616scene贡献S0−.59134/S5−.49538，几乎互相抵消。",
+    "strict-high1616→S01531/S51555：S0新增44、丢129；S5新增65、丢126；两条路线高分保持仍不足。",
+    "S5较S0 +.14368主要EP账面改善：EP mean+.32530pp、Shapley+.13554PDMS；两者零集合完全一样，NC/DAC逐scene相同，TTC各有1升1降，不能仅统计均值称策略相同。",
+    "两臂同12800scene/204800PGquery；S0B128/400Adam，S5B64/800Adam，均phase1且教师/history额外query0。不能把收益归给尚未激活的后阶段模块。",
+    "TRAIN2048仅266token已在本次训练曝光，1782尚未曝光；15原zero仅1已曝光且被修复，其余11修复来自尚未曝光TRAIN token。是同TRAIN人口内迁移，仍非独立验证。"
+  ],
+  "sampled_witness_zh": [
+    "此前IL70 TRAIN19中13/15原zero有G16/G32高分见证；当前两臂仍zero其中2scene。可说明初始支持存在后仍未保证B1修复，不能称当前θ on-policy吸收失败。",
+    "另1个剩余zero初始G16/G32均无high；初始都无high的另1scene现在非zero但<.9。探索覆盖和B1信用吸收仍应分开。"
+  ],
+  "remaining_initial_zero_cases": [
+    {
+      "token": "c045fcdaeca5525f",
+      "log": "2021.08.17.16.48.45_veh-43_03137_03245",
+      "role": "B1_zero",
+      "initial_IL70_B1_score": 0.0,
+      "IL70_G16_high": true,
+      "IL70_G32_high": true,
+      "IL70_G16_PG0": false,
+      "IL70_G32_PG0": false,
+      "current_B1": {
+        "IL70": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        },
+        "S0_u400": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        },
+        "S5_u800": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        }
+      }
+    },
+    {
+      "token": "992641d426ba5dc3",
+      "log": "2021.10.05.07.49.39_veh-52_00934_01406",
+      "role": "B1_zero",
+      "initial_IL70_B1_score": 0.0,
+      "IL70_G16_high": false,
+      "IL70_G32_high": false,
+      "IL70_G16_PG0": false,
+      "IL70_G32_PG0": false,
+      "current_B1": {
+        "IL70": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        },
+        "S0_u400": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        },
+        "S5_u800": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        }
+      }
+    },
+    {
+      "token": "c07b74469f425799",
+      "log": "2021.09.15.15.34.53_veh-28_01820_02314",
+      "role": "B1_zero",
+      "initial_IL70_B1_score": 0.0,
+      "IL70_G16_high": true,
+      "IL70_G32_high": true,
+      "IL70_G16_PG0": false,
+      "IL70_G32_PG0": false,
+      "current_B1": {
+        "IL70": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        },
+        "S0_u400": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        },
+        "S5_u800": {
+          "score": 0.0,
+          "strict_high": false,
+          "zero": true
+        }
+      }
+    }
+  ],
+  "existing_sampled_witness_counts": {
+    "S0_u400": {
+      "initial_zero_with_IL70_sampled_high": 13,
+      "still_zero_with_initial_high": 2,
+      "repaired_strict_high_with_initial_high": 6
+    },
+    "S5_u800": {
+      "initial_zero_with_IL70_sampled_high": 13,
+      "still_zero_with_initial_high": 2,
+      "repaired_strict_high_with_initial_high": 7
+    }
+  },
+  "priority_readiness": {
+    "status": "ANALYSIS_ONLY_NOT_APPLIED",
+    "legal_source": "fixed actual TRAIN2048 same run checkpoint/source/score records; no NAV labels",
+    "recommendations_zh": [
+      "后续各run epoch1反馈应以本run较新真实B1刷新：优先把新增zero和固定高分跌出strict-high作为regression证据，同时保留原低分修复样本，避免只追低分。",
+      "若做teacher或priority，只使用本run版本和真实评分，不把另一run端点/IL70旧SDE概率冒充当前on-policy材料；本文件不是可自动加载的训练bank。",
+      "对仍zero且旧IL70已有high见证的2scene，应在未来授权时做同当前θ B1/SDE配对再区分探索与吸收，不能借旧θ直接归因。"
+    ]
+  },
+  "evidence_limits": [
+    "固定训练总体中2048 hash子集，不是独立泛化验证；不能以TRAIN总体均值替代NAVTEST。",
+    "完整仅一次B1评测，安全/EP公式分解不等于梯度因果；无多seed或新bootstrap显著性声明。",
+    "S0/S5本点均phase1无rescue/history，曝光/query相同而Adam/B不同；不把所有差异归算法后阶段。",
+    "当前没有同theta RL-SDE paired pool；已采样high到B1坏的可配对证据仅初始IL70 TRAIN19，不混作on-policy样本。",
+    "所有反馈仅写独立诊断，不修改RUNS、训练数据、优先级或任何formal材料。"
+  ],
+  "scope": {
+    "new_GPU": 0,
+    "new_forwards": 0,
+    "new_official_scores": 0,
+    "new_bootstrap": 0,
+    "TRAIN_only": true,
+    "TRAIN_priority_or_data_updated": false,
+    "independent_generalization_validation": false
+  }
+}
