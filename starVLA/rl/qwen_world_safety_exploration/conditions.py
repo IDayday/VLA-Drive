@@ -6,7 +6,7 @@ from starVLA.rl.qwen_world_postcot.scope_contracts import MEMORY_OBSERVATION
 
 class GroupMemoryConditions(MemoryLearningConditions):
     def __init__(self, model, data, parent_identity, actor, *, group_size, processor=None):
-        if type(group_size) is not int or group_size not in (8, 16):
+        if type(group_size) is not int or group_size not in (8, 16, 32):
             raise ValueError('Only explicitly registered G8/G16 conditions')
         super().__init__(model, data, parent_identity, actor, processor=processor)
         self.group_size = group_size

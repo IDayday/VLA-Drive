@@ -304,7 +304,7 @@ class EvaluationOwner:
             node.update(host=route['host'], gpu_uuid=route['uuid'])
         try:
             launch(node['host'], source, command, name,
-                   worker_source=Path(__file__).resolve().parents[2], **kwargs)
+                   worker_source=run.get('worker_source', Path(__file__).resolve().parents[2]), **kwargs)
             node['status'] = 'STARTING'
         except Exception:
             node.update(status='DISPATCH_UNCERTAIN_REVIEW_REQUIRED', dispatch_error=traceback.format_exc())

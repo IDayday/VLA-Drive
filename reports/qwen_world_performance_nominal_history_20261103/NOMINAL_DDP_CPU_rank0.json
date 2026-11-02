@@ -1,0 +1,82 @@
+{
+  "status": "PASS",
+  "rank": 0,
+  "world": 2,
+  "device": "cpu",
+  "BF16": true,
+  "B1_deployment_last_head_exact": true,
+  "rows": [
+    {
+      "update": 0,
+      "micro": 0,
+      "loss": 0.0012813168577849865,
+      "enabled": true,
+      "measured": 1.0,
+      "memory_builds": 8,
+      "cfm_gradient_norm_last": 10.690578566668222,
+      "ode_gradient_norm_last": 1.037129766618019
+    },
+    {
+      "update": 0,
+      "micro": 1,
+      "loss": 0.0012813168577849865,
+      "enabled": true,
+      "measured": 1.0,
+      "memory_builds": 11,
+      "cfm_gradient_norm_last": 10.690578566668222,
+      "ode_gradient_norm_last": 1.037129766618019
+    },
+    {
+      "update": 1,
+      "micro": 0,
+      "loss": 0.006039595231413841,
+      "enabled": true,
+      "measured": 1.0,
+      "memory_builds": 14,
+      "cfm_gradient_norm_last": 10.510713757799673,
+      "ode_gradient_norm_last": 1.0362637974548554
+    },
+    {
+      "update": 1,
+      "micro": 1,
+      "loss": 0.006703647784888744,
+      "enabled": true,
+      "measured": 1.0,
+      "memory_builds": 17,
+      "cfm_gradient_norm_last": 10.510713757799673,
+      "ode_gradient_norm_last": 1.0362637974548554
+    }
+  ],
+  "calibration_state": {
+    "schema": "world_performance_rank_local_aux_gradient_calibration_v1",
+    "protocol": {
+      "schema": "world_performance_rank_local_aux_gradient_calibration_v1",
+      "target": "norm of current same-microbatch unscaled physical ILmean-MSE gradient",
+      "ratio": "norm(gIL)/max(norm(gcomponent),1e-12)",
+      "minimum_scale": 0.0001,
+      "maximum_scale": 10000.0,
+      "EMA_decay": 0.9,
+      "calibration_calls": 100,
+      "measurement_calls": 500,
+      "clock": "effective per-rank teacher-slot loss calls, including inner reuse; not Adam updates",
+      "gradients": "all current trainable parameters; local norm, no conditional cross-rank collective; no .grad mutation",
+      "freeze": "after100 calls keep last EMA; only diagnose until500, then stop gradient probes; last_measured labels remain explicit"
+    },
+    "effective_updates": 4,
+    "calibration_updates": 4,
+    "measured_updates": 4,
+    "frozen": false,
+    "scale_cfm": 0.0005802651219164799,
+    "scale_ode": 0.005914907851841837,
+    "last_norms": {
+      "pg": 1.0153002421088475,
+      "IL": 0.02226049800698081,
+      "cfm": 10.510713757799673,
+      "ode": 1.0362637974548554
+    },
+    "scale_clip_hits_cfm": 0,
+    "scale_clip_hits_ode": 0
+  },
+  "optimizer_steps": 2,
+  "limits": "actualTinyScope32hidden/2layers/frozenfakeQwen; mockedcanonicalfeedback; notfull52.7Mproductionqualification orPDMS evidence"
+}

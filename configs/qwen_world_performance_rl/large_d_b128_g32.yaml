@@ -1,0 +1,218 @@
+batch_size: 1
+learning_rate: 5.0e-05
+lr_warmup_steps: 1
+lr_scheduler_type: cosine
+max_steps: 64560
+gradient_accumulation_steps: 16
+seed: 42
+weight_decay: 0.01
+max_grad_norm: 1.0
+grpo:
+  target: action
+  sample:
+    group_size: 32
+    num_inference_steps: 10
+    infer_shift: null
+    sample_noise_std: 0.1
+    logprob_noise_std: null
+    anneal_noise: true
+    min_std: 0.001
+    randn_clip: 5.0
+    logprob_clamp_mode: relative
+    logprob_clamp_width: 7.0
+    final_action_clip: null
+    sde_mode: rigorous
+    noise_level: 0.1
+    train_sde_steps: 3
+    sde_exclude_last_step: false
+    sde_step_indices: null
+    merge_sde_window: false
+  train:
+    denoising_discount: 1.0
+    adv_clip_lower_quantile: 0.0
+    adv_clip_upper_quantile: 1.0
+    adv_eps: 1.0e-08
+    adv_global_std: true
+    drop_zero_adv: true
+    use_bc_loss: false
+    bc_coeff: 0.1
+    kl_beta: 50
+    kl_type: x
+    kl_dim_weights:
+    - 0.2
+    - 1.0
+    - 1.0
+    kl_horizon_weights: null
+    ppo_clip_range: 0.005
+    adv_clip_max: 5.0
+    num_inner_epochs: 4
+    rollout_buffer_batches: 1
+    kl_gate:
+      enabled: false
+      delta: 0.0001
+      asymmetric: false
+  lora:
+    enabled: true
+    r: 16
+    alpha: 32.0
+    dropout: 0.0
+    target_modules:
+    - q
+    - k
+    - v
+    - o
+  reward:
+    name: pdm
+    metric_cache_path: ./data/metric_cache_navtrain
+    proposal_time_horizon: 4.0
+    proposal_interval: 0.1
+    model_trajectory_interval: 0.5
+    progress_weight: 5.0
+    ttc_weight: 5.0
+    comfortable_weight: 2.0
+  eval:
+    enabled: false
+    num_batches: 8
+  vis:
+    enabled: false
+    every: 100
+    num_conditions: 2
+    max_samples: 0
+    plot_mode: bev_camera
+    dpi: 150
+evaluation_seed: 2101
+world_size: 8
+action_infer_shift: 5.0
+action_shape:
+- 8
+- 3
+model_storage_dtype: float32
+latent_dtype: float32
+velocity_compute_dtype: float32
+autocast: true
+probability_dtype: float32
+advantage_statistics_dtype: float64
+optimizer: AdamW
+optimizer_betas:
+- 0.9
+- 0.95
+optimizer_eps: 1.0e-08
+distributed_platform: torch_DDP_FP32_LoRA_optimizer
+DDP_find_unused_parameters: true
+DDP_static_graph: false
+DDP_bucket_cap_mb: 25
+gradient_clipping_effective: 1.0
+gradient_clipping_reason: New clean-x recipe explicitly applies clip1; original source
+  effective clip0 is not claimed unchanged
+data_order: full NAVTRAIN epoch shuffle; valid padding mask; own-run TRAIN-only priorities
+save_every_optimizer_updates: 400
+evaluate_updates: []
+anchor_mapping: source_native_xy_heading
+PG_reduction: source_rank_mean
+probability_mode: source_relative_clamp
+variant: R_CANONICAL
+model_family: QwenWorldPostCoT
+observation: current_Qwen_spatial_global_predictive_student_memory
+frozen_prefill_autocast: bfloat16
+action_autocast: true
+deployment: single_candidate_cleanx_shift5_ODE_K10
+logical_budget:
+  fresh_global_rollouts: 12500
+  scenes: 100000
+  candidates: 800000
+prediction_type: x0
+action_forward_dtype: bfloat16
+source_velocity_conversion: (FP32_state-FP32_pred_x0)/FP32_sigma; exactly once; sigma>0
+context_precision: Preserve actual FP32 residual memory; BF16 projected KV; never
+  condition_fp32 recast
+context_lifetime: Only frozen Qwen features and IL reference memory persist; current
+  memory and KV recomputed each inner
+deployment_lora: preserve attention LoRA wrappers for BF16 parity; merging is not
+  default
+adaptation: ATTN_LORA_MEMORY
+reference_observation: permanently frozen original IL40k Qwen and memory
+observation_gradient: frozen Qwen features; current memory rebuilt each inner
+memory_learning_rate: 5.0e-06
+cache_lifetime: one frozen Qwen feature tree per scene; no current-memory graph across
+  inner
+research:
+  schema: qwen_world_performance_rl_v1
+  campaign_root: /mnt/project/qwen-world-performance-rl-20261103
+  arm: S0_LARGE_D_B128_G32
+  policy_objective: ppo
+  data_policy: uniform_full
+  manifest_sha256: c1766439926994b10bb5514673834623e78a7d060d389d71cf168587f7babc12
+  observation_data: /mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN
+  scoring_cache_roots:
+  - /mnt/project/flow-safe-improvement-20261013/metric_cache_v1
+  - /mnt/project/constrained-flow-noise-20261014/metric_cache_v1
+  - /mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache
+  structured_advantage: world_performance_safetyep_v1
+  NAVTEST_feedback_to_training: false
+  performance:
+    schema: qwen_world_performance_rl_v1
+    parent_model_sha256: 7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40
+    initialization: same_IL70_fresh_Adam0
+    cross_algorithm_state_transfer: false
+    population: 103288
+    data_audit: /mnt/project/qwen-world-performance-rl-20261103/data/AUDIT.json
+    data_audit_sha256: 1be9ed773b332032447f43073ad18ef17c6808fe1832a27f91bac4be06243122
+    scenes_per_collection: 128
+    group_size: 32
+    inner_updates: 4
+    algorithm: safetyep
+    microbatch_scenes: 1
+    evaluation_epochs:
+    - 0.25
+    - 0.5
+    - 1
+    - 2
+    - 3
+    - 4
+    - 6
+    - 8
+    - 12
+    - 20
+    minimum_epochs: 3.0
+    initial_target_epochs: 6.0
+    extension_epochs:
+    - 8
+    - 12
+    - 20
+    priority:
+      start_epoch: 1.0
+      uniform_fraction: 0.6
+      nominal_hard_fraction: 0.25
+      regression_fraction: 0.15
+      max_scene_repeat_factor: 4.0
+      refresh_every_scene_epochs: 0.5
+      stale_priority_max_epochs: 1.0
+      physical_log_balance: true
+    schedule:
+      type: warmup_hold_cosine_floor
+      clock: valid_scene_exposures
+      warmup_epochs: 0.08
+      hold_until_epoch: 0.75
+      cosine_decay_end_epoch: 4.0
+      minimum_lr_ratio: 0.05
+    nominal_rescue:
+      start_epoch: 0.5
+      anchor_budget_share: 0.05
+      min_improvement: 0.02
+      strict_high_min_pdms: 0.9
+      sigma_min: 0.1
+      sigma_max: 0.9
+      mc_samples: 2
+      cfm_share: 0.75
+      ode_last_share: 0.25
+      calibration_slots: 100
+      gradient_diagnostic_slots: 500
+      adaptive_extra_G: true
+    stages:
+    - name: main
+      start_epoch: 0.0
+      B: 128
+      action_lr: 5.0e-05
+      memory_lr: 5.0e-06
+      rescue: false
+      history: false

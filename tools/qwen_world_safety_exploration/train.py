@@ -133,7 +133,8 @@ def main(runtime=None):
         for g in optimizer.param_groups] if runtime is not None and hasattr(runtime,'make_optimizer') else None)
     actor._loss.optimizer=optimizer;actor._loss.learning_rate=cfg['learning_rate']
     warmup=min(int(cfg['max_steps']*.05),cfg['lr_warmup_steps'])
-    scheduler=actor._loss._build_scheduler(cfg['lr_scheduler_type'],cfg['max_steps'],warmup)
+    scheduler=(runtime.make_scheduler(optimizer,cfg) if hasattr(runtime,'make_scheduler') else
+        actor._loss._build_scheduler(cfg['lr_scheduler_type'],cfg['max_steps'],warmup))
     generator=torch.Generator(device='cpu').manual_seed(seed_for('simwam_source_rank_rollout',42,rank))
     identity=(runtime.recipe_identity(cfg,a,conditions.sha) if runtime is not None else
               recipe_identity(cfg,a.manifest,conditions.sha))
@@ -146,6 +147,7 @@ def main(runtime=None):
                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
     if hasattr(stream,'identity'):identity['data_stream_identity']=stream.identity
     if explicit_optimizer_groups is not None:identity['actual_optimizer']['parameter_groups']=explicit_optimizer_groups
+    if hasattr(runtime,'finalize_training_identity'):runtime.finalize_training_identity(identity)
     identity['scientific_identity']=scientific_identity(identity)
     identity['execution_identity']=execution_identity(identity['source_files'])
     identity=json.loads(json.dumps(identity,sort_keys=True,allow_nan=False))
@@ -239,6 +241,7 @@ def main(runtime=None):
                 break
             if rollout is None:
                 state['phase']='COLLECTING';invocation.event('collection_start')
+                if hasattr(runtime,'before_collection'):runtime.before_collection(actor,state)
                 token,position=runtime.stream.at(state['scene_cursor'],rank)
                 error=None
                 try:
@@ -340,10 +343,10 @@ def main(runtime=None):
                 row['optimizer_group_lrs_used']=group_lrs_used
                 row['optimizer_group_lrs']={g['name']:g['lr'] for g in optimizer.param_groups}
             journal.write(json.dumps(row,allow_nan=False)+'\n')
-            if state['next_inner']==4:rollout=None;state['next_inner']=0
-            state['phase']=boundary_phase(state,cfg['max_steps'])
+            if state['next_inner']==cfg['grpo']['train']['num_inner_epochs']:rollout=None;state['next_inner']=0
+            state['phase']=(runtime.boundary_phase(state,rollout) if hasattr(runtime,'boundary_phase') else boundary_phase(state,cfg['max_steps']))
             stop_now=stop_requested(device) or (a.stop_after_update is not None and state['updates']>=a.stop_after_update)
-            milestone=state['updates'] in cfg['evaluate_updates']
+            milestone=(runtime.evaluation_due(state) if hasattr(runtime,'evaluation_due') else state['updates'] in cfg['evaluate_updates'])
             if state['updates']%save_every==0 or milestone or stop_now or state['updates']==cfg['max_steps']:
                 last_saved=save_boundary()
                 if rank==0:atomic_json(root/'progress.json',dict(public_state(),status='COMPLETE' if state['updates']==cfg['max_steps'] else 'PAUSED' if stop_now else 'RUNNING',checkpoint=last_saved,host=host,invocation=invocation.id,invocation_start_update=invocation.record['start_update'],wall_seconds_this_invocation=time.monotonic()-started))

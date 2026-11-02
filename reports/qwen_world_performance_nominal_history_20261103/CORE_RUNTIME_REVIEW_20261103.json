@@ -1,0 +1,76 @@
+{
+  "schema": "world_performance_core_runtime_CPU_review_v1",
+  "status": "COMPLETE_FINITE_CPU_REVIEW",
+  "created_utc": "2026-11-02T17:15:35.745708+00:00",
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103",
+  "scope": "Finite CPU-only review, no GPU dispatch, no scientific performance inference",
+  "checks": {
+    "S5_extra_DDP_budget": {
+      "status": "PASS",
+      "world": 2,
+      "backend": "Gloo",
+      "scope": "Actual Root PerformanceRuntime.backward_update with real TinyScope; two Adam steps; rank0 nominal rescue and historical h=.25, rank1 empty-history dummy; valid plus padding leaf",
+      "max_gradient_absolute_error": 4.656612873077393e-10,
+      "evidence": [
+        "runtime_review/S5_DDP_BUDGET_rank0.json",
+        "runtime_review/S5_DDP_BUDGET_rank1.json"
+      ],
+      "archive": "reports/qwen_world_performance_nominal_history_20261103/runtime_review/"
+    },
+    "native_LR_Adam_tampering": {
+      "status": "PASS",
+      "test": "test_ready_rejects_stage_peak_optimizer_LR_and_nonempty_Adam0",
+      "checks": [
+        "wrong optimizer LR",
+        "wrong scheduler stage",
+        "self-consistent but wrong base LR peaks",
+        "wrong scheduler population",
+        "nonempty Adam state at update zero"
+      ]
+    },
+    "B64_B128_stage_and_resume": {
+      "status": "PASS",
+      "test": "test_stage_B64_to128_before_at_and_exact_scheduler_native_resume",
+      "finding": "First-stage receipt directory is now created before atomic write; all-rank check_errors fence propagates write failures before the stage is committed",
+      "fixture": "One actual complete 103288-token selection-plan pass, without images/scoring/model updates; Adam counters and moments are synthetic native-boundary fixtures, not production GPU data",
+      "checks": [
+        "One actual complete token-plan epoch without model/scoring work",
+        "Transition B64 to B128 occurs before selection plan or stream.at",
+        "Stage peak rates and persisted stage restored exactly",
+        "Synthetic native Adam moments/counters remain unchanged",
+        "Actual transition receipt exists and records unchanged optimizer plus pinned parent SHA",
+        "torch.save/load READY restores absorb stage without replaying or resetting scheduler"
+      ]
+    }
+  },
+  "root_fixes_reviewed": [
+    "Query count collective moved from collect to successful finalize boundary",
+    "Strict persisted-stage/base-LR/optimizer-LR/Adam0 validation",
+    "Rank-private bank rank identity and missing-state rejection",
+    "Stage-transition receipt mkdir plus distributed error fence"
+  ],
+  "remaining_interpretation_limits": [
+    "Two-rank TinyScope budget proof is not global eight-rank population or physical-scoring proof",
+    "Synthetic stage counters are explicitly not real model training",
+    "M2/G32 production qualification belongs to Root; no new qualification matrix was run"
+  ],
+  "source_ownership": "Reviewer changed only targeted tests and report artifacts; Root owns common runtime/recovery/trainer changes",
+  "test_file": "tests/test_world_performance_runtime_review.py",
+  "completed_utc": "2026-11-02T17:17:06.424176+00:00",
+  "pytest": {
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_performance_runtime_review.py",
+    "passed": 2,
+    "failed": 0,
+    "elapsed_seconds": 6.94,
+    "verification_reporter": "Root read completed exec session17677; no duplicate run by reviewer"
+  },
+  "reviewed_source_sha256": {
+    "starVLA/rl/qwen_world_performance/batch_runtime.py": "20b56059893c06b066fc881c881fa3bcbd9829e670350cc8f427ba9fa1b312dd",
+    "starVLA/rl/qwen_world_performance/recovery.py": "7c2562d3bddced5ccbb6dd74b697eb27cd859bcc16547c0d17e0b5beec039279",
+    "starVLA/rl/qwen_world_performance/stage_scheduler.py": "07a72b6d1b8540574551ebac3a439d3f6d99ff4b9330c7fd9a79814268c3aaa1",
+    "tools/qwen_world_safety_exploration/train.py": "349637e69c584a8d195560bc608ba1cd91a1d882be5d34b7cbdb09586702aa4e",
+    "tests/test_world_performance_runtime_review.py": "f38278b4a0e0cbaa0d914bf28e24c0c2cbca3d3d38aeb18d2e612b202b481e00"
+  },
+  "performance_claim": "None. These are finite CPU mathematical/control-flow checks, not new trained checkpoint, physical scoring, or PDMS evidence.",
+  "runtime_state_key_documentation": "performance_auxiliary.history"
+}

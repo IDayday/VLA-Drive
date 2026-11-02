@@ -1,0 +1,1086 @@
+{
+  "schema": "world_real_performance_qualification_and_budget_v1",
+  "status": "PASS_EXISTING_QUALIFICATIONS_ONLY",
+  "created_UTC": "2026-11-02T17:01:01.214734+00:00",
+  "configurations": [
+    {
+      "id": "B64_G16",
+      "status": "COMPLETE_REAL8RANK_4UPDATE_WINDOW",
+      "B": 64,
+      "G": 16,
+      "world": 8,
+      "inner_updates": 4,
+      "host": "training-vlawm-zt",
+      "unique_measured_windows": 1,
+      "measured_optimizer_rows": 32,
+      "timing_seconds": {
+        "component_max_across_ranks": {
+          "seconds_rollout": 8.65673409216106,
+          "seconds_scoring_wait": 4.547115907073021,
+          "seconds_old_probability": 2.2274487242102623,
+          "seconds_update": 26.91394223831594
+        },
+        "steady_window": 42.15054322592914,
+        "steady_definition": "max_rank(sampling + scoring_wait + old_probability + four backward/update times)",
+        "componentwise_upper": 42.34524096176028,
+        "startup_preparation_by_rank": [
+          70.71630674041808,
+          70.72495950385928,
+          71.00331933237612,
+          70.7220195364207,
+          70.71355196088552,
+          71.00745240040123,
+          70.71515144407749,
+          70.64569971524179
+        ],
+        "startup_preparation_max": 71.00745240040123,
+        "invocation_training_wall_max": 45.984280759468675,
+        "scoring_CPU_sum_max": 0.9519292786717415,
+        "scoring_CPU_not_added_to_wall": true
+      },
+      "peak_GPU_bytes": 16552011776,
+      "checks": {
+        "all8_rank_complete": true,
+        "finite_all_rows": true,
+        "frozen_model_unchanged": true,
+        "first_inner_ratio_max_error": 0.0
+      },
+      "epoch_budget": {
+        "population": 103288,
+        "exact_valid_windows": 1613.875,
+        "padded_windows": 1614,
+        "valid_PG_candidates": 1652608,
+        "allocated_PG_candidates": 1652736,
+        "valid_scene_exposures": 103288,
+        "padded_scene_slots": 8,
+        "estimated_window_only_wall_seconds": 68025.70794874639,
+        "estimated_window_only_wall_hours": 18.896029985762887,
+        "estimated_window_only_GPU_hours": 151.1682398861031,
+        "padded_window_wall_seconds": 68030.97676664963,
+        "formula": "N/B * measured_window_seconds * world8 /3600 GPUh",
+        "six_epochs_window_only_wall_hours": 113.37617991457732,
+        "temporary_seconds_remaining": 25138.785266160965,
+        "projected_epochs_before_deadline": 0.3695483079000317,
+        "six_epochs_before_temporary_deadline_estimated": false
+      },
+      "checkpoint_storage": {
+        "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/checkpoints/update000004_inner0",
+        "mature_optimizer_bytes": 633014754,
+        "one_world_checkpoint_bytes": 633866514,
+        "optimizer_common_not_times8": true,
+        "gates": [
+          {
+            "through_epochs": 3.0,
+            "official_evaluation_gates": 5,
+            "optimizer_bytes_times_evaluation_gates": 3165073770,
+            "native_checkpoint_bytes_times_evaluation_gates": 3169332570,
+            "periodic_plus_eval_checkpoint_count_upper": 54,
+            "optimizer_bytes_with_periodic_upper": 34182796716
+          },
+          {
+            "through_epochs": 6.0,
+            "official_evaluation_gates": 7,
+            "optimizer_bytes_times_evaluation_gates": 4431103278,
+            "native_checkpoint_bytes_times_evaluation_gates": 4437065598,
+            "periodic_plus_eval_checkpoint_count_upper": 104,
+            "optimizer_bytes_with_periodic_upper": 65833534416
+          },
+          {
+            "through_epochs": 20.0,
+            "official_evaluation_gates": 10,
+            "optimizer_bytes_times_evaluation_gates": 6330147540,
+            "native_checkpoint_bytes_times_evaluation_gates": 6338665140,
+            "periodic_plus_eval_checkpoint_count_upper": 333,
+            "optimizer_bytes_with_periodic_upper": 210793913082
+          }
+        ],
+        "excluded": "behavior caches, exports, growing teacher/history banks, partial attempts and initial IL files"
+      },
+      "evidence": {
+        "directory": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16",
+        "results": [
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank0.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank1.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank2.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank3.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank4.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank5.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank6.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank7.json"
+        ]
+      }
+    },
+    {
+      "id": "B128_G16_continuous",
+      "status": "COMPLETE_REAL8RANK_4UPDATE_WINDOW",
+      "B": 128,
+      "G": 16,
+      "world": 8,
+      "inner_updates": 4,
+      "host": "training-vlawm-tsinghua-zt2",
+      "unique_measured_windows": 1,
+      "measured_optimizer_rows": 32,
+      "timing_seconds": {
+        "component_max_across_ranks": {
+          "seconds_rollout": 16.73574110865593,
+          "seconds_scoring_wait": 5.9740105383098125,
+          "seconds_old_probability": 4.573994532227516,
+          "seconds_update": 53.130424216389656
+        },
+        "steady_window": 80.32116297259927,
+        "steady_definition": "max_rank(sampling + scoring_wait + old_probability + four backward/update times)",
+        "componentwise_upper": 80.41417039558291,
+        "startup_preparation_by_rank": [
+          70.49823077954352,
+          70.25382299348712,
+          70.27649725228548,
+          70.29598999395967,
+          70.44006260298193,
+          70.28603809326887,
+          70.20431457832456,
+          70.28513703495264
+        ],
+        "startup_preparation_max": 70.49823077954352,
+        "invocation_training_wall_max": 84.58954447507858,
+        "scoring_CPU_sum_max": 1.6816810704767704,
+        "scoring_CPU_not_added_to_wall": true
+      },
+      "peak_GPU_bytes": 16554349568,
+      "checks": {
+        "all8_rank_complete": true,
+        "finite_all_rows": true,
+        "frozen_model_unchanged": true,
+        "first_inner_ratio_max_error": 0.0
+      },
+      "epoch_budget": {
+        "population": 103288,
+        "exact_valid_windows": 806.9375,
+        "padded_windows": 807,
+        "valid_PG_candidates": 1652608,
+        "allocated_PG_candidates": 1652736,
+        "valid_scene_exposures": 103288,
+        "padded_scene_slots": 8,
+        "estimated_window_only_wall_seconds": 64814.15844620182,
+        "estimated_window_only_wall_hours": 18.003932901722727,
+        "estimated_window_only_GPU_hours": 144.03146321378182,
+        "padded_window_wall_seconds": 64819.17851888761,
+        "formula": "N/B * measured_window_seconds * world8 /3600 GPUh",
+        "six_epochs_window_only_wall_hours": 108.02359741033636,
+        "temporary_seconds_remaining": 25138.785266160965,
+        "projected_epochs_before_deadline": 0.38785947189343045,
+        "six_epochs_before_temporary_deadline_estimated": false
+      },
+      "checkpoint_storage": {
+        "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/checkpoints/update000004_inner0",
+        "mature_optimizer_bytes": 633014754,
+        "one_world_checkpoint_bytes": 633866546,
+        "optimizer_common_not_times8": true,
+        "gates": [
+          {
+            "through_epochs": 3.0,
+            "official_evaluation_gates": 5,
+            "optimizer_bytes_times_evaluation_gates": 3165073770,
+            "native_checkpoint_bytes_times_evaluation_gates": 3169332730,
+            "periodic_plus_eval_checkpoint_count_upper": 30,
+            "optimizer_bytes_with_periodic_upper": 18990442620
+          },
+          {
+            "through_epochs": 6.0,
+            "official_evaluation_gates": 7,
+            "optimizer_bytes_times_evaluation_gates": 4431103278,
+            "native_checkpoint_bytes_times_evaluation_gates": 4437065822,
+            "periodic_plus_eval_checkpoint_count_upper": 56,
+            "optimizer_bytes_with_periodic_upper": 35448826224
+          },
+          {
+            "through_epochs": 20.0,
+            "official_evaluation_gates": 10,
+            "optimizer_bytes_times_evaluation_gates": 6330147540,
+            "native_checkpoint_bytes_times_evaluation_gates": 6338665460,
+            "periodic_plus_eval_checkpoint_count_upper": 172,
+            "optimizer_bytes_with_periodic_upper": 108878537688
+          }
+        ],
+        "excluded": "behavior caches, exports, growing teacher/history banks, partial attempts and initial IL files"
+      },
+      "evidence": {
+        "directory": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous",
+        "results": [
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank0.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank1.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank2.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank3.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank4.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank5.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank6.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank7.json"
+        ]
+      }
+    },
+    {
+      "id": "B64_G32",
+      "status": "COMPLETE_REAL8RANK_4UPDATE_WINDOW",
+      "B": 64,
+      "G": 32,
+      "world": 8,
+      "inner_updates": 4,
+      "host": "training-vlawm-zt",
+      "unique_measured_windows": 1,
+      "measured_optimizer_rows": 32,
+      "timing_seconds": {
+        "component_max_across_ranks": {
+          "seconds_rollout": 8.616669215261936,
+          "seconds_scoring_wait": 5.151574838906527,
+          "seconds_old_probability": 2.292790286242962,
+          "seconds_update": 27.441143916919827
+        },
+        "steady_window": 43.31131738051772,
+        "steady_definition": "max_rank(sampling + scoring_wait + old_probability + four backward/update times)",
+        "componentwise_upper": 43.50217825733125,
+        "startup_preparation_by_rank": [
+          69.98505622707307,
+          70.33739769458771,
+          70.1872698739171,
+          70.0376046076417,
+          70.04325398616493,
+          70.03904795832932,
+          69.99929862469435,
+          70.19285121746361
+        ],
+        "startup_preparation_max": 70.33739769458771,
+        "invocation_training_wall_max": 47.272769847884774,
+        "scoring_CPU_sum_max": 1.5403488725423813,
+        "scoring_CPU_not_added_to_wall": true
+      },
+      "peak_GPU_bytes": 17396085248,
+      "checks": {
+        "all8_rank_complete": true,
+        "finite_all_rows": true,
+        "frozen_model_unchanged": true,
+        "first_inner_ratio_max_error": 0.0
+      },
+      "epoch_budget": {
+        "population": 103288,
+        "exact_valid_windows": 1613.875,
+        "padded_windows": 1614,
+        "valid_PG_candidates": 3305216,
+        "allocated_PG_candidates": 3305472,
+        "valid_scene_exposures": 103288,
+        "padded_scene_slots": 8,
+        "estimated_window_only_wall_seconds": 69899.05233748304,
+        "estimated_window_only_wall_hours": 19.41640342707862,
+        "estimated_window_only_GPU_hours": 155.33122741662896,
+        "padded_window_wall_seconds": 69904.4662521556,
+        "formula": "N/B * measured_window_seconds * world8 /3600 GPUh",
+        "six_epochs_window_only_wall_hours": 116.49842056247172,
+        "temporary_seconds_remaining": 25138.785266160965,
+        "projected_epochs_before_deadline": 0.359644150034927,
+        "six_epochs_before_temporary_deadline_estimated": false
+      },
+      "checkpoint_storage": {
+        "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/checkpoints/update000004_inner0",
+        "mature_optimizer_bytes": 633014754,
+        "one_world_checkpoint_bytes": 633866514,
+        "optimizer_common_not_times8": true,
+        "gates": [
+          {
+            "through_epochs": 3.0,
+            "official_evaluation_gates": 5,
+            "optimizer_bytes_times_evaluation_gates": 3165073770,
+            "native_checkpoint_bytes_times_evaluation_gates": 3169332570,
+            "periodic_plus_eval_checkpoint_count_upper": 54,
+            "optimizer_bytes_with_periodic_upper": 34182796716
+          },
+          {
+            "through_epochs": 6.0,
+            "official_evaluation_gates": 7,
+            "optimizer_bytes_times_evaluation_gates": 4431103278,
+            "native_checkpoint_bytes_times_evaluation_gates": 4437065598,
+            "periodic_plus_eval_checkpoint_count_upper": 104,
+            "optimizer_bytes_with_periodic_upper": 65833534416
+          },
+          {
+            "through_epochs": 20.0,
+            "official_evaluation_gates": 10,
+            "optimizer_bytes_times_evaluation_gates": 6330147540,
+            "native_checkpoint_bytes_times_evaluation_gates": 6338665140,
+            "periodic_plus_eval_checkpoint_count_upper": 333,
+            "optimizer_bytes_with_periodic_upper": 210793913082
+          }
+        ],
+        "excluded": "behavior caches, exports, growing teacher/history banks, partial attempts and initial IL files"
+      },
+      "evidence": {
+        "directory": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32",
+        "results": [
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank0.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank1.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank2.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank3.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank4.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank5.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank6.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank7.json"
+        ]
+      }
+    },
+    {
+      "id": "B128_G32",
+      "status": "COMPLETE_REAL8RANK_4UPDATE_WINDOW",
+      "B": 128,
+      "G": 32,
+      "world": 8,
+      "inner_updates": 4,
+      "host": "training-vlawm-tsinghua-zt2",
+      "unique_measured_windows": 1,
+      "measured_optimizer_rows": 32,
+      "timing_seconds": {
+        "component_max_across_ranks": {
+          "seconds_rollout": 17.487132946029305,
+          "seconds_scoring_wait": 7.080082397907972,
+          "seconds_old_probability": 4.595128238201141,
+          "seconds_update": 53.627107886597514
+        },
+        "steady_window": 82.07060025073588,
+        "steady_definition": "max_rank(sampling + scoring_wait + old_probability + four backward/update times)",
+        "componentwise_upper": 82.78945146873593,
+        "startup_preparation_by_rank": [
+          72.17844570055604,
+          72.18442630395293,
+          72.33476433344185,
+          72.25801619887352,
+          72.18484839610755,
+          72.1762721054256,
+          72.4742515925318,
+          72.19812333583832
+        ],
+        "startup_preparation_max": 72.4742515925318,
+        "invocation_training_wall_max": 86.90655993111432,
+        "scoring_CPU_sum_max": 2.978618934750557,
+        "scoring_CPU_not_added_to_wall": true
+      },
+      "peak_GPU_bytes": 17396679168,
+      "checks": {
+        "all8_rank_complete": true,
+        "finite_all_rows": true,
+        "frozen_model_unchanged": true,
+        "first_inner_ratio_max_error": 0.0
+      },
+      "epoch_budget": {
+        "population": 103288,
+        "exact_valid_windows": 806.9375,
+        "padded_windows": 807,
+        "valid_PG_candidates": 3305216,
+        "allocated_PG_candidates": 3305472,
+        "valid_scene_exposures": 103288,
+        "padded_scene_slots": 8,
+        "estimated_window_only_wall_seconds": 66225.84498982818,
+        "estimated_window_only_wall_hours": 18.39606805273005,
+        "estimated_window_only_GPU_hours": 147.1685444218404,
+        "padded_window_wall_seconds": 66230.97440234385,
+        "formula": "N/B * measured_window_seconds * world8 /3600 GPUh",
+        "six_epochs_window_only_wall_hours": 110.3764083163803,
+        "temporary_seconds_remaining": 25138.785266160965,
+        "projected_epochs_before_deadline": 0.37959176315563964,
+        "six_epochs_before_temporary_deadline_estimated": false
+      },
+      "checkpoint_storage": {
+        "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/checkpoints/update000004_inner0",
+        "mature_optimizer_bytes": 633014754,
+        "one_world_checkpoint_bytes": 633866546,
+        "optimizer_common_not_times8": true,
+        "gates": [
+          {
+            "through_epochs": 3.0,
+            "official_evaluation_gates": 5,
+            "optimizer_bytes_times_evaluation_gates": 3165073770,
+            "native_checkpoint_bytes_times_evaluation_gates": 3169332730,
+            "periodic_plus_eval_checkpoint_count_upper": 30,
+            "optimizer_bytes_with_periodic_upper": 18990442620
+          },
+          {
+            "through_epochs": 6.0,
+            "official_evaluation_gates": 7,
+            "optimizer_bytes_times_evaluation_gates": 4431103278,
+            "native_checkpoint_bytes_times_evaluation_gates": 4437065822,
+            "periodic_plus_eval_checkpoint_count_upper": 56,
+            "optimizer_bytes_with_periodic_upper": 35448826224
+          },
+          {
+            "through_epochs": 20.0,
+            "official_evaluation_gates": 10,
+            "optimizer_bytes_times_evaluation_gates": 6330147540,
+            "native_checkpoint_bytes_times_evaluation_gates": 6338665460,
+            "periodic_plus_eval_checkpoint_count_upper": 172,
+            "optimizer_bytes_with_periodic_upper": 108878537688
+          }
+        ],
+        "excluded": "behavior caches, exports, growing teacher/history banks, partial attempts and initial IL files"
+      },
+      "evidence": {
+        "directory": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32",
+        "results": [
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank0.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank1.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank2.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank3.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank4.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank5.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank6.json",
+          "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank7.json"
+        ]
+      }
+    }
+  ],
+  "native_resume": {
+    "status": "PASS",
+    "exact_pass": true,
+    "checks": {
+      "adapters": true,
+      "optimizer": true,
+      "scheduler": true,
+      "mismatched_parameters": []
+    },
+    "ranks": {
+      "0": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      },
+      "1": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      },
+      "2": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      },
+      "3": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      },
+      "4": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      },
+      "5": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      },
+      "6": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      },
+      "7": {
+        "RNG_bitexact": true,
+        "scene_stream_bitexact": true,
+        "updates": 4,
+        "pending": false
+      }
+    },
+    "split_checkpoint": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16/checkpoints/update000004_inner0",
+    "continuous_checkpoint": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/checkpoints/update000004_inner0"
+  },
+  "nominal_qualification": {
+    "status": "PASS",
+    "real_full_IL70": true,
+    "formal_training": false,
+    "qualification_gate_injected": 0.5,
+    "actual_scene_exposures": 0,
+    "actual_PDM_queries": 68,
+    "peak_GPU_bytes": 17629859328,
+    "wall_seconds": 16.956173671409488,
+    "teacher_gain": 0.41666666666666663,
+    "exact_final_ODE_head_equal": true,
+    "gradient_norms": {
+      "action_expert.": 0.01373295524827071,
+      "scene_provider.": 0.020425215595548246,
+      "predictive_provider.": 0.001072444418154739
+    }
+  },
+  "nominal_scenes": 4,
+  "formal_NAVTEST_scores_created": false,
+  "deadline": {
+    "schema": "world_performance_user_temporary_resource_deadline_v1",
+    "requested_unix": 1793636694.655209,
+    "hosts": [
+      "training-vlawm-zt4",
+      "training-rl-zt2",
+      "training-vlawm-tsinghua-zt2",
+      "training-vlawm-zt",
+      "training-vlawm-tsinghua-zt3",
+      "training-vlawm-zt2"
+    ],
+    "deadline_unix": 1793664000.0,
+    "deadline_UTC": "2026-11-03T00:00:00Z",
+    "deadline_Asia_Shanghai": "2026-11-03 08:00:00 +08:00",
+    "checkpoint_guard_seconds": 900,
+    "user_instruction": "vlawm-zt4 rl-zt2 vlawm-tsinghua-zt2 vlawm-zt vlawm-tsinghua-zt3 vlawm-zt2 临时可用，限时到北京时间11月3日8点",
+    "preserve_other_host_grants": true,
+    "scope": "authorized Qwen-World RL/IL and their evaluation; exact native checkpoint before release; no unknown process eviction",
+    "research_root": "/mnt/project/qwen-world-performance-rl-20261103"
+  },
+  "input_files": [
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/data/AUDIT.json",
+      "sha256": "1be9ed773b332032447f43073ad18ef17c6808fe1832a27f91bac4be06243122",
+      "bytes": 3465
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/operations/RESOURCES_UNTIL_20261103T000000Z/REQUEST.json",
+      "sha256": "eda016e3b85f032bad7a3d5fb8d69693ad851c20fb4966b854c62e17a7f26257",
+      "bytes": 900
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank0.json",
+      "sha256": "b7ca45943c49d4c359a6d0534c51b0d5ba134bacbb71e86c3fcccc31632f29b9",
+      "bytes": 28574
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank1.json",
+      "sha256": "43dfd3f00f7119acc4f723c41aee8938a79e2a819a693ca44d3dbdee03ac646c",
+      "bytes": 28576
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank2.json",
+      "sha256": "efb6447da74bf69f591c03e35f56e89ae3eae7d5646b6d20e16a394ec366a478",
+      "bytes": 28575
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank3.json",
+      "sha256": "7b2889bb1229df370918f54f72a8a530891bdfbe871f2058d26ac00778e6738d",
+      "bytes": 28575
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank4.json",
+      "sha256": "b10b2d84a4baa4ba0663182f01c0175c0f9c49a374f1948ba07052b6f3c66ecb",
+      "bytes": 28573
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank5.json",
+      "sha256": "ffde2625891850ca9dd0df2509e73c6e2ade287232f55ae6d603883d794524de",
+      "bytes": 28575
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank6.json",
+      "sha256": "1738d42b9ca16fa33be488c22ab26812c20ba125913f78ecdbbb314798f7edd2",
+      "bytes": 28576
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/result_rank7.json",
+      "sha256": "32fa1206a60b458977fb3350dae46d8069f4a1e381a09b00fed1f07bb7c2f8af",
+      "bytes": 28577
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank0.jsonl",
+      "sha256": "4d00ccc18a718459e5f26ebb2c782c5a1fd9cfd0f4e74d68c184246d72abe8d8",
+      "bytes": 14563
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank0.json",
+      "sha256": "59810f28a9582db5412141f9b9385b6d0817c9b35edd37605e2c59932ea114e1",
+      "bytes": 1289
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank1.jsonl",
+      "sha256": "86badab776fabfe78bb60c2dda50b6e496e3cde241e1ba0254c8a586a21b1d76",
+      "bytes": 14534
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank1.json",
+      "sha256": "22c3e2043d2109a7ad4b741d3ea579398b05b2818bb95233e6eafa6bcd1cc0ba",
+      "bytes": 1290
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank2.jsonl",
+      "sha256": "a5836e60d83edf52031eed147193d3ccaa85f5cad3f992c91b0a1a2835050199",
+      "bytes": 14780
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank2.json",
+      "sha256": "9969cdc28a7cda41104cd3583d0355f00d6557718ecb01d01529394cb006f680",
+      "bytes": 1291
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank3.jsonl",
+      "sha256": "75fe07300da2fd26229c820806b844d7daf50096b7bd7c54ed1938da574e7582",
+      "bytes": 14624
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank3.json",
+      "sha256": "5dd834e717eac19b17eb580985be12ec908fad8ebb8c560e36b69b7dddfd125c",
+      "bytes": 1288
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank4.jsonl",
+      "sha256": "699f8fd0b54fe49a78a70ee2ed4ffc018d412d4000ae5741964cbd0dd2376e81",
+      "bytes": 14667
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank4.json",
+      "sha256": "5b18bf75c9637c3be7646ad1bb5279990d0169052a0f52daf1ea05d25150a7cf",
+      "bytes": 1290
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank5.jsonl",
+      "sha256": "ac233a3f9a1dc26748c2e50cbba034ecf9d3f1e460424db74eac2ef6bbe8cf6c",
+      "bytes": 14687
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank5.json",
+      "sha256": "399a0c46549c282e21765606c016a3cd79488b63e440fceedc158ff0f8998145",
+      "bytes": 1289
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank6.jsonl",
+      "sha256": "9b44e8bf36282e818e84da585d28f5a94c9162851cff7ac24365d1499b4aba6f",
+      "bytes": 14607
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank6.json",
+      "sha256": "eb8248711d6e81652b90bcd3025bda7e452d53dc6b237b149207708b82384b67",
+      "bytes": 1291
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/metrics_rank7.jsonl",
+      "sha256": "5614fbbeb6751f851ea410ddd208807815ccb17294fe151299bfff7ebb9eb0fa",
+      "bytes": 14786
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/invocations/252dd2710596442ea4cf4e3ff4b27d07/rank7.json",
+      "sha256": "f9b79b77f195b9dbedd8a7fa58989703f60823e5786c415828850a03030097ad",
+      "bytes": 1286
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/checkpoints/update000004_inner0/files.json",
+      "sha256": "d75a62442f3573c36f574e0fddb0eb8cfc8c88a350bd58016ae549f2ef2db053",
+      "bytes": 921
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G16/checkpoints/update000004_inner0/COMPLETE",
+      "sha256": "3115dd39c1696b4e0dd2d265fd4d7ef735dbbfa9940b1c4b2769c242dd89548c",
+      "bytes": 172
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank0.json",
+      "sha256": "ab640fac3ad00388bbc1a345687d3c54d60984a4431b5ed295e8e542d9dc4564",
+      "bytes": 28599
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank1.json",
+      "sha256": "7af5a07b3cf4c235673f7681eda0e4fb80145ca89999391142c2b292dedb3b88",
+      "bytes": 28601
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank2.json",
+      "sha256": "5ec84ce03bd06474d6f40c119192dc7434c15506eaf33b79e70422ac47cdff1f",
+      "bytes": 28600
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank3.json",
+      "sha256": "c701e690ff5055d63d1f89bc79f9d536bceceeeafac0bb8bababac493c97594c",
+      "bytes": 28599
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank4.json",
+      "sha256": "c08506c65cc9d695de63e9f3668188c49ba84f5e11139e94fc1a23b58b2b9470",
+      "bytes": 28600
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank5.json",
+      "sha256": "3ea2a6b2a6d5a270e44e2baa00f61b921d82825943b3a8d76c8c0e22f5c78f70",
+      "bytes": 28601
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank6.json",
+      "sha256": "e603fb3173f1836ae85b25e8446cdea363cb0f45f1864785d50cff484974712b",
+      "bytes": 28602
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/result_rank7.json",
+      "sha256": "a023131ff1f96511b4339c7ad15071617e5d97e9d2c28ad00383428d123db987",
+      "bytes": 28598
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank0.jsonl",
+      "sha256": "416c4a971ae9279ef449173eae1071b29f71d262c3f593ef6cc71278d37def92",
+      "bytes": 15462
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank0.json",
+      "sha256": "91d7a731b07f29a6bd664563b34e2ec61de16c536372e395b60671a72320a9ad",
+      "bytes": 1303
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank1.jsonl",
+      "sha256": "d02faa6a1516a929de5a120c256196c0ab6272d7dc9083b75c937d1f366197db",
+      "bytes": 15505
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank1.json",
+      "sha256": "e4996a33f572bd49ce248191aeff5897b9a749b0964f38b34c15af1b5bf4e697",
+      "bytes": 1305
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank2.jsonl",
+      "sha256": "9390dc008450505c6ef0c71fff45250edb083444216a10de631a223e7648e013",
+      "bytes": 15448
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank2.json",
+      "sha256": "c1fcf044bd321cb5fe5059c3a09c78cc54db503b16a3c90fe7016e48b16985f6",
+      "bytes": 1301
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank3.jsonl",
+      "sha256": "e38b59072f9fc50838b0de559abaa890f64df9d7e221af318883ec8bc04012c9",
+      "bytes": 15574
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank3.json",
+      "sha256": "851aadefb1fe23295238748cb1222788550edb2c96ff7b39b9440c613e3a1f00",
+      "bytes": 1306
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank4.jsonl",
+      "sha256": "964b9596e87608109e9ada3cf0ac13d5d8bce77ecaf6eda3031f726c63df3c48",
+      "bytes": 15240
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank4.json",
+      "sha256": "1fc68482a9b5cf49c465c7c4e6998a7fbeeaffe92a992d30a2eb2323b7109a05",
+      "bytes": 1303
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank5.jsonl",
+      "sha256": "2d6b79624d22734b2348daebf13dba95521183ef58c68987b1c7c31b15c8a34e",
+      "bytes": 15319
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank5.json",
+      "sha256": "a9ca415c18918ae05f3b6aed1897ab252856db56f1c79bb96ec9d255fb44d7bf",
+      "bytes": 1305
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank6.jsonl",
+      "sha256": "6dce7286002189c1e00826ca9b1c94bffb739a4e80945ee1da30774c6a1b9088",
+      "bytes": 15409
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank6.json",
+      "sha256": "4086529521b8c9663f1854e9e4628a2742da656c354e83d31c29866195600442",
+      "bytes": 1306
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/metrics_rank7.jsonl",
+      "sha256": "4a1a95ef1fd82d32c8de2d15442cd49a8a26f8695e1c9f8c6743294847069f8a",
+      "bytes": 15483
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/invocations/f8b810d56abf4a94878e89762b39e23b/rank7.json",
+      "sha256": "dcd255dcf49d462b2d7794b1f125e2215f5e8f85f099ee06bcc074c3d9a2df92",
+      "bytes": 1300
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/checkpoints/update000004_inner0/files.json",
+      "sha256": "bbcdd407854b638419d9ee03f1bfcc5b5cc4537854cc2826ea1b44142f5318ce",
+      "bytes": 921
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G16_continuous/checkpoints/update000004_inner0/COMPLETE",
+      "sha256": "46cded7223a22ea2a94fa9f33671415d115f58ed9035b15e5c347c1c4ac32d74",
+      "bytes": 172
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank0.json",
+      "sha256": "3283b1bc0ad7ba88badfdb0eb913bf1ef5c1f5d69881114fab07f9f3f19a6f40",
+      "bytes": 28574
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank1.json",
+      "sha256": "37e2e5af54f0c190fac863fedaf021e74cb8764593582856755731baf3c40a88",
+      "bytes": 28574
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank2.json",
+      "sha256": "22f183e0d244c10e960cf0376dbbab1a1d10d052b258e174a7f66d5971f7c57f",
+      "bytes": 28576
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank3.json",
+      "sha256": "40924eb29293ebd6ef7d2681441defa30738b65b33198252d54df3af3afe8097",
+      "bytes": 28576
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank4.json",
+      "sha256": "f085c75360c953459eb11f71d5f2758c27281c0d2a935225e67db9634d1c19af",
+      "bytes": 28575
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank5.json",
+      "sha256": "af32d1a6c2e8410832314b70390d8f133847d18f25107892955c430bc46b5f94",
+      "bytes": 28575
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank6.json",
+      "sha256": "f43a337e354247e13aa3fd7f4437533deb3a5c5da1264ba320586cbf9de39626",
+      "bytes": 28576
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/result_rank7.json",
+      "sha256": "0a2a831290d55aefbab1f326fa73eb69386ff7a1d24ba8c364787c966f2ca5c4",
+      "bytes": 28572
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank0.jsonl",
+      "sha256": "dc24cdfe0a9710093a4f7646bd00d2ad3e00d8e0dd3f867f696e149ad09126e3",
+      "bytes": 14771
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank0.json",
+      "sha256": "de8602419e9cf04a89772787e563607ee85af16358f113bd1d675ef75ed197f5",
+      "bytes": 1291
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank1.jsonl",
+      "sha256": "97afe4f3f6f84f5372c7dcd97affd9756ab4bcf713dc43f8a4ffec8e4b4bb0ef",
+      "bytes": 14774
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank1.json",
+      "sha256": "68aa36ef87693ca8c908fd9cfbbef8a4a3be744a468ddd8980bc5412d72766d6",
+      "bytes": 1290
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank2.jsonl",
+      "sha256": "a8ec97d501e5f147e17ececae8a20008c9b443aed8f401aaef6aff07ceffc5e5",
+      "bytes": 14780
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank2.json",
+      "sha256": "362d1fdfe24bc12828dc28921f79a98e56ddfaeb3a764f3d94cebfb9d9efe235",
+      "bytes": 1290
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank3.jsonl",
+      "sha256": "d7677561adb24297df6e66ab303c63ab2f6262ae451ab8db3961accc5e0f2fa6",
+      "bytes": 14722
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank3.json",
+      "sha256": "fd8b26869e3a276cf1547eec41d75427650613e29da0fcae78fe5b69253a0990",
+      "bytes": 1290
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank4.jsonl",
+      "sha256": "433ad6d00a93be06033c663eed5840f6df36b1996f15230e5a3e28db45ea8125",
+      "bytes": 14742
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank4.json",
+      "sha256": "b7a198ad18cc1bffc6c980dba48484921ad6a79032c061ec7024b07a3d07d380",
+      "bytes": 1289
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank5.jsonl",
+      "sha256": "44320bdfebd1d6908c406355de9276db746d0407e7e32e1d13065ba058ca5df1",
+      "bytes": 14769
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank5.json",
+      "sha256": "63e662b5a2f5b63abcfe77c826e08d71e8f65e3a7c799aba995178c5649d6820",
+      "bytes": 1288
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank6.jsonl",
+      "sha256": "5e4e6aa2802f4fdb759444238e22dc6ca4bcff197967bdd645fe08d2d1a702bb",
+      "bytes": 14844
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank6.json",
+      "sha256": "9ef22617ec75e0e84e2fdffcdb85ccfe993a03c410d3b7b589bfff18d582c7f0",
+      "bytes": 1292
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/metrics_rank7.jsonl",
+      "sha256": "c158132708244bd921c2018c302a45e287036c9275f1414b821adf574b6b6d6a",
+      "bytes": 14853
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/invocations/e127ea6dc7414cb59326c730c1886445/rank7.json",
+      "sha256": "1cc254757c1c83cea6ff0367b55e58ffde8fe23810c4c7fdf91e6d8de0ec83b3",
+      "bytes": 1291
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/checkpoints/update000004_inner0/files.json",
+      "sha256": "769ed95a23f07013347a47c12a0f3d15f027dea33bc70c75c7bd592f6b676c18",
+      "bytes": 921
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B64_G32/checkpoints/update000004_inner0/COMPLETE",
+      "sha256": "e226f53bfcbf4b1760aeaebe36a00a027b1a39d130a3f72a1d9a796698134361",
+      "bytes": 172
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank0.json",
+      "sha256": "38aa2ee1db6a2a2b541def22ff55e79486069220e4a36ccb6b21e49803fb648b",
+      "bytes": 28589
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank1.json",
+      "sha256": "aa8db719e7486c6dcb943612d1fe6a6d3ccd13bf541f50dd2c9ace4633fc7781",
+      "bytes": 28588
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank2.json",
+      "sha256": "4242c5632dff2ef2e6e725596fc3c7821bb38365ab2561b1525aaa468b5e73d4",
+      "bytes": 28587
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank3.json",
+      "sha256": "dd82d48d16d4003c1c9369fa237f624f0e84a14831a745e101df5bc3f95bf4d8",
+      "bytes": 28587
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank4.json",
+      "sha256": "6bc58e412de19afdbec3f4d41575125fa3035529810e46182a9350cb01405024",
+      "bytes": 28588
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank5.json",
+      "sha256": "84ca2425864c8513054c9499a3d8893bd1ac5d6de45dbcede2e2a62a5f01161e",
+      "bytes": 28589
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank6.json",
+      "sha256": "0d7348b4ce9f7746fe3013fe80df5ca08e443e76acdbddf1e71a7a35aaec71b6",
+      "bytes": 28589
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/result_rank7.json",
+      "sha256": "2288fd7c4f44db38c5a96de8d797cd54b26a709e9080d411e0e6b785f2c53009",
+      "bytes": 28589
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank0.jsonl",
+      "sha256": "a269cd0797891a00542590d9d4c2d118ffdc72754999faa382a99e7922b2ee8e",
+      "bytes": 15542
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank0.json",
+      "sha256": "35ba7506cdbdbd182a1197e0b0c612ee755b0763eb7c310f5e98ca760a38664a",
+      "bytes": 1293
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank1.jsonl",
+      "sha256": "6a195d1be1efc3567d5f3e27b3aea0a7a4608e1877ac98c1aa98aa0f879a8cf8",
+      "bytes": 15611
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank1.json",
+      "sha256": "e648421ec13180fdc31c81f82abd4e83b1ecdbe98605d5bad216db0695c089a3",
+      "bytes": 1293
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank2.jsonl",
+      "sha256": "f9130bb8da065b668601bc30afd4d1d4e6548ca111c100f5a29c47bdd0b4ba07",
+      "bytes": 15520
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank2.json",
+      "sha256": "c20d006c906c3523dd84d628a67ac325bdb493171947dec07f3740addee48063",
+      "bytes": 1295
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank3.jsonl",
+      "sha256": "b9138f2d26edce3c9e71d451538ec5b4c2131d72a7d7c2f20e5e40049510af99",
+      "bytes": 15433
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank3.json",
+      "sha256": "36ca15261ecc13956e202df441053b5568bb4f6899feca388024fe9f5482bba2",
+      "bytes": 1294
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank4.jsonl",
+      "sha256": "ec46b75a0fb61a8670c06e771e2dafdc75a5535bd31ad79239235ba50a40b76d",
+      "bytes": 15455
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank4.json",
+      "sha256": "e376bf88487a8d9ac8c3ee1726aba5550800a70523cd77b2038cdc1c9d3dd951",
+      "bytes": 1292
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank5.jsonl",
+      "sha256": "0b69a45b93d1b1bf241a4058440f47dd86e4dd0aeb7b1e3921a6c20da4f8c820",
+      "bytes": 15512
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank5.json",
+      "sha256": "6322efb1e9606c28b0a6188cee14f509bc0b6c42a7cca28f12eef74f5313c05e",
+      "bytes": 1293
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank6.jsonl",
+      "sha256": "acf1ba8f1a9abc2be47c286b87df617ed9830bb454910cbb3a02d8c5339814f4",
+      "bytes": 15459
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank6.json",
+      "sha256": "6bac6458523259b2ac6fca18367fd2a20d90cedaf5eb7fc0fed5715b6cfbf1cd",
+      "bytes": 1291
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/metrics_rank7.jsonl",
+      "sha256": "aebb1f05a7f762f73643e2406e2bccc61c364b4e23cc2f92ddf284e83f0efc06",
+      "bytes": 15585
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/invocations/71efcf88258c4f6bb6bd6796c012eba7/rank7.json",
+      "sha256": "3d345273f0db5fbaa6642bb70b8677d019fe72743d45212098b7d04d677ef8b6",
+      "bytes": 1294
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/checkpoints/update000004_inner0/files.json",
+      "sha256": "c6246ffbce7c8be47bf91ccba49f3e93424c89b8aeb38ff521e30c0b5b960e6f",
+      "bytes": 921
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification_v3/B128_G32/checkpoints/update000004_inner0/COMPLETE",
+      "sha256": "1cd512bf47444af570f2a1219b754b33817cf786bf62afdb30a77ff5fa8fbd5e",
+      "bytes": 172
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/operations/NATIVE_RESUME_QUALIFICATION.json",
+      "sha256": "781b1da7eeb12082c166422302944baa077cb2da14b48c2318c32334ceeeff25",
+      "bytes": 1561
+    },
+    {
+      "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification/REAL_NOMINAL_IL70/COMPLETE.json",
+      "sha256": "6a9718da77b09c26e745a7dc686a1817bdb68eb456bdc7b5c92434a7b5dede45",
+      "bytes": 3944
+    }
+  ],
+  "limitations": [
+    "One completed first window per B/G, not a long-run steady-state or architecture-causal speed experiment.",
+    "Sampling+scoring-wait+old-prob+4back only; startup is separate, scoring CPU is already within wall wait.",
+    "No evaluation/export/checkpoint stalls, resource queues or algorithm-specific extra forwards included in epoch projection.",
+    "S2/S3 have M2 with extra MC4/MC2 work; these S0/M4 timings are not measured S2/S3 throughput.",
+    "The deadline applies to six temporary hosts; no capacity reservation or six-epoch completion is promised.",
+    "Qualification weights and injected nominal gate are never formal initialization or NAVTEST improvement."
+  ]
+}

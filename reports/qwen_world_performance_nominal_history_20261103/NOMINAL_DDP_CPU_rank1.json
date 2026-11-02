@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "rank": 1,
+  "world": 2,
+  "device": "cpu",
+  "BF16": true,
+  "B1_deployment_last_head_exact": true,
+  "rows": [
+    {
+      "update": 0,
+      "micro": 0,
+      "loss": 0.00044875795720145106,
+      "enabled": false,
+      "measured": 0.0,
+      "memory_builds": 6,
+      "cfm_gradient_norm_last": null,
+      "ode_gradient_norm_last": null
+    },
+    {
+      "update": 0,
+      "micro": 1,
+      "loss": 0.00044875795720145106,
+      "enabled": false,
+      "measured": 0.0,
+      "memory_builds": 7,
+      "cfm_gradient_norm_last": null,
+      "ode_gradient_norm_last": null
+    },
+    {
+      "update": 1,
+      "micro": 0,
+      "loss": 0.00448866281658411,
+      "enabled": false,
+      "measured": 0.0,
+      "memory_builds": 8,
+      "cfm_gradient_norm_last": null,
+      "ode_gradient_norm_last": null
+    },
+    {
+      "update": 1,
+      "micro": 1,
+      "loss": 0.00448866281658411,
+      "enabled": false,
+      "measured": 0.0,
+      "memory_builds": 9,
+      "cfm_gradient_norm_last": null,
+      "ode_gradient_norm_last": null
+    }
+  ],
+  "calibration_state": {
+    "schema": "world_performance_rank_local_aux_gradient_calibration_v1",
+    "protocol": {
+      "schema": "world_performance_rank_local_aux_gradient_calibration_v1",
+      "target": "norm of current same-microbatch unscaled physical ILmean-MSE gradient",
+      "ratio": "norm(gIL)/max(norm(gcomponent),1e-12)",
+      "minimum_scale": 0.0001,
+      "maximum_scale": 10000.0,
+      "EMA_decay": 0.9,
+      "calibration_calls": 100,
+      "measurement_calls": 500,
+      "clock": "effective per-rank teacher-slot loss calls, including inner reuse; not Adam updates",
+      "gradients": "all current trainable parameters; local norm, no conditional cross-rank collective; no .grad mutation",
+      "freeze": "after100 calls keep last EMA; only diagnose until500, then stop gradient probes; last_measured labels remain explicit"
+    },
+    "effective_updates": 0,
+    "calibration_updates": 0,
+    "measured_updates": 0,
+    "frozen": false,
+    "scale_cfm": null,
+    "scale_ode": null,
+    "last_norms": null,
+    "scale_clip_hits_cfm": 0,
+    "scale_clip_hits_ode": 0
+  },
+  "optimizer_steps": 2,
+  "limits": "actualTinyScope32hidden/2layers/frozenfakeQwen; mockedcanonicalfeedback; notfull52.7Mproductionqualification orPDMS evidence"
+}

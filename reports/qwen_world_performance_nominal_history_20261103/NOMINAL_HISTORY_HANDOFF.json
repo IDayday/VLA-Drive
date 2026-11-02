@@ -1,0 +1,78 @@
+{
+  "schema": "world_performance_nominal_history_handoff_v1",
+  "status": "SCIENCE_CPU_READY",
+  "at": 1793637900.9040592,
+  "files": [
+    "starVLA/rl/qwen_world_performance/ode_target.py",
+    "starVLA/rl/qwen_world_performance/adaptive_group.py",
+    "starVLA/rl/qwen_world_performance/nominal_improvement.py",
+    "starVLA/rl/qwen_world_performance/persistent_history.py",
+    "tests/test_world_performance_nominal.py",
+    "tests/test_world_performance_history.py",
+    "tests/performance_nominal_gpu_probe.py"
+  ],
+  "hashes": {
+    "starVLA/rl/qwen_world_performance/ode_target.py": "44a94ffb1d334a89d1535278121800c6376baf553e9c3e426dc374eaf740e4de",
+    "starVLA/rl/qwen_world_performance/adaptive_group.py": "e5cfb9155643afb3d03eb835fcd0bb7193c634b498fb632434cecf545a07b8f5",
+    "starVLA/rl/qwen_world_performance/nominal_improvement.py": "fe148e7335572c280910ddcb696abf17c257003cf40779cc0af0b74b334eac3f",
+    "starVLA/rl/qwen_world_performance/persistent_history.py": "36010c17bc1e26beafd914f699116433d52ba8d3e91d41c89d5b750973dd92a0",
+    "tests/test_world_performance_nominal.py": "61ff454bca1ccafaecc06424c8ce8b3c264cdf3ab7102993d6dfa8e99a78f339",
+    "tests/test_world_performance_history.py": "260707547d919c582eb7d468bc5bf8c4758284bd6fe057907ba4975a34c3a5dc",
+    "tests/performance_nominal_gpu_probe.py": "5076a5dbab7aa232964ad1ac7b7c11355ad86ed53cc5f772f3845f95f98219fe"
+  },
+  "receipt": "/mnt/project/qwen-world-performance-rl-20261103/analysis/NOMINAL_HISTORY_CPU_CHECK.json",
+  "nominal": {
+    "module": "starVLA.rl.qwen_world_performance.nominal_improvement",
+    "exports": [
+      "CONFIG",
+      "NominalLossMixin",
+      "attach_material",
+      "validate_material",
+      "compute_nominal_losses",
+      "calibrate_components",
+      "new_calibration_state",
+      "validate_calibration_state"
+    ],
+    "material_key": "nominal_improvement",
+    "runtime": "Root binds loss.auxiliary_state = state.performance_auxiliary.nominal_improvement; mixin MRO before ComponentCapture/ResearchLoss",
+    "attach": "attach_material(actor,leaf,conditions,service,exposure_epoch=before_epoch,rank=rank,config=CONFIG,calibration_state=...)",
+    "formula": "PG+beta*((1-alpha)*IL+alpha*(.75*scaleCFM*CFM+.25*scaleODE*ODE)); alpha=.05, beta=50",
+    "CFM": "mean((v_theta((1-sigma)*teacher+sigma*noise,sigma)-(noise-teacher))^2), sigmaU[.1,.9), MC2 in normalizedaction coordinates",
+    "ODE": "SmoothL1_beta1_mean(actualcurrentB1cleanxhead(detachedsavedx9,sigma9),verifiedsampledteacher); noEulerreconstruction/no prefixbackprop",
+    "trigger": "validTRAIN exposure>=.5epoch; nominalB1 notstrict-high; firstG16 must contain no strict-high torequestteacheronlyextraG16; choosebeststrict-high score>=.9 andgain>=.02 vsactualB1",
+    "strict": "NC=DAC=TTC=Comfort1 andcanonical>=.9; DDC reportedbutnotextragate",
+    "old_new_difference": "owncurrentrun actualsample witness + trueB1laststate supervision, noofflineSuccessMemory/RescueW2/frozenexternalteacher orhistoricalPG",
+    "calibration": "perrankcurrentmicrobatch gIL target, eachcomponent ratio norm(gIL)/max(norm(gcomponent),1e-12), clip[1e-4,1e4], EMA.9first100 effectiveteacher-slotcalls; freeze lastEMA, measure until500, thenlast_measured explicitlystale. Extraautograd.grad no .gradmutation orconditionalcollectives.",
+    "calibration_clock": "Calls includeeachinner andmicro, NOTglobalAdamupdates. Per-rank scales differ legitimately, state is nativecheckpointed. Individualcomponent normalization does notprove equalcombinedgradient orsafeperformance.",
+    "queries": "PrimaryPG16unchanged; additionalofficialB1=1 pervalidrescuestartscene, plusconditionalteacher16; nohistory/candidate entersfreshglobalstd; exactphysicalqueries mustbesummed separately.",
+    "seed": "privateCFM/extra keys bind ownrun/update/adapterhash/token/rank seed42; doNOTclaim exactcrossalgorithmcommonrandomnumbers"
+  },
+  "history": {
+    "module": "starVLA.rl.qwen_world_performance.persistent_history",
+    "exports": [
+      "new_history_state",
+      "admit_nominal",
+      "attach_history_window",
+      "history_loss",
+      "validate_history_state",
+      "validate_history_material"
+    ],
+    "bank_state_key": "performance_auxiliary.history",
+    "initialization": "Createemptybank fromfresh0; beginadmittingallactualstrict-high nominalprobes inphase2, evenwhenS1 enabledFalse becausealreadystrict-high.",
+    "scope": "Samealgorithm/run TRAINonly.512/rank reservoirprivateRNG42; noextraactorweights",
+    "collection": "Afterallfreshadmissions, oneproactivelyselectedolder-version scene/rank; actualcurrentB1rescoreonce; nofresh-PG/std reuse/historyadvantage",
+    "h": "floor.05+.20*regression; qualitylossorcanonicaldrop>.01 definesregression. currentstrict-highscore>old+1e-6 ->h0 andupgradebank forlaterversion, counted dominated_teacher_count.",
+    "loss": "history_loss returns .75scaleCFM*CFM+.25scaleODE*SmoothL1; Root outer addsbeta*h, deductsh*originalbetaIL fromfresh scene objective. No beta/h addedinsidehelper.",
+    "absence": "empty/noeligible/dominated ->(None,metrics); Rootmustexecute genuinefreshleaf*0 dummyforward onallranks asplanned, notinventzeroGraph.",
+    "scales": "Readonly nominalcalibration; fallback1 ifnevercalibrated, explicitlylogged. Fallback1 not evidence ofgradient-scale equivalence.",
+    "recovery": "validate_history_state(bank,runsha,rank,allowed_tokens=stream.logs,maximum_update=u-i); validate_history_material(material,bank_after). Fullbeforebank/RNG, currentB1/oldteacher/CFMdraws/selection/hcounter/afterdigest sealed. Unknown/nonTRAIN/future/foreignrun rejects.",
+    "extra_query": "AtmostoneofficialB1/rank/collection wheneligibleteacherexists, sumranklocalcounter; admissionreusesalready-scorednominalB1 withoutaddingitsqueryagain"
+  },
+  "critical_conventions": [
+    "true deployedlaststep directlyreturns cleanxprediction.float(), not state+velocity*delta; BF16/F32 arithmetic matters",
+    "B1 currentMemorycarrier batch1, CFMcurrentMemorycarrier2, primaryG16context16; frozenfeatures only maycache; no currentMemorygraphcache",
+    "scoredphysicalFP32bits are authoritative; normalized endpoint/CPUdecode comparedonlywithinexplicitFP32roundingbound, notclaimedmetricsinvariance",
+    "teacher quality/stochastic success is notproof nominaldeployment improves; allfairperformance requiresactualfullNAVscoring; noNAVlabelsteach orchooseTRAINtargets"
+  ],
+  "qualification_limits": "tiny realScope32hidden/2layers, fake frozenQwen, mock physicalfeedback; notfull52.7M productionqualification orPDMS"
+}

@@ -45,7 +45,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.qwen_world_abcd_research.train','tools.qwen_world_safety_exploration.train'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.qwen_world_abcd_research.train','tools.qwen_world_safety_exploration.train','tools.qwen_world_performance.train'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -131,7 +131,7 @@ def _known_owners(rows,mapping,indices):
         try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
-        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-','/mnt/project/qwen-world-four-frameworks-','/mnt/project/qwen-world-abcd-rl-best-20261031/','/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-rl-optimization-20261030/','/mnt/project/qwen-world-task-suites-20261031/'))for arg in args):
+        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-','/mnt/project/qwen-world-four-frameworks-','/mnt/project/qwen-world-abcd-rl-best-20261031/','/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-performance-rl-20261103/','/mnt/project/qwen-world-rl-optimization-20261030/','/mnt/project/qwen-world-task-suites-20261031/'))for arg in args):
             raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
 
 

@@ -16,7 +16,7 @@ STRUCTURED_SCHEMA = 'world_SafetyEP_group_credit_v1'
 
 
 def protocol(group_size):
-    if type(group_size) is not int or group_size not in (8, 16):
+    if type(group_size) is not int or group_size not in (8, 16, 32):
         raise ValueError('Only G8 or G16')
     return dict(schema=STRUCTURED_SCHEMA, group_size=group_size, world=8,
         normalization_population_candidates=8*group_size, kappa=0.0, lambda_EP=1.0,
@@ -57,7 +57,7 @@ def canonical_components(records, group_size, *, device='cpu'):
 
 @torch.no_grad()
 def raw_advantage_parts(components):
-    if (components.ndim != 3 or components.shape[1] not in (8, 16) or components.shape[2] != 4
+    if (components.ndim != 3 or components.shape[1] not in (8, 16, 32) or components.shape[2] != 4
             or not torch.isfinite(components).all()
             or not bool(((components >= 0) & (components <= 1)).all())):
         raise ValueError('Finite [scene,G,NC/DAC/TTC/EP] material required')

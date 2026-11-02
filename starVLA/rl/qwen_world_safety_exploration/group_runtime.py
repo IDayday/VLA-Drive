@@ -65,7 +65,7 @@ def validate_recipe(cfg):
 def collect_group(actor, condition, token, log, service, generator, *, group_size,
                   variant, version, progress=None):
     """Same source W3 chain and scoring; horizon8 is independent of G."""
-    if group_size not in (8, 16) or variant != 'R_CANONICAL':
+    if group_size not in (8, 16, 32) or variant != 'R_CANONICAL':
         raise ValueError('Registered G and canonical W3 collection required')
     actor._noise_audit = []
     begin = time.monotonic()

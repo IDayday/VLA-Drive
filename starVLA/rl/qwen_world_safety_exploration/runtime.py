@@ -7,6 +7,9 @@ from .quality import QualityDiagnosticsMixin
 
 def runtime_for_config(path):
     cfg=yaml.safe_load(Path(path).read_text());r=cfg['research']
+    if r.get('performance') is not None:
+        from starVLA.rl.qwen_world_performance.batch_runtime import PerformanceRuntime
+        return PerformanceRuntime()
     if r.get('integrated64') is not None:
         from .integrated64_runtime import integrated_runtime
         return integrated_runtime(cfg)

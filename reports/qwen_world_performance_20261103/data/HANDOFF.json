@@ -1,0 +1,85 @@
+{
+  "api": {
+    "batch": "set_batch_size(B) only at epoch boundary, no pending plan; world stays8. E.g full103288 B64/B128 both epoch_size103296 and8padding.",
+    "bind": "stream.bind(training_state) after fresh/strict native restore; runtime must use same initial globalB identity across resume; saved current batch_size restores automatically",
+    "commit": "stream.commit_window(positions_or_None,next_cursor) ONCE after globalB fresh rollout/A commit, before pending4inner save; then set training_state.scene_cursor=next_cursor. None validates own immutable wholeB plan without needing another allgather.",
+    "constructor": "PerformanceSceneStream(manifest,world,batch_size=globalB,run_identity=identitySHA,priority=True)",
+    "feedback": "write_feedback(path,run_identity,checkpoint_identity,observed_valid_scene_clock,records,logs,previous=None) seals already COMPLETE own TRAIN B1 canonical metrics; then offer_feedback(path) same snapshot broadcast to ALL ranks. Historical best/ever-safe persists across rotated panels; current priority only from newly observed records, not stale history.",
+    "recovery": "stream_state_validation(training_state,run_identity=identitySHA,stream_identity=stream.identity,tokens=stream.tokens) is pure, no file/NAV read; merge output into boundary summary and require stream_state_sha256 equal on ALL ranks. bind additionally verifies immutable feedback fileSHA.",
+    "sample": "at(scene_cursor+micro*world,rank)->token,meta; globalB distinct VALID scenes, padding shape-only duplicates have valid_mask0",
+    "summary": "stream.summary(): cursor,epoch,globalB,valid/padding,uniform_cursor,actual percategory/fallback/repeat/unique counters"
+  },
+  "audit": "/mnt/project/qwen-world-performance-rl-20261103/data/AUDIT.json",
+  "audit_seal": "f906923a7261628c89e40d4976f2db8175a2abb2eb8746fcbec0782d75bab528",
+  "cpu_checks": {
+    "command": "CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_performance_sampling.py",
+    "coverage": [
+      "Actual full103288 first epoch exact source-order and single valid coverage;8padding;globalB change boundary only;ambient Torch/Python RNG unchanged",
+      "Pending native plan/resume exact, cap4, stale1epoch fallback, distinct globalB, malformed validmask even with reseal rejected, sourceNAV/foreignrun feedback rejected"
+    ],
+    "latest_wall_seconds": 2.61,
+    "status": "PASS",
+    "tests": 2
+  },
+  "created_unix": 1793636948.63106,
+  "current_operations_handoff": "/mnt/project/qwen-world-performance-rl-20261103/operations/LAUNCH_HANDOFF.json",
+  "feedback_required": {
+    "checkpoint_identity": "exact completed native model checkpoint identity",
+    "cohort": "TRAIN_DIAGNOSTIC",
+    "inference": "single_ODE_K10_shift5_seed2101",
+    "observed_valid_scene_clock": "valid scenes already collected at that checkpoint",
+    "records": "token->{score in[0,1],log,metrics{NC,DAC,TTC,ego_progress,comfort}}; helper derives best-own/ever-safe from previous same-run history",
+    "run_identity": "same new RL logical run SHA",
+    "status": "COMPLETE",
+    "train_feedback_allowed": true
+  },
+  "feedback_schema": "world_performance_own_TRAIN_B1_feedback_v1",
+  "files_sha256": {
+    "starVLA/rl/qwen_world_performance/data_protocol.py": "05ceae6d370db68f40ab71adbc4a2f4df5a61c42d1db14afaf3442baab976297",
+    "starVLA/rl/qwen_world_performance/feedback.py": "250b43aa04bd414f564e75041303cefe542ef18d50955230ff777b2cf0271eb5",
+    "starVLA/rl/qwen_world_performance/sampling_priority.py": "e65001b240b73c9b5bf14ed8120f83bc1160ddce3245cce4db50bf28eb206d93",
+    "tests/test_world_performance_sampling.py": "3d2aa910764133b27fb046f88d76995d1ee0d877234e3b7d82039bb5ae2dd454",
+    "tools/qwen_world_performance/audit_data.py": "46744835a0ce1922cc54a8254ab2b60928d8b49b7d1c79bf683e31a6c974d518"
+  },
+  "limitations": [
+    "All103288 cache files had actual existence/size/XZframing/prefix screening; not full unpickle/semantic metric validity or full-payload hashing.",
+    "Same-run historical feedback is a TRAIN diagnostic, not independent heldout evidence.",
+    "Adaptive probabilities change data distribution; no claimed importance-sampling correction or unseen Test gain."
+  ],
+  "manifest": "/mnt/project/qwen-world-performance-rl-20261103/data/NAVTRAIN_SCENES.json",
+  "manifest_file_sha256": "c1766439926994b10bb5514673834623e78a7d060d389d71cf168587f7babc12",
+  "no_gpu_or_policy_or_old_root_mutations": true,
+  "per_record_staleness": "Priority age uses actual record observation clock, never snapshot publication clock",
+  "policy": {
+    "formerly_high_at_least": 0.9,
+    "hard_below": 0.9,
+    "log_balance": "uniform_physical_log_then_weighted_scene",
+    "maximum_feedback_age_epochs": 1.0,
+    "nominal_hard_fraction": 0.25,
+    "priority_repeat_cap_per_epoch": 4,
+    "refresh_fraction_of_epoch": 0.5,
+    "regression_drop": 0.05,
+    "regression_fraction": 0.15,
+    "schema": "world_performance_60_25_15_TRAIN_hard_regression_v1",
+    "uniform_fraction": 0.6,
+    "warmup_full_epochs": 1
+  },
+  "priority_definitions": {
+    "high_retention": "No separate15% high preservation pool; full60% uniform retains all legal103k support. High-cohort outcomes require independent diagnostics.",
+    "missing_stale_capped": "Fallback to uniform, count actual fallback. No fabricated scores/teacher/A; no silent missing-scene exclusion.",
+    "nominal_hard": "Current own TRAIN canonical B1 score<.9",
+    "regression": "Own best-score drop>=.05 OR ever strict NC=DAC=TTC1 now any fails OR previous own score>=.9 now<.9; separate15% quota from25%hard",
+    "same_token_in_both": "May be eligible for both pools but never duplicated within a valid globalB and shared epochpriority cap4 applies",
+    "uniform": "Source torch.randperm seed42+sourceEpoch with independent cursor; priority and padding NEVER advance uniform cursor"
+  },
+  "runtime_mask_requirements": [
+    "Padding still produces real candidate/scorer queries if runtime elects so; count these as physical queries, never valid scene exposures.",
+    "valid_mask0 must exclude every padded scene from advantage globalStd/centering population, PG, anchor/aux, metrics denominator. Keep differentiable zero and required DDP collectives; do not skip a rank.",
+    "Normalize valid gradients/statistics by actual VALID global scenes, not nominal B; last B128 window has120valid+8padding, B64 last56valid+8padding.",
+    "No second collection commit during4inners. Pending rollout and full stream state must both be checkpointed, including selection_plan/private seed/RNG/caps/feedback refs."
+  ],
+  "schema": "world_performance_data_stream_handoff_v1",
+  "sha256": "fd7496e3291be5cc5b207f06221e40325c08285b1be67323b0aa4ef14109b4e2",
+  "source_root": "/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103",
+  "status": "CPU_READY_NOT_COMMITTED"
+}

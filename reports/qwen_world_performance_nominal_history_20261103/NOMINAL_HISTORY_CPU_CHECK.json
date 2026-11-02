@@ -1,0 +1,54 @@
+{
+  "schema": "world_performance_nominal_history_CPU_receipt_v1",
+  "status": "PASS_CPU_READY_OPERATOR_GPU_PENDING",
+  "at": 1793637900.9040534,
+  "source_base": "987bc614aec5a042f2df8e8590d6f2479b3e1010",
+  "owned_files_sha256": {
+    "starVLA/rl/qwen_world_performance/ode_target.py": "44a94ffb1d334a89d1535278121800c6376baf553e9c3e426dc374eaf740e4de",
+    "starVLA/rl/qwen_world_performance/adaptive_group.py": "e5cfb9155643afb3d03eb835fcd0bb7193c634b498fb632434cecf545a07b8f5",
+    "starVLA/rl/qwen_world_performance/nominal_improvement.py": "fe148e7335572c280910ddcb696abf17c257003cf40779cc0af0b74b334eac3f",
+    "starVLA/rl/qwen_world_performance/persistent_history.py": "36010c17bc1e26beafd914f699116433d52ba8d3e91d41c89d5b750973dd92a0",
+    "tests/test_world_performance_nominal.py": "61ff454bca1ccafaecc06424c8ce8b3c264cdf3ab7102993d6dfa8e99a78f339",
+    "tests/test_world_performance_history.py": "260707547d919c582eb7d468bc5bf8c4758284bd6fe057907ba4975a34c3a5dc",
+    "tests/performance_nominal_gpu_probe.py": "5076a5dbab7aa232964ad1ac7b7c11355ad86ed53cc5f772f3845f95f98219fe"
+  },
+  "nominal_tests": {
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_performance_nominal.py",
+    "passed": 2,
+    "seconds": 5.75,
+    "checks": [
+      "trueB1 exactbit deployment/finalhead parity",
+      "current trainable action+scene+predictive gradients for CFM/ODE",
+      "beta50 budget replacement exactformula and sourceaudit restoration",
+      "primaryG16/teacheronlyextraG16 trigger independent ofgain andmainPG material/RNG untouched",
+      "torch.save/load native material+calibration100/500 counters/scales, crossrun/pollution rejection"
+    ]
+  },
+  "history_tests": {
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_performance_history.py",
+    "passed": 2,
+    "seconds": 4.8,
+    "checks": [
+      "olderownversion teacher only; proactivefloor.05 andregression.25 gates",
+      "currentbetterteacher h0/upgradelater andoldversionmaterial preserved",
+      "realcurrentScope Memorygraph/gradient andreadonly calibration/fallback1",
+      "torch.save/load fullbank/privateRNG/sealedwindow andsameTRAIN/run safeguards",
+      "capacity512 reservoirprivateRNG deterministic boundary; syntheticcounterfixture notactual512verifiedmodelwitnesses"
+    ]
+  },
+  "DDP_CPU": {
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m torch.distributed.run --standalone --nproc_per_node=2 tests/performance_nominal_gpu_probe.py --device cpu --output /tmp/performance-nominal-DDP-20261103",
+    "result": "PASS actual2rankGloo/2optimizersteps/2micros",
+    "scope": "rank0auxon/rank1off; firstmicro no_sync; autograd.grad insideforward; noDDPhookreentry; trainableMemory present; B1exactdeploylasthead"
+  },
+  "GPU_probe": {
+    "script": "tests/performance_nominal_gpu_probe.py",
+    "operator_command": "torchrun --nproc_per_node=2 tests/performance_nominal_gpu_probe.py --device cuda --output <operator_allocated_output>",
+    "single_GPU_command": "python tests/performance_nominal_gpu_probe.py --device cuda --output <operator_allocated_output>",
+    "status": "NOT_EXECUTED_BY_THIS_AGENT",
+    "cost": "tiny realScope32hidden/2layers, fake frozenQwen, mock physicalfeedback; notfull52.7M productionqualification orPDMS"
+  },
+  "no_commit": true,
+  "no_legacy_runtime_edits": true,
+  "no_gpu_dispatch": true
+}

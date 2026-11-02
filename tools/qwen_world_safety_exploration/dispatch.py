@@ -22,6 +22,7 @@ def launch(host, source, command, name, *, gpus='', expected_uuids=None,
     override=grant.get('worker_execution_source')
     operations_source=Path(__file__).resolve().parents[2]
     executor = str(Path(worker_source or override or operations_source)/'tools/qwen_world_safety_exploration/job_worker.py')
+    executor_sha256=file_sha(executor)
     if worker_source is None and override and file_sha(executor)!=grant.get('worker_execution_worker_sha256'):
         raise ValueError('Audited admission worker source differs from its authorization receipt')
     args = [MODEL_PYTHON, executor, '--receipt-root', str(directory), '--gpus', gpus,
@@ -47,7 +48,7 @@ def launch(host, source, command, name, *, gpus='', expected_uuids=None,
     started = json.loads(remote(host, [MODEL_PYTHON, '-c', code]))
     receipt = dict(host=host, source=str(source), command=command, invocation=name,
                    dispatched_unix=time.time(), executor=executor,
-                   executor_sha256=file_sha(executor), **started)
+                   executor_sha256=executor_sha256, **started)
     atomic_json(directory/'DISPATCH.json', receipt)
     return directory
 

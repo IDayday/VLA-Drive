@@ -1,0 +1,1190 @@
+{
+  "schema": "world_performance_fresh_IL70_campaign_v1",
+  "root": "/mnt/project/qwen-world-performance-rl-20261103",
+  "task": "qwen_world_safety_exploration_20261031",
+  "status": "CONFIGURED_SOURCE_PENDING",
+  "created_unix": 1793638318.0188477,
+  "training_population": 103288,
+  "manifest": "/mnt/project/qwen-world-performance-rl-20261103/data/NAVTRAIN_SCENES.json",
+  "manifest_sha256": "c1766439926994b10bb5514673834623e78a7d060d389d71cf168587f7babc12",
+  "observation_data": "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+  "parent_selection": "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+  "evaluation": {
+    "cohorts": [
+      "NAVTEST"
+    ],
+    "data_paths": {
+      "NAVTEST": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST"
+    },
+    "manifests": {
+      "NAVTEST": "/mnt/project/qwen-world-safety-exploration-20261031/data/NAVTEST.json"
+    },
+    "max_shards": 32,
+    "max_workers": 64,
+    "inference": "single ODE K10 shift5 seed2101",
+    "partial_scores_publishable": false
+  },
+  "exposure_clock": "valid fresh scenes; source padding excluded",
+  "initial_target_epochs": 6.0,
+  "optional_epoch_cap": 20.0,
+  "minimum_epochs": 3.0,
+  "continuation": "Numerically healthy own native progress continues through3/6 regardless early scores;6 requires review before extension",
+  "runs": [
+    {
+      "id": "S1_NOMINAL_RESCUE",
+      "architecture_id": "QWEN_WORLD_MEMORY",
+      "root": "/mnt/project/qwen-world-performance-rl-20261103/runs/S1_NOMINAL_RESCUE",
+      "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "source_pending": true,
+      "source_commit": null,
+      "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S1_NOMINAL_RESCUE.yaml",
+      "config_sha256": "1d7b54771eb36e917ac29a48ea3ba57b779ddbb38845bf017e4cd63615c9dfd5",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "inner_updates": 4,
+      "exposure_mapping": {
+        "0.25": {
+          "epoch": 0.25,
+          "updates": 808,
+          "valid_scene_exposures": 25856,
+          "collections": 202
+        },
+        "0.5": {
+          "epoch": 0.5,
+          "updates": 1616,
+          "valid_scene_exposures": 51712,
+          "collections": 404
+        },
+        "1": {
+          "epoch": 1,
+          "updates": 3228,
+          "valid_scene_exposures": 103288,
+          "collections": 807
+        },
+        "2": {
+          "epoch": 2,
+          "updates": 6456,
+          "valid_scene_exposures": 206576,
+          "collections": 1614
+        },
+        "3": {
+          "epoch": 3,
+          "updates": 9684,
+          "valid_scene_exposures": 309864,
+          "collections": 2421
+        },
+        "4": {
+          "epoch": 4,
+          "updates": 12912,
+          "valid_scene_exposures": 413152,
+          "collections": 3228
+        },
+        "6": {
+          "epoch": 6,
+          "updates": 19368,
+          "valid_scene_exposures": 619728,
+          "collections": 4842
+        },
+        "8": {
+          "epoch": 8,
+          "updates": 25824,
+          "valid_scene_exposures": 826304,
+          "collections": 6456
+        },
+        "12": {
+          "epoch": 12,
+          "updates": 38736,
+          "valid_scene_exposures": 1239456,
+          "collections": 9684
+        },
+        "20": {
+          "epoch": 20,
+          "updates": 64560,
+          "valid_scene_exposures": 2065760,
+          "collections": 16140
+        }
+      },
+      "native_gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "target_updates": 19368,
+      "target_epochs": 6.0,
+      "minimum_epochs": 3.0,
+      "optional_epoch_cap": 20.0,
+      "optional_extensions": [
+        8.0,
+        12.0,
+        20.0
+      ],
+      "trainer_module": "tools.qwen_world_performance.train",
+      "save_every": 400,
+      "owner_state": "/mnt/project/qwen-world-performance-rl-20261103/owners/PERFORMANCE_NATIVE/STATE.json",
+      "status": "REGISTERED",
+      "priority": 0,
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "navtest_epochs": [
+        0.25,
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "NavtestSelected": true
+    },
+    {
+      "id": "S5_PERFORMANCE_MAX",
+      "architecture_id": "QWEN_WORLD_MEMORY",
+      "root": "/mnt/project/qwen-world-performance-rl-20261103/runs/S5_PERFORMANCE_MAX",
+      "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "source_pending": true,
+      "source_commit": null,
+      "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S5_PERFORMANCE_MAX.yaml",
+      "config_sha256": "248a4491189476ba3d5947ed50ad059a69f904f076f73db6e2f2cf96f6d2a082",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "inner_updates": 4,
+      "exposure_mapping": {
+        "0.25": {
+          "epoch": 0.25,
+          "updates": 1616,
+          "valid_scene_exposures": 25856,
+          "collections": 404
+        },
+        "0.5": {
+          "epoch": 0.5,
+          "updates": 3228,
+          "valid_scene_exposures": 51648,
+          "collections": 807
+        },
+        "1": {
+          "epoch": 1,
+          "updates": 6456,
+          "valid_scene_exposures": 103288,
+          "collections": 1614
+        },
+        "2": {
+          "epoch": 2,
+          "updates": 9684,
+          "valid_scene_exposures": 206576,
+          "collections": 2421
+        },
+        "3": {
+          "epoch": 3,
+          "updates": 12912,
+          "valid_scene_exposures": 309864,
+          "collections": 3228
+        },
+        "4": {
+          "epoch": 4,
+          "updates": 16140,
+          "valid_scene_exposures": 413152,
+          "collections": 4035
+        },
+        "6": {
+          "epoch": 6,
+          "updates": 22596,
+          "valid_scene_exposures": 619728,
+          "collections": 5649
+        },
+        "8": {
+          "epoch": 8,
+          "updates": 29052,
+          "valid_scene_exposures": 826304,
+          "collections": 7263
+        },
+        "12": {
+          "epoch": 12,
+          "updates": 41964,
+          "valid_scene_exposures": 1239456,
+          "collections": 10491
+        },
+        "20": {
+          "epoch": 20,
+          "updates": 67788,
+          "valid_scene_exposures": 2065760,
+          "collections": 16947
+        }
+      },
+      "native_gates": [
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        16140,
+        22596
+      ],
+      "gates": [
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        16140,
+        22596
+      ],
+      "target_updates": 22596,
+      "target_epochs": 6.0,
+      "minimum_epochs": 3.0,
+      "optional_epoch_cap": 20.0,
+      "optional_extensions": [
+        8.0,
+        12.0,
+        20.0
+      ],
+      "trainer_module": "tools.qwen_world_performance.train",
+      "save_every": 400,
+      "owner_state": "/mnt/project/qwen-world-performance-rl-20261103/owners/PERFORMANCE_NATIVE/STATE.json",
+      "status": "REGISTERED",
+      "priority": 1,
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "navtest_epochs": [
+        0.25,
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "NavtestSelected": true
+    },
+    {
+      "id": "S0_LARGE_SAFETYEP",
+      "architecture_id": "QWEN_WORLD_MEMORY",
+      "root": "/mnt/project/qwen-world-performance-rl-20261103/runs/S0_LARGE_SAFETYEP",
+      "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "source_pending": true,
+      "source_commit": null,
+      "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S0_LARGE_SAFETYEP.yaml",
+      "config_sha256": "199b56b6a1e1cfc3285051a5877b3b3c6a6ebfb549ff0e6fd5ed2b0fefc53364",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "inner_updates": 4,
+      "exposure_mapping": {
+        "0.25": {
+          "epoch": 0.25,
+          "updates": 808,
+          "valid_scene_exposures": 25856,
+          "collections": 202
+        },
+        "0.5": {
+          "epoch": 0.5,
+          "updates": 1616,
+          "valid_scene_exposures": 51712,
+          "collections": 404
+        },
+        "1": {
+          "epoch": 1,
+          "updates": 3228,
+          "valid_scene_exposures": 103288,
+          "collections": 807
+        },
+        "2": {
+          "epoch": 2,
+          "updates": 6456,
+          "valid_scene_exposures": 206576,
+          "collections": 1614
+        },
+        "3": {
+          "epoch": 3,
+          "updates": 9684,
+          "valid_scene_exposures": 309864,
+          "collections": 2421
+        },
+        "4": {
+          "epoch": 4,
+          "updates": 12912,
+          "valid_scene_exposures": 413152,
+          "collections": 3228
+        },
+        "6": {
+          "epoch": 6,
+          "updates": 19368,
+          "valid_scene_exposures": 619728,
+          "collections": 4842
+        },
+        "8": {
+          "epoch": 8,
+          "updates": 25824,
+          "valid_scene_exposures": 826304,
+          "collections": 6456
+        },
+        "12": {
+          "epoch": 12,
+          "updates": 38736,
+          "valid_scene_exposures": 1239456,
+          "collections": 9684
+        },
+        "20": {
+          "epoch": 20,
+          "updates": 64560,
+          "valid_scene_exposures": 2065760,
+          "collections": 16140
+        }
+      },
+      "native_gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "target_updates": 19368,
+      "target_epochs": 6.0,
+      "minimum_epochs": 3.0,
+      "optional_epoch_cap": 20.0,
+      "optional_extensions": [
+        8.0,
+        12.0,
+        20.0
+      ],
+      "trainer_module": "tools.qwen_world_performance.train",
+      "save_every": 400,
+      "owner_state": "/mnt/project/qwen-world-performance-rl-20261103/owners/PERFORMANCE_NATIVE/STATE.json",
+      "status": "REGISTERED",
+      "priority": 2,
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "navtest_epochs": [
+        0.25,
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "NavtestSelected": true
+    },
+    {
+      "id": "S2_CONSERVATIVE_AWFM",
+      "architecture_id": "QWEN_WORLD_MEMORY",
+      "root": "/mnt/project/qwen-world-performance-rl-20261103/runs/S2_CONSERVATIVE_AWFM",
+      "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "source_pending": true,
+      "source_commit": null,
+      "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S2_CONSERVATIVE_AWFM.yaml",
+      "config_sha256": "df79fa7fdd47afde90f871ed869dee851b0b51913fbd26db136457784623365e",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "inner_updates": 2,
+      "exposure_mapping": {
+        "0.25": {
+          "epoch": 0.25,
+          "updates": 404,
+          "valid_scene_exposures": 25856,
+          "collections": 202
+        },
+        "0.5": {
+          "epoch": 0.5,
+          "updates": 808,
+          "valid_scene_exposures": 51712,
+          "collections": 404
+        },
+        "1": {
+          "epoch": 1,
+          "updates": 1614,
+          "valid_scene_exposures": 103288,
+          "collections": 807
+        },
+        "2": {
+          "epoch": 2,
+          "updates": 3228,
+          "valid_scene_exposures": 206576,
+          "collections": 1614
+        },
+        "3": {
+          "epoch": 3,
+          "updates": 4842,
+          "valid_scene_exposures": 309864,
+          "collections": 2421
+        },
+        "4": {
+          "epoch": 4,
+          "updates": 6456,
+          "valid_scene_exposures": 413152,
+          "collections": 3228
+        },
+        "6": {
+          "epoch": 6,
+          "updates": 9684,
+          "valid_scene_exposures": 619728,
+          "collections": 4842
+        },
+        "8": {
+          "epoch": 8,
+          "updates": 12912,
+          "valid_scene_exposures": 826304,
+          "collections": 6456
+        },
+        "12": {
+          "epoch": 12,
+          "updates": 19368,
+          "valid_scene_exposures": 1239456,
+          "collections": 9684
+        },
+        "20": {
+          "epoch": 20,
+          "updates": 32280,
+          "valid_scene_exposures": 2065760,
+          "collections": 16140
+        }
+      },
+      "native_gates": [
+        404,
+        808,
+        1614,
+        3228,
+        4842,
+        6456,
+        9684
+      ],
+      "gates": [
+        404,
+        808,
+        1614,
+        3228,
+        4842,
+        6456,
+        9684
+      ],
+      "target_updates": 9684,
+      "target_epochs": 6.0,
+      "minimum_epochs": 3.0,
+      "optional_epoch_cap": 20.0,
+      "optional_extensions": [
+        8.0,
+        12.0,
+        20.0
+      ],
+      "trainer_module": "tools.qwen_world_performance.train",
+      "save_every": 400,
+      "owner_state": "/mnt/project/qwen-world-performance-rl-20261103/owners/PERFORMANCE_NATIVE/STATE.json",
+      "status": "REGISTERED",
+      "priority": 3,
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "navtest_epochs": [
+        0.25,
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "NavtestSelected": true
+    },
+    {
+      "id": "S3_LARGE_FPO",
+      "architecture_id": "QWEN_WORLD_MEMORY",
+      "root": "/mnt/project/qwen-world-performance-rl-20261103/runs/S3_LARGE_FPO",
+      "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "source_pending": true,
+      "source_commit": null,
+      "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S3_LARGE_FPO.yaml",
+      "config_sha256": "c47a027ae6c6d5a96945a86c3dfea93ef51ddf57d6e9910b1e6d4bf43987b1a2",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "inner_updates": 2,
+      "exposure_mapping": {
+        "0.25": {
+          "epoch": 0.25,
+          "updates": 404,
+          "valid_scene_exposures": 25856,
+          "collections": 202
+        },
+        "0.5": {
+          "epoch": 0.5,
+          "updates": 808,
+          "valid_scene_exposures": 51712,
+          "collections": 404
+        },
+        "1": {
+          "epoch": 1,
+          "updates": 1614,
+          "valid_scene_exposures": 103288,
+          "collections": 807
+        },
+        "2": {
+          "epoch": 2,
+          "updates": 3228,
+          "valid_scene_exposures": 206576,
+          "collections": 1614
+        },
+        "3": {
+          "epoch": 3,
+          "updates": 4842,
+          "valid_scene_exposures": 309864,
+          "collections": 2421
+        },
+        "4": {
+          "epoch": 4,
+          "updates": 6456,
+          "valid_scene_exposures": 413152,
+          "collections": 3228
+        },
+        "6": {
+          "epoch": 6,
+          "updates": 9684,
+          "valid_scene_exposures": 619728,
+          "collections": 4842
+        },
+        "8": {
+          "epoch": 8,
+          "updates": 12912,
+          "valid_scene_exposures": 826304,
+          "collections": 6456
+        },
+        "12": {
+          "epoch": 12,
+          "updates": 19368,
+          "valid_scene_exposures": 1239456,
+          "collections": 9684
+        },
+        "20": {
+          "epoch": 20,
+          "updates": 32280,
+          "valid_scene_exposures": 2065760,
+          "collections": 16140
+        }
+      },
+      "native_gates": [
+        404,
+        808,
+        1614,
+        3228,
+        4842,
+        6456,
+        9684
+      ],
+      "gates": [
+        404,
+        808,
+        1614,
+        3228,
+        4842,
+        6456,
+        9684
+      ],
+      "target_updates": 9684,
+      "target_epochs": 6.0,
+      "minimum_epochs": 3.0,
+      "optional_epoch_cap": 20.0,
+      "optional_extensions": [
+        8.0,
+        12.0,
+        20.0
+      ],
+      "trainer_module": "tools.qwen_world_performance.train",
+      "save_every": 400,
+      "owner_state": "/mnt/project/qwen-world-performance-rl-20261103/owners/PERFORMANCE_NATIVE/STATE.json",
+      "status": "REGISTERED",
+      "priority": 4,
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "navtest_epochs": [
+        0.25,
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "NavtestSelected": true
+    },
+    {
+      "id": "S4_TEMPORAL_RESCUE",
+      "architecture_id": "QWEN_WORLD_MEMORY",
+      "root": "/mnt/project/qwen-world-performance-rl-20261103/runs/S4_TEMPORAL_RESCUE",
+      "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "source_pending": true,
+      "source_commit": null,
+      "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S4_TEMPORAL_RESCUE.yaml",
+      "config_sha256": "e6b0a2281432a9c568f46618adf68ce739713dc45618a63b3639fe650d586731",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "inner_updates": 4,
+      "exposure_mapping": {
+        "0.25": {
+          "epoch": 0.25,
+          "updates": 808,
+          "valid_scene_exposures": 25856,
+          "collections": 202
+        },
+        "0.5": {
+          "epoch": 0.5,
+          "updates": 1616,
+          "valid_scene_exposures": 51712,
+          "collections": 404
+        },
+        "1": {
+          "epoch": 1,
+          "updates": 3228,
+          "valid_scene_exposures": 103288,
+          "collections": 807
+        },
+        "2": {
+          "epoch": 2,
+          "updates": 6456,
+          "valid_scene_exposures": 206576,
+          "collections": 1614
+        },
+        "3": {
+          "epoch": 3,
+          "updates": 9684,
+          "valid_scene_exposures": 309864,
+          "collections": 2421
+        },
+        "4": {
+          "epoch": 4,
+          "updates": 12912,
+          "valid_scene_exposures": 413152,
+          "collections": 3228
+        },
+        "6": {
+          "epoch": 6,
+          "updates": 19368,
+          "valid_scene_exposures": 619728,
+          "collections": 4842
+        },
+        "8": {
+          "epoch": 8,
+          "updates": 25824,
+          "valid_scene_exposures": 826304,
+          "collections": 6456
+        },
+        "12": {
+          "epoch": 12,
+          "updates": 38736,
+          "valid_scene_exposures": 1239456,
+          "collections": 9684
+        },
+        "20": {
+          "epoch": 20,
+          "updates": 64560,
+          "valid_scene_exposures": 2065760,
+          "collections": 16140
+        }
+      },
+      "native_gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "target_updates": 19368,
+      "target_epochs": 6.0,
+      "minimum_epochs": 3.0,
+      "optional_epoch_cap": 20.0,
+      "optional_extensions": [
+        8.0,
+        12.0,
+        20.0
+      ],
+      "trainer_module": "tools.qwen_world_performance.train",
+      "save_every": 400,
+      "owner_state": "/mnt/project/qwen-world-performance-rl-20261103/owners/PERFORMANCE_NATIVE/STATE.json",
+      "status": "REGISTERED",
+      "priority": 5,
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "navtest_epochs": [
+        0.25,
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "NavtestSelected": true
+    },
+    {
+      "id": "S0_LOW_LR",
+      "architecture_id": "QWEN_WORLD_MEMORY",
+      "root": "/mnt/project/qwen-world-performance-rl-20261103/runs/S0_LOW_LR",
+      "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "source_pending": true,
+      "source_commit": null,
+      "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+      "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S0_LOW_LR.yaml",
+      "config_sha256": "ee8b64b72c46fc4b9309fced59616db523178d5f28910a8a660a49709284c162",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "inner_updates": 4,
+      "exposure_mapping": {
+        "0.25": {
+          "epoch": 0.25,
+          "updates": 808,
+          "valid_scene_exposures": 25856,
+          "collections": 202
+        },
+        "0.5": {
+          "epoch": 0.5,
+          "updates": 1616,
+          "valid_scene_exposures": 51712,
+          "collections": 404
+        },
+        "1": {
+          "epoch": 1,
+          "updates": 3228,
+          "valid_scene_exposures": 103288,
+          "collections": 807
+        },
+        "2": {
+          "epoch": 2,
+          "updates": 6456,
+          "valid_scene_exposures": 206576,
+          "collections": 1614
+        },
+        "3": {
+          "epoch": 3,
+          "updates": 9684,
+          "valid_scene_exposures": 309864,
+          "collections": 2421
+        },
+        "4": {
+          "epoch": 4,
+          "updates": 12912,
+          "valid_scene_exposures": 413152,
+          "collections": 3228
+        },
+        "6": {
+          "epoch": 6,
+          "updates": 19368,
+          "valid_scene_exposures": 619728,
+          "collections": 4842
+        },
+        "8": {
+          "epoch": 8,
+          "updates": 25824,
+          "valid_scene_exposures": 826304,
+          "collections": 6456
+        },
+        "12": {
+          "epoch": 12,
+          "updates": 38736,
+          "valid_scene_exposures": 1239456,
+          "collections": 9684
+        },
+        "20": {
+          "epoch": 20,
+          "updates": 64560,
+          "valid_scene_exposures": 2065760,
+          "collections": 16140
+        }
+      },
+      "native_gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "gates": [
+        808,
+        1616,
+        3228,
+        6456,
+        9684,
+        12912,
+        19368
+      ],
+      "target_updates": 19368,
+      "target_epochs": 6.0,
+      "minimum_epochs": 3.0,
+      "optional_epoch_cap": 20.0,
+      "optional_extensions": [
+        8.0,
+        12.0,
+        20.0
+      ],
+      "trainer_module": "tools.qwen_world_performance.train",
+      "save_every": 400,
+      "owner_state": "/mnt/project/qwen-world-performance-rl-20261103/owners/PERFORMANCE_NATIVE/STATE.json",
+      "status": "REGISTERED",
+      "priority": 6,
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "navtest_epochs": [
+        0.25,
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "NavtestSelected": true
+    }
+  ],
+  "registration_sha256": "b5a652aec34a4b28a30e94779bd2e2bd33328c2f56767e32305c146657b16a78"
+}
