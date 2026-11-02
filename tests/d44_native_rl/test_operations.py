@@ -56,3 +56,37 @@ def test_existing_world_multiscene_owner_requires_exact_il_parent_and_output():
         assert worker.known_owner_args(args)
         assert not worker.known_owner_args(args[:-1]+['/other/IL_PARENT'])
         assert not worker.known_owner_args(args[:args.index('--output')]+['--output','/other/run']+args[args.index('--il-checkpoint'):])
+
+
+def test_profiled_third_slot_is_opt_in_locked_and_cannot_admit_fourth(tmp_path,monkeypatch):
+    roots={key:tmp_path/key for key in ('PRIMARY_LEASE_ROOT','SHARED_LEASE_ROOT','PROFILED_THIRD_LEASE_ROOT')}
+    for key,path in roots.items():path.mkdir();monkeypatch.setattr(worker,key,path)
+    devices={0:dict(index=0,uuid='GPU-test',total_MiB=81920,free_MiB=47000,utilization=70)}
+    owners=[dict(uuid='GPU-test',pid=i,used_MiB=17000)for i in (1,2)]
+    monkeypatch.setattr(worker,'_admission_sample',lambda:(devices,owners));monkeypatch.setattr(worker,'_known_owners',lambda *args:None)
+    held=[];locks=[]
+    for name in ('PRIMARY_LEASE_ROOT','SHARED_LEASE_ROOT'):
+        f=(roots[name]/'GPU-test.lock').open('a');fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB);held.append(f)
+    try:
+        args=Namespace(share_min_free_mib=45056,minimum_free_mib=None,lease_slot='shared',profiled_d0_third_slot=False)
+        with pytest.raises(worker.ResourceRefused):worker._gpu_admission(args,'test',dict(permanent_hosts=['test']),[0],['GPU-test'],{},[])
+        args.profiled_d0_third_slot=True
+        worker._gpu_admission(args,'test',dict(permanent_hosts=['test']),[0],['GPU-test'],{},locks)
+        assert args.lease_slot=='profiled_third'
+        owners.append(dict(uuid='GPU-test',pid=3,used_MiB=27000))
+        with pytest.raises(worker.ResourceRefused):worker._gpu_admission(args,'test',dict(permanent_hosts=['test']),[0],['GPU-test'],{},[])
+    finally:
+        for f in held+locks:f.close()
+
+
+def test_profiled_resume_rejects_other_scopes_and_low_headroom(tmp_path,monkeypatch):
+    monkeypatch.setattr(worker,'D44_ROOT',tmp_path);output=tmp_path/'runs/D0';output.mkdir(parents=True)
+    recipe=dict(parent_checkpoint=str(tmp_path/'IL44_PARENT'),training_uses_navtest=False,arm='D0',global_scenes=64,group=16,text_rank=16,film_last_layers=0,train_action_io=False,post_feedback=False,checkpoint_policy='all_off')
+    value=dict(schema='d44_native_rl_v1',architecture_id='D',recipe=recipe,data=dict(NAVTEST_overlap=0),parent_model_sha256=worker.D44_PARENT_SHA)
+    def save():
+        body={k:v for k,v in value.items()if k!='sha256'};value['sha256']=fingerprint(body);(output/'identity.json').write_text(json.dumps(value))
+    save();cmd=['python','-m','torch.distributed.run','-m','tools.d44_native_rl.train','--output',str(output),'--resume','CP']
+    worker.validate_profiled_d0_resume(cmd,45056)
+    with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,41000)
+    recipe['arm']='D6';save()
+    with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,45056)

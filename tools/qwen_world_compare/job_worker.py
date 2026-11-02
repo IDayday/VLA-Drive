@@ -121,6 +121,7 @@ class ResourceRefused(RuntimeError):
 
 PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
 SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
+PROFILED_THIRD_LEASE_ROOT=Path('/mnt/project/runtime_gpu_profiled_third_workers')
 D44_ROOT=Path('/mnt/project/d44-native-rl-20261103')
 D44_PARENT_SHA='9715b9c0cfbef7a7d3d94fb83e7b0e2f0838d21cf06d3277deef6733cccbc50e'
 
@@ -155,6 +156,17 @@ def known_owner_args(args):
     if parent_flag not in args or args.index(parent_flag)+1>=len(args):return False
     if args[args.index(parent_flag)+1]!='/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT':return False
     return any(arg.startswith(('/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-performance-rl-20261103/'))for arg in args)
+
+
+def validate_profiled_d0_resume(command,minimum):
+    """Opt-in third context only for the actually measured 25.7GiB D0 scope."""
+    if ((minimum or 0)<45056 or '-m'not in command or command[command.index('-m')+1]!='torch.distributed.run'
+            or 'tools.d44_native_rl.train'not in command or '--resume'not in command or '--output'not in command):
+        raise ValueError('Profiled third slot requires native D0 resume and at least44GiB measured free memory')
+    output=Path(command[command.index('--output')+1]);identity=json.loads((output/'identity.json').read_text());c=identity['recipe']
+    required=dict(arm='D0',global_scenes=64,group=16,text_rank=16,film_last_layers=0,train_action_io=False,post_feedback=False,checkpoint_policy='all_off')
+    if not known_owner_args(['python','-m','tools.d44_native_rl.train','--output',str(output)])or any(c.get(k)!=v for k,v in required.items()):
+        raise ValueError('Only the actually profiled D0 native scope may use a third slot')
 
 
 def _known_owners(rows,mapping,indices):
@@ -207,7 +219,8 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             if not shared_training_host(host,grant)or args.share_min_free_mib<8192:
                 raise ValueError('Sharing requires an explicitly authorized host and measured valid headroom')
             _known_owners(owners,mapping,indices)
-            if any(sum(r['uuid']==mapping[i]for r in owners)>1 for i in indices):
+            maximum=2 if getattr(args,'profiled_d0_third_slot',False)else 1
+            if any(sum(r['uuid']==mapping[i]for r in owners)>maximum for i in indices):
                 raise ResourceRefused('Two existing CUDA owners leave no qualified third slot')
         elif any(row['uuid']in physical for row in owners):
             raise ResourceRefused('GPU acquired another owner '+('under admission lock'if locked else'before dispatch'))
@@ -219,6 +232,7 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             raise ResourceRefused('Measured GPU headroom changed '+('under admission lock'if locked else'before dispatch'))
     devices,owners=_admission_sample();verify(devices,owners,locked=False)
     PRIMARY_LEASE_ROOT.mkdir(exist_ok=True);SHARED_LEASE_ROOT.mkdir(exist_ok=True)
+    if getattr(args,'profiled_d0_third_slot',False):PROFILED_THIRD_LEASE_ROOT.mkdir(exist_ok=True)
     # Slot ownership and whether this process shares CUDA capacity are distinct.
     # A previous learner can still hold the shared slot after its original
     # cohost exits. Reuse the vacant primary slot with the SAME owner/headroom
@@ -227,11 +241,13 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     if slot=='shared' and not args.share_min_free_mib:
         raise ValueError('The shared slot requires explicit measured sharing admission')
     choices=[slot]+(['primary']if slot=='shared'and args.share_min_free_mib else[])
+    if getattr(args,'profiled_d0_third_slot',False):choices+=['profiled_third']
     for candidate in choices:
+        if candidate=='profiled_third'and any(sum(r['uuid']==mapping[i]for r in owners)!=2 for i in indices):continue
         acquired=[]
         try:
             for index in indices:
-                lease=((SHARED_LEASE_ROOT if candidate=='shared'else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
+                lease=({'shared':SHARED_LEASE_ROOT,'primary':PRIMARY_LEASE_ROOT,'profiled_third':PROFILED_THIRD_LEASE_ROOT}[candidate]/(mapping[index]+'.lock')).open('a')
                 acquired.append(lease);fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:
             for stream in acquired:stream.close()
@@ -269,9 +285,11 @@ def main():
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
     parser.add_argument('--lease-slot',choices=('primary','shared'))
     parser.add_argument('--admission-wait-seconds',type=int,default=0)
+    parser.add_argument('--profiled-d0-third-slot',action='store_true')
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
+    if args.profiled_d0_third_slot:validate_profiled_d0_resume(command,args.share_min_free_mib)
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')
