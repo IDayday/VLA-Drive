@@ -22,6 +22,13 @@ def test_comparison_ignores_only_timing_and_checks_every_rank_rng_stream(monkeyp
     with pytest.raises(ValueError,match='exp_avg'):N.compare('left','right')
     material=N.scientific_rollout(dict(scoring_seconds=1.,official_first_ttc_infraction_seconds=.4))
     assert material==dict(official_first_ttc_infraction_seconds=.4)
+    value['ranks'][0]['rollout']=dict(invocation='a'*32,teacher=dict(invocation='teacher_identity'))
+    other=copy.deepcopy(value);other['ranks'][0]['rollout']['invocation']='b'*32
+    assert N.compare('left','right')['administrative_invocations']==[dict(rank=0,left='a'*32,right='b'*32)]
+    other['ranks'][0]['rollout']['teacher']['invocation']='different_teacher'
+    with pytest.raises(ValueError,match='teacher.invocation'):N.compare('left','right')
+    other=copy.deepcopy(value);other['ranks'][0]['rollout'].pop('invocation')
+    with pytest.raises(ValueError,match='Invocation UUID'):N.compare('left','right')
 
 
 def test_real_scope_native_trainables_export_restore_single_B1_ODE_exact():
