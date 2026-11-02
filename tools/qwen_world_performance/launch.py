@@ -13,8 +13,16 @@ SOURCE=ROOT/'runtime/formal_v1'
 OWNER='PERFORMANCE_NATIVE'
 BASE_ORDER=['S1_NOMINAL_RESCUE','S5_PERFORMANCE_MAX','S0_LARGE_SAFETYEP','S2_CONSERVATIVE_AWFM','S3_LARGE_FPO','S4_TEMPORAL_RESCUE','S0_LOW_LR']
 FAST='S0_FAST_PACK4'
-ORDER=BASE_ORDER[:-1]+[FAST]+BASE_ORDER[-1:]
+QUALITY='S6_VERIFIED_QUALITY'
+ORDER=BASE_ORDER[:2]+[QUALITY]+BASE_ORDER[2:-1]+[FAST]+BASE_ORDER[-1:]
+INDEPENDENT_FAMILIES={
+    FAST:dict(trainer='tools.qwen_world_multiscene.train',recipe='starVLA.rl.qwen_world_multiscene.recipe',
+        native_review='tools.qwen_world_multiscene.native_review'),
+    QUALITY:dict(trainer='tools.qwen_world_verified_quality.train',recipe='starVLA.rl.qwen_world_verified_quality.recipe',
+        native_review='tools.qwen_world_verified_quality.native_review'),
+}
 EPOCHS=[.25,.5,1,2,3,4,6,8,12,20]
+QUALITY_EPOCHS=[.0625,.125]+EPOCHS
 PROTECTED={'training-vla-zt','training-vlawm-tsinghua-zt'}
 _PACKED_RECIPE_CHECKS={}
 
@@ -102,15 +110,15 @@ def seal_source():
 
 
 def validate_run_recipe(run):
-    """Only the two explicitly registered trainer families; no arbitrary module."""
-    if run['id']==FAST:
-        trainer='tools.qwen_world_multiscene.train'
-        if run['trainer_module']!=trainer:raise ValueError('Wrong exact packed trainer')
+    """Three exact trainer families; registration cannot supply module names."""
+    if run['id']in INDEPENDENT_FAMILIES:
+        family=INDEPENDENT_FAMILIES[run['id']]
+        if run['trainer_module']!=family['trainer']:raise ValueError('Wrong exact independent-family trainer')
         cfg=yaml.safe_load(Path(run['config']).read_text())
         key=(str(Path(run['source']).resolve()),run.get('source_commit'),sha(run['config']))
         if key not in _PACKED_RECIPE_CHECKS:
             from starVLA.rl.qwen_world_safety_exploration.resources import MODEL_PYTHON
-            code='import sys,yaml;from starVLA.rl.qwen_world_multiscene.recipe import validate_recipe;validate_recipe(yaml.safe_load(open(sys.argv[1])))'
+            code=f"import sys,yaml;from {family['recipe']} import validate_recipe;validate_recipe(yaml.safe_load(open(sys.argv[1])))"
             subprocess.check_call([MODEL_PYTHON,'-c',code,run['config']],cwd=run['source'],
                 env=dict(os.environ,CUDA_VISIBLE_DEVICES='',PYTHONPATH=run['source']))
             _PACKED_RECIPE_CHECKS[key]=True
@@ -148,22 +156,63 @@ def fast_registration(registry,config,source,*,worker_source):
     return validate_registry(r)
 
 
+def quality_registration(registry,config,source,*,worker_source):
+    """Pure independent S6 proposal. No old checkpoint/teacher/state inheritance."""
+    r=copy.deepcopy(validate_registry(registry))
+    if any(x['id']==QUALITY for x in r['runs']):raise ValueError('S6 already registered; never duplicate lineage')
+    source=Path(source).resolve();config=Path(config).resolve()
+    if not source.is_dir():raise ValueError('Freeze actual verified_quality source before proposing registration')
+    commit=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip()
+    dirty=subprocess.check_output(['git','-C',str(source),'status','--porcelain'],text=True).splitlines()
+    if any(x not in ('?? FROZEN_SOURCE.json','?? FROZEN_SOURCE')for x in dirty):
+        raise ValueError('S6 registration requires actual clean frozen scientific source')
+    base=next(x for x in r['runs']if x['id']=='S1_NOMINAL_RESCUE')
+    run=dict(id=QUALITY,architecture_id=base['architecture_id'],root=str(ROOT/'runs'/QUALITY),
+        source=str(source),source_commit=commit,source_pending=False,worker_source=str(Path(worker_source).resolve()),
+        config=str(config),config_sha256=sha(config),parent_checkpoint=base['parent_checkpoint'],
+        group_size=16,inner_updates=4,minimum_epochs=3.,optional_epoch_cap=20.,optional_extensions=[8.,12.,20.],
+        trainer_module=INDEPENDENT_FAMILIES[QUALITY]['trainer'],save_every=base['save_every'],
+        owner_state=str(ROOT/'owners'/OWNER/'STATE.json'),status='REGISTERED',priority=ORDER.index(QUALITY),NavtestSelected=True)
+    from .continuation import ALIAS,PROTOCOL_V2
+    # S1 is operationally pinned to TSH5 for long-term continuity. Do not
+    # inherit that private placement or race it from the new S6 lineage.
+    placement=next(x for x in r['runs']if x['id']=='S0_LARGE_SAFETYEP')
+    primaries=[copy.deepcopy(x)for x in placement['deployment_candidates']if x['lease_slot']=='primary'
+        and x['host']not in PROTECTED|{'training-vlawm-tsinghua-zt5'}]
+    run.update(resource_protocol=copy.deepcopy(PROTOCOL_V2),execution_output_root=str(ALIAS/'runs'/QUALITY),
+        deployment_candidates=[dict(x,lease_slot=slot)for x in primaries for slot in ('shared','research')]+primaries)
+    cfg=validate_run_recipe(run);mapping=exposure_gates(cfg)
+    run.update(exposure_mapping=mapping,native_gates=[point(mapping,e)['updates']for e in QUALITY_EPOCHS if e<=6],
+        navtest_epochs=[e for e in QUALITY_EPOCHS if e<=6],gates=[point(mapping,e)['updates']for e in QUALITY_EPOCHS if e<=6],
+        target_updates=point(mapping,6)['updates'],target_epochs=6.)
+    r['runs'].append(run)
+    for row in r['runs']:row['priority']=ORDER.index(row['id'])
+    r['runs'].sort(key=lambda x:x['priority'])
+    from starVLA.rl.qwen_world_research_data.manifest import fingerprint
+    r['registration_sha256']=fingerprint({k:v for k,v in r.items()if k!='registration_sha256'})
+    return validate_registry(r)
+
+
 def validate_registry(r,*,allow_pending=False):
     ids={v['id']for v in r['runs']}
     if(r['task']!=TASK or Path(r['root']).resolve()!=ROOT or r['training_population']!=103288
-       or ids not in (set(BASE_ORDER),set(ORDER))or len(r['runs'])!=len(ids)):
-        raise ValueError('Only original seven arms plus optional independent FAST_PACK4')
+       or not set(BASE_ORDER)<=ids or not ids<=set(ORDER)or len(r['runs'])!=len(ids)):
+        raise ValueError('Only original seven arms plus exact independent FAST_PACK4/S6 families')
     if sha(r['manifest'])!=r['manifest_sha256']:raise ValueError('Registered data manifest changed')
     for run in r['runs']:
         cfg=validate_run_recipe(run);mapping=exposure_gates(cfg);cap=run['target_epochs']
+        epochs=QUALITY_EPOCHS if run['id']==QUALITY else EPOCHS
         nav_epochs=run['navtest_epochs']
-        if sorted(set(nav_epochs))!=nav_epochs or not set(nav_epochs)<=set(e for e in EPOCHS if e<=cap)or cap not in nav_epochs:
+        if run['id']==QUALITY and(cfg['research']['performance']['evaluation_epochs']!=QUALITY_EPOCHS
+                or nav_epochs!=[e for e in QUALITY_EPOCHS if e<=cap]):
+            raise ValueError('S6 requires its exact registered early/full exposure cadence')
+        if sorted(set(nav_epochs))!=nav_epochs or not set(nav_epochs)<=set(e for e in epochs if e<=cap)or cap not in nav_epochs:
             raise ValueError('Explicit registered full-NAV exposure cadence required')
         if cap not in(6,8,12,20)or run['optional_epoch_cap']!=20:raise ValueError('Only registered6initial/20optional cap')
         if(cfg['research']['arm']!=run['id']or sha(run['config'])!=run['config_sha256']
            or Path(run['root']).resolve()!=ROOT/'runs'/run['id']
            or run['owner_state']!=str(ROOT/'owners'/OWNER/'STATE.json')
-           or run['native_gates']!=[point(mapping,e)['updates']for e in EPOCHS if e<=cap]
+           or run['native_gates']!=[point(mapping,e)['updates']for e in epochs if e<=cap]
            or run['gates']!=[point(mapping,e)['updates']for e in nav_epochs]
            or run['target_updates']!=point(mapping,cap)['updates']or run['exposure_mapping']!=mapping):raise ValueError('Run/config/clock/owner contract changed')
         if not allow_pending:
@@ -173,6 +222,22 @@ def validate_registry(r,*,allow_pending=False):
         from .execution import validate_execution_fields
         validate_execution_fields(run)
     return r
+
+
+def priority_needs_admission(run,state):
+    """A completed transport cannot hide behind a stale TRAINING heartbeat."""
+    status=state.get('status')
+    if status is None or status in ('WAITING_RESOURCE','WAITING_AUTHORIZED_RESOURCE'):return True
+    if status.startswith(('FAILED','STOPPED','COMPLETED_')):return False
+    stage=state.get('stages',{}).get(str(state.get('stage_target_updates')),{})
+    if stage.get('complete')or not stage.get('job'):return False
+    job=Path(stage['job']).resolve()
+    if not job.is_relative_to(ROOT/'jobs'/run['id']):return False
+    result=read(job/'RESULT.json',{})
+    if result.get('returncode')!=0:return False
+    if stage.get('host')and result.get('host')!=stage['host']:return False
+    if stage.get('command')and result.get('command')!=stage['command']:return False
+    return True
 
 
 def inspect_native(run,cp):
@@ -241,8 +306,7 @@ def owner_class():
             # without preempting any already running learner.
             for higher in self.runs:
                 if higher['priority']>=run['priority']:continue
-                status=self.state['runs'].get(higher['id'],{}).get('status')
-                if status is None or status in('WAITING_RESOURCE','WAITING_AUTHORIZED_RESOURCE'):
+                if priority_needs_admission(higher,self.state['runs'].get(higher['id'],{})):
                     return None
             claims=read(ROOT/'resources/NATIVE_HOST_CLAIMS.json',{})
             claims_runs={r['id']:r for r in self.registry['runs']}

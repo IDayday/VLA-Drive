@@ -6,7 +6,7 @@ exporter. No policy scoring is implemented a second time here.
 """
 import argparse,gc,json,os,socket,time
 from pathlib import Path
-from .launch import ROOT,TASK,PROTECTED,ORDER,FAST,bootstrap,read,sha,publish,validate_registry,inspect_native
+from .launch import ROOT,TASK,PROTECTED,ORDER,FAST,QUALITY,INDEPENDENT_FAMILIES,bootstrap,read,sha,publish,validate_registry,inspect_native
 
 
 def native_claim_startup_hold(host,claim,sample,run):
@@ -53,6 +53,18 @@ def validate_native_export_receipt(run,checkpoint,receipt):
            or receipt.get('files_sha256')!=checkpoint['files_sha256']
            or receipt.get('counts',{}).get('updates')!=checkpoint['updates']or receipt.get('micro_scenes')!=4):
             raise ValueError('Packed export lacks its own exact native validation receipt')
+    elif run['id']==QUALITY:
+        from .continuation import same_path
+        from starVLA.rl.qwen_world_research_data.manifest import fingerprint
+        import yaml
+        protocol_sha=receipt.get('quality_protocol_sha256')
+        protocol=yaml.safe_load(Path(run['config']).read_text())['research']['verified_quality']
+        if(receipt.get('schema')!='world_verified_quality_export_native_validation_v1'or receipt.get('status')!='PASS'
+           or not same_path(receipt.get('checkpoint'),checkpoint['path'])
+           or receipt.get('files_sha256')!=checkpoint['files_sha256']
+           or receipt.get('counts',{}).get('updates')!=checkpoint['updates']
+           or not isinstance(protocol,dict)or protocol_sha!=fingerprint(protocol)):
+            raise ValueError('S6 export lacks its own exact quality native validation receipt')
     elif(receipt.get('status')!='PASS'or receipt.get('checkpoint',{}).get('files_sha256')!=checkpoint['files_sha256']):
         raise ValueError('A performance export lacks native validation')
     return receipt
@@ -69,25 +81,26 @@ def strict_export(parent,output,checkpoint):
     if run is None or Path(parent).resolve()!=Path(run['parent_checkpoint']).resolve():raise ValueError('Foreign export parent/native checkpoint')
     cp=inspect_native(run,checkpoint);root=Path(cp['path']);identity=read(root/'identity.json');files=read(root/'files.json')
     if cp['next_inner']!=0 or cp['phase']not in('READY','COMPLETE'):raise ValueError('Periodic export requires completed source window')
-    if run['id']==FAST:
-        # Execute the packed family's own complete native validator/exporter in
+    if run['id']in INDEPENDENT_FAMILIES:
+        # Execute this exact family's complete native validator/exporter in
         # its frozen source, avoiding mixed imports into the ops interpreter.
         import subprocess
         from starVLA.rl.qwen_world_safety_exploration.resources import MODEL_PYTHON
         source=str(Path(run['source']).resolve());env=dict(os.environ,CUDA_VISIBLE_DEVICES='',PYTHONPATH=source)
+        module=INDEPENDENT_FAMILIES[run['id']]['native_review']
         if not(Path(output)/'COMPLETE').exists():
-            subprocess.check_call([MODEL_PYTHON,'-m','tools.qwen_world_multiscene.native_review','export',
+            subprocess.check_call([MODEL_PYTHON,'-m',module,'export',
                 '--parent-checkpoint',str(parent),'--rl-checkpoint',cp['path'],'--output',str(output)],cwd=source,env=env)
         else:
             # Adoption still validates the actual packed pending/cursor schema.
             subprocess.check_call([MODEL_PYTHON,'-c',
-                'import sys;from tools.qwen_world_multiscene.native_review import load_validated;load_validated(sys.argv[1])',cp['path']],cwd=source,env=env)
+                f'import sys;from {module} import load_validated;load_validated(sys.argv[1])',cp['path']],cwd=source,env=env)
         meta=inspect_export(output)
-        if meta.get('RL_checkpoint_files_sha256')!=cp['files_sha256']or meta.get('RL_updates')!=cp['updates']:raise ValueError('Packed export bound to another checkpoint')
+        if meta.get('RL_checkpoint_files_sha256')!=cp['files_sha256']or meta.get('RL_updates')!=cp['updates']:raise ValueError('Independent-family export bound to another checkpoint')
         receipt=Path(output).with_name(Path(output).name+'.native_validation.json')
         proof=validate_native_export_receipt(run,cp,read(receipt,{}))
-        if proof.get('identity_sha256')!=identity['sha256']:raise ValueError('Packed native receipt identity changed')
-        # Keep the packed scientist's immutable receipt; do not rewrite it using
+        if proof.get('identity_sha256')!=identity['sha256']:raise ValueError('Independent-family native receipt identity changed')
+        # Keep this scientist's immutable receipt; do not rewrite it using
         # the baseline family's schema or hide its full recovery proof.
         return meta
     # A complete payload hash is essential once for an exported model. Metadata

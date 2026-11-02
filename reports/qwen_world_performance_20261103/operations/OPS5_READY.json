@@ -1,0 +1,74 @@
+{
+  "schema": "world_performance_ops5_S6_family_ready_v1",
+  "status": "CPU_READY_NOT_APPLIED",
+  "created_unix": 1793648678.6037188,
+  "source": "/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103",
+  "source_files_sha256": {
+    "tools/qwen_world_performance/launch.py": "83d063ca87faf3f729c8bd2016505a032c85e48ba2657944dc375dca013ed58c",
+    "tools/qwen_world_performance/evaluate.py": "933547d6750d2bab53109904bf1520ef7fe3caf044742411392e6c51a9a9d086",
+    "tools/qwen_world_safety_exploration/job_worker.py": "ed675a1bf039aedb61f1aa2bd6c70e800bc851cf473293a828d8605223280ba0",
+    "tools/qwen_world_performance/deadline_guard.py": "ac5f662ec1a49e787d0866cbb4ef259742342bc46646ffcb81f109508038f400",
+    "tests/test_world_performance_ops5.py": "d72182d3d568940670b93efe7e54f927e1bfb1e245d4395230f3a5c673d8fa87"
+  },
+  "checks": {
+    "new_cases_only": true,
+    "priority_EXIT0_unharvested_PASS": true,
+    "family_registration_receipt_exact_entry_PASS": true,
+    "latest_family_seconds": 9.88,
+    "old_test_matrix_rerun": false,
+    "actual_scientific_recipe_and_clock": "Prior draft PASS CPU; now margin revision pending final freeze. Clock404/808/1616/3228/6456/38736/129120 unchanged."
+  },
+  "S6": {
+    "id": "S6_VERIFIED_QUALITY",
+    "priority_order": [
+      "S1_NOMINAL_RESCUE",
+      "S5_PERFORMANCE_MAX",
+      "S6_VERIFIED_QUALITY",
+      "S0_LARGE_SAFETYEP",
+      "S2_CONSERVATIVE_AWFM",
+      "S3_LARGE_FPO",
+      "S4_TEMPORAL_RESCUE",
+      "S0_FAST_PACK4",
+      "S0_LOW_LR"
+    ],
+    "science_interface": "/mnt/project/qwen-world-performance-rl-20261103/operations/OPS5_REVIEW/SCIENCE_INTERFACE_PREVIEW.json",
+    "scientific_source_expected": "/mnt/project/qwen-world-performance-rl-20261103/runtime/verified_quality_v1",
+    "config_final_expected": "/mnt/project/qwen-world-performance-rl-20261103/configs/S6_VERIFIED_QUALITY.yaml",
+    "initial_epochs": 6,
+    "minimum_epochs": 3,
+    "optional_cap": 20,
+    "early_native_and_NAV_gates": [
+      404,
+      808
+    ],
+    "full_family_epochs": [
+      0.0625,
+      0.125,
+      0.25,
+      0.5,
+      1,
+      2,
+      3,
+      4,
+      6,
+      8,
+      12,
+      20
+    ],
+    "pure_registration": "launch.quality_registration(registry,config,source,worker_source=...) -> proposal; does not publish",
+    "requires_actual_clean_frozen_scientific_source": true,
+    "global_fixed_IL70_no_old_RL_state": true,
+    "S1_TSH5_reserved_excluded_from_S6_routes": true,
+    "last_observed_draft_protocol_sha256": "b854dddea2efc069bdcb7a9a36533d01cf9f12bfe5c0a66dded5ac440276bfe6",
+    "quality_protocol_sha256_source": "Always fingerprint(final frozen cfg.research.verified_quality); no margin/hash hardcoded in ops",
+    "final_science_freeze_pending": true,
+    "root_latest_scientific_steering": "safe-high gain .005, repair gain .02, alpha .02/.05; wait actual final recipe/source from science owner"
+  },
+  "export": "exact verified_quality.native_review source validates allrank native state before original B1 export; independent receipt schema+path/files/identity/update+fingerprint(cfg.research.verified_quality) checked; receipt retained",
+  "priority_fix": "higher currentstage ownjob EXIT0 and incomplete blocks lower admission despite stale TRAINING; exactpath+host+command. Failed/stopped/completed terminal does not block",
+  "worker": "only exact verified_quality.train added; existing multiscene entry retained, unknown owner rules unchanged",
+  "guardian": "W source adds exact multiscene.train+verified_quality.train names; Root must freeze/adopt standaloneguardian copy as necessary, no livecopy hot edit",
+  "html_handoff": "/mnt/project/qwen-world-performance-rl-20261103/analysis/INTEGRATED_I_u002000_FULL_REVIEW/HTML_HANDOFF.json",
+  "no_RUNS_owner_alias_formal_config_or_current_pipeline_mutation": true,
+  "no_GPU_probe_dispatch_signal_or_git_stage_commit": true
+}

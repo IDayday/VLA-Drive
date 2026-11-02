@@ -25,6 +25,24 @@ def atomic_text(path, value):
     tmp=path.with_name(path.name+'.writing-report-'+str(os.getpid()));tmp.write_text(value,encoding='utf-8');os.replace(tmp,path)
 
 
+def reviewed_I_fragment(root):
+    """Consume only the complete sealed population audit and its exact fragment."""
+    directory=Path(root)/'analysis/INTEGRATED_I_u002000_FULL_REVIEW'
+    handoff=read(directory/'HTML_HANDOFF.json',{});summary=read(directory/'SUMMARY.json',{})
+    body=dict(summary);digest=body.pop('sha256',None)
+    if (summary.get('status')!='COMPLETE' or summary.get('population',{}).get('scenes')!=12146
+            or summary.get('population',{}).get('physical_logs')!=44
+            or hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=digest
+            or handoff.get('summary_sha256')!=digest):return ''
+    try:raw=(directory/'EMBED_SUMMARY.html').read_bytes()
+    except OSError:return ''
+    if hashlib.sha256(raw).hexdigest()!=handoff.get('fragment_sha256'):return ''
+    text=raw.decode();start=text.find('<figure');end=text.rfind('</section>')
+    if start>=0 and end>start:
+        text=text[:start]+'<details><summary>查看完整分数分布、逐场景转移、增损及物理 log 三张图</summary>'+text[start:end]+'</details>'+text[end:]
+    return '<style>.integrated-i2000-review svg{max-width:100%;height:auto}</style>'+text
+
+
 def tail(path):
     try:
         with Path(path).open('rb') as f:
@@ -105,6 +123,8 @@ def current_runs(root, registry, owner):
         elif 'WAIT' in node.get('status',''):status='等待资源'
         else:status=node.get('status','已登记，尚未启动')
         if not job and 'WAIT' in node.get('status',''):status='等待资源'
+        if registered.get('disposition')=='RESERVED_NATIVE_CHECKPOINT_FOR_HIGHER_PRIORITY_QUALITY_STUDY':
+            status='保留原生检查点，资源让位高优先级研究；未判无效'
         epochs=[r.get('metrics',{}).get('exposure_epoch') for r in latest]
         epochs=[v for v in epochs if isinstance(v,(int,float))]
         runs.append(dict(id=arm,status=status,owner_status=node.get('status'),host=(running or result or {}).get('host',node.get('host')),
@@ -164,7 +184,12 @@ def snapshot(root=ROOT):
             ('frozen_reference','qualification/REFERENCE_CACHE_FULL_IL70/COMPLETE.json'),
             ('PACK2','benchmarks/COHERENT_PACK2/COMPLETE.json'),
             ('PACK4','benchmarks/COHERENT_PACK4/COMPLETE.json'))},
-        permanent_continuation=read(root/'operations/OPS_V2_HANDOFF/S1_NATIVE_RETURN.json',{}))
+        permanent_continuation=read(root/'operations/PERMANENT_PRIORITY_BINDING/S1_NOMINAL_RESCUE_NATIVE_RETURN.json',
+            read(root/'operations/OPS_V2_HANDOFF/S1_NATIVE_RETURN.json',{})),
+        cache_world8=read(root/'qualification/REFERENCE_CACHE_WORLD8_NATIVE/COMPLETE.json',{}),
+        packed_world8=read(root/'benchmarks/NATIVE8_PACK4/REVIEWED_COMPLETE_V4.json',{}),
+        TRAIN2048_quality=read(root/'diagnostics/IL70_TRAIN2048/QUALITY.json',{}),
+        full_TRAIN_census=read(root/'diagnostics/FULL_TRAIN_REGISTRATION.json',{}))
 
 
 def table(headers,rows):
@@ -325,12 +350,18 @@ def render_fragment(root=ROOT):
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
     body+='<p><b>当前实际在训 RL 共 '+str(s['active_formal']+legacy_active)+' 条：本轮 '+str(s['active_formal'])+' 条，旧综合 I '+str(legacy_active)+' 条；本轮已登记 '+str(len(s['current_runs']))+' 条；资格测试 '+str(s['active_qualification'])+' 个。</b>实际在训要求当前 stage job 有 RUNNING、无 RESULT，且八 rank 均有近10分钟日志；统计时间见上。本轮完整 NAVTEST 结果 '+str(len(s['complete_results']))+' 个；native0、partial、资格测试与候选 oracle 不计为 RL 提分。</p>'
     body+='<p><b>当前任务：</b>B128/G16 工程资格 → S1 高分候选向真实 B1 吸收；S5 分阶段覆盖、吸收与持续保持。各路线均从相同 IL70k（88.79290991、SHA 7dda5b14…）和 Adam0 独立开始。</p>'
+    body+='<p>实际训练范围为 Action LoRA、Scene Memory 与 Predictive Memory，共 52,707,840 个可训练参数。Qwen 主干与永久 IL 参考冻结；当前可训练 memory/KV 每次 inner 都重新构图。吞吐缓存只复用冻结分支，不把场景表征整体固定成仅训练动作头。</p>'
     body+=table(['正式路线','服务器','实际 Adam（8rank最小）','有效曝光 epoch','当前状态'],[(j['id'],j['host'] or '待分配',j['updates'],f'{j["exposure_epoch"]:.6f}' if j['exposure_epoch'] is not None else '等待首条更新',j['status']) for j in s['current_runs']])
     if s['legacy_current_runs']:
         body+=table(['独立继续的旧实验','服务器','实际 Adam（8rank最小）','状态'],[(j['id'],j['host'],j['updates'],j['status']) for j in s['legacy_current_runs']])
     if s['legacy_complete_results']:
         body+='<p>旧综合 I 已完成的真实单轨迹 NAVTEST（与新 S5 分开）：'+esc('；'.join('Adam '+str(r['updates'])+' / PDMS '+f'{r["PDMS"]:.8f}' for r in s['legacy_complete_results']))+'。未完成的后续评测不发布均分。</p>'
+    body+=reviewed_I_fragment(root)
     body+='<h3>当前结论与接下来的决策</h3><p>主训练仍处于全量均匀覆盖阶段。S1 的 rescue 到 0.5 epoch 才启用；此前它与 S0 的目标相同，独立进程出现相同更新属于预期，不能据此判断 rescue 无效。S5 的历史保持到第 4 epoch 才启用，当前也不能评价其收益。</p>'
+    body+='<p><b>新增研究方向 S6：</b>针对已经安全且高分、但驾驶效率略有回落的场景，也吸收真实验证更优的安全教师；低分修复与高分精修分别使用较强/较弱权重。它须从同一 IL70 独立初始化，当前是否已正式启动以任务表为准。Control 的轨迹和 NAVTEST 场景标识仅用于分析，不作教师或训练优先级。</p>'
+    tq=s['TRAIN2048_quality']
+    if tq.get('status')=='COMPLETE':
+        body+='<p>固定 TRAIN2048 初始 IL70 真实 B1 诊断完成：零分 '+esc(tq.get('zero_count'))+'，严格高质量 '+esc(tq.get('strict_high_count'))+'。这是训练集诊断，后续按同场景配对；不计入 NAVTEST 成绩。全 NAVTRAIN 初始 B1 普查单独使用 7 张可核验 GPU，查询预算 103288，当前状态 '+esc(s['full_TRAIN_census'].get('status','未启动'))+'，未完成时不发布全量均分。</p>'
     returned=s['permanent_continuation']
     if returned.get('status')=='PASS':
         cp=returned.get('checkpoint',{})
@@ -356,14 +387,14 @@ def render_fragment(root=ROOT):
         original=cache.get('results',{}).get('original',{});cached=cache.get('results',{}).get('cached',{})
         rows.append(('冻结 IL 参考计算复用','真实 IL70 / 单 GPU / 4 inner',
             str(original.get('reference_velocity_calls'))+' → '+str(cached.get('reference_velocity_calls'))+' 次参考调用',
-            '梯度、参数、Adam、scheduler、RNG 逐位一致；八卡原生恢复验证后再上线'))
+            '八卡原生恢复逐位一致，已用于 S1；原目标和 Adam/RNG 保持' if s['cache_world8'].get('status')=='PASS' else '梯度、参数、Adam、scheduler、RNG 逐位一致；待八卡原生恢复验证'))
     for name in ('PACK2','PACK4'):
         proof=qualified[name]
         if proof.get('status')=='PASS':
             first=proof.get('iterations',[{}])[0]
             rows.append((name+' 一致合批采样与更新','真实 IL70 / 单 GPU / '+str(len(proof.get('scenes',[])))+' TRAIN 场景',
                 '首更 ratio 偏差 '+str(first.get('fresh_ratio_max_abs')),
-                '八卡恢复验证中；正式训练须独立从 IL70 开始，不能替换现有单场景轨迹的更新内核'))
+                'PACK4 八卡参数/Adam/八rank RNG/stream 逐位恢复通过；独立正式训练从 IL70 开始' if name=='PACK4' and s['packed_world8'].get('status')=='PASS' else '单卡通过；须独立从 IL70 开始，不能替换现有单场景轨迹的更新内核'))
     if rows:body+=table(['吞吐优化','验证范围','实际结果','当前处置'],rows)
     if s['complete_results']:
         body+='<h3>本轮完整单轨迹评测</h3>'+table(['评测','Adam','PDMS','有效场景','invalid'],[(r['arm'],r.get('updates'),r.get('PDMS'),r['scenes'],r['invalid_scenes']) for r in s['complete_results']])

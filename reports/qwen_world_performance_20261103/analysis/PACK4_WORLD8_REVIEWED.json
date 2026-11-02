@@ -1,0 +1,280 @@
+{
+  "schema": "world_packed_8rank_native_reviewed_qualification_v1",
+  "status": "PASS",
+  "qualification_only": true,
+  "not_performance_evidence": true,
+  "training_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/multiscene_native_v3",
+  "training_commit": "cc45f9b801752b4dbd6ff593457b6cc917350162",
+  "comparator_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/multiscene_compare_v4",
+  "comparator_commit": "dd02615985f2acd1bd8fae36aa8457f66f6badab",
+  "comparator_sha256": "b31c05c279a3ce4324d08c699f0ca942c196a6b1779772ea0e2968adcbb60a35",
+  "world": 8,
+  "B": 128,
+  "G": 16,
+  "M": 4,
+  "micro_scenes": 4,
+  "trainable_numel": 52707840,
+  "original_job_result": {
+    "path": "/mnt/project/qwen-world-performance-rl-20261103/jobs/QUAL_PACKED_NATIVE_WORLD8_PACK4/RESULT.json",
+    "returncode": 1,
+    "sha256": "ca36493232f01bf67f4c9c3c401458d0720d83d957ef9edec26a73645fb5adda"
+  },
+  "original_driver_state": {
+    "path": "/mnt/project/qwen-world-performance-rl-20261103/benchmarks/NATIVE8_PACK4/STATE.json",
+    "status": "FAILED",
+    "sha256": "9c6132649b0bc5bac968355b7cc2cbe786fafeae93be40b9eab994cdfaf51f8e"
+  },
+  "actual_GPU_legs": [
+    {
+      "name": "continuous4",
+      "returncode": 0,
+      "started_unix": 1793647336.4232478,
+      "finished_unix": 1793647471.9025848
+    },
+    {
+      "name": "split2",
+      "returncode": 0,
+      "started_unix": 1793647471.9151583,
+      "finished_unix": 1793647599.3841894
+    },
+    {
+      "name": "resume2to4",
+      "returncode": 0,
+      "started_unix": 1793647599.3956037,
+      "finished_unix": 1793647712.2895706
+    }
+  ],
+  "original_failure": "Final CPU comparator included independent-run top-level Invocation UUID; all three actual GPU legs exited0. Original rc1/FAILED/source/checkpoints/logs remain unchanged.",
+  "permitted_projection": "Only top-level32hex administrative invocation is recorded/excluded; all trajectory, probability, A, teacher/ancestry, actual parameters/Adam/scheduler/8rankRNG/scene_stream remain bit-exact.",
+  "comparisons": [
+    {
+      "schema": "world_coherent_packed_native_comparison_v1",
+      "status": "PASS",
+      "left": "/mnt/project/qwen-world-performance-rl-20261103/benchmarks/NATIVE8_PACK4/continuous/checkpoints/update000002_inner2",
+      "right": "/mnt/project/qwen-world-performance-rl-20261103/benchmarks/NATIVE8_PACK4/resumed/checkpoints/update000002_inner2",
+      "identity_sha256": "82232366045a72eebb810a9c4517b5b366f3894e1a826d9ac6617717a66ffa3a",
+      "exact": [
+        "all actual trainables",
+        "Adam moments/steps/groups",
+        "scheduler",
+        "8rank Python/Numpy/TorchCPU/CUDA/source-generator RNG",
+        "all learning state including scene_stream/selection plan",
+        "pending scientific source chains/probabilities/advantages"
+      ],
+      "excluded": "explicit measured wallclock seconds and top-level independent-run Invocation UUID only",
+      "administrative_invocations": [
+        {
+          "rank": 0,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        },
+        {
+          "rank": 1,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        },
+        {
+          "rank": 2,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        },
+        {
+          "rank": 3,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        },
+        {
+          "rank": 4,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        },
+        {
+          "rank": 5,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        },
+        {
+          "rank": 6,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        },
+        {
+          "rank": 7,
+          "left": "211fb39a0ecb43aaab7abd709e2f48eb",
+          "right": "84af9a8d2fb246b187cf474999c244e6"
+        }
+      ],
+      "counts": {
+        "pending": true,
+        "updates": 2,
+        "next_inner": 2,
+        "raw_scenes": 128,
+        "valid_scenes": 128,
+        "padding_scenes": 0,
+        "physical_PG_candidates": 2048,
+        "pending_actual_scenes": 128,
+        "pending_valid_scenes": 128,
+        "pending_padding_scenes": 0,
+        "normalization_candidates": 2048,
+        "normalization_std": 0.39390975171739623,
+        "padding_scope": "actual stored slots; zero here means the first GPU window did not exercise epoch-tail padding"
+      },
+      "world": 8,
+      "phase": "INNER_COMMITTED",
+      "micro_scenes": 4
+    },
+    {
+      "schema": "world_coherent_packed_native_comparison_v1",
+      "status": "PASS",
+      "left": "/mnt/project/qwen-world-performance-rl-20261103/benchmarks/NATIVE8_PACK4/continuous/checkpoints/update000004_inner0",
+      "right": "/mnt/project/qwen-world-performance-rl-20261103/benchmarks/NATIVE8_PACK4/resumed/checkpoints/update000004_inner0",
+      "identity_sha256": "82232366045a72eebb810a9c4517b5b366f3894e1a826d9ac6617717a66ffa3a",
+      "exact": [
+        "all actual trainables",
+        "Adam moments/steps/groups",
+        "scheduler",
+        "8rank Python/Numpy/TorchCPU/CUDA/source-generator RNG",
+        "all learning state including scene_stream/selection plan",
+        "pending scientific source chains/probabilities/advantages"
+      ],
+      "excluded": "explicit measured wallclock seconds and top-level independent-run Invocation UUID only",
+      "administrative_invocations": [],
+      "counts": {
+        "pending": false,
+        "updates": 4,
+        "next_inner": 0,
+        "raw_scenes": 128,
+        "valid_scenes": 128,
+        "padding_scenes": 0,
+        "physical_PG_candidates": 2048
+      },
+      "world": 8,
+      "phase": "READY",
+      "micro_scenes": 4
+    }
+  ],
+  "initial_all8": [
+    {
+      "rank": 0,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 8.6661475506844e-07
+    },
+    {
+      "rank": 1,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 2.1724977159465197e-06
+    },
+    {
+      "rank": 2,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 1.0922677802227554e-06
+    },
+    {
+      "rank": 3,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 2.026193669735221e-06
+    },
+    {
+      "rank": 4,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 1.243867245648289e-06
+    },
+    {
+      "rank": 5,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 8.700657190274796e-07
+    },
+    {
+      "rank": 6,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 9.966076959244674e-07
+    },
+    {
+      "rank": 7,
+      "fresh_ratio_error": 0.0,
+      "beta50_physical_IL_anchor": 8.84510825471807e-07
+    }
+  ],
+  "actual_GPU_update_timings": [
+    {
+      "rank": 0,
+      "seconds_per_update": [
+        3.4931288231164217,
+        3.363295754417777,
+        3.2554475590586662,
+        3.228866344317794
+      ]
+    },
+    {
+      "rank": 1,
+      "seconds_per_update": [
+        3.49636703543365,
+        3.3631048891693354,
+        3.25834746286273,
+        3.229378715157509
+      ]
+    },
+    {
+      "rank": 2,
+      "seconds_per_update": [
+        3.495364025235176,
+        3.363229049369693,
+        3.2555172629654408,
+        3.228601261973381
+      ]
+    },
+    {
+      "rank": 3,
+      "seconds_per_update": [
+        3.4955643471330404,
+        3.363208409398794,
+        3.255428982898593,
+        3.22849577665329
+      ]
+    },
+    {
+      "rank": 4,
+      "seconds_per_update": [
+        3.4923326782882214,
+        3.363154763355851,
+        3.2552588749676943,
+        3.228792669251561
+      ]
+    },
+    {
+      "rank": 5,
+      "seconds_per_update": [
+        3.4943468552082777,
+        3.3638927340507507,
+        3.2559499740600586,
+        3.2294510323554277
+      ]
+    },
+    {
+      "rank": 6,
+      "seconds_per_update": [
+        3.492048054933548,
+        3.363224644213915,
+        3.255478709936142,
+        3.2288345471024513
+      ]
+    },
+    {
+      "rank": 7,
+      "seconds_per_update": [
+        3.4923791084438562,
+        3.362897839397192,
+        3.255672972649336,
+        3.2284270003437996
+      ]
+    }
+  ],
+  "comparison_files": {
+    "COMPARE_V4_u000002.json": "d1b29e37ff0f666ac2eae6da141540d8a19c1aa7f4dd9c63c88206a561eb1c60",
+    "COMPARE_V4_u000004.json": "a982dcf4a458c508ab95f12738479dbaeb07f33b2a83796fb5009242126c8c78"
+  },
+  "actual_padding": 0,
+  "padding_limit": "Initial globalB128 actual window was fully valid; CPU coherent tests separately exercised invalid slots. No GPU epoch-tail claim.",
+  "new_GPU_reruns": 0,
+  "finished_unix": 1793648253.0731385
+}
