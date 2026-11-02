@@ -184,6 +184,38 @@ def first_window_progress_evidence(root):
         synthetic_cohorts=synthetic.get('cohorts',{}),synthetic_queries=complete.get('actual_CPU_PDM_queries'))
 
 
+def FAST_review_evidence(root,complete_results):
+    directory=root/'analysis/FAST_u000808_FULL_REVIEW';path=directory/'SUMMARY.json'
+    value=read(path,{});body=dict(value);seal=body.pop('sha256',None)
+    population=value.get('population',{})
+    official=next((r for r in complete_results if r['arm']=='S0_FAST_PACK4' and r['updates']==808),None)
+    if (not official or value.get('status')!='COMPLETE'
+            or (population.get('scenes'),population.get('physical_logs'),population.get('invalid'))!=(12146,44,0)
+            or hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=seal):return {}
+    evaluations=value.get('evaluations',{})
+    if abs(evaluations.get('FAST808',{}).get('PDMS',-1)-official['PDMS'])>1e-8:return {}
+    # Recheck only sealed source metadata, not the12146 scene arrays/ledger.
+    for item in evaluations.values():
+        source=Path(item['source']);summary=source/'SUMMARY.json'
+        if not summary.exists():summary=source.parent/'SUMMARY.json'
+        for source_path,key in [(summary,'summary_file_sha256'),(source/'identity.json','identity_file_sha256')]:
+            try:raw=source_path.read_bytes();metadata=json.loads(raw)
+            except (OSError,ValueError):return {}
+            expected=metadata.pop('sha256',None)
+            if (hashlib.sha256(raw).hexdigest()!=item['provenance'].get(key)
+                    or hashlib.sha256(json.dumps(metadata,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=expected):return {}
+    figures=[]
+    for name in ('score_bands.svg','band_transitions.svg','gain_loss_and_logs.svg'):
+        item=value.get('artifacts',{}).get(name,{})
+        try:valid=hashlib.sha256(Path(item['path']).read_bytes()).hexdigest()==item['sha256']
+        except (OSError,KeyError):valid=False
+        if valid:figures.append(item['path'])
+    return dict(path=str(path),seal=seal,score=official['PDMS'],
+        scores={k:v['PDMS'] for k,v in evaluations.items()},
+        contrasts={k:{field:v[field] for field in ('PDMS_delta','zero','metrics')} for k,v in value['contrasts'].items()},
+        fixed_IL70_high=value['fixed_IL70_high_between_arm'],budget=value['native_budget_metadata'],figures=figures)
+
+
 def current_runs(root, registry, owner):
     now=time.time();runs=[]
     for registered in registry.get('runs',[]):
@@ -289,6 +321,7 @@ def snapshot(root=ROOT):
         S6_fresh=read(root/'operations/S6_FORMAL_LAUNCH/FRESH_IL70_ADAM0_PROOF.json',{}),
         S6_live=S6_live_evidence(root),
         first_window_progress=first_window_progress_evidence(root),
+        FAST_review=FAST_review_evidence(root,complete),
         full_TRAIN_census=read(root/'diagnostics/FULL_TRAIN_REGISTRATION.json',{}))
 
 
@@ -381,6 +414,25 @@ def first_window_progress_fragment(s):
     S7=next((r for r in s['current_runs'] if r['id'].startswith('S7_')),None)
     body+='<p>独立 S7：'+esc(S7['status'] if S7 else '代码开发中，尚无正式训练任务，不计入在训数量')+'；上述诊断不修改 S6 的教师或损失。<a href="'+esc(value['GT_path'])+'">GT 首窗审核</a> · <a href="'+esc(value['synthetic_path'])+'">完整合成进度诊断</a></p></section>'
     return body
+
+
+def FAST_review_fragment(s):
+    value=s['FAST_review']
+    if not value:return ''
+    IL=value['contrasts']['IL70'];control=value['contrasts']['Control10k']
+    fixed=value['fixed_IL70_high'];mass=fixed['target_vs_Control10k'];metrics=control['metrics'];budget=value['budget']
+    body='<section id="performance-FAST808-review"><h3>最新全量结果：FAST 0.25 epoch / Adam808</h3>'
+    body+='<p><b>PDMS '+esc(f'{value["score"]:.8f}')+'</b>，完整 12146 场景 / 44 physical logs / invalid0，真正单轨 B1 ODE K10/shift5/seed2101。相同 IL70 提高 '+esc(f'{IL["PDMS_delta"]:+.6f}')+' 点；低于已观测 Control10k '+esc(f'{control["PDMS_delta"]:.6f}')+' 点。<b>这是首个 0.25 epoch 观察，尚不能据此判定方法无效。</b></p>'
+    body+=table(['逐场景对照','对照实际 PDMS','FAST差值','零分修复 / 新增 / 当前'],[
+        ('相同 IL70',f'{value["scores"]["IL70"]:.8f}',f'{IL["PDMS_delta"]:+.6f}',str(IL['zero']['repaired'])+' / '+str(IL['zero']['new'])+' / '+str(IL['zero']['target'])),
+        ('历史 Control10k',f'{value["scores"]["Control10k"]:.8f}',f'{control["PDMS_delta"]:+.6f}',str(control['zero']['repaired'])+' / '+str(control['zero']['new'])+' / '+str(control['zero']['target']))])
+    body+='<p>相 IL70：原零分保留 '+esc(IL['zero']['retained'])+'、修复 '+esc(IL['zero']['repaired'])+'，同时新增 '+esc(IL['zero']['new'])+' 个零分。相 Control10k 的差额中，固定 IL70 高分 '+esc(fixed['scenes'])+' 场景贡献 '+esc(f'{mass["global_PDMS_contribution"]:+.6f}')+' 点，其余场景 '+esc(f'{mass["other_scenes_global_contribution"]:+.6f}')+' 点。EP 分项 '+esc(f'{metrics["ego_progress"]["delta_pp"]:+.6f}')+'pp、DAC '+esc(f'{metrics["drivable_area_compliance"]["delta_pp"]:+.6f}')+'pp，NC/TTC 分别 '+esc(f'{metrics["no_at_fault_collisions"]["delta_pp"]:+.6f}')+' / '+esc(f'{metrics["time_to_collision_within_bound"]["delta_pp"]:+.6f}')+'pp。它们是完整场景的描述性分解，不证明因果或必然安全效率冲突。</p>'
+    body+='<p>实际曝光 '+esc(budget['fresh_valid_scenes'])+' 个场景、PG 候选 '+esc(budget['fresh_PG_candidates'])+'；Control10k 为 '+esc(budget['Control10k_fresh_scenes'])+' 场景 / '+esc(budget['Control10k_fresh_PG_candidates'])+' 候选，Adam 时钟也不同，<b>不是等算力或单因子对照</b>。<a href="'+esc(value['path'])+'">完整封存分析</a></p>'
+    if value['figures']:
+        body+='<details><summary>查看已生成的全量分档、转移与增损/log分布三图</summary>'
+        for path in value['figures']:body+='<figure><img loading="lazy" style="width:100%;height:auto" src="'+esc(path)+'" alt="FAST808全量分析"/><figcaption><a href="'+esc(path)+'">原始 SVG</a></figcaption></figure>'
+        body+='</details>'
+    return body+'</section>'
 
 
 COLORS=['#087f8c','#cb6d26','#7554a3','#397744','#b94755','#2d66af','#716236']
@@ -539,6 +591,10 @@ def render_fragment(root=ROOT):
     body+='<p><b>当前任务：</b>S1 高分候选向真实 B1 吸收；S5 分阶段覆盖、吸收与持续保持；S6 验证已安全高分场景的更优教师与冷启动校准。各路线均从相同 IL70k（88.79290991、SHA 7dda5b14…）和 Adam0 独立开始。</p>'
     body+='<p>实际训练范围为 Action LoRA、Scene Memory 与 Predictive Memory，共 52,707,840 个可训练参数。Qwen 主干与永久 IL 参考冻结；当前可训练 memory/KV 每次 inner 都重新构图。吞吐缓存只复用冻结分支，不把场景表征整体固定成仅训练动作头。</p>'
     body+=table(['正式路线','服务器','实际 Adam（8rank最小）','有效曝光 epoch','当前状态'],[(j['id'],j['host'] or '待分配',j['updates'],f'{j["exposure_epoch"]:.6f}' if j['exposure_epoch'] is not None else '等待首条更新',j['status']+('；'+j['resource_note'] if j.get('resource_note') else '')) for j in s['current_runs']])
+    if s['complete_results']:
+        body+='<h3>本轮完整单轨迹评测</h3>'+table(['评测','Adam','PDMS','有效场景','invalid'],[(r['arm'],r.get('updates'),r.get('PDMS'),r['scenes'],r['invalid_scenes']) for r in s['complete_results']])
+    else:body+='<p><b>本轮尚无完整正式 NAVTEST 分数。</b>后续只接受 sealed SPEC + identity、全12146/invalid0/44log、seed2101 的既有结果。</p>'
+    body+=FAST_review_fragment(s)
     if s['legacy_current_runs']:
         body+=table(['独立继续的旧实验','服务器','实际 Adam（8rank最小）','状态'],[(j['id'],j['host'],j['updates'],j['status']) for j in s['legacy_current_runs']])
     if s['legacy_complete_results']:
@@ -584,9 +640,6 @@ def render_fragment(root=ROOT):
                 '首更 ratio 偏差 '+str(first.get('fresh_ratio_max_abs')),
                 'PACK4 八卡参数/Adam/八rank RNG/stream 逐位恢复通过；独立正式训练从 IL70 开始' if name=='PACK4' and s['packed_world8'].get('status')=='PASS' else '单卡通过；须独立从 IL70 开始，不能替换现有单场景轨迹的更新内核'))
     if rows:body+=table(['吞吐优化','验证范围','实际结果','当前处置'],rows)
-    if s['complete_results']:
-        body+='<h3>本轮完整单轨迹评测</h3>'+table(['评测','Adam','PDMS','有效场景','invalid'],[(r['arm'],r.get('updates'),r.get('PDMS'),r['scenes'],r['invalid_scenes']) for r in s['complete_results']])
-    else:body+='<p><b>本轮尚无完整正式 NAVTEST 分数。</b>后续只接受 sealed SPEC + identity、全12146/invalid0/44log、seed2101 的既有结果。</p>'
     body+='<p><b>资源期限：</b>wm4 / rl2 / tsh2 / wmzt / tsh3 / wm2 至北京时间 11月3日08:00；23:45 UTC 起保存退出。其它授权按原许可执行，未知任务不回收。</p>'
     body+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px"><article><h3>已完成：全量数据审计</h3><p>'+esc(checks.get('unique_tokens','待查'))+' 唯一 TRAIN；NAVTEST token/log 交集 0。309864 图像文件、103288 cache 文件逐个筛查无缺失；cache 格式筛查不等同完整语义评分。</p></article><article><h3>尚待回答：是否真正提分</h3><p>重点看固定 TRAIN 中 sampled-good/B1-bad 的后续修复，以及全 NAVTEST 的零分修复和高分退化。不会以扩大采样覆盖率代替单轨迹部署成绩。</p></article></div>'
     body+='<h3>实测工程成本与评分预算</h3><p><a href="'+esc(root/'performance_qualification.json')+'">资格计时与预算原始汇总</a></p>'+engineering_figure(root,s)
