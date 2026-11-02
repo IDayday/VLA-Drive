@@ -1,0 +1,613 @@
+{
+  "artifacts": {
+    "budget": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/BUDGET_LEDGER.json",
+    "complete": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/COMPLETE.json",
+    "per_scene": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/scenes",
+    "protocol": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/PROTOCOL.json",
+    "scene_table": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/SCENES.jsonl",
+    "summary": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/SUMMARY.json",
+    "trajectory_npz": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/TRAJECTORIES.npz"
+  },
+  "at": "2026-11-02T21:20:50.505452+00:00",
+  "better_GT_than_existing_qualified_SDE_teacher_count": 1,
+  "budget": {
+    "actual_new_PDM_candidate_queries": 75,
+    "maximum": 128,
+    "new_GPU_queries": 0,
+    "new_raw_comparison_queries": 11,
+    "new_roundtrip_queries": 64,
+    "reference_simulations": 64,
+    "reserved": 75,
+    "scorer_submissions": 64,
+    "training_updates": 0,
+    "workers": 2
+  },
+  "codec": {
+    "actual_scored_request": "saved actual_roundtrip_requested_FP32 in TRAJECTORIES.npz and exact per-scene feedback",
+    "max_abs_raw_roundtrip_by_dim": [
+      3.814697265625e-06,
+      2.86102294921875e-06,
+      1.7881393432617188e-07
+    ],
+    "no_GPU_bit_parity_claim": true
+  },
+  "cohort_statistics": {
+    "B1_already_strict_high": {
+      "GT_roundtrip_score_distribution": {
+        "max": 1.0,
+        "median": 1.0,
+        "min": 0.8840644356017934,
+        "q05": 0.9085281496758635,
+        "q25": 0.9423483207401864,
+        "q75": 1.0,
+        "q95": 1.0
+      },
+      "GT_roundtrip_strict4": 49,
+      "GT_roundtrip_strict_high": 47,
+      "gain_distribution": {
+        "max": 0.016318822342824335,
+        "median": 0.0,
+        "min": -0.03730164242047407,
+        "q05": -0.010724195829213957,
+        "q25": -0.0012037688751646014,
+        "q75": 0.0,
+        "q95": 0.00872129086464504
+      },
+      "gain_ge005": 3,
+      "gain_ge02": 0,
+      "new_qualifying_teacher_for_currently_disabled_scene": 0,
+      "score_worse_lt_minus005": 8,
+      "scored_count": 49,
+      "teacher_meets_actual_gate": 3
+    },
+    "B1_not_strict_high": {
+      "GT_roundtrip_score_distribution": {
+        "max": 0.9854850937594032,
+        "median": 0.85386891492055,
+        "min": 0.8028903805384191,
+        "q05": 0.8199497298057025,
+        "q25": 0.8444643629110793,
+        "q75": 0.8763006500273891,
+        "q95": 0.918223068468094
+      },
+      "GT_roundtrip_strict4": 15,
+      "GT_roundtrip_strict_high": 1,
+      "gain_distribution": {
+        "max": 0.9854850937594032,
+        "median": -0.002606148412173437,
+        "min": -0.01707127132911468,
+        "q05": -0.014727576795447206,
+        "q25": -0.008499978333518288,
+        "q75": 0.009540790791856324,
+        "q95": 0.31624869213474605
+      },
+      "gain_ge005": 6,
+      "gain_ge02": 3,
+      "new_qualifying_teacher_for_currently_disabled_scene": 0,
+      "score_worse_lt_minus005": 6,
+      "scored_count": 15,
+      "teacher_meets_actual_gate": 1
+    },
+    "all": {
+      "GT_roundtrip_score_distribution": {
+        "max": 1.0,
+        "median": 0.9535403305524616,
+        "min": 0.8028903805384191,
+        "q05": 0.8433949148823615,
+        "q25": 0.902153161278985,
+        "q75": 1.0,
+        "q95": 1.0
+      },
+      "GT_roundtrip_strict4": 64,
+      "GT_roundtrip_strict_high": 48,
+      "gain_distribution": {
+        "max": 0.9854850937594032,
+        "median": 0.0,
+        "min": -0.03730164242047407,
+        "q05": -0.013407600152982424,
+        "q25": -0.0037926773982849826,
+        "q75": 0.00012352252327341162,
+        "q95": 0.01630666828083316
+      },
+      "gain_ge005": 9,
+      "gain_ge02": 3,
+      "new_qualifying_teacher_for_currently_disabled_scene": 0,
+      "score_worse_lt_minus005": 14,
+      "scored_count": 64,
+      "teacher_meets_actual_gate": 4
+    },
+    "existing_aux_disabled": {
+      "GT_roundtrip_score_distribution": {
+        "max": 1.0,
+        "median": 1.0,
+        "min": 0.8028903805384191,
+        "q05": 0.8293186241982198,
+        "q25": 0.9103855676252087,
+        "q75": 1.0,
+        "q95": 1.0
+      },
+      "GT_roundtrip_strict4": 36,
+      "GT_roundtrip_strict_high": 28,
+      "gain_distribution": {
+        "max": 0.02943309143846584,
+        "median": 0.0,
+        "min": -0.03097017984088124,
+        "q05": -0.014560170043042386,
+        "q25": 0.0,
+        "q75": 0.0,
+        "q95": 0.0037646248117319536
+      },
+      "gain_ge005": 2,
+      "gain_ge02": 1,
+      "new_qualifying_teacher_for_currently_disabled_scene": 0,
+      "score_worse_lt_minus005": 5,
+      "scored_count": 36,
+      "teacher_meets_actual_gate": 0
+    },
+    "fallback7": {
+      "GT_roundtrip_score_distribution": {
+        "max": 0.8762218100983943,
+        "median": 0.842936580012911,
+        "min": 0.8028903805384191,
+        "q05": 0.8102015302243977,
+        "q25": 0.8286327092960402,
+        "q75": 0.8542871550363969,
+        "q95": 0.8715890807801185
+      },
+      "GT_roundtrip_strict4": 7,
+      "GT_roundtrip_strict_high": 0,
+      "gain_distribution": {
+        "max": 0.02943309143846584,
+        "median": -0.002606148412173437,
+        "min": -0.01707127132911468,
+        "q05": -0.01606683081468576,
+        "q25": -0.010157816771521,
+        "q75": 0.005218035371351015,
+        "q95": 0.023040620954102815
+      },
+      "gain_ge005": 2,
+      "gain_ge02": 1,
+      "new_qualifying_teacher_for_currently_disabled_scene": 0,
+      "score_worse_lt_minus005": 3,
+      "scored_count": 7,
+      "teacher_meets_actual_gate": 0
+    }
+  },
+  "fallback7": {
+    "B1_score_max": 0.8673718762994987,
+    "B1_score_min": 0.8054965289505925,
+    "B1_strict4_count": 7,
+    "GT_EP_max": 0.7029323442361464,
+    "GT_EP_min": 0.526936913292206,
+    "GT_score_max": 0.8762218100983943,
+    "GT_score_min": 0.8028903805384191,
+    "GT_strict4_count": 7,
+    "GT_strict_high_count": 0,
+    "cases": [
+      {
+        "B1_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6183616378544782,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8409840157726993,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.5854261107800344,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.827260879491681,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_strict4": true,
+        "GT_strict_high": false,
+        "existing_skip_reason": "no_strict_high_teacher",
+        "gain": -0.013723136281018289,
+        "log": "2021.10.01.13.28.54_veh-28_01098_01337",
+        "qualifying_teacher": false,
+        "raw_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.5854262713640276,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8272609464016781,
+          "time_to_collision_within_bound": 1.0
+        },
+        "raw_roundtrip_metric_delta": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": -1.6058399321394745e-07,
+          "no_at_fault_collisions": 0.0,
+          "score": -6.690999709846324e-08,
+          "time_to_collision_within_bound": 0.0
+        },
+        "status": "SCORED",
+        "token": "4b3237ef8daa5be9"
+      },
+      {
+        "B1_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6175008778259157,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8406253657607982,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6230477920309868,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.842936580012911,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_strict4": true,
+        "GT_strict_high": false,
+        "existing_skip_reason": "no_strict_high_teacher",
+        "gain": 0.002311214252112892,
+        "log": "2021.10.05.06.24.06_veh-50_01311_01409",
+        "qualifying_teacher": false,
+        "raw_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6230478000851689,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8429365833688204,
+          "time_to_collision_within_bound": 1.0
+        },
+        "raw_roundtrip_metric_delta": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": -8.054182099037632e-09,
+          "no_at_fault_collisions": 0.0,
+          "score": -3.3559093282065078e-09,
+          "time_to_collision_within_bound": 0.0
+        },
+        "status": "SCORED",
+        "token": "27306ec5ee08508e"
+      },
+      {
+        "B1_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6152081789073507,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8396700745447294,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6347078344847648,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8477949310353186,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_strict4": true,
+        "GT_strict_high": false,
+        "existing_skip_reason": "no_strict_high_teacher",
+        "gain": 0.008124856490589139,
+        "log": "2021.06.08.12.00.19_veh-35_05235_05578",
+        "qualifying_teacher": false,
+        "raw_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6347078864828297,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8477949527011791,
+          "time_to_collision_within_bound": 1.0
+        },
+        "raw_roundtrip_metric_delta": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": -5.199806496491988e-08,
+          "no_at_fault_collisions": 0.0,
+          "score": -2.1665860550079685e-08,
+          "time_to_collision_within_bound": 0.0
+        },
+        "status": "SCORED",
+        "token": "ffd47b0690cb5b3e"
+      },
+      {
+        "B1_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6816925031187973,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8673718762994987,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6658705096899401,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.860779379037475,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_strict4": true,
+        "GT_strict_high": false,
+        "existing_skip_reason": "no_strict_high_teacher",
+        "gain": -0.006592497262023711,
+        "log": "2021.07.16.16.08.35_veh-35_04744_06051",
+        "qualifying_teacher": false,
+        "raw_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6658703771912134,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8607793238296723,
+          "time_to_collision_within_bound": 1.0
+        },
+        "raw_roundtrip_metric_delta": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": 1.3249872665710427e-07,
+          "no_at_fault_collisions": 0.0,
+          "score": 5.5207802773793446e-08,
+          "time_to_collision_within_bound": 0.0
+        },
+        "status": "SCORED",
+        "token": "ce95fefdd9e4529b"
+      },
+      {
+        "B1_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.5331916694814223,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8054965289505925,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.526936913292206,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8028903805384191,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_strict4": true,
+        "GT_strict_high": false,
+        "existing_skip_reason": "no_strict_high_teacher",
+        "gain": -0.002606148412173437,
+        "log": "2021.10.11.02.57.41_veh-50_01522_02088",
+        "qualifying_teacher": false,
+        "raw_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.526936886996116,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.802890369581715,
+          "time_to_collision_within_bound": 1.0
+        },
+        "raw_roundtrip_metric_delta": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": 2.6296090083199886e-08,
+          "no_at_fault_collisions": 0.0,
+          "score": 1.0956704099562842e-08,
+          "time_to_collision_within_bound": 0.0
+        },
+        "status": "SCORED",
+        "token": "697f57e307905a80"
+      },
+      {
+        "B1_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6329819450308336,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.847075810429514,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.5920108938409582,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8300045391003993,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_strict4": true,
+        "GT_strict_high": false,
+        "existing_skip_reason": "no_strict_high_teacher",
+        "gain": -0.01707127132911468,
+        "log": "2021.07.09.20.26.06_veh-35_00016_01757",
+        "qualifying_teacher": false,
+        "raw_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.5920109634823814,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8300045681176589,
+          "time_to_collision_within_bound": 1.0
+        },
+        "raw_roundtrip_metric_delta": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": -6.964142318377498e-08,
+          "no_at_fault_collisions": 0.0,
+          "score": -2.901725959514323e-08,
+          "time_to_collision_within_bound": 0.0
+        },
+        "status": "SCORED",
+        "token": "fe199a73f4da5ddd"
+      },
+      {
+        "B1_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.6322929247838283,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8467887186599284,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.7029323442361464,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8762218100983943,
+          "time_to_collision_within_bound": 1.0
+        },
+        "GT_strict4": true,
+        "GT_strict_high": false,
+        "existing_skip_reason": "no_strict_high_teacher",
+        "gain": 0.02943309143846584,
+        "log": "2021.06.09.14.50.36_veh-26_01537_01600",
+        "qualifying_teacher": false,
+        "raw_metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 1.0,
+          "driving_direction_compliance": 1.0,
+          "ego_progress": 0.7029321496101885,
+          "no_at_fault_collisions": 1.0,
+          "score": 0.8762217290042452,
+          "time_to_collision_within_bound": 1.0
+        },
+        "raw_roundtrip_metric_delta": {
+          "comfort": 0.0,
+          "drivable_area_compliance": 0.0,
+          "driving_direction_compliance": 0.0,
+          "ego_progress": 1.946259579055365e-07,
+          "no_at_fault_collisions": 0.0,
+          "score": 8.109414906254386e-08,
+          "time_to_collision_within_bound": 0.0
+        },
+        "status": "SCORED",
+        "token": "53946145cb6c5941"
+      }
+    ],
+    "count": 7,
+    "gate_explanation": "\u82e5NC=DAC=TTC=Comfort=1\uff0ccanonical=(5EP+7)/12\uff1b>=.9\u9700\u8981EP>=.76\u3002\u672c7\u4e2aGT EP=.526937..702932\uff0c\u4e0d\u80fd\u56e0\u5b89\u5168\u901a\u8fc7\u5c31\u58f0\u79f0\u7b26\u5408strict-high\u6559\u5e08\u95e8\u3002",
+    "qualifying_teacher_count": 0
+  },
+  "interpretation": [
+    {
+      "hypothesis": "\u73b07\u4e2a\u6761\u4ef6\u6269\u5c55\u65e0\u6536\u83b7\u66f4\u50cf\u4e25\u683cprogress\u95e8\u69db\u4e0b\u65e0\u9ad8\u89c1\u8bc1\uff0c\u5e76\u975e\u5b89\u5168\u65e0\u89e3\uff1b\u7528\u771f\u5b9eGT\u6ca1\u6709\u8865\u51fa\u53ef\u5408\u6cd5\u6ce8\u5165\u7684\u65b0\u69fd\u3002",
+      "limit": "\u9996window\u4ec57case\uff1b\u4e0d\u80fd\u636e\u6b64\u5168\u5c40\u5173\u95ed\u989d\u5916\u63a2\u7d22\u6216\u8bc1\u660e\u5168TRAIN\u65e0GT\u4ef7\u503c\u3002",
+      "status": "SUPPORTED_IN_FIRST64"
+    },
+    {
+      "hypothesis": "\u5982\u679c\u4eca\u540e\u5355\u72ec\u7814\u7a76GT\u6559\u5e08\uff0c\u4fdd\u7559\u5df2\u8bc4\u5206\u6700\u9ad8\u5408\u683c\u7aef\u70b9\uff0c\u999664\u4ec51\u4f8b\u80fd\u8d85\u8fc7\u5f53\u524d\u5df2\u9009SDE\u6559\u5e08\u3002",
+      "limit": "\u672a\u6ce8\u518c/\u672a\u5b9e\u65bd\uff1bGT\u662f\u6709\u672a\u6765\u4fe1\u606f\u7684TRAIN\u79bb\u7ebf\u76d1\u7763\uff0c\u4e0d\u662fon-policy\u8f68\u8ff9\uff0c\u4e0d\u5f97\u6df7\u5165PPO\u4fe1\u7528\u3002",
+      "status": "ONE_VERIFIED_TARGET_QUALITY_OPPORTUNITY"
+    },
+    {
+      "hypothesis": "\u5c06B1 strict4\u5b89\u5168\u4e0estrict-high\u8fdb\u5ea6\u95e8\u5206\u5f00\u89e3\u91ca\uff0c\u53ef\u4ee5\u907f\u514d\u628a\u8fd97\u4e2a\u5b89\u5168\u4f4e\u8fdb\u5ea6\u573a\u666f\u79f0\u4f5c\u5168\u5931\u8d25\u3002",
+      "limit": "\u6ca1\u6709\u964d\u4f4e.9/.02/.005\u95e8\u69db\uff0c\u4e5f\u6ca1\u6709\u5efa\u8bae\u4ec5\u51ed\u4f4eEP\u5224\u65ad\u65e0\u6545\u505c\u8f66\u3002",
+      "status": "NO_THRESHOLD_CHANGE"
+    }
+  ],
+  "limitations": [
+    "This score certifies the exact saved CPU FP32 roundtrip request, not an unmeasured CUDA decode with potentially different rounding.",
+    "Human GT is privileged offline TRAIN supervision, not a current-policy sample; never eligible for on-policy advantages.",
+    "No teacher threshold is lowered. Invalid-time targets are omitted as teachers, never assigned reward0.",
+    "Conditional extra teacher pool is independent G16, not true batch32; first-window findings are finite realized sampling evidence.",
+    "Raw/roundtrip strict conditions were unchanged in11 measured pairs; do not extrapolate exact metric/bit parity to all64 or CUDA deployment.",
+    "No post-update B1 re-evaluation was performed: this is teacher-source diagnosis, not evidence of B1 absorption or NAVTEST gains."
+  ],
+  "new_teacher_activation_slots": 0,
+  "protocol": {
+    "NAVTEST_trajectory_or_label_read": false,
+    "actual_S6_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/verified_quality_v2",
+    "actual_S6_source_commit": "8067e13db926ed23b801133921095e99c5c54a3b",
+    "audit_protocol_sha256": "b2e5027a6f58631331ec07ca9573028a5c0b89b6b0de3ffeab871f14d9a1d994",
+    "native_first_window_identity_sha256": "7f98fec20170dd967d2e603cacaccbd1233cb959d4dcf156ff650817ba8a4654",
+    "old_DEV_in_existing_NAVTRAIN_count": 0,
+    "paired_raw_double_scoring": "fallback7 plus4 preselected alreadystrict controls",
+    "scorer_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+    "source_TRAIN_count": 64
+  },
+  "qualified_GT_comparison": [
+    {
+      "B1_already_strict_high": false,
+      "B1_score": 0.0,
+      "GT_minus_existing_teacher": 0.06261904792894812,
+      "GT_roundtrip_score": 0.9854850937594032,
+      "current_aux_enabled": true,
+      "existing_teacher_score": 0.9228660458304551,
+      "gain_vs_B1": 0.9854850937594032,
+      "token": "bc49a92734265c81"
+    },
+    {
+      "B1_already_strict_high": true,
+      "B1_score": 0.9882943143486832,
+      "GT_minus_existing_teacher": 0.0,
+      "GT_roundtrip_score": 1.0,
+      "current_aux_enabled": true,
+      "existing_teacher_score": 1.0,
+      "gain_vs_B1": 0.0117056856513168,
+      "token": "28857929806b5b2e"
+    },
+    {
+      "B1_already_strict_high": true,
+      "B1_score": 0.9136156452331045,
+      "GT_minus_existing_teacher": -0.0538460103790418,
+      "GT_roundtrip_score": 0.9299344675759288,
+      "current_aux_enabled": true,
+      "existing_teacher_score": 0.9837804779549706,
+      "gain_vs_B1": 0.016318822342824335,
+      "token": "994196c4ab345449"
+    },
+    {
+      "B1_already_strict_high": true,
+      "B1_score": 0.9560296625720165,
+      "GT_minus_existing_teacher": -0.02773254216510035,
+      "GT_roundtrip_score": 0.9722674578348997,
+      "current_aux_enabled": true,
+      "existing_teacher_score": 1.0,
+      "gain_vs_B1": 0.01623779526288316,
+      "token": "3ca4ed9cdfde5db1"
+    }
+  ],
+  "raw_roundtrip_sensitivity": {
+    "double_scored_scenes": 11,
+    "max_abs_score_delta": 8.109414906254386e-08,
+    "source": "first fallback7 plus4 preselected alreadystrict controls; not all64 raw GT rescored",
+    "strict4_changed": 0,
+    "strict_high_changed": 0
+  },
+  "schema": "world_S6_first_window_roundtrip_GT_fallback_research_readout_v1",
+  "sha256": "76fdcadc467e5d83b4cb14cc96e04b94ee24968cf1efa7503c87586da6202c5c",
+  "status": "COMPLETE_CPU_DISCOVERY_ONLY",
+  "summary_zh": [
+    "\u5df2\u590d\u7528\u6b63\u5f0fS6 source8067\u9996collection\u7684\u771f\u5b9e64\u4e2aTRAIN\u573a\u666f\uff1b\u5168\u90e8\u6765\u81easourceTRAIN\uff0c\u65e0\u65e7DEV/NAVTEST\uff0c\u5168\u90e88\u70b9\u539fIL\u65f6\u6807\u5408\u6cd5\u3001\u5b98\u65b9GT\u91cd\u5efaFP32\u9010\u4f4d\u4e00\u81f4\u3002",
+    "\u6743\u5a01\u8bc4\u5206\u5bf9\u8c61\u4e3aCPU FP32 ActionCodec norm\u2192denorm\u540e\u7684\u5b9e\u9645\u8f68\u8ff9\uff1b64\u6761\u5168\u90e8strict4\uff0c48\u6761score>=.9\u3002",
+    "7\u4e2aB1\u672a\u8fbestrict-high\u4e14\u4e3bG16/\u989d\u5916G16\u90fd\u65e0\u9ad8\u89c1\u8bc1\u7684case\uff0cB1\u672c\u8eab7/7\u5df2strict4\uff1bGT\u4e5f7/7 strict4\uff0c\u4f46score\u4ec5.802890..876222\uff0c0\u6761\u8fbe\u5230.9\uff0c0\u4e2a\u6ee1\u8db3\u73b0repair\u6559\u5e08\u95e8\u3002\u5b83\u4eec\u662f\u5b89\u5168\u4f46\u8f83\u4f4eprogress\uff0c\u800c\u4e0d\u662f7\u4e2a\u5b89\u5168\u5931\u8d25\u3002",
+    "\u516864\u4e2d4\u6761GT\u6ee1\u8db3\u5404\u81ea\u73b0\u6709\u589e\u76ca\u95e8\uff0c\u4f464\u4e2a\u573a\u666f\u539f\u6765\u8f85\u52a9\u5747\u5df2\u6fc0\u6d3b\uff1b\u6ca1\u6709\u65b0\u589edisabled\u6559\u5e08\u69fd\u3002",
+    "\u5176\u4e2dbc49a92734265c81\u7684B1\u539f0\u5206\uff0c\u73b0SDE\u6559\u5e08.922866\uff0cGT roundtrip.985485\uff1bGT\u53ef\u63d0\u9ad8\u8fd9\u4e00\u5df2\u6709\u6559\u5e08\u8d28\u91cf\u7ea6.062619\uff0c\u4f46\u8fd9\u4e0d\u662f\u65b0\u589e\u89c1\u8bc1\u6216\u5df2\u9a8c\u8bc1\u8bad\u7ec3\u6536\u76ca\u3002",
+    "49\u4e2aB1\u5df2\u9ad8\u5206\u573a\u666f\u4e2d\uff0cGT\u53ea\u67093\u6761\u589e\u76ca>=.005\uff0c8\u6761\u4e0b\u964d>.005\uff1b3\u4e2a\u6709\u6539\u5584\u7684GT\u5747\u4e0d\u4f18\u4e8e\u73b0\u6709SDE\u6559\u5e08\u3002\u4e0d\u80fd\u76f2\u76ee\u6362GT\u3002",
+    "\u5b9e\u964575\u6b21\u65b0CPU\u5019\u9009\u8bc4\u5206\uff0864 roundtrip+11 raw\u5bf9\u7167\uff09\uff0c2workers\uff0c0GPU/0\u8bad\u7ec3\uff1b\u4e0d\u4fee\u6539S6\u3001\u5176\u4f18\u5148\u7ea7\u6216\u6559\u5e08\u9608\u503c\u3002"
+  ]
+}

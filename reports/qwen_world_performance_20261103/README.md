@@ -2,13 +2,15 @@
 
 本轮从 `987bc614aec5a042f2df8e8590d6f2479b3e1010` 开发。研究进行中，工程资格通过不等于算法提分。
 
-**最高已确认完整部署成绩仍为 SafetyEP Control 10k：91.45359756。** 原始统一 IL70k 为 88.79290991。本轮新算法尚无完整 NAVTEST 结果。
+**最高已确认完整部署成绩仍为 SafetyEP Control 10k：91.45359756。** 原始统一 IL70k 为 88.79290991。本轮首个完整点为 FAST PACK4 /0.25 epoch：**90.87256484**（12146 场景、44 logs、invalid0），比同一 IL70 高 2.07965494 分，仍比历史最高低 0.58103272 分。[正式结果](results/FAST_u000808_NAVTEST_SUMMARY.json)
+
+该点已完成逐场景全量审计：相对 IL70 修复 353 个零分场景，新增 68 个零分；相对最高 Control 的差距中，固定原 IL 高分组贡献 −0.482956 分，其他组贡献 −0.098077 分。修低分与保高分仍须同时改进；它只训练了 0.25 epoch，不能据此判断长训练上限。[完整 ledger、统计与 3 图](analysis/FAST_u000808_FULL_REVIEW/SUMMARY.json)
 
 实时 HTML：`/mnt/project/qwen-world-performance-rl-20261103/report.html`。原总报告 `/mnt/project/qwen-world-rl-optimization-20261030/report.html` 的最前方已接入本轮面板，沿用唯一原报告守护，每 30 分钟及阶段事件更新。
 
 ## 已经启动的训练与当前判断
 
-2026-11-02 20:59 UTC 附近快照：S1、S5、S0、S2、S3、FAST PACK4、S6 七条真实八卡训练正在进行，另有旧综合 I 继续训练；实时数量以 HTML 新鲜八 rank 日志为准。[逐路线实际更新与曝光](results/PROGRESS_20261102T2059Z.json)。本轮尚无完整 NAVTEST 结果，不能宣称已经改善部署成绩。S4 保存于 update320/inner0、LowLR 保存于 update30/inner2，资源让位于优先研究，均未被判定无效。
+2026-11-02 20:59 UTC 附近快照：S1、S5、S0、S2、S3、FAST PACK4、S6 七条真实八卡训练正在进行，另有旧综合 I 继续训练；实时数量以 HTML 新鲜八 rank 日志为准。[逐路线实际更新与曝光](results/PROGRESS_20261102T2059Z.json)。该快照尚无完整 NAVTEST 结果，后续首个完整成绩见页首。S4 保存于 update320/inner0、LowLR 保存于 update30/inner2，资源让位于优先研究，均未被判定无效。
 
 S1 从临时 wm4 保存于 update205/inner1，按同一实验完整状态恢复到长期可用 tsh5 共享资源。其与独立 S0 对照的前 221 个更新、八 rank 共 1768 条记录中，轨迹、old log-prob、优势、mask、参数摘要、loss、梯度和 LR 完全一致。S1 的 rescue 从 0.5 epoch 才启用，早期目标相同，不能在启用前判断机制无效；该一致性同时支持本次原生迁移未改变训练。
 
@@ -21,6 +23,8 @@ S1 从临时 wm4 保存于 update205/inner1，按同一实验完整状态恢复�
 TRAIN 定向诊断：15 个固定 B1 零分场景中，G16、G32 各发现 12 个严格安全高分场景，并集 13 个；38 组都不是奖励全零或 SafetyEP 原始优势全零。独立采样种子、不同成本的小样本不能证明 G32 更优。另有真实合法 GT 的 2035 次评分，其中 245 条严格高分且比 B1 高至少 .005，但 255 条 GT 比 B1 低超过 .005，不能盲目模仿 GT。[采样简报](results/TRAIN19_G16_G32_REVIEW.json)、[GT 审核](results/GT_TEACHER_RESEARCH_READOUT.json)
 
 新独立 **S6 Verified Quality** 从第一轮曝光同时学习低分修复和安全高分中的效率改善，真实 B1 条件的 ODE 末步与 CFM 联合监督，共享原 β50 约束预算。冷启动时原 IL anchor 梯度很小，现用真实 PG 梯度 EMA 提供辅助梯度校准下限；资格阶段已验证自然教师触发与八 rank 原生恢复，正式 native0 也核对了同一 IL70、空 Adam、零曝光。它尚无完整部署成绩。[算法设计](../qwen_world_verified_quality_20261103/ALGORITHM_DESIGN.md)、[资格实测](results/S6_GRADIENT_READOUT.json)
+
+进一步的 TRAIN 诊断中，7 个追加 SDE16 仍无合格教师的场景，其 B1 和 GT 其实都严格安全、舒适，主要是进度不足。对同 7 场景的 112 条显式合成进度候选进行官方评分，获得 35 条严格合格教师，覆盖 7/7；GT 路径族覆盖 6/7、B1 路径族覆盖 5/7，并集覆盖全部。合成池也有不安全候选，必须逐条验证。当前已开始开发独立 S7，将它们用于训练期教师发现，不将它们纳入 PPO/std 或测试时选择。这是小型 TRAIN 诊断，尚未证明策略吸收或部署提分。[真实 GT roundtrip 审核](results/S6_GT64_ROUNDTRIP_READOUT.json)、[合成候选结果](results/S6_SYNTHETIC_PROGRESS112_READOUT.json)
 
 ## 当前路线
 
@@ -71,5 +75,7 @@ python -m tools.qwen_world_performance.evaluate --help
 本次六台临时资源至北京时间 2026-11-03 08:00（UTC00:00）：wm4、rl2、tsh2、wmzt、tsh3、wm2。现行 worker 的 45 分钟保存余量会从 23:15 UTC 开始主动保存；独立 guardian 最迟 23:45 请求保存，并在硬期限前仅按已核验自有 PID 完成退出。永久 B/D IL 保护保持，其他任务和未知进程不回收。
 
 本分支已汇总原 S0–S5、冻结参考缓存、PACK4 与 S6 的全部实现。在线训练仍固定各自已验证的源码，不因仓库整合而热切换：基础 `5e5220c`、S1 缓存执行 `c8a0440`、FAST `cc45f9b`、S6 `8067e13`、CPU 调度 `a1a4c3c`。完整来源及实测证据见 [结果索引](results/NEW_EVIDENCE_INDEX.json) 与 [进度快照](results/PROGRESS_20261102T2059Z.json)。
+
+CPU 调度随后更新为 `b09694b`：精确识别已登记共用任务、保持 32GiB 准入余量，并显式允许每卡最多两个已知评测，锁前后均复核。算法源码与 Adam/RNG/scheduler 不变。FAST 已从自身 u808 原生恢复，八 rank 首次 fresh ratio 均为 0。自有全 TRAIN IL70 B1 诊断暂存于 74935/103288，保留全部逐场景缓存，优先把资源用于正式 NAVTEST；未把该未齐诊断均值当作完整结果。[操作记录](results/OPS6_OPERATIONAL_ADOPTION.json)
 
 首窗口测得约 144–155 GPUh/epoch（八卡，非成本上限，不含新增辅助、评测、checkpoint 和失败重放）。尚不能据此判断 B128、G32 或长期训练提高了部署上限；后续完整结果会分别回答。
