@@ -18,6 +18,11 @@ SCHEMA='world_performance_own_run_nominal_improvement_v1'
 CALIBRATION_SCHEMA='world_performance_rank_local_aux_gradient_calibration_v1'
 CONFIG=dict(schema=SCHEMA,start_epoch=.5,alpha=.05,min_teacher_score=.9,gain_margin=.02,
     cfm_mc=2,sigma_min=.1,sigma_max=.9,cfm_weight=.75,ode_weight=.25,seed=42)
+QUALITY_SCHEMA='world_verified_quality_nominal_improvement_v2'
+QUALITY_CONFIG=dict(CONFIG,schema=QUALITY_SCHEMA,start_epoch=0.,alpha=.05,
+    strict_high_nominal_alpha=.02,allow_strict_high_nominal_teacher=True,
+    repair_gain_margin=.02,safe_high_gain_margin=.005)
+QUALITY_CONFIG.pop('gain_margin')
 CALIBRATION_PROTOCOL=dict(schema=CALIBRATION_SCHEMA,target='norm of current same-microbatch unscaled physical ILmean-MSE gradient',
     ratio='norm(gIL)/max(norm(gcomponent),1e-12)',minimum_scale=1e-4,maximum_scale=1e4,
     EMA_decay=.9,calibration_calls=100,measurement_calls=500,clock='effective per-rank teacher-slot loss calls, including inner reuse; not Adam updates',
@@ -26,18 +31,20 @@ CALIBRATION_PROTOCOL=dict(schema=CALIBRATION_SCHEMA,target='norm of current same
 
 
 def validate_config(config):
-    if config!=CONFIG:raise ValueError('Explicit fixed nominal-improvement config required')
+    if config!=CONFIG and config!=QUALITY_CONFIG:raise ValueError('Explicit fixed nominal-improvement config required')
     return config
 
 
-def _draws(rollout,rank):
-    v=rollout['behavior_version'];seed=seed_for(SCHEMA,42,v['run'],v['update'],v.get('adapter_sha256'),rollout['token'],rank)
+def _draws(rollout,rank,config=None):
+    config=CONFIG if config is None else validate_config(config)
+    v=rollout['behavior_version'];seed=seed_for(config['schema'],42,v['run'],v['update'],v.get('adapter_sha256'),rollout['token'],rank)
     g=torch.Generator().manual_seed(seed)
     return seed,.1+.8*torch.rand(2,generator=g,dtype=torch.float32),torch.randn((2,8,3),generator=g,dtype=torch.float32)
 
 
-def _select_teacher(rollout,nominal,extra):
-    if strict_high(nominal['feedback']):return None,None,'nominal_already_strict_high'
+def _select_teacher(rollout,nominal,extra,config=None):
+    config=CONFIG if config is None else validate_config(config)
+    if strict_high(nominal['feedback']) and not config.get('allow_strict_high_nominal_teacher',False):return None,None,'nominal_already_strict_high'
     candidates=[]
     for origin,pool in [('primary_G16',rollout),('extra_G16',extra)]:
         if pool is None:continue
@@ -45,7 +52,8 @@ def _select_teacher(rollout,nominal,extra):
             if strict_high(record):candidates.append((float(record['metrics']['score']),origin,i,pool,record))
     if not candidates:return None,None,'no_strict_high_teacher'
     _,origin,i,pool,record=max(candidates,key=lambda x:x[0])
-    if float(record['metrics']['score'])<float(nominal['feedback']['metrics']['score'])+.02:
+    margin=(config['safe_high_gain_margin'] if strict_high(nominal['feedback']) else config['repair_gain_margin']) if config==QUALITY_CONFIG else config['gain_margin']
+    if float(record['metrics']['score'])<float(nominal['feedback']['metrics']['score'])+margin:
         return None,None,'teacher_gain_below_margin'
     clean=pool['chain'][i,-1].detach().float().cpu().clone()
     requested=torch.as_tensor(record['requested_trajectory']).float().cpu()
@@ -61,6 +69,13 @@ def _select_teacher(rollout,nominal,extra):
     return clean,target,None
 
 
+def active_alpha(material,config=None):
+    config=CONFIG if config is None else validate_config(config)
+    if not material['enabled']:return 0.
+    if config==QUALITY_CONFIG and strict_high(material['nominal']['feedback']):return config['strict_high_nominal_alpha']
+    return config['alpha']
+
+
 @torch.no_grad()
 def attach_material(actor,rollout,conditions,service,*,exposure_epoch,rank,config=None,calibration_state=None,nominal=None,extra=None):
     config=CONFIG if config is None else validate_config(config)
@@ -68,7 +83,7 @@ def attach_material(actor,rollout,conditions,service,*,exposure_epoch,rank,confi
     if rollout.get('group_size')!=16:raise ValueError('Primary group is G16, extraG16 is teacher-only')
     epoch=float(exposure_epoch)
     if not math.isfinite(epoch)or epoch<0:raise ValueError('Actual TRAIN exposure epoch required')
-    base=dict(schema=SCHEMA,protocol=copy.deepcopy(config),token=rollout['token'],log=rollout['log'],rank=rank,
+    base=dict(schema=config['schema'],protocol=copy.deepcopy(config),token=rollout['token'],log=rollout['log'],rank=rank,
         behavior_version=copy.deepcopy(rollout['behavior_version']),condition_identity=rollout['cond_bg']['identity'],
         exposure_epoch=epoch,enabled=False,skip_reason='before_rescue_start',nominal=None,extra=None,
         actual_B1_queries=0,actual_extra_teacher_queries=0,teacher=None,clean=None,sigma=None,noise=None,selection_seed=None)
@@ -79,25 +94,27 @@ def attach_material(actor,rollout,conditions,service,*,exposure_epoch,rank,confi
             validate_nominal(nominal,token=rollout['token'],log=rollout['log'],version=rollout['behavior_version'],protocol_sha256=rollout['protocol_sha256'],condition_identity=rollout['cond_bg']['identity'])
             extra=collect_extra_if_needed(actor,rollout,nominal,service,rank=rank)if extra is None else extra
             validate_extra(extra,rollout,nominal,rank=rank)
-            clean,teacher,skip=_select_teacher(rollout,nominal,extra)
+            clean,teacher,skip=_select_teacher(rollout,nominal,extra,config)
             base.update(nominal=nominal,extra=extra,skip_reason=skip,enabled=skip is None,
                 actual_B1_queries=1,actual_extra_teacher_queries=0 if extra is None else 16,teacher=teacher,clean=clean)
             if skip is None:
-                seed,sigma,noise=_draws(rollout,rank);base.update(selection_seed=seed,sigma=sigma,noise=noise)
+                seed,sigma,noise=_draws(rollout,rank,config);base.update(selection_seed=seed,sigma=sigma,noise=noise)
         finally:actor._probability_audit=audit
     elif not rollout.get('valid_scene',True):base['skip_reason']='invalid_padding_scene'
     elif nominal is not None or extra is not None:raise ValueError('No hidden auxiliary scoring before exposure-start')
     if calibration_state is not None:validate_calibration_state(calibration_state)
+    if config==QUALITY_CONFIG:base['active_alpha']=active_alpha(base,config)
     rollout['nominal_improvement']=sealed(base,'material_sha256')
     return rollout
 
 
 def validate_material(rollout,*,rank,expected_epoch=None,config=None):
     config=CONFIG if config is None else validate_config(config);p=rollout['nominal_improvement'];verify_seal(p,'material_sha256')
-    if(p.get('schema')!=SCHEMA or p.get('protocol')!=config or p['rank']!=rank or p['token']!=rollout['token']or p['log']!=rollout['log']
+    if(p.get('schema')!=config['schema'] or p.get('protocol')!=config or p['rank']!=rank or p['token']!=rollout['token']or p['log']!=rollout['log']
        or p['behavior_version']!=rollout['behavior_version']or p['condition_identity']!=rollout['cond_bg']['identity']
        or(expected_epoch is not None and p['exposure_epoch']!=expected_epoch)):
         raise ValueError('Nominal auxiliary current-run/scene/config identity changed')
+    if config==QUALITY_CONFIG and p.get('active_alpha')!=active_alpha(p,config):raise ValueError('Verified-quality conditional alpha changed')
     active=p['exposure_epoch']>=config['start_epoch']and rollout.get('valid_scene',True)
     if not active:
         skip='before_rescue_start'if rollout.get('valid_scene',True)else'invalid_padding_scene'
@@ -107,13 +124,13 @@ def validate_material(rollout,*,rank,expected_epoch=None,config=None):
     validate_nominal(p['nominal'],token=rollout['token'],log=rollout['log'],version=rollout['behavior_version'],protocol_sha256=rollout['protocol_sha256'],condition_identity=rollout['cond_bg']['identity'])
     if p['nominal']['condition']!=rollout['cond_bg']:raise ValueError('B1 did not use this exact legal current observation descriptor')
     validate_extra(p['extra'],rollout,p['nominal'],rank=rank)
-    clean,teacher,skip=_select_teacher(rollout,p['nominal'],p['extra'])
+    clean,teacher,skip=_select_teacher(rollout,p['nominal'],p['extra'],config)
     if digest(p['teacher'])!=digest(teacher)or p['skip_reason']!=skip or p['enabled']!=(skip is None)or p['actual_B1_queries']!=1 or p['actual_extra_teacher_queries']!=(0 if p['extra']is None else 16):
         raise ValueError('Teacher selection/gain/gate/query accounting changed')
     if skip is not None:
         if any(p[k]is not None for k in ('clean','sigma','noise','selection_seed')):raise ValueError('Inactive teacher retained loss material')
     else:
-        seed,sigma,noise=_draws(rollout,rank)
+        seed,sigma,noise=_draws(rollout,rank,config)
         if p['selection_seed']!=seed:raise ValueError('Auxiliary privateRNG seed changed')
         for k,want in [('clean',clean),('sigma',sigma),('noise',noise)]:
             x=p[k]
@@ -121,11 +138,14 @@ def validate_material(rollout,*,rank,expected_epoch=None,config=None):
     return p
 
 
-def compute_nominal_losses(model,rollout):
+def compute_nominal_losses(model,rollout,config=None):
     """Raw CFM velocityMSE and normalized-action B1 last-head SmoothL1."""
+    config=CONFIG if config is None else validate_config(config)
     p=rollout['nominal_improvement'];zero=next(model.parameters()).detach().new_zeros(())
-    if p.get('schema')!=SCHEMA or p.get('protocol')!=CONFIG:raise ValueError('Nominal component protocol changed')
-    metrics=dict(nominal_aux_enabled=zero+int(p['enabled']),nominal_aux_alpha=zero+(CONFIG['alpha']if p['enabled']else 0),
+    if p.get('schema')!=config['schema'] or p.get('protocol')!=config:raise ValueError('Nominal component protocol changed')
+    alpha=active_alpha(p,config)
+    if config==QUALITY_CONFIG and p.get('active_alpha')!=alpha:raise ValueError('Verified-quality saved alpha changed')
+    metrics=dict(nominal_aux_enabled=zero+int(p['enabled']),nominal_aux_alpha=zero+alpha,
         nominal_B1_queries=zero+p['actual_B1_queries'],nominal_extra_teacher_queries=zero+p['actual_extra_teacher_queries'],
         nominal_aux_raw_cfm=zero,nominal_aux_raw_ode=zero,nominal_aux_teacher_gain=zero)
     if not p['enabled']:return None,None,metrics
@@ -203,13 +223,15 @@ class NominalLossMixin:
     def _policy_loss(self,model,rollout):
         total,metrics=super()._policy_loss(model,rollout)
         if 'nominal_improvement'not in rollout:return total,metrics
-        cfm,ode,values=compute_nominal_losses(model,rollout);metrics.update(values)
+        config=getattr(self,'nominal_config',CONFIG)
+        cfm,ode,values=compute_nominal_losses(model,rollout,config);metrics.update(values)
         if cfm is None:return total,metrics
         state=self.auxiliary_state;beta=float(model.grpo_kl_beta)
         if beta!=50.:raise ValueError('Nominal study replaces fixed beta50 budget')
         parts,values=calibrate_components(model,self.pg_component,self.weighted_anchor_component/beta,cfm,ode,state)
-        replacement=CONFIG['alpha']*(beta*parts['rescue']-self.weighted_anchor_component)
+        alpha=active_alpha(rollout['nominal_improvement'],config)
+        replacement=alpha*(beta*parts['rescue']-self.weighted_anchor_component)
         metrics.update(values);metrics.update(nominal_aux_budget_delta=replacement.detach(),
-            nominal_aux_beta_rescue=(beta*parts['rescue']).detach(),nominal_aux_IL_share=total.new_tensor(.95),
-            nominal_aux_rescue_share=total.new_tensor(.05))
+            nominal_aux_beta_rescue=(beta*parts['rescue']).detach(),nominal_aux_IL_share=total.new_tensor(1-alpha),
+            nominal_aux_rescue_share=total.new_tensor(alpha))
         return total+replacement,metrics
