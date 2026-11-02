@@ -89,6 +89,31 @@ updates, so it diagnoses current sampled-support/B1 gaps, not G32 causal gains
 or post-training absorption failure. It does not alter S6 or create a new bank.
 Source: `P/analysis/IL70_TRAIN19_G16_G32_EXPLORATION/RESEARCH_REVIEW.json`.
 
+## S6 first-window progress-teacher discovery
+
+The complete75-query CPU roundtrip-GT audit found that all seven S6 first-window
+cases lacking both main/extra strict-high witnesses already had strict4 B1 and
+strict4 GT trajectories. Their GT scores were.802890–.876222: safe but too low
+in progress for the.9 teacher gate, not seven safety failures. GT supplied no
+new eligible disabled slot. This remains separate from the earlier TRAIN2048
+audit and its different sampled population.
+
+A separately completed112-query CPU diagnostic constructed explicit smooth
+progress proposals along the current B1 and offline TRAIN GT paths. The original
+same-seven extra-G16 pools had0/112 strict-high candidates; the synthetic panel
+had35/112 strict4 candidates with score≥.9 and B1 gain≥.02, covering7/7 scenes.
+B1-path proposals contributed16/56 eligible candidates across5 scenes; GT-path
+proposals19/56 across6 scenes, with overlap. Thirty-two synthetic candidates
+failed at least one strict condition: construction alone never certifies safety.
+
+These are privileged TRAIN teacher-discovery results, with no new GPU forward,
+Adam update or post-update B1 evaluation. Generation/cost differs from the SDE
+pool; this is not a fair observation-only policy ablation, deployment score or
+proof of learned improvement. S7 is a separate development route, not activated
+by this diagnostic; no teacher from it is silently inserted into S6. Sources:
+`P/analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/RESEARCH_READOUT.json` and
+`P/analysis/S6_FIRST_WINDOW_SYNTHETIC_PROGRESS_AUDIT/SUMMARY.json`.
+
 Config files:
 - `/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103/configs/qwen_world_performance_rl/s0_large_safetyep.yaml` (SHA256 `199b56b6a1e1cfc3285051a5877b3b3c6a6ebfb549ff0e6fd5ed2b0fefc53364`)
 - `/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103/configs/qwen_world_performance_rl/s0_low_lr.yaml` (SHA256 `ee8b64b72c46fc4b9309fced59616db523178d5f28910a8a660a49709284c162`)

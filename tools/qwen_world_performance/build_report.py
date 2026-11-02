@@ -165,6 +165,25 @@ def S6_live_evidence(root):
         combined_aux_gradient_norm=gradients.get('combined_aux_gradient_norm'))
 
 
+def first_window_progress_evidence(root):
+    GT_path=root/'analysis/S6_FIRST_WINDOW_GT_FALLBACK_AUDIT/RESEARCH_READOUT.json'
+    synthetic_path=root/'analysis/S6_FIRST_WINDOW_SYNTHETIC_PROGRESS_AUDIT/SUMMARY.json'
+    GT=read(GT_path,{});synthetic=read(synthetic_path,{})
+    complete=read(synthetic_path.with_name('COMPLETE.json'),{})
+    if (GT.get('status')!='COMPLETE_CPU_DISCOVERY_ONLY'
+            or synthetic.get('status')!='COMPLETE_CPU_SYNTHETIC_DIAGNOSTIC_ONLY'
+            or synthetic.get('schema')!='world_S6_TRAIN7_explicit_synthetic_progress_teacher_diagnostic_v1'
+            or synthetic.get('no_training_or_native_mutation') is not True
+            or complete.get('status')!='COMPLETE'):return {}
+    digest=hashlib.sha256(synthetic_path.read_bytes()).hexdigest()
+    if complete.get('files_sha256',{}).get('SUMMARY.json')!=digest:return {}
+    return dict(GT_path=str(GT_path),synthetic_path=str(synthetic_path),
+        GT_file_sha256=hashlib.sha256(GT_path.read_bytes()).hexdigest(),synthetic_file_sha256=digest,
+        fallback={k:v for k,v in GT.get('fallback7',{}).items() if k!='cases'},
+        GT_budget=GT.get('budget',{}),GT_fallback=GT.get('cohort_statistics',{}).get('fallback7',{}),
+        synthetic_cohorts=synthetic.get('cohorts',{}),synthetic_queries=complete.get('actual_CPU_PDM_queries'))
+
+
 def current_runs(root, registry, owner):
     now=time.time();runs=[]
     for registered in registry.get('runs',[]):
@@ -269,6 +288,7 @@ def snapshot(root=ROOT):
         verified_quality=verified_quality_evidence(root),TRAIN_GT=train_GT_evidence(root),TRAIN19=train19_evidence(root),
         S6_fresh=read(root/'operations/S6_FORMAL_LAUNCH/FRESH_IL70_ADAM0_PROOF.json',{}),
         S6_live=S6_live_evidence(root),
+        first_window_progress=first_window_progress_evidence(root),
         full_TRAIN_census=read(root/'diagnostics/FULL_TRAIN_REGISTRATION.json',{}))
 
 
@@ -341,6 +361,25 @@ def train_GT_fragment(s):
         body+=table(['定向群体 / 采样组','有 strict-high 见证的场景','strict3 未通过候选','strict-high 中 rawA<0'],rows)
         body+='<p>零分群体两组高见证并集 '+esc(zero['high_found_either'])+'/15；11 个 GT≥.9 场景两组全部采到同门槛候选。两组都无高见证的 2 个场景，其 GT 虽 strict4，却只有 .857625/.890610，因此本 panel 的 GT 独有 strict-high 为 0，不能外推 GT 对全部训练无用。38 组均非官方全零且均有非零 rawA；零分群体的 91 条 strict-high 均 rawA>0。高分对照里的相对负 rawA 不等于 unsafe 获正信用，后者实测为 0。</p>'
         body+='<p>这是 19 个定向 TRAIN 场景、'+esc(panel['budget']['new_PDM_candidate_queries'])+' 次真实候选评分、0 Adam；G16/G32 使用独立随机组，G32 有两倍查询且 BF16 batch shape 不同，不是同算力因果对照。采样好而 B1 差是当前单轨转换机会，不是训练后吸收失败，也不是 NAVTEST 提升。<a href="'+esc(panel['path'])+'">完整 TRAIN19 研究简报</a></p></details>'
+    return body
+
+
+def first_window_progress_fragment(s):
+    value=s['first_window_progress']
+    if not value:return ''
+    fallback=value['fallback'];count=fallback['count'];cohorts=value['synthetic_cohorts']
+    found=cohorts['statistics'];old=cohorts['old_extra_G16_statistics'];GT=value['GT_fallback']
+    body='<section id="performance-progress-teacher-discovery"><h3>研究发现：安全通过但进度偏低，能否找到更好的教师</h3>'
+    body+='<p>正式 S6 首窗口中 '+esc(count)+' 个主 G16 与额外 G16 都未找到高分教师的场景，真实 B1 与 GT 均 '+esc(count)+'/'+esc(count)+' 通过 NC/DAC/TTC/Comfort，<b>是安全但进度较低，不是 '+esc(count)+' 个安全失败。</b>GT score 范围 '+esc(f'{fallback["GT_score_min"]:.6f}')+'–'+esc(f'{fallback["GT_score_max"]:.6f}')+'，达到 .9 的仅 '+esc(fallback['GT_strict_high_count'])+' 个；GT 本身没有增加合格教师槽。</p>'
+    rows=[('同场景原独立额外 G16（复用评分）',old['candidates'],old['strict4'],old['qualifying_teacher'],str(old['scenes_with_qualifying_teacher'])+'/'+str(count)),
+        ('原 GT roundtrip（既有75次审核的子集）',GT['scored_count'],GT['GT_roundtrip_strict4'],GT['teacher_meets_actual_gate'],'0/'+str(count))]
+    for label,key in [('沿 B1 路径的平滑进度候选','B1_path_statistics'),('沿 TRAIN GT 路径的平滑进度候选','GT_path_statistics')]:
+        x=cohorts[key];rows.append((label,x['candidates'],x['strict4'],x['qualifying_teacher'],str(x['scenes_with_qualifying_teacher'])+'/'+str(count)))
+    body+=table(['同一固定场景组的候选来源','已评分候选','严格四项通过','合格教师','有合格教师场景'],rows)
+    body+='<p><b>新增合成候选 '+esc(found['qualifying_teacher'])+'/'+esc(found['candidates'])+' 满足 strict4、score≥.9 且相对真实 B1 gain≥.02，覆盖 '+esc(found['scenes_with_qualifying_teacher'])+'/'+esc(count)+'。</b>GT 审核实际新增 '+esc(value['GT_budget']['actual_new_PDM_candidate_queries'])+' 次 CPU 查询；合成诊断另新增 '+esc(value['synthetic_queries'])+' 次 CPU 查询，0 GPU forward、0 Adam。两类合成分支的场景覆盖有重叠，不能相加。</p>'
+    body+='<p>仍有 '+esc(found['candidates']-found['strict4'])+'/'+esc(found['candidates'])+' 个合成候选未通过全部严格条件；平滑构造不保证安全，必须逐条经原官方评分验证。GT 分支使用离线特权 TRAIN 标签，生成机制和成本也不同于原 SDE，不能称公平的策略采样消融、best-of16 部署分数或已学会的能力。没有更新后 B1 重评，因此这是教师发现，不是 B1 吸收或 NAVTEST 提分。</p>'
+    S7=next((r for r in s['current_runs'] if r['id'].startswith('S7_')),None)
+    body+='<p>独立 S7：'+esc(S7['status'] if S7 else '代码开发中，尚无正式训练任务，不计入在训数量')+'；上述诊断不修改 S6 的教师或损失。<a href="'+esc(value['GT_path'])+'">GT 首窗审核</a> · <a href="'+esc(value['synthetic_path'])+'">完整合成进度诊断</a></p></section>'
     return body
 
 
@@ -504,7 +543,7 @@ def render_fragment(root=ROOT):
         body+=table(['独立继续的旧实验','服务器','实际 Adam（8rank最小）','状态'],[(j['id'],j['host'],j['updates'],j['status']) for j in s['legacy_current_runs']])
     if s['legacy_complete_results']:
         body+='<p>旧综合 I 已完成的真实单轨迹 NAVTEST（与新 S5 分开）：'+esc('；'.join('Adam '+str(r['updates'])+' / PDMS '+f'{r["PDMS"]:.8f}' for r in s['legacy_complete_results']))+'。未完成的后续评测不发布均分。</p>'
-    body+=verified_quality_fragment(s)+train_GT_fragment(s)
+    body+=verified_quality_fragment(s)+first_window_progress_fragment(s)+train_GT_fragment(s)
     body+=reviewed_I_fragment(root)
     body+='<h3>当前结论与接下来的决策</h3><p>主训练仍处于全量均匀覆盖阶段。S1 的 rescue 到 0.5 epoch 才启用；此前它与 S0 的目标相同，独立进程出现相同更新属于预期，不能据此判断 rescue 无效。S5 的历史保持到第 4 epoch 才启用，当前也不能评价其收益。</p>'
     body+='<p>S4 与 LOWLR 在完整原生保存后为 S6 让出资源，保留实验代码、结果和状态；这是研究优先级处置，不判定方法无效。正式分数只读完整 NAVTEST，S6 资格与 GT 诊断均不计入排行榜。</p>'
