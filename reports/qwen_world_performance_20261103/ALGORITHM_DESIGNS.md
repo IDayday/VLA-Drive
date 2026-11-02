@@ -25,6 +25,14 @@ motivation of the cited work.
   discusses further variance and entropy regularization. The present S3 does
   not reproduce its full recipe, critic, entropy treatment or robot setup.
 
+Primary-source recheck on 2026-11-02: the AWM proceedings page and
+[AdvantageFlow v2 abstract](https://arxiv.org/abs/2605.26013) support the
+matching-loss and rollout-regularization motivations above. The public FPO++
+page describes gradient variance reduction, entropy regularization and policy
+collapse, but does not expose the complete clipping equations. Consequently a
+local asymmetric clip change must not be described as a verified FPO++
+reproduction. No new deployment gain follows from these references.
+
 The implementation reads and reuses `ResearchLoss`, `FPOTrainingLoss` and
 `RescueCFMLoss`. In particular it reuses the original physical mean-anchor
 operation from `fpo_training._physical_anchor`, and ordinary PPO from
