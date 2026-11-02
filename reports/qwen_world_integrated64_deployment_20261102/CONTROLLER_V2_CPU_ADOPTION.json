@@ -1,0 +1,53 @@
+{
+  "status": "CPU_ONLY_STAGE_COMMIT_ORDER_FIX",
+  "at_unix": 1793592810.7271671,
+  "old_owner": {
+    "pid": 3555408,
+    "start_ticks": 1503034513,
+    "host": "training-vla-zt-worker-0",
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/integrated64_v1",
+    "helpers": {
+      "evaluate": {
+        "pid": 3555542,
+        "start_ticks": 1503034942
+      },
+      "review": {
+        "pid": 3555543,
+        "start_ticks": 1503034942
+      }
+    },
+    "started_unix": 1793591736.2534428
+  },
+  "new_pid": 3560683,
+  "new_start_ticks": 1503142389,
+  "CPU_source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/controller_v2",
+  "CPU_source_commit": "5abd3ad036abc44f451bdb74f03d9d42c4fe4420",
+  "scientific_GPU_source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/integrated64_v1",
+  "scientific_GPU_commit": "2b9f3204250f102fb72aa4b12b59bae78a3198ae",
+  "unchanged_job": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/jobs/INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC/formal_to000250_attempt001",
+  "unchanged_GPU_child": 1420196,
+  "preserved_helpers": {
+    "evaluate": {
+      "pid": 3555542,
+      "start_ticks": 1503034942,
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/integrated64_v1/tools/qwen_world_safety_exploration/eval_owner.py",
+      "source_sha256": "ed7c0fa24e96786437cc246f5715b895d597cd5c8a5a58f696814816e683ee2f",
+      "started_unix": 1793591740.0168715,
+      "registry": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/RUNS.json",
+      "task": "qwen_world_safety_exploration_20261031",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102"
+    },
+    "review": {
+      "pid": 3555543,
+      "start_ticks": 1503034942,
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/integrated64_v1/tools/qwen_world_safety_exploration/review.py",
+      "source_sha256": "031b63a76ae11fa6c0707e390afff8ec187b93be06b6c7bf85079d91df295694",
+      "no_GPU": true,
+      "started_unix": 1793591740.126771
+    }
+  },
+  "GPU_signals": 0,
+  "reg_or_config_changes": 0,
+  "regression_test": "pending250 disk journal visible before gate validation:1PASS/4.22s",
+  "reason": "Discovered before first gate; preserve actual GPU learning and stage schedule, adopt existing helpers"
+}
