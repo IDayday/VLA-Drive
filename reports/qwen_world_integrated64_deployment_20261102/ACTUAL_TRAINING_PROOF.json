@@ -1,0 +1,171 @@
+{
+  "schema": "world_integrated64_actual_production_learning_v1",
+  "status": "ACTUAL_ALL8_RANKS_LEARNING",
+  "observed_utc": "2026-11-02T03:59:54.788560+00:00",
+  "arm": "INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC",
+  "host": "training-vlawm-tsinghua-zt5",
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/integrated64_v1",
+  "source_commit": "2b9f3204250f102fb72aa4b12b59bae78a3198ae",
+  "identity": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runs/INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC/identity.json",
+  "identity_sha256": "0bc3c2d4b4b8bb0a1c0c2521a726c7a1af4170a43644eb3a979ed3365ef44f28",
+  "trainable_numel": 52707840,
+  "optimizer": {
+    "FP32_master_and_moments": true,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "eps": 1e-08,
+    "lr": 5e-05,
+    "max_grad_norm_effective": 1.0,
+    "name": "torch.optim.AdamW",
+    "parameter_groups": [
+      {
+        "lr": 5e-05,
+        "name": "action_lora",
+        "numel": 5242880,
+        "tensors": 320
+      },
+      {
+        "lr": 5e-06,
+        "name": "scene_predictive_memory",
+        "numel": 47464960,
+        "tensors": 138
+      }
+    ],
+    "warmup_updates": 125,
+    "weight_decay": 0.01
+  },
+  "first_actual_distinct_scenes": 64,
+  "ranks": [
+    {
+      "rank": 0,
+      "updates": 12,
+      "journal_age_s": 12.779336929321289,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": -2.0512965420493856e-05,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    },
+    {
+      "rank": 1,
+      "updates": 12,
+      "journal_age_s": 12.780353546142578,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": 1.6451411283924244e-05,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    },
+    {
+      "rank": 2,
+      "updates": 12,
+      "journal_age_s": 12.781063795089722,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": -2.0409848730196245e-05,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    },
+    {
+      "rank": 3,
+      "updates": 12,
+      "journal_age_s": 12.781697273254395,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": -4.3791995267383754e-05,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    },
+    {
+      "rank": 4,
+      "updates": 12,
+      "journal_age_s": 12.78229808807373,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": 4.23899145971518e-05,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    },
+    {
+      "rank": 5,
+      "updates": 12,
+      "journal_age_s": 12.782896995544434,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": 9.219102139468305e-07,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    },
+    {
+      "rank": 6,
+      "updates": 12,
+      "journal_age_s": 12.783523559570312,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": -5.0032653234666213e-05,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    },
+    {
+      "rank": 7,
+      "updates": 12,
+      "journal_age_s": 12.784117937088013,
+      "first_fresh_ratio_error": 0.0,
+      "first_source_PG_queries": 1024,
+      "first_scene_exposures": 64,
+      "normalization_population": 1024.0,
+      "finite_loss": -2.9096234356984496e-05,
+      "finite_gradient_norm": 0.00766099663451314,
+      "lr_used": {
+        "action_lora": 4.4456e-06,
+        "scene_predictive_memory": 4.4456000000000006e-07
+      }
+    }
+  ],
+  "registered_updates_cap": 6250,
+  "scheduler_horizon_updates": 12500,
+  "retention_admission_source_update": 252,
+  "retention_active_now": false,
+  "temporary_route_holds_restored": true,
+  "old_inversion_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_INVERSION_G8/checkpoints/update040012_inner0",
+  "old_combined_checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/runs/STANDARD_COMBINED_G8/checkpoints/update040000_inner0",
+  "new_NAVTEST_score": null,
+  "no_92_or_efficacy_claim": true
+}
