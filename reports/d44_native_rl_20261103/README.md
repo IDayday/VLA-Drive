@@ -40,3 +40,5 @@ D0/D2/D5八rank共同有效更新分别为116/202/174，真实新PG候选59,392/
 正式冻结前的小改动逐项保留于[资格→正式源码审计](QUALIFICATION_TO_FORMAL_RECEIPT.json)和[实际diff](qualification_to_formal.patch)：费用记录、padding KL分母、拒绝flat-W3、D1 endpoint confidence，以及D2追加教师条件补齐Comfort。核心actor/Gaussian/LoRA/codec文件hash相同；不能把历史GPU资格说成所有正式文件逐字相同。正式权重从第一步就使用955289f，未从资格权重恢复。
 
 后续资源修复已真实启动D1/FPO/AWM的两卡B32/G16独立资格，实际更新和正式长训状态分别见[最新资格/正式快照](experiments/QUALIFICATION_AND_FORMAL_20261102.json)。D5非零权重的[完整B1裁剪与compact导出对照](D5_DEPLOYMENT_PARITY.json)通过，三个完整K10前向逐值一致、无新评分；这不是新的Navtest或算法提升证据。
+
+后续运维与分析验收扩展至40个CPU测试通过；对应实际GPU资格、部署对照、阶段II真实标签桥接分开记录。没有将一次短资格更新或loss下降当成Navtest增益。
