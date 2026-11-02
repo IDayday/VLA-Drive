@@ -61,19 +61,22 @@ def _runtime_authorization(h,warnings,inputs):
     record=h.read_json(Path(grant['record']),warnings,inputs)if grant.get('record')else None
     fields=['permanent_hosts','temporary_hosts','unbounded_temporary_hosts','starts_unix','expires_unix','checkpoint_guard_seconds','host_authorization_origin_unix']
     matches=bool(record)and all(record.get(k)==grant.get(k)for k in fields)
-    selected=['training-vla-zt3','training-vlawm-zt2','training-vlawm-zt3','training-vlawm-zt5','training-vlawm-tsinghua-zt4']
+    selected=['training-vla-zt3','training-vlawm-zt2','training-vlawm-zt3','training-vlawm-zt4','training-vlawm-zt5','training-vlawm-tsinghua-zt4']
     bans={host:policy.get('global_dispatch_prohibitions',{}).get(host,{})for host in selected}
     excluded={host for host,value in bans.items()if value.get('new_task_dispatch_allowed')is False}
     permanent=set(grant.get('permanent_hosts',[]));unbounded=set(grant.get('unbounded_temporary_hosts',[]));temporary=set(grant.get('temporary_hosts',[]))
-    expiry=grant.get('expires_unix');guard=expiry-grant.get('checkpoint_guard_seconds',0)if h.finite(expiry)else None;now=time.time()
-    within=h.finite(expiry)and grant.get('starts_unix',0)<=now<expiry
+    expiry=grant.get('expires_unix');finite_window=bool(temporary)and h.finite(expiry)
+    guard=expiry-grant.get('checkpoint_guard_seconds',0)if finite_window else None;now=time.time()
+    within=finite_window and grant.get('starts_unix',0)<=now<expiry
     long_window=within and h.finite(guard)and now<guard
     authorized=(permanent|unbounded|(temporary if within else set()))-excluded
     admit=(permanent|unbounded|(temporary if long_window else set()))-excluded
     return dict(record=grant.get('record'),record_matches=matches,permanent_hosts=sorted(permanent-excluded),temporary_hosts=sorted(temporary-excluded),
+        unbounded_temporary_hosts=sorted(unbounded-excluded),finite_deadline_hosts=sorted(temporary-excluded),
         authorized_now=sorted(authorized)if matches else[],long_admit_now=sorted(admit)if matches else[],global_bans=bans,
         grant_contains_banned=sorted((permanent|temporary|unbounded)&excluded),guard_utc=h.utc(guard)if guard is not None else None,
-        deadline_utc=h.utc(expiry)if expiry is not None else None,checked_utc=h.utc(now))
+        deadline_utc=h.utc(expiry)if finite_window else None,checked_utc=h.utc(now),
+        historical_expiry_receipt=str(E_ROOT/'resources'/'TEMPORARY_RESOURCE_EXPIRED_20261101T230000Z.json'))
 
 
 def _comparison_summary(value):
@@ -260,6 +263,9 @@ def load_related(h,warnings,inputs):
             study['algorithm_mapping_path']=str(folder/'ALGORITHM_PROBLEM_MAPPING_20261101.json')
             study['algorithm_mapping']=h.read_json(Path(study['algorithm_mapping_path']),warnings,inputs)or{}
             study['runtime_authorization']=_runtime_authorization(h,warnings,inputs)
+            study['wm45_coordination_path']=str(E_ROOT/'operations'/'UNBOUNDED_WM45_COMBINATION_20261102'/'COORDINATION_DEFERRED_TO_EVAL_OPERATOR.json')
+            coordination=h.read_json(Path(study['wm45_coordination_path']),warnings,inputs)or{}
+            study['wm45_coordination']={k:v for k,v in coordination.items()if k in ['schema','status','utc','created_utc','at_unix','reason','wm4','wm5']}
             study['new_trials_literature_path']=str(folder/'PRIMARY_LITERATURE_NEW_TRIALS_20261101.json')
             study['new_trials_literature']=h.read_json(Path(study['new_trials_literature_path']),warnings,inputs)or{}
             study['fp32_check_path']=str(folder/'FP32_OUTPUT_CPU_CHECK_20261101.json')
@@ -366,10 +372,21 @@ def _resource_block(study,h,label):
     value=study.get('runtime_authorization',{})
     if not value:return ''
     bans=[name for name,row in value.get('global_bans',{}).items()if row.get('new_task_dispatch_allowed')is False]
-    body='<details><summary>当前授权与截止保护：GLOBAL禁派优先，旧库存不代表可用</summary><p>GLOBAL禁止新派发：'+h.esc('、'.join(bans))+'。现行E record与policy '+('一致'if value.get('record_matches')else '尚未核对一致，不能推断可派发')+'；当前许可 '+h.number(len(value.get('authorized_now',[])))+' host（永久 '+h.number(len(value.get('permanent_hosts',[])))+'／临时 '+h.number(len(value.get('temporary_hosts',[])))+'），不等于空闲或已准入。</p>'
-    body+='<p><b>提前保护 '+h.esc(value.get('guard_utc'))+'；最终截止 '+h.esc(value.get('deadline_utc'))+'。</b>新长期派发当前仅按 '+h.number(len(value.get('long_admit_now',[])))+' 个许可host及实时lease／headroom／owner校验；被撤回host不因历史授权或库存快照恢复可用。</p>'
+    unbounded=value.get('unbounded_temporary_hosts',[])
+    body='<details><summary>当前授权与实际准入：无到期临时授权和旧截止记录分别看</summary><p>GLOBAL禁止新派发：'+h.esc('、'.join(bans))+'。现行E record与policy '+('一致'if value.get('record_matches')else '尚未核对一致，不能推断可派发')+'；当前授权范围 '+h.number(len(value.get('authorized_now',[])))+' host（固定 '+h.number(len(value.get('permanent_hosts',[])))+'／无到期临时 '+h.number(len(unbounded))+'／有限临时 '+h.number(len(value.get('temporary_hosts',[])))+'），不等于SSH可连、空闲或已准入。</p>'
+    if unbounded:body+='<p><b>当前无到期临时授权：'+h.esc('、'.join(unbounded))+'。</b>这些host不受上一批23:00截止约束；无到期临时授权不等于永久资源，实际派发仍逐次验证连接、lease／headroom／可见owner。</p>'
+    if value.get('finite_deadline_hosts'):body+='<p>本次有限临时host的提前保护 '+h.esc(value.get('guard_utc'))+'；最终截止 '+h.esc(value.get('deadline_utc'))+'。</p>'
+    else:body+='<p>当前grant没有有限到期host；保留的兼容expires字段不作为wm4／wm5的到期限制。其余被撤回host不因本次两台新增授权而恢复。</p>'
+    body+='<p>当前长期任务授权范围 '+h.number(len(value.get('long_admit_now',[])))+' host；授权数量不是已部署数量。</p>'
+    if study.get('wm45_coordination'):
+        body+='<p>本轮协调决定：wm4优先用于当前评测积压恢复；wm5本次SSH连接被拒，不能凭授权视为可实际部署。新组合登记与训练另按实际回执判断。'+label(study['wm45_coordination_path'],'评测优先与资源协调收据')+'</p>'
+        wm4_use=Path(study['wm45_coordination_path']).parent/'WM4_ACTUAL_GPU_USE.json'
+        if wm4_use.is_file():body+='<p>实际使用快照：wm4的8张GPU均已投入IL／RL并行分片评测，15个GPU进程；这不是新组合训练，也不代表空闲lane。'+label(wm4_use,'wm4实际GPU使用与评测entrypoint证据')+'</p>'
     if value.get('grant_contains_banned'):body+='<p class="warning">当前grant仍含GLOBAL禁派host：'+h.esc('、'.join(value['grant_contains_banned']))+'；本页不将其列为可派发。</p>'
-    body+='<p>'+label(value.get('record'),'实际最新task grant')+' · 核对 '+h.esc(value.get('checked_utc'))+'</p></details>'
+    body+='<p>'+label(value.get('record'),'实际最新task grant')+' · 核对 '+h.esc(value.get('checked_utc'))+'</p>'
+    historical=value.get('historical_expiry_receipt')
+    if historical and Path(historical).is_file():body+='<details><summary>上一批临时资源的截止退出：历史记录</summary>'+label(historical,'2026-11-01 23:00到期及退出验证收据')+'；该记录保留，不覆盖当前wm4／wm5的重新授权。</details>'
+    body+='</details>'
     return body
 
 
@@ -538,6 +555,10 @@ def render_related(report_root,studies,h):
         if improvement:
             body='<div class="notice"><b>H已独立登记；每臂科学source／Adam时钟分别记录，F Control只读共享。</b>CPU协调启动、child启动、实际八rank更新与完整部署成绩分别判断。登记状态 '+h.esc(reg.get('status','待登记状态'))+'。</div>'
             body+=_improvement_cards(study,h,label)
+            if study.get('wm45_coordination')and not any(r['id']=='IMPROVEMENT_RETENTION_EARLY_DECAY_G8'for r in runs):
+                wm4_use=Path(study['wm45_coordination_path']).parent/'WM4_ACTUAL_GPU_USE.json'
+                wm4_state='wm4实测8张GPU已投入IL／RL并行评测以清理积压'if wm4_use.is_file()else 'wm4优先清理评测积压'
+                body+='<p class="notice">新增wm4／wm5已获无到期临时授权；'+wm4_state+'，wm5本次SSH连接被拒。保持＋更早衰减组合仍为准备态，未登记、未派发；现有五臂与实际训练数量分别记录。'+label(study['wm45_coordination_path'],'当前协调状态')+'</p>'
             method_start=len(body)
             body+='<p>P0为同IL70 fresh：warmup1000，<b>20k完成cos衰减，之后保持0.1峰值floor</b>；初预算20k Adam，批准后才续30／50k。50k是原生预算上限，不能误画成F的整50k衰减。2k／5k／10k及后续每2k做完整NAVTEST；不因早期小差自动淘汰。</p>'
             if not any(r.get('improvement_role')=='multiscene32'for r in runs):body+='<p class="muted">Batch32科学CPU检查已准备；尚未登记为本研究运行臂，后续以独立run.source／实际worker为准，不沿用P0的source标记。</p>'

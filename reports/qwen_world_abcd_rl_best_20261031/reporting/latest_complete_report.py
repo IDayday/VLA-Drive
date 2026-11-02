@@ -244,7 +244,7 @@ def _render_stage_gain_context(review,h,link,ci):
     else:state='准备态；尚未登记或派发，无组合分数，不计入当前训练数量'
     body+='<p><b>整合首选：保持＋更早衰减。</b>'+state+'。组合从原IL70、fresh Adam／RNG42／update0另起；它与从最高Control10k继续训练是不同设计。两机制可能相互影响，不能相加各自涨幅，更不能把保持5k与Early14k的差值拼成组合成绩。2k前保持尚未启用，不是组合效果检验；完整同阶段输入齐后，分别对Control、Early、Retention核对总分、零分修复／新增、固定IL高分保持与官方查询成本。</p>'
     prepared=review.get('combination_preparation',{})
-    if prepared.get('evidence'):body+='<p class="muted">'+link(prepared['evidence'],'组合代码／CPU检查／可审配置与准备状态')+'：'+h.esc(prepared.get('status','状态见原始文件'))+'。CPU检查不等于部署或收益，原H登记与owner不因准备文件而扩容。</p>'
+    if prepared.get('evidence'):body+='<p class="muted">'+link(prepared['evidence'],'组合代码／CPU检查／可审配置与准备阶段收据')+'：'+h.esc(prepared.get('status','状态见原始文件'))+'。'+('此为历史准备阶段；当前注册／worker与实际更新优先，不能用旧准备标签覆盖当前状态。'if combo else 'CPU检查不等于部署或收益，原H登记与owner不因准备文件而扩容。')+'</p>'
     return body
 
 
