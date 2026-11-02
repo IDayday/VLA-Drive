@@ -7,15 +7,21 @@ import subprocess
 import time
 
 
+class DispatchPreflightFailed(RuntimeError):
+    """Remote GPU inventory failed before any worker/Popen was attempted."""
+
+
 def launch(host,source,job,command,gpus,*,share_min_free_mib=None,worker_source=None):
     source=Path(source).resolve();job=Path(job).resolve();job.mkdir(parents=True,exist_ok=True)
     worker_source=Path(worker_source).resolve()if worker_source is not None else source
     if(job/'LAUNCH.json').exists():raise FileExistsError('Invocation already dispatched; inspect its receipt')
+    if any((job/name).exists()for name in ('RUNNING.json','RESULT.json','ADMISSION_WAIT.json')):
+        raise RuntimeError('Unrecorded remote worker receipt requires reconciliation before another dispatch')
     if subprocess.check_output(['git','status','--porcelain'],cwd=source,text=True).strip():raise ValueError('Freeze scientific source before dispatch')
     if subprocess.check_output(['git','status','--porcelain'],cwd=worker_source,text=True).strip():raise ValueError('Freeze operations worker source before dispatch')
     code="import subprocess,json;print(json.dumps(subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid','--format=csv,noheader,nounits'],text=True)))"
     r=subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=8',host,'/usr/bin/python3','-'],input=code,text=True,capture_output=True,timeout=20)
-    if r.returncode:raise RuntimeError(r.stderr)
+    if r.returncode:raise DispatchPreflightFailed(r.stderr)
     mapping={int(x.split(',')[0]):x.split(',')[1].strip()for x in json.loads(r.stdout).splitlines()}
     uuids=[mapping[i]for i in gpus]
     args=['/usr/bin/python3','-u','-m','tools.qwen_world_compare.job_worker','--receipt-root',str(job),
