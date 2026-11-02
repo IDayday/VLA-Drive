@@ -1,6 +1,6 @@
-"""Typed frozen-IL-reference execution migration; never changes scientific cfg.
+"""Typed frozen-reference cache or exact M2 journal-guard execution migration.
 
-The only accepted CLI opt-in is the reviewed boolean frozen-reference cache.
+Only reviewed cache flag or receipt-only M2 guard repair is permitted.
 Full old/new identities and existing native-lineage verifier remain authoritative.
 No receipt is created, registry written, model loaded, or process started here.
 """
@@ -30,6 +30,8 @@ def validate_execution_fields(run):
     if 'execution_flags'in run:raise ValueError('Arbitrary execution flags are forbidden')
     if not present:return None
     if set(present)!=set(FIELDS):raise ValueError('Typed execution source requires exact receipt/parent/source/optimization fields')
+    from .journal_migration import PROTOCOL as JOURNAL_PROTOCOL,validate_journal_execution
+    if run.get('execution_optimizations')==JOURNAL_PROTOCOL:return validate_journal_execution(run)
     if run['id']==FAST or run['trainer_module']!='tools.qwen_world_performance.train':
         raise ValueError('FAST_PACK4 is an independent fresh lineage, not single-scene cache migration')
     if run['execution_optimizations']!={'schema':SCHEMA,'frozen_reference_cache':True}:
@@ -81,11 +83,14 @@ def validate_execution_fields(run):
 def command_execution(run,resume):
     proof=validate_execution_fields(run)
     if proof is None:return run['source'],[]
-    if resume is None:raise ValueError('Reference cache migration requires own strict native resume, never fresh IL reinitialization')
+    if resume is None:raise ValueError('Execution migration requires own strict native resume, never fresh IL reinitialization')
     cp=Path(resume).resolve()
     if not cp.is_relative_to(Path(run['root']).resolve()/'checkpoints')or not(cp/'COMPLETE').exists():raise ValueError('Missing own sealed resume checkpoint')
     verify_migration(proof['receipt'],proof['old_identity'],proof['new_identity'],cp)
-    return proof['source'],['--frozen-reference-cache','--migration-receipt',proof['receipt']]
+    from .journal_migration import SCHEMA as JOURNAL_SCHEMA
+    flags=['--migration-receipt',proof['receipt']]
+    if proof.get('kind')!=JOURNAL_SCHEMA:flags.insert(0,'--frozen-reference-cache')
+    return proof['source'],flags
 
 
 def validate_checkpoint_in_execution(run,checkpoint):
