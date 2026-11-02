@@ -1,0 +1,206 @@
+{
+  "status": "CPU_READY_NOT_REGISTERED_OR_DISPATCHED",
+  "schema": "world_verified_quality_science_handoff_v1",
+  "base": "c8a0440bea27508728117865b3a5eadf87fb99a6",
+  "arm": "S6_VERIFIED_QUALITY",
+  "root": "/mnt/project/qwen-world-performance-rl-20261103",
+  "intended_frozen_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/verified_quality_v1",
+  "trainer_module": "tools.qwen_world_verified_quality.train",
+  "recipe_builder": "starVLA.rl.qwen_world_verified_quality.recipe.build_recipe(basecfg,arm=\"S6_VERIFIED_QUALITY\")",
+  "recipe_validator": "starVLA.rl.qwen_world_verified_quality.recipe.validate_recipe",
+  "boundary_validator": "starVLA.rl.qwen_world_verified_quality.recovery.validate_boundary(...,legacy=False,expected_rank=None)",
+  "rank_validator": "starVLA.rl.qwen_world_verified_quality.recovery.validate_ranks",
+  "native_export_module": "tools.qwen_world_verified_quality.native_review",
+  "native_export_cli": "export --parent-checkpoint PARENT --rl-checkpoint CP --output OUTPUT",
+  "native_export_schema": "world_verified_quality_export_native_validation_v1",
+  "receipt_fields": [
+    "checkpoint",
+    "files_sha256",
+    "identity_sha256",
+    "counts.updates",
+    "quality_protocol_sha256"
+  ],
+  "quality_protocol_sha256": "741ac0d4024c911a4be4646bbefe96a9d98ca0c8e379e265b2d38379ed19444b",
+  "quality_protocol_hash_object": "fingerprint(cfg.research.verified_quality)==fingerprint(recipe.PROTOCOL)",
+  "protocol": {
+    "schema": "world_verified_quality_fresh_IL70_B64G16M4_v1",
+    "arm": "S6_VERIFIED_QUALITY",
+    "nominal": {
+      "schema": "world_verified_quality_nominal_improvement_v2",
+      "start_epoch": 0.0,
+      "alpha": 0.05,
+      "min_teacher_score": 0.9,
+      "cfm_mc": 2,
+      "sigma_min": 0.1,
+      "sigma_max": 0.9,
+      "cfm_weight": 0.75,
+      "ode_weight": 0.25,
+      "seed": 42,
+      "strict_high_nominal_alpha": 0.02,
+      "allow_strict_high_nominal_teacher": true,
+      "repair_gain_margin": 0.02,
+      "safe_high_gain_margin": 0.005
+    },
+    "calibration": {
+      "schema": "world_performance_rank_local_aux_gradient_calibration_v1",
+      "target": "norm of current same-microbatch unscaled physical ILmean-MSE gradient",
+      "ratio": "norm(gIL)/max(norm(gcomponent),1e-12)",
+      "minimum_scale": 0.0001,
+      "maximum_scale": 10000.0,
+      "EMA_decay": 0.9,
+      "calibration_calls": 100,
+      "measurement_calls": 500,
+      "clock": "effective per-rank teacher-slot loss calls, including inner reuse; not Adam updates",
+      "gradients": "all current trainable parameters; local norm, no conditional cross-rank collective; no .grad mutation",
+      "freeze": "after100 calls keep last EMA; only diagnose until500, then stop gradient probes; last_measured labels remain explicit"
+    },
+    "adaptive_extra": {
+      "schema": "world_performance_teacher_only_conditional_extra_G16_v1",
+      "main_G": 16,
+      "extra_G": 16,
+      "stochastic_steps": [
+        7,
+        8,
+        9
+      ],
+      "trigger": "nominalB1 notstrict-high AND no strict-high candidate in firstG16; gain is not part of trigger",
+      "role": "teacher-only; never PG/rewardstd/advantages/exposure or best-of-G deployment",
+      "random": "private statelessCPU generator; never consumes mainPG generator",
+      "max_extra_scored_candidates": 16
+    },
+    "B": 64,
+    "G": 16,
+    "M": 4,
+    "peak_action_lr": 5e-05,
+    "peak_memory_lr": 5e-06,
+    "schedule": {
+      "type": "warmup_hold_cosine_floor",
+      "clock": "valid_scene_exposures",
+      "warmup_epochs": 0.08,
+      "hold_until_epoch": 0.75,
+      "cosine_decay_end_epoch": 4.0,
+      "minimum_lr_ratio": 0.05
+    },
+    "evaluation_epochs": [
+      0.0625,
+      0.125,
+      0.25,
+      0.5,
+      1,
+      2,
+      3,
+      4,
+      6,
+      8,
+      12,
+      20
+    ],
+    "minimum_epochs": 3.0,
+    "initial_target_epochs": 6.0,
+    "optional_epoch_cap": 20.0,
+    "initialization": "same complete IL70, fresh Adam0/RNG42; never import an RL checkpoint",
+    "teacher": "actual same-scene/current-version strict NC/DAC/TTC/Comfort1, PDMS>=.9; repair gain>=.02, already-strict-high B1 gain>=.005",
+    "budget": "replace original beta50 IL share: .05 when B1 not strict-high, .02 when B1 strict-high; .75CFM+.25actualODElast",
+    "sampling": "first full TRAIN epoch uniform; existing own-run TRAIN-only priority thereafter; never NAVTEST tokens/labels"
+  },
+  "config_template": "configs/qwen_world_verified_quality/S6_VERIFIED_QUALITY.yaml",
+  "config_sha256": "e95f65b5ae32d1c9e63bb00012961b56a49d62050d02a1c47a3cdcf99af877f7",
+  "max_steps": 129120,
+  "initial_budget_epochs": 6,
+  "minimum_epochs": 3,
+  "optional_epoch_cap": 20,
+  "evaluation_mapping": [
+    {
+      "epoch": 0.0625,
+      "actual_Adam_updates": 404,
+      "allocated_scene_slots": 6464,
+      "valid_scene_exposures": 6464
+    },
+    {
+      "epoch": 0.125,
+      "actual_Adam_updates": 808,
+      "allocated_scene_slots": 12928,
+      "valid_scene_exposures": 12928
+    },
+    {
+      "epoch": 0.25,
+      "actual_Adam_updates": 1616,
+      "allocated_scene_slots": 25856,
+      "valid_scene_exposures": 25856
+    },
+    {
+      "epoch": 0.5,
+      "actual_Adam_updates": 3228,
+      "allocated_scene_slots": 51648,
+      "valid_scene_exposures": 51648
+    },
+    {
+      "epoch": 1,
+      "actual_Adam_updates": 6456,
+      "allocated_scene_slots": 103296,
+      "valid_scene_exposures": 103288
+    },
+    {
+      "epoch": 2,
+      "actual_Adam_updates": 12912,
+      "allocated_scene_slots": 206592,
+      "valid_scene_exposures": 206576
+    },
+    {
+      "epoch": 3,
+      "actual_Adam_updates": 19368,
+      "allocated_scene_slots": 309888,
+      "valid_scene_exposures": 309864
+    },
+    {
+      "epoch": 4,
+      "actual_Adam_updates": 25824,
+      "allocated_scene_slots": 413184,
+      "valid_scene_exposures": 413152
+    },
+    {
+      "epoch": 6,
+      "actual_Adam_updates": 38736,
+      "allocated_scene_slots": 619776,
+      "valid_scene_exposures": 619728
+    },
+    {
+      "epoch": 8,
+      "actual_Adam_updates": 51648,
+      "allocated_scene_slots": 826368,
+      "valid_scene_exposures": 826304
+    },
+    {
+      "epoch": 12,
+      "actual_Adam_updates": 77472,
+      "allocated_scene_slots": 1239552,
+      "valid_scene_exposures": 1239456
+    },
+    {
+      "epoch": 20,
+      "actual_Adam_updates": 129120,
+      "allocated_scene_slots": 2065920,
+      "valid_scene_exposures": 2065760
+    }
+  ],
+  "reference_cache_default": true,
+  "cache_protocol_location": "execution_optimizations only; same byte-identical frozen reference helper",
+  "qualification_plan_module": "tools.qwen_world_verified_quality.qualify_native",
+  "qualification_pending": true,
+  "CPU_check_sha256": "d0653b2e8c071e38abd9c379b9cbd70a3f6c7593c32ce0adc4014d1581295020",
+  "source_sha256": {
+    "starVLA/rl/qwen_world_performance/nominal_improvement.py": "ea1c6ab95d662c6ec33f0a574f2d40579a78f55343a84adbef4ba15f5fdb93b0",
+    "starVLA/rl/qwen_world_performance/recovery.py": "d58d9c2cb26471b814e2723f99df5c442faba9877b1eaea9adc20690c4f28cba",
+    "starVLA/rl/qwen_world_verified_quality/runtime.py": "f1459e74b0aa2db237f59ba4cc53857febf5d8a3d43123839df677264fbd03a6",
+    "starVLA/rl/qwen_world_verified_quality/recipe.py": "90edb6313879db3eee79ec9f226e9ef9975d6d6007619744e85264702a5bbc40",
+    "starVLA/rl/qwen_world_verified_quality/__init__.py": "58ed10069eb611a5dc975b20e329563c4c1e46074de33ae9e84a65aff24ce1d7",
+    "starVLA/rl/qwen_world_verified_quality/recovery.py": "7caee31ade9016c139a030df0cdc1fb8876e7ab5b0c1996ee55de80095b0fabf",
+    "tools/qwen_world_verified_quality/train.py": "c3f4a7db900691588f2aef85182232cc5db85a244d59bab6432e301b6992cfec",
+    "tools/qwen_world_verified_quality/qualify_native.py": "c50d5c869c4c52f69d3270e68369b4828b8036d76d6475bbd8c11348532215dd",
+    "tools/qwen_world_verified_quality/__init__.py": "f3ef3d141aaee09a2dce15c8109cc948cb2daf8aae6f660b37f75c5a532a3d67",
+    "tools/qwen_world_verified_quality/native_review.py": "3c1df08c21351481141ee0c281c3ff980374e6a88108ce91757d0a1dafe48fa5",
+    "tests/test_world_verified_quality.py": "83f79d3cf0b21e79fb8e9cb6c18387d6b0628be4f09ccc33a5eb54882f791f07",
+    "configs/qwen_world_verified_quality/S6_VERIFIED_QUALITY.yaml": "e95f65b5ae32d1c9e63bb00012961b56a49d62050d02a1c47a3cdcf99af877f7"
+  },
+  "primary_risk": "TRAIN candidate quality need not become deployed B1 gains; new gate/scales are hypotheses. NAVTEST IDs/Control trajectories never feed training."
+}

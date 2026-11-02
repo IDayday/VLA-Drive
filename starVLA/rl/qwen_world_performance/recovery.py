@@ -7,9 +7,10 @@ from starVLA.rl.qwen_world_safety_exploration.retention_material import digest a
 from .contracts import validate_recipe, SCHEMA
 
 
-def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *, legacy=False,expected_rank=None):
+def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *, legacy=False,expected_rank=None,
+                      recipe_validator=None,nominal_config=None):
     if legacy:raise ValueError('No legacy reconstruction for independent performance runs')
-    cfg=validate_recipe(identity['recipe']);spec=cfg['research']['performance'];u=state['updates'];i=state['next_inner']
+    cfg=(recipe_validator or validate_recipe)(identity['recipe']);spec=cfg['research']['performance'];u=state['updates'];i=state['next_inner']
     pending=window is not None;ledger=state.get('collection_ledger',[])
     if state['collections']!=len(ledger) or not 0<=u<=cfg['max_steps']:
         raise ValueError('Collection ledger/update clock changed')
@@ -55,7 +56,7 @@ def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *
     from .sampling_priority import stream_state_validation
     summary.update(stream_state_validation(state,run_identity=identity['sha256'],stream_identity=identity['data_stream_identity']))
     auxiliary=state.get('performance_auxiliary',{})
-    if spec['algorithm'] in ('nominal_rescue','temporal_rescue','performance_max') and 'nominal_improvement' not in auxiliary:
+    if (nominal_config is not None or spec['algorithm'] in ('nominal_rescue','temporal_rescue','performance_max')) and 'nominal_improvement' not in auxiliary:
         raise ValueError('Native nominal auxiliary calibration state is mandatory')
     if spec['algorithm']=='performance_max' and 'history' not in auxiliary:
         raise ValueError('Native S5 persistent bank is mandatory, including its initial empty state')
@@ -100,7 +101,7 @@ def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *
             validate_fpo_material(leaf,rank=window['rank'])
         if 'nominal_improvement' in leaf:
             from .nominal_improvement import validate_material
-            validate_material(leaf,rank=window['rank'])
+            validate_material(leaf,rank=window['rank'],config=nominal_config)
         if cfg['research']['performance']['algorithm']=='temporal_rescue':
             from .temporal_credit import temporal_credit_parts
             parts=temporal_credit_parts(mat['components'],leaf['records'],base_parts=parts)
