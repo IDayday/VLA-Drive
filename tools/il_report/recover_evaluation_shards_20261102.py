@@ -7,6 +7,7 @@ from pathlib import Path
 import signal
 import subprocess
 import time
+import sys
 
 BASE = Path('/mnt/project/qwen-world-safety-exploration-20261031')
 OUT = Path('/mnt/project/qwen-world-il-research-20261030/maintenance/evaluation_resource_recovery_20261102')
@@ -95,4 +96,44 @@ def main():
         print(study,'reviewed',len(reviewed),'CPU',new_parent['pid'],'Eval',new_eval['pid'],flush=True)
 
 
-if __name__=='__main__':main()
+def recover_prechild_ghosts():
+    """Two old admission failures lacked RESULT; no CUDA child was started."""
+    cases=[('standard_training_20261101','STANDARD_NATIVE','SAFETY_G8_CONTROL_u040000_NAVTEST','8'),
+           ('revival_training_20261101','REVIVAL_NATIVE','REVIVAL_G16_u032000_NAVTEST','6')]
+    for study,native_name,label,rank in cases:
+        root=BASE/study;out=OUT/'PRECHILD_GHOSTS'/study;out.mkdir(parents=True,exist_ok=True)
+        if(out/'COMPLETE.json').exists():raise FileExistsError('Prechild review already completed')
+        nd=root/'owners'/native_name;ed=root/'owners/RESEARCH_EVALUATION'
+        state=json.loads((ed/'STATE.json').read_text());node=state['evaluations'][label]['ranks'][rank]
+        job=Path(node['job']);error=(job/'worker.log').read_text()
+        if(node['host']!='training-vlawm-tsinghua-zt2'or node['status']!='RUNNING'
+                or 'ValueError: Sharing requires an explicitly authorized host and measured valid headroom'not in error
+                or 'in _gpu_admission'not in error
+                or any((job/n).exists()for n in ['RESULT.json','RUNNING.json','stdout.log'])):
+            raise ValueError('Not the exact known prechild admission failure')
+        if(Path(state['evaluations'][label]['evaluation'])/f'rank{rank}.lock').exists():
+            raise ValueError('An evaluation child may have acquired its output')
+        proof=json.loads((Path('/mnt/project/qwen-world-four-frameworks-20261029/resources/temporary_deadline_20261101T230000Z')/'POST_DEADLINE_BROAD_AUDIT.json').read_text())
+        observed=proof['results'][node['host']]
+        if observed['returncode']!=0 or observed['owned_processes']:raise ValueError('Host exit not verified')
+        parent=capture(json.loads((nd/'OWNER.json').read_text()));evaluation=capture(json.loads((ed/'OWNER.json').read_text()));helper=json.loads((ed/'STANDARD_LAUNCH.json').read_text())
+        write(out/'OWNERS_BEFORE.json',dict(parent=parent,evaluation=evaluation,helper=helper))
+        stop_cpu(parent);nl=lock(nd/'owner.lock')
+        if(ed/'STOP_OWNER').exists():raise ValueError('Concurrent evaluator adoption')
+        write(ed/'STOP_OWNER',dict(reason='Explicit two-job prechild admission review',at=time.time()));el=lock(ed/'owner.lock')
+        state=json.loads((ed/'STATE.json').read_text());write(out/'STATE_BEFORE.json',state)
+        actual=state['evaluations'][label]['ranks'][rank]
+        if actual.get('job')!=str(job):raise ValueError('Attempt changed during prechild review')
+        record=dict(job=str(job),host=node['host'],reason='ADMISSION_REJECTED_BEFORE_CUDA_CHILD_WITHOUT_TERMINAL_RECEIPT',physical_inferences=0,scorer_calls=0,old_attempt_retained=True)
+        actual.setdefault('reviewed_prechild_failures',[]).append(record)
+        for key in ['job','result','error','dispatch_error']:actual.pop(key,None)
+        actual['status']='RESOURCE_REQUEUE';write(ed/'STATE.json',state)
+        (ed/'STOP_OWNER').rename(out/'STOP_OWNER_APPLIED');el.close();new_eval=start(evaluation,out/'evaluation_cpu.log')
+        helper.update(new_eval,at_unix=time.time());write(ed/'STANDARD_LAUNCH.json',helper)
+        nl.close();new_parent=start(parent,out/'parent_cpu.log')
+        write(out/'COMPLETE.json',dict(review=record,label=label,rank=rank,new_evaluator=new_eval,new_parent=new_parent,GPU_signals=0))
+        print(study,'prechild ghost reviewed',label,rank,'CPU',new_parent['pid'],'Eval',new_eval['pid'],flush=True)
+
+
+if __name__=='__main__':
+    recover_prechild_ghosts() if '--prechild-ghosts' in sys.argv else main()
