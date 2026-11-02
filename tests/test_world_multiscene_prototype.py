@@ -17,11 +17,12 @@ from starVLA.rl.qwen_world_multiscene.diagnostics import compare_execution
 
 class Data:
     tokens=['t0','t1'];sha='different_real_observation_fixture'
+    def __init__(self,count=2):self.tokens=[f't{i}'for i in range(count)]
     def observation(self,token):
         return dict(token=token,images={},navigation='forward',proprio=[1.+self.tokens.index(token),.1,0.,0.,1.,0.,0.,0.])
 
 
-def make():
+def make(scenes=2):
     torch.manual_seed(42);c=group_cfg(16);m=TinyModel();features=[m.qwen.features]
     #Different feature values AND token counts. This is not a repeated scene.
     second=dict(selected_hidden_states={i:torch.randn(1,11,64)for i in (1,2,3)},
@@ -30,23 +31,28 @@ def make():
         visual_positions=torch.tensor([[[0,0,j%3]for j in range(9)]]),
         text_indices=torch.tensor([[9,10]]),text_mask=torch.ones(1,2,dtype=torch.bool),merged_visual_features=torch.randn(1,9,64))
     features.append(second)
-    m.qwen.forward=lambda batch:features[Data.tokens.index(batch['token'])]
+    for i in range(2,scenes):
+        extra=copy.deepcopy(second)
+        for key in extra['selected_hidden_states']:extra['selected_hidden_states'][key].add_(i*.1)
+        extra['merged_visual_features'].add_(i*.1);extra['final_hidden'].add_(i*.1);features.append(extra)
+    data=Data(scenes)
+    m.qwen.forward=lambda batch:features[data.tokens.index(batch['token'])]
     a=MultiSceneScopeActor(m.actor,c,scene_provider=m.scene_provider,predictive_provider=m.predictive_provider)
     a._loss=ResearchLoss(c)
-    conditions=GroupMemoryConditions(m,Data(),'same_IL_fixture',a,group_size=16,processor=lambda obs:dict(token=obs[0]['token']))
+    conditions=GroupMemoryConditions(m,data,'same_IL_fixture',a,group_size=16,processor=lambda obs:dict(token=obs[0]['token']))
     object.__setattr__(a,'conditions',conditions)
     with torch.no_grad():
         next(a.scene_provider.parameters()).add_(.01)
         for name,p in a.named_parameters():
             if name.endswith('lora_B'):p.normal_(std=.002)
     samples=[]
-    for i,token in enumerate(Data.tokens):
+    for i,token in enumerate(data.tokens):
         service=Service(primary_ep=(.8,1.)if i==0 else(1.,1.))
         r=collect_group(a,conditions.get(token,a.device),token,'TRAIN_log',service,torch.Generator().manual_seed(42+i),
             group_size=16,variant='R_CANONICAL',version=dict(run='CPU_two_scene',update=0,adapter_sha256='same'))
         samples.append(r)
     materials=[torch.cat((r['rewards'].double()[...,None],canonical_components(r['records'],16)['components']),-1)for r in samples]
-    all_material=torch.cat(materials*4,0)
+    all_material=torch.cat(materials*(8//scenes),0)
     for r in samples:
         credit=GroupCredit(16).advantages(r['rewards'],canonical_components(r['records'],16)['components'],all_material=all_material)
         r.update(advantages=credit['advantages'],adv_mask=credit['adv_mask'])

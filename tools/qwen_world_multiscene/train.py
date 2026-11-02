@@ -1,0 +1,5 @@
+"""Same native trainer/lifecycle; opt-in coherent FAST_PACK2/4 runtime."""
+from starVLA.rl.qwen_world_multiscene.runtime import FastPackedRuntime
+from tools.qwen_world_safety_exploration.train import main
+
+if __name__=='__main__':main(runtime=FastPackedRuntime())

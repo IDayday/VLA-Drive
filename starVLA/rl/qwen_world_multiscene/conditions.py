@@ -52,11 +52,14 @@ class PackedConditions:
         self.conditions=conditions
         self.selected_layers=tuple(selected_layers)
 
-    def pack(self, descriptors, device):
+    def pack(self, descriptors, device, *, valid_masks=None):
         count=len(descriptors)
         if count not in (2,4):raise ValueError('Prototype supports exactly two or four genuine scenes')
         tokens=[d['token'] for d in descriptors]
-        if len(set(tokens))!=count:raise ValueError('Repeated one-scene carriers are not a multi-scene batch')
+        valid=[True]*count if valid_masks is None else list(valid_masks)
+        if len(valid)!=count or any(type(x)is not bool for x in valid):raise ValueError('Actual padding mask required')
+        legal=[t for t,v in zip(tokens,valid)if v]
+        if len(set(legal))!=len(legal):raise ValueError('Repeated one-scene carriers are not a multi-scene batch')
         groups=[d['repeats'] for d in descriptors]
         if len(set(groups))!=1 or groups[0] not in (8,16,32):raise ValueError('Aligned real candidate groups required')
         raw=[self.conditions.materialize(d,device) for d in descriptors]
@@ -64,6 +67,6 @@ class PackedConditions:
             raise ValueError('Expected original B1 memory providers')
         index=torch.arange(count,device=device).repeat_interleave(groups[0])
         base={key:torch.cat([x[key] for x in raw],0).detach() for key in ('base_memory','base_valid','base_ego')}
-        return dict(schema=SCHEMA,scene_tokens=tokens,groups=groups[0],scene_index=index,
+        return dict(schema=SCHEMA,scene_tokens=tokens,scene_valid=valid,groups=groups[0],scene_index=index,
             frozen_features=pack_frozen_features([x['frozen_features'] for x in raw],self.selected_layers),**base,
             context=base['base_memory'].index_select(0,index),valid=base['base_valid'].index_select(0,index),ego=base['base_ego'].index_select(0,index))
