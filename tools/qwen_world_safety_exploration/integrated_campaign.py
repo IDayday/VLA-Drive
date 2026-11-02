@@ -82,6 +82,17 @@ def checkpoint_at_gate(run, updates):
                 actual_collection_budget=budget(updates)), native
 
 
+def commit_completed_stage(owner, run, target, node, checkpoint):
+    """Persist the completed gate before its evaluator reads the owner journal."""
+    arm=run['id'];node.update(complete=True,checkpoint=str(checkpoint),end_unix=time.time())
+    owner.update(arm,status='STAGE_COMPLETE',updates=target,checkpoint=str(checkpoint))
+    material,_=checkpoint_at_gate(run,target)
+    if material is None:
+        raise RuntimeError('Completed integrated gate was not persisted')
+    owner.update(arm,actual_collection_budget=material['actual_collection_budget'])
+    return str(checkpoint)
+
+
 def native_class():
     from .owner import Owner, StopBeforeDispatch
     from .dispatch import launch, job_state
@@ -164,11 +175,7 @@ def native_class():
                         node.setdefault('cooperative_returns',[]).append(dict(job=node.pop('job'),checkpoint=str(p)))
                         resume=str(p);continue
                     raise ValueError('Native completion outside registered integrated gate')
-                node.update(complete=True,checkpoint=str(p),end_unix=time.time())
-                material,_=checkpoint_at_gate(run,target)
-                self.update(arm,status='STAGE_COMPLETE',updates=target,checkpoint=str(p),
-                            actual_collection_budget=material['actual_collection_budget'])
-                return str(p)
+                return commit_completed_stage(self,run,target,node,p)
     return IntegratedOwner
 
 
@@ -236,6 +243,21 @@ def run():
     lock=(folder/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     owner=native_class()();source=Path(__file__).resolve().parents[2];helpers={}
     for mode in ('evaluate','review'):
+        own=(ROOT_PATH/'owners/RESEARCH_EVALUATION/OWNER.json'if mode=='evaluate'
+             else ROOT_PATH/'analysis/PILOT_COMPARISONS/OWNER.json')
+        if own.exists():
+            previous=read(own)
+            try:
+                proc=Path('/proc')/str(previous['pid']);stat=(proc/'stat').read_text().split()
+                env=(proc/'environ').read_bytes().split(b'\0')
+                command=(proc/'cmdline').read_bytes().decode().split('\0')
+                if (stat[2]not in('Z','X')and int(stat[21])==previous['start_ticks']
+                        and ('WORLD_COMPARE_ROOT='+str(ROOT_PATH)).encode()in env
+                        and 'tools.qwen_world_safety_exploration.integrated_campaign'in command
+                        and mode in command):
+                    helpers[mode]=dict(previous,adopted_existing=True);continue
+            except FileNotFoundError:
+                pass
         with (folder/f'{mode}.log').open('ab',buffering=0)as log:
             p=subprocess.Popen([MODEL_PYTHON,'-u','-m','tools.qwen_world_safety_exploration.integrated_campaign',mode],
                 cwd=source,env=dict(os.environ,PYTHONPATH=str(source),CUDA_VISIBLE_DEVICES=''),
