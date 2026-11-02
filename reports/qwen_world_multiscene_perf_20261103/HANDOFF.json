@@ -1,0 +1,107 @@
+{
+  "schema": "world_multiscene_scope_performance_prototype_handoff_v1",
+  "status": "CPU_PROTOTYPE_READY_GPU_NOT_RUN_NOT_REGISTERED",
+  "created_utc": "2026-11-02T17:36:48.369806+00:00",
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-multiscene-perf-20261103",
+  "branch": "perf/qwen-world-multiscene-20261103",
+  "base_commit": "5e5220c6059ed7e38b54b3198415fe4af3b5bf45",
+  "source_files": {
+    "starVLA/rl/qwen_world_multiscene/__init__.py": "6aaf55cefc1305ac0613c983fda8d25d0afe7465086e8b51f37e02fef2134f60",
+    "starVLA/rl/qwen_world_multiscene/conditions.py": "aa4bfdd026bc2c9c0bf96178b9c271cca3d8fc8b680cd5645b6e7a9c58b97e81",
+    "starVLA/rl/qwen_world_multiscene/actor.py": "95d4b442b0f1418eb41eb385d5b2361cbcc8730dd16dfedcccca3a2a3e5602e8",
+    "starVLA/rl/qwen_world_multiscene/objective.py": "f07493a4fcdcd8c74962874d3dfd4e1584f4beb7905de47281377e5d20ba3a1c",
+    "starVLA/rl/qwen_world_multiscene/diagnostics.py": "5019202b3dff0ac3a86f71a1c948907f43af63588ae4250a25edb9e657ce381c",
+    "tools/qwen_world_multiscene/__init__.py": "ae0a329eb892771e3602de095d789e7fb4dc2737a3597e3e6b5c180493be89b4",
+    "tools/qwen_world_multiscene/probe.py": "5d48485bf0872dd79580e3dd6a5d8a159f0ad632c4c37bd873576b2dee695968",
+    "tests/test_world_multiscene_prototype.py": "0d4e8ddc2295d76c9ce344cb2dd05c5c4fe3ad81b905aac50eb38b6b7ec73cc9"
+  },
+  "integration_API": {
+    "conditions": "PackedConditions(base_conditions,selected_layers=actor.scene_provider.selected_layers).pack([leaf.cond_bg,...],device)",
+    "actor": "MultiSceneScopeActor extends ScopeRecipeActor; materialize/_prepare accept only explicit packed schema, original one-scene path inherited unchanged",
+    "probabilities": "source_probabilities(actor,leaves,packed_condition,use_ref=False)->((logp,terms),audit)",
+    "loss": "source_loss(actor,leaves,packed_condition,loss=ResearchLoss(cfg),weights=original_scene_backward_weights)->(weighted_loss,per_scene_metrics,probabilities)",
+    "group_contract": "2 or 4 distinct actual scenes; per-scene G8/G16/G32 preserved; S*G carrier only combines compute, never advantage normalization or mask denominators",
+    "scope": "Base source PPO+physical IL anchor only. Nominal/history/FPO/AWFM auxiliary routing and DDP/trainer integration are deliberately NOT implemented in this prototype."
+  },
+  "source_conventions": {
+    "probability": "Unchanged source W3[7,8,9] clamped coordinate-mean proxy, not joint/final-action exact density",
+    "features": "Gather selected visual/text tokens from each original frozen Qwen feature separately before zero-padding; masks prevent scene/padding cross-attention",
+    "memory": "One trainable current Memory graph over S true scene inputs, one S-scene preparedKV, index_select repeat_interleave(G); permanent IL base_memory computed by original B1 provider",
+    "default": "No existing actor/model/runtime/trainer source modified; B1 ODE/deployment retains original single-scene path",
+    "RNG": "Diagnostic source chains use per-scene private generators only; zero Adam steps or scorer calls"
+  },
+  "CPU": {
+    "status": "PASS_LIMITED_PROTOTYPE",
+    "tests": 2,
+    "seconds": 5.32,
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q -s tests/test_world_multiscene_prototype.py",
+    "trainable_numel": 49696,
+    "scenes": 2,
+    "G": 16,
+    "observations": "Genuinely distinct frozen feature values, visual lengths6/9 and ego; scene0 has nonzero SafetyEP signal, scene1 successful saturated PG0 with retained IL anchor",
+    "current_logprob_max_abs": 0.0,
+    "reference_logprob_max_abs": 0.0,
+    "current_mean_max_abs": 0.0,
+    "reference_mean_max_abs": 0.0,
+    "fresh_ratio_max_abs": 0.0,
+    "loss_absolute_error": 5.820766091346741e-11,
+    "gradient_relative_l2_error": 0.016406712690776187,
+    "gradient_cosine": 0.9998678260268173,
+    "gradient_scopes": {
+      "action_expert": {
+        "relative_l2_error": 0.002231296607659807,
+        "cosine": 0.9999975196827514
+      },
+      "scene_provider": {
+        "relative_l2_error": 0.022850811346963543,
+        "cosine": 0.9997478084649022
+      },
+      "predictive_provider": {
+        "relative_l2_error": 0.007834486696901448,
+        "cosine": 0.9999693362735986
+      }
+    },
+    "sequential_seconds": 0.2523535620421171,
+    "packed_seconds": 0.18730887211859226,
+    "interpretation": "Forward/loss values align on this TinyScope fixture; BF16 gradient reductions differ. Tiny CPU timing is not a production speedup claim; actual52.7M CUDA numerics and memory remain unknown.",
+    "negative_checks": [
+      "Repeated same-scene descriptors rejected",
+      "Wrong scene-to-candidate index rejected",
+      "Wrong leaf/token order rejected"
+    ]
+  },
+  "real_model_probe": {
+    "script": "tools/qwen_world_multiscene/probe.py",
+    "CLI": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "tools.qwen_world_multiscene.probe",
+      "--config",
+      "/mnt/project/qwen-world-performance-rl-20261103/configs/S0_LARGE_SAFETYEP.yaml",
+      "--manifest",
+      "/mnt/project/qwen-world-performance-rl-20261103/data/NAVTRAIN_SCENES.json",
+      "--il-checkpoint",
+      "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "--parent-selection",
+      "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+      "--data",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+      "--output",
+      "<NEW_UNIQUE_OUTPUT>",
+      "--scenes",
+      "2"
+    ],
+    "allowed_scenes": [
+      2,
+      4
+    ],
+    "default_warmup": 1,
+    "default_measured_iterations": 2,
+    "invocation_help": "PASS; no CUDA/model load for help",
+    "GPU_dispatched": false,
+    "interpretation": "Actual full IL70 model/source chains; explicit synthetic A/mask numerical fixtures, zero official scoring, zero Adam. Reports fresh ratio guard<=1e-4 without relaxing it, gradient norms/cosine, timing and GPU bytes. Campaign owner assigns device; no dispatch/policy functions used."
+  },
+  "next_gate": "Owner-assigned WM2 GPU0 full-model probe; reject or refine if fresh ratios/gradients cannot meet audited numerical tolerance. No formal runtime integration or new training before owner review.",
+  "commit": false,
+  "live_source_modified": false
+}
