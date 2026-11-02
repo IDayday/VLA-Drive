@@ -9,12 +9,25 @@ from .checkpoint import gather
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
-def validate_rows(rows, boundary, *, origin=0):
+def journal_inner_updates(identity):
+    """Use the sealed native recipe, never infer the clock from journal rows."""
+    research=identity.get('recipe',{}).get('research',{})
+    if 'performance' not in research:return 4  # Existing M4/typed-fork histories.
+    performance=research['performance']
+    inner=performance.get('inner_updates') if isinstance(performance,dict) else None
+    if type(inner) is not int or inner not in (2,4):
+        raise ValueError('Sealed performance journal requires inner_updates=2 or4')
+    return inner
+
+
+def validate_rows(rows, boundary, *, origin=0, inner_updates=4):
+    if type(inner_updates) is not int or inner_updates not in (2,4):
+        raise ValueError('Journal inner clock must be2 or4')
     if [r['updates'] for r in rows] != list(range(origin+1, boundary+1)):
         raise ValueError('Effective journal has a gap/duplicate; manual lineage audit required')
     for r in rows:
-        u=r['updates']; c=(u-1)//4+1; i=(u-1)%4+1
-        if r['collection']!=c or r['inner_completed']!=i or r['behavior']['update']!=(c-1)*4:
+        u=r['updates']; c=(u-1)//inner_updates+1; i=(u-1)%inner_updates+1
+        if r['collection']!=c or r['inner_completed']!=i or r['behavior']['update']!=(c-1)*inner_updates:
             raise ValueError('Journal behavior/collection/inner ancestry mismatch')
 
 
@@ -75,7 +88,7 @@ class Invocation:
                     if idx!=len(lines)-1:raise ValueError('Corrupt non-tail journal')
                     bad_tail=line.hex()
             prefix=[r for r in rows if r['updates']<=state['updates']]
-            validate_rows(prefix,state['updates'],origin=origin)
+            validate_rows(prefix,state['updates'],origin=origin,inner_updates=journal_inner_updates(identity))
             if any(r['behavior']['run']!=identity['sha256'] for r in rows):
                 raise ValueError('Journal belongs to another scientific run')
             suffix=[r for r in rows if r['updates']>state['updates']]
