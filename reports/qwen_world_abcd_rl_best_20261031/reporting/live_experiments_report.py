@@ -107,7 +107,7 @@ def render_workbench(root, snapshot, review, h):
         lines = []
         if records:
             p = records[0]
-            lines.append(h.number(p['updates'])+'评测中：'+h.number(p.get('scenes'))+'/12,146')
+            lines.append(h.number(p['updates'])+'评测待齐：'+h.number(p.get('scenes'))+'/12,146')
             if len(records) > 1:
                 lines.append('<small>共 '+h.number(len(records))+' 个评测节点未形成完整成绩</small>')
         measured = {p['updates'] for p in arms.get(key, {}).get('curve', [])}
@@ -166,5 +166,9 @@ def render_workbench(root, snapshot, review, h):
         rows = [[h.esc(name(r['arm'])), LABELS.get(r['category'], r['category']),
                  '评测尚未齐' if (r['study_root'], r['arm']) in pending else '既有结果保留'] for r in inactive]
         body += '<details><summary>已结束／保存暂停／资源储备任务 '+h.number(len(inactive))+' 条</summary>'+h.table(['实验', '当前状态', '结果进度'], rows)+'</details>'
+    applied_path = Path('/mnt/project/qwen-world-safety-exploration-20261031/operations/EVALUATION_BACKLOG_COMPLETION_20261102/APPLIED.json')
+    applied = h.read_json(applied_path, snapshot['warnings'], snapshot['inputs']) or {}
+    if applied.get('status') == 'APPLIED_CPU_ONLY_EVALUATION_COMPLETION_FIRST':
+        body += '<p class="muted">评测补齐优先已实际应用：F／G／H仅升级CPU协调，'+h.number(applied.get('failures_requeued'))+'个已复核的外部SIGKILL中断分片按相同SPEC重新排队，模型／评分／seed／健康缓存保留，既有GPU worker未发信号。中断原因仍未确定，不称OOM或算法失败；重排不是完整成绩。I仍只按实际2k／5k／10k计划。'+link(applied_path, '评测恢复APPLIED收据')+'</p>'
     sections.append('<section id="rl-live-evaluations">'+body+'</section>')
     return ''.join(sections)

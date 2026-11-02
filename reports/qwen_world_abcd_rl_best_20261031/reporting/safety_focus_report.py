@@ -41,13 +41,15 @@ def render_safety_focus_report(root,snapshot,history,h):
     research_best=max((row for row in all_test if row.get('arm')in(SAFETY,*FRESH_ARMS)),key=lambda row:row['PDMS'],default={})
     chapters=[]
     def section(key,title,deck,body):chapters.append('<section id="'+key+'"><h2>'+title+'</h2><p class="deck">'+deck+'</p>'+body+'</section>')
-    abcd_front='';replanning_front='';exploration_front='';standard_front='';live_front=''
+    abcd_front='';replanning_front='';exploration_front='';standard_front='';live_front='';recipe_front=''
     if editorial.get('standard_studies'):
-        import importlib,standard_study_report,live_experiments_report
+        import importlib,standard_study_report,live_experiments_report,recipe_configuration_report
         importlib.reload(standard_study_report)
         importlib.reload(live_experiments_report)
+        importlib.reload(recipe_configuration_report)
         current_review=latest_complete_report.build_review(editorial['standard_studies'])
         live_front=live_experiments_report.render_workbench(root,snapshot,current_review,h)
+        recipe_front=recipe_configuration_report.render_catalogue(root,snapshot,current_review,h)
         standard_front=standard_study_report.render_related(root,editorial['standard_studies'],h,snapshot.get('front_page_summary'),review=current_review)
     abcd_closed=editorial.get('abcd_research',{}).get('user_termination',{}).get('training_authorized')is False
     if editorial.get('abcd_research',{}).get('parents'):
@@ -212,13 +214,14 @@ def render_safety_focus_report(root,snapshot,history,h):
     import importlib
     import current_research_report
     importlib.reload(current_research_report)
-    front=([live_front]if live_front else[])+([standard_front]if standard_front else[])+([replanning_front]if replanning_front else[])+([exploration_front]if exploration_front else[])+([abcd_front]if abcd_front else[])+current_research_report.build_current_sections(root,snapshot,h)
+    front=([live_front]if live_front else[])+([recipe_front]if recipe_front else[])+([standard_front]if standard_front else[])+([replanning_front]if replanning_front else[])+([exploration_front]if exploration_front else[])+([abcd_front]if abcd_front else[])+current_research_report.build_current_sections(root,snapshot,h)
     css+=current_research_report.CSS
     if live_front:css+=live_experiments_report.CSS
     titles=['SafetyEP历史收益与停止依据','历史对照曲线与分量归因','零分场景与高分保持诊断','信用分配、真实梯度与策略案例','四组实验的完整设计、文献与配对分析','已结束路线与原始证据']
     background='<section id="background"><h2>机制、场景诊断与历史资料</h2><p class="deck">当前工作与最新结果已在前方汇总；需要追溯方法、证据或历史路线时再展开。</p>'+''.join('<details class="background-chapter"><summary>'+title+'</summary>'+chapter+'</details>'for title,chapter in zip(titles,chapters))+'</section>'
     nav=(standard_study_report.section_links(editorial.get('standard_studies',[]))if standard_front else[])+([('replanning','研究判断与全量审计')]if replanning_front else[])+([('exploration','旧E有限系列'if standard_front else '核心E研究与实验')]if exploration_front else[])+([('abcd','ABCD RL归档'if abcd_closed else 'ABCD研究')]if abcd_front else[])+[('current','原World实验进度'),('current-results','原World评测结果'),('current-analysis','原World结论与下一步'),('background','机制与历史资料')]
     if live_front:nav=[('rl-live-workbench','当前实验'),('rl-live-results','最新结果'),('rl-live-evaluations','评测进度')]+nav
+    if recipe_front:nav.insert(3 if live_front else 0,('rl-recipe-configurations','论文配方与有效证据'))
     header_title='RL实验进度与最新效果'
     deleted=editorial.get('abcd_research',{}).get('user_termination',{}).get('checkpoints_deleted_by_user')is True
     header_deck='先看当前任务、训练进度与完整评测效果，再查看方法设计和历史分析。'
