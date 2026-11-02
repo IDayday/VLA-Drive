@@ -22,16 +22,27 @@ def read(path):return json.loads(Path(path).read_text())
 
 def wait_for_completion(campaign,seconds):
     """Job receipt events trigger dispatch; regular status remains half-hourly."""
-    import ctypes,os,select
+    import ctypes,os,select,struct
     libc=ctypes.CDLL(None,use_errno=True);fd=libc.inotify_init1(os.O_NONBLOCK|os.O_CLOEXEC)
     if fd<0:time.sleep(seconds);return
     try:
+        paths=[]
         for run in campaign['runs'].values():
-            paths=[Path(run['qualification'])]
+            paths += [Path(run['qualification']),Path(run['output']),Path(run['output'])/'evaluation_requests']
             paths += [Path(j['job'])for j in run['jobs'][-1:]]
-            for path in paths:
-                if path.is_dir():libc.inotify_add_watch(fd,os.fsencode(path),0x8|0x80|0x100)
-        select.select([fd],[],[],seconds)
+        for case in campaign.get('evaluations',{}).values():
+            paths += [Path(case['output'])]
+            paths += [Path(j['job'])for jobs in case['jobs'].values()for j in jobs[-1:]]
+        for path in paths:
+            if path.is_dir():libc.inotify_add_watch(fd,os.fsencode(path),0x8|0x80|0x100)
+        until=time.monotonic()+seconds
+        while time.monotonic()<until:
+            if not select.select([fd],[],[],max(0,until-time.monotonic()))[0]:break
+            data=os.read(fd,65536);offset=0
+            while offset<len(data):
+                wd,mask,cookie,length=struct.unpack_from('iIII',data,offset);offset+=16
+                name=data[offset:offset+length].split(b'\0')[0].decode();offset+=length
+                if name=='RESULT.json'or name=='evaluation_requests'or name.startswith(('result_rank','epoch','rank'))and name.endswith('.json'):return
     finally:os.close(fd)
 
 
@@ -58,6 +69,9 @@ def register(source):
 
 
 def qualified(run):
+    for name in ('D0_REAL_MID_INNER_EXACT_RESUME.json','NATIVE_DEPLOYMENT_EXPORT_PARITY_16.json','CANONICAL_SCORING_CONSISTENCY.json'):
+        proof=ROOT/'qualification'/name
+        if not proof.exists()or read(proof).get('status')!='PASS':return False
     root=Path(run['qualification'])
     for rank in range(8):
         path=root/f'result_rank{rank}.json'
@@ -125,7 +139,10 @@ def tick(registry):
         cmd=[PYTHON,'-m','torch.distributed.run','--standalone','--nproc_per_node=8','-m','tools.d44_native_rl.train',
             '--config',run['config'],'--output',run['output']]
         if resume:cmd+=['--resume',resume]
+        # Operational qualification stops preserve the identical scientific
+        # run/Adam/RNG. The quarter-epoch boundary is 404 B64 collections.
         if done<100:cmd+=['--stop-after-update','100']
+        elif done<808:cmd+=['--stop-after-update','808']
         try:
             # Original B/D IL hosts are eligible only when ALL GPUs are free;
             # their workers never share or evict those protected trainers.
@@ -133,8 +150,66 @@ def tick(registry):
             run['jobs'].append(receipt);run['status']='RUNNING_OR_ADMITTING';occupied.add(host)
         except (subprocess.SubprocessError,OSError,RuntimeError)as error:
             run.update(status='DISPATCH_RETRY_REQUIRED',last_dispatch_error=repr(error))
+    evaluation_tick(campaign)
     campaign['at']=time.time();campaign['completion_claim']=False;atomic_json(registry,campaign)
     return campaign
+
+
+def free_evaluation_gpus(host):
+    code="import subprocess,json;print(json.dumps(subprocess.check_output(['nvidia-smi','--query-gpu=index,memory.free,utilization.gpu','--format=csv,noheader,nounits'],text=True)))"
+    r=subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=5',host,'/usr/bin/python3','-'],input=code,text=True,capture_output=True,timeout=12)
+    if r.returncode:return []
+    result=[]
+    for line in json.loads(r.stdout).splitlines():
+        index,free,util=map(int,line.split(','))
+        if host=='training-vlawm-zt2'and index==6:continue
+        if free>=65000 and util<=10:result.append(index)
+    return result
+
+
+def evaluation_tick(campaign):
+    """Registered complete Navtest only; free-GPU admission never evicts IL."""
+    cases=campaign.setdefault('evaluations',{});allowed=allowed_hosts(admit_long_job=True)
+    for arm,run in campaign['runs'].items():
+        for request in Path(run['output']).glob('evaluation_requests/epoch*.json'):
+            req=read(request);key=arm+'_'+request.stem
+            cases.setdefault(key,dict(request=req,source=run['source'],status='PENDING',world=8,jobs={},
+                output=str(ROOT/'evaluations'/key/'evaluation')))
+    pending=[v for v in cases.values()if v['status']not in('COMPLETE','FAILED_REQUIRES_REVIEW','FAILED_SUMMARY_REQUIRES_REVIEW')]
+    if not pending:return
+    reserved=set()
+    alljobs=[j for run in campaign['runs'].values()for j in run['jobs'][-1:]]
+    alljobs += [j for case in cases.values()for jobs in case['jobs'].values()for j in jobs[-1:]]
+    for j in alljobs:
+        if not(Path(j['job'])/'RESULT.json').exists():reserved.update((j['host'],gpu)for gpu in j.get('gpus',range(8)))
+    pool=[]
+    for host in ('training-vlawm-zt2','training-vlawm-zt5','training-vlawm-tsinghua-zt5','training-vla-zt','training-vlawm-tsinghua-zt'):
+        if host not in allowed:continue
+        try:pool += [(host,gpu)for gpu in free_evaluation_gpus(host)if(host,gpu)not in reserved]
+        except (subprocess.SubprocessError,OSError,ValueError):continue
+    for case in pending:
+        output=Path(case['output']);completed=[]
+        for rank in range(case['world']):
+            status=output/f'rank{rank}.json'
+            if status.exists()and read(status).get('status')=='COMPLETE':completed.append(rank);continue
+            jobs=case['jobs'].setdefault(str(rank),[])
+            if jobs and not(Path(jobs[-1]['job'])/'RESULT.json').exists():continue
+            if jobs:
+                result=read(Path(jobs[-1]['job'])/'RESULT.json')
+                if result.get('returncode',0)not in(0,75):case['status']='FAILED_REQUIRES_REVIEW';continue
+            if not pool:continue
+            host,gpu=pool.pop(0);job=ROOT/'jobs/EVALUATE'/Path(case['output']).parent.name/f'rank{rank}_attempt{len(jobs)+1:03}'
+            cmd=[PYTHON,'-m','tools.d44_native_rl.evaluate','--checkpoint',case['request']['checkpoint'],
+                '--output',case['output'],'--rank',str(rank),'--world',str(case['world'])]
+            try:jobs.append(launch(host,case['source'],job,cmd,[gpu]));case['status']='RUNNING'
+            except (subprocess.SubprocessError,OSError,RuntimeError)as error:case['last_dispatch_error']=repr(error)
+        if len(completed)==case['world']:
+            from tools.qwen_world_compare.evaluate import summarize
+            baseline='/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_044000_20261102T142147Z/D_IL_044000/evaluation'
+            try:
+                value=summarize(output,baseline);atomic_json(output.parent/'SUMMARY.json',value)
+                case['status']='COMPLETE';case['summary']=str(output.parent/'SUMMARY.json')
+            except Exception as error:case.update(status='FAILED_SUMMARY_REQUIRES_REVIEW',summary_error=repr(error))
 
 
 def main():

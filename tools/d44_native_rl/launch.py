@@ -24,7 +24,7 @@ def launch(host,source,job,command,gpus,*,share_min_free_mib=None):
     program='import subprocess,os;f=open('+repr(str(job/'transport.log'))+',"ab",buffering=0);p=subprocess.Popen('+repr(args)+',cwd='+repr(str(source))+',env=dict(os.environ,PYTHONPATH='+repr(str(source))+',PYTHONUTF8="1",WORLD_COMPARE_ROOT="/mnt/project/d44-native-rl-20261103",WORLD_COMPARE_TASK="d44_native_rl_20261103"),stdout=f,stderr=subprocess.STDOUT,start_new_session=True);print(p.pid)'
     r=subprocess.run(['ssh','-o','BatchMode=yes',host,'/usr/bin/python3','-'],input=program,text=True,capture_output=True,timeout=20)
     if r.returncode:raise RuntimeError(r.stderr)
-    receipt=dict(host=host,pid=int(r.stdout),source=str(source),source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip(),command=command,job=str(job),at=time.time())
+    receipt=dict(host=host,pid=int(r.stdout),gpus=gpus,expected_gpu_uuids=uuids,source=str(source),source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip(),command=command,job=str(job),at=time.time())
     tmp=job/'LAUNCH.json.tmp';tmp.write_text(json.dumps(receipt,ensure_ascii=True,indent=2)+'\n');os.replace(tmp,job/'LAUNCH.json');return receipt
 
 

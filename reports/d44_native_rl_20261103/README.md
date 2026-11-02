@@ -6,9 +6,9 @@
 
 | 路线 | 当前真实证据 | 长训练状态 |
 |---|---|---|
-| D0 native SafetyEP PPO | 八卡10次真实更新；从 inner1 恢复到10，与连续训练的 LoRA/Adam/scheduler/8rank RNG及loss/梯度一致 | B64/G16/M2真实资格进行中 |
-| D2 verified native improvement | 八卡G16十次更新，存在合格教师与非零辅助梯度；最新版本采用部署相同的TRAIN场景B1固定root与clean-x逐步算术 | 最新B64/G16资格进行中 |
-| D5 expanded scope | 八卡G16十次更新；text/FiLM/action-I/O/position实际有梯度；reference不共享可训练张量 | B64资格待分配 |
+| D0 native SafetyEP PPO | 八卡10次真实更新；从 inner1 恢复到10，与连续训练的 LoRA/Adam/scheduler/8rank RNG及loss/梯度一致 | B64/G16/M2真实资格已通过，正式登记中 |
+| D2 verified native improvement | 八卡G16十次更新，存在合格教师与非零辅助梯度；最新版本采用部署相同的TRAIN场景B1固定root与clean-x逐步算术 | 最新B64/G16资格已通过，正式登记中 |
+| D5 expanded scope | 八卡G16十次更新；text/FiLM/action-I/O/position实际有梯度；reference不共享可训练张量 | B64/G16资格已通过，正式登记中 |
 | D1 two-stage | 共同 native PPO 基础已实现；阶段II训练GT endpoint质量 | 待有效标签/阶段资格 |
 | D3-FPO / D3-AWM | 各两卡G16十次真实更新；冻结参数hash不变 | 尚未八卡长训；AWM是正权重稳定化适配 |
 | D4 post feedback | 八卡十次真实更新，恢复原IL readout，post任务和text LoRA均有梯度，冻结参数hash不变 | 未据此宣称事件理解或部署收益 |
