@@ -27,17 +27,25 @@ from pathlib import Path
 g=subprocess.check_output(['nvidia-smi','--query-gpu=index,name,uuid,memory.total,memory.free,utilization.gpu','--format=csv,noheader,nounits'],text=True)
 gpus=[dict(index=int(i),name=n.strip(),uuid=u.strip(),total_MiB=int(t),free_MiB=int(f),utilization=int(v)) for i,n,u,t,f,v in (r.split(',') for r in g.splitlines())]
 o=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid,used_memory','--format=csv,noheader,nounits'],text=True)
-owners=[]
+owners=[];processes={}
+def process_info(pid):
+ path=Path('/proc')/str(pid);s=(path/'stat').read_text();v=s[s.rfind(')')+2:].split();args=[a for a in (path/'cmdline').read_bytes().decode().split('\\0') if a]
+ return dict(pid=int(pid),start_ticks=int(v[19]),ppid=int(v[1]),state=v[0],cwd=str((path/'cwd').resolve()),command_sha256=hashlib.sha256(json.dumps(args,sort_keys=True,separators=(',',':')).encode()).hexdigest())
 for line in o.splitlines():
  p,u,m=line.split(',');pid=int(p);path=Path('/proc')/str(pid);row=dict(pid=pid,uuid=u.strip(),used_MiB=int(m)if m.strip().isdigit()else None,visible=False)
  try:
   args=[a for a in (path/'cmdline').read_bytes().decode().split('\\0') if a];row.update(visible=True,start_ticks=int((path/'stat').read_text().split()[21]),entry=args[args.index('-m')+1] if '-m' in args else Path(args[0]).name,output=args[args.index('--output')+1] if '--output' in args else None)
  except (OSError,ValueError,IndexError):pass
  owners.append(row)
+ ancestor=pid
+ for depth in range(3):
+  try:info=process_info(ancestor);processes[str(ancestor)]=info;ancestor=info['ppid']
+  except (OSError,ValueError,IndexError):break
 grant=Path('/mnt/project/qwen-world-safety-exploration-20261031/RESOURCE_AUTHORIZATION.json');s=os.statvfs(grant.parent)
-print(json.dumps(dict(at=time.time(),gpus=gpus,owners=owners,CPU_affinity=len(os.sched_getaffinity(0)),load1=os.getloadavg()[0],MemAvailable_bytes=next(int(l.split()[1])*1024 for l in Path('/proc/meminfo').read_text().splitlines() if l.startswith('MemAvailable:')),project_free_bytes=s.f_bavail*s.f_frsize,grant_sha256=hashlib.sha256(grant.read_bytes()).hexdigest(),worker_python_exists=Path('/mnt/project/flow-safe-improvement-20261013/venv/bin/python').is_file())))
+print(json.dumps(dict(at=time.time(),gpus=gpus,owners=owners,processes=processes,CPU_affinity=len(os.sched_getaffinity(0)),load1=os.getloadavg()[0],MemAvailable_bytes=next(int(l.split()[1])*1024 for l in Path('/proc/meminfo').read_text().splitlines() if l.startswith('MemAvailable:')),project_free_bytes=s.f_bavail*s.f_frsize,grant_sha256=hashlib.sha256(grant.read_bytes()).hexdigest(),worker_python_exists=Path('/mnt/project/flow-safe-improvement-20261013/venv/bin/python').is_file())))
 """
-    return json.loads(remote(host, [OPERATOR_PYTHON, '-c', code]))
+    sample=json.loads(remote(host, [OPERATOR_PYTHON, '-c', code]));sample['host']=host
+    return sample
 
 
 def gpu_activity_issue(gpu,owners):

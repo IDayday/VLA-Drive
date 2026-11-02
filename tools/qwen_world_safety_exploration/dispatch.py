@@ -9,7 +9,8 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
 def launch(host, source, command, name, *, gpus='', expected_uuids=None,
-           minimum=None, share_minimum=None, lease_slot=None, worker_source=None, exclusive_all_slots=False):
+           minimum=None, share_minimum=None, lease_slot=None, worker_source=None, exclusive_all_slots=False,known_peer_receipts=None,
+           max_known_evaluations_per_gpu=None):
     if TASK != 'qwen_world_safety_exploration_20261031':
         raise ValueError('Explicit WORLD_COMPARE_TASK/ROOT required before importing dispatch')
     directory = ROOT/'jobs'/name
@@ -35,6 +36,10 @@ def launch(host, source, command, name, *, gpus='', expected_uuids=None,
         args += ['--minimum-free-mib', str(minimum)]
     if share_minimum:
         args += ['--share-min-free-mib', str(share_minimum)]
+    for receipt in known_peer_receipts or []:args+=['--known-peer-receipt',str(receipt)]
+    if max_known_evaluations_per_gpu is not None:
+        if max_known_evaluations_per_gpu not in(1,2)or lease_slot!='evaluation':raise ValueError('Evaluation-only explicit sharing cap required')
+        args+=['--max-known-evaluations-per-gpu',str(max_known_evaluations_per_gpu)]
     args += ['--lease-slot', lease_slot or ('shared' if share_minimum else 'primary')]
     if exclusive_all_slots:args += ['--exclusive-all-slots']
     env = dict(WORLD_COMPARE_ROOT=str(ROOT), WORLD_COMPARE_TASK=TASK, PYTHONPATH=str(source),
@@ -49,6 +54,8 @@ def launch(host, source, command, name, *, gpus='', expected_uuids=None,
     receipt = dict(host=host, source=str(source), command=command, invocation=name,
                    dispatched_unix=time.time(), executor=executor,
                    executor_sha256=executor_sha256, **started)
+    if known_peer_receipts:receipt['known_peer_receipts']=[dict(path=str(p),sha256=file_sha(p))for p in known_peer_receipts]
+    if max_known_evaluations_per_gpu is not None:receipt['max_known_evaluations_per_gpu']=max_known_evaluations_per_gpu
     atomic_json(directory/'DISPATCH.json', receipt)
     return directory
 

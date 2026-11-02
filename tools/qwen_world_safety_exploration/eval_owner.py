@@ -60,18 +60,25 @@ def lease_free(path):
             return False
 
 
-def usable_gpu(gpu, sample, *, minimum, reserved):
+def usable_gpu(gpu, sample, *, minimum, reserved, max_known_evaluations_per_gpu=1):
+    if max_known_evaluations_per_gpu not in (1, 2):
+        raise ValueError('Only the explicit one/two known-evaluator policy is supported')
     if gpu['uuid'] in reserved or gpu['free_MiB'] < minimum:
         return False
     if gpu_activity_issue(gpu, sample['owners']):
         return False
     owners = [row for row in sample['owners'] if row['uuid'] == gpu['uuid']]
+    from .known_peers import accepted
+    peers=accepted(sample,ROOT)
+    evaluations=set()
     for row in owners:
         if (not row.get('visible') or not isinstance(row.get('output'), str)
-                or not row['output'].startswith(KNOWN_ROOTS)):
+                or(not row['output'].startswith(KNOWN_ROOTS)and(row['pid'],row['uuid'])not in peers['owners'])):
             return False
         if 'evaluat' in row.get('entry', '').lower():
-            return False  # No second evaluation owner on this physical device.
+            evaluations.add(row['pid'])
+    if len(evaluations)>=max_known_evaluations_per_gpu:
+        return False
     uuid = gpu['uuid']+'.lock'
     if not lease_free(LEASES['evaluation']/uuid):
         return False
@@ -298,6 +305,10 @@ class EvaluationOwner:
         if route:
             kwargs = dict(gpus=str(route['gpu']), expected_uuids=[route['uuid']],
                           share_minimum=self.minimum, lease_slot='evaluation')
+            if route.get('known_peer_receipts'):kwargs['known_peer_receipts']=route['known_peer_receipts']
+            if hasattr(self,'max_known_evaluations_per_gpu'):
+                kwargs['max_known_evaluations_per_gpu']=self.max_known_evaluations_per_gpu
+                node['max_known_evaluations_per_gpu']=self.max_known_evaluations_per_gpu
             if route.get('exclusive_recovery'):
                 kwargs=dict(gpus=str(route['gpu']),expected_uuids=[route['uuid']],minimum=61440,
                     lease_slot='evaluation',exclusive_all_slots=True)
@@ -487,9 +498,11 @@ class EvaluationOwner:
                 except (KeyError, FileNotFoundError, ValueError):
                     pass  # Unknown claims remain reserved, never stolen.
             routes = [dict(host=host,gpu=gpu['index'],uuid=gpu['uuid'],free_MiB=gpu['free_MiB'],
+                           known_peer_receipts=sample.get('_exact_peer_validation',{}).get('value',{}).get('paths',[]),
                            has_owners=any(o['uuid']==gpu['uuid']for o in sample['owners']))
                 for host, sample in samples for gpu in sample['gpus']
-                if usable_gpu(gpu, sample, minimum=self.minimum, reserved=claims)]
+                if usable_gpu(gpu, sample, minimum=self.minimum, reserved=claims,
+                    max_known_evaluations_per_gpu=getattr(self,'max_known_evaluations_per_gpu',1))]
             from .native_priority import filter_eval_routes
             routes = filter_eval_routes(routes, samples)
             runs = {run['id']:run for run in self.registry['runs']}

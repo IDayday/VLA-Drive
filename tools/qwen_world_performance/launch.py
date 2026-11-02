@@ -318,7 +318,10 @@ def owner_class():
                     s=probe(host);g=s['gpus']
                     if(len(g)!=8 or len({x['uuid']for x in g})!=8 or not s['worker_python_exists']or s['MemAvailable_bytes']<100*2**30 or s['load1']>s['CPU_affinity']*1.5):continue
                     if any(gpu_activity_issue(x,s['owners'])for x in g)or min(x['free_MiB']for x in g)<route['minimum_free_MiB']:continue
-                    if any(not o.get('visible')or not isinstance(o.get('output'),str)or not o['output'].startswith(known)for o in s['owners']):continue
+                    from tools.qwen_world_safety_exploration.known_peers import accepted
+                    peers=accepted(s,ROOT)
+                    if any(not o.get('visible')or not isinstance(o.get('output'),str)or
+                        (not o['output'].startswith(known)and(o['pid'],o['uuid'])not in peers['owners'])for o in s['owners']):continue
                     claim=claims.get(host)
                     if claim and 'job'in claim and not(Path(claim['job'])/'RESULT.json').exists():
                         from .evaluate import native_claim_startup_hold
@@ -363,7 +366,7 @@ def owner_class():
                             with self.mutex:
                                 node.update(attempt=attempt,job=str(ROOT/'jobs'/name),host=route['host'],resume=resume,command=command,execution_source=execution_source,status='DISPATCHING');self.update(arm,status='DISPATCHING',job=node['job'],host=route['host'])
                             claims=read(ROOT/'resources/NATIVE_HOST_CLAIMS.json',{});claims[route['host']]=dict(job=node['job'],arm=arm,at_unix=time.time());publish(ROOT/'resources/NATIVE_HOST_CLAIMS.json',claims)
-                            try:dispatch.launch(route['host'],execution_source,command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[x['uuid']for x in s['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'],worker_source=run.get('worker_source',run['source']))
+                            try:dispatch.launch(route['host'],execution_source,command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[x['uuid']for x in s['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'],worker_source=run.get('worker_source',run['source']),known_peer_receipts=s.get('_exact_peer_validation',{}).get('value',{}).get('paths'))
                             except Exception:
                                 with self.mutex:
                                     node['dispatch_error']=traceback.format_exc();self.update(arm,status='DISPATCH_TRANSPORT_REVIEW',job=node['job'])

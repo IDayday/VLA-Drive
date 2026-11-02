@@ -129,7 +129,8 @@ def strict_export(parent,output,checkpoint):
     return meta
 
 
-def owner_class():
+def owner_class(max_known_evaluations_per_gpu=1):
+    if max_known_evaluations_per_gpu not in(1,2):raise ValueError('Explicit known-evaluator cap must be one or two')
     bootstrap()
     from tools.qwen_world_safety_exploration import eval_owner as E
     from starVLA.rl.qwen_world_safety_exploration.resources import MODEL_PYTHON
@@ -137,6 +138,11 @@ def owner_class():
     E.completion_priority=lambda entry:(0 if entry.get('arm')in ORDER[:2]else ORDER.index(entry['arm']),
         entry.get('registered_exposure_epoch',0),-sum(n.get('status')=='COMPLETE'for n in entry.get('ranks',{}).values()),entry.get('label',''))
     class PerformanceEvaluationOwner(E.EvaluationOwner):
+        def __init__(self,*args,**kwargs):
+            super().__init__(*args,**kwargs)
+            self.max_known_evaluations_per_gpu=max_known_evaluations_per_gpu
+            self.state['evaluation_sharing_policy']=dict(max_known_evaluations_per_gpu=max_known_evaluations_per_gpu,
+                minimum_free_MiB=self.minimum,unknown_owners_allowed=False,worker_rechecks_before_and_after_locks=True)
         @staticmethod
         def binding(run):
             # Budget/gates may append under explicit Root authorization; all
@@ -210,9 +216,9 @@ def main():
     if len(sys.argv)>1 and sys.argv[1]=='export':
         ap=argparse.ArgumentParser();ap.add_argument('action');ap.add_argument('--parent-checkpoint',required=True);ap.add_argument('--rl-checkpoint',required=True);ap.add_argument('--output',required=True);a=ap.parse_args();strict_export(a.parent_checkpoint,a.output,a.rl_checkpoint);return
     if len(sys.argv)>1 and sys.argv[1]=='owner':
-        ap=argparse.ArgumentParser();ap.add_argument('action');ap.add_argument('--registry',default=str(ROOT/'RUNS.json'));ap.add_argument('--max-shards',type=int,default=32);ap.add_argument('--max-workers',type=int,default=64);ap.add_argument('--interval',type=float,default=30);a=ap.parse_args()
+        ap=argparse.ArgumentParser();ap.add_argument('action');ap.add_argument('--registry',default=str(ROOT/'RUNS.json'));ap.add_argument('--max-shards',type=int,default=32);ap.add_argument('--max-workers',type=int,default=64);ap.add_argument('--interval',type=float,default=30);ap.add_argument('--max-known-evaluations-per-gpu',type=int,choices=(1,2),default=1);a=ap.parse_args()
         if a.max_shards!=32 or not 1<=a.max_workers<=64 or a.interval<10:ap.error('Canonical32 shards, <=64workers, interval>=10s')
-        owner_class()(a.registry,max_shards=32,max_workers=a.max_workers,minimum=32768).run(interval=a.interval);return
+        owner_class(a.max_known_evaluations_per_gpu)(a.registry,max_shards=32,max_workers=a.max_workers,minimum=32768).run(interval=a.interval);return
     # Exact old CLI and scoring implementation, including resource-return caches.
     visible=os.environ.get('CUDA_VISIBLE_DEVICES')
     try:bootstrap()

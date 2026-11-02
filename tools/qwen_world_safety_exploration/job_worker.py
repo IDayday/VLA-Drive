@@ -125,14 +125,34 @@ RESEARCH_LEASE_ROOT=Path('/mnt/project/runtime_gpu_research_slots')
 EVALUATION_LEASE_ROOT=Path('/mnt/project/runtime_gpu_evaluation_slots')
 
 
-def _known_owners(rows,mapping,indices):
+def _known_owners(rows,mapping,indices,*,peer_receipts=None,host=None,all_uuids=None,max_known_evaluations_per_gpu=None):
+    if max_known_evaluations_per_gpu not in(None,1,2):raise ValueError('Invalid explicit evaluator cap')
+    peers=set()
+    if peer_receipts:
+        # Never import this new helper through the child's older scientific
+        # PYTHONPATH. Admission code comes from this exact frozen worker root.
+        import importlib.util
+        from starVLA.rl.qwen_world_safety_exploration.contracts import ROOT
+        path=Path(__file__).with_name('known_peers.py')
+        try:
+            spec=importlib.util.spec_from_file_location('_exact_worker_known_peers',path)
+            helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)
+            sample=dict(host=host,gpus=[dict(uuid=u)for u in all_uuids],owners=rows)
+            peers=helper.accepted(sample,ROOT,receipt_paths=peer_receipts,local=True)['owners']
+        except (OSError,ValueError,KeyError,TypeError,ImportError)as error:
+            raise ResourceRefused('Exact peer receipt could not be verified')from error
+    evaluations={mapping[i]:set()for i in indices}
     for row in rows:
         if row['uuid']not in {mapping[i]for i in indices}:continue
         try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
-        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-','/mnt/project/qwen-world-four-frameworks-','/mnt/project/qwen-world-abcd-rl-best-20261031/','/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-performance-rl-20261103/','/mnt/project/qwen-world-rl-optimization-20261030/','/mnt/project/qwen-world-task-suites-20261031/'))for arg in args):
+        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-','/mnt/project/qwen-world-four-frameworks-','/mnt/project/qwen-world-abcd-rl-best-20261031/','/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-performance-rl-20261103/','/mnt/project/qwen-world-rl-optimization-20261030/','/mnt/project/qwen-world-task-suites-20261031/'))for arg in args)and(row['pid'],row['uuid'])not in peers:
             raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
+        entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else next((a for a in args if a.endswith('.py')),'')
+        if 'evaluat'in entry.lower():evaluations[row['uuid']].add(row['pid'])
+    if max_known_evaluations_per_gpu is not None and any(len(pids)>=max_known_evaluations_per_gpu for pids in evaluations.values()):
+        raise ResourceRefused('Known evaluator count reached explicit per-GPU limit')
 
 
 def _admission_sample():
@@ -176,7 +196,9 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
         if args.share_min_free_mib:
             if not shared_training_host(host,grant)or args.share_min_free_mib<8192:
                 raise ValueError('Sharing requires an explicitly authorized host and measured valid headroom')
-            _known_owners(owners,mapping,indices)
+            _known_owners(owners,mapping,indices,peer_receipts=getattr(args,'known_peer_receipt',None),
+                host=host,all_uuids=[devices[i]['uuid']for i in sorted(devices)],
+                max_known_evaluations_per_gpu=getattr(args,'max_known_evaluations_per_gpu',None))
         elif any(row['uuid']in physical for row in owners):
             raise ResourceRefused('GPU acquired another owner '+('under admission lock'if locked else'before dispatch'))
         for index in indices:
@@ -228,6 +250,8 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
 
 def main():
     parser=argparse.ArgumentParser(__doc__)
+    parser.add_argument('--known-peer-receipt',action='append',default=[],help='Exact sealed peer receipt; no general foreign-root whitelist')
+    parser.add_argument('--max-known-evaluations-per-gpu',type=int,choices=(1,2))
     parser.add_argument('--receipt-root',required=True);parser.add_argument('--gpus',default='')
     parser.add_argument('--expected-gpu-uuids-json');parser.add_argument('--command-json',required=True);parser.add_argument('--cwd',required=True)
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
@@ -241,6 +265,7 @@ def main():
     if args.exclusive_all_slots and (len(indices)!=1 or args.lease_slot!='evaluation' or args.share_min_free_mib or
             (args.minimum_free_mib or 0)<60000):raise ValueError('Exclusive recovery needs one idle evaluation GPU and >=60000MiB measured headroom')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')
+    if args.max_known_evaluations_per_gpu is not None and args.lease_slot!='evaluation':raise ValueError('Evaluator count cap only applies to evaluation jobs')
     expected=None if args.expected_gpu_uuids_json is None else json.loads(args.expected_gpu_uuids_json)
     if expected is not None and(not isinstance(expected,list)or len(expected)!=len(indices)or not all(isinstance(v,str)for v in expected)):
         raise ValueError('Expected physical GPU identities must match requested indices')
@@ -252,6 +277,8 @@ def main():
         command=command,cwd=str(Path(args.cwd).resolve()),shared_headroom_MiB=args.share_min_free_mib)
     state.update(lease_slot=args.lease_slot or ('shared' if args.share_min_free_mib else 'primary'),
         execution_worker=str(Path(__file__).resolve()),execution_worker_sha256=file_sha(__file__),exclusive_all_slots=args.exclusive_all_slots)
+    if args.known_peer_receipt:state['known_peer_receipts']=[dict(path=str(p),sha256=file_sha(p))for p in args.known_peer_receipt]
+    if args.max_known_evaluations_per_gpu is not None:state['max_known_evaluations_per_gpu']=args.max_known_evaluations_per_gpu
     try:
         try:require_dispatch(admit_long_job=True)
         except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error

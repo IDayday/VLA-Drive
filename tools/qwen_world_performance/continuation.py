@@ -47,10 +47,13 @@ def validate_resource_fields(run):
 def shared_sample_ready(sample,run=None):
     """Additional cap only. Caller/worker still enforce every existing GPU check."""
     outputs=set()
+    from tools.qwen_world_safety_exploration.known_peers import accepted,ENTRY
+    peers=accepted(sample,ROOT)
     for owner in sample.get('owners',[]):
         entry=owner.get('entry','')
         if 'train'not in entry or'evaluat'in entry:continue
         if not owner.get('visible')or not isinstance(owner.get('output'),str):return False,'unresolved_native_owner'
+        if entry==ENTRY and(owner['pid'],owner['uuid'])not in peers['owners']:return False,'unverified_D44_native_owner'
         outputs.add(Path(owner['output']).resolve())
     protocol=(run or {}).get('resource_protocol',PROTOCOL)
     if protocol not in (PROTOCOL,PROTOCOL_V2):return False,'unknown_sharing_protocol'
