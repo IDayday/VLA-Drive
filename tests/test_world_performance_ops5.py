@@ -13,7 +13,7 @@ def test_S6_pure_independent_registration_early_cadence_and_exact_export_protoco
     original=L.read(L.ROOT/'RUNS.json');before=(L.ROOT/'RUNS.json').read_bytes()
     # Registration is tested against a private pre-S6 fixture, regardless of
     # whether the real campaign has subsequently admitted that exact family.
-    original['runs']=[r for r in original['runs']if r['id']!=L.QUALITY]
+    original['runs']=[r for r in original['runs']if r['id']in set(L.BASE_ORDER)|{L.FAST}]
     base=next(r for r in original['runs']if r['id']=='S1_NOMINAL_RESCUE')
     cfg=yaml.safe_load(Path(base['config']).read_text());p=cfg['research']['performance']
     cfg['research'].update(arm=L.QUALITY,verified_quality={'schema':'CPU interface fixture, not qualification'})
