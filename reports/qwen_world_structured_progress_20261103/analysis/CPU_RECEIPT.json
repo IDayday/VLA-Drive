@@ -1,0 +1,43 @@
+{
+  "actual_exit_code": 0,
+  "actual_result": "18 passed,1 third-party pynvml warning in17.68s",
+  "at": "2026-11-02T22:17:23.776553+00:00",
+  "base_source_commit": "8067e13db926ed23b801133921095e99c5c54a3b",
+  "branch": "research/qwen-world-structured-progress-20261103",
+  "command": "CUDA_VISIBLE_DEVICES= python -m pytest -q tests/test_world_structured_progress.py tests/test_world_verified_quality.py tests/test_world_verified_quality_calibration.py",
+  "files_sha256": {
+    "configs/qwen_world_structured_progress/S7_STRUCTURED_PROGRESS.yaml": "aaacde27f293ef571c53b21560d1a1224eecfdd69f7f4e5c24b4cc30cfe4ab37",
+    "starVLA/rl/qwen_world_performance/nominal_improvement.py": "47ac20e34aff5130fec8eafb997728786833c3a2454fb3178fd64c8e4225dbf3",
+    "starVLA/rl/qwen_world_performance/recovery.py": "36679f43a5f3d31f4257b483c82dceb75495af1df0185d7962234eb3b61cb1dd",
+    "starVLA/rl/qwen_world_structured_progress/__init__.py": "48c3b97f0ecde211b463f9a599e3eaa17f36e2e9328def67131612a20c122a47",
+    "starVLA/rl/qwen_world_structured_progress/geometry.py": "b114b2a4227762b109fc2e31b405827245965facb15303003c06f4a819cdb520",
+    "starVLA/rl/qwen_world_structured_progress/gt_reader.py": "3f4af58e4ddf4af337ef72683e398ed3e5a82a7ad5d4be26597f7218d11ba4a0",
+    "starVLA/rl/qwen_world_structured_progress/material.py": "c94ece27a6e136c5baf1065ac12ea0f5f5dbe8a2684bb9c8edf96f25c613273e",
+    "starVLA/rl/qwen_world_structured_progress/recipe.py": "d3c40cee1520f5355df734aa812aaa9d3ffacaefb7c225e77a74ef20d92c76ed",
+    "starVLA/rl/qwen_world_structured_progress/recovery.py": "cfdb3df4510352e8640987806e6a70d4a3c4807fbcda5c56ca77921fc1dbcd84",
+    "starVLA/rl/qwen_world_structured_progress/runtime.py": "56f0fa61627fbf5935ac725e20a4a7ee056b4e01c1aea32e68383c3483d283a0",
+    "tests/fixtures/structured_progress_diagnostic7.json": "e071470a488a8cdce100282edd0d73143026ef44f41d452b2219d0f42c036dcd",
+    "tests/test_world_structured_progress.py": "734e300615cdb5e0659f31d5a414b0b09e5ffec633754d8b2db812fbb51da57d",
+    "tools/qwen_world_structured_progress/__init__.py": "2f70620e1b3c261c686bdc81f52070d1c00ac8cb0838e5dfe86b9d66e3d8ec68",
+    "tools/qwen_world_structured_progress/native_review.py": "933b0afad057cfa6d9a1c986cc35dd2bd29d49cc7f78e7ff59f922462d46d5a3",
+    "tools/qwen_world_structured_progress/qualify_native.py": "0cd735ecf02fe4f6dd2629be5f04fef8f977217cbe282c3cf15c5af4eb96c29f",
+    "tools/qwen_world_structured_progress/train.py": "695a5030dbc68ab342c1e11ef73a7dfc5f266a8f3e540c32fa63b34abebc1fd6"
+  },
+  "limitations": [
+    "CPU TinyScope is not full52.7M GPU validation; actual full8rank qualification remains required.",
+    "CPU target discovery35/112 on7 targeted TRAIN scenes is not policy/NAVTEST improvement.",
+    "Independent S6/S7 run identities change private auxiliary seed keys; single training seed42 does not mean full crossarm common random numbers."
+  ],
+  "meaningful_checks": [
+    "All112 previously scored actual FP32 proposal requests reproduce bitexact from portable TRAIN7 fixture.",
+    "All7 real TRAIN GT records reconstructed exactly from pinned original logs; bad time skips onlyGT; saved source gate not refreshed on resume.",
+    "Actual Tiny Scope actor/currentMemory CFM+trueODElast gradients; fourinner Adam continuation vs savedinner2 restore exact; PPO chains/rewards/A unchanged.",
+    "Missing/modified synthetic requests, query counts, teacherorigin, gradient-bearing targets rejected.",
+    "New native queryledgers all8 rank sums/foreignrank rejected; base native validator remains explicitly invoked.",
+    "Default S6 material/loss/metrics/gradients bitexact to frozen8067;12 existing S6/PG-EMA tests pass.",
+    "World8 qualification plan uses shared original Trainer, natural gates, no qualification-forcing or detached GPU subprocess driver."
+  ],
+  "schema": "world_structured_progress_CPU_readiness_v1",
+  "status": "PASS_CPU_NOT_GPU_QUALIFIED",
+  "working_tree": "/mnt/project/VLA-Drive-qwen-world-structured-progress-20261103"
+}

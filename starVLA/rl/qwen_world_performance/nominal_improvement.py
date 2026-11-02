@@ -77,7 +77,7 @@ def active_alpha(material,config=None):
 
 
 @torch.no_grad()
-def attach_material(actor,rollout,conditions,service,*,exposure_epoch,rank,config=None,calibration_state=None,nominal=None,extra=None):
+def attach_material(actor,rollout,conditions,service,*,exposure_epoch,rank,config=None,calibration_state=None,nominal=None,extra=None,teacher_selector=None):
     config=CONFIG if config is None else validate_config(config)
     if 'nominal_improvement'in rollout:raise ValueError('Nominal targets attached once per fresh behavior version')
     if rollout.get('group_size')!=16:raise ValueError('Primary group is G16, extraG16 is teacher-only')
@@ -94,7 +94,7 @@ def attach_material(actor,rollout,conditions,service,*,exposure_epoch,rank,confi
             validate_nominal(nominal,token=rollout['token'],log=rollout['log'],version=rollout['behavior_version'],protocol_sha256=rollout['protocol_sha256'],condition_identity=rollout['cond_bg']['identity'])
             extra=collect_extra_if_needed(actor,rollout,nominal,service,rank=rank)if extra is None else extra
             validate_extra(extra,rollout,nominal,rank=rank)
-            clean,teacher,skip=_select_teacher(rollout,nominal,extra,config)
+            clean,teacher,skip=(teacher_selector or _select_teacher)(rollout,nominal,extra,config)
             base.update(nominal=nominal,extra=extra,skip_reason=skip,enabled=skip is None,
                 actual_B1_queries=1,actual_extra_teacher_queries=0 if extra is None else 16,teacher=teacher,clean=clean)
             if skip is None:
@@ -108,7 +108,7 @@ def attach_material(actor,rollout,conditions,service,*,exposure_epoch,rank,confi
     return rollout
 
 
-def validate_material(rollout,*,rank,expected_epoch=None,config=None):
+def validate_material(rollout,*,rank,expected_epoch=None,config=None,teacher_selector=None):
     config=CONFIG if config is None else validate_config(config);p=rollout['nominal_improvement'];verify_seal(p,'material_sha256')
     if(p.get('schema')!=config['schema'] or p.get('protocol')!=config or p['rank']!=rank or p['token']!=rollout['token']or p['log']!=rollout['log']
        or p['behavior_version']!=rollout['behavior_version']or p['condition_identity']!=rollout['cond_bg']['identity']
@@ -124,7 +124,7 @@ def validate_material(rollout,*,rank,expected_epoch=None,config=None):
     validate_nominal(p['nominal'],token=rollout['token'],log=rollout['log'],version=rollout['behavior_version'],protocol_sha256=rollout['protocol_sha256'],condition_identity=rollout['cond_bg']['identity'])
     if p['nominal']['condition']!=rollout['cond_bg']:raise ValueError('B1 did not use this exact legal current observation descriptor')
     validate_extra(p['extra'],rollout,p['nominal'],rank=rank)
-    clean,teacher,skip=_select_teacher(rollout,p['nominal'],p['extra'],config)
+    clean,teacher,skip=(teacher_selector or _select_teacher)(rollout,p['nominal'],p['extra'],config)
     if digest(p['teacher'])!=digest(teacher)or p['skip_reason']!=skip or p['enabled']!=(skip is None)or p['actual_B1_queries']!=1 or p['actual_extra_teacher_queries']!=(0 if p['extra']is None else 16):
         raise ValueError('Teacher selection/gain/gate/query accounting changed')
     if skip is not None:
