@@ -18,7 +18,27 @@ def test_gaussian_joint_density_and_gradient(batch,group):
     reference=Independent(Normal(ref,std[:,None,None]),2)
     torch.testing.assert_close(ratio,current.log_prob(nxt)-behavior.log_prob(nxt),atol=2e-5,rtol=2e-5)
     torch.testing.assert_close(kl,kl_divergence(current,reference),atol=2e-5,rtol=2e-5)
-    loss,_=clipped_loss(ratio,torch.randn(batch,group));loss.backward();assert new.grad.abs().sum()>0
+    advantage=torch.randn(batch,group)
+    loss,_=clipped_loss(ratio,advantage);loss=loss+.001*kl.mean()
+    gradient=torch.autograd.grad(loss,new,retain_graph=True)[0]
+    oracle_ratio=(current.log_prob(nxt)-behavior.log_prob(nxt)).exp();a=advantage[...,None]
+    oracle=torch.maximum(-a*oracle_ratio,-a*oracle_ratio.clamp(.9,1.1)).mean()+.001*kl_divergence(current,reference).mean()
+    oracle_gradient=torch.autograd.grad(oracle,new)[0]
+    torch.testing.assert_close(gradient,oracle_gradient,atol=1e-5,rtol=1e-5);assert gradient.abs().sum()>0
+
+
+def test_fpo_energy_velocity_sign_and_awm_positive_weight():
+    from starVLA.rl.d44_native_rl.fpo import velocity_energy,awm_loss
+    torch.manual_seed(42);clean=torch.randn(16,8,3);eps=torch.randn_like(clean);sigma=torch.linspace(.2,.8,16)
+    state=(1-sigma[:,None,None])*clean+sigma[:,None,None]*eps
+    pred=(clean+.02*eps).requires_grad_()
+    energy=velocity_energy(state,pred,eps-clean,sigma)
+    oracle=((pred-clean)/sigma[:,None,None]).square().mean((-1,-2))
+    torch.testing.assert_close(energy,oracle,atol=1e-6,rtol=1e-5)
+    grad=torch.autograd.grad(energy.mean(),pred,retain_graph=True)[0]
+    reference=torch.autograd.grad(oracle.mean(),pred,retain_graph=True)[0];torch.testing.assert_close(grad,reference)
+    loss=awm_loss(energy,-torch.ones(16),pred.detach(),pred)
+    assert loss==0 and torch.equal(torch.autograd.grad(loss,pred)[0],torch.zeros_like(pred))
 
 
 def test_invalid_std_rejected():

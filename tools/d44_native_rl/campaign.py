@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess
 import time
 import math
-from tools.d44_native_rl.launch import launch
+from tools.d44_native_rl.launch import launch,DispatchPreflightFailed
 from starVLA.rl.d44_native_rl.config import defaults
 from starVLA.rl.qwen_world_compare.contracts import allowed_hosts,file_sha
 from starVLA.rl.flow_grpo.transactions import atomic_json
@@ -14,7 +14,8 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 ROOT=Path('/mnt/project/d44-native-rl-20261103')
 PYTHON='/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
 PROTECTED={'training-vla-zt','training-vlawm-tsinghua-zt'}
-PREFERRED={'D0':['training-vlawm-zt4'],'D2':['training-vlawm-tsinghua-zt2'],'D5':['training-vlawm-tsinghua-zt3']}
+PREFERRED={'D0':['training-vlawm-zt4'],'D2':['training-vlawm-tsinghua-zt2'],'D5':['training-vlawm-tsinghua-zt3'],
+    'D1':['training-vlawm-zt'],'D3_FPO':['training-vlawm-zt'],'D3_AWM':['training-vlawm-zt'],'D4':['training-vlawm-zt'],'D6':['training-vlawm-zt']}
 FALLBACK=['training-vlawm-tsinghua-zt5','training-vlawm-zt5','training-vla-zt','training-vlawm-tsinghua-zt']
 
 
@@ -96,6 +97,23 @@ def register(source):
     return registry
 
 
+def add_run(registry,arm,source,qualification,*,qualification_world=8,qualification_scenes=64):
+    import yaml
+    registry=Path(registry);campaign=read(registry);source=Path(source).resolve()
+    if not campaign['closed']:raise ValueError('Quiesce the CPU owner before changing campaign membership')
+    if arm in campaign['runs']:raise FileExistsError('Registered algorithm ID exists')
+    if subprocess.check_output(['git','status','--porcelain'],cwd=source,text=True).strip():raise ValueError('Frozen source required')
+    cfg=defaults(arm);cfg['checkpoint_policy']='all_off';config=ROOT/'registered_configs'/(arm+'.yaml')
+    if config.exists():raise FileExistsError('Registered config exists')
+    config.write_text(yaml.safe_dump(cfg,sort_keys=False))
+    campaign['runs'][arm]=dict(arm=arm,source=str(source),source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip(),
+        config=str(config),config_sha256=file_sha(config),output=str(ROOT/'runs'/(arm+'_STAGED_v1'if arm=='D6'else arm+f'_B{cfg["global_scenes"]}G16_M2_v1')),
+        qualification=str(Path(qualification).resolve()),qualification_world=qualification_world,qualification_scenes=qualification_scenes,
+        status='WAITING_FOR_QUALIFICATION',jobs=[],initial_target_epochs=cfg['target_epochs'],requires_fresh_Adam=True,
+        source_checkpoint='D_IL44K',automatic_budget_extension=False,priority=2 if arm in('D4','D6')else 1)
+    atomic_json(registry,campaign);return campaign
+
+
 def qualified(run):
     for name in ('D0_REAL_MID_INNER_EXACT_RESUME.json','NATIVE_DEPLOYMENT_EXPORT_PARITY_16.json','CANONICAL_SCORING_CONSISTENCY.json'):
         proof=ROOT/'qualification'/name
@@ -106,30 +124,32 @@ def qualified(run):
         if not path.exists()or read(path).get('status')!='PASS':return False
         expected={p:file_sha(Path(run['source'])/p)for p in ('tools/d44_native_rl/train.py','starVLA/rl/d44_native_rl/stages.py','starVLA/rl/d44_native_rl/history.py','starVLA/rl/d44_native_rl/recovery.py')}
         return read(path).get('source_files')==expected
-    for rank in range(8):
+    required_world=run.get('qualification_world',8)
+    for rank in range(required_world):
         path=root/f'result_rank{rank}.json'
         if not path.exists():return False
         result=read(path)
         if (result['updates']<10 or not result['qualification']or result['status']!='QUALIFICATION_STOPPED'
                 or result.get('frozen_before')!=result.get('frozen_after')or not result.get('frozen_before')):return False
     identity=read(root/'identity.json');c=identity['recipe']
-    if c['global_scenes']!=64 or c['group']!=16 or c['inner_updates']!=2 or identity['parent_model_sha256']!=read(ROOT/'parent_audit/AUDIT.json')['parent']['model_sha256']:
+    expected_scenes=run.get('qualification_scenes',64)
+    if c['global_scenes']!=expected_scenes or c['group']!=16 or c['inner_updates']!=2 or identity['world']!=required_world or identity['parent_model_sha256']!=read(ROOT/'parent_audit/AUDIT.json')['parent']['model_sha256']:
         raise ValueError('Wrong D44 B64/G16 qualification identity')
     # Actual saved material, not a batch_size label, proves distinct scenes.
-    evidence=root/'B64_QUALIFICATION.json'
+    evidence=root/'MULTISCENE_QUALIFICATION.json'
     if not evidence.exists():
         import torch
         files=list((root/'behavior').glob('*/collection000001/rank*.pt'));tokens=[]
-        if len(files)!=8:raise ValueError('Missing real eight-rank collection')
+        if len(files)!=required_world:raise ValueError('Missing real multi-rank collection')
         for path in files:
             batch=torch.load(path,map_location='cpu',weights_only=False)
-            if len(batch['scenes'])!=8:raise ValueError('Not eight local scenes')
+            if len(batch['scenes'])!=expected_scenes//required_world:raise ValueError('Wrong local scene accumulation')
             for r in batch['scenes']:
                 if r['chain'].shape!=(16,11,8,3):raise ValueError('Wrong real G16/K10 chain')
                 tokens.append(r['token'])
-        if len(tokens)!=64 or len(set(tokens))!=64:raise ValueError('Global batch is not 64 distinct scenes')
-        atomic_json(evidence,dict(status='PASS',distinct_scenes=64,candidates_per_scene=16,complete_chain_states=11,
-            scope='actual saved eight-rank first fresh collection',parent=identity['parent_model_sha256']))
+        if len(tokens)!=expected_scenes or len(set(tokens))!=expected_scenes:raise ValueError('Global batch scenes are not distinct')
+        atomic_json(evidence,dict(status='PASS',distinct_scenes=expected_scenes,candidates_per_scene=16,complete_chain_states=11,
+            scope='actual saved multi-rank first fresh collection',actual_world=required_world,parent=identity['parent_model_sha256']))
     return True
 
 
@@ -140,7 +160,7 @@ def tick(registry):
     for run in campaign['runs'].values():
         for job in run['jobs'][-1:]:
             if not(Path(job['job'])/'RESULT.json').exists():occupied.add(job['host'])
-    for arm,run in campaign['runs'].items():
+    for arm,run in sorted(campaign['runs'].items(),key=lambda item:item[1].get('priority',0)):
         if run['status']in('COMPLETE','FAILED_REQUIRES_REVIEW'):continue
         if not qualified(run):run['status']='WAITING_FOR_QUALIFICATION';continue
         if file_sha(run['config'])!=run['config_sha256']:raise ValueError('Formal config changed')
@@ -148,8 +168,8 @@ def tick(registry):
             last=run['jobs'][-1];result=Path(last['job'])/'RESULT.json'
             if not result.exists():run['status']='RUNNING_OR_ADMITTING';continue
             result=read(result)
-            if result.get('returncode')==75 and time.time()<result['end_unix']+300:
-                run['status']='WAITING_FOR_AUTHORIZED_CAPACITY';continue
+            if result.get('returncode')==75:run.setdefault('host_retry_after',{})[last['host']]=result['end_unix']+300
+            elif result.get('returncode')==0:run.setdefault('host_retry_after',{}).pop(last['host'],None)
             if result.get('returncode',result.get('exit_code',0))not in(0,75):
                 run.update(status='FAILED_REQUIRES_REVIEW',last_result=result);continue
             # A resource refusal starts no actor and carries no training state.
@@ -167,11 +187,15 @@ def tick(registry):
             state=torch.load(Path(resume)/'rank0.pt',map_location='cpu',weights_only=False)['state']
             if state['valid_scene_exposures']>=run['initial_target_epochs']*103288 and state['next_inner']==0:
                 run.update(status='COMPLETE',checkpoint=resume);continue
-        hosts=[h for h in PREFERRED.get(arm,[])+FALLBACK if h in allowed_hosts(admit_long_job=True)and h not in occupied]
+        hosts=[h for h in PREFERRED.get(arm,[])+FALLBACK if h in allowed_hosts(admit_long_job=True)and h not in occupied and run.get('host_retry_after',{}).get(h,0)<=time.time()]
         if not hosts:run['status']='WAITING_FOR_AUTHORIZED_CAPACITY';continue
         # The worker rechecks UUIDs, explicit sharing, known owner ancestry,
         # locks and measured free memory. Failed admission never starts CUDA.
-        host=hosts[len(run['jobs'])%len(hosts)];index=len(run['jobs'])+1
+        prior=run['jobs'][-1]if run['jobs']else None
+        healthy=prior is not None and read(Path(prior['job'])/'RESULT.json').get('returncode')==0
+        if healthy and prior['host']in hosts:hosts=[prior['host']]+[h for h in hosts if h!=prior['host']]
+        elif prior is not None and prior['host']in hosts:hosts=[h for h in hosts if h!=prior['host']]+[prior['host']]
+        host=hosts[0];index=len(run['jobs'])+1
         job=ROOT/'jobs'/arm/f'attempt{index:03}'
         cmd=[PYTHON,'-m','torch.distributed.run','--standalone','--nproc_per_node=8','-m','tools.d44_native_rl.train',
             '--config',run['config'],'--output',run['output']]
@@ -180,13 +204,16 @@ def tick(registry):
         # run/Adam/RNG. The quarter-epoch boundary is 404 B64 collections.
         limit=next_stop(run,done)
         if limit is not None:cmd+=['--stop-after-update',str(limit)]
-        try:
-            # Original B/D IL hosts are eligible only when ALL GPUs are free;
-            # their workers never share or evict those protected trainers.
-            receipt=launch(host,run['source'],job,cmd,list(range(8)),share_min_free_mib=None if host in PROTECTED else 41000,worker_source=Path(__file__).resolve().parents[2])
-            run['jobs'].append(receipt);run['status']='RUNNING_OR_ADMITTING';occupied.add(host)
-        except (subprocess.SubprocessError,OSError,RuntimeError)as error:
-            run.update(status='DISPATCH_RETRY_REQUIRED',last_dispatch_error=repr(error))
+        for host in hosts:
+            try:
+                # Original B/D IL hosts are eligible only when ALL GPUs are free.
+                receipt=launch(host,run['source'],job,cmd,list(range(8)),share_min_free_mib=None if host in PROTECTED else 41000,worker_source=Path(__file__).resolve().parents[2])
+                run['jobs'].append(receipt);run['status']='RUNNING_OR_ADMITTING';occupied.add(host);break
+            except DispatchPreflightFailed as error:
+                run.setdefault('prechild_dispatch_failures',[]).append(dict(host=host,error=repr(error),at=time.time(),child_started=False));continue
+            except (subprocess.SubprocessError,OSError,RuntimeError)as error:
+                run.update(status='DISPATCH_RETRY_REQUIRED',last_dispatch_error=repr(error));break
+        else:run['status']='WAITING_FOR_REACHABLE_AUTHORIZED_HOST'
     evaluation_tick(campaign)
     campaign['at']=time.time();campaign['completion_claim']=False;atomic_json(registry,campaign)
     return campaign
@@ -258,8 +285,13 @@ def evaluation_tick(campaign):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('command',choices=['register','run','status','tick']);p.add_argument('--source');p.add_argument('--registry',default=str(ROOT/'CAMPAIGN.json'));p.add_argument('--interval',type=int,default=1800);a=p.parse_args()
+    p=argparse.ArgumentParser(__doc__);p.add_argument('command',choices=['register','add','run','status','tick']);p.add_argument('--source');p.add_argument('--registry',default=str(ROOT/'CAMPAIGN.json'));p.add_argument('--interval',type=int,default=1800)
+    p.add_argument('--arm');p.add_argument('--qualification');p.add_argument('--qualification-world',type=int,default=8);p.add_argument('--qualification-scenes',type=int,default=64);a=p.parse_args()
     if a.command=='register':print(register(a.source));return
+    if a.command=='add':
+        with(Path(a.registry).with_suffix('.owner.lock')).open('a')as lock:
+            fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);add_run(a.registry,a.arm,a.source,a.qualification,qualification_world=a.qualification_world,qualification_scenes=a.qualification_scenes)
+        return
     if a.command=='status':print(json.dumps(read(a.registry),indent=2));return
     with(Path(a.registry).with_suffix('.owner.lock')).open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
