@@ -34,7 +34,7 @@ def defaults(arm):
         parent_checkpoint='/mnt/project/d44-native-rl-20261103/IL44_PARENT',
         canonical_reward_scale='raw_0_1',action_shape=[8,3],steps=10,shift=5.,
         stochastic_steps=[7,8,9],innovation_clip=None,coordinate_reduction='sum24',
-        dtype='FP32_parameters_states_probability_BF16_forward',
+        dtype='FP32_parameters_states_probability_BF16_forward',checkpoint_policy='source',probability_layout='sequential',
         sampler_selection='fixed_K10_shift5_no_scorer',training_uses_navtest=False)
 
 

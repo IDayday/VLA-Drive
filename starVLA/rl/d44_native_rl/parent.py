@@ -32,6 +32,10 @@ def pin():
 
 def load(path,device,*,readouts=False):
     info=audit(path,verify=False)
+    from starVLA.rl.qwen_world_compare.deployment import _library_runtime
+    original=Path('/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_044000_20261102T142147Z/D_IL_044000/export/export.json')
+    expected=json.loads(original.read_text())['runtime_libraries']
+    if _library_runtime()!=expected:raise ValueError('Native D44 Qwen/Torch execution library identity differs from its scored export')
     raw=torch.load(Path(path)/info['seal']['model_file'],map_location='cpu',weights_only=False,mmap=True)
     model=model_from_identity(info['identity'],train_heads=True)
     strict_tensor_load(model,raw['module'])

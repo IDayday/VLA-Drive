@@ -35,8 +35,9 @@ def main():
             old,std=actor.transition_terms(condition,chain,times,deltas)
             ref,_=actor.transition_terms(condition,chain,times,deltas,use_ref=True)
         baseline=None
-        for policy in ('source','short_off','all_off'):
-            actor.action_expert.decision.activation_checkpointing=policy!='all_off'
+        for policy in ('source','short_off','all_off','all_off_flat_W3'):
+            actor.study_config['probability_layout']='flat_W3'if policy=='all_off_flat_W3'else'sequential'
+            actor.action_expert.decision.activation_checkpointing=policy not in('all_off','all_off_flat_W3')
             actor.action_expert.decision.checkpoint_short_suffix=policy=='source'
             elapsed=[]
             for repeat in range(3):

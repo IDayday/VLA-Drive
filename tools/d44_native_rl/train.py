@@ -97,6 +97,10 @@ def main():
         original_noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(2101)).to(device)
         original_prediction=model.predict(original_inputs,original_ego,original_noise)
     actor=D44Actor(model,source_config(cfg),cfg)
+    checkpoint_policy=cfg.get('checkpoint_policy','source')
+    if checkpoint_policy not in('source','short_off','all_off'):raise ValueError('Unqualified checkpoint execution policy')
+    model.decision.activation_checkpointing=checkpoint_policy!='all_off'
+    model.decision.checkpoint_short_suffix=checkpoint_policy=='source'
     print(json.dumps(dict(event='native_D44_and_scope_loaded',rank=rank,at=time.time(),trainable=actor.closure['trainable_numel'])),flush=True)
     conditions=DConditions(model,stream.data,info,group=cfg['group'],capacity=cfg['condition_cache_scenes']);object.__setattr__(actor,'conditions',conditions)
     if a.qualification:
@@ -133,7 +137,7 @@ def main():
     ddp.eval();dual=AdaptiveKL(target=cfg['target_kl'])
     state=dict(updates=0,collections=0,scene_cursor=0,next_inner=0,phase='READY',
         valid_scene_exposures=0,raw_scene_exposures=0,new_candidates=0,valid_PG_candidates=0,extra_B1_queries=0,adaptive_G32_queries=0,
-        padding_scene_exposures=0,adaptive_kl=dual.state_dict())
+        padding_scene_exposures=0,adaptive_kl=dual.state_dict(),evaluation_gates=[])
     batch=None
     if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=Boundary())
     dual.load_state_dict(state['adaptive_kl']);attempt=Attempt(root,rank,state,identity,a.resume)
@@ -234,9 +238,14 @@ def main():
                 kval=torch.tensor(totals['reference_KL_joint'],device=device,dtype=torch.float64)
                 if world>1:dist.all_reduce(kval);kval/=world
                 dual.update(float(kval));state['adaptive_kl']=dual.state_dict();batch=None;state['next_inner']=0;state['phase']='READY'
+            gates=[]if batch is not None or a.qualification else [e for e in(.5,1,2,3,4,6,8,12,20)if e not in state['evaluation_gates']and state['valid_scene_exposures']>=e*stream.n]
+            state['evaluation_gates']+=gates
             if a.fault=='after_inner1'and state['next_inner']==1:stop()
             stopping=consensus_stop(device)or(a.stop_after_update is not None and state['updates']>=a.stop_after_update)
-            if stopping or state['updates']%cfg['save_every']==0:last_saved=save()
+            if stopping or gates or state['updates']%cfg['save_every']==0 or(a.qualification and state['updates']==1):last_saved=save()
+            if gates and rank==0:
+                for gate in gates:atomic_json(root/'evaluation_requests'/f'epoch{gate:g}.json',dict(epoch=gate,checkpoint=last_saved,
+                    source_run=identity['sha256'],updates=state['updates'],seed=2101,protocol='single_B1_cleanx_ODE_K10_shift5_canonical_v1.1',test_selected_research=True))
             if stopping:break
         if last_saved is None or json.loads((Path(last_saved)/'COMPLETE').read_text())['updates']!=state['updates']:last_saved=save()
         result=dict(state,status='QUALIFICATION_STOPPED'if a.qualification else'COMPLETE'if state['valid_scene_exposures']>=cfg['target_epochs']*stream.n and batch is None else'STOPPED_AT_SAVED_BOUNDARY',

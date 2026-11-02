@@ -53,6 +53,20 @@ class D44Actor(FourFrameworkRecipeActor):
         scope=self._context_call(condition)if self._prepared_scope is None else nullcontext(self.materialize(condition))
         means=[];stds=[]
         with scope as cond:
+            if self.study_config.get('probability_layout')=='flat_W3':
+                policy=self.ref_action_expert if use_ref else self.action_expert
+                prefix=self._prepare(cond,use_ref)
+                indices=torch.zeros(len(chain)*3,device=self.device,dtype=torch.long)
+                prefix=prefix.index_select(indices)
+                states=chain[:,[7,8,9]].reshape(-1,8,3).contiguous().float()
+                sigma=(times[[7,8,9]].float()/1000)[None].expand(len(chain),-1).reshape(-1).contiguous()
+                with torch.autocast(self.device.type,dtype=torch.bfloat16):prediction=policy.denoise_x0(states,sigma,prefix)
+                velocity=((states-prediction.float())/sigma[:,None,None]).reshape(len(chain),3,8,3)
+                self._reference_calls+=int(use_ref);self._velocity_calls+=int(not use_ref)
+                for j,k in enumerate((7,8,9)):
+                    mean,std=self._sde_mean_std(chain[:,k],velocity[:,j],float(times[k])/1000,float(deltas[k]))
+                    means.append(mean.float());stds.append(std)
+                return torch.stack(means,1),torch.tensor(stds,device=chain.device,dtype=torch.float32)
             for k in (7,8,9):
                 sigma=float(times[k])/1000
                 velocity=self.action_velocity(chain[:,k],times[k].expand(len(chain)),cond,use_ref=use_ref)

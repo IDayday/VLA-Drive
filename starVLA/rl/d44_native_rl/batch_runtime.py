@@ -42,7 +42,7 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
     if len(records)!=g or any(r['status']!='OK'for r in records):raise ValueError('Incomplete real scorer response')
     factors=torch.tensor([[r['metrics'][k]for k in FACTORS]for r in records],device=actor.device,dtype=torch.float64)
     r=dict(token=token,log=log,condition=descriptor,chain=chain,timesteps=times,deltas=deltas,
-        old_mean=mean.detach(),ref_mean=ref.detach(),std=std.detach(),records=records,factors=factors,
+        old_mean=torch.stack([m for m,s in sampled],1).detach(),ref_mean=ref.detach(),std=std.detach(),records=records,factors=factors,
         behavior_version=version,epoch=epoch,sampler_mean_max_error=error,
         seconds_generation=generation,seconds_scoring=score_seconds,
         physical_candidates=g,PG_candidates=g,extra_B1=0,extra_G32=0)
