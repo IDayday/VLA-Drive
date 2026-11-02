@@ -199,8 +199,8 @@ def _physical_anchor(model,rollout,beta):
     # Deliberately identical operations/order to ResearchLoss's existing anchor.
     chain,times,deltas=(rollout[k] for k in ('chain','timesteps','deltas'));indices=rollout.get('stoch_idx')
     _,terms=model.action_chain_logprobs(rollout['cond_bg'],chain,times,deltas,stoch_idx=indices,return_terms=True)
-    with torch.no_grad():
-        _,reference=model.action_chain_logprobs(rollout['cond_bg'],chain,times,deltas,stoch_idx=indices,use_ref=True,return_terms=True)
+    from .frozen_reference import reference_terms
+    reference=reference_terms(model,rollout)
     d_mean_raw=(terms['mean']-reference['mean']).pow(2);d_vel_raw=(terms['vel']-reference['vel']).pow(2)
     weights=model.kl_weight_matrix(horizon=d_mean_raw.shape[2],action_dim=d_mean_raw.shape[3],device=d_mean_raw.device,dtype=d_mean_raw.dtype)
     if weights is None:

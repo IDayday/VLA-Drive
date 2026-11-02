@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "schema": "world_frozen_IL_reference_cache_CPU_equivalence_v1",
+  "created_UTC": "2026-11-02T18:20:54.019258+00:00",
+  "base": "5e5220c6059ed7e38b54b3198415fe4af3b5bf45",
+  "branch": "perf/qwen-world-reference-cache-20261103",
+  "tests_passed": 21,
+  "pytest_seconds": 8.68,
+  "new_directed_tests": 12,
+  "command": "PYTHONPATH=.:tests python -m pytest -q tests/test_world_frozen_reference_cache.py tests/test_world_performance_objectives.py tests/test_world_performance_runtime_review.py tests/qwen_world_performance/test_scene_schedule.py",
+  "checks": [
+    "ResearchLoss/AWFM/FPO x x/x_kl/v four-inner value/gradient/Adam/RNG bitexact",
+    "real reduced Scope BF16 current Memory4 builds unchanged; refhead12 to3 calls",
+    "detached pending torch serialization and parent/recipe/source/condition/chain/times/deltas/W3 corruption rejection",
+    "old pending missing cache const reconstruction without old_logp/A changes",
+    "protocol only execution_optimizations; scientific_identity unchanged",
+    "prior objective/runtime/schedule checks pass; CLI help and diff check pass"
+  ],
+  "GPU_executed": false,
+  "live_jobs_modified": false,
+  "limits": "Tiny CPU Scope, not production model/DDP/throughput qualification. SingleGPU fullIL70 proof still required before typed execution migration.",
+  "source_files": {
+    "starVLA/rl/qwen_world_research_algorithms/frozen_reference.py": "2f8733d3f7b2c367652dec89d9e3727b343f1c8be17f83007657f5dfdb388105",
+    "starVLA/rl/qwen_world_research_algorithms/policy.py": "087822443a336b9e7e3759c3d2ae0cbf4710f60542edc5732c8ca46ae41aa03a",
+    "starVLA/rl/qwen_world_research_algorithms/fpo_training.py": "73aebed7880c9486515a568c44d263948c330c6253f7097f9a30ffcd7222f91f",
+    "starVLA/rl/qwen_world_performance/batch_runtime.py": "61865b5a90edb4519121ef13569194dab2e8cab463d8e7454514ede804d67318",
+    "starVLA/rl/qwen_world_performance/recovery.py": "0f31ecf7912a6491513f5ae878118382ab4e740762b702befc4cf5447ecaba8b",
+    "tests/test_world_frozen_reference_cache.py": "67b65b7f565e697389fc0f291e275afcaa15b05de628bf2357067a052bd6fd26",
+    "tools/qwen_world_performance/qualify_reference_cache.py": "853234b7a2f3c02c2bae77cf71c7cb716bbc9d3ae3c1354006e2aee11acc319c"
+  }
+}
