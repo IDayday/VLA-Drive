@@ -3,13 +3,24 @@ from pathlib import Path
 import tempfile
 import fcntl
 import hashlib
+import os
+import subprocess
+import sys
 from types import SimpleNamespace
 import unittest
 
-from tools.il_report.navtest_burst import Pool, adopt_four_jobs, prechild_refusal,capacity_probe,vacant_slot
+from tools.il_report.navtest_burst import Pool, adopt_four_jobs, prechild_refusal,capacity_probe,vacant_slot,resource_worker_overrides
 
 
 class BurstRecoveryTest(unittest.TestCase):
+    def test_utf8_policy_read_survives_native_locale_change(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)/'policy.json';p.write_text(json.dumps({'request':'评测'},ensure_ascii=False),encoding='utf-8')
+            program="import locale,json;from pathlib import Path;locale.setlocale(locale.LC_ALL,'C');assert json.loads(Path("+repr(str(p))+").read_text())['request']=='评测'"
+            overrides=resource_worker_overrides('/qualified/worker')
+            self.assertEqual(set(overrides),{'PYTHONPATH','PYTHONUTF8'})
+            subprocess.run([sys.executable,'-c',program],env=dict(os.environ,**overrides),check=True)
+
     def test_legacy_probe_requires_real_used_total_and_RAM_enrichment(self):
         full=dict(MemAvailable_bytes=200*1024**3,worker_python_exists=True,
             gpus=[dict(total_MiB=80000)],owners=[])

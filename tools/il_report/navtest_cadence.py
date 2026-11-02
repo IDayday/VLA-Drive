@@ -221,7 +221,8 @@ def tick(state, *, max_concurrent_models=2):
     if signature != state.get('published_queue_signature'):
         state['published_queue_signature'] = signature; atomic(ROOT/'STATE.json', state)
         atomic(REPORT/'reporting/refresh_request.json', dict(id=signature,
-            reason='periodic_IL_Navtest_queue_updated', administrative=False))
+            reason='periodic_IL_Navtest_queue_updated', administrative=True,
+            scientific_result=False))
 
 
 def main():

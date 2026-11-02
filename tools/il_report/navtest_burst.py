@@ -21,6 +21,12 @@ def prechild_refusal(result):
             and result.get('child_not_started') is True and result.get('returncode') == 75)
 
 
+def resource_worker_overrides(source):
+    # Text I/O must stay UTF-8 even if a native scorer changes LC_CTYPE to C.
+    # No numerical/backend/precision variables are changed.
+    return dict(PYTHONPATH=str(source), PYTHONUTF8='1')
+
+
 def protected_hosts():
     policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     return set(policy.get('placement_preferences',{}).get('qwen_world_IL_B_D',{}).get('hosts',[]))
@@ -259,8 +265,8 @@ def main():
                         code='''import subprocess,os,json
 from pathlib import Path
 s=__SPEC__;d=Path(s['directory']);f=open(d/'transport.log','ab',buffering=0)
-p=subprocess.Popen(s['invocation'],cwd=s['source'],env=dict(os.environ,PYTHONPATH=s['source']),stdin=subprocess.DEVNULL,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
-print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat').read_text().split()[21]))))'''.replace('__SPEC__',repr(dict(invocation=invocation,directory=str(receipt),source=str(worker_source))))
+p=subprocess.Popen(s['invocation'],cwd=s['source'],env=dict(os.environ,**s['environment_overrides']),stdin=subprocess.DEVNULL,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
+print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat').read_text().split()[21]))))'''.replace('__SPEC__',repr(dict(invocation=invocation,directory=str(receipt),source=str(worker_source),environment_overrides=resource_worker_overrides(worker_source))))
                         write(receipt/'operator.json',json.loads(self.resources.remote(host,['/usr/bin/python3','-c',code])))
                     else:
                         # Platform-only adaptation: unique retry receipt dirs.

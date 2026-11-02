@@ -9,6 +9,20 @@ from tools.il_report import navtest_cadence as cadence
 
 
 class CadenceTests(unittest.TestCase):
+    def test_queue_completion_request_is_recognized_by_report_event_reader(self):
+        from tools.il_report.rl_events_reference import OwnerStateEvents
+        with tempfile.TemporaryDirectory() as d:
+            base=Path(d);old=base/'old';four=base/'four';control=base/'control'
+            for p in [old,four,control]:p.mkdir()
+            with patch.object(cadence,'OLD',old),patch.object(cadence,'FOUR',four),\
+                    patch.object(cadence,'ROOT',control),patch.object(cadence,'REPORT',base),\
+                    patch.object(cadence,'runs',return_value={}),\
+                    patch.object(cadence,'registered_points',return_value=set()):
+                cadence.tick(dict(jobs=[]),max_concurrent_models=0)
+            reader=object.__new__(OwnerStateEvents);reader.reporting=base/'reporting'
+            events=reader.signatures(reader.reporting/'refresh_request.json')
+            self.assertEqual([x['kind']for x in events.values()],['report_maintenance_request'])
+
     def test_pending_older_abcd_point_does_not_lose_next_retained_boundary(self):
         with tempfile.TemporaryDirectory() as d:
             base=Path(d);old=base/'old';four=base/'four';control=base/'control'
