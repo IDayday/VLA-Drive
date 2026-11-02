@@ -244,6 +244,17 @@ def load_related(h,warnings,inputs):
             historical_audit=audit or{},historical_audit_path=audit_path,deployment=deployment,deployment_path=str(deployment_path),validator_recoveries=recoveries,discovery_path=str(E_ROOT/'RELATED_STUDIES.json')))
         external=(reg.get('external_control')or registry.get('external_control',{})).get('root')
         studies[-1]['paired_reviews']=_paired_reviews(root,run_map,h,warnings,inputs,external)
+        if is_integrated(studies[-1]):
+            reporting_check_path=root/'analysis'/'INTEGRATED64_REPORTING_FIX_CPU_CHECK.json'
+            studies[-1]['integrated_reporting_check']=h.read_json(reporting_check_path,warnings,inputs)or{}
+            studies[-1]['integrated_reporting_check_path']=str(reporting_check_path)
+            recovery_path=root/'operations'/'REPORTING_RECOVERY_20261102'/'ACTUAL_RECOVERY_PROOF.json'
+            studies[-1]['integrated_recovery']=h.read_json(recovery_path,warnings,inputs)or{}
+            studies[-1]['integrated_recovery_path']=str(recovery_path)
+            first_review_path=root/'analysis'/'RESULT_250_AND_REPORTING_RECOVERY_20261102.json'
+            first_review=h.read_json(first_review_path,warnings,inputs)or{}
+            studies[-1]['integrated_first_review']={k:first_review[k]for k in ['metric_mean_deltas_percentage_points','failure','history_efficacy_not_tested_at250']if k in first_review}
+            studies[-1]['integrated_first_review_path']=str(first_review_path)
     by_root={s['root']:s for s in studies}
     for study in studies:
         shared=[];refs=h.object_rows(study['registration'].get('shared_controls',[]),'shared_controls')
