@@ -8,7 +8,7 @@ from .contracts import validate_recipe, SCHEMA
 
 
 def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *, legacy=False,expected_rank=None,
-                      recipe_validator=None,nominal_config=None,calibration_validator=None):
+                      recipe_validator=None,nominal_config=None,calibration_validator=None,nominal_validator=None):
     if legacy:raise ValueError('No legacy reconstruction for independent performance runs')
     cfg=(recipe_validator or validate_recipe)(identity['recipe']);spec=cfg['research']['performance'];u=state['updates'];i=state['next_inner']
     pending=window is not None;ledger=state.get('collection_ledger',[])
@@ -101,7 +101,7 @@ def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *
             validate_fpo_material(leaf,rank=window['rank'])
         if 'nominal_improvement' in leaf:
             from .nominal_improvement import validate_material
-            validate_material(leaf,rank=window['rank'],config=nominal_config)
+            (nominal_validator or validate_material)(leaf,rank=window['rank'],config=nominal_config)
         if cfg['research']['performance']['algorithm']=='temporal_rescue':
             from .temporal_credit import temporal_credit_parts
             parts=temporal_credit_parts(mat['components'],leaf['records'],base_parts=parts)
