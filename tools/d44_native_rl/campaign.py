@@ -208,7 +208,7 @@ def tick(registry):
             try:
                 # Original B/D IL hosts are eligible only when ALL GPUs are free.
                 profiled=arm=='D0'and resume is not None and host not in PROTECTED
-                receipt=launch(host,run['source'],job,cmd,list(range(8)),share_min_free_mib=None if host in PROTECTED else 45056 if profiled else 41000,
+                receipt=launch(host,run['source'],job,cmd,list(range(8)),share_min_free_mib=None if host in PROTECTED else 40960 if profiled else 41000,
                     worker_source=Path(__file__).resolve().parents[2],profiled_d0_third_slot=profiled)
                 run['jobs'].append(receipt);run['status']='RUNNING_OR_ADMITTING';occupied.add(host);break
             except DispatchPreflightFailed as error:

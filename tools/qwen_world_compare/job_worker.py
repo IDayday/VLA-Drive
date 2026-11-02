@@ -160,9 +160,9 @@ def known_owner_args(args):
 
 def validate_profiled_d0_resume(command,minimum):
     """Opt-in third context only for the actually measured 25.7GiB D0 scope."""
-    if ((minimum or 0)<45056 or '-m'not in command or command[command.index('-m')+1]!='torch.distributed.run'
+    if ((minimum or 0)<40960 or '-m'not in command or command[command.index('-m')+1]!='torch.distributed.run'
             or 'tools.d44_native_rl.train'not in command or '--resume'not in command or '--output'not in command):
-        raise ValueError('Profiled third slot requires native D0 resume and at least44GiB measured free memory')
+        raise ValueError('Profiled third slot requires native D0 resume and at least40GiB measured free memory')
     output=Path(command[command.index('--output')+1]);identity=json.loads((output/'identity.json').read_text());c=identity['recipe']
     required=dict(arm='D0',global_scenes=64,group=16,text_rank=16,film_last_layers=0,train_action_io=False,post_feedback=False,checkpoint_policy='all_off')
     if not known_owner_args(['python','-m','tools.d44_native_rl.train','--output',str(output)])or any(c.get(k)!=v for k,v in required.items()):

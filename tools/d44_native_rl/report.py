@@ -20,7 +20,7 @@ def summarize(root):
                 state['d6_history_summary'].update(scene_count=len(history['rows']),teacher_count=len(history['teachers']))
         invocations=[json.loads(p.read_text())for p in (run/'invocations').glob('*/rank*.json')]
         committed=[json.loads(s)for s in(run/'metrics_rank0.jsonl').read_text().splitlines()]if(run/'metrics_rank0.jsonl').exists()else[]
-        recent=committed[-20:];window=None
+        recent=[r for r in committed if r['invocation']==committed[-1]['invocation']][-20:]if committed else[];window=None
         if len(recent)>=3:
             dt=recent[-1]['at']-recent[0]['at'];du=recent[-1]['updates']-recent[0]['updates']
             window=dict(optimizer_updates_per_second=du/dt if dt>0 else None,from_update=recent[0]['updates'],to_update=recent[-1]['updates'])
@@ -30,14 +30,17 @@ def summarize(root):
             measured_finished_shared_worker_hours=sum(x.get('worker_wall_seconds',0)for x in invocations)/3600,
             checkpoint_save_worker_seconds=sum(x.get('seconds_save',0)for x in invocations),
             cost_limitations='Worker wall is shared occupancy time, not exclusive GPU compute. RUNNING cost is incomplete; logical counters come from latest legal checkpoint.')
-    evaluations=[]
+    evaluations=[];evaluated_runs=set()
     for path in (root/'evaluations').glob('**/SUMMARY.json'):
         value=json.loads(path.read_text());evaluations.append(dict(path=str(path),summary=value))
+        if value.get('status')=='COMPLETE'and value.get('scenes')==12146 and value.get('physical_logs')==44 and value.get('invalid_scenes')==0 and value.get('qualification')is False:
+            identity_path=Path(value['evaluation'])/'identity.json'
+            if identity_path.exists():evaluated_runs.add(json.loads(identity_path.read_text()).get('D44_training_identity'))
     required={'D0','D1','D2','D3_FPO','D3_AWM','D4','D5','D6'}
     finished={r['recipe']['arm']for r in runs.values()if r['last_saved_state']and r['last_saved_state']['valid_scene_exposures']>=r['recipe']['target_epochs']*103288}
     return dict(schema='d44_campaign_status_v1',at=time.time(),runs=runs,evaluations=evaluations,
         parent_audit=str(root/'parent_audit/AUDIT.json'),required_arms=sorted(required),finished_training_arms=sorted(finished),
-        completion_claim=required<=finished and len(evaluations)>=len(required),
+        completion_claim=required<=finished and all(r['identity']in evaluated_runs for r in runs.values()if r['recipe']['arm']in required),
         evaluation_count_alone_is_not_final_validation=True)
 
 

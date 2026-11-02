@@ -68,7 +68,7 @@ def test_profiled_third_slot_is_opt_in_locked_and_cannot_admit_fourth(tmp_path,m
     for name in ('PRIMARY_LEASE_ROOT','SHARED_LEASE_ROOT'):
         f=(roots[name]/'GPU-test.lock').open('a');fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB);held.append(f)
     try:
-        args=Namespace(share_min_free_mib=45056,minimum_free_mib=None,lease_slot='shared',profiled_d0_third_slot=False)
+        args=Namespace(share_min_free_mib=40960,minimum_free_mib=None,lease_slot='shared',profiled_d0_third_slot=False)
         with pytest.raises(worker.ResourceRefused):worker._gpu_admission(args,'test',dict(permanent_hosts=['test']),[0],['GPU-test'],{},[])
         args.profiled_d0_third_slot=True
         worker._gpu_admission(args,'test',dict(permanent_hosts=['test']),[0],['GPU-test'],{},locks)
@@ -86,7 +86,7 @@ def test_profiled_resume_rejects_other_scopes_and_low_headroom(tmp_path,monkeypa
     def save():
         body={k:v for k,v in value.items()if k!='sha256'};value['sha256']=fingerprint(body);(output/'identity.json').write_text(json.dumps(value))
     save();cmd=['python','-m','torch.distributed.run','-m','tools.d44_native_rl.train','--output',str(output),'--resume','CP']
-    worker.validate_profiled_d0_resume(cmd,45056)
-    with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,41000)
+    worker.validate_profiled_d0_resume(cmd,40960)
+    with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,32768)
     recipe['arm']='D6';save()
-    with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,45056)
+    with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,40960)
