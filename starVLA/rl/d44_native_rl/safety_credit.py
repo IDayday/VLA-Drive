@@ -18,15 +18,18 @@ def raw_credit(factors, *, endpoint=None, stage2=False):
     has = count > 0
     safe = feasible.double()-feasible.double().mean(1, keepdim=True)
     cost = (1-values[..., :3]).mean(-1)
-    safe = torch.where(has, safe, cost.mean(1, keepdim=True)-cost)
+    cost_offsets=cost-cost[:,:1]
+    safe = torch.where(has, safe, cost_offsets.mean(1, keepdim=True)-cost_offsets)
     quality = values[..., 3]
     if stage2:
         if endpoint is None or endpoint.shape != quality.shape:
             raise ValueError('StageII requires explicit TRAIN endpoint quality')
         quality = .70*quality+.15*values[..., 4]+.15*endpoint.detach().double()
-    average = (quality*feasible).sum(1, keepdim=True)/count.clamp_min(1)
+    first=quality.gather(1,feasible.long().argmax(1,keepdim=True))
+    offsets=quality-first
+    average = (offsets*feasible).sum(1, keepdim=True)/count.clamp_min(1)
     # Never assign quality credit to an unsafe candidate.
-    improvement = torch.where(feasible, quality-average, torch.zeros_like(quality))
+    improvement = torch.where(feasible, offsets-average, torch.zeros_like(quality))
     return safe+improvement, feasible
 
 

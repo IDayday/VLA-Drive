@@ -175,6 +175,9 @@ def main():
                         endpoints.append(torch.exp(-distance/3.))
                     endpoint=torch.stack(endpoints)
                 raw,feasible=raw_credit(factors,endpoint=endpoint,stage2=endpoint is not None)
+                if cfg['arm']=='D0_CANONICAL_CREDIT':
+                    canonical=torch.tensor([[v['metrics']['score']for v in r['records']]for r in scenes],device=device,dtype=torch.float64)
+                    offsets=canonical-canonical[:,:1];raw=offsets-offsets.mean(1,keepdim=True)
                 valid=torch.tensor([not r['padding']for r in scenes],device=device,dtype=torch.bool)
                 stats=torch.stack(((raw*valid[:,None]).sum(),(raw.square()*valid[:,None]).sum(),valid.sum().double()*cfg['group']))
                 if world>1:dist.all_reduce(stats)

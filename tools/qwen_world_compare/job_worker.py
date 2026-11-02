@@ -45,8 +45,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl',
-                             'tools.d44_native_rl.train'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -124,13 +123,28 @@ PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
 SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
 
 
+def known_owner_args(args):
+    if any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
+        return True
+    # The already running, separately authorized Safety F/G jobs were added
+    # after this worker's legacy allowlist. Recognize their actual module AND
+    # fixed IL ancestry; a new arbitrary path prefix alone is insufficient.
+    modules=('tools.qwen_world_safety_exploration.train','tools.qwen_world_safety_exploration.evaluate','tools.qwen_world_performance.train')
+    entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry not in modules:return False
+    parent_flag='--il-checkpoint'if entry.endswith('.train')else'--parent-checkpoint'
+    if parent_flag not in args or args.index(parent_flag)+1>=len(args):return False
+    if args[args.index(parent_flag)+1]!='/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT':return False
+    return any(arg.startswith(('/mnt/project/qwen-world-safety-exploration-20261031/','/mnt/project/qwen-world-performance-rl-20261103/'))for arg in args)
+
+
 def _known_owners(rows,mapping,indices):
     for row in rows:
         if row['uuid']not in {mapping[i]for i in indices}:continue
         try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
-        if not any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
+        if not known_owner_args(args):
             raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
 
 
@@ -149,10 +163,11 @@ def _admission_sample():
 
 
 def shared_training_host(host,grant):
-    """Unbounded temporary sharing requires an explicit immutable task grant."""
+    """Sharing is explicit; a bounded grant never becomes an unbounded one."""
     if host in grant['permanent_hosts']:return True
     explicit=grant.get('shared_training_hosts',[])
-    if host not in explicit or host not in grant.get('unbounded_temporary_hosts',[]):return False
+    bounded=(host in grant['temporary_hosts'] and grant['starts_unix']<=time.time()<grant['expires_unix']-grant['checkpoint_guard_seconds'])
+    if host not in explicit or not (bounded or host in grant.get('unbounded_temporary_hosts',[])):return False
     original=json.loads(Path(grant['record']).read_text())
     if original.get('shared_training_hosts',[])!=explicit:
         raise PermissionError('Shared training host list differs from immutable task grant')
@@ -201,18 +216,39 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     devices,owners=_admission_sample();verify(devices,owners,locked=True)
 
 
+def admission_with_wait(args,host,indices,expected,mapping,locks,state,root):
+    """Bounded pre-child wait; never retain partial leases or run CUDA."""
+    deadline=time.monotonic()+args.admission_wait_seconds
+    while True:
+        try:require_dispatch(admit_long_job=True)
+        except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error
+        grant,_=authorization()
+        try:
+            _gpu_admission(args,host,grant,indices,expected,mapping,locks)
+            return grant
+        except ResourceRefused as error:
+            for stream in locks:stream.close()
+            locks.clear();mapping.clear()
+            if time.monotonic()>=deadline:raise
+            state.update(status='WAITING_RESOURCE',reason=str(error),child_not_started=True,last_check_unix=time.time())
+            write(root/'ADMISSION_WAIT.json',state)
+            time.sleep(min(15,max(0,deadline-time.monotonic())))
+
+
 def main():
     parser=argparse.ArgumentParser(__doc__)
     parser.add_argument('--receipt-root',required=True);parser.add_argument('--gpus',default='')
     parser.add_argument('--expected-gpu-uuids-json');parser.add_argument('--command-json',required=True);parser.add_argument('--cwd',required=True)
     parser.add_argument('--share-min-free-mib',type=int);parser.add_argument('--minimum-free-mib',type=int)
     parser.add_argument('--lease-slot',choices=('primary','shared'))
+    parser.add_argument('--admission-wait-seconds',type=int,default=0)
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')
+    if not 0<=args.admission_wait_seconds<=1800:raise ValueError('Pre-child resource wait must be finite')
     expected=None if args.expected_gpu_uuids_json is None else json.loads(args.expected_gpu_uuids_json)
     if expected is not None and(not isinstance(expected,list)or len(expected)!=len(indices)or not all(isinstance(v,str)for v in expected)):
         raise ValueError('Expected physical GPU identities must match requested indices')
@@ -225,9 +261,7 @@ def main():
     state.update(lease_slot=args.lease_slot or ('shared' if args.share_min_free_mib else 'primary'),
         execution_worker=str(Path(__file__).resolve()),execution_worker_sha256=file_sha(__file__))
     try:
-        try:require_dispatch(admit_long_job=True)
-        except PermissionError as error:raise ResourceRefused('Host authorization expired or was withdrawn before child startup')from error
-        grant,_=authorization();_gpu_admission(args,host,grant,indices,expected,mapping,locks)
+        grant=admission_with_wait(args,host,indices,expected,mapping,locks,state,root)
     except ResourceRefused as error:
         state.update(status='REFUSED_RESOURCE',child_not_started=True,returncode=75,reason=str(error),end_unix=time.time(),
             gpu_uuids=[mapping[i]for i in indices]if all(i in mapping for i in indices)else[])
