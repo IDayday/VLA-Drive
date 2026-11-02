@@ -51,7 +51,12 @@ def main():
                 weight=torch.linspace(-1,1,group*3*24,device='cuda').reshape(group,3,8,3)
                 (pred.float()*weight).mean().backward()
                 grads=torch.cat([(p.grad if p.grad is not None else torch.zeros_like(p)).detach().float().flatten().cpu()for p in params])
-                modes[(precision,packed)]=dict(pred=pred.detach().cpu(),gradient=grads,key_gradient=first_key.grad.detach().float().cpu())
+                roles={}
+                for name,parameter in actor.named_parameters():
+                    if not parameter.requires_grad:continue
+                    role='text_lora'if '.language_model.'in name else'film_lora'if '.time_films.'in name else'action_output'if '.action_output.'in name else'action_input'if '.action_input.'in name else'action_position'
+                    roles.setdefault(role,[]).append((parameter.grad if parameter.grad is not None else torch.zeros_like(parameter)).detach().float().flatten().cpu())
+                modes[(precision,packed)]=dict(pred=pred.detach().cpu(),gradient=grads,key_gradient=first_key.grad.detach().float().cpu(),roles={k:torch.cat(v)for k,v in roles.items()})
                 # Other candidates cannot change candidate0. Same layout/shape,
                 # so this test does not conflate cross-candidate leakage with
                 # changed BF16 GEMM batch layouts.
@@ -78,6 +83,7 @@ def main():
             row['precision'][precision]=dict(output_max_abs=float((x['pred']-y['pred']).abs().max()),gradient_relative=relative(x['gradient'],y['gradient']),
                 prefix_key_gradient_relative=relative(x['key_gradient'],y['key_gradient']),
                 cross_candidate_error=max(x['cross_candidate_error'],y['cross_candidate_error']))
+            row['precision'][precision]['role_gradient_relative']={k:relative(v,y['roles'][k])if float(v.norm())else None for k,v in x['roles'].items()}
         old=torch.stack([m.cpu()for m,s in actual_sampling],1);std=modes[('bfloat16',True)]['std'];nxt=chain[:,[8,9,10]].cpu()
         row['native_transition_density']={}
         for (precision,packed),value in modes.items():
@@ -86,6 +92,7 @@ def main():
         row['BF16_vs_FP32_output_error']={str(pack):float((modes[('float32',pack)]['pred']-modes[('bfloat16',pack)]['pred']).abs().max())for pack in (False,True)}
         f=row['precision']['float32'];row['semantic_status']='PASS'if f['output_max_abs']<=3e-5 and f['gradient_relative']<=1e-3 and f['prefix_key_gradient_relative']<=1e-3 and all(v['cross_candidate_error']==0 for v in row['precision'].values())else'FAIL'
         row['matched_packed_sampler_max_mean_error']=float((old-modes[('bfloat16',True)]['mean']).abs().max())
+        if row['matched_packed_sampler_max_mean_error']>1e-6 or any(v is not None and v>1e-3 for v in f['role_gradient_relative'].values()):row['semantic_status']='FAIL'
         result.append(row);atomic_json(a.output,dict(status='RUNNING',records=result))
     atomic_json(a.output,dict(status='PASS'if all(r['semantic_status']=='PASS'for r in result)else'FAIL',records=result,
         interpretation='FP32 semantics and fixed-layout independence; BF16 differences retained. Only matching packed sampler/current paths are used in formal Gaussian PPO.'))

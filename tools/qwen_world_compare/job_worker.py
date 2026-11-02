@@ -147,7 +147,8 @@ def known_owner_args(args):
     # The already running, separately authorized Safety F/G jobs were added
     # after this worker's legacy allowlist. Recognize their actual module AND
     # fixed IL ancestry; a new arbitrary path prefix alone is insufficient.
-    modules=('tools.qwen_world_safety_exploration.train','tools.qwen_world_safety_exploration.evaluate','tools.qwen_world_performance.train')
+    modules=('tools.qwen_world_safety_exploration.train','tools.qwen_world_safety_exploration.evaluate','tools.qwen_world_performance.train',
+        'tools.qwen_world_multiscene.train','tools.qwen_world_verified_quality.train')
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
     if entry not in modules:return False
     parent_flag='--il-checkpoint'if entry.endswith('.train')else'--parent-checkpoint'

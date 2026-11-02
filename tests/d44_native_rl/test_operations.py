@@ -47,3 +47,12 @@ def test_shared_slot_fallback_does_not_steal_or_leak_partial_locks(tmp_path,monk
     finally:
         for stream in locks:stream.close()
         existing.close()
+
+
+def test_existing_world_multiscene_owner_requires_exact_il_parent_and_output():
+    for module in ('tools.qwen_world_multiscene.train','tools.qwen_world_verified_quality.train'):
+        args=['python','-m',module,'--output','/mnt/project/qwen-world-performance-rl-20261103/qualification/known',
+              '--il-checkpoint','/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT']
+        assert worker.known_owner_args(args)
+        assert not worker.known_owner_args(args[:-1]+['/other/IL_PARENT'])
+        assert not worker.known_owner_args(args[:args.index('--output')]+['--output','/other/run']+args[args.index('--il-checkpoint'):])
