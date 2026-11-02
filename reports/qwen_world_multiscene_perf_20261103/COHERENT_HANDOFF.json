@@ -1,0 +1,128 @@
+{
+  "schema": "world_coherent_packed_runtime_handoff_v1",
+  "status": "CPU_READY_REAL_GPU_QUALIFICATION_NOT_YET_RUN",
+  "created_utc": "2026-11-02T18:10:20.494999+00:00",
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-multiscene-perf-20261103",
+  "branch": "perf/qwen-world-multiscene-20261103",
+  "parent_prototype_commit": "af574cdc602ebe2b155462a094cc0ec6eb56c3f6",
+  "motivation": {
+    "real_prototype_GPU": {
+      "B2": {
+        "fresh_ratio_max_abs": 0.004992365837097168,
+        "sequential_seconds": 1.5183534026145935,
+        "packed_seconds": 0.7495579235255718,
+        "sequential_peak_GPU_bytes": 15985118208,
+        "packed_peak_GPU_bytes": 16775981056,
+        "gradients": {
+          "sequential_l2": 0.01163507436266894,
+          "packed_l2": 0.011601188457537387,
+          "relative_l2_error": 0.033104553220628725,
+          "cosine": 0.9994546971575298,
+          "max_abs_error": 6.4849853515625e-05
+        }
+      },
+      "B4": {
+        "fresh_ratio_max_abs": 0.006972551345825195,
+        "sequential_seconds": 3.1474880687892437,
+        "packed_seconds": 0.7767949365079403,
+        "sequential_peak_GPU_bytes": 16057681408,
+        "packed_peak_GPU_bytes": 18887375360,
+        "gradients": {
+          "sequential_l2": 0.006705686604554854,
+          "packed_l2": 0.006834343007111377,
+          "relative_l2_error": 0.10256363293322507,
+          "cosine": 0.9950199530406391,
+          "max_abs_error": 7.115304470062256e-05
+        }
+      }
+    },
+    "conclusion": "Packed backward with single-scene-sampled old logp fails the fresh<=1e-4 guard; it is NOT an accepted execution migration. The new recipe samples with the same packed kernel and starts IL70/Adam0 independently."
+  },
+  "API": {
+    "runtime": "starVLA.rl.qwen_world_multiscene.runtime.FastPackedRuntime",
+    "train_module": "tools.qwen_world_multiscene.train",
+    "qualification_module": "tools.qwen_world_multiscene.qualify_packed",
+    "recipe": "build_recipe(S0cfg,2|4,arm=optional); actual research.packed_execution plus performance.microbatch_scenes",
+    "templates": [
+      "reports/qwen_world_multiscene_perf_20261103/templates/S0_FAST_PACK2.yaml",
+      "reports/qwen_world_multiscene_perf_20261103/templates/S0_FAST_PACK4.yaml"
+    ],
+    "collect": "S*G actual source W3 chain, true sampled means/std, old logp from the same S*G context. Split into S service.score calls, each G16, original per-scene rewards/records. No G32/64 single group.",
+    "backward": "Same packed layout for every one of four inner updates; per-scene original masked PG denominator and physical IL mean anchor; zero padding weight; no_sync encloses forward+backward except last pack; trainer clips/Adam/scheduler only once per inner.",
+    "recovery": "Original complete Performance validator for clocks/Adam/scheduler/stream/Safety math, preceded by exact actual packed recipe validation; explicit execution-only projection for the old recipe gate. Extra pack ordinal, raw chain/probability SHA, sampled mean/std, before/after private RNG and all four true packed draws checked; exact own-recipe native resume only.",
+    "cache": "ImmutableFeatureCache stores GPU frozen Qwen/reference features only, one CPU backup per miss. Hit restores same GPU tensor objects without cpu_tree; current trainable Memory/KV graph always rebuilt."
+  },
+  "CPU": {
+    "status": "PASS",
+    "tests": 3,
+    "seconds": 11.45,
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_coherent_packed.py",
+    "covered": [
+      "PACK2 and PACK4 source sampling/recompute mean/std exact and initial ratio error0",
+      "Each scene separately scored G16; independent SafetyEP A and PG masks; actual padding has zero all-loss weight",
+      "Four inners with save after inner2 and actual Adam state restore reproduce final trainable weights/Adam/private generator bit-for-bit",
+      "Packed ordinal and sampled-mean pollution rejected",
+      "GPU-cache wrapper values and current Memory gradients bit-identical to old WindowConditions on CPU; hit backup counter unchanged; original storage pointers retained",
+      "Complete new READY boundary runs original real-manifest stream/scheduler/Adam0 validation and requires actual packed identity"
+    ],
+    "limits": "TinyScope CPU control-flow and Torch native material roundtrip; NOT full52.7M GPU, NOT actual eight-rank READY seal or DDP recovery proof. Those remain campaign-owner GPU qualification gates."
+  },
+  "real_GPU_next": {
+    "dispatched": false,
+    "script_help": "PASS",
+    "CLI": [
+      "python",
+      "-m",
+      "tools.qwen_world_multiscene.qualify_packed",
+      "--config",
+      "<frozen-template-FAST_PACK2-or4>",
+      "--manifest",
+      "/mnt/project/qwen-world-performance-rl-20261103/data/NAVTRAIN_SCENES.json",
+      "--output",
+      "<new-unique-output>",
+      "--il-checkpoint",
+      "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "--parent-selection",
+      "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+      "--data",
+      "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN"
+    ],
+    "qualification": "Actual fullIL70, genuine distinct TRAIN observations, 2/4 separately canonical-scored G16 groups, actual SafetyEP local qualification std, four independent-actor Adam stress steps at registered peak LR, fresh<=1e-4 guard. No formal weights exported; formal trainer keeps original exposure schedule and full world*B*G normalization.",
+    "queries": "32/64 official candidate scores for the single bounded pack; no NAVTEST feedback, no new teacher, no deployment selection."
+  },
+  "scientific_diff": [
+    "Explicit new numerical kernel: current Memory(S) and action candidate batch(S*G) at both sampling and replay",
+    "Same clean-x-to-velocity conversion, eta.1 rigorous W3, clip5 innovations, source logp clamp/coordinate mean, PPOclip.005, beta50 permanent physical IL mean anchor",
+    "Same source initial IL70, trainable52.7M closure, original G16 per-scene credit, globalB128 and 4inner Adam/data/exposure-clock schedule",
+    "Original B1 ODE K10shift5seed2101 deployment code unchanged; no best-of-G deployment",
+    "S0 only: nominal rescue/history/awfm/fpo are explicitly rejected"
+  ],
+  "integration_notes": [
+    "No existing formal_v1 or previous immutable probe source changed",
+    "No main trainer, original runtime, controller, registry or policy source edited",
+    "Historical gradient_accumulation_steps field remains inherited; actual scene loop is B/world and actual packed forward/backward calls are B/(world*micro_scenes), derived and executed by this runtime",
+    "Frozen-feature cache is recomputed from legal inputs after native resume; no trainable graph or current representation is checkpoint-cached"
+  ],
+  "source_files": {
+    "starVLA/rl/qwen_world_multiscene/__init__.py": "6aaf55cefc1305ac0613c983fda8d25d0afe7465086e8b51f37e02fef2134f60",
+    "starVLA/rl/qwen_world_multiscene/actor.py": "4a866e03e2e27ab80a938721c5c3d45cbe2138affea83235e9d87d7ec759dd65",
+    "starVLA/rl/qwen_world_multiscene/cache.py": "e1c19786986e231010edb34c2b8afe1a99a4e2b5d1db6bb109a54c1980d336ac",
+    "starVLA/rl/qwen_world_multiscene/collection.py": "d0b389e98458eb1efb5234a9f425e2156696cdbfb2faa8f4db2c5fc117740f61",
+    "starVLA/rl/qwen_world_multiscene/conditions.py": "2dd847a5d842450b8e37e15b06f4a803c0d8843dfbf9bd62f337ef33a4823680",
+    "starVLA/rl/qwen_world_multiscene/diagnostics.py": "5019202b3dff0ac3a86f71a1c948907f43af63588ae4250a25edb9e657ce381c",
+    "starVLA/rl/qwen_world_multiscene/objective.py": "f07493a4fcdcd8c74962874d3dfd4e1584f4beb7905de47281377e5d20ba3a1c",
+    "starVLA/rl/qwen_world_multiscene/recipe.py": "088c2a3e7a6534dfec5a90a65a168e780e091e649f16cc6828b4310421f1bbea",
+    "starVLA/rl/qwen_world_multiscene/recovery.py": "0fd78ec2d5e98f95c3a03331300445b30892de3ced02ad23e4d2cf35c113ea13",
+    "starVLA/rl/qwen_world_multiscene/runtime.py": "4f4ea551b10972535f7f8e293a81e906659161687523cb93089b02d8e0093ed3",
+    "tools/qwen_world_multiscene/__init__.py": "ae0a329eb892771e3602de095d789e7fb4dc2737a3597e3e6b5c180493be89b4",
+    "tools/qwen_world_multiscene/probe.py": "5d48485bf0872dd79580e3dd6a5d8a159f0ad632c4c37bd873576b2dee695968",
+    "tools/qwen_world_multiscene/qualify_packed.py": "4c4daf5a47fa302a1de02f0a0ea6f3d5ea2323af3397718e13218424da2e66ea",
+    "tools/qwen_world_multiscene/train.py": "c8b85f168e4413a9517cbd25439d8fee1fd24ea36e118350751eab6363c130ce",
+    "tests/test_world_multiscene_prototype.py": "0f300134651f996768fbe02ce1d74a3304e0ca897adc99a5e17c94f00cb5d2b4",
+    "tests/test_world_coherent_packed.py": "79b2637d5b3bd695c4ddc023caaeca4f694371170fc0fa3c487a627ae69d2802",
+    "reports/qwen_world_multiscene_perf_20261103/templates/S0_FAST_PACK2.yaml": "f8730971c61f8adb4103c2c37145b7f73959403e9f851e424376219f6dc18b13",
+    "reports/qwen_world_multiscene_perf_20261103/templates/S0_FAST_PACK4.yaml": "29f0529048f64489deb64d14adc814589f32a43a831df9abd93e3e6befb38c02"
+  },
+  "committed": false,
+  "GPU_dispatched": false
+}

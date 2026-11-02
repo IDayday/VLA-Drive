@@ -7,9 +7,10 @@ from .conditions import SCHEMA
 class MultiSceneScopeActor(ScopeRecipeActor):
     def materialize(self, condition):
         if condition.get('schema')!=SCHEMA:return super().materialize(condition)
-        expected={'schema','scene_tokens','groups','scene_index','frozen_features','base_memory','base_valid','base_ego','context','valid','ego'}
+        expected={'schema','scene_tokens','scene_valid','groups','scene_index','frozen_features','base_memory','base_valid','base_ego','context','valid','ego'}
         n=len(condition['scene_tokens']);g=condition['groups'];index=condition['scene_index']
-        if (set(condition)!=expected or n not in (2,4) or len(set(condition['scene_tokens']))!=n
+        valid=condition.get('scene_valid',[]);tokens=[t for t,v in zip(condition['scene_tokens'],valid)if v]
+        if (set(condition)!=expected or n not in (2,4) or len(valid)!=n or any(type(x)is not bool for x in valid)or len(set(tokens))!=len(tokens)
                 or g not in (8,16,32) or condition['base_memory'].shape[0]!=n
                 or condition['base_ego'].shape!=(n,self.action_expert.ego_dim)
                 or condition['base_valid'].shape!=condition['base_memory'].shape[:2]
