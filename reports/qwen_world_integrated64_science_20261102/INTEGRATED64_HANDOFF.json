@@ -1,0 +1,117 @@
+{
+  "schema": "world_integrated64_science_handoff_v1",
+  "status": "READY_FOR_ROOT_REVIEW_AND_FREEZE",
+  "arm": "INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC",
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102",
+  "entry": "tools.qwen_world_safety_exploration.train",
+  "factory": "starVLA.rl.qwen_world_safety_exploration.integrated64_runtime.integrated_runtime(cfg)",
+  "recipe_validator": "integrated64_recipe.validate_integrated_recipe",
+  "owned_scientific_files": [
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_credit.py",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_retention.py",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_runtime.py",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_recovery.py"
+  ],
+  "owned_test": "tests/test_world_integrated64_training.py",
+  "root_owned_interfaces": [
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_recipe.py",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_schedule.py"
+  ],
+  "cpu_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/analysis/INTEGRATED64_CPU_CHECK.json",
+  "file_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_credit.py": "9d1fb3e0f628fde5a678d1682a7adf429e05480d0813609e6d8d71c141cc0cae",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_retention.py": "df7b807c27e9bef4e03916f5481651304e4848bce454c29db3b9d34564e31d6c",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_runtime.py": "18c733c2a688d088d6fd20f9ebbd8b45f101a560f68f4e01020146fa6b77dee6",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_recovery.py": "940f082b0c3f7bd3cfb2b8266837352328b7a6baeda9c4645f7e497b0d6f9bac",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_recipe.py": "01c4ea80218cd3dd6f2b67bb3bd6ca72453c02b85c9344e279fa903d5d4f613c",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_schedule.py": "5382f7a8679f46227edc67f4a5e9f4cdcf35ed961a2bd342723d1cd45a848c97",
+    "tests/test_world_integrated64_training.py": "07fdfc383ebc79feed57e91c8a70061106e22eb420951f48f064cfe44e05c783"
+  },
+  "initialization": {
+    "parent": "same original completeIL70; userconfirmedfresh",
+    "Adam": "fresh0",
+    "training_seed": 42,
+    "world": 8,
+    "trainable_scope": 52707840,
+    "reference": "permanent frozenIL70 includingreferenceMemory"
+  },
+  "objectives": {
+    "fresh": "unchanged originalW3[7,8,9] rigorouseta.1/randnclip5, dimension-mean source-clampedlogp proxy; sourcePPOclip.005; SafetyEP; advcap5",
+    "normalization": "originalper-sceneG16 SafetyEP parts, onepopulationstd on64freshgroups/1024 candidates, fixedfourinners; no historicalmaterial",
+    "anchor": "beta50 physical weightednominaltransition mean-MSE [.2,1,1], notnativeGaussianKL",
+    "retention": "per-scene only aftercurrentTRAIN trueB1 regressiongate: .75freshILanchor+.25historicalRLmeananchor; otherwise100%freshILanchor; beta50 budget unchanged",
+    "history_targets": "strictNC/DAC/TTC/Comfort1 &canonical>=.9 ownpastpolicy trueB1 ODE; nominalW3targets evaluated onitsODEstates; prior-windowonly; neverGRPO candidates"
+  },
+  "mechanics": {
+    "global_fresh_scenes": 64,
+    "candidates_per_scene": 16,
+    "PG_candidates_per_window": 1024,
+    "scenes_per_rank": 8,
+    "inner_updates": 4,
+    "gradient": "mean8 scene microbackwards perrank thenDDPmean; first7no_sync includeforward/backward; commontrainer clips/steps once",
+    "current_memory": "rebuilt everymicroforward andeveryactivehistoryloss",
+    "frozen_feature_host_LRU": 16,
+    "bank": "capacity256perrank/privateCPUtorch RNG reservoir; 8sequentialshadow scene transactions/onewindowcommit",
+    "admission_threshold_update": 250,
+    "first_possible_fresh_admission_theta_update": 252,
+    "same_window_teachers": "excluded byteacher.source_version.update<freshbehavior.update"
+  },
+  "queries": {
+    "main_PG_per_global_window": 1024,
+    "fresh_B1_max_per_global_window": 64,
+    "history_B1_max_per_global_window": 64,
+    "maximum_extra_fraction": 0.125,
+    "actual_counts": "sum8rank native integrated_retention.{fresh,history}_ODE_queries_local; sourcePGnew_candidates globalreplicated countonce",
+    "history_cache": "onecurrentB1score perselectedtoken/window; eachslot still hasitsown separatecurrent differentiablehistoryloss",
+    "loss_query_metrics": "per-scene mean over8micros; multiplyby8 forlocalwindow; repeatedfourinner logs do not meannewqueries",
+    "exact_window_counts": "exploration.fresh_B1_queries/history_B1_queries/history_slots_selected; newwindow countedonce via collectionidentifier"
+  },
+  "recovery": {
+    "state_key": "integrated_retention",
+    "rollout_key": "integrated_retention",
+    "window_schema": "world_integratedSafetyEP_B64_G16_Retention_WKC_v1",
+    "bank_schema": "world_integrated64_scene_shadow_reservoir_v1",
+    "retention_schema": "world_integrated64_eight_scene_history_transaction_v1",
+    "native": "native8rankstate/all8samplechains/oldprob/RNG9boundaries/fixedglobalstd/fullbank/privateRNG/sceneeventgates/Adam/WKC",
+    "validators": "integrated64_recovery.validate_boundary andvalidate_ranks; oldsingleleafstructure checkedonly withvirtualcounters, actualpersisted64scene/1024counters checkedfirst",
+    "old_run_compatibility": "No modification tooldruntime/science/math; existingnative checkpoints are notsilently imported"
+  },
+  "budget": {
+    "initial_actual_Adam_cap": 6250,
+    "scheduler_horizon": 12500,
+    "schedule": {
+      "warmup": 125,
+      "keep_until": 625,
+      "cosine_end": 2500,
+      "floor": 0.1,
+      "peak_action": 5e-05,
+      "peak_memory": 5e-06
+    },
+    "actual6250": {
+      "windows": 1563,
+      "scenes": 100032,
+      "PG_candidates": 1600512,
+      "next_inner": 2
+    },
+    "actual250": {
+      "windows": 63,
+      "scenes": 4032,
+      "PG_candidates": 64512,
+      "next_inner": 2
+    },
+    "actual625": {
+      "windows": 157,
+      "scenes": 10048,
+      "PG_candidates": 160768,
+      "next_inner": 1
+    },
+    "explanation": "sceneclock8x andPGcandidateclock16x differ; ceilwindowpending surplus andextraTRAINB1mean not equalcompute. No effectsize canbe added toexisting91.4536best."
+  },
+  "deployment": "Rootonly: registration/immutablefullsourcefreeze/routing/policy/resources/GPU/owners/eval; noopsfilesmodifiedbythisagent",
+  "limitations": [
+    "Tiny real ScopeRecipeActor32hidden/2layers and fake frozenQwen. This is not full52.7M production qualification.",
+    "Official scorer is a deterministic CPUfixture, not newly evaluated physical trajectories.",
+    "Thirteen actualAdamsteps; preceding248/624 clock and zero moments are explicit synthetic fixture origin, not measured priortraining.",
+    "No GPU, scorer job, newseed, registered run, or training launch performed by thisagent."
+  ]
+}

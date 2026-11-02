@@ -1,0 +1,64 @@
+{
+  "schema": "world_integrated64_scientific_CPU_check_v1",
+  "status": "PASS",
+  "arm": "INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC",
+  "tests": 2,
+  "seconds": 45.67,
+  "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_integrated64_training.py --basetemp=/tmp/integrated64-scientific-check-20261102",
+  "file_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_credit.py": "9d1fb3e0f628fde5a678d1682a7adf429e05480d0813609e6d8d71c141cc0cae",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_retention.py": "df7b807c27e9bef4e03916f5481651304e4848bce454c29db3b9d34564e31d6c",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_runtime.py": "18c733c2a688d088d6fd20f9ebbd8b45f101a560f68f4e01020146fa6b77dee6",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_recovery.py": "940f082b0c3f7bd3cfb2b8266837352328b7a6baeda9c4645f7e497b0d6f9bac",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_recipe.py": "01c4ea80218cd3dd6f2b67bb3bd6ca72453c02b85c9344e279fa903d5d4f613c",
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_schedule.py": "5382f7a8679f46227edc67f4a5e9f4cdcf35ed961a2bd342723d1cd45a848c97",
+    "tests/test_world_integrated64_training.py": "07fdfc383ebc79feed57e91c8a70061106e22eb420951f48f064cfe44e05c783"
+  },
+  "native_proof": {
+    "world": 8,
+    "fresh_scenes": 64,
+    "group_size": 16,
+    "population": 1024,
+    "actual_adam_steps": 13,
+    "DDP": "eight real microforward/backward graphs, first7 no_sync; equal explicit8scene mean gradient",
+    "native_boundaries": [
+      "pending0",
+      "pending1",
+      "pending2 includes250",
+      "pending3",
+      "READY",
+      "pending625"
+    ],
+    "restored": [
+      "all8chains/conditions/oldprob/advantages",
+      "Adam/weights/scheduler",
+      "mainRNG",
+      "shadowbank/privateRNG/events/querycount/gates"
+    ],
+    "history": [
+      "before250 noadmission",
+      "theta252 admits8 but prior-windowteachers unavailable",
+      "theta256 eight genuinehistory slots/regressiongates",
+      "cachedscore counts independently from8loss slots"
+    ],
+    "fixture": "actual ScopeRecipeActor tiny32x2; fake frozenQwen and deterministic mocked scorer; synthetic248/624 previousclock andmoment origin; NOT production52.7M qualification or performance evidence"
+  },
+  "native_proof_sha256": "3db7f55334a39426b9d0baff4e1f7806653cd00902b40ed34a5191c64f933a5b",
+  "GPU_qualification": false,
+  "algorithm_performance_claim": false,
+  "checks": [
+    "64 distinct scenes and realG16:1024 population std using originalSafetyEP math; history outsidePG/std",
+    "eight CPU DDP ranks: first7 no_sync wraps both forward/backward; accumulated gradient matches independent explicit8scene mean; one clip/Adam/scheduler perinner",
+    "all8 detached chains/oldprobs/descriptors/scoring/generator transitions validated; everypending0/1/2/3 andREADY seal; exact Adam/parameters/WKC/samplingRNG/privatebankRNG/material torch checkpoint restore",
+    "actualpending250 and625: full unfinished window retained; their counters reflect ceil(u/4) rather than fractionalcollections",
+    "trueB1 source arithmetic, carrierG16; threshold250 means firstadmissiontheta252; eight scene-shadows commit once; same-window newteachers excluded",
+    "eight prior-window gated history loss slots rebuild currentMemory; duplicatehistorytoken scores cached once and separately counted; source probability audit restored",
+    "polluted per-leaf advantage and historical query/gate material rejected"
+  ],
+  "limitations": [
+    "Tiny real ScopeRecipeActor32hidden/2layers and fake frozenQwen. This is not full52.7M production qualification.",
+    "Official scorer is a deterministic CPUfixture, not newly evaluated physical trajectories.",
+    "Thirteen actualAdamsteps; preceding248/624 clock and zero moments are explicit synthetic fixture origin, not measured priortraining.",
+    "No GPU, scorer job, newseed, registered run, or training launch performed by thisagent."
+  ]
+}
