@@ -81,6 +81,17 @@ def adopt_four_jobs(request):
                 or command[command.index('--output')+1] != str(request.export if logical == 'export' else request.output)
                 or spec['receipt_dir'] != str(path.parent)):
             raise ValueError('Existing shard command/identity differs from this evaluation')
+        reviewed = path.parent/'OPERATOR_REQUEUE.json'
+        if reviewed.exists():
+            decision = json.loads(reviewed.read_text())
+            import hashlib
+            if (decision.get('status') != 'REVIEWED_TERMINAL_REQUEUE'
+                    or decision.get('spec_sha256') != hashlib.sha256(path.read_bytes()).hexdigest()):
+                raise ValueError('Unbound operator requeue decision')
+            if int(number) >= request.attempts.get(logical, 0):
+                request.attempts[logical] = int(number)
+                request.jobs.pop(logical, None)
+            continue
         if int(number) > request.attempts.get(logical, 0):
             request.attempts[logical] = int(number)
             request.jobs[logical] = spec
@@ -163,6 +174,8 @@ def main():
     parser.add_argument('--workers', type=int, choices=[16, 32], default=32)
     parser.add_argument('--host-load-limit',type=int,choices=(2,4,8),default=8)
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--worker-source', type=Path,
+                        help='Qualified resource-only worker; predictor/scorer still run from --source')
     args = parser.parse_args(); root = args.root.resolve()
     with (root/'owner.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -181,6 +194,9 @@ def main():
             from tools.qwen_world_postcot.latest_snapshot_owner import SnapshotRequest as Qualified
         from tools.qwen_world_postcot.user_interim_owner import Request as Base
         dispatch_lock = Path('/mnt/project/runtime_periodic_navtest_dispatch.lock')
+        worker_source = (args.worker_source or args.source).resolve()
+        if not (worker_source/'tools/qwen_world_compare/job_worker.py').is_file():
+            raise ValueError('Missing explicitly qualified admission worker')
 
         class Burst(Qualified):
             def done(self, name):
@@ -231,7 +247,8 @@ def main():
                         command=[self.resources.MODEL_PYTHON,'-u','-m',module,*argv]
                         spec=dict(host=host,command=command,source=str(self.source),source_sha=self.source_sha,
                             gpu_uuids=[route['uuid']]if route else[],receipt_dir=str(receipt),
-                            execution_only=dict(lease_slot=route.get('lease_slot')if route else None,host_load_limit=args.host_load_limit))
+                            execution_only=dict(lease_slot=route.get('lease_slot')if route else None,
+                                host_load_limit=args.host_load_limit, worker_source=str(worker_source)))
                         self.jobs[name]=spec;write(receipt/'spec.json',spec)
                         invocation=['/usr/bin/python3','-u','-m','tools.qwen_world_compare.job_worker',
                             '--receipt-root',str(receipt),'--command-json',json.dumps(command),'--cwd',str(self.source)]
@@ -243,7 +260,7 @@ def main():
 from pathlib import Path
 s=__SPEC__;d=Path(s['directory']);f=open(d/'transport.log','ab',buffering=0)
 p=subprocess.Popen(s['invocation'],cwd=s['source'],env=dict(os.environ,PYTHONPATH=s['source']),stdin=subprocess.DEVNULL,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
-print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat').read_text().split()[21]))))'''.replace('__SPEC__',repr(dict(invocation=invocation,directory=str(receipt),source=str(self.source))))
+print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat').read_text().split()[21]))))'''.replace('__SPEC__',repr(dict(invocation=invocation,directory=str(receipt),source=str(worker_source))))
                         write(receipt/'operator.json',json.loads(self.resources.remote(host,['/usr/bin/python3','-c',code])))
                     else:
                         # Platform-only adaptation: unique retry receipt dirs.
@@ -308,12 +325,13 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
         else:
             # Match this task's grant rather than the older SourceFlow grant.
             # The probe and worker guards still independently reject sharing.
-            pool = Pool(request.resources, admission_source=request.source)
+            pool = Pool(request.resources, admission_source=worker_source)
         owner = dict(pid=os.getpid(), start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
             status='RUNNING', at=time.time(), source=str(args.source),
             workers=args.workers, model_batch=1, family=args.family, full_population=12146,
             noise_seed='seed_for(native_qwen_sourceflow_ODE,2101,scene_token)',
             model_and_scoring_code_unchanged=True)
+        owner['qualified_resource_worker_source'] = str(worker_source)
         write(root/'owner.json', owner)
         try:
             if args.family == 'world':

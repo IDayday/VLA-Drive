@@ -200,6 +200,8 @@ def tick(state, *, max_concurrent_models=2):
         job['operator_sha256'] = sha(operator)
         command = [PYTHON, '-u', str(operator),
             '--root', str(root), '--source', job['source'], '--family', job['family'], '--workers', '32']
+        if job['family'] == 'four':
+            command += ['--worker-source', '/mnt/project/VLA-Drive-abcd-il-c-recovery-20261101']
         if job.get('resume_reviewed'):command.append('--resume')
         job.update(status='DISPATCHING', command=command, dispatched_unix=time.time())
         atomic(root/'LAUNCH_INTENT.json', dict(command=command, registered_job=job))

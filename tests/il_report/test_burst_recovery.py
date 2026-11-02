@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import tempfile
 import fcntl
+import hashlib
 from types import SimpleNamespace
 import unittest
 
@@ -73,6 +74,22 @@ class BurstRecoveryTest(unittest.TestCase):
                 else:s['command'][-1]='/other/evaluation'
                 p.write_text(json.dumps(s))
                 with self.assertRaises(ValueError):adopt_four_jobs(r)
+
+    def test_reviewed_terminal_attempt_retains_number_and_does_not_adopt_older_attempt(self):
+        with tempfile.TemporaryDirectory() as d:
+            r=self.fixture(d);p=r.root/'jobs/rank7_attempt004/spec.json'
+            (p.parent/'OPERATOR_REQUEUE.json').write_text(json.dumps(dict(
+                status='REVIEWED_TERMINAL_REQUEUE',spec_sha256=hashlib.sha256(p.read_bytes()).hexdigest())))
+            adopt_four_jobs(r)
+            self.assertEqual(r.attempts['rank7'],4)
+            self.assertNotIn('rank7',r.jobs)
+            self.assertIn('rank0',r.jobs)
+
+    def test_requeue_decision_must_bind_exact_spec(self):
+        with tempfile.TemporaryDirectory() as d:
+            r=self.fixture(d);p=r.root/'jobs/parity_attempt001/OPERATOR_REQUEUE.json'
+            p.write_text(json.dumps(dict(status='REVIEWED_TERMINAL_REQUEUE',spec_sha256='different')))
+            with self.assertRaises(ValueError):adopt_four_jobs(r)
 
 
 if __name__=='__main__':unittest.main()
