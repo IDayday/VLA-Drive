@@ -18,6 +18,77 @@ Schedule clock is valid scene exposures/N: warmup .08 epoch, hold to .75, cosine
 
 Evaluation epochs: .25/.5/1/2/3/4/6/8/12/20; canonical single-B1 ODE, K10/shift5/seed2101, full NAVTEST12146/invalid0. Partial, qualification, TRAIN and oracle outputs are not formal deployment scores. `analyze.py` leaves unobserved gains/zero repairs/long-training holds null.
 
+## Independent S6 verified-quality route
+
+S6 uses the same complete IL70 with fresh Adam0, B64/G16/four inner updates,
+peak action/memory5e-5/5e-6 and the same mature exposure schedule. Actual B1 is
+queried from epoch0. A teacher must pass NC/DAC/TTC/Comfort=1 and score≥.9. If
+B1 is not strict-high, gain≥.02 uses alpha.05; an already strict-high B1 may
+also absorb gain≥.005 with alpha.02. It replaces the original beta50 share by
+.75 calibrated CFM + .25 actual ODE-last supervision. It does not use Control
+trajectories or NAVTEST labels. First evaluation epochs are .0625/.125,
+followed by the original schedule; actual launch/update status is read from
+the live registry and journals, not this design document.
+
+Frozen source `runtime/verified_quality_v2@8067e13` passed actual full-IL70
+world8 continuous4/split2/resume4 qualification. All weights, Adam, scheduler,
+calibration PG EMA, eight-rank RNG/stream and per-step loss/gradnorm/LR matched
+bitwise. The first64 TRAIN scenes naturally activated20 alpha.02 and12
+alpha.05 teachers. Qualification weights never initialize formal S6.
+
+The v1 probe exposed a cold-start weakness in IL-only gradient calibration.
+V2 uses `max(norm(gIL), .04*EMA(norm(gPG)))`, decay.9 and first-positive-PG
+initialization. Initial PG/EMA-zero slots retain minimum scales without
+consuming the100/500 eligible calibration/measurement budget; later PG0 slots
+can use historical EMA. The existing S1 V1 path remains unchanged. Actual
+four-step last-slot targets were387–22870 times the local IL gradient norm.
+These component norms establish a material change in injection scale; weighted
+products and triangle estimates are not directly measured joint BF16/DDP
+gradient norms or evidence of PDMS improvement.
+
+Evidence: `P/qualification/S6_VERIFIED_QUALITY_NATIVE_V2/COMPLETE.json` and
+`P/operations/S6_NATIVE_QUALIFICATION_LANE_V2/GRADIENT_READOUT.json`, where
+`P=/mnt/project/qwen-world-performance-rl-20261103`. S4 and LOWLR preserve
+their native states while resources are assigned to S6; this disposition does
+not declare either algorithm ineffective.
+
+## TRAIN GT discovery is separate from S6 and NAVTEST
+
+The complete GT audit used2048 existing NAVTRAIN diagnostic scenes. Thirteen
+whole trajectories had timestamp gaps and were not scored or treated as zero;
+2035 original physical-FP32 GT candidates received new CPU canonical scoring,
+with zero model forwards and zero training updates. All15 B1-zero cases had a
+strict4 GT;11 also reached score≥.9. Across2035 legal scenes,245 GT candidates
+were strict-high with gain>.005, including67 with gain≥.02. However255 GT
+trajectories reduced score by>.005; among1606 already-strict-high B1 cases,
+197 improved and170 worsened by>.005. One GT failed Comfort.
+
+This is evidence for verification/gain gates, not a new policy score. GT is
+privileged offline supervision, has no on-policy probability/advantage, and
+was not admitted to S6, another bank or an active algorithm. A good GT does
+not establish that same-version G16 lacks a successful candidate. Codec
+round-tripping changes FP32 requested bits, so any future normalized GT
+teacher needs fresh endpoint scoring. The existing input pool includes40
+old DEV scenes; NAVTEST tokens/physical logs remain disjoint. Compact source:
+`P/analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/RESEARCH_READOUT.json`.
+
+The completed real TRAIN19 probe adds targeted sampling evidence: on15 fixed
+B1-zero scenes, G16/G32 each found strict-high in12 scenes, with union13. Both
+groups found a strict-high candidate on all11 scenes whose GT was strict-high.
+The remaining two neither-high cases had safe GT scores.857625/.890610, below
+the.9 teacher threshold. Thus this panel has no GT-only strict-high success,
+while two GT trajectories can safely repair zero below that threshold. This
+does not generalize to the full TRAIN population or make GT universally useless.
+
+All38 groups had nonzero original SafetyEP raw credit; all91 sampled strict-high
+candidates in the zero cohort had positive rawA. In four high controls, G16/G32
+still sampled8/64 and22/128 strict3-unsafe candidates; some high candidates had
+negative relative credit, while unsafe-positive credit was zero. The panel used
+912 actual queries, independent G16/G32 seeds/BF16 batch shapes and zero Adam
+updates, so it diagnoses current sampled-support/B1 gaps, not G32 causal gains
+or post-training absorption failure. It does not alter S6 or create a new bank.
+Source: `P/analysis/IL70_TRAIN19_G16_G32_EXPLORATION/RESEARCH_REVIEW.json`.
+
 Config files:
 - `/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103/configs/qwen_world_performance_rl/s0_large_safetyep.yaml` (SHA256 `199b56b6a1e1cfc3285051a5877b3b3c6a6ebfb549ff0e6fd5ed2b0fefc53364`)
 - `/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103/configs/qwen_world_performance_rl/s0_low_lr.yaml` (SHA256 `ee8b64b72c46fc4b9309fced59616db523178d5f28910a8a660a49709284c162`)

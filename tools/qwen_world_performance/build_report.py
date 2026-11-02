@@ -90,6 +90,63 @@ def registered_plans(root, registry):
     return plans
 
 
+def verified_quality_evidence(root):
+    """Compact sealed qualification metadata; never load native tensors."""
+    directory=root/'operations/S6_NATIVE_QUALIFICATION_LANE_V2'
+    receipt=read(directory/'COMPLETE_RECEIPT.json',{})
+    proof_path=root/'qualification/S6_VERIFIED_QUALITY_NATIVE_V2/COMPLETE.json'
+    gradient_path=directory/'GRADIENT_READOUT.json'
+    proof=read(proof_path,{});gradient=read(gradient_path,{})
+    try:
+        proof_sha=hashlib.sha256(proof_path.read_bytes()).hexdigest()
+        gradient_sha=hashlib.sha256(gradient_path.read_bytes()).hexdigest()
+    except OSError:return {}
+    if (receipt.get('status')!='PASS_QUALIFICATION_ONLY' or proof.get('status')!='PASS'
+            or proof.get('schema')!='world_verified_quality_actual_world8_native_qualification_v1'
+            or (proof.get('world'),proof.get('B'),proof.get('G'),proof.get('M'))!=(8,64,16,4)
+            or not proof.get('native_bitexact_at_inner2_and4')
+            or receipt.get('complete_sha256')!=proof_sha or receipt.get('gradient_readout_sha256')!=gradient_sha
+            or gradient.get('qualification_complete_sha256')!=proof_sha
+            or gradient.get('status')!='COMPLETE_ACTUAL_ALL8_RANKS_FOUR_UPDATES_NOT_PERFORMANCE'):
+        return {}
+    rank0=next((r for r in gradient.get('final_rank_readouts',[]) if r.get('rank')==0),{})
+    return dict(proof=str(proof_path),proof_sha256=proof_sha,gradient=str(gradient_path),
+        gradient_sha256=gradient_sha,source_commit=receipt.get('source_commit'),
+        parameter_count=proof.get('trainable_numel'),teacher_classes=proof.get('actual_first_collection_teacher_classes',{}),
+        summary=gradient.get('summary',{}),rank0=rank0)
+
+
+def train_GT_evidence(root):
+    """Only compact aggregate fields from the completed TRAIN-only CPU audit."""
+    path=root/'analysis/VERIFIED_TRAIN_GT_TEACHER_AUDIT/RESEARCH_READOUT.json'
+    value=read(path,{})
+    if value.get('status')!='COMPLETE_DISCOVERY_ONLY_NOT_TRAINING':return {}
+    population=value.get('population',{});budget=value.get('query_budget',{})
+    if (population.get('input_count')!=2048 or population.get('valid_whole_trajectory_count')!=2035
+            or population.get('NAVTEST_trajectory_or_label_read') is not False
+            or budget.get('training_updates')!=0 or budget.get('GPU_model_forwards')!=0):return {}
+    cohorts=read(path.with_name('SUMMARY.json'),{}).get('cohort_statistics',{})
+    return dict(path=str(path),file_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        population={k:population.get(k) for k in ('input_count','valid_whole_trajectory_count','invalid_time_count',
+            'physical_log_count','source_TRAIN_count','old_DEV_in_existing_NAVTRAIN_count')},
+        budget={k:budget.get(k) for k in ('actual','training_updates','GPU_model_forwards')},
+        opportunity=value.get('verified_opportunity',{}),roundtrip=value.get('normalization_roundtrip',{}),
+        GT_worse_all=cohorts.get('all',{}).get('GT_score_worse_lt_minus005'),
+        GT_worse_strict_high=cohorts.get('B1_strict_high',{}).get('GT_score_worse_lt_minus005'),
+        GT_comfort_not_one=population['valid_whole_trajectory_count']-value.get('quality',{}).get('comfort',{}).get('equal_one',0),
+        summary=value.get('summary_zh',[]))
+
+
+def train19_evidence(root):
+    path=root/'analysis/IL70_TRAIN19_G16_G32_EXPLORATION/RESEARCH_REVIEW.json'
+    value=read(path,{})
+    if (value.get('status')!='COMPLETE_CPU_REVIEW_OF_REAL_GPU_PROBE'
+            or value.get('protocol',{}).get('Adam_updates')!=0
+            or value.get('actual_budget',{}).get('complete_groups')!=38):return {}
+    return dict(path=str(path),file_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        cohorts=value.get('cohorts',{}),budget=value.get('actual_budget',{}))
+
+
 def current_runs(root, registry, owner):
     now=time.time();runs=[]
     for registered in registry.get('runs',[]):
@@ -123,11 +180,13 @@ def current_runs(root, registry, owner):
         elif 'WAIT' in node.get('status',''):status='等待资源'
         else:status=node.get('status','已登记，尚未启动')
         if not job and 'WAIT' in node.get('status',''):status='等待资源'
-        if registered.get('disposition')=='RESERVED_NATIVE_CHECKPOINT_FOR_HIGHER_PRIORITY_QUALITY_STUDY':
+        reserved=registered.get('disposition')=='RESERVED_NATIVE_CHECKPOINT_FOR_HIGHER_PRIORITY_QUALITY_STUDY'
+        if reserved and status!='实际训练':
             status='保留原生检查点，资源让位高优先级研究；未判无效'
         epochs=[r.get('metrics',{}).get('exposure_epoch') for r in latest]
         epochs=[v for v in epochs if isinstance(v,(int,float))]
-        runs.append(dict(id=arm,status=status,owner_status=node.get('status'),host=(running or result or {}).get('host',node.get('host')),
+        runs.append(dict(id=arm,status=status,resource_note='已登记资源让位，仍以真实退出回执为准' if reserved and status=='实际训练' else None,
+            owner_status=node.get('status'),host=(running or result or {}).get('host',node.get('host')),
             job=job,rank_count=len(latest),oldest_rank_age_seconds=max(ages) if ages else None,
             updates=min((r.get('updates',0) for r in latest),default=0),
             exposure_epoch=min(epochs) if epochs else None,target=target,output=str(output)))
@@ -189,11 +248,66 @@ def snapshot(root=ROOT):
         cache_world8=read(root/'qualification/REFERENCE_CACHE_WORLD8_NATIVE/COMPLETE.json',{}),
         packed_world8=read(root/'benchmarks/NATIVE8_PACK4/REVIEWED_COMPLETE_V4.json',{}),
         TRAIN2048_quality=read(root/'diagnostics/IL70_TRAIN2048/QUALITY.json',{}),
+        verified_quality=verified_quality_evidence(root),TRAIN_GT=train_GT_evidence(root),TRAIN19=train19_evidence(root),
+        S6_fresh=read(root/'operations/S6_FORMAL_LAUNCH/FRESH_IL70_ADAM0_PROOF.json',{}),
         full_TRAIN_census=read(root/'diagnostics/FULL_TRAIN_REGISTRATION.json',{}))
 
 
 def table(headers,rows):
     return '<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>'+''.join('<th>'+esc(h)+'</th>' for h in headers)+'</tr></thead><tbody>'+''.join('<tr>'+''.join('<td style="padding:9px;border-bottom:1px solid #dce3eb">'+esc(v)+'</td>' for v in row)+'</tr>' for row in rows)+'</tbody></table></div>'
+
+
+def verified_quality_fragment(s):
+    proof=s['verified_quality']
+    run=next((r for r in s['current_runs'] if r['id']=='S6_VERIFIED_QUALITY'),None)
+    status=run['status'] if run else '尚未正式登记启动'
+    body='<section id="performance-verified-quality"><h3>S6：质量门控教师与冷启动校准</h3>'
+    body+='<p>正式状态：<b>'+esc(status)+'</b>。与当前任务表同源；资格权重不用于正式初始化。S6 从相同 IL70 与 Adam0 独立开始，B64/G16/四 inner；真实 B1 不达严格高分时要求教师增益至少 .02、使用 α=.05，已严格高分时允许至少 .005 的更优教师、使用较弱 α=.02。教师均须 NC/DAC/TTC/Comfort=1、score≥.9；只重新分配原 β50 预算，不叠加新 β。</p>'
+    fresh=s['S6_fresh']
+    if (fresh.get('status')=='PASS' and fresh.get('optimizer_state_entries')==0
+            and fresh.get('from_other_RL_checkpoint') is False and fresh.get('qualification_weights_used') is False):
+        body+='<p>正式 native0 已核对同一 IL70、空 Adam 状态与零场景曝光；不是从资格或其它 RL 权重继续。<a href="'+esc(ROOT/'operations/S6_FORMAL_LAUNCH/FRESH_IL70_ADAM0_PROOF.json')+'">fresh IL70 / Adam0 启动证据</a>。实际在训数量仍只由八 rank 新日志决定。</p>'
+    if proof:
+        classes=proof['teacher_classes'];summary=proof['summary'];r=proof['rank0']
+        state=r.get('final_calibration_state',{});norms=state.get('last_norms',{})
+        body+='<p><b>v2 真实八卡资格 PASS：</b>52,707,840 个可训练参数，连续四步与保存 inner2 后恢复至四步的参数、Adam、scheduler、校准 PG EMA、八 rank RNG 和数据流逐位一致。64 个真实 TRAIN 场景自然触发高分精修 '+esc(classes.get('.02'))+' 个、低分修复 '+esc(classes.get('.05'))+' 个；无教师 '+esc(classes.get('inactive'))+' 个，没有人工注入门控。<a href="'+esc(proof['proof'])+'">完整原生资格</a> · <a href="'+esc(proof['gradient'])+'">全八 rank 四步梯度读数</a></p>'
+        body+='<p>v1 实测发现从 IL0 出发时 IL 锚定梯度很小，按它单独校准会让辅助预算过弱。v2 只将校准目标改为 <code>max(||gIL||, .04×EMA(||gPG||))</code>，PG EMA 衰减 .9、首次正 PG 初始化；当前 PG0 可使用已有 EMA。初始 PG 与 EMA 均为零时保留最小尺度，但不消耗可冻结校准次数。旧 S1 校准、教师门和原 PG/锚定定义保持。</p>'
+        if norms:
+            body+=table(['rank0 第四步最后有效教师','PG','未加权 IL','原始 CFM','原始 ODE-last'],[
+                ('实际局部全参数梯度范数',*[f'{norms[k]:.6g}' for k in ('pg','IL','cfm','ode')])])
+            body+='<p>该槽位 PG EMA='+esc(f'{state["PG_gradient_EMA"]:.6g}')+'，目标='+esc(f'{state["last_target_norm"]:.6g}')+'；CFM/ODE scale='+esc(f'{state["scale_cfm"]:.6g}')+' / '+esc(f'{state["scale_ode"]:.6g}')+'。八 rank 末有效槽位的目标/IL 比为 '+esc(f'{summary["last_target_to_IL"]["minimum"]:.0f}')+'–'+esc(f'{summary["last_target_to_IL"]["maximum"]:.0f}')+' 倍，已摆脱近零 IL-only 校准。权重乘以实际分量梯度范数可估计注入量级；它不等于直接测得的联合 BF16/DDP 梯度、参数更新归因或 PDMS 收益。</p>'
+    else:
+        body+='<p>完整资格收据尚未匹配；不从 CPU 就绪或部分日志推断通过。</p>'
+    return body+'</section>'
+
+
+def train_GT_fragment(s):
+    value=s['TRAIN_GT']
+    if not value:return ''
+    p=value['population'];o=value['opportunity']
+    body='<section id="performance-train-GT"><h3>真实 TRAIN GT 审核：有教师机会，也必须拒绝退化标签</h3>'
+    body+='<p>既有 NAVTRAIN 诊断 '+esc(p['input_count'])+' 个场景中，'+esc(p['invalid_time_count'])+' 条原始时间有缺口，整条不评分、也不记零分。其余 '+esc(p['valid_whole_trajectory_count'])+' 条用原官方参考与原物理 FP32 GT 各评分一次，共 '+esc(value['budget']['actual'])+' 次新 CPU 查询、0 模型 forward、0 训练更新。<b>这是 TRAIN 诊断，GT 是特权离线标签，不是模型分数或 NAVTEST 收益。</b></p>'
+    body+=table(['固定 B1 群体','真实审计结果','含义'],[
+        ('原 B1 零分 '+str(o['zero_count']),str(o['zero_strict4'])+' 条 GT 严格四项通过；'+str(o['zero_strict_high'])+' 条 score≥.9','其余安全 GT 也可能未达高分门槛'),
+        ('全部合法 '+str(p['valid_whole_trajectory_count']),str(o['all_gt005'])+' 条 strict-high 且 gain>.005；'+str(o['all_ge02'])+' 条 gain≥.02','存在可验证监督机会，不能盲目模仿所有 GT'),
+        ('B1 已 strict-high '+str(o['B1_strict_high_count']),str(o['B1_strict_high_GT_strict_high_gain_gt005'])+' 条 GT 改善>.005；'+str(value['GT_worse_strict_high'])+' 条反而下降>.005',
+            '全体有'+str(value['GT_worse_all'])+'条 GT 下降>.005，另有'+str(value['GT_comfort_not_one'])+'条 Comfort 未通过')])
+    body+='<p>这里 gain=.005 对应 0.5 个 PDMS 点；score≥.9 是严格高分门。仅凭这份 GT 审核不能由 GT 好/B1 差断言 G16 探索失败；下方另列 19 场景的同父模型采样补证。GT 没有 on-policy log-prob，不进入 PPO 优势；本次未把 GT 加入 S6、任何 bank 或正式算法。归一化再解码会改变 FP32 端点位，未来若采用必须重新评分。输入沿既有池口径，含 '+esc(p['old_DEV_in_existing_NAVTRAIN_count'])+' 个原 DEV 场景；NAVTEST token/log 严格隔离。<a href="'+esc(value['path'])+'">完整发现性审核与限制</a></p></section>'
+    panel=s['TRAIN19']
+    if panel:
+        zero=panel['cohorts']['B1_zero'];rows=[]
+        for label,key in [('15个固定 B1 零分','B1_zero'),('4个固定高分对照','fixed_strict_high_control')]:
+            cohort=panel['cohorts'][key]
+            for group in ('16','32'):
+                counts=cohort['groups'][group]
+                rows.append((label+' / G'+group,str(counts['scenes_with_strict_high'])+'/'+str(counts['scenes']),
+                    str(counts['unsafe_candidates'])+'/'+str(counts['actual_PDM_queries']),
+                    str(counts['strict_high_negative_rawA'])+'/'+str(counts['strict_high_candidates'])))
+        body+='<details><summary>追加真实 TRAIN19 探针：G16/G32 是否已找到好轨迹</summary>'
+        body+=table(['定向群体 / 采样组','有 strict-high 见证的场景','strict3 未通过候选','strict-high 中 rawA<0'],rows)
+        body+='<p>零分群体两组高见证并集 '+esc(zero['high_found_either'])+'/15；11 个 GT≥.9 场景两组全部采到同门槛候选。两组都无高见证的 2 个场景，其 GT 虽 strict4，却只有 .857625/.890610，因此本 panel 的 GT 独有 strict-high 为 0，不能外推 GT 对全部训练无用。38 组均非官方全零且均有非零 rawA；零分群体的 91 条 strict-high 均 rawA>0。高分对照里的相对负 rawA 不等于 unsafe 获正信用，后者实测为 0。</p>'
+        body+='<p>这是 19 个定向 TRAIN 场景、'+esc(panel['budget']['new_PDM_candidate_queries'])+' 次真实候选评分、0 Adam；G16/G32 使用独立随机组，G32 有两倍查询且 BF16 batch shape 不同，不是同算力因果对照。采样好而 B1 差是当前单轨转换机会，不是训练后吸收失败，也不是 NAVTEST 提升。<a href="'+esc(panel['path'])+'">完整 TRAIN19 研究简报</a></p></details>'
+    return body
 
 
 COLORS=['#087f8c','#cb6d26','#7554a3','#397744','#b94755','#2d66af','#716236']
@@ -349,16 +463,17 @@ def render_fragment(root=ROOT):
     if evidence.exists():body+='<p><a href="'+esc(evidence)+'">最高分完整评测证据</a></p>'
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
     body+='<p><b>当前实际在训 RL 共 '+str(s['active_formal']+legacy_active)+' 条：本轮 '+str(s['active_formal'])+' 条，旧综合 I '+str(legacy_active)+' 条；本轮已登记 '+str(len(s['current_runs']))+' 条；资格测试 '+str(s['active_qualification'])+' 个。</b>实际在训要求当前 stage job 有 RUNNING、无 RESULT，且八 rank 均有近10分钟日志；统计时间见上。本轮完整 NAVTEST 结果 '+str(len(s['complete_results']))+' 个；native0、partial、资格测试与候选 oracle 不计为 RL 提分。</p>'
-    body+='<p><b>当前任务：</b>B128/G16 工程资格 → S1 高分候选向真实 B1 吸收；S5 分阶段覆盖、吸收与持续保持。各路线均从相同 IL70k（88.79290991、SHA 7dda5b14…）和 Adam0 独立开始。</p>'
+    body+='<p><b>当前任务：</b>S1 高分候选向真实 B1 吸收；S5 分阶段覆盖、吸收与持续保持；S6 验证已安全高分场景的更优教师与冷启动校准。各路线均从相同 IL70k（88.79290991、SHA 7dda5b14…）和 Adam0 独立开始。</p>'
     body+='<p>实际训练范围为 Action LoRA、Scene Memory 与 Predictive Memory，共 52,707,840 个可训练参数。Qwen 主干与永久 IL 参考冻结；当前可训练 memory/KV 每次 inner 都重新构图。吞吐缓存只复用冻结分支，不把场景表征整体固定成仅训练动作头。</p>'
-    body+=table(['正式路线','服务器','实际 Adam（8rank最小）','有效曝光 epoch','当前状态'],[(j['id'],j['host'] or '待分配',j['updates'],f'{j["exposure_epoch"]:.6f}' if j['exposure_epoch'] is not None else '等待首条更新',j['status']) for j in s['current_runs']])
+    body+=table(['正式路线','服务器','实际 Adam（8rank最小）','有效曝光 epoch','当前状态'],[(j['id'],j['host'] or '待分配',j['updates'],f'{j["exposure_epoch"]:.6f}' if j['exposure_epoch'] is not None else '等待首条更新',j['status']+('；'+j['resource_note'] if j.get('resource_note') else '')) for j in s['current_runs']])
     if s['legacy_current_runs']:
         body+=table(['独立继续的旧实验','服务器','实际 Adam（8rank最小）','状态'],[(j['id'],j['host'],j['updates'],j['status']) for j in s['legacy_current_runs']])
     if s['legacy_complete_results']:
         body+='<p>旧综合 I 已完成的真实单轨迹 NAVTEST（与新 S5 分开）：'+esc('；'.join('Adam '+str(r['updates'])+' / PDMS '+f'{r["PDMS"]:.8f}' for r in s['legacy_complete_results']))+'。未完成的后续评测不发布均分。</p>'
+    body+=verified_quality_fragment(s)+train_GT_fragment(s)
     body+=reviewed_I_fragment(root)
     body+='<h3>当前结论与接下来的决策</h3><p>主训练仍处于全量均匀覆盖阶段。S1 的 rescue 到 0.5 epoch 才启用；此前它与 S0 的目标相同，独立进程出现相同更新属于预期，不能据此判断 rescue 无效。S5 的历史保持到第 4 epoch 才启用，当前也不能评价其收益。</p>'
-    body+='<p><b>新增研究方向 S6：</b>针对已经安全且高分、但驾驶效率略有回落的场景，也吸收真实验证更优的安全教师；低分修复与高分精修分别使用较强/较弱权重。它须从同一 IL70 独立初始化，当前是否已正式启动以任务表为准。Control 的轨迹和 NAVTEST 场景标识仅用于分析，不作教师或训练优先级。</p>'
+    body+='<p>S4 与 LOWLR 在完整原生保存后为 S6 让出资源，保留实验代码、结果和状态；这是研究优先级处置，不判定方法无效。正式分数只读完整 NAVTEST，S6 资格与 GT 诊断均不计入排行榜。</p>'
     tq=s['TRAIN2048_quality']
     if tq.get('status')=='COMPLETE':
         body+='<p>固定 TRAIN2048 初始 IL70 真实 B1 诊断完成：零分 '+esc(tq.get('zero_count'))+'，严格高质量 '+esc(tq.get('strict_high_count'))+'。这是训练集诊断，后续按同场景配对；不计入 NAVTEST 成绩。全 NAVTRAIN 初始 B1 普查单独使用 7 张可核验 GPU，查询预算 103288，当前状态 '+esc(s['full_TRAIN_census'].get('status','未启动'))+'，未完成时不发布全量均分。</p>'
@@ -407,10 +522,11 @@ def render_fragment(root=ROOT):
     body+=table(['路线','主要机制','B / G / M','计划与评测'],[
         ('S1 · 第一优先','SafetyEP + verified CFM + 真实 ODE last-state SmoothL1','128 /16 /4','0.25→0.5→1→3→6 epochs'),
         ('S5 · 第一优先','SafetyEP→Rescue→持续历史教师→低 LR 精修','64→128 /16 /4','同一 run 保留 Adam / RNG'),
+        ('S6 · 新质量吸收路线','真实 B1 + strict-high gain双门 + PG-EMA校准','64 /16 /4','epoch0启用；首评 .0625 / .125；状态见实时任务表'),
         ('S0 / LOWLR','大场景覆盖 + 曝光 warmup/hold/cosine','128 /16 /4','5e-5 与 3e-5 分别 fresh IL'),
         ('S2','保守优势加权 FM，负A二次项有下界','128 /16 /2','MC4，独立 IL70'),
         ('S3','逐 MC energy-ratio FPO + 原物理锚定','128 /16 /2','MC2；非 endpoint density'),
-        ('S4','真实时序安全 + nominal rescue','128 /16 /4','无事件不伪造风险时间')])
+        ('S4','真实时序安全 + nominal rescue','128 /16 /4','原生保存，资源让位；未判无效')])
     body+='<h3>最近工程结论</h3><p>四种 B/G 的真实八卡窗口已通过。B128/G16 的拆分恢复参数、Adam、scheduler 与八 rank RNG/stream 逐位一致；完整 IL70 的真 ODE 末状态监督和全 scope 梯度通过。S1/S2/S3/S4/S5 辅助启用资格均已完成，尚不能称部署提分。</p><p>G32 按完整组归一化；额外条件 G16 仅用于教师挖掘。padding 排除全部 loss/std/有效曝光；当前 memory 每次 inner 重建计算图。首窗口约18小时/epoch，启动、评测、新辅助项和恢复重放另计。</p>'
     body+='<details><summary>资格/调试记录（保留失败，不作为算法负结果）</summary>'+table(['任务','服务器','状态','返回码'],[(j['id'],j['host'],j['status'],j['returncode']) for j in retired])+'<p>首轮真实评分后，恢复哈希未支持 NumPy 数组而在 Adam 前失败；修正后使用新冻结资格版本，不继承资格权重。中间未完成的源码副本派发已停止并保留收据。</p></details>'
     body+='<p><a href="/mnt/project/qwen-world-performance-rl-20261103/report.html">本轮独立报告</a> · <a href="/mnt/project/qwen-world-performance-rl-20261103/data/AUDIT.json">完整审计</a></p></section>'
