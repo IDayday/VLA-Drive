@@ -31,6 +31,15 @@ KNOWN_ROOTS = ('/mnt/project/qwen-sourceflow-', '/mnt/project/qwen-world-postcot
 TERMINAL_NATIVE = ('FAILED', 'STOPPED', 'COMPLETED_AT_REGISTERED_CAP')
 
 
+def completion_priority(entry):
+    current = (entry.get('arm') == 'REVIVAL_G16' or
+               entry.get('arm') == 'IMPROVEMENT_VERIFIED_RETENTION_G8')
+    completed = sum(node.get('status') == 'COMPLETE' for node in entry.get('ranks', {}).values())
+    if entry.get('arm') == 'IMPROVEMENT_VERIFIED_RETENTION_G8':
+        return (0, int(entry.get('updates', 0)), -completed, entry.get('label', ''))
+    return (not current, -completed, int(entry.get('updates', 0)), entry.get('label', ''))
+
+
 def read(path, default=None):
     path = Path(path)
     return json.loads(path.read_text()) if path.exists() else default
@@ -484,10 +493,11 @@ class EvaluationOwner:
             from .native_priority import filter_eval_routes
             routes = filter_eval_routes(routes, samples)
             runs = {run['id']:run for run in self.registry['runs']}
-            # Round-robin ranks across registered full NAVTEST evaluations.
-            entries = list(self.state['evaluations'].values())
-            for rank in range(self.max_shards):
-                for entry in entries:
+            # Finish a nearly-complete checkpoint before opening more low ranks.
+            # Existing worlds/specs/rank commands are immutable; only order changes.
+            entries = sorted(self.state['evaluations'].values(), key=completion_priority)
+            for entry in entries:
+                for rank in range(entry['world']):
                     if not routes or live >= self.max_workers:
                         break
                     gate = self.state['runs'][entry['arm']]['gates'][str(entry['updates'])]
@@ -497,8 +507,12 @@ class EvaluationOwner:
                     if node.get('job') or node.get('status') in ('COMPLETE', 'FAILED_REVIEW_REQUIRED', 'DISPATCH_UNCERTAIN_REVIEW_REQUIRED'):
                         continue
                     index=0
+                    retry_hosts=node.get('operator_retry_hosts')
+                    if retry_hosts:
+                        index=next((i for i,r in enumerate(routes)if r['host']in retry_hosts),None)
+                        if index is None:continue
                     if node.get('evaluation_exclusive_recovery'):
-                        index=next((i for i,r in enumerate(routes)if not r['has_owners']and r['free_MiB']>=61440 and
+                        index=next((i for i,r in enumerate(routes)if(not retry_hosts or r['host']in retry_hosts)and not r['has_owners']and r['free_MiB']>=61440 and
                             all(lease_free(LEASES[name]/(r['uuid']+'.lock'))for name in ('primary','shared','research'))),None)
                         if index is None:continue
                     route=routes.pop(index);run=runs[entry['arm']]
