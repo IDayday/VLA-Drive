@@ -111,8 +111,8 @@ class IntegratedRuntime(GroupRuntime):
   from starVLA.rl.simwam_recipe.collection import exploration_summary
   material=window['integrated_retention'];events=material['events']
   return dict(schema=SCHEMA,scenes_per_rank=8,candidates_per_rank=128,tokens=window['tokens'],logs=window['logs'],groups=[exploration_summary(s)for s in window['samples']],normalization_candidates=1024,
-   normalization_std=float(window['normalization_std']),fresh_B1_queries=sum(e['fresh_witness']is not None for e in events),history_B1_queries=sum(e['history_scored_now']for e in events),
-   history_slots_selected=sum(e['teacher']is not None for e in events),history_gates=sum(e['enabled']for e in events))
+   normalization_std=float(window['normalization_std']),fresh_B1_queries=sum(e['fresh_witness']is not None for e in events),history_B1_queries=sum(int(e['history_scored_now'])for e in events),
+   history_slots_selected=sum(e['teacher']is not None for e in events),history_gates=sum(int(e['enabled'])for e in events))
  def recipe_identity(self,cfg,args,condition_sha):
   value=super().recipe_identity(cfg,args,condition_sha);value['integrated64_protocol']=copy.deepcopy(PROTOCOL);value['quality_credit_diagnostics']=QUALITY_PROTOCOL
   value['exploration_protocol'].update(global_normalization_candidates=1024,scenes_per_rank=8,global_scenes_per_collection=64,native_resume='complete8scene/G16 window+scene-shadow history+Adam/RNG/WKC only')

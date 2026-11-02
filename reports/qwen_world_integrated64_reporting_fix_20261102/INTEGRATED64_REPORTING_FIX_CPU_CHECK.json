@@ -1,0 +1,92 @@
+{
+  "schema": "world_integrated64_reporting_numpy_scalar_fix_v1",
+  "status": "PASS",
+  "base_commit": "7272a48a4b16817b18fbb3d4be439bcffc2a67e1",
+  "reason": "Actualscore numerictypes propagate NumPy.bool_ into event.enabled; Python sum yields numpy.int64 even forallfalse. Nested exploration.history_gates failed standardJSON after optimizerupdate, preventing journal publication.",
+  "exact_production_reproduction": {
+    "payload": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runs/INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC/behavior/collection000065/rank0.pt",
+    "behavior": {
+      "run": "0bc3c2d4b4b8bb0a1c0c2521a726c7a1af4170a43644eb3a979ed3365ef44f28",
+      "update": 256,
+      "adapter_sha256": "033cd7119bdcc385c71b2c51180ba4af82222a28e60b0292ddac8c0be1b96d06"
+    },
+    "collection": 65,
+    "event_enabled_types": [
+      "bool_",
+      "bool_",
+      "bool_",
+      "bool_",
+      "bool_",
+      "bool_",
+      "bool_",
+      "bool_"
+    ],
+    "non_native_JSON_fields": [
+      {
+        "path": "exploration.history_gates",
+        "type": "int64",
+        "value": 0
+      }
+    ],
+    "error": "Object of type int64 is not JSON serializable",
+    "postfix_summary_counts": {
+      "fresh_B1_queries": 8,
+      "history_B1_queries": 5,
+      "history_slots_selected": 8,
+      "history_gates": 0
+    },
+    "material_digest_before": "e66637a6296b40330ad903765df85d3f40d031f2961c8aa77aabe54cff794ba4",
+    "material_digest_after": "e66637a6296b40330ad903765df85d3f40d031f2961c8aa77aabe54cff794ba4",
+    "material_mutated": false,
+    "journal_encoding": "json.dumps(row,allow_nan=False) followedby newline write",
+    "row_scope": "Serializationfixture forplanned257 row; not evidence optimizer257 was durablycommitted; metrics intentionallyempty, no fabricated trainingrecord"
+  },
+  "fix": {
+    "source": "starVLA/rl/qwen_world_safety_exploration/integrated64_runtime.py",
+    "changed": "Two reportingonly countergenerators explicitly cast flagsto Pythonint before sum",
+    "science_AST_except_exploration_summary_identical": true,
+    "no_new_default_JSON_encoder": true,
+    "training_math_changed": false,
+    "gate_results_changed": false,
+    "material_schema_changed": false,
+    "recipe_changed": false,
+    "scheduler_changed": false,
+    "Adam_rng_bank_pending_changes": false
+  },
+  "test": {
+    "file": "tests/test_world_integrated64_reporting.py",
+    "result": "1 passed",
+    "seconds": 4.33,
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_integrated64_reporting.py",
+    "covers": [
+      "numpy.bool_ flags0/3/8 true",
+      "numpy.int64 historyscore flags",
+      "actual nested perG16 scene exploration with NumPy officialmetric scalars",
+      "same journal json.dumps(row,allow_nan=False) path",
+      "events remain samevalues andsameNumPytypes"
+    ]
+  },
+  "source_hashes": {
+    "starVLA/rl/qwen_world_safety_exploration/integrated64_runtime.py": {
+      "before": "18c733c2a688d088d6fd20f9ebbd8b45f101a560f68f4e01020146fa6b77dee6",
+      "after": "7b0016a23259da8cc26077d48927d6e1bfa62c2221850bdfcf1873ae340b1e30"
+    },
+    "tests/test_world_integrated64_reporting.py": {
+      "after": "bcc1397e7f1a7f39ef4f583cd3eef84a81400ff5cc8c43fde3e1c8d74666c883"
+    }
+  },
+  "identity": {
+    "scientific_recipe_and_targets": "unchanged; reportingonly executionrepair",
+    "source_files_manifest": "Changed runtimefile hash mustbe honestlybound to newimmutableexecutionsource; do nothotpatch oldfreeze",
+    "native_origin": "Restoreexisting legalupdate250 inner2 fullnative Adam/RNG/bank/allpending8sceneG16; replay unpublishedsuffix throughInvocation originalarchive rollback mechanism",
+    "migration": "Root generates explicitexecutionmigration receipt matching oldnativeidentity andnewexecutioninventory; do notreset optimizer/RNG/cursor orpretend silentidenticalsources"
+  },
+  "not_performed": [
+    "GPUjobs",
+    "scoring",
+    "changes tofrozenruntime",
+    "owner/policy/registry edits",
+    "gitstage/commit",
+    "checkpointorjournal mutation"
+  ]
+}

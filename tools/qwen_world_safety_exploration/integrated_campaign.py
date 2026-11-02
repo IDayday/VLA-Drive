@@ -14,7 +14,8 @@ ROOT_PATH = Path('/mnt/project/qwen-world-safety-exploration-20261031/integrated
 CONTROL = ROOT_PATH.parent/'standard_training_20261101'
 PROTECTED = {'training-vla-zt', 'training-vlawm-tsinghua-zt'}
 IMMUTABLE = ('id', 'root', 'source', 'source_commit', 'config', 'config_sha256',
-             'parent_checkpoint', 'owner_state', 'group_size', 'trainer_module')
+             'parent_checkpoint', 'owner_state', 'group_size', 'trainer_module',
+             'execution_source', 'execution_migration_receipt')
 
 
 def read(path):
@@ -53,6 +54,11 @@ def validate_registry(value):
             or any(p['host'] in PROTECTED for p in r['deployment_candidates'])):
         raise ValueError('Integrated source/config/group/cadence/native binding changed')
     validate_integrated_recipe(yaml.safe_load(Path(r['config']).read_text()))
+    if r.get('execution_source') is not None:
+        if (not r.get('execution_migration_receipt')
+                or not Path(r['execution_migration_receipt']).is_file()
+                or not (Path(r['execution_source'])/'tools/qwen_world_safety_exploration/train.py').is_file()):
+            raise ValueError('Execution migration requires its explicit frozen source and receipt')
     f = read(CONTROL/'RUNS.json'); parent = next(x for x in f['runs'] if x['id']=='SAFETY_G8_CONTROL')
     if (value['manifest'] != f['manifest'] or value['observation_data'] != f['observation_data']
             or r['parent_checkpoint'] != parent['parent_checkpoint']):
@@ -103,12 +109,12 @@ def native_class():
         def __init__(self):
             super().__init__(owner_name='INTEGRATED_NATIVE')
             validate_registry(self.registry)
-            self.binding = {k:self.runs[0][k] for k in IMMUTABLE}
+            self.binding = {k:self.runs[0].get(k) for k in IMMUTABLE}
 
         def current(self):
             self.registry = validate_registry(read(ROOT_PATH/'RUNS.json'))
             run = self.registry['runs'][0]
-            if {k:run[k] for k in IMMUTABLE} != self.binding:
+            if {k:run.get(k) for k in IMMUTABLE} != self.binding:
                 raise ValueError('Integrated scientific/native lineage cannot change while running')
             return run
 
@@ -141,9 +147,12 @@ def native_class():
                         '--manifest',self.registry['manifest'],'--il-checkpoint',run['parent_checkpoint'],
                         '--data',self.registry['observation_data'],'--parent-selection',self.registry['parent_selection'],
                         '--output',run['root'],'--stop-after-update',str(target),'--save-every','125']
-                    if resume:command+=['--resume',resume]
+                    if resume:
+                        command+=['--resume',resume]
+                        if run.get('execution_migration_receipt'):
+                            command+=['--migration-receipt',run['execution_migration_receipt']]
                     try:
-                        job=launch(route['host'],run['source'],command,name,gpus='0,1,2,3,4,5,6,7',
+                        job=launch(route['host'],run.get('execution_source',run['source']),command,name,gpus='0,1,2,3,4,5,6,7',
                             expected_uuids=[g['uuid']for g in sample['gpus']],
                             share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'])
                     except Exception:
