@@ -1,0 +1,82 @@
+{
+  "schema": "world_integrated64_trick_refinement_research_proposals_v1",
+  "status": "PROPOSALS_NOT_REGISTERED_NOT_DISPATCHED",
+  "live_reference_unchanged": true,
+  "minimum_reference_optimizer_updates": 10000,
+  "evaluation_updates": [
+    2000,
+    5000,
+    10000
+  ],
+  "IL_parent": "same fresh IL70",
+  "train_population": 103288,
+  "multi_seed": false,
+  "evidence": [
+    "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/analysis/TRICK_REVIEW_20261102/DIAGNOSTICS.json",
+    "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/analysis/TRICK_REVIEW_20261102/NOMINAL_VS_SAMPLED.json"
+  ],
+  "trials": [
+    {
+      "priority": 1,
+      "name": "Strict sampled trajectory rescue to nominal deployment",
+      "motivation": "Current history bank accepts only strict-good nominal B1 witnesses. Sampled G16 good trajectories from a nominal-bad scene are not admitted as those history teachers.",
+      "retain": [
+        "SafetyEP fresh advantages",
+        "B64",
+        "G16",
+        "current WKC schedule",
+        "full uniform TRAIN fresh stream"
+      ],
+      "eligible": "TRAIN-only same-version G16 strict NC=DAC=TTC=Comfort=1; canonical>=.9; nominal B1 not strict-good; candidate score minus nominal score>=.02",
+      "method": "Separate supervised self-imitation / flow-matching target for one strict-good sampled trajectory; never relabel historical rollouts as fresh PPO.",
+      "proposed_auxiliary_budget_share": 0.05,
+      "maximum_existing_history_share": 0.25,
+      "budget": "Within fixed beta50 anchor budget: IL share=1-.25*history_gate-.05*rescue_gate; coefficients are not gradient fractions.",
+      "source": "https://arxiv.org/abs/1806.05635",
+      "evidence_status": "Adaptation hypothesis; no score claim; implementation and independent recipe required before dispatch"
+    },
+    {
+      "priority": 2,
+      "name": "Small always-on history floor with gated increment",
+      "motivation": "Only23 of5952 selected historical slots activate current25% conditional budget through625; effective global coefficient is much smaller than25%.",
+      "change": "When a valid prior-window historical teacher exists, alpha_history=.05+.20*regression_gate; otherwise0. Keep beta50 fixed and IL coefficient=1-alpha_history.",
+      "control": "Change only history weight rule; same B64/G16/scoring/schedule and fresh IL70.",
+      "risk": "Can preserve a suboptimal older nominal policy; candidate improvements and deployed high-cohort preservation must both be measured.",
+      "alternative": "Risk-prioritized historical selection within the same existing B1 query budget; separate ablation rather than silently combining both.",
+      "evidence_status": "Low early gate rate is observed, not proof current long-run retention is ineffective"
+    },
+    {
+      "priority": 3,
+      "name": "Extend cosine endpoint only",
+      "change": {
+        "warmup_updates": 125,
+        "keep_until_updates": 625,
+        "cosine_decay_end_updates": 5000,
+        "min_lr_ratio": 0.1,
+        "horizon_updates": 12500
+      },
+      "unchanged_peaks": {
+        "action": 5e-05,
+        "memory": 5e-06
+      },
+      "motivation": "Current endpoint2500 puts75% of approved10000 actual updates on0.1floor; endpoint5000 is a single-parameter test of undertraining versus stabilization.",
+      "control": "Same fixed actual10000 budget; separate fresh lineage; no live LR reset or mid-run configuration change.",
+      "evidence_status": "Schedule concern is a hypothesis, not a demonstrated cause of score regression"
+    }
+  ],
+  "deprioritized": [
+    {
+      "method": "Increase every group from16 to32",
+      "reason": "G16 has measured discovery gain; first measure conversion to nominal B1 instead of doubling all sampling again."
+    },
+    {
+      "method": "Broader PPO clipping / CISPO as first change",
+      "reason": "Mean logged strict-good positive coefficient blocking is1.006% through625, so blocking is not currently the dominant observed bottleneck."
+    },
+    {
+      "method": "Discard all-zero groups or aggressively filter all easy scenes",
+      "reason": "Only4 all-zero TRAIN groups/10048,1 still has SafetyEP signal; filtering all-zero alone cannot explain the observed deployment error population."
+    }
+  ],
+  "judging": "All12146 canonical single-B1 NAVTEST, fixed high/zero cohorts, zero repairs versus newly broken scenes, actual optimizer/scenes/PG/B1 costs separately; no NAVTEST labels admitted to TRAIN pool."
+}
