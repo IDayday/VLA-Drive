@@ -25,7 +25,7 @@ def deployment_chain(actor,condition,generator):
 
 
 @torch.no_grad()
-def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None):
+def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None,history=None):
     def add(**value):
         if cost is not None:cost(**value)
     def generate(count,forward):
@@ -63,15 +63,23 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
         nominal_generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',cfg.get('nominal_seed',2101),token))
         nominal,nominal_grid=generate(1,lambda:deployment_chain(actor,one,nominal_generator))
         nominal_records=score((token,log,ActionCodec.denorm_odo(nominal[:,-1]).cpu().numpy()))
+        r['nominal_record']=nominal_records[0];r['nominal_chain']=nominal.detach()
         base=nominal_records[0]['metrics']['score'];teacher_records=records;teacher_chain=chain;r['extra_B1']=1;r['physical_candidates']+=1
         strict=verified_index(records,0.,improvement=0.)is not None
-        if g==16 and base<.90 and not strict:
+        if cfg.get('enable_teacher_expansion',True)and g==16 and base<.90 and not strict:
             extra,_,_,_=generate(g,lambda:actor.sample_action_chain(descriptor,8,generator=generator))
             extra_records=score((token,log,ActionCodec.denorm_odo(extra[:,-1]).cpu().numpy()))
             teacher_records=records+extra_records;teacher_chain=torch.cat((chain,extra));r['extra_G32']=g;r['physical_candidates']+=g
-        selected=verified_index(teacher_records,base);r['nominal_score']=base
-        if selected is not None:
-            teacher=teacher_chain[selected:selected+1,-1].detach();r['teacher']=teacher;r['teacher_record']=teacher_records[selected]
+        selected=verified_index(teacher_records,base);r['nominal_score']=base;teacher=None;teacher_record=None
+        if selected is not None:teacher=teacher_chain[selected:selected+1,-1].detach();teacher_record=teacher_records[selected]
+        if history is not None and cfg.get('active_stage',{}).get('historical'):
+            from .history import historical_teacher
+            old=historical_teacher(history,token,base,version)
+            if old is not None and(teacher_record is None or old['score']>teacher_record['metrics']['score']):
+                teacher=torch.tensor(old['normalized_clean_action'],device=actor.device,dtype=torch.float32)[None]
+                teacher_record=old['record'];r['teacher_ancestry']=old['version'];r['teacher_kind']='own_historical_nominal_B1'
+        if teacher is not None and cfg.get('enable_positive',True):
+            r['teacher']=teacher;r['teacher_record']=teacher_record
             r['nominal_chain']=nominal.detach()
             r['nominal_sigma_last']=nominal_grid[-2:-1].detach()
             # Frozen mixture of continuous sigma and actual deployment nodes.
@@ -79,6 +87,7 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
             sigma=(.1+.8*torch.rand((),generator=generator))if u<.5 else nominal_grid[torch.randint(10,(),generator=generator)].cpu()
             sigma=sigma.reshape(1).to(actor.device).float();eps=torch.randn(teacher.shape,generator=generator).to(actor.device)
             r.update(positive_sigma=sigma,positive_state=(1-sigma[:,None,None])*teacher+sigma[:,None,None]*eps)
+    if cfg['arm']=='D6':r['enable_post_feedback']=cfg['active_stage']['post'];r['active_stage']=cfg['active_stage']
     if cfg['arm']in('D3_FPO','D3_AWM'):
         mc=cfg['mc_samples'];lo,hi=(.2,.8)if cfg['arm']=='D3_FPO'else(.15,.85)
         sigmas=(lo+(hi-lo)*torch.rand((mc,g),generator=generator)).to(actor.device)

@@ -13,6 +13,7 @@ def material_digest(batch):
     keys=('condition','chain','old_mean','ref_mean','std','advantages','behavior_version','teacher',
           'positive_state','positive_sigma','nominal_chain','nominal_sigma_last','fm_state','fm_sigma','fm_target','old_energy',
           'factors','beta','timesteps','deltas','padding','epoch','records','teacher_record')
+    keys+=('active_stage','enable_post_feedback','teacher_kind','teacher_ancestry','nominal_record','sampling_source')
     return tensor_digest([{k:r[k]for k in keys if k in r}for r in batch['scenes']])
 
 
@@ -26,12 +27,24 @@ class Boundary:
         if not 0<=i<m or (pending and (u!=(c-1)*m+i or batch['behavior_update']!=u-i))or(not pending and(u!=c*m or i)):
             raise ValueError('Batch/optimizer/inner ancestry mismatch')
         if pending:
-            if len(batch['scenes'])!=identity['recipe']['global_scenes']//identity['world']or batch['digest']!=material_digest(batch):
+            if len(batch['scenes'])!=batch.get('active_global_scenes',identity['recipe']['global_scenes'])//identity['world']or batch['digest']!=material_digest(batch):
                 raise ValueError('Saved multi-scene chain/old probabilities/advantages changed')
             if any(r['chain'].requires_grad or r['old_mean'].requires_grad or r['advantages'].requires_grad for r in batch['scenes']):
                 raise ValueError('Behavior material must be detached')
+            if identity['recipe']['arm']=='D6':
+                from dataclasses import asdict
+                from .stages import stage_at
+                expected=asdict(stage_at(batch['epoch'],tuple(identity['recipe']['stage_boundaries'])))
+                if batch['active_stage']!=expected or batch['active_group']!=expected['group']or batch['active_global_scenes']!=expected['global_scenes']:
+                    raise ValueError('Pending D6 rollout changed its registered stage')
+                if any(r['active_stage']!=expected or r['chain'].shape!=(expected['group'],11,8,3)for r in batch['scenes']):
+                    raise ValueError('D6 stage/group/candidate states disagree')
         dual=state['adaptive_kl']
         if dual['collections']!=c-int(pending):raise ValueError('Dual updated more/less than once per fresh collection')
+        if identity['recipe'].get('arm')=='D6':
+            history=state.get('d6_history',{})
+            if history.get('run')!=identity['sha256']or history.get('commits')!=c:
+                raise ValueError('D6 history/run/committed collection identity differs')
         if optimizer is not None:
             opt=optimizer if isinstance(optimizer,dict)else optimizer.state_dict()
             steps=[int(v['step'])for v in opt['state'].values()if 'step'in v]
@@ -41,11 +54,12 @@ class Boundary:
             if sch['last_epoch']!=u:raise ValueError('Scheduler update count differs')
         return dict(run=identity['sha256'],phase=state['phase'],updates=u,collections=c,scene_cursor=state['scene_cursor'],
             next_inner=i,pending=pending,digest=batch['digest']if pending else None,
-            valid_scene_exposures=state['valid_scene_exposures'],new_candidates=state['new_candidates'],dual=dual)
+            valid_scene_exposures=state['valid_scene_exposures'],new_candidates=state['new_candidates'],dual=dual,
+            stage=state.get('stage_id'),history_digest=state.get('d6_history',{}).get('digest'))
 
     @staticmethod
     def validate_ranks(rows):
-        keys=('run','phase','updates','collections','scene_cursor','next_inner','pending','valid_scene_exposures','new_candidates','dual')
+        keys=('run','phase','updates','collections','scene_cursor','next_inner','pending','valid_scene_exposures','new_candidates','dual','stage','history_digest')
         if any({k:r[k]for k in keys}!={k:rows[0][k]for k in keys}for r in rows):raise ValueError('Ranks disagree on batch commit')
         return rows
 

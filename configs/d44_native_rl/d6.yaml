@@ -8,7 +8,7 @@ group: 16
 inner_updates: 2
 learning_rate: 2.0e-06
 text_rank: 16
-film_last_layers: 0
+film_last_layers: 8
 train_action_io: false
 post_feedback: true
 clip: 0.1
@@ -52,3 +52,9 @@ checkpoint_policy: all_off
 probability_layout: sequential
 sampler_selection: fixed_K10_shift5_no_scorer
 training_uses_navtest: false
+stage_boundaries:
+- 1.0
+- 4.0
+- 8.0
+- 12.0
+historical_teacher_capacity: 8192

@@ -26,3 +26,19 @@ class DConditions(FrozenCurrentConditions):
         while len(self.lru)>self.capacity:self.lru.popitem(last=False)
         result['context']=torch.zeros((self.group,1,1),device=device)
         return result
+
+
+class D6Conditions(DConditions):
+    """Group-neutral frozen observations; saved descriptors bind actual G."""
+    def get_for_group(self,token,group):
+        if group not in(8,16):raise ValueError('Unregistered D6 group')
+        return dict(self.get(token),repeats=group)
+
+    @torch.no_grad()
+    def materialize(self,descriptor,device):
+        if descriptor!=self.get_for_group(descriptor['token'],descriptor['repeats']):raise ValueError('D6 frozen input descriptor changed')
+        # Parent validation uses the fixed group-neutral cache identity. Neither
+        # the stored visual tensors nor Qwen inputs depend on candidate count.
+        result=super().materialize(dict(descriptor,repeats=self.group),device)
+        result['context']=torch.zeros((descriptor['repeats'],1,1),device=device)
+        return result

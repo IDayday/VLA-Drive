@@ -20,7 +20,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from starVLA.rl.d44_native_rl import parent
 from starVLA.rl.d44_native_rl.config import read,source_config
 from starVLA.rl.d44_native_rl.actor import D44Actor
-from starVLA.rl.d44_native_rl.conditions import DConditions
+from starVLA.rl.d44_native_rl.conditions import DConditions,D6Conditions
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.batch_runtime import collect_scene
 from starVLA.rl.d44_native_rl.safety_credit import raw_credit,normalize
@@ -28,6 +28,8 @@ from starVLA.rl.d44_native_rl.two_stage_reward import endpoint_quality
 from starVLA.rl.d44_native_rl.adaptive_kl import AdaptiveKL
 from starVLA.rl.d44_native_rl.expanded_scope import groups
 from starVLA.rl.d44_native_rl.scheduler import scene_lr
+from starVLA.rl.d44_native_rl.stages import stage_recipe
+from starVLA.rl.d44_native_rl import history as self_history
 from starVLA.rl.d44_native_rl.recovery import Boundary,Attempt,material_digest,checkpoint
 from starVLA.rl.qwen_world_compare.contracts import require_dispatch,boundary_stop_due,fingerprint,file_sha
 from starVLA.rl.simwam_recipe.reward_readouts import RewardService
@@ -77,6 +79,11 @@ def main():
     parser.add_argument('--resume');parser.add_argument('--qualification',action='store_true');parser.add_argument('--stop-after-update',type=int)
     parser.add_argument('--scenes-per-rank',type=int,help='qualification only');parser.add_argument('--fault',choices=['before_finalize','after_inner1'])
     a=parser.parse_args();cfg=read(a.config)
+    if cfg['arm']=='D6'and not a.qualification:
+        proof_path=Path('/mnt/project/d44-native-rl-20261103/qualification/D6_REAL_STAGE_INNER_RESUME.json')
+        proof=json.loads(proof_path.read_text())if proof_path.exists()else{}
+        expected={p:file_sha(p)for p in ('tools/d44_native_rl/train.py','starVLA/rl/d44_native_rl/stages.py','starVLA/rl/d44_native_rl/history.py','starVLA/rl/d44_native_rl/recovery.py')}
+        if proof.get('status')!='PASS'or proof.get('source_files')!=expected:raise ValueError('D6 requires same-source real staged inner-resume qualification')
     if a.scenes_per_rank and not a.qualification:raise ValueError('Formal scene batch cannot be overridden')
     host=require_dispatch();configure_numerics();torch.set_num_threads(2)
     rank=int(os.environ.get('RANK',0));world=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
@@ -105,7 +112,8 @@ def main():
     model.decision.activation_checkpointing=checkpoint_policy!='all_off'
     model.decision.checkpoint_short_suffix=checkpoint_policy=='source'
     print(json.dumps(dict(event='native_D44_and_scope_loaded',rank=rank,at=time.time(),trainable=actor.closure['trainable_numel'])),flush=True)
-    conditions=DConditions(model,stream.data,info,group=cfg['group'],capacity=cfg['condition_cache_scenes']);object.__setattr__(actor,'conditions',conditions)
+    condition_type=D6Conditions if cfg['arm']=='D6'else DConditions
+    conditions=condition_type(model,stream.data,info,group=cfg['group'],capacity=cfg['condition_cache_scenes']);object.__setattr__(actor,'conditions',conditions)
     if a.qualification:
         token,_=stream.at(0,rank,0,world)
         probe_generator=torch.Generator(device='cpu').manual_seed(2101)
@@ -141,6 +149,7 @@ def main():
     state=dict(updates=0,collections=0,scene_cursor=0,next_inner=0,phase='READY',
         valid_scene_exposures=0,raw_scene_exposures=0,new_candidates=0,valid_PG_candidates=0,extra_B1_queries=0,adaptive_G32_queries=0,
         padding_scene_exposures=0,adaptive_kl=dual.state_dict(),evaluation_gates=[])
+    if cfg['arm']=='D6':state.update(d6_history=self_history.initial(identity['sha256']),stage_id='I',stage_transitions=[])
     batch=None
     if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=Boundary())
     dual.load_state_dict(state['adaptive_kl']);attempt=Attempt(root,rank,state,identity,a.resume)
@@ -156,13 +165,32 @@ def main():
             if consensus_stop(device)and batch is None:break
             if batch is None:
                 state['phase']='COLLECTING';epoch=state['valid_scene_exposures']/stream.n
+                collection_cfg,stage=stage_recipe(cfg,epoch)if cfg['arm']=='D6'else(cfg,None)
+                global_scenes=collection_cfg['global_scenes'];actual_group=collection_cfg['group']
+                plan=None
+                if stage is not None:
+                    if state['stage_id']!=stage.name:
+                        state['stage_transitions'].append(dict(from_stage=state['stage_id'],to_stage=stage.name,
+                            updates=state['updates'],scene_epochs=epoch,optimizer_reset=False))
+                        state['stage_id']=stage.name
+                    if rank==0:
+                        uniform=[]
+                        for pos in range(global_scenes):
+                            token,padding=stream.at(state['scene_cursor'],pos%world,pos//world,world)
+                            uniform.append(dict(token=token,padding=padding))
+                        plan=self_history.select(state['d6_history'],uniform,collection=state['collections']+1,enabled=stage.mixture)
+                    plan=checkpoint.gather(plan)[0]
                 version=dict(run=identity['sha256'],update=state['updates'],collection=state['collections']+1)
                 actor.set_policy_version(str(version));scenes=[];error=None
                 batch=dict(scenes=scenes,uncommitted=True)
                 try:
-                    for j in range(cfg['global_scenes']//world):
-                        token,padding=stream.at(state['scene_cursor'],rank,j,world)
-                        r=collect_scene(actor,conditions.get(token),token,stream.logs[token],service,generator,cfg,epoch,version,cost=attempt.add_cost)
+                    for j in range(global_scenes//world):
+                        if plan is None:token,padding=stream.at(state['scene_cursor'],rank,j,world);sampling_source='uniform'
+                        else:entry=plan[j*world+rank];token,padding,sampling_source=entry['token'],entry['padding'],entry['source']
+                        descriptor=conditions.get_for_group(token,actual_group)if stage is not None else conditions.get(token)
+                        r=collect_scene(actor,descriptor,token,stream.logs[token],service,generator,collection_cfg,epoch,version,
+                            cost=attempt.add_cost,history=state.get('d6_history'))
+                        r['sampling_source']=sampling_source
                         r['padding']=padding;r['beta']=dual.beta;r['expect_fresh']=True;scenes.append(r)
                 except Exception:
                     error=traceback.format_exc()
@@ -170,7 +198,7 @@ def main():
                 checkpoint.check_errors(error)
                 if a.fault=='before_finalize':raise RuntimeError('Injected collection not finalized; latest unchanged')
                 factors=torch.stack([r['factors']for r in scenes]);endpoint=None;endpoint_confidence=None
-                if cfg['arm']=='D1'and epoch>=2:
+                if(cfg['arm']=='D1'and epoch>=2)or(stage is not None and stage.endpoint):
                     endpoints=[];confidence=[]
                     for r in scenes:
                         gt=stream.data.target(r['token']).to(device)
@@ -178,11 +206,18 @@ def main():
                         endpoints.append(quality);confidence.append(weight)
                     endpoint=torch.stack(endpoints);endpoint_confidence=torch.stack(confidence)[:,None]
                 raw,feasible=raw_credit(factors,endpoint=endpoint,endpoint_confidence=endpoint_confidence,stage2=endpoint is not None)
+                if stage is not None and stage.temporal:
+                    # A bounded native full-window DAC tie-cost for ALL-failed
+                    # groups. NC/TTC events additionally train R, not a made-up
+                    # minimum-TTC/distance surrogate or first-event-only reward.
+                    road=torch.tensor([[sum(bool(v)for v in q['non_drivable_body_by_time'])/len(q['non_drivable_body_by_time'])for q in r['records']]for r in scenes],device=device,dtype=torch.float64)
+                    offsets=road-road[:,:1]
+                    raw+=torch.where(feasible.any(1,keepdim=True),torch.zeros_like(raw),.05*(offsets.mean(1,keepdim=True)-offsets))
                 if cfg['arm']=='D0_CANONICAL_CREDIT':
                     canonical=torch.tensor([[v['metrics']['score']for v in r['records']]for r in scenes],device=device,dtype=torch.float64)
                     offsets=canonical-canonical[:,:1];raw=offsets-offsets.mean(1,keepdim=True)
                 valid=torch.tensor([not r['padding']for r in scenes],device=device,dtype=torch.bool)
-                stats=torch.stack(((raw*valid[:,None]).sum(),(raw.square()*valid[:,None]).sum(),valid.sum().double()*cfg['group']))
+                stats=torch.stack(((raw*valid[:,None]).sum(),(raw.square()*valid[:,None]).sum(),valid.sum().double()*actual_group))
                 if world>1:dist.all_reduce(stats)
                 std=(stats[1]/stats[2]-(stats[0]/stats[2]).square()).clamp_min(0).sqrt()
                 advantages=(raw/(std+1e-8)).clamp(-5,5).float()
@@ -194,16 +229,21 @@ def main():
                     int((raw.abs().amax(1)>0).sum()),int((scores==1).all(1).sum()),int((scores==0).all(1).sum()),len(scenes)],device=device,dtype=torch.float64)
                 if world>1:dist.all_reduce(diagnostic)
                 diagnostic=diagnostic.cpu().tolist();nscene=diagnostic[-1]
-                summary=dict(random_candidate_mean=diagnostic[0]/(nscene*cfg['group']),oracle_mean=diagnostic[1]/nscene,
-                    feasible_candidate_fraction=diagnostic[2]/(nscene*cfg['group']),effective_PG_group_fraction=diagnostic[3]/nscene,
+                summary=dict(random_candidate_mean=diagnostic[0]/(nscene*actual_group),oracle_mean=diagnostic[1]/nscene,
+                    feasible_candidate_fraction=diagnostic[2]/(nscene*actual_group),effective_PG_group_fraction=diagnostic[3]/nscene,
                     all_one_groups=diagnostic[4],all_zero_groups=diagnostic[5],raw_groups=nscene,
                     sigma_by_stochastic_step=scenes[0]['std'].detach().cpu().tolist())
-                batch=dict(scenes=scenes,behavior_update=state['updates'],global_std=float(std),valid_scenes=int(counts[0]),epoch=epoch,diagnostics=summary)
+                batch=dict(scenes=scenes,behavior_update=state['updates'],global_std=float(std),valid_scenes=int(counts[0]),epoch=epoch,diagnostics=summary,
+                    active_global_scenes=global_scenes,active_group=actual_group,active_stage=collection_cfg.get('active_stage'))
+                if stage is not None:
+                    delta=[self_history.delta_from_scene(r)for r in scenes]
+                    delta=[value for part in checkpoint.gather(delta)for value in part if value is not None]
+                    self_history.update(state['d6_history'],delta,conditions.tokens,capacity=cfg['historical_teacher_capacity'])
                 batch['digest']=material_digest(batch)
-                state['collections']+=1;state['scene_cursor']+=cfg['global_scenes'];state['raw_scene_exposures']+=cfg['global_scenes']
-                state['valid_scene_exposures']+=int(counts[0]);state['padding_scene_exposures']+=cfg['global_scenes']-int(counts[0])
-                state['new_candidates']+=cfg['global_scenes']*cfg['group'];state['extra_B1_queries']+=int(counts[1]);state['adaptive_G32_queries']+=int(counts[2])
-                state['valid_PG_candidates']+=int(counts[0])*cfg['group']
+                state['collections']+=1;state['scene_cursor']+=global_scenes;state['raw_scene_exposures']+=global_scenes
+                state['valid_scene_exposures']+=int(counts[0]);state['padding_scene_exposures']+=global_scenes-int(counts[0])
+                state['new_candidates']+=global_scenes*actual_group;state['extra_B1_queries']+=int(counts[1]);state['adaptive_G32_queries']+=int(counts[2])
+                state['valid_PG_candidates']+=int(counts[0])*actual_group
                 state['phase']='ROLLOUT_COMMITTED';state['next_inner']=0
                 Boundary.validate_ranks(checkpoint.gather(Boundary.validate_boundary(state,batch,identity)))
                 path=root/'behavior'/attempt.id/f'collection{state["collections"]:06}'/f'rank{rank}.pt';checkpoint.atomic_torch(path,batch)
@@ -212,6 +252,11 @@ def main():
             for group in optimizer.param_groups:
                 stage_multiplier=.5 if cfg['arm']=='D1'and batch['epoch']>=2 and group['name']=='text_lora'else 1.
                 group['lr']=group['initial_lr']*multiplier*stage_multiplier
+                if cfg['arm']=='D6':
+                    current_stage=stage_recipe(cfg,batch['epoch'])[1]
+                    rate=current_stage.text_lr if group['name']=='text_lora'else current_stage.film_lr if group['name']=='film_lora'else 2e-5 if current_stage.post else 0.
+                    warm=min(1.,max(1e-4,(state['valid_scene_exposures']/stream.n)/cfg['warmup_epochs']))
+                    group['lr']=rate*warm
             for j,r in enumerate(batch['scenes']):
                 r['expect_fresh']=state['next_inner']==0
                 sync=ddp.no_sync()if world>1 and j<len(batch['scenes'])-1 else contextlib.nullcontext()
@@ -220,6 +265,10 @@ def main():
                     weighted=loss*(0. if r['padding']else world/batch['valid_scenes']);weighted.backward()
                 for key,value in metrics.items():totals[key]=totals.get(key,0.)+float(value.detach())/len(batch['scenes'])
                 if not r['padding']:valid_kl_sum+=float(metrics['reference_KL_joint'].detach())
+            if cfg['arm']=='D6':
+                for group in optimizer.param_groups:
+                    if group['lr']==0:
+                        for parameter in group['params']:parameter.grad=None
             norm=torch.nn.utils.clip_grad_norm_(trainables,1.)
             if not torch.isfinite(norm):raise FloatingPointError('Nonfinite native gradient')
             grad_roles={}
@@ -235,6 +284,7 @@ def main():
                 collection_seconds_scoring=sum(r['seconds_scoring']for r in batch['scenes']),peak_GPU_bytes=torch.cuda.max_memory_allocated(),
                 global_advantage_std=batch['global_std'],at=time.time(),beta=dual.beta)
             row['exploration']=batch['diagnostics']
+            row['active_batch']=dict(scenes=batch['active_global_scenes'],group=batch['active_group'],stage=batch['active_stage'])
             row['model_work']=dict(velocity_calls=actor._velocity_calls,reference_velocity_calls=actor._reference_calls,
                 current_prefix_builds=actor.prepared_context_builds['current'],reference_prefix_builds=actor.prepared_context_builds['reference'],
                 frozen_vision_prefills=conditions.prefill_calls,frozen_vision_prefill_seconds=conditions.prefill_seconds)

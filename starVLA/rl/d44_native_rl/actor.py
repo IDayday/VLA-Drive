@@ -112,7 +112,7 @@ class D44Actor(FourFrameworkRecipeActor):
                 pos=positive_loss(pred,r['teacher']);lastloss=positive_loss(last,r['teacher'])
                 aux=aux+c['positive_weight']*pos+c['last_weight']*lastloss
                 metrics.update(positive_cleanx=pos.detach(),last_step=lastloss.detach())
-            if c['post_feedback']and r['epoch']>=c['post_start_epoch']:
+            if c['post_feedback']and r.get('enable_post_feedback',r['epoch']>=c['post_start_epoch']):
                 from .post_feedback import loss
                 one=current_prefix().index_select(torch.zeros(1,device=self.device,dtype=torch.long))
                 with torch.autocast(self.device.type,dtype=torch.bfloat16):

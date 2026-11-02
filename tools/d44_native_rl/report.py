@@ -14,6 +14,10 @@ def summarize(root):
         if latest:
             import torch
             own=torch.load(Path(latest['checkpoint'])/'rank0.pt',map_location='cpu',weights_only=False);state=own['state']
+            if 'd6_history'in state:
+                state=dict(state);history=state.pop('d6_history')
+                state['d6_history_summary']={k:history[k]for k in ('schema','run','commits','digest')}
+                state['d6_history_summary'].update(scene_count=len(history['rows']),teacher_count=len(history['teachers']))
         invocations=[json.loads(p.read_text())for p in (run/'invocations').glob('*/rank*.json')]
         committed=[json.loads(s)for s in(run/'metrics_rank0.jsonl').read_text().splitlines()]if(run/'metrics_rank0.jsonl').exists()else[]
         recent=committed[-20:];window=None

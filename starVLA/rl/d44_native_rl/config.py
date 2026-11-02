@@ -19,7 +19,7 @@ def defaults(arm):
     return dict(schema='d44_native_rl_v1',arm=arm,parent='D_IL44K',seed=42,evaluation_seed=2101,
         global_scenes=32 if arm=='D4'else 64,group=16,inner_updates=2,
         learning_rate=3e-6 if arm=='D3_AWM'else 1e-6 if arm=='D4'else 2e-6,
-        text_rank=32 if arm=='D5'else 16,film_last_layers=8 if arm=='D5'else 0,
+        text_rank=32 if arm=='D5'else 16,film_last_layers=8 if arm in('D5','D6')else 0,
         train_action_io=arm=='D5',post_feedback=arm in('D4','D6'),
         clip=.2 if arm=='D0_CLIP020'else .01 if arm=='D3_FPO'else .1,
         beta=.001,target_kl=.015,entropy=0.,
@@ -35,17 +35,23 @@ def defaults(arm):
         canonical_reward_scale='raw_0_1',action_shape=[8,3],steps=10,shift=5.,
         stochastic_steps=[7,8,9],innovation_clip=None,coordinate_reduction='sum24',
         dtype='FP32_parameters_states_probability_BF16_forward',checkpoint_policy='source',probability_layout='sequential',
-        sampler_selection='fixed_K10_shift5_no_scorer',training_uses_navtest=False)
+        sampler_selection='fixed_K10_shift5_no_scorer',training_uses_navtest=False,
+        stage_boundaries=[1.,4.,8.,12.],historical_teacher_capacity=8192)
 
 
 def read(path):
     cfg=yaml.safe_load(Path(path).read_text())
     if cfg.get('schema')!='d44_native_rl_v1' or cfg.get('arm')not in ARMS:
         raise ValueError('D44 recipe schema mismatch')
-    if cfg['arm']=='D6':raise NotImplementedError('D6 multi-stage sampler/history/optimizer lifecycle must qualify before dispatch')
     if cfg['global_scenes'] not in (32,64,128)or cfg['group']not in(8,16,32)or cfg['inner_updates']not in(2,4):
         raise ValueError('Unregistered batch/group/inner combination')
     if cfg['innovation_clip']is not None or cfg['coordinate_reduction']!='sum24':raise ValueError('Gaussian probability contract changed')
     if cfg['seed']!=42 or cfg['evaluation_seed']!=2101 or cfg['training_uses_navtest']:raise ValueError('Data/seed contract changed')
     if cfg.get('probability_layout','sequential')!='sequential':raise ValueError('Packed W3 probability layout is not qualified for training')
+    if(cfg['steps'],cfg['shift'],cfg['action_shape'],cfg['stochastic_steps'],cfg['entropy'])!=(10,5.,[8,3],[7,8,9],0.):
+        raise ValueError('Unimplemented sampler/action/entropy variation cannot be passed as metadata')
+    if cfg['arm']=='D6':
+        from .stages import stage_at
+        stage_at(0,tuple(cfg['stage_boundaries']))
+        if cfg['film_last_layers']!=8 or cfg['text_rank']!=16 or not cfg['post_feedback']:raise ValueError('D6 modules must be preinstalled before training')
     return cfg
