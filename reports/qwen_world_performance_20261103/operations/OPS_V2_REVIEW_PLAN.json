@@ -1,0 +1,261 @@
+{
+  "CPU_checks": {
+    "additional": "CPU factory/export-route smoke PASS: only export guard uses operator source; GPU scientific source/worker preserved; no job started",
+    "command": "CUDA_VISIBLE_DEVICES='' /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/test_world_performance_ops_v2.py tests/test_world_performance_operations.py",
+    "status": "PASS",
+    "targeted_cases": 4,
+    "wall_seconds": 3.92
+  },
+  "alias_created_by_agent": false,
+  "alias_present": false,
+  "at_unix": 1793642157.6362855,
+  "continuation_contract": {
+    "foreign_limit": "Sampled visible-native count cap applies at own admission; unknown/foreign jobs are never killed, and their independent future dispatchers are not controlled",
+    "intent_file": "exact old job/OWN_NATIVE_CONTINUATION.json",
+    "intent_helper": "tools.qwen_world_performance.continuation.make_migration_intent (pure, never writes stop)",
+    "no_Adam_RNG_reset": true,
+    "no_lost_work_claim": "Unsealed forced/nonzero failures remain reviewable; only an actually published native state resumes",
+    "no_weights_only": true,
+    "not_a_native_source_migration": "Do not pass this operational intent as --migration-receipt to trainer; scientific source has not changed.",
+    "protocol": {
+      "maximum_campaign_native_per_host": 1,
+      "maximum_known_native_per_host": 2,
+      "minimum_free_MiB": 32768,
+      "output_alias": "/mnt/project/qwen-world-safety-exploration-20261031/performance_training_20261103",
+      "schema": "world_performance_measured_native_sharing_v1"
+    },
+    "result_acceptance": "EXIT0 + exact worker/command/source/config/run + actual8rank publication; Path.resolve comparisons support real output alias"
+  },
+  "files_sha256": {
+    "tests/test_world_performance_ops_v2.py": "3cd634ed8915f31ea61548c32765bb20e9dc9238567d06e8fb83f959b8cc4379",
+    "tools/qwen_world_performance/continuation.py": "363f5da346df863b9ff8218e551383d3895fc6b175376ac798ab3237fea22e82",
+    "tools/qwen_world_performance/evaluate.py": "e46d2d5e6290faebb4ce9497fd81b9821bbe1fb7504884ef940fb792cbd90ae5",
+    "tools/qwen_world_performance/launch.py": "2325bdf38f3c2b69630161584fa4d8a28667a15eeba10ec575257c7357a9e60f",
+    "tools/qwen_world_performance/select_checkpoints.py": "efa70a8511bf978bb80168d6247d376eea85ad6df1ba340f61d620c9888823a0"
+  },
+  "identity_alias_evidence": {
+    "conclusion": "Output path is not directly part of recipe identity; WORLD_COMPARE_ROOT/config/source/data remain original. Strict native identity equality still guards every actual resume.",
+    "direct_identity_functions": {
+      "starVLA/rl/qwen_world_performance/batch_runtime.py": {
+        "direct_args_output_references": 0,
+        "sha256": "67099b58ef8fb06fb872b3d01584a4f1d6aa2862e0187634de40530f5cc6f06e"
+      },
+      "starVLA/rl/qwen_world_postcot/rl_runtime.py": {
+        "direct_args_output_references": 0,
+        "sha256": "7cdaaefaf6db9b68d8097f779774a62f30f95d0d41b08ba8779d9d7d8d440126"
+      },
+      "starVLA/rl/qwen_world_postcot/scope_runtime.py": {
+        "direct_args_output_references": 0,
+        "sha256": "289546e61bffe9c5238f3d7d80e68c42a65f592db0ee37db3c98be1946fe51df"
+      },
+      "starVLA/rl/qwen_world_research/runtime.py": {
+        "direct_args_output_references": 0,
+        "sha256": "2b2343000dbc69e3c611d50bae4101e1d27c7bf69960eee58d7331e872b62369"
+      }
+    },
+    "same_directory": "CPU test wrote through symlink and verified same canonical file/inode"
+  },
+  "not_performed": [
+    "No frozen formal_v1 edits",
+    "No source commit/staging",
+    "No owner adoption/start/stop or process signal",
+    "No alias creation or RUNS/resource-policy amendment",
+    "No new model forward/scoring or active checkpoint mutation"
+  ],
+  "readonly_claim_diagnosis": {
+    "new_rule": "Hold dispatch/loading until same worker/command/source/config/output and all8 UUID native owners visible+accounted; afterwards delegate original qualified per-GPU usable_gpu checks",
+    "no_host_probes_performed": true,
+    "observed_claims": [
+      {
+        "arm": "S1_NOMINAL_RESCUE",
+        "host": "training-vlawm-zt4",
+        "job": "/mnt/project/qwen-world-performance-rl-20261103/jobs/S1_NOMINAL_RESCUE/formal_to000808_attempt001",
+        "result": false,
+        "running": true
+      },
+      {
+        "arm": "S5_PERFORMANCE_MAX",
+        "host": "training-rl-zt2",
+        "job": "/mnt/project/qwen-world-performance-rl-20261103/jobs/S5_PERFORMANCE_MAX/formal_to001616_attempt001",
+        "result": false,
+        "running": true
+      },
+      {
+        "arm": "S0_LARGE_SAFETYEP",
+        "host": "training-vlawm-tsinghua-zt2",
+        "job": "/mnt/project/qwen-world-performance-rl-20261103/jobs/S0_LARGE_SAFETYEP/formal_to000808_attempt001",
+        "result": false,
+        "running": true
+      },
+      {
+        "arm": "S2_CONSERVATIVE_AWFM",
+        "host": "training-vlawm-zt",
+        "job": "/mnt/project/qwen-world-performance-rl-20261103/jobs/S2_CONSERVATIVE_AWFM/formal_to000404_attempt001",
+        "result": false,
+        "running": true
+      },
+      {
+        "arm": "S3_LARGE_FPO",
+        "host": "training-vlawm-tsinghua-zt3",
+        "job": "/mnt/project/qwen-world-performance-rl-20261103/jobs/S3_LARGE_FPO/formal_to000404_attempt001",
+        "result": false,
+        "running": true
+      }
+    ],
+    "old_rule": "All claims without RESULT held host for entire native lifetime"
+  },
+  "required_CPU_adoption_sequence": [
+    "Root reviews and freezes only these operations deltas into ops_v2; keep run.source/config/parent/seed/caps bound to formal_v1/5e522.",
+    "Obtain current OWNER host/pid/start and dispatch locks; own STOP_OWNER cooperatively quiesces only native/eval CPU owners. Preserve all detached native/eval children and existing states/specs/claims.",
+    "Review/create exact immutable alias oldE/performance_training_20261103 -> newROOT; reject existing wrong destination and never retarget/unlink while any run uses it. Agent has not created it.",
+    "Apply only sharing_preview operational fields for S1 to current RUNS atomically, preserving unrelated concurrent fields. The alias is used as real --output; no dummy argv hints. Old I source/config/owner stays untouched.",
+    "For planned move while native coordinator quiesced: make_migration_intent(run,current_node,Tsh5), write returned sealed dict to exactjob/OWN_NATIVE_CONTINUATION.json, then own exactjob/STOP_REQUESTED. No direct GPU signal is needed.",
+    "Wait actual EXIT0, strict8rank COMPLETE and exact prior torchrun/rank/worker transport exit; retain all old receipts. Never accept code1/forced/unsealed state as a successful return.",
+    "Archive only own CPU STOP_OWNER markers after old CPU exit, start reviewed ops_v2 native first. It adopts old stage/job receipts, recognizes explicit same-run continuation, restores latestCP Adam/RNG/cursor/pending on a live-qualified shared/research permanent lane.",
+    "Start ops_v2 eval after native lane has been claimed, so eval cannot occupy the intended permanent loading lane. Existing evaluation shards/world/spec/cache stay unchanged.",
+    "GPU native and canonical scoring cwd/identity remain formal_v1. CPU export guard uses ops_v2 to understand new resource fields; the22 scientific prediction/recovery files remain identical and native/export parity is still mandatory."
+  ],
+  "root": "/mnt/project/qwen-world-performance-rl-20261103",
+  "schema": "world_performance_ops_v2_review_plan_v1",
+  "scientific_commit": "5e5220c6059ed7e38b54b3198415fe4af3b5bf45",
+  "scientific_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+  "selector": {
+    "global_best_scope": "This new campaign only; report must retain older-campaign global records separately",
+    "integration": "CPU EvaluationOwner.advance calls once after a new COMPLETE summary; cache full scene arrays once; administrative selector failure marks REVIEW and retries after300s without blocking scoring",
+    "last_native": "Separate latest-native recovery metadata, never score an incomplete result",
+    "outputs": [
+      "ARM/best_score_checkpoint.json",
+      "ARM/best_stable.json",
+      "ARM/last.json",
+      "ARM/FIXED_REFERENCE.json",
+      "STATE.json"
+    ],
+    "policy": {
+      "NavtestSelected": true,
+      "best_score": "maximum full-population PDMS; ties choose earlier native update",
+      "best_stable": "within bestPDMS-.10; lexicographic minimum fixed-high gross loss, newly-zero count; then higher PDMS, earlier update",
+      "caveat": "Fixed high cohort was conditionally selected on first model; stability diagnostics do not prove causal forgetting",
+      "count": 12146,
+      "fixed_high_threshold": 0.9,
+      "invalid_scenes": 0,
+      "keep_all_checkpoints": true,
+      "last": "largest native update with COMPLETE verified NAV; unscored last-native is separate",
+      "physical_logs": 44,
+      "reference": "first actual COMPLETE NAV publication per logical run; frozen once",
+      "schema": "world_performance_complete_NAV_checkpoint_selection_v1",
+      "seed": 2101,
+      "stable_score_band_PDMS": 0.1,
+      "used_for_training_sample_selection": false
+    },
+    "root": "/mnt/project/qwen-world-performance-rl-20261103/selections"
+  },
+  "sha256": "0bf1dc311088fc3c03378a1891a128d580c7612d848e85e8f4bbdaddfbf35b6f",
+  "sharing_preview": {
+    "alias": "/mnt/project/qwen-world-safety-exploration-20261031/performance_training_20261103",
+    "alias_target": "/mnt/project/qwen-world-performance-rl-20261103",
+    "changes": [
+      {
+        "arm": "S1_NOMINAL_RESCUE",
+        "deployment_candidates": [
+          {
+            "host": "training-vlawm-tsinghua-zt5",
+            "lease_slot": "shared",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-tsinghua-zt5",
+            "lease_slot": "research",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-tsinghua-zt5",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-zt5",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vla-zt3",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-zt4",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-rl-zt2",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-tsinghua-zt2",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-zt",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-tsinghua-zt3",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          },
+          {
+            "host": "training-vlawm-zt2",
+            "lease_slot": "primary",
+            "minimum_free_MiB": 32768
+          }
+        ],
+        "execution_output_root": "/mnt/project/qwen-world-safety-exploration-20261031/performance_training_20261103/runs/S1_NOMINAL_RESCUE",
+        "resource_protocol": {
+          "maximum_campaign_native_per_host": 1,
+          "maximum_known_native_per_host": 2,
+          "minimum_free_MiB": 32768,
+          "output_alias": "/mnt/project/qwen-world-safety-exploration-20261031/performance_training_20261103",
+          "schema": "world_performance_measured_native_sharing_v1"
+        }
+      }
+    ],
+    "required_root_actions": [
+      "Review and create the exact transparent symlink if absent; reject any existing different target",
+      "Apply only the proposed operational fields under RUNS publication lock; preserve all other concurrent fields",
+      "CPU-only adopt reviewed ops_v2, preserving all native/eval children",
+      "For a move, seal make_migration_intent, then exact job ownSTOP; wait EXIT0+8rankCOMPLETE+oldworker exit before continuation"
+    ],
+    "schema": "world_performance_measured_native_sharing_v1",
+    "scientific_source_config_parent_unchanged": true,
+    "status": "PREVIEW_NOT_APPLIED"
+  },
+  "status": "CPU_READY_NOT_APPLIED",
+  "unchanged_scientific_files": {
+    "starVLA/model/modules/qwen_world_postcot/actor.py": "3c69574cf421eff18ee52342df0857f4620d5bd333e6be822e0fccd7f910476f",
+    "starVLA/model/modules/qwen_world_postcot/flow.py": "e044c3c0883f5298c53e9a9762c6fdd5004888fe3deb7f784d150a1f9ab01ef2",
+    "starVLA/model/modules/qwen_world_postcot/model.py": "bfdc21f7d38b375e0c1f187ebbe0f50b03063078cefbc6e19fd8683aaaa51bd7",
+    "starVLA/rl/qwen_world_performance/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "starVLA/rl/qwen_world_performance/adaptive_group.py": "e5cfb9155643afb3d03eb835fcd0bb7193c634b498fb632434cecf545a07b8f5",
+    "starVLA/rl/qwen_world_performance/awfm.py": "ed09c2b895a8d41b7f87326d162a5e106b9e119d462ae85737cde6dd739c2380",
+    "starVLA/rl/qwen_world_performance/batch_runtime.py": "67099b58ef8fb06fb872b3d01584a4f1d6aa2862e0187634de40530f5cc6f06e",
+    "starVLA/rl/qwen_world_performance/contracts.py": "2f4641211368ab485d6389bc29cc6d8385aa4e04844c7614241942a537ae6a7a",
+    "starVLA/rl/qwen_world_performance/data_protocol.py": "05ceae6d370db68f40ab71adbc4a2f4df5a61c42d1db14afaf3442baab976297",
+    "starVLA/rl/qwen_world_performance/feedback.py": "250b43aa04bd414f564e75041303cefe542ef18d50955230ff777b2cf0271eb5",
+    "starVLA/rl/qwen_world_performance/fpo_adapter.py": "89f36f80db1f97edce2fec85350bf076e1f43bc99e78991412d4b4695b8b00fe",
+    "starVLA/rl/qwen_world_performance/metrics.py": "233a36b67233eff76cfe20f43021aa9a6dc34cf7ac91cc2bccffb523538e4b40",
+    "starVLA/rl/qwen_world_performance/nominal_improvement.py": "fe148e7335572c280910ddcb696abf17c257003cf40779cc0af0b74b334eac3f",
+    "starVLA/rl/qwen_world_performance/ode_target.py": "44a94ffb1d334a89d1535278121800c6376baf553e9c3e426dc374eaf740e4de",
+    "starVLA/rl/qwen_world_performance/persistent_history.py": "36010c17bc1e26beafd914f699116433d52ba8d3e91d41c89d5b750973dd92a0",
+    "starVLA/rl/qwen_world_performance/recovery.py": "7c2562d3bddced5ccbb6dd74b697eb27cd859bcc16547c0d17e0b5beec039279",
+    "starVLA/rl/qwen_world_performance/sampling_priority.py": "e65001b240b73c9b5bf14ed8120f83bc1160ddce3245cce4db50bf28eb206d93",
+    "starVLA/rl/qwen_world_performance/stage_scheduler.py": "07a72b6d1b8540574551ebac3a439d3f6d99ff4b9330c7fd9a79814268c3aaa1",
+    "starVLA/rl/qwen_world_performance/temporal_credit.py": "4578742c85c148055f61604b13381571cf7a45eefd49ae21c79881497b516f25",
+    "starVLA/rl/qwen_world_postcot/deployment.py": "a0d92ab58cd555a4bb03c14d1d2a6f42cafc9377f9ff76752324f8ac0d8f7757",
+    "starVLA/rl/qwen_world_postcot/snapshot_navtest.py": "3d67053d7cf0c57b4109a9a8af27cafd87510eea8b0211a4604678776e8f88c0",
+    "tools/qwen_world_safety_exploration/evaluate.py": "25ff3fcb0435965479eafb079ef72a4c21f154e22d058bbabe450705c3024616"
+  }
+}

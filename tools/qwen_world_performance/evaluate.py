@@ -9,6 +9,42 @@ from pathlib import Path
 from .launch import ROOT,TASK,PROTECTED,ORDER,bootstrap,read,sha,publish,validate_registry,inspect_native
 
 
+def native_claim_startup_hold(host,claim,sample,run):
+    """A dispatch reservation is not a lifetime ban on qualified eval sharing.
+
+    This only releases the advisory hold. The original usable_gpu/worker checks
+    still decide every actual device, owner, headroom and UUID lease admission.
+    """
+    try:
+        job=Path(claim['job']).resolve()
+        if run is None or claim['arm']!=run['id']or not job.is_relative_to(ROOT/'jobs'/run['id']):
+            return True,'unresolved_or_foreign_claim'
+        if(job/'RESULT.json').exists():return False,'native_attempt_returned'
+        running=read(job/'RUNNING.json',{});dispatch=read(job/'DISPATCH.json',{})
+        command=running.get('command',[])
+        def arg(flag):return command[command.index(flag)+1]if command.count(flag)==1 and command.index(flag)+1<len(command)else None
+        if(running.get('status')!='RUNNING'or running.get('host')!=host
+           or dispatch.get('host')!=host or dispatch.get('command')!=command
+           or running.get('cwd')!=run.get('execution_source',run['source'])
+           or running.get('worker_pid')!=dispatch.get('worker_pid')
+           or running.get('worker_start_ticks')!=dispatch.get('worker_start_ticks')
+           or not running.get('child_pid')or not running.get('child_start_ticks')
+           or run['trainer_module']not in command or arg('--output')is None
+           or Path(arg('--output')).resolve()!=Path(run['root']).resolve()or arg('--config')!=run['config']):
+            return True,'dispatch_or_native_loading_window'
+        uuids={g['uuid']for g in sample['gpus']}
+        if(len(uuids)!=8 or len(running.get('gpu_uuids',[]))!=8
+           or set(running['gpu_uuids'])!=uuids):return True,'physical_mapping_not_confirmed'
+        ready={o['uuid']for o in sample['owners']if o.get('visible')is True
+               and isinstance(o.get('output'),str)and Path(o['output']).resolve()==Path(run['root']).resolve()and o.get('entry')==run['trainer_module']
+               and isinstance(o.get('pid'),int)and isinstance(o.get('start_ticks'),int)
+               and isinstance(o.get('used_MiB'),(int,float))and o['used_MiB']>=0}
+        if ready!=uuids:return True,'all_eight_native_gpu_owners_not_visible_yet'
+        return False,'running_native_ready_use_original_device_admission'
+    except(OSError,ValueError,KeyError,TypeError,IndexError):
+        return True,'ambiguous_claim_kept_for_review'
+
+
 def strict_export(parent,output,checkpoint):
     bootstrap()
     import torch
@@ -72,6 +108,10 @@ def owner_class():
             if '-c'in command and 'export_policy'in command[command.index('-c')+1]:
                 command=[MODEL_PYTHON,'-u','-m','tools.qwen_world_performance.evaluate','export',
                     '--parent-checkpoint',command[-3],'--output',command[-2],'--rl-checkpoint',command[-1]]
+                # The CPU export guard must understand operational sharing
+                # fields added after formal_v1. Prediction/model/scoring files
+                # remain unchanged; GPU evaluation keeps the scientific source.
+                run=dict(run,source=str(Path(__file__).resolve().parents[2]))
             return super().launch_job(run,node,command,family,route)
         def dispatch_ranks(self,samples):
             # Never take an empty8GPU primary lane while a registered learner
@@ -81,7 +121,14 @@ def owner_class():
             if waiting:
                 samples=[(h,s)for h,s in samples if not all(E.lease_free(E.LEASES['primary']/(g['uuid']+'.lock'))for g in s['gpus'])]
             claims=read(ROOT/'resources/NATIVE_HOST_CLAIMS.json',{})
-            held={h for h,c in claims.items()if not(Path(c['job'])/'RESULT.json').exists()}
+            runs={r['id']:r for r in self.registry['runs']};held=set();readiness={}
+            for host,sample in samples:
+                claim=claims.get(host)
+                if not claim:continue
+                hold,reason=native_claim_startup_hold(host,claim,sample,runs.get(claim.get('arm')))
+                readiness[host]=dict(startup_hold=hold,reason=reason,at_unix=time.time())
+                if hold:held.add(host)
+            self.state['native_claim_readiness']=readiness
             super().dispatch_ranks([(h,s)for h,s in samples if h not in held])
         def advance(self,samples):
             super().advance(samples)
@@ -92,6 +139,18 @@ def owner_class():
                         receipt=Path(export['path']).with_name(Path(export['path']).name+'.native_validation.json');r=read(receipt,{})
                         if r.get('status')!='PASS'or r.get('checkpoint',{}).get('files_sha256')!=gate['checkpoint']['files_sha256']:
                             raise ValueError('A performance export lacks new native validation; never silently adopt an old export')
+            signature=tuple(sorted((k,v.get('summary'))for k,v in self.state['evaluations'].items()if v.get('status')=='COMPLETE'))
+            if(signature and signature!=getattr(self,'_checkpoint_selection_signature',None)
+               and time.time()>=getattr(self,'_checkpoint_selection_retry_unix',0)):
+                try:
+                    from .select_checkpoints import refresh_selection
+                    selected=refresh_selection(self.registry,self.state)
+                    self.state['checkpoint_selection']=dict(status=selected['status'],path=str(ROOT/'selections/STATE.json'))
+                    self._checkpoint_selection_signature=signature
+                except Exception as error:
+                    # Administrative selection must not stop healthy scoring.
+                    self.state['checkpoint_selection']=dict(status='REVIEW_REQUIRED',error=repr(error))
+                    self._checkpoint_selection_retry_unix=time.time()+300
     return PerformanceEvaluationOwner
 
 

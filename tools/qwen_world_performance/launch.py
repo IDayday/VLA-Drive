@@ -118,7 +118,8 @@ def validate_registry(r,*,allow_pending=False):
            or run['target_updates']!=point(mapping,cap)['updates']or run['exposure_mapping']!=mapping):raise ValueError('Run/config/clock/owner contract changed')
         if not allow_pending:
             if run.get('source_pending')or not run.get('source_commit')or not Path(run['source']).is_dir():raise ValueError('Actual frozen source required, no fabricated commit')
-        if any(route['lease_slot']!='primary'for route in run['deployment_candidates']):raise ValueError('Native learners use free8GPU primary slots only')
+        from .continuation import validate_resource_fields
+        validate_resource_fields(run)
     return r
 
 
@@ -150,13 +151,15 @@ def resource_return(run,node,result,latest,target,*,authorized_hosts,grant,now=N
     cp=inspect_native(run,latest['checkpoint']);u=cp['updates'];host=node['host'];job=Path(node['job'])
     if not job.resolve().is_relative_to(ROOT/'jobs'/run['id'])or result.get('host')!=host:raise ValueError('Foreign native job return')
     now=time.time()if now is None else now
+    from .continuation import same_path,verified_migration
+    migration=verified_migration(run,node,result,cp)
     due=host not in authorized_hosts or(host in grant.get('temporary_hosts',[])and now>=grant['expires_unix']-grant['checkpoint_guard_seconds'])
-    if not due or not 0<=u<target:return None
+    if(not due and migration is None)or not 0<=u<target:return None
     if result.get('cwd')!=run.get('execution_source',run['source']):raise ValueError('Native resource return source changed')
     for rank in range(8):
         rr=read(Path(run['root'])/f'result_rank{rank}.json',{})
-        if rr.get('updates')!=u or rr.get('checkpoint')!=cp['path']or rr.get('rank')!=rank or rr.get('host')!=host:raise ValueError('Incomplete8rank cooperative return')
-    return dict(job=str(job),result=result,checkpoint=cp,reason='EXACT_NATIVE_RESOURCE_BOUNDARY',
+        if rr.get('updates')!=u or not same_path(rr.get('checkpoint'),cp['path'])or rr.get('rank')!=rank or rr.get('host')!=host:raise ValueError('Incomplete8rank cooperative return')
+    return dict(job=str(job),result=result,checkpoint=cp,reason='OWN_SAME_RUN_CONTINUATION'if migration else'EXACT_NATIVE_RESOURCE_BOUNDARY',migration_receipt=migration,
         full_tensor_hashes_and_Adam_RNG_restore='required by unchanged strict native restore',at_unix=now)
 
 
@@ -195,7 +198,10 @@ def owner_class():
                     if(len(g)!=8 or len({x['uuid']for x in g})!=8 or not s['worker_python_exists']or s['MemAvailable_bytes']<100*2**30 or s['load1']>s['CPU_affinity']*1.5):continue
                     if any(gpu_activity_issue(x,s['owners'])for x in g)or min(x['free_MiB']for x in g)<route['minimum_free_MiB']:continue
                     if any(not o.get('visible')or not isinstance(o.get('output'),str)or not o['output'].startswith(known)for o in s['owners']):continue
-                    if any(not eval_owner.lease_free(eval_owner.LEASES['primary']/(x['uuid']+'.lock'))for x in g):continue
+                    from .continuation import shared_sample_ready
+                    ready,_=shared_sample_ready(s)
+                    if not ready:continue
+                    if any(not eval_owner.lease_free(eval_owner.LEASES[route['lease_slot']]/(x['uuid']+'.lock'))for x in g):continue
                     return route,s
                 except(Exception):continue
             return None
@@ -223,12 +229,12 @@ def owner_class():
                         fcntl.flock(lock,fcntl.LOCK_EX);chosen=self.candidate(run)
                         if chosen is not None:
                             route,s=chosen;attempt=int(node.get('attempt',0))+1;name=f'{arm}/formal_to{target:06}_attempt{attempt:03}'
-                            command=[MODEL_PYTHON,'-m','torch.distributed.run','--standalone','--nnodes=1','--nproc_per_node=8','-m',run['trainer_module'],'--config',run['config'],'--manifest',self.registry['manifest'],'--il-checkpoint',run['parent_checkpoint'],'--data',self.registry['observation_data'],'--parent-selection',self.registry['parent_selection'],'--output',run['root'],'--stop-after-update',str(target),'--save-every',str(run['save_every'])]
+                            command=[MODEL_PYTHON,'-m','torch.distributed.run','--standalone','--nnodes=1','--nproc_per_node=8','-m',run['trainer_module'],'--config',run['config'],'--manifest',self.registry['manifest'],'--il-checkpoint',run['parent_checkpoint'],'--data',self.registry['observation_data'],'--parent-selection',self.registry['parent_selection'],'--output',run.get('execution_output_root',run['root']),'--stop-after-update',str(target),'--save-every',str(run['save_every'])]
                             if resume:command+=['--resume',resume]
                             with self.mutex:
                                 node.update(attempt=attempt,job=str(ROOT/'jobs'/name),host=route['host'],resume=resume,command=command,status='DISPATCHING');self.update(arm,status='DISPATCHING',job=node['job'],host=route['host'])
                             claims=read(ROOT/'resources/NATIVE_HOST_CLAIMS.json',{});claims[route['host']]=dict(job=node['job'],arm=arm,at_unix=time.time());publish(ROOT/'resources/NATIVE_HOST_CLAIMS.json',claims)
-                            try:dispatch.launch(route['host'],run['source'],command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[x['uuid']for x in s['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot='primary',worker_source=run.get('worker_source',run['source']))
+                            try:dispatch.launch(route['host'],run['source'],command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[x['uuid']for x in s['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'],worker_source=run.get('worker_source',run['source']))
                             except Exception:
                                 with self.mutex:
                                     node['dispatch_error']=traceback.format_exc();self.update(arm,status='DISPATCH_TRANSPORT_REVIEW',job=node['job'])
@@ -253,7 +259,8 @@ def owner_class():
                     continue
                 for rank in range(8):
                     rr=read(Path(run['root'])/f'result_rank{rank}.json',{})
-                    if rr.get('updates')!=target or rr.get('checkpoint')!=cp['path']:raise ValueError('Missing8rank stage completion')
+                    from .continuation import same_path
+                    if rr.get('updates')!=target or not same_path(rr.get('checkpoint'),cp['path']):raise ValueError('Missing8rank stage completion')
                 with self.mutex:
                     node.update(complete=True,checkpoint=cp['path'],end_unix=time.time());self.update(arm,status='STAGE_COMPLETE',updates=target,checkpoint=cp['path'],valid_scene_exposures=cp['valid_scene_exposures'])
                 return cp['path']
