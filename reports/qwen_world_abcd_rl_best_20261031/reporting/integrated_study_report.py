@@ -61,6 +61,12 @@ def execution_evidence(study,live,h,link):
 
 def render_integrated(report_root,study,h,section_id,native_summary=None):
     root=Path(study['root']);reg=study['registration'];runs=study['runs']
+    registry_runs=study.get('registry',{}).get('runs',[])
+    registered=next((r for r in registry_runs if r.get('id')==ARM),{})if isinstance(registry_runs,list)else registry_runs.get(ARM,{})
+    target=registered.get('target_updates',6250)
+    eval_gates=registered.get('evaluation_gates',reg.get('evaluation_gates'))
+    if isinstance(eval_gates,list):eval_gates=sorted({u for u in eval_gates if isinstance(u,int)and u>0})
+    else:eval_gates=None
     link=lambda p,t:h.relative_link(report_root,str(p),t)
     live=(native_summary or{}).get('runs',[]);live=[r for r in live if r.get('study_root')==study['root']]
     counts={k:sum(r.get('category')==k for r in live)for k in ['training','starting','waiting_resource','exited_review','resource_reserved','unconfirmed']}
@@ -68,6 +74,10 @@ def render_integrated(report_root,study,h,section_id,native_summary=None):
     body='<div class="notice"><b>独立I综合试验，沿用最高SafetyEP配方和同一原始IL70 fresh初始化。</b>同时加入64个不同场景、G16、质量门控历史RL保持与warmup→keep→cosine。它检验整套配方，不能把单因素阶段涨幅相加，也不能单独归因给某个组件。旧H两因素prepared计划被此方案取代，不启动旧H第六臂。</div>'
     body+=first_result_evidence(study,h,link)
     body+=execution_evidence(study,live,h,link)
+    if target>=10000 and eval_gates:
+        body+='<div class="notice"><b>现行判断门槛：完整实际 '+h.number(target)+' 次Adam更新后，再评审是否值得长训。</b>未来完整NAVTEST仅按实际 '+ '／'.join(h.number(u)for u in eval_gates)+' 更新安排；已完成250保留为历史，不重复评测。场景／候选时钟不替代实际Adam步数，现有科学调度与native状态保持。</div>'
+        applied=root/'operations'/'USER_10K_2K5K10K_20261102'/'APPLIED.json'
+        if applied.is_file():body+='<p>新预算与评测节奏已实际应用；10k前不因阶段分数提前淘汰。仅升级CPU运营控制，科学配置、warm125／keep625／cos2500／floor0.1与12500调度总时钟保持，Adam／RNG／历史bank连续，现有GPU任务未重启。'+link(applied,'预算与评测计划APPLIED收据')+'</p>'
     body+='<p class="muted">本I科学source '+h.esc(Path(reg.get('source','待冻结')).name)+'／'+h.esc(reg.get('source_commit','待实际source'))+'；已有F／G／H科学source分别保留，不因新CPU协调namespace而改写。</p>'
     body+='<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"><article><span>I实际正在训练</span><strong>'+(h.number(counts['training'])if confirmed else '待实时证据')+'</strong><small>独立namespace；当前stage无RESULT、全部8rank新日志</small></article><article><span>I启动／等资源／退出待核</span><strong>'+('/'.join(h.number(counts[k])for k in ['starting','waiting_resource','exited_review'])if confirmed else '待本次统计')+'</strong><small>本I登记 '+h.number(len(runs))+' 臂；未确认 '+h.number(counts['unconfirmed'])+'。与首屏同时间：'+h.esc((native_summary or{}).get('observed_utc','尚未统计'))+'</small></article></div>'
     method_rows=[['基准主体','原IL70／fresh Adam0／RNG42；SafetyEP信用、IL70 mean-anchor β50、52,707,840可训练memory＋LoRA；Qwen冻结'],
@@ -88,19 +98,25 @@ def render_integrated(report_root,study,h,section_id,native_summary=None):
         labels={'training':'实际训练','starting':'启动中，待8rank更新','waiting_resource':'等待资源','exited_review':'执行退出，待复核／恢复','resource_reserved':'资源储备','unconfirmed':'当前运行未确认','ended':'当前阶段已结束','paused_saved':'边界保存后暂停'}
         progress.append([h.esc(run['id']),h.esc(labels.get(row.get('category'),run.get('status','待当前阶段证据'))),
             h.number(row.get('common_updates',run.get('updates'))),h.esc(row.get('host',run.get('host','待派发'))),
-            h.number(run.get('raw_scene_exposures')),h.number(run.get('new_candidates')),h.number(run.get('target_updates',6250))])
+            h.number(run.get('raw_scene_exposures')),h.number(run.get('new_candidates')),h.number(target)])
     body+=h.table(['I运行臂','当前证据分类','actual Adam共同更新','host','原生scene曝光','原生主PG候选','当前批准Adam预算'],progress)
     body+='<h3>三个时钟分开：没有单一“等价步数”</h3><p>主source场景时钟为actual Adam×8，主PG候选时钟为×16；预算与Adam成本不同。窗口数据按ceil(u/4)采集，pending inner的整窗口已经生成／评分，不能只按已完成inner比例计成本。</p>'
     plan=[]
-    for u in [250,625,1250,2500,6250,12500]:
+    milestones=sorted(set([250,625,target,12500]+(eval_gates if eval_gates is not None else[1250,2500])))
+    for u in milestones:
         b=budget(u)
-        plan.append([h.number(u),h.number(b['windows']),h.number(b['scenes']),h.number(b['candidates']),
+        purpose='历史完整评测'if u==250 else '当前批准预算终点'if u==target else '当前评测点'if eval_gates and u in eval_gates else 'native交接节点'if u==625 and eval_gates is not None else '科学调度上限；未自动批准'if u==12500 else '历史计划节点'
+        plan.append([h.number(u)+'<small>'+purpose+'</small>',h.number(b['windows']),h.number(b['scenes']),h.number(b['candidates']),
             h.number(b['scene_clock'])+'／'+h.number(b['candidate_clock']),
             h.number(b['extra_scenes'])+'／'+h.number(b['extra_candidates'])+'<small>next_inner '+h.number(b['next_inner'])+'</small>'])
     body+=h.table(['actual Adam u','窗口计划ceil(u/4)','scene曝光计划','主PG候选计划','名义Control scene／PG时钟','pending surplus：scene／PG'],plan)
-    body+='<p><b>初批准6250 actual Adam：</b>按整窗口计算的计划为100,032 scene／1,600,512 PG候选、pending2；未到该点前均非实际观测。有益后另审至12500；这是固定调度上限，不是自动续满承诺。raw曝光不等于unique掌握，fullTRAIN eligible103,288需与跨epoch重复分开。u为已完成Adam，计划倍率供下一次step使用。</p>'
+    approved=budget(target)
+    body+='<p><b>当前批准 '+h.number(target)+' actual Adam：</b>按整窗口计算的主训练计划为 '+h.number(approved['scenes'])+' scene／'+h.number(approved['candidates'])+' PG候选，pending '+h.number(approved['next_inner'])+'；真实B1额外验证另计，未到该点前均非实际观测。固定科学调度上限12500不等于自动批准续满。raw曝光不等于unique掌握，fullTRAIN eligible103,288需与跨epoch重复分开。u为已完成Adam，计划倍率供下一次step使用。</p>'
     body+='<p>第一个250评测尚未进入retention；受整窗口与pending影响，首次history admission的behavior为θ252，不能据250评测判断保持组件效应。启用后每窗口在1024个fresh PG评分之外，最多64个fresh B1＋64个history B1官方验证，即额外上限<b>12.5%</b>，不能沿用H单scene/G8的25%查询比例。25%仍指gate激活时的β50历史anchor预算份额；实际验证次数等待封存计数，不能把四inner复用乘成四次新query。</p>'
-    body+='<p>全量评测gate：250／625／1250，之后每250 actual Adam；这是source scene时钟10k后的每2k节奏。两种预算的完整Control缺哪种就待匹配；例如I625对Control5k是scene预算、对Control10k是PG预算，且pending多48scene／768PG，不能称严格等成本。</p>'
+    if eval_gates is not None:
+        body+='<p>未来全量评测gate：'+ '／'.join(h.number(u)for u in eval_gates)+' actual Adam。250只保留历史；native保存／交接节点与评测节点分开，不按旧625／1250等密集计划新增NAVTEST。两种预算的完整Control缺哪种就待匹配，不插值或用未齐点代替。</p>'
+    else:
+        body+='<p>登记的全量评测gate见现行RUNS；两种预算的完整Control缺哪种就待匹配。例如I625对Control5k是scene预算、对Control10k是PG预算，且pending多48scene／768PG，不能称严格等成本。</p>'
     complete=sorted((r for r in study['results']if r.get('publishable_complete')and r.get('cohort')=='NAVTEST'),key=lambda r:r.get('updates',0))
     if complete:body+='<h3>I完整NAVTEST</h3>'+h.table(['方法','actual Adam','场景','完整PDMS','证据'],[[h.esc(r['arm']),h.number(r.get('updates')),h.number(r.get('scenes')),h.fmt(r.get('PDMS'),8),link(r['evidence'],'全量SUMMARY')]for r in complete])
     else:body+='<div class="notice"><b>I尚无完整NAVTEST成绩。</b>配置／CPU检查／child启动／训练候选改善都不代替12146场景完整部署分数，不发布partial均值。</div>'
