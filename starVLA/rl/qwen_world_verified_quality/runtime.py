@@ -8,10 +8,12 @@ from starVLA.rl.qwen_world_performance.batch_runtime import PerformanceRuntime,C
 from starVLA.rl.qwen_world_performance import nominal_improvement as N
 from starVLA.rl.qwen_world_research_algorithms.policy import ResearchLoss
 from .recipe import validate_recipe,PROTOCOL,QUALITY_PROTOCOL_SHA256
+from . import calibration as C
 
 
 class VerifiedQualityLoss(N.NominalLossMixin,ComponentCapture,ResearchLoss):
     nominal_config=N.QUALITY_CONFIG
+    calibrate_nominal_components=staticmethod(C.calibrate_components)
 
 
 class VerifiedQualityRuntime(PerformanceRuntime):
@@ -44,8 +46,8 @@ class VerifiedQualityRuntime(PerformanceRuntime):
         auxiliary=state['performance_auxiliary']
         if 'nominal_improvement' not in auxiliary:
             if state['updates'] or state['collections']:raise ValueError('S6 native state cannot silently reset calibration')
-            auxiliary['nominal_improvement']=N.new_calibration_state()
-        N.validate_calibration_state(auxiliary['nominal_improvement'])
+            auxiliary['nominal_improvement']=C.new_calibration_state()
+        C.validate_calibration_state(auxiliary['nominal_improvement'])
         self.actor._loss.auxiliary_state=auxiliary['nominal_improvement']
 
     def _attach_auxiliary(self,actor,leaf,service,rank):
@@ -56,6 +58,7 @@ class VerifiedQualityRuntime(PerformanceRuntime):
     def recipe_identity(self,cfg,args,condition_sha):
         value=super().recipe_identity(cfg,args,condition_sha)
         value['performance_implementation_protocols']['nominal']=copy.deepcopy(N.QUALITY_CONFIG)
+        value['performance_implementation_protocols']['calibration']=copy.deepcopy(C.PROTOCOL)
         value.update(verified_quality_protocol=copy.deepcopy(PROTOCOL),quality_protocol_sha256=QUALITY_PROTOCOL_SHA256)
         return value
 

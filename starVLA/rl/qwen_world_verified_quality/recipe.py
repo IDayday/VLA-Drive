@@ -3,7 +3,8 @@ import copy
 import math
 
 from starVLA.rl.qwen_world_performance.contracts import ROOT,SCHEMA as BASE_SCHEMA,EVALUATION_EPOCHS as BASE_EVALUATIONS,validate_recipe as validate_base
-from starVLA.rl.qwen_world_performance.nominal_improvement import QUALITY_CONFIG,CALIBRATION_PROTOCOL
+from starVLA.rl.qwen_world_performance.nominal_improvement import QUALITY_CONFIG
+from .calibration import PROTOCOL as CALIBRATION_PROTOCOL
 from starVLA.rl.qwen_world_performance.adaptive_group import PROTOCOL as EXTRA_PROTOCOL
 from starVLA.rl.qwen_world_postcot.contracts import fingerprint
 
@@ -19,7 +20,7 @@ NOMINAL_SPEC=dict(V1_SPEC,schema=QUALITY_CONFIG['schema'],start_epoch=0.,
     strict_high_nominal_anchor_budget_share=.02,allow_strict_high_nominal_teacher=True,
     repair_gain_margin=.02,safe_high_gain_margin=.005)
 NOMINAL_SPEC.pop('min_improvement')
-PROTOCOL=dict(schema='world_verified_quality_fresh_IL70_B64G16M4_v1',arm=ARM,
+PROTOCOL=dict(schema='world_verified_quality_fresh_IL70_B64G16M4_v2',arm=ARM,
     nominal=copy.deepcopy(QUALITY_CONFIG),calibration=copy.deepcopy(CALIBRATION_PROTOCOL),
     adaptive_extra=copy.deepcopy(EXTRA_PROTOCOL),B=64,G=16,M=4,
     peak_action_lr=5e-5,peak_memory_lr=5e-6,schedule=copy.deepcopy(SCHEDULE),

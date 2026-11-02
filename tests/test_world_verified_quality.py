@@ -13,6 +13,7 @@ from starVLA.rl.qwen_world_performance import nominal_improvement as N,ode_targe
 from starVLA.rl.qwen_world_verified_quality.recipe import build_recipe,validate_recipe,PROTOCOL,QUALITY_PROTOCOL_SHA256
 from starVLA.rl.qwen_world_verified_quality.runtime import VerifiedQualityLoss,VerifiedQualityRuntime
 from starVLA.rl.qwen_world_verified_quality import recovery
+from starVLA.rl.qwen_world_verified_quality import calibration as C
 from starVLA.rl.qwen_world_safety_exploration.retention_material import digest,sealed
 
 
@@ -32,9 +33,9 @@ def test_safe_high_now_has_verified_teacher_and_original_budget_split():
     assert old_skip=='nominal_already_strict_high'
     base,_=a(r);pg=a._loss.pg_component;anchor=a._loss.weighted_anchor_component
     cfm,ode,_=N.compute_nominal_losses(a,r,N.QUALITY_CONFIG)
-    normalized,_=N.calibrate_components(a,pg,anchor/50,cfm,ode,N.new_calibration_state())
+    normalized,_=C.calibrate_components(a,pg,anchor/50,cfm,ode,C.new_calibration_state())
     expected=base+.02*(50*normalized['rescue']-anchor)
-    a._loss=VerifiedQualityLoss(cfg);a._loss.auxiliary_state=N.new_calibration_state();value,metrics=a(r)
+    a._loss=VerifiedQualityLoss(cfg);a._loss.auxiliary_state=C.new_calibration_state();value,metrics=a(r)
     torch.testing.assert_close(value,expected,rtol=1e-6,atol=1e-6)
     assert float(metrics['nominal_aux_IL_share'])==pytest.approx(.98)
     assert float(metrics['nominal_aux_rescue_share'])==pytest.approx(.02)
@@ -47,7 +48,7 @@ def test_safe_high_now_has_verified_teacher_and_original_budget_split():
 def test_not_strict_B1_uses_five_percent_and_small_gain_or_unsafe_teachers_refused():
     a,c,cfg,s,r=material(high=False)
     assert r['nominal_improvement']['enabled'] and r['nominal_improvement']['active_alpha']==.05
-    a._loss=VerifiedQualityLoss(cfg);a._loss.auxiliary_state=N.new_calibration_state();_,m=a(r)
+    a._loss=VerifiedQualityLoss(cfg);a._loss.auxiliary_state=C.new_calibration_state();_,m=a(r)
     assert float(m['nominal_aux_IL_share'])==pytest.approx(.95) and float(m['nominal_aux_rescue_share'])==pytest.approx(.05)
     _,_,_,s,small=material(ep=.995)
     assert not small['nominal_improvement']['enabled'] and small['nominal_improvement']['skip_reason']=='teacher_gain_below_margin'
@@ -66,7 +67,7 @@ def test_not_strict_B1_uses_five_percent_and_small_gain_or_unsafe_teachers_refus
 
 
 def test_pending_native_material_and_calibration_resume_exact_and_gate_tampering_rejected():
-    a,c,cfg,s,r=material();a._loss=VerifiedQualityLoss(cfg);a._loss.auxiliary_state=N.new_calibration_state()
+    a,c,cfg,s,r=material();a._loss=VerifiedQualityLoss(cfg);a._loss.auxiliary_state=C.new_calibration_state()
     params=[p for p in a.parameters() if p.requires_grad];opt=torch.optim.AdamW(params,lr=1e-5)
     unchanged=digest({k:r[k] for k in ('old_logp','advantages','adv_mask','rewards','chain')})
     for _ in range(2):
@@ -125,13 +126,14 @@ def test_recipe_exact_B64_fresh_mature_clock_early_gates_and_default_reference_c
 def test_strict_S6_recovery_passes_explicit_validator_and_rejects_protocol_swap(monkeypatch):
     cfg=build_recipe(yaml.safe_load(Path('/mnt/project/qwen-world-performance-rl-20261103/configs/S1_NOMINAL_RESCUE.yaml').read_text()))
     identity=dict(recipe=cfg,verified_quality_protocol=PROTOCOL,quality_protocol_sha256=QUALITY_PROTOCOL_SHA256,
-        performance_implementation_protocols=dict(nominal=N.QUALITY_CONFIG))
+        performance_implementation_protocols=dict(nominal=N.QUALITY_CONFIG,calibration=C.PROTOCOL))
     called=[]
     def base(*args,**kwargs):called.append(kwargs);return {}
     monkeypatch.setattr(recovery.base,'validate_boundary',base)
     result=recovery.validate_boundary({},None,identity,expected_rank=3)
     assert result['quality_protocol_sha256']==QUALITY_PROTOCOL_SHA256
     assert called[0]['expected_rank']==3 and called[0]['recipe_validator'] is validate_recipe and called[0]['nominal_config']==N.QUALITY_CONFIG
+    assert called[0]['calibration_validator'] is C.validate_calibration_state
     bad=copy.deepcopy(identity);bad['performance_implementation_protocols']['nominal']=N.CONFIG
     with pytest.raises(ValueError,match='quality/alpha/start'):recovery.validate_boundary({},None,bad,expected_rank=3)
     _,_,_,_,leaf=material();window=dict(valid_global_scenes=64,rank=0,samples=[leaf])

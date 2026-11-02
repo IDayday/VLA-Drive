@@ -224,7 +224,7 @@ research:
       history: false
   family: verified_quality
   verified_quality:
-    schema: world_verified_quality_fresh_IL70_B64G16M4_v1
+    schema: world_verified_quality_fresh_IL70_B64G16M4_v2
     arm: S6_VERIFIED_QUALITY
     nominal:
       schema: world_verified_quality_nominal_improvement_v2
@@ -242,20 +242,27 @@ research:
       repair_gain_margin: 0.02
       safe_high_gain_margin: 0.005
     calibration:
-      schema: world_performance_rank_local_aux_gradient_calibration_v1
-      target: norm of current same-microbatch unscaled physical ILmean-MSE gradient
-      ratio: norm(gIL)/max(norm(gcomponent),1e-12)
+      schema: world_verified_quality_PG_floor_aux_calibration_v2
+      target: max(norm(gIL), .04 * EMA(norm(gPG)))
+      PG_floor_ratio: 0.04
+      PG_EMA_decay: 0.9
+      PG_EMA_initialization: first strictly positive actual PG norm
+      ratio: target/max(norm(gcomponent),1e-12)
       minimum_scale: 0.0001
       maximum_scale: 10000.0
-      EMA_decay: 0.9
+      scale_EMA_decay: 0.9
       calibration_calls: 100
       measurement_calls: 500
-      clock: effective per-rank teacher-slot loss calls, including inner reuse; not
+      clock: eligible per-rank teacher-slot loss calls, including inner reuse; not
         Adam updates
-      gradients: all current trainable parameters; local norm, no conditional cross-rank
-        collective; no .grad mutation
-      freeze: after100 calls keep last EMA; only diagnose until500, then stop gradient
-        probes; last_measured labels remain explicit
+      cold_start: 'PG and PG EMA both zero: minimum scales, probe again next call,
+        no eligible/calibration/measurement budget consumed'
+      PG_zero_after_initialization: update PG EMA with zero and use its positive historical
+        value
+      gradients: all current trainable parameters; local norms, no cross-rank collective;
+        no .grad mutation
+      freeze: after100 eligible calls freeze scales; diagnose to500 eligible calls,
+        then hold last measurements and PG EMA
     adaptive_extra:
       schema: world_performance_teacher_only_conditional_extra_G16_v1
       main_G: 16

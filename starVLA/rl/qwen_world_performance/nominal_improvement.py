@@ -228,7 +228,8 @@ class NominalLossMixin:
         if cfm is None:return total,metrics
         state=self.auxiliary_state;beta=float(model.grpo_kl_beta)
         if beta!=50.:raise ValueError('Nominal study replaces fixed beta50 budget')
-        parts,values=calibrate_components(model,self.pg_component,self.weighted_anchor_component/beta,cfm,ode,state)
+        calibrate=getattr(self,'calibrate_nominal_components',calibrate_components)
+        parts,values=calibrate(model,self.pg_component,self.weighted_anchor_component/beta,cfm,ode,state)
         alpha=active_alpha(rollout['nominal_improvement'],config)
         replacement=alpha*(beta*parts['rescue']-self.weighted_anchor_component)
         metrics.update(values);metrics.update(nominal_aux_budget_delta=replacement.detach(),
