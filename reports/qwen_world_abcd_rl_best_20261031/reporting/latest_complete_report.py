@@ -4,6 +4,7 @@ No scene records, training selection, bootstrap, dispatch, or process mutations.
 """
 from datetime import datetime, timezone
 import hashlib
+import json
 from pathlib import Path
 import time
 
@@ -18,6 +19,7 @@ NAMES = {
     'IMPROVEMENT_VERIFIED_RETENTION_G8': 'H·质量门控历史RL保持',
     'IMPROVEMENT_FP32_OUTPUT_G8': 'H·真FP32动作投影',
     'IMPROVEMENT_MIXED_NOISE_G8': 'H·固定G8混合探索',
+    'IMPROVEMENT_RETENTION_EARLY_DECAY_G8': 'H·质量保持＋更早衰减',
 }
 CONTROL = 'SAFETY_G8_CONTROL'
 
@@ -99,7 +101,7 @@ def render_top_summary(root, snapshot, h):
 
 
 def build_review(studies):
-    points = {}; pairs = []; inputs = {}; runs = {}
+    points = {}; pairs = []; inputs = {}; runs = {}; query_budgets = {}; combination_preparation = {}
     def evidence(path):
         if path and path not in inputs:
             p = Path(path)
@@ -109,6 +111,17 @@ def build_review(studies):
         return path
     for study in studies:
         root = study['root']
+        budget_path=Path(root)/'analysis'/'RETENTION_5K_ACTUAL_QUERY_BUDGET.json'
+        if budget_path.is_file():
+            value=json.loads(budget_path.read_text())
+            if value.get('status')=='COMPLETE_ALL8_SEALED_RANK_STATES':
+                query_budgets['IMPROVEMENT_VERIFIED_RETENTION_G8_u005000']={k:v for k,v in value.items()if k!='ranks'}
+                query_budgets['IMPROVEMENT_VERIFIED_RETENTION_G8_u005000']['evidence']=evidence(str(budget_path))
+        prepared_path=Path(root)/'analysis'/'RETENTION_EARLY_DECAY_PREPARED_20261102.json'
+        if prepared_path.is_file():
+            value=json.loads(prepared_path.read_text())
+            combination_preparation={k:v for k,v in value.items()if k in ['schema','status','arm','source','source_commit','config','CPU_check','registration_draft','handoff']}
+            combination_preparation['evidence']=evidence(str(prepared_path))
         for run in study['runs']:
             runs[(root, run['id'])] = {k: run.get(k) for k in
                 ['id', 'updates', 'status', 'host', 'journal_ranks', 'new_candidates',
@@ -169,11 +182,11 @@ def build_review(studies):
             latest_complete=curve[-1] if curve else None, observed_peak=max((p for p in curve if p['updates']>0), key=lambda p:p['PDMS'], default=None),
             latest_candidate_matched=matched[-1] if matched else None,
             candidate_matched_points=matched, current_native=runs.get((root, arm), {})))
-    return dict(schema='report_existing_complete_long_run_comparison_v1',
+    review=dict(schema='report_existing_complete_long_run_comparison_v1',
         status='COMPLETE_SNAPSHOT_OF_AVAILABLE_FULL_RESULTS', created_utc=datetime.now(timezone.utc).isoformat(),
         complete_points=len(points), complete_comparisons=len(comparisons), arms=arms,
         observed_peak=max((p for p in points.values() if p['updates']>0), key=lambda p:p['PDMS'], default=None),
-        comparisons=comparisons, input_files=inputs,
+        comparisons=comparisons, actual_training_query_budgets=query_budgets, combination_preparation=combination_preparation, input_files=inputs,
         scope='F/G/H only; existing complete12146/invalid0 summaries and sealed paired artifacts; no new score/bootstrap.',
         limitations=['All reported CIs reused: one training seed,44 physical logs,2000 cluster-bootstrap draws,seed42.',
             'Repeated checkpoint selection and multiple comparisons are not corrected; observed peaks are descriptive.',
@@ -181,6 +194,58 @@ def build_review(studies):
             'Candidate budgets do not equate scenes, Adam steps, scheduler phase, or model compute for G16/Batch32.',
             'Retention extra official ODE queries are separate; source-PG query matching is not total-query matching.',
             'NAVTEST labels are diagnostic only and never become a training bank.'])
+    review['stage_gain_vs_observed_peak']=_stage_gain_context(review)
+    return review
+
+
+def _stage_gain_context(review):
+    peak=review.get('observed_peak')or{};rows=[]
+    selections=[('IMPROVEMENT_VERIFIED_RETENTION_G8',5000,5000),('IMPROVEMENT_EARLY_DECAY_G8',12000,12000),
+                ('IMPROVEMENT_EARLY_DECAY_G8',14000,14000),('REVIVAL_G16',10000,20000)]
+    for arm,u,base_u in selections:
+        p=next((p for p in review['comparisons']if p['arm']==arm and p['updates']==u and p['reference_updates']==base_u),None)
+        if p:
+            rows.append({k:p.get(k)for k in ['arm','updates','reference_updates','baseline_PDMS','target_PDMS','delta_PDMS','CI95_PDMS','evidence']}|
+                        dict(delta_to_observed_peak_PDMS=p['target_PDMS']-peak['PDMS'],
+                             candidate_multiplier_vs_same_update_control=2 if arm=='REVIVAL_G16'else 1))
+    return dict(reference_peak=peak,rows=rows,
+        caveat='Matched deltas use each stated Control checkpoint. Distance to the selected peak is arithmetic across budgets, not a new matched CI or a causal method ranking.')
+
+
+def _render_stage_gain_context(review,h,link,ci):
+    context=review.get('stage_gain_vs_observed_peak')or _stage_gain_context(review)
+    peak=context['reference_peak'];rows=[]
+    budget=review.get('actual_training_query_budgets',{}).get('IMPROVEMENT_VERIFIED_RETENTION_G8_u005000',{})
+    for p in context['rows']:
+        arm=p['arm'];note='同Adam更新；官方验证查询另计'if arm=='IMPROVEMENT_VERIFIED_RETENTION_G8'else '同Adam／主PG候选量'if arm!='REVIVAL_G16'else '10k对Control20k同主候选量；同10k候选为2倍'
+        rows.append([h.esc(NAMES.get(arm,arm))+'<small>'+h.number(p['updates'])+'更新</small>',
+                     'Control '+h.number(p['reference_updates'])+'<small>'+h.fmt(p['baseline_PDMS'],8)+'</small>',
+                     h.fmt(p['target_PDMS'],8),h.fmt(p['delta_PDMS'],6)+'<small>'+ci(p['CI95_PDMS'])+'</small>',
+                     h.fmt(p['delta_to_observed_peak_PDMS'],6),note+'<small>'+link(p['evidence'],'原始完整配对')+'</small>'])
+    if not rows:return ''
+    body='<h3>同阶段增益≠超过最高分</h3><p>下面的增益分别相对明确列出的Control检查点，<b>没有加在最高 '+h.fmt(peak.get('PDMS'),8)+' 上</b>。全部从同一原始IL70独立fresh初始化；最高点与各方法的预算不同，最后一列前的峰值差只是实际分数的算术距离，不是新的配对显著性结论。</p>'
+    body+=h.table(['方法／实际更新','增益所用基线／实际分','方法实际分','对该基线Δ／95%CI','距本页最高分Δ','预算与证据'],rows)
+    body+='<p>目前这些正向对照支持部分阶段的优化或保持改善，尚未证明提高最优部署分数上限。保持5k的更新数少于最高10k；Early的12k／14k则多于10k；不能只按距最高的差值判方法长期优劣。</p>'
+    if budget:
+        source=budget.get('sourcePG',{});extra=budget.get('extra_verification',{})
+        body+='<p class="muted">保持臂5k的已封存实际训练评分：主PG '+h.number(source.get('global_candidates'))+'＋fresh B1 '+h.number(extra.get('fresh_TRAIN_B1'))+'＋history B1 '+h.number(extra.get('history_TRAIN_B1'))+'＝'+h.number(budget.get('total_official_training_candidate_scores'))+'，较主PG额外 '+h.fmt(budget.get('extra_ratio'),3,percent=True)+'%；不含周期NAV评分。同5k并非总训练查询严格相等。'+link(budget['evidence'],'8rank实际查询预算')+'</p>'
+    body+='<details open><summary>91.4536的最高配方已经有哪些组件，变体具体改了什么</summary><p><b>SafetyEP标准Control10k：</b>SafetyEP信用、G8／world8、4inner；warmup1000后固定50k cosine／floor0.1，峰值action LR 5e−5、memory LR 5e−6；IL70均值anchor β50。scene／predictive memory与actor LoRA共52,707,840参数实际可训练，Qwen冻结。数据为full103,288；不是仅训动作头，也不是未加warmup或cosine的弱基线。</p>'
+    body+=h.table(['相同强基线上的变体','单独改变的核心机制','保持的主体配置'],[
+        ['更早衰减','cos衰减终点50k→20k，之后保持0.1floor；warmup和峰值LR不变','SafetyEP／G8／4inner／IL70 β50 anchor／可训练memory不变'],
+        ['质量门控的历史RL保持','2k后收集本run实际ODE验证的高质量行为；抽历史场景用当前ODE重评，退化时在原β50内分配0.75 IL＋0.25历史RL均值保持','fresh PG／优势与原50k cosine不变；额外官方验证查询单列'],
+        ['G16','每场景候选8→16，同更新数主候选为2倍；与Control20k的候选预算对齐并不对齐Adam／场景／scheduler时钟','同原IL70 fresh、SafetyEP与基础scope；不是32个不同场景的batch扩展'],
+    ])+'</details>'
+    combo=next((a for a in review['arms']if a['arm']=='IMPROVEMENT_RETENTION_EARLY_DECAY_G8'),None)
+    if combo:
+        n=combo['current_native'];state='已登记，等待实际更新'
+        if n.get('worker_receipt_status')=='RUNNING':state='child启动，待实际8rank更新'if n.get('journal_ranks')!=8 or not(n.get('updates')or 0)>0 else '已观察到8rank优化 '+h.number(n['updates'])+'更新'
+        if n.get('worker_returncode')==75:state='当前等待资源准入，不是科学失败'
+        if combo.get('latest_complete'):state+='；完整成绩见当前结果表'
+    else:state='准备态；尚未登记或派发，无组合分数，不计入当前训练数量'
+    body+='<p><b>整合首选：保持＋更早衰减。</b>'+state+'。组合从原IL70、fresh Adam／RNG42／update0另起；它与从最高Control10k继续训练是不同设计。两机制可能相互影响，不能相加各自涨幅，更不能把保持5k与Early14k的差值拼成组合成绩。2k前保持尚未启用，不是组合效果检验；完整同阶段输入齐后，分别对Control、Early、Retention核对总分、零分修复／新增、固定IL高分保持与官方查询成本。</p>'
+    prepared=review.get('combination_preparation',{})
+    if prepared.get('evidence'):body+='<p class="muted">'+link(prepared['evidence'],'组合代码／CPU检查／可审配置与准备状态')+'：'+h.esc(prepared.get('status','状态见原始文件'))+'。CPU检查不等于部署或收益，原H登记与owner不因准备文件而扩容。</p>'
+    return body
 
 
 def render_review(root, review, review_path, h):
@@ -188,6 +253,7 @@ def render_review(root, review, review_path, h):
     link = lambda p, text: h.relative_link(root, p, text)
     peak = review.get('observed_peak') or {}
     body = '<div class="notice"><b>已出现多个阶段的配对正点，但尚未形成持续的新方法领先。</b>当前F/G/H完整观测峰仍为 '+h.esc(NAMES.get(peak.get('arm'), peak.get('arm')))+' '+h.number(peak.get('updates'))+'更新 '+h.fmt(peak.get('PDMS'), 5)+'；'+('尚未达到92。' if peak.get('PDMS', 0)<92 else '已达92，保持性另检。')+'本次汇总 '+h.number(review['complete_points'])+' 个完整NAVTEST点／'+h.number(review['complete_comparisons'])+' 组既有Control配对；不把部分评测补成成绩。</div>'
+    body+=_render_stage_gain_context(review,h,link,ci)
     rows = []
     ordered = sorted(review['arms'], key=lambda r:(not r['arm'].startswith('IMPROVEMENT_'), r['arm'] != CONTROL, r['arm']))
     for arm in ordered:

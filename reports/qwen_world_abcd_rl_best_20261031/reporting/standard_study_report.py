@@ -390,6 +390,7 @@ def _improvement_cards(study,h,label):
         'verified_retention':('P2 · 质量门控历史RL保持','2k后通过实际ODE质量门槛入库；退化时分配原β预算25%给历史均值保持。','额外官方ODE查询最多25%。'),
         'fp32_output':('P3 · 真FP32动作投影','末层在FP32做matmul；rollout／replay／reference／export／eval一致。','先评native0，隔离初始数值函数变化。'),
         'mixed_noise':('P4 · 固定G8混合探索','4个候选在[7,8,9]加噪，4个在[3,6,8]加噪；每个仍三slots。','64个主评分不增，支持重组不是NAV增益。'),
+        'retention_early_decay':('P5 · 保持＋更早衰减','从原IL70 fresh独立验证历史RL质量保持与20k衰减终点的组合。','不相加涨幅；非最高10k nativefork。'),
     }
     cards=[]
     for run in study['runs']:
@@ -567,7 +568,7 @@ def render_related(report_root,studies,h):
             count=h.number(run.get('updates'))
             if improvement and h.finite(run.get('updates')):count+='<small>名义F数据clock '+h.number(run['updates']*(4 if run.get('improvement_role')=='multiscene32'else 1))+'</small>'
             method=run.get('algorithm',run.get('standard_role','待方法'))
-            if improvement:method={'early_decay':'更早衰减并保持floor','multiscene32':'32个不同场景的真实梯度累积','verified_retention':'质量门控的历史RL行为保持','fp32_output':'真FP32末层动作投影','mixed_noise':'固定G8：4late＋4early混合探索'}.get(run.get('improvement_role'),method)
+            if improvement:method={'early_decay':'更早衰减并保持floor','multiscene32':'32个不同场景的真实梯度累积','verified_retention':'质量门控的历史RL行为保持','fp32_output':'真FP32末层动作投影','mixed_noise':'固定G8：4late＋4early混合探索','retention_early_decay':'质量门控保持＋更早衰减组合'}.get(run.get('improvement_role'),method)
             rows.append([identity,h.esc(method),status+'<small>'+h.esc(run.get('host','未记录host'))+'</small>',count,h.number(raw)+'<small>'+ratio+' of eligible population</small>',h.number(run.get('new_candidates')),h.number(run.get('target_updates',reg.get('initial_budget_updates')))])
         body+=h.table(['本子研究arm','方法','实际状态','共同更新','实际scene曝光／人口','fresh候选','当前预算'],rows)
         if improvement:
