@@ -36,6 +36,8 @@ wm-zt4 实际连接成功，部署前八卡约 81,153 MiB 空闲，无 GPU 进�
 
 一个过程快照中 C/D/B44 的当次 invocation 已处理/复用分别为 361 / 781 / 1,871 条。这不是完整评测分数，也不是不考虑旧缓存的全局完成人口比例。完整分数仍要求 12,146 场景、invalid=0、所有分片合法结束。
 
+后续有限检查确认 B36k 的第二次 parity 已 PASS，已进入真实场景评测；四组均在推进。对应当次 invocation 处理/复用计数为 B36=43、C40=2,467、D34=1,817、B44=2,434，收据 `IL_CURRENT_PROGRESS_VERIFIED.json`。这些是带时间戳的运行快照，不替代最终 SUMMARY。
+
 新 worker 仍为单候选 clean-x K10、shift5、seed2101、canonical NAVSIM v1.1、原请求轨迹与原官方 reference 配对评分。候选之间的 EP 归一化语义未改动。
 
 原始证据目录（实际存在，未上传私有数据或权重）：
