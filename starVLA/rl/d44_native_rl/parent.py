@@ -27,13 +27,17 @@ def pin():
         src=PARENT/name;out=dest/name;out.parent.mkdir(parents=True,exist_ok=True)
         if not out.exists():os.link(src,out)
         if not os.path.samefile(src,out):raise ValueError('Parent pin differs: '+name)
+    scored=Path('/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_044000_20261102T142147Z/D_IL_044000/export/export.json')
+    pinned=dest/'scored_export_identity.json'
+    if not pinned.exists():os.link(scored,pinned)
+    if file_sha(pinned)!=file_sha(scored):raise ValueError('Scored export metadata pin differs')
     return audit(dest,verify=False)
 
 
 def load(path,device,*,readouts=False):
     info=audit(path,verify=False)
     from starVLA.rl.qwen_world_compare.deployment import _library_runtime
-    original=Path('/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_044000_20261102T142147Z/D_IL_044000/export/export.json')
+    original=ROOT/'IL44_PARENT/scored_export_identity.json'
     expected=json.loads(original.read_text())['runtime_libraries']
     if _library_runtime()!=expected:raise ValueError('Native D44 Qwen/Torch execution library identity differs from its scored export')
     raw=torch.load(Path(path)/info['seal']['model_file'],map_location='cpu',weights_only=False,mmap=True)

@@ -162,7 +162,9 @@ def main():
                         r=collect_scene(actor,conditions.get(token),token,stream.logs[token],service,generator,cfg,epoch,version)
                         r['padding']=padding;r['beta']=dual.beta;r['expect_fresh']=True;scenes.append(r)
                         attempt.record['physical_candidates']+=r['physical_candidates']
-                except Exception:error=traceback.format_exc()
+                except Exception:
+                    error=traceback.format_exc()
+                    if checkpoint.fatal_device_error(error):raise
                 checkpoint.check_errors(error)
                 if a.fault=='before_finalize':raise RuntimeError('Injected collection not finalized; latest unchanged')
                 factors=torch.stack([r['factors']for r in scenes]);endpoint=None

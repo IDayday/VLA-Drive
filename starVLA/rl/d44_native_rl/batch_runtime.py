@@ -7,6 +7,7 @@ from .safety_credit import FACTORS
 from .native_cleanx_aux import verified_index
 from .fpo import velocity_energy
 from starVLA.model.modules.qwen_world_postcot.flow import shift_sigma,clean_x_step
+from starVLA.rl.simwam_recipe.contracts import seed_for
 
 
 @torch.no_grad()
@@ -48,11 +49,12 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
         physical_candidates=g,PG_candidates=g,extra_B1=0,extra_G32=0)
     if cfg['arm']in('D2','D6')and epoch>=cfg['rescue_start_epoch']:
         material=actor.materialize(descriptor);one=dict(material,context=material['context'][:1])
-        nominal,nominal_grid=deployment_chain(actor,one,generator)
+        nominal_generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',cfg.get('nominal_seed',2101),token))
+        nominal,nominal_grid=deployment_chain(actor,one,nominal_generator)
         nominal_records=service.score((token,log,ActionCodec.denorm_odo(nominal[:,-1]).cpu().numpy()))
         base=nominal_records[0]['metrics']['score'];teacher_records=records;teacher_chain=chain;r['extra_B1']=1;r['physical_candidates']+=1
         strict=any(all(x['metrics'][k]==1 for k in FACTORS[:3])and x['metrics']['score']>=.9 for x in records)
-        if base<.90 and not strict:
+        if g==16 and base<.90 and not strict:
             extra,_,_,_=actor.sample_action_chain(descriptor,8,generator=generator)
             extra_records=service.score((token,log,ActionCodec.denorm_odo(extra[:,-1]).cpu().numpy()))
             teacher_records=records+extra_records;teacher_chain=torch.cat((chain,extra));r['extra_G32']=g;r['physical_candidates']+=g

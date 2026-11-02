@@ -101,7 +101,7 @@ class D44Actor(FourFrameworkRecipeActor):
                             references.append(self.ref_action_expert.denoise_x0(state,sigma,self._prepare(cond,True)))
                 energy=torch.stack(energies).mean(0)
                 if c['arm']=='D3_FPO':pg,proxy=clipped_loss((r['old_energy']-energy)[:,None],r['advantages'],c['clip']);metrics.update({'fpo_'+k:v for k,v in proxy.items()})
-                else:pg=awm_loss(energy,r['advantages'],torch.stack(references),torch.stack(predictions))
+                else:pg=awm_loss(energy,r['advantages'],torch.stack(references),torch.stack(predictions),c['reference_coefficient'])
                 total=pg+r['beta']*anchor
             aux=mean.sum()*0
             if 'teacher' in r:

@@ -26,7 +26,7 @@ def defaults(arm):
         target_epochs=4 if arm in('D0','D0_CLIP020','D0_CANONICAL_CREDIT')else 12 if arm=='D6'else 6,
         maximum_epochs=20,reference_coefficient=1. if arm=='D3_AWM'else .001,
         rescue_start_epoch=.5,post_start_epoch=1. if arm=='D4'else 4.,
-        positive_weight=.05,last_weight=.02,post_weight=.05,
+        positive_weight=.05,last_weight=.02,post_weight=.05,nominal_seed=2101,
         mc_samples=4,save_every=100,scoring_workers=2,condition_cache_scenes=8,
         warmup_epochs=.08,hold_until_epoch=.60,cosine_end_epoch=4.,min_lr_ratio=.05,
         data='/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN',
