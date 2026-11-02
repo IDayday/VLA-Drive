@@ -1,0 +1,109 @@
+{
+  "task": "qwen_world_safety_exploration_20261031",
+  "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+  "parent_selection": "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+  "observation_data": "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+  "training_population": 103288,
+  "original_DEV_independent": false,
+  "NAVTEST_training_feedback": false,
+  "multi_seed": false,
+  "evaluation": {
+    "cohorts": [
+      "NAVTEST"
+    ],
+    "data_paths": {
+      "NAVTEST": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST"
+    },
+    "manifests": {
+      "NAVTEST": "/mnt/project/qwen-world-safety-exploration-20261031/data/NAVTEST.json"
+    },
+    "max_shards": 32,
+    "max_workers": 64,
+    "inference": "single ODE K10 shift5 seed2101",
+    "partial_scores_publishable": false
+  },
+  "evidence_root": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis",
+  "schema": "world_improvement_campaign_registry_v1",
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+  "registered_unix": 1793546899.418316,
+  "automatic50k_budget": false,
+  "runs": [
+    {
+      "id": "IMPROVEMENT_RETENTION_EARLY_DECAY_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_RETENTION_EARLY_DECAY_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/combined_retention_early_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_RETENTION_EARLY_DECAY_G8.yaml",
+      "config_sha256": "ddc9cb66a87fe87d46191a27d757222626465dc909ebe848c818bda1055b789c",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 20000,
+      "gates": [
+        2000,
+        5000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same original IL70, Adam/RNG42, update0; no nativefork",
+      "status": "PREPARED_NOT_REGISTERED_NOT_DISPATCHED",
+      "improvement_role": "retention_early_decay",
+      "algorithm": "unchanged verified TRAIN historicalRL nominal mean retention plus existing early20k cosine; independent fresh IL70 combination",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "continuation_max_updates": 50000,
+      "source_commit": "04c1ab9bf1f448ba692da9ffdc07a66a00e726f3",
+      "native_resource_priority": 95
+    }
+  ],
+  "source_commit": "e13a4b6",
+  "initial_budget_updates": 20000,
+  "external_control": {
+    "registry": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json",
+    "arm": "SAFETY_G8_CONTROL",
+    "root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+    "read_only": true
+  },
+  "comparison_contract": {
+    "primary": "Full12146 paired NAV vs samebudget FControl; fixedIL70 high cohort/zero transitions; no Navtokens TRAINselection",
+    "P0": "Same original IL70/scenes/G8/4inner/loss/peaks/seed42; only decayend changes",
+    "batch_future": "Separate actual32scene collection, queryclock matching andAdam accounting; not yet registered",
+    "no_multi_seed": true
+  }
+}

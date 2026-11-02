@@ -1,0 +1,27 @@
+{
+  "schema": "world_RetentionEarly_prepared_frozen_handoff_v1",
+  "created_utc": "2026-11-02T00:47:14.285841+00:00",
+  "status": "PREPARED_NOT_REGISTERED_NOT_DISPATCHED",
+  "arm": "IMPROVEMENT_RETENTION_EARLY_DECAY_G8",
+  "role": "retention_early_decay",
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/combined_retention_early_v1",
+  "source_commit": "04c1ab9bf1f448ba692da9ffdc07a66a00e726f3",
+  "config": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_RETENTION_EARLY_DECAY_G8.yaml",
+  "config_sha256": "ddc9cb66a87fe87d46191a27d757222626465dc909ebe848c818bda1055b789c",
+  "proposed_registry": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/RETENTION_EARLY_COMBINATION_PREPARED_20261102/PROPOSED_RUNS_NOT_REGISTERED.json",
+  "active_registry": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/RUNS.json",
+  "active_registered_arms": 5,
+  "baseline": "fresh same IL70 as Control; new Adam/RNG42; not a bestRL10k checkpoint fork",
+  "factors": [
+    "unchanged original verified retention loss/bank/quality gate",
+    "unchanged original early cosine to floor0.1 at20k, fixed50k horizon"
+  ],
+  "cpu_proof": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/COMBINED_CONSOLIDATION_RETENTION_CPU_CHECK.json",
+  "integration_proof": "campaign self-check passed; actual combo runtime_for_config precedence passed; no GPU performance test or score",
+  "old_runtime_and_owners_mutated": false,
+  "new_gpu_jobs_started": 0,
+  "score": null,
+  "resource_scope": "only permanent training-vlawm-tsinghua-zt3/zt5 routes; protect B/D IL; no expired resource requests",
+  "handoff": "not in live RUNS: current frozen five-arm CPU owner cannot accept sixth role; any future adoption must coordinate existing exact owner once, preserve all healthy GPU children, then append reviewed run under locks; no automatic takeover",
+  "attribution": "single-seed factorial Control/Early/Retention/combined; compare same-stage and within-budget best; include all extra official ODE scoring; no adding gains"
+}
