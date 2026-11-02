@@ -4,13 +4,13 @@ import json
 from pathlib import Path
 import sys
 
-from starVLA.rl.qwen_world_verified_quality.recipe import validate_recipe,QUALITY_PROTOCOL_SHA256
+from starVLA.rl.qwen_world_verified_quality.recipe import validate_recipe,QUALITY_PROTOCOL_SHA256,PROTOCOL
 
 
 def read(path):return json.loads(Path(path).read_text())
 
 
-def prepare(root,source,config):
+def prepare(root,source,config,job_prefix='QUAL_S6'):
     import yaml
     cfg=validate_recipe(yaml.safe_load(Path(config).read_text()));root=Path(root).resolve();source=Path(source).resolve()
     if root.exists():raise FileExistsError('Use a new independent qualification directory')
@@ -24,7 +24,7 @@ def prepare(root,source,config):
         cmd=base+['--output',str(root/out),'--stop-after-update',str(stop)]
         if resume:cmd+=['--resume',str(resume)]
         stages.append(dict(id=name,cwd=str(source),command=cmd,depends_on=stages[-1]['id'] if stages else None,
-            transport_result=str(Path('/mnt/project/qwen-world-performance-rl-20261103/jobs')/('QUAL_S6_'+name)/'RESULT.json')))
+            transport_result=str(Path('/mnt/project/qwen-world-performance-rl-20261103/jobs')/(job_prefix+'_'+name)/'RESULT.json')))
     return dict(status='PREPARED_NOT_DISPATCHED',schema='world_verified_quality_native_qualification_plan_v1',root=str(root),source=str(source),
         quality_protocol_sha256=QUALITY_PROTOCOL_SHA256,stages=stages,world=8,B=64,G=16,M=4,fresh=True,actual_start_epoch=0.,cache_default=True,
         required='All8 native results/frozen SHA/continuous journal finite; actual repair+safe-high teacher activation; exact native inner2 resume; full Adam/RNG/calibration/data equality')
@@ -40,7 +40,7 @@ def compare(plan):
         if result.get('status')!='EXITED' or result.get('returncode')!=0 or result.get('command')!=stage['command'] or result.get('cwd')!=stage['cwd']:
             raise ValueError('Every S6 qualification requires exact-source/command actual transport EXITED0')
         if not result.get('child_pid') or not result.get('child_start_ticks'):raise ValueError('No actual native child identity')
-    endpoints={};metadata={};classes={'.02':0,'.05':0,'inactive':0};first=True
+    endpoints={};metadata={};classes={'.02':0,'.05':0,'inactive':0};final_calibration={}
     for name,u,i in [('continuous',2,2),('continuous',4,0),('split',2,2),('split',4,0)]:
         cp=root/name/'checkpoints'/f'update{u:06}_inner{i}';key=f'{name}{u}'
         metadata[key]=load_validated(parent,cp,qualification=True,allow_pending=bool(i))
@@ -51,6 +51,7 @@ def compare(plan):
             own=torch.load(cp/f'rank{rank}.pt',map_location='cpu',weights_only=False);s=own['state']
             item['ranks'][str(rank)]=dict(RNG=digest(own['rng']),stream=digest(s['scene_stream']),
                 calibration=digest(s['performance_auxiliary']['nominal_improvement']),cursor=s['scene_cursor'])
+            if name=='split' and u==4:final_calibration[str(rank)]=s['performance_auxiliary']['nominal_improvement']
             if name=='split' and u==2:
                 for leaf in own['rollout']['samples']:
                     p=leaf['nominal_improvement'];classes['.02' if p['enabled'] and p['active_alpha']==.02 else '.05' if p['enabled'] else 'inactive']+=1
@@ -74,15 +75,16 @@ def compare(plan):
     return dict(status='PASS',schema='world_verified_quality_actual_world8_native_qualification_v1',quality_protocol_sha256=QUALITY_PROTOCOL_SHA256,
         world=8,B=64,G=16,M=4,full_IL70=True,trainable_numel=52_707_840,actual_initial_epoch=0.,
         actual_first_collection_teacher_classes=classes,native_bitexact_at_inner2_and4=True,strict_reviews=metadata,
+        auxiliary_calibration_protocol=PROTOCOL['calibration'],actual_final_rank_calibration=final_calibration,
         qualification_only=True,not_NAVTEST_gain=True)
 
 
 def main():
     parser=argparse.ArgumentParser(__doc__);sub=parser.add_subparsers(dest='action',required=True)
-    p=sub.add_parser('prepare');p.add_argument('--root',required=True,type=Path);p.add_argument('--source',required=True,type=Path);p.add_argument('--config',required=True,type=Path)
+    p=sub.add_parser('prepare');p.add_argument('--root',required=True,type=Path);p.add_argument('--source',required=True,type=Path);p.add_argument('--config',required=True,type=Path);p.add_argument('--job-prefix',default='QUAL_S6')
     p=sub.add_parser('compare');p.add_argument('--plan',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     a=parser.parse_args()
-    if a.action=='prepare':value=prepare(a.root,a.source,a.config);out=a.root/'PLAN.json'
+    if a.action=='prepare':value=prepare(a.root,a.source,a.config,a.job_prefix);out=a.root/'PLAN.json'
     else:value=compare(read(a.plan));out=a.output
     if out.exists():raise FileExistsError('Do not overwrite evidence')
     out.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n');print(json.dumps(dict(status=value['status'],output=str(out))))

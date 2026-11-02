@@ -1,10 +1,10 @@
 {
-  "status": "CPU_READY_NOT_REGISTERED_OR_DISPATCHED",
-  "schema": "world_verified_quality_science_handoff_v1",
-  "base": "c8a0440bea27508728117865b3a5eadf87fb99a6",
+  "status": "CPU_READY_V2_GPU_QUALIFICATION_PENDING_NOT_REGISTERED",
+  "schema": "world_verified_quality_science_handoff_v2",
+  "base": "dc9f3c880a103b1fc9725b87688e89a5d048a49e",
   "arm": "S6_VERIFIED_QUALITY",
   "root": "/mnt/project/qwen-world-performance-rl-20261103",
-  "intended_frozen_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/verified_quality_v1",
+  "intended_frozen_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/verified_quality_v2",
   "trainer_module": "tools.qwen_world_verified_quality.train",
   "recipe_builder": "starVLA.rl.qwen_world_verified_quality.recipe.build_recipe(basecfg,arm=\"S6_VERIFIED_QUALITY\")",
   "recipe_validator": "starVLA.rl.qwen_world_verified_quality.recipe.validate_recipe",
@@ -20,10 +20,10 @@
     "counts.updates",
     "quality_protocol_sha256"
   ],
-  "quality_protocol_sha256": "741ac0d4024c911a4be4646bbefe96a9d98ca0c8e379e265b2d38379ed19444b",
+  "quality_protocol_sha256": "2a298b6aafb04c83b2ae1f66e0db05ad04b402b661b4d85a406e320ca637753e",
   "quality_protocol_hash_object": "fingerprint(cfg.research.verified_quality)==fingerprint(recipe.PROTOCOL)",
   "protocol": {
-    "schema": "world_verified_quality_fresh_IL70_B64G16M4_v1",
+    "schema": "world_verified_quality_fresh_IL70_B64G16M4_v2",
     "arm": "S6_VERIFIED_QUALITY",
     "nominal": {
       "schema": "world_verified_quality_nominal_improvement_v2",
@@ -42,17 +42,22 @@
       "safe_high_gain_margin": 0.005
     },
     "calibration": {
-      "schema": "world_performance_rank_local_aux_gradient_calibration_v1",
-      "target": "norm of current same-microbatch unscaled physical ILmean-MSE gradient",
-      "ratio": "norm(gIL)/max(norm(gcomponent),1e-12)",
+      "schema": "world_verified_quality_PG_floor_aux_calibration_v2",
+      "target": "max(norm(gIL), .04 * EMA(norm(gPG)))",
+      "PG_floor_ratio": 0.04,
+      "PG_EMA_decay": 0.9,
+      "PG_EMA_initialization": "first strictly positive actual PG norm",
+      "ratio": "target/max(norm(gcomponent),1e-12)",
       "minimum_scale": 0.0001,
       "maximum_scale": 10000.0,
-      "EMA_decay": 0.9,
+      "scale_EMA_decay": 0.9,
       "calibration_calls": 100,
       "measurement_calls": 500,
-      "clock": "effective per-rank teacher-slot loss calls, including inner reuse; not Adam updates",
-      "gradients": "all current trainable parameters; local norm, no conditional cross-rank collective; no .grad mutation",
-      "freeze": "after100 calls keep last EMA; only diagnose until500, then stop gradient probes; last_measured labels remain explicit"
+      "clock": "eligible per-rank teacher-slot loss calls, including inner reuse; not Adam updates",
+      "cold_start": "PG and PG EMA both zero: minimum scales, probe again next call, no eligible/calibration/measurement budget consumed",
+      "PG_zero_after_initialization": "update PG EMA with zero and use its positive historical value",
+      "gradients": "all current trainable parameters; local norms, no cross-rank collective; no .grad mutation",
+      "freeze": "after100 eligible calls freeze scales; diagnose to500 eligible calls, then hold last measurements and PG EMA"
     },
     "adaptive_extra": {
       "schema": "world_performance_teacher_only_conditional_extra_G16_v1",
@@ -104,7 +109,7 @@
     "sampling": "first full TRAIN epoch uniform; existing own-run TRAIN-only priority thereafter; never NAVTEST tokens/labels"
   },
   "config_template": "configs/qwen_world_verified_quality/S6_VERIFIED_QUALITY.yaml",
-  "config_sha256": "e95f65b5ae32d1c9e63bb00012961b56a49d62050d02a1c47a3cdcf99af877f7",
+  "config_sha256": "b26395274ef72a7ed5279c64ac3e79ed1c01fd7b8269b5e54cf7c6b14f6854d3",
   "max_steps": 129120,
   "initial_budget_epochs": 6,
   "minimum_epochs": 3,
@@ -187,20 +192,57 @@
   "cache_protocol_location": "execution_optimizations only; same byte-identical frozen reference helper",
   "qualification_plan_module": "tools.qwen_world_verified_quality.qualify_native",
   "qualification_pending": true,
-  "CPU_check_sha256": "d0653b2e8c071e38abd9c379b9cbd70a3f6c7593c32ce0adc4014d1581295020",
+  "CPU_check_sha256": "0fb4dc3ab7d62653be22c96279157ad933a4dac05e404a6d13d096f59aa36ca4",
   "source_sha256": {
-    "starVLA/rl/qwen_world_performance/nominal_improvement.py": "ea1c6ab95d662c6ec33f0a574f2d40579a78f55343a84adbef4ba15f5fdb93b0",
-    "starVLA/rl/qwen_world_performance/recovery.py": "d58d9c2cb26471b814e2723f99df5c442faba9877b1eaea9adc20690c4f28cba",
-    "starVLA/rl/qwen_world_verified_quality/runtime.py": "f1459e74b0aa2db237f59ba4cc53857febf5d8a3d43123839df677264fbd03a6",
-    "starVLA/rl/qwen_world_verified_quality/recipe.py": "90edb6313879db3eee79ec9f226e9ef9975d6d6007619744e85264702a5bbc40",
+    "starVLA/rl/qwen_world_performance/nominal_improvement.py": "b1717a57c1c5cff8b850bfcde5fc5a38c2b6b3a81b7b79c2b351d089b0cace1a",
+    "starVLA/rl/qwen_world_performance/recovery.py": "6fc748d05caead59b27a6206822ee9ca20c419c44a080f7d9e9bf809e71935ec",
+    "starVLA/rl/qwen_world_verified_quality/runtime.py": "a50371e05092095ed185d4acab362df24186128134b7be128cc0b51db155cb4e",
+    "starVLA/rl/qwen_world_verified_quality/recipe.py": "5b04022722b815a20144d87826e124da58e972a5a4342d8e75654e4e1161df95",
     "starVLA/rl/qwen_world_verified_quality/__init__.py": "58ed10069eb611a5dc975b20e329563c4c1e46074de33ae9e84a65aff24ce1d7",
-    "starVLA/rl/qwen_world_verified_quality/recovery.py": "7caee31ade9016c139a030df0cdc1fb8876e7ab5b0c1996ee55de80095b0fabf",
+    "starVLA/rl/qwen_world_verified_quality/recovery.py": "ee39303ed2f5915ba2d6fe05a59f11a95f3473518a38e81c12f1315ddd235308",
     "tools/qwen_world_verified_quality/train.py": "c3f4a7db900691588f2aef85182232cc5db85a244d59bab6432e301b6992cfec",
-    "tools/qwen_world_verified_quality/qualify_native.py": "c50d5c869c4c52f69d3270e68369b4828b8036d76d6475bbd8c11348532215dd",
+    "tools/qwen_world_verified_quality/qualify_native.py": "29babebb8a9d581baa8d2427e54560aa9ff22d6a610c21e65424d8b1c9fd8dfe",
     "tools/qwen_world_verified_quality/__init__.py": "f3ef3d141aaee09a2dce15c8109cc948cb2daf8aae6f660b37f75c5a532a3d67",
     "tools/qwen_world_verified_quality/native_review.py": "3c1df08c21351481141ee0c281c3ff980374e6a88108ce91757d0a1dafe48fa5",
-    "tests/test_world_verified_quality.py": "83f79d3cf0b21e79fb8e9cb6c18387d6b0628be4f09ccc33a5eb54882f791f07",
-    "configs/qwen_world_verified_quality/S6_VERIFIED_QUALITY.yaml": "e95f65b5ae32d1c9e63bb00012961b56a49d62050d02a1c47a3cdcf99af877f7"
+    "tests/test_world_verified_quality.py": "7a2eabdec98fb4fad1afe81de1c124f6cf460af1c456730907572d9d97675d72",
+    "configs/qwen_world_verified_quality/S6_VERIFIED_QUALITY.yaml": "b26395274ef72a7ed5279c64ac3e79ed1c01fd7b8269b5e54cf7c6b14f6854d3",
+    "starVLA/rl/qwen_world_verified_quality/calibration.py": "eddf4ad42758f3cafacca904353d25a57f0fd2cc9800801a57d0892f351c3712",
+    "tests/test_world_verified_quality_calibration.py": "84360323aa51d2c588dbce104768de885200f5a6e5342900f449d2b3df1f717a"
   },
-  "primary_risk": "TRAIN candidate quality need not become deployed B1 gains; new gate/scales are hypotheses. NAVTEST IDs/Control trajectories never feed training."
+  "primary_risk": "TRAIN candidate quality need not become deployed B1 gains; new gate/scales are hypotheses. NAVTEST IDs/Control trajectories never feed training.",
+  "v1_native_qualification": {
+    "path": "/mnt/project/qwen-world-performance-rl-20261103/qualification/S6_VERIFIED_QUALITY_NATIVE/COMPLETE.json",
+    "sha256": "465bae1826ac6ad6c56ae497ec24524da65189bcb2d3b5fc29dad8162166f691",
+    "status": "PASS",
+    "teacher_classes": {
+      ".02": 20,
+      ".05": 9,
+      "inactive": 35
+    },
+    "native_bitexact": true,
+    "limit": "v1 frozen unchanged, no formal model transfer. Actual cold-start gradient exposed small IL-only calibration target; v2 requires independent fresh three-stage qualification."
+  },
+  "calibration_change": {
+    "source": "starVLA/rl/qwen_world_verified_quality/calibration.py",
+    "protocol": {
+      "schema": "world_verified_quality_PG_floor_aux_calibration_v2",
+      "target": "max(norm(gIL), .04 * EMA(norm(gPG)))",
+      "PG_floor_ratio": 0.04,
+      "PG_EMA_decay": 0.9,
+      "PG_EMA_initialization": "first strictly positive actual PG norm",
+      "ratio": "target/max(norm(gcomponent),1e-12)",
+      "minimum_scale": 0.0001,
+      "maximum_scale": 10000.0,
+      "scale_EMA_decay": 0.9,
+      "calibration_calls": 100,
+      "measurement_calls": 500,
+      "clock": "eligible per-rank teacher-slot loss calls, including inner reuse; not Adam updates",
+      "cold_start": "PG and PG EMA both zero: minimum scales, probe again next call, no eligible/calibration/measurement budget consumed",
+      "PG_zero_after_initialization": "update PG EMA with zero and use its positive historical value",
+      "gradients": "all current trainable parameters; local norms, no cross-rank collective; no .grad mutation",
+      "freeze": "after100 eligible calls freeze scales; diagnose to500 eligible calls, then hold last measurements and PG EMA"
+    },
+    "unchanged": "teacher/gains/alpha/beta50/PG and IL anchor/first epoch population/true deployment/c8 frozen reference helper",
+    "reference_helper_sha256": "2f8733d3f7b2c367652dec89d9e3727b343f1c8be17f83007657f5dfdb388105"
+  }
 }

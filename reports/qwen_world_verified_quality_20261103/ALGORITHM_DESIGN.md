@@ -37,13 +37,29 @@ For an eligible scene, the objective is
 
 `PG + 50*((1-alpha)*IL_mean_MSE + alpha*(.75*scaled_CFM + .25*scaled_true_ODE_last_SmoothL1))`.
 
-This replaces the original beta budget, not an extra beta or BC objective. The
-existing per-rank gradient-norm EMA/calibration freezes after100 effective
-teacher-slot loss calls and measures through500; these are not optimizer steps.
-Coefficient shares are not measured gradient fractions. At exact IL0, a zero
-IL-anchor gradient can put the first calibration scale at its existing floor;
-native component diagnostics, not the coefficient alone, establish effective
-injection strength. There is no performance claim yet.
+This replaces the original beta budget, not an extra beta or BC objective.
+
+The actual v1 full-IL70 qualification exposed a cold-start calibration issue:
+the current IL-anchor norm can be almost zero while PG and the two auxiliary
+norms are nonzero. Therefore this independent **v2** changes only the S6
+calibration target to `max(norm(gIL), .04*EMA(norm(gPG)))`. The PG-norm EMA uses
+decay .9 and initializes at the first strictly positive measured PG norm.
+Existing S1 V1 calibration is unchanged. These are rank-local gradients over
+the actual full trainable closure for the same teacher microbatch, without
+mutating `.grad`, adding a gradient collective or introducing another loss.
+
+Component scales use the existing bounded .9 EMA and freeze after100 eligible
+teacher-slot calls; diagnostics continue to500 eligible calls. When both
+current PG and its historical EMA are zero, minimum scale is retained but no
+eligible/calibration/measurement budget is consumed. Such calls continue to be
+probed, so they cannot exhaust the measurement budget before PG appears. Once
+initialized, the PG EMA can guide a PG0 teacher slot. Every counter, measured
+norm, PG EMA and target is native-persisted and strictly validated at resume.
+The unchanged beta50/alpha shares remain coefficients, not observed gradient
+fractions. In an ideal same-target calibration, triangle bounds imply a
+repair auxiliary norm of5–10% of PG and quality auxiliary2–4%; actual component
+directions, moving EMA, clipping/floors and native measurements still matter.
+No deployed-score gain or production stability is established by CPU tests.
 
 The frozen-IL reference cache defaults on for this new fresh run and is recorded
 only as an execution optimization. Its helper is byte-identical to c8a0440. It
@@ -75,7 +91,7 @@ minimum training commitment. No best-of-G or TRAIN score is a deployment score.
 ## Qualification, not deployment
 
 `tools.qwen_world_verified_quality.qualify_native prepare --root NEW_QUAL_DIR
---source FROZEN_SOURCE --config EXACT_CONFIG` writes three operator-dispatched
+--source FROZEN_SOURCE --config EXACT_CONFIG --job-prefix QUAL_S6_V2` writes three operator-dispatched
 existing Trainer commands: continuous4, split2, same-native resume4. No tool
 dispatches or allocates resources. After actual EXITED0 jobs, `compare` verifies
 both true teacher classes activated at epoch0, strict8rank pending and final

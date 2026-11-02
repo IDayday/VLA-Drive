@@ -8,7 +8,7 @@ from .contracts import validate_recipe, SCHEMA
 
 
 def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *, legacy=False,expected_rank=None,
-                      recipe_validator=None,nominal_config=None):
+                      recipe_validator=None,nominal_config=None,calibration_validator=None):
     if legacy:raise ValueError('No legacy reconstruction for independent performance runs')
     cfg=(recipe_validator or validate_recipe)(identity['recipe']);spec=cfg['research']['performance'];u=state['updates'];i=state['next_inner']
     pending=window is not None;ledger=state.get('collection_ledger',[])
@@ -64,7 +64,7 @@ def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *
     summary.update(feedback_state_validation(state))
     if 'nominal_improvement' in auxiliary:
         from .nominal_improvement import validate_calibration_state
-        validate_calibration_state(auxiliary['nominal_improvement'])
+        (calibration_validator or validate_calibration_state)(auxiliary['nominal_improvement'])
     if 'history' in auxiliary:
         from .persistent_history import validate_history_state
         validate_history_state(auxiliary['history'],identity['sha256'],rank,maximum_update=u-i)
