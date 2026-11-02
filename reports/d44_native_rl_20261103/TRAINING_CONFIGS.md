@@ -65,3 +65,5 @@ python -m tools.d44_native_rl.analyze --help
 compact export保留未merge LoRA、D5动作接口与FiLM增量，绑定不可变完整IL44资产，删除Adam与训练readout。D4/D5导出已实际生成；GPU逐值部署对照未完成前不宣布导出资格通过。完整packing oracle分别保留FP32语义误差、BF16布局误差和原生联合ratio/KL差异，不将跨布局误差强行归零。
 
 完整评测后自动生成`PAIRED_ANALYSIS.json`（具有独立analysis hash）与`CHECKPOINT_SELECTION.json`。best_score按完整Navtest最高PDMS、并列较早epoch；另保存“best_stable_proxy”：在本run最高分0.2 PDMS点以内，选择新增零分最少者，再按PDMS和较早epoch打破并列。该名称只是已登记的描述性选择代理，不证明跨seed稳定或安全。它不改变训练预算、数据排序或任何reward，所有选择明确test-selected。
+
+LR例外明确登记：D3-AWM的text基值3e-6，D4为1e-6，D1阶段II在通用cosine上再将text基值减半。D6按I–V注册阶段LR与初始warmup执行，不再额外乘通用cosine；阶段间Adam/RNG不重置。D6阶段I也额外运行一次TRAIN B1来建立本run nominal历史，尚不产生positive/post辅助梯度，该B1成本计入`extra_B1_queries`；不能当作免费数据或称为没有额外推理。
