@@ -86,6 +86,7 @@ def collect(root):
                         latest_published_extra_B1_queries=row.get('extra_B1_queries'),
                         latest_published_adaptive_G_queries=row.get('adaptive_G_queries'),
                         latest_published_history_B1_queries=row.get('history_B1_queries'),
+                        latest_published_structured_progress_queries=row.get('structured_progress', {}).get('global_queries'),
                         ended_rank_snapshot_consistent=consistent,
                         ended_rank_snapshot_updates=rank_rows[0].get('updates') if consistent else None,
                         committed_main_candidate_scorer_wall_hours=sum(times)/3600 if timing_known else None,
