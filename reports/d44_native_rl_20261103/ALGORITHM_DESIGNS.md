@@ -17,10 +17,12 @@ SafetyEP组内先硬安全feasible（NC=DAC=TTC=1），只给可行候选EP相�
 | D3_AWM | 正优势权重matching＋参考保持 | 保守本地适配，不冒充完整官方signed AWM |
 | D4 | 原IL R16+evaluation head监督on-policy因素/总分/排序/native事件 | 不要求post loss直接训练动作输出Linear；部署删R |
 | D5 | r32文本＋last8 FiLM低秩＋动作I/O/position | 需单列表征漂移与遗忘 |
-| D6 | 计划的分阶段组合 | 生命周期未完前拒绝调度，不用D0伪装 |
+| D6 | 已接入的分阶段组合 | 通过同源码真实阶段恢复资格前拒绝正式调度 |
 
 参考：[FPO](https://proceedings.iclr.cc/paper_files/paper/2026/hash/3d43cc5692bf68944ee7cd31b97d0c11-Abstract-Conference.html)、[AWM](https://proceedings.mlr.press/v306/xue26c.html)、[AUGUstus](https://github.com/haha-yuki-haha/AUGUstus)。本轮不宣称完整复现AUGUstus Qwen3.5文本CoT-GRPO。直接复用的SimWAM vendor保留原许可与既有固定commit1433ee7e；新数学和适配清楚归属本项目。
 
 D4事件标签取native at-fault collision/TTC时间与逐时刻non-drivable-body。首次TTC违规时刻不是最小TTC。缺标签应拒绝或mask，不填零冒充安全。事件全none的高准确率不能证明学会辨认稀有事故。
 
 尚无本轮新RL完整Navtest结果，无法判断哪条路线提分。不存在“测试通过所以92完成”的结论。
+
+D6追加适配：FiLM last8增量从初始化预置为零，8epoch前梯度清空且不创建Adam状态；R readout在4epoch前同样不更新。60/25/15训练分层只读本run已提交的TRAIN nominal历史，池未具备时回退uniform并记录实际采样来源。历史教师最多8192个场景，各一条严格合格本run早期B1轨迹；不是其他RL权重/外部搜索/测试反馈。首见nominal是self-history基线，不冒称完整IL44普查。阶段III的时序成本明确只用native全窗口DAC采样mask作0.05有界tie-cost；NC/TTC首次事件用于R监督，不冒充连续最小TTC。

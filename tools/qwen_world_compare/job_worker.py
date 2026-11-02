@@ -121,9 +121,27 @@ class ResourceRefused(RuntimeError):
 
 PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
 SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
+D44_ROOT=Path('/mnt/project/d44-native-rl-20261103')
+D44_PARENT_SHA='9715b9c0cfbef7a7d3d94fb83e7b0e2f0838d21cf06d3277deef6733cccbc50e'
 
 
 def known_owner_args(args):
+    entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry=='tools.d44_native_rl.train':
+        # Native D44 has no --il-checkpoint flag: bind the actual process
+        # output to its already sealed scientific identity instead.
+        if '--output'not in args or args.index('--output')+1>=len(args):return False
+        output=Path(args[args.index('--output')+1]).resolve();base=D44_ROOT
+        if not output.is_relative_to(base):return False
+        try:
+            value=json.loads((output/'identity.json').read_text())
+            from starVLA.rl.qwen_world_compare.contracts import fingerprint
+            body=dict(value);saved=body.pop('sha256')
+            return (fingerprint(body)==saved and value['schema']=='d44_native_rl_v1'and value['architecture_id']=='D'
+                and value['recipe']['parent_checkpoint']==str(base/'IL44_PARENT')
+                and value['recipe']['training_uses_navtest']is False and value['data']['NAVTEST_overlap']==0
+                and value['parent_model_sha256']==D44_PARENT_SHA)
+        except (OSError,KeyError,ValueError,TypeError):return False
     if any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
         return True
     # The already running, separately authorized Safety F/G jobs were added
@@ -188,6 +206,8 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             if not shared_training_host(host,grant)or args.share_min_free_mib<8192:
                 raise ValueError('Sharing requires an explicitly authorized host and measured valid headroom')
             _known_owners(owners,mapping,indices)
+            if any(sum(r['uuid']==mapping[i]for r in owners)>1 for i in indices):
+                raise ResourceRefused('Two existing CUDA owners leave no qualified third slot')
         elif any(row['uuid']in physical for row in owners):
             raise ResourceRefused('GPU acquired another owner '+('under admission lock'if locked else'before dispatch'))
         for index in indices:
@@ -205,12 +225,18 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     slot=getattr(args,'lease_slot',None) or ('shared' if args.share_min_free_mib else 'primary')
     if slot=='shared' and not args.share_min_free_mib:
         raise ValueError('The shared slot requires explicit measured sharing admission')
-    for index in indices:
-        lease=((SHARED_LEASE_ROOT if slot=='shared' else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
-        try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        except BlockingIOError as error:
-            lease.close();raise ResourceRefused('GPU admission lease became busy before child startup')from error
-        locks.append(lease)
+    choices=[slot]+(['primary']if slot=='shared'and args.share_min_free_mib else[])
+    for candidate in choices:
+        acquired=[]
+        try:
+            for index in indices:
+                lease=((SHARED_LEASE_ROOT if candidate=='shared'else PRIMARY_LEASE_ROOT)/(mapping[index]+'.lock')).open('a')
+                acquired.append(lease);fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except BlockingIOError:
+            for stream in acquired:stream.close()
+            continue
+        locks.extend(acquired);args.lease_slot=candidate;break
+    else:raise ResourceRefused('Both qualified admission slots are busy before child startup')
     # A second actual total/free/utilization+per-process-memory sample under
     # the lock closes the invisible-container race before Popen or CUDA init.
     devices,owners=_admission_sample();verify(devices,owners,locked=True)
@@ -272,7 +298,7 @@ def main():
     env=dict(os.environ,WORLD_POSTCOT_STOP_FILE=str(stop),OMP_NUM_THREADS='4',OPENBLAS_NUM_THREADS='1',TOKENIZERS_PARALLELISM='false',
         PYTHONPATH=str(Path(args.cwd).resolve())+(os.pathsep+os.environ['PYTHONPATH']if os.environ.get('PYTHONPATH')else''))
     if indices:env['CUDA_VISIBLE_DEVICES']=','.join(map(str,indices))
-    state.update(status='RUNNING',gpu_uuids=[mapping[i]for i in indices],temporary=host not in grant['permanent_hosts'] and host not in grant.get('unbounded_temporary_hosts', []),
+    state.update(status='RUNNING',lease_slot=args.lease_slot or state['lease_slot'],gpu_uuids=[mapping[i]for i in indices],temporary=host not in grant['permanent_hosts'] and host not in grant.get('unbounded_temporary_hosts', []),
         guard_unix=grant['expires_unix']-grant['checkpoint_guard_seconds'],deadline_unix=grant['expires_unix'])
     def request(*_):
         stop.touch();state['stop_requested_unix']=time.time();write(root/'RUNNING.json',state)

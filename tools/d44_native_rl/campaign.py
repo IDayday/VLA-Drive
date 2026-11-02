@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 import time
+import math
 from tools.d44_native_rl.launch import launch
 from starVLA.rl.d44_native_rl.config import defaults
 from starVLA.rl.qwen_world_compare.contracts import allowed_hosts,file_sha
@@ -18,6 +19,33 @@ FALLBACK=['training-vlawm-tsinghua-zt5','training-vlawm-zt5','training-vla-zt','
 
 
 def read(path):return json.loads(Path(path).read_text())
+
+
+def epoch_update(arm,epoch,batch):
+    # Every completed data epoch includes its own explicit padded tail.
+    def collections(e,b):
+        whole=math.floor(e);return whole*math.ceil(103288/b)+math.ceil((e-whole)*103288/b)
+    if arm=='D6':return 2*(collections(min(epoch,1),32)+collections(max(0,epoch-1),64))
+    return 2*collections(epoch,batch)
+
+
+def next_stop(run,done):
+    cfg=read_config(run['config']);gates=[.25,.5,1,2,3,4,6,8,12,20]
+    nodes=[100]+[epoch_update(run['arm'],e,cfg['global_scenes'])for e in gates if e<=cfg['target_epochs']]
+    return min((n for n in nodes if n>done),default=None)
+
+
+def read_config(path):
+    import yaml
+    return yaml.safe_load(Path(path).read_text())
+
+
+def pending_evaluation(campaign,run):
+    if not run.get('pause_for_evaluation',True):return False
+    for request in Path(run['output']).glob('evaluation_requests/epoch*.json'):
+        case=campaign.get('evaluations',{}).get(run['arm']+'_'+request.stem)
+        if case is None or case['status']!='COMPLETE':return True
+    return False
 
 
 def wait_for_completion(campaign,seconds):
@@ -73,6 +101,11 @@ def qualified(run):
         proof=ROOT/'qualification'/name
         if not proof.exists()or read(proof).get('status')!='PASS':return False
     root=Path(run['qualification'])
+    if run['arm']=='D6':
+        path=ROOT/'qualification/D6_REAL_STAGE_INNER_RESUME.json'
+        if not path.exists()or read(path).get('status')!='PASS':return False
+        expected={p:file_sha(Path(run['source'])/p)for p in ('tools/d44_native_rl/train.py','starVLA/rl/d44_native_rl/stages.py','starVLA/rl/d44_native_rl/history.py','starVLA/rl/d44_native_rl/recovery.py')}
+        return read(path).get('source_files')==expected
     for rank in range(8):
         path=root/f'result_rank{rank}.json'
         if not path.exists():return False
@@ -115,11 +148,15 @@ def tick(registry):
             last=run['jobs'][-1];result=Path(last['job'])/'RESULT.json'
             if not result.exists():run['status']='RUNNING_OR_ADMITTING';continue
             result=read(result)
+            if result.get('returncode')==75 and time.time()<result['end_unix']+300:
+                run['status']='WAITING_FOR_AUTHORIZED_CAPACITY';continue
             if result.get('returncode',result.get('exit_code',0))not in(0,75):
                 run.update(status='FAILED_REQUIRES_REVIEW',last_result=result);continue
             # A resource refusal starts no actor and carries no training state.
             if result.get('status')not in('EXITED','REFUSED_RESOURCE'):
                 run.update(status='FAILED_REQUIRES_REVIEW',last_result=result);continue
+        if pending_evaluation(campaign,run):
+            run['status']='SAVED_AND_PAUSED_FOR_REGISTERED_FULL_NAVTEST';continue
         root=Path(run['output']);resume=None;done=0
         if(root/'latest.json').exists():
             latest=read(root/'latest.json');resume=latest['checkpoint'];seal=read(Path(resume)/'COMPLETE')
@@ -141,12 +178,12 @@ def tick(registry):
         if resume:cmd+=['--resume',resume]
         # Operational qualification stops preserve the identical scientific
         # run/Adam/RNG. The quarter-epoch boundary is 404 B64 collections.
-        if done<100:cmd+=['--stop-after-update','100']
-        elif done<808:cmd+=['--stop-after-update','808']
+        limit=next_stop(run,done)
+        if limit is not None:cmd+=['--stop-after-update',str(limit)]
         try:
             # Original B/D IL hosts are eligible only when ALL GPUs are free;
             # their workers never share or evict those protected trainers.
-            receipt=launch(host,run['source'],job,cmd,list(range(8)),share_min_free_mib=None if host in PROTECTED else 41000)
+            receipt=launch(host,run['source'],job,cmd,list(range(8)),share_min_free_mib=None if host in PROTECTED else 41000,worker_source=Path(__file__).resolve().parents[2])
             run['jobs'].append(receipt);run['status']='RUNNING_OR_ADMITTING';occupied.add(host)
         except (subprocess.SubprocessError,OSError,RuntimeError)as error:
             run.update(status='DISPATCH_RETRY_REQUIRED',last_dispatch_error=repr(error))
@@ -155,7 +192,7 @@ def tick(registry):
     return campaign
 
 
-def free_evaluation_gpus(host):
+def free_evaluation_gpus(host,*,shared=False):
     code="import subprocess,json;print(json.dumps(subprocess.check_output(['nvidia-smi','--query-gpu=index,memory.free,utilization.gpu','--format=csv,noheader,nounits'],text=True)))"
     r=subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=5',host,'/usr/bin/python3','-'],input=code,text=True,capture_output=True,timeout=12)
     if r.returncode:return []
@@ -163,7 +200,7 @@ def free_evaluation_gpus(host):
     for line in json.loads(r.stdout).splitlines():
         index,free,util=map(int,line.split(','))
         if host=='training-vlawm-zt2'and index==6:continue
-        if free>=65000 and util<=10:result.append(index)
+        if free>=(24000 if shared else 65000)and util<=(80 if shared else 10):result.append(index)
     return result
 
 
@@ -183,25 +220,33 @@ def evaluation_tick(campaign):
     for j in alljobs:
         if not(Path(j['job'])/'RESULT.json').exists():reserved.update((j['host'],gpu)for gpu in j.get('gpus',range(8)))
     pool=[]
-    for host in ('training-vlawm-zt2','training-vlawm-zt5','training-vlawm-tsinghua-zt5','training-vla-zt','training-vlawm-tsinghua-zt'):
+    released=set()
+    for run in campaign['runs'].values():
+        if run['status']=='SAVED_AND_PAUSED_FOR_REGISTERED_FULL_NAVTEST'and run['jobs']:
+            released.add(run['jobs'][-1]['host'])
+    for host in dict.fromkeys(list(sorted(released))+['training-vlawm-zt2','training-vlawm-zt5','training-vlawm-tsinghua-zt5','training-vla-zt','training-vlawm-tsinghua-zt']):
         if host not in allowed:continue
-        try:pool += [(host,gpu)for gpu in free_evaluation_gpus(host)if(host,gpu)not in reserved]
+        shared=host in released and host not in PROTECTED
+        try:pool += [(host,gpu,shared)for gpu in free_evaluation_gpus(host,shared=shared)if(host,gpu)not in reserved]
         except (subprocess.SubprocessError,OSError,ValueError):continue
     for case in pending:
         output=Path(case['output']);completed=[]
         for rank in range(case['world']):
-            status=output/f'rank{rank}.json'
-            if status.exists()and read(status).get('status')=='COMPLETE':completed.append(rank);continue
             jobs=case['jobs'].setdefault(str(rank),[])
+            status=output/f'rank{rank}.json'
+            finished=jobs and(Path(jobs[-1]['job'])/'RESULT.json').exists()
+            if status.exists()and read(status).get('status')=='COMPLETE'and finished and read(Path(jobs[-1]['job'])/'RESULT.json').get('returncode')==0:
+                completed.append(rank);continue
             if jobs and not(Path(jobs[-1]['job'])/'RESULT.json').exists():continue
             if jobs:
                 result=read(Path(jobs[-1]['job'])/'RESULT.json')
+                if result.get('returncode')==75 and time.time()<result['end_unix']+300:continue
                 if result.get('returncode',0)not in(0,75):case['status']='FAILED_REQUIRES_REVIEW';continue
             if not pool:continue
-            host,gpu=pool.pop(0);job=ROOT/'jobs/EVALUATE'/Path(case['output']).parent.name/f'rank{rank}_attempt{len(jobs)+1:03}'
+            host,gpu,shared=pool.pop(0);job=ROOT/'jobs/EVALUATE'/Path(case['output']).parent.name/f'rank{rank}_attempt{len(jobs)+1:03}'
             cmd=[PYTHON,'-m','tools.d44_native_rl.evaluate','--checkpoint',case['request']['checkpoint'],
                 '--output',case['output'],'--rank',str(rank),'--world',str(case['world'])]
-            try:jobs.append(launch(host,case['source'],job,cmd,[gpu]));case['status']='RUNNING'
+            try:jobs.append(launch(host,case['source'],job,cmd,[gpu],share_min_free_mib=24000 if shared else None,worker_source=Path(__file__).resolve().parents[2]));case['status']='RUNNING'
             except (subprocess.SubprocessError,OSError,RuntimeError)as error:case['last_dispatch_error']=repr(error)
         if len(completed)==case['world']:
             from tools.qwen_world_compare.evaluate import summarize
@@ -222,6 +267,7 @@ def main():
         while True:
             campaign=tick(a.registry)
             if a.command=='tick' or campaign['closed']:break
+            if any(r['status']=='SAVED_AND_PAUSED_FOR_REGISTERED_FULL_NAVTEST'and not pending_evaluation(campaign,r)for r in campaign['runs'].values()):continue
             # Metadata admission only; no training journal or GPU log polling.
             wait_for_completion(campaign,min(a.interval,60)if any(r['status']=='WAITING_FOR_QUALIFICATION'for r in campaign['runs'].values())else a.interval)
 

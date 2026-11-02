@@ -1,5 +1,7 @@
 # IL44 parent audit
 
+实际IL执行源码为`5a2d5b50335e85fd84049ab1f1e5ebe34f537b4e`（frozen runtime/fast_5a2d5b5）；模型关键模块的文件hash与本轮base84565f2对照保存。
+
 原生父权重：`/mnt/project/qwen-world-four-frameworks-20261029/runs/ARCH_D/IL_seed42/checkpoints/update044000`。
 
 本轮不可变资产引用：`/mnt/project/d44-native-rl-20261103/IL44_PARENT`。按完整inventory硬链接保留原模型/训练head与原scored-export元数据，不额外复制8.3GiB模型，不加载旧IL optimizer进入RL。
