@@ -6,6 +6,7 @@ noise, single K10 shift5 trajectory and the canonical scorer remain unchanged.
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -25,6 +26,55 @@ def resource_worker_overrides(source):
     # Text I/O must stay UTF-8 even if a native scorer changes LC_CTYPE to C.
     # No numerical/backend/precision variables are changed.
     return dict(PYTHONPATH=str(source), PYTHONUTF8='1')
+
+
+def review_unacknowledged_startup(spec, remote):
+    """Review a proven pre-child crash; never infer success from a dead PID."""
+    receipt = Path(spec['receipt_dir'])
+    if any((receipt/n).exists() for n in ('RUNNING.json','RESULT.json','stdout.log')):
+        return False
+    pending = receipt/'STARTUP_PENDING.json'
+    operator = receipt/'operator.json'
+    if not pending.exists() or not operator.exists():return False
+    if time.time()-json.loads(pending.read_text())['at'] < 60:return False
+    evidence = json.loads(operator.read_text())
+    program = '''from pathlib import Path
+import json,fcntl
+s=__DATA__;d=Path(s['receipt']);o=s['operator'];p=Path('/proc')/str(o['pid'])
+live=p.exists() and int((p/'stat').read_text().split()[21])==o['start_ticks'] and (p/'stat').read_text().split()[2]not in ['Z','X']
+matched=[]
+for q in Path('/proc').iterdir():
+ if not q.name.isdigit():continue
+ try:
+  a=[x for x in (q/'cmdline').read_text().split(chr(0)) if x];st=(q/'stat').read_text().split()
+  if st[2]in ['Z','X']or '-c'in a:continue
+  owned=('--receipt-root'in a and a[a.index('--receipt-root')+1]==str(d))or a==s['command']
+  inherited=(b'WORLD_POSTCOT_STOP_FILE='+str(d/'STOP_REQUESTED').encode()+bytes([0]))in(q/'environ').read_bytes()
+  if owned or inherited:matched.append(dict(pid=int(q.name),start_ticks=int(st[21])))
+ except(OSError,ValueError):pass
+f=(d/'worker.lock').open('a');free=True
+try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
+except BlockingIOError:free=False
+print(json.dumps(dict(worker_alive=live,matching_processes=matched,worker_lock_free=free,
+ receipt_children=[n for n in ['RUNNING.json','RESULT.json','stdout.log']if(d/n).exists()])))
+'''.replace('__DATA__',repr(dict(receipt=str(receipt),operator=evidence,command=spec['command'])))
+    proof = json.loads(remote(spec['host'], ['/usr/bin/python3','-c',program]))
+    if (proof.get('worker_alive') is not False or proof.get('matching_processes') != []
+            or proof.get('worker_lock_free') is not True or proof.get('receipt_children') != []):
+        return False
+    transport = (receipt/'transport.log').read_text()
+    # This legacy exception was raised inside _gpu_admission before Popen.
+    # Other missing receipts/unknown errors demand explicit review.
+    if ('in _gpu_admission' not in transport or
+            not transport.rstrip().endswith('ValueError: Sharing requires an explicitly authorized host and measured valid headroom')):
+        raise RuntimeError('Dead startup without a child receipt; review required: '+str(receipt))
+    write(receipt/'OPERATOR_REQUEUE.json',dict(status='REVIEWED_TERMINAL_REQUEUE',
+        at=time.time(),spec_sha256=hashlib.sha256((receipt/'spec.json').read_bytes()).hexdigest(),
+        transport_sha256=hashlib.sha256((receipt/'transport.log').read_bytes()).hexdigest(),
+        host=spec['host'],process_exit_proof=proof,original_attempt_preserved=True,
+        child_not_started=True,model_forward_calls=0,scorer_calls=0,
+        reason='Legacy finite-host sharing rejection before Popen; retry with current qualified worker'))
+    return True
 
 
 def protected_hosts():
@@ -133,12 +183,15 @@ class Pool:
                     # do not loosen sharing or touch the immutable worker.
                     program = '''import sys,json
 sys.path.insert(0,__SOURCE__)
-from tools.qwen_world_compare.job_worker import _admission_sample,_known_owners
+from tools.qwen_world_compare.job_worker import _admission_sample,_known_owners,shared_training_host
+from starVLA.rl.qwen_world_compare.contracts import authorization,require_dispatch
+host=require_dispatch(admit_long_job=True)
+sharing_allowed=shared_training_host(host,authorization()[0])
 devices,owners=_admission_sample();accepted=[];rejected={}
 for index,device in devices.items():
  try:_known_owners(owners,{index:device['uuid']},[index]);accepted.append(device['uuid'])
  except Exception as error:rejected[device['uuid']]=str(error)
-print(json.dumps(dict(accepted=accepted,rejected=rejected)))'''.replace('__SOURCE__',repr(str(self.admission_source)))
+print(json.dumps(dict(accepted=accepted,rejected=rejected,sharing_allowed=sharing_allowed)))'''.replace('__SOURCE__',repr(str(self.admission_source)))
                     admission = json.loads(self.delegate.remote(host, ['/usr/bin/python3', '-c', program]))
                     observed['qualified_worker_admission'] = admission
                 return host, observed, None
@@ -158,6 +211,7 @@ print(json.dumps(dict(accepted=accepted,rejected=rejected)))'''.replace('__SOURC
             after['available_memory_bytes'] = after['MemAvailable_bytes']
             for a, b in zip(before['gpus'], after['gpus']):
                 if (b['uuid'] in seen or min(a['free_MiB'], b['free_MiB']) < min_free_MiB
+                        or any(self.admission_source and s['qualified_worker_admission'].get('sharing_allowed') is False for s in(before,after))
                         or any(self.admission_source and b['uuid'] not in s['qualified_worker_admission']['accepted'] for s in (before,after))
                         or not after['worker_python_exists']
                         or any(not o['visible'] for s in (before, after) for o in s['owners'] if o['uuid'] == b['uuid'])
@@ -396,6 +450,9 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
                     request.submit('export', '', ['--checkpoint', pin['checkpoint'], '--output', str(request.export)])
                 while not all(request.done('rank'+str(i)) is True for i in range(args.workers)):
                     for name in list(request.jobs):
+                        if request.done(name) is None and review_unacknowledged_startup(request.jobs[name],request.resources.remote):
+                            retry_after[name]=time.monotonic()+30
+                            request.jobs.pop(name);continue
                         if request.done(name) is False:
                             result = json.loads((Path(request.jobs[name]['receipt_dir'])/'RESULT.json').read_text())
                             if prechild_refusal(result):

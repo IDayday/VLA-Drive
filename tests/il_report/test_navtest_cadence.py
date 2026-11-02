@@ -9,6 +9,42 @@ from tools.il_report import navtest_cadence as cadence
 
 
 class CadenceTests(unittest.TestCase):
+    def test_available_hole_before_newer_registered_point_is_not_skipped(self):
+        self.assertEqual(cadence.choose_step([4000,6000,8000],[2000,6000]),4000)
+
+    def test_all_available_boundaries_pinned_even_if_previous_evaluation_blocked(self):
+        with tempfile.TemporaryDirectory() as d:
+            base=Path(d);old=base/'old';four=base/'four';control=base/'control'
+            for p in [old,four,control]:p.mkdir()
+            run=base/'run'
+            for step in (4000,6000,8000):
+                p=run/'checkpoints'/f'update{step:06d}';p.mkdir(parents=True);(p/'COMPLETE').write_text('{}')
+            state=dict(jobs=[dict(method='ARCH_B',updates=2000,status='FAILED_REVIEW_REQUIRED',root=str(base/'older'))])
+            def enqueue(method,path,step):
+                return dict(method=method,updates=step,status='PENDING',root=str(base/str(step)))
+            with patch.object(cadence,'OLD',old),patch.object(cadence,'FOUR',four),\
+                    patch.object(cadence,'ROOT',control),patch.object(cadence,'REPORT',base),\
+                    patch.object(cadence,'runs',return_value={'ARCH_B':run}),\
+                    patch.object(cadence,'registered_points',return_value={('ARCH_B',2000)}),\
+                    patch.object(cadence,'enqueue',side_effect=enqueue),\
+                    patch.object(cadence.shutil,'disk_usage',return_value=type('Space',(),{'free':10**13})()):
+                cadence.tick(state,max_concurrent_models=0)
+            self.assertEqual([j['updates']for j in state['jobs']],[2000,4000,6000,8000])
+
+    def test_checkpoint_and_completion_metadata_trigger_without_reading_journals(self):
+        with tempfile.TemporaryDirectory() as d:
+            run=Path(d)/'run';(run/'checkpoints').mkdir(parents=True);root=Path(d)/'point';root.mkdir()
+            state=dict(jobs=[dict(method='ARCH_D',status='RUNNING',root=str(root))])
+            with patch.object(cadence,'runs',return_value={'ARCH_D':run}):
+                before=cadence.checkpoint_metadata(state)
+                (run/'metrics_rank0.jsonl').write_text('not JSON and deliberately unread')
+                self.assertEqual(cadence.checkpoint_metadata(state),before)
+                (run/'progress.json').write_text('{}')
+                checkpoint=cadence.checkpoint_metadata(state)
+                self.assertNotEqual(checkpoint,before)
+                (root/'COMPLETE.json').write_text('{}')
+                self.assertNotEqual(cadence.checkpoint_metadata(state),checkpoint)
+
     def test_queue_completion_request_is_recognized_by_report_event_reader(self):
         from tools.il_report.rl_events_reference import OwnerStateEvents
         with tempfile.TemporaryDirectory() as d:

@@ -8,11 +8,30 @@ import subprocess
 import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
-from tools.il_report.navtest_burst import Pool, adopt_four_jobs, prechild_refusal,capacity_probe,vacant_slot,resource_worker_overrides
+from tools.il_report.navtest_burst import Pool, adopt_four_jobs, prechild_refusal,capacity_probe,vacant_slot,resource_worker_overrides,review_unacknowledged_startup
 
 
 class BurstRecoveryTest(unittest.TestCase):
+    def test_dead_prechild_sharing_rejection_is_reviewed_without_fake_exit_result(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);spec=dict(receipt_dir=str(root),command=['python','evaluate'],host='authorized')
+            (root/'spec.json').write_text(json.dumps(spec))
+            (root/'operator.json').write_text(json.dumps(dict(pid=123,start_ticks=456)))
+            (root/'STARTUP_PENDING.json').write_text(json.dumps(dict(at=0)))
+            (root/'transport.log').write_text('in _gpu_admission\nValueError: Sharing requires an explicitly authorized host and measured valid headroom\n')
+            proof=dict(worker_alive=False,matching_processes=[],worker_lock_free=True,receipt_children=[])
+            def remote(host,args):self.assertEqual(host,'authorized');return json.dumps(proof)
+            self.assertTrue(review_unacknowledged_startup(spec,remote))
+            decision=json.loads((root/'OPERATOR_REQUEUE.json').read_text())
+            self.assertEqual(decision['spec_sha256'],hashlib.sha256((root/'spec.json').read_bytes()).hexdigest())
+            self.assertFalse((root/'RESULT.json').exists())
+            for change in [dict(worker_alive=True),dict(worker_lock_free=False),dict(matching_processes=[123]),dict(receipt_children=['RUNNING.json'])]:
+                self.assertFalse(review_unacknowledged_startup(spec,lambda h,a:json.dumps(dict(proof,**change))))
+            (root/'RUNNING.json').write_text('{}')
+            self.assertFalse(review_unacknowledged_startup(spec,lambda *a:self.fail('Never inspect/requeue a started child')))
+
     def test_utf8_policy_read_survives_native_locale_change(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/'policy.json';p.write_text(json.dumps({'request':'评测'},ensure_ascii=False),encoding='utf-8')

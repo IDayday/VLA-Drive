@@ -64,11 +64,34 @@ def registered_points():
 
 
 def choose_step(available, requested, interval=2000):
-    last = max(requested, default=0)
-    eligible = [u for u in available if u % interval == 0 and u >= last+interval]
+    # Preserve available holes as well as the next boundary: a later ad-hoc
+    # registration must not hide an unregistered exact 2k checkpoint.
+    first = min(requested, default=0)
+    eligible = [u for u in available if u % interval == 0 and u not in requested
+                and u >= first+interval]
     # Once a series exists, retain every available 2k boundary in order.
     # Only the initial observation starts at the latest available checkpoint.
     return (min if requested else max)(eligible, default=None)
+
+
+def checkpoint_metadata(state=None):
+    """Only checkpoint/control metadata; never read a training journal."""
+    result = []
+    for method, run in sorted(runs().items()):
+        for path in (run/'checkpoints', run/'progress.json', run/'LATEST.json'):
+            try:
+                value = path.stat()
+                result.append((method, str(path), value.st_mtime_ns, value.st_size))
+            except FileNotFoundError:
+                result.append((method, str(path), None, None))
+    for job in (state or {}).get('jobs',[]):
+        if job['status'] not in ('RUNNING','DISPATCHING'):continue
+        for name in ('COMPLETE.json','failure.json'):
+            path=Path(job['root'])/name
+            try:
+                value=path.stat();result.append((job['method'],str(path),value.st_mtime_ns,value.st_size))
+            except FileNotFoundError:result.append((job['method'],str(path),None,None))
+    return result
 
 
 def pin_checkpoint(original, destination):
@@ -174,21 +197,26 @@ def tick(state, *, max_concurrent_models=2):
     existing.update((j['method'], j['updates']) for j in state['jobs'])
     if shutil.disk_usage(ROOT).free > 500*1024**3:
         for method, run in runs().items():
-            if any(j['method'] == method and j['status'] in ('FAILED_REVIEW_REQUIRED', 'BLOCKED_OWNER_EXIT_WITHOUT_COMPLETE') for j in state['jobs']): continue
+            # Pinning is independent of old evaluation health/capacity. An
+            # earlier blocked evaluator must not lose a new rolling boundary.
             # At most one queued checkpoint per method. Pin the latest eligible
             # available boundary; do not backfill an unlimited history.
             if (not method.startswith('ARCH_')
                     and any(j['method'] == method and j['status'] == 'PENDING' for j in state['jobs'])): continue
             available = {int(p.name[6:]): p for p in (run/'checkpoints').glob('update*')
                          if p.name[6:].isdigit() and (p/'COMPLETE').exists()}
-            step = choose_step(available, [u for m, u in existing if m == method])
-            if step is None: continue
-            try:
-                job = enqueue(method, available[step], step)
-            except FileNotFoundError:
-                continue  # Trainer retired the rolling checkpoint while pinning.
-            state['jobs'].append(job); existing.add((method, step))
-            atomic(ROOT/'STATE.json', state)
+            while True:
+                step = choose_step(available, [u for m, u in existing if m == method])
+                if step is None: break
+                try:
+                    job = enqueue(method, available[step], step)
+                except FileNotFoundError:
+                    # A retired file is never substituted with newer weights.
+                    available.pop(step)
+                    continue
+                state['jobs'].append(job); existing.add((method, step))
+                atomic(ROOT/'STATE.json', state)
+                if not method.startswith('ARCH_'):break
     for job in state['jobs']:
         if job['status'] != 'PENDING': continue
         if sum(j['status'] in ('RUNNING', 'DISPATCHING') for j in state['jobs']) >= max_concurrent_models: break
@@ -201,7 +229,7 @@ def tick(state, *, max_concurrent_models=2):
         command = [PYTHON, '-u', str(operator),
             '--root', str(root), '--source', job['source'], '--family', job['family'], '--workers', '32']
         if job['family'] == 'four':
-            command += ['--worker-source', '/mnt/project/VLA-Drive-abcd-il-c-recovery-20261101']
+            command += ['--worker-source', str(Path(__file__).resolve().parents[2])]
         if job.get('resume_reviewed'):command.append('--resume')
         job.update(status='DISPATCHING', command=command, dispatched_unix=time.time())
         atomic(root/'LAUNCH_INTENT.json', dict(command=command, registered_job=job))
@@ -229,12 +257,14 @@ def main():
     parser = argparse.ArgumentParser(__doc__); parser.add_argument('--once', action='store_true')
     parser.add_argument('--max-concurrent-models', type=int, choices=(1,2,3,4), default=2)
     parser.add_argument('--interval-seconds', type=int, default=600); args = parser.parse_args()
+    if args.interval_seconds < 1:parser.error('Positive metadata review interval required')
     ROOT.mkdir(exist_ok=True)
     with (ROOT/'owner.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         owner = dict(pid=os.getpid(), start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),
             status='RUNNING', at=time.time(), interval_seconds=args.interval_seconds,
-            resource_review_wakeup='SIGUSR1_CPU_owner_only')
+            resource_review_wakeup='SIGUSR1_CPU_owner_only', checkpoint_metadata_seconds=60,
+            no_training_log_polling=True, source=str(Path(__file__).resolve()), source_sha256=sha(__file__))
         wake=threading.Event();stop=threading.Event()
         signal.signal(signal.SIGUSR1,lambda *_:wake.set())
         def stopped(*_):stop.set();wake.set()
@@ -243,12 +273,17 @@ def main():
         atomic(ROOT/'REGISTRATION.json', dict(interval_updates=2000, initial='latest eligible available sealed checkpoint',
             seed=2101, full_population=12146, metric='canonical_NAVSIM_v1.1', inference='single_cleanx_K10_shift5',
             workers_per_model=32, max_concurrent_models=args.max_concurrent_models, burst_mode=True, actual_placement='verified idle then qualified sharing',
-            model_batch=1, original_actor_and_scorer_unchanged=True, metadata_only_wakeup_seconds=args.interval_seconds,
+            model_batch=1, original_actor_and_scorer_unchanged=True, metadata_only_wakeup_seconds=min(60,args.interval_seconds),
             no_training_log_polling=True, no_duplicate_existing_points=True, raw_completed_and_screened_arms_excluded=True,
             native_staging_retired_after_export_and_completed_evaluation=True, deployment_weights_and_scores_retained=True,
             minimum_free_disk_bytes=500*1024**3, all_private_assets_stay_out_of_git=True))
         state = read(ROOT/'STATE.json', dict(jobs=[]))
+        previous_metadata = None; reviewed = 0
         while not stop.is_set():
+            metadata = checkpoint_metadata(state)
+            if (metadata == previous_metadata and not wake.is_set()
+                    and time.monotonic()-reviewed < args.interval_seconds):
+                wake.wait(min(60,args.interval_seconds));continue
             wake.clear()
             try:
                 tick(state, max_concurrent_models=args.max_concurrent_models)
@@ -257,8 +292,9 @@ def main():
                 atomic(ROOT/'FAILURE.json', dict(at=time.time(), error=traceback.format_exc(),
                     no_scientific_worker_killed=True, no_blind_retry=True))
                 raise
+            previous_metadata = metadata; reviewed = time.monotonic()
             if args.once: break
-            wake.wait(args.interval_seconds)
+            wake.wait(min(60,args.interval_seconds))
         owner.update(status='STOPPED',ended_unix=time.time(),scientific_children_signalled=False)
         atomic(ROOT/'OWNER.json',owner)
 
