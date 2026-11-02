@@ -76,6 +76,8 @@ class PerformanceRuntime(GroupRuntime):
     @staticmethod
     def add_arguments(parser):
         ResearchRuntime.add_arguments(parser)
+        parser.add_argument('--frozen-reference-cache',action='store_true',
+            help='Execution-only detached frozen-IL W3 cache; source changes require explicit tested migration')
         parser.add_argument('--qualification-force-auxiliary',action='store_true',
             help='QUALIFICATION ONLY: exercise rescue at IL0 and own-history at second collection; never a formal run')
 
@@ -158,6 +160,10 @@ class PerformanceRuntime(GroupRuntime):
             state['performance_auxiliary'].setdefault('history',new_history_state(identity['sha256'],dist.get_rank()))
         self.stage = next(copy.deepcopy(s) for s in self.spec['stages'] if s['name']==state['current_stage'])
         self.stream.set_batch_size(self.stage['B'])
+        if getattr(self.args,'frozen_reference_cache',False):
+            from starVLA.rl.qwen_world_research_algorithms.frozen_reference import enable_reference_cache,populate_reference_caches
+            enable_reference_cache(self.actor,identity)
+            if rollout is not None:populate_reference_caches(self.actor,rollout)
 
     def _stage_boundary(self, actor, version):
         state = self.training_state
@@ -303,6 +309,8 @@ class PerformanceRuntime(GroupRuntime):
             elif self.spec['algorithm']=='fpo':
                 from .fpo_adapter import attach_fpo_material
                 attach_fpo_material(self.actor,s,rank=dist.get_rank())
+        from starVLA.rl.qwen_world_research_algorithms.frozen_reference import populate_reference_caches
+        populate_reference_caches(self.actor,window)
         return window
 
     def commit_collection_accounting(self, window, state, world):
@@ -416,6 +424,9 @@ class PerformanceRuntime(GroupRuntime):
         return value
 
     def finalize_training_identity(self,identity):
+        if getattr(self.args,'frozen_reference_cache',False):
+            from starVLA.rl.qwen_world_research_algorithms.frozen_reference import PROTOCOL
+            identity.setdefault('execution_optimizations',{})['frozen_IL_reference_cache']=copy.deepcopy(PROTOCOL)
         identity['scene_reduction']='equal weight per valid fresh scene over all ranks; padding zero; global valid-count denominator'
         identity['actual_optimizer'].update(warmup_updates=None,
             warmup_valid_scene_epochs=self.spec['schedule']['warmup_epochs'],

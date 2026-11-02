@@ -168,9 +168,8 @@ class ResearchLoss(SourceLoss):
         bc_loss = torch.zeros((), device=pg.device, dtype=pg.dtype)
         kl_loss = torch.zeros((), device=pg.device, dtype=pg.dtype)
         if terms is not None:
-            with torch.no_grad():
-                _, reference = model.action_chain_logprobs(rollout['cond_bg'], chain, times, deltas,
-                    stoch_idx=indices, use_ref=True, return_terms=True)
+            from .frozen_reference import reference_terms
+            reference = reference_terms(model, rollout)
             d_mean_raw = (terms['mean']-reference['mean']).pow(2)
             d_vel_raw = (terms['vel']-reference['vel']).pow(2)
             weights = model.kl_weight_matrix(horizon=d_mean_raw.shape[2], action_dim=d_mean_raw.shape[3],

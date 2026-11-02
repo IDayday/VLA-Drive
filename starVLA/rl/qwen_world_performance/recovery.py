@@ -84,6 +84,8 @@ def validate_boundary(state, window, identity, optimizer=None, scheduler=None, *
             value=leaf[key]
             if value.shape!=shape or value.requires_grad or not torch.isfinite(value).all():raise ValueError('Invalid saved leaf '+key)
         if leaf['stoch_idx'].tolist()!=[7,8,9]:raise ValueError('W3 source indices changed')
+        from starVLA.rl.qwen_world_research_algorithms.frozen_reference import validate_reference_cache
+        validate_reference_cache(leaf,identity)
         audit=leaf['old_probability']
         if not torch.allclose(audit['source_clamped_logprob'].mean((-1,-2)).cpu(),leaf['old_logp'].cpu(),atol=5e-7,rtol=0):
             raise ValueError('Stored behavior source probability changed')
