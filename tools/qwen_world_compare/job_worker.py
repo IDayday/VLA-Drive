@@ -6,6 +6,8 @@ host queue after a guarded exit; this worker never starts a second lineage.
 """
 import argparse
 import fcntl
+from functools import lru_cache
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -121,6 +123,33 @@ class ResourceRefused(RuntimeError):
 
 PRIMARY_LEASE_ROOT=Path('/mnt/project/runtime_gpu_leases')
 SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
+PERFORMANCE_DIAGNOSTIC=Path('/mnt/project/qwen-world-performance-rl-20261103/diagnostics')
+
+
+@lru_cache(maxsize=8)
+def sealed_diagnostic(root, metadata_stamps):
+    identity=json.loads((root/'IL70_FULL_NAVTRAIN/identity.json').read_text())
+    payload=(root/'IL70_export/export.json').read_bytes();meta=json.loads(payload)
+    seal=json.loads((root/'IL70_export/COMPLETE').read_text())
+    return (identity.get('qualification') is False and identity.get('cohort')=='TRAIN_DIAGNOSTIC'
+        and identity.get('IL_updates')==70000 and identity.get('model_sha256')==meta.get('model_sha256')
+        and bool(meta.get('model_sha256')) and hashlib.sha256(payload).hexdigest()==seal.get('export_sha256'))
+
+
+def known_performance_diagnostic(args):
+    """Recognize one sealed, inspected IL70 diagnostic; never a path prefix."""
+    def flag(name):
+        return args[args.index(name)+1] if name in args and args.index(name)+1<len(args) else None
+    root=PERFORMANCE_DIAGNOSTIC
+    if (flag('--cohort')!='TRAIN_DIAGNOSTIC'
+            or flag('--output')!=str(root/'IL70_FULL_NAVTRAIN')
+            or flag('--export')!=str(root/'IL70_export')
+            or flag('--manifest')!=str(root.parent/'data/NAVTRAIN_SCENES.json')):return False
+    try:
+        files=[root/'IL70_FULL_NAVTRAIN/identity.json',root/'IL70_export/export.json',root/'IL70_export/COMPLETE']
+        stamps=tuple((p.stat().st_mtime_ns,p.stat().st_size)for p in files)
+        return sealed_diagnostic(root,stamps)
+    except (OSError,ValueError):return False
 
 
 def known_owner_args(args):
@@ -135,6 +164,7 @@ def known_owner_args(args):
     parent_flag='--il-checkpoint'if entry.endswith('.train')else'--parent-checkpoint'
     if parent_flag not in args or args.index(parent_flag)+1>=len(args):return False
     if args[args.index(parent_flag)+1]!='/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT':return False
+    if entry.endswith('.evaluate') and known_performance_diagnostic(args):return True
     return any(arg.startswith('/mnt/project/qwen-world-safety-exploration-20261031/')for arg in args)
 
 
