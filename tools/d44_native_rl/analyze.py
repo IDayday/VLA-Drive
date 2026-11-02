@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 from tools.qwen_world_compare.evaluate import load_evaluation,summarize
 from tools.qwen_world_postcot.summarize import METRICS
+from starVLA.rl.qwen_world_compare.contracts import fingerprint
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
@@ -25,15 +26,23 @@ def contributions(rows,base):
         limits='Reference cohorts fixed by IL44. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee.')
 
 
-def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation',required=True);p.add_argument('--baseline',required=True);p.add_argument('--output',required=True);a=p.parse_args()
-    value=summarize(a.evaluation,a.baseline);identity,rows=load_evaluation(a.evaluation);baseid,base=load_evaluation(a.baseline)
+def analyze(evaluation,baseline):
+    value=summarize(evaluation,baseline);identity,rows=load_evaluation(evaluation);_,base=load_evaluation(baseline)
     if identity['qualification']or identity['cohort']!='NAVTEST'or len(rows)!=12146 or value['physical_logs']!=44:
         raise ValueError('Research performance analysis requires complete12146/44 full Navtest; qualification excluded')
-    value['gain_loss']=contributions(rows,base)
-    output=Path(a.output)
-    if output.exists():raise FileExistsError('Preserve previous derived summary; select new analysis output')
-    atomic_json(output,value)
+    value['source_summary_sha256']=value.pop('sha256')
+    value['analysis_schema']='D44_complete_B1_paired_gain_loss_v1'
+    value['gain_loss']=contributions(rows,base);value['sha256']=fingerprint(value)
+    return value
+
+
+def main():
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation',required=True);p.add_argument('--baseline',required=True);p.add_argument('--output',required=True);a=p.parse_args()
+    value=analyze(a.evaluation,a.baseline);output=Path(a.output)
+    if output.exists():
+        import json
+        if json.loads(output.read_text())!=value:raise FileExistsError('Preserve previous derived analysis; select a new output')
+    else:atomic_json(output,value)
 
 
 if __name__=='__main__':main()

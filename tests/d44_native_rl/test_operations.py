@@ -90,3 +90,16 @@ def test_profiled_resume_rejects_other_scopes_and_low_headroom(tmp_path,monkeypa
     with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,32768)
     recipe['arm']='D6';save()
     with pytest.raises(ValueError):worker.validate_profiled_d0_resume(cmd,40960)
+
+
+def test_deployment_selector_never_uses_partial_results(tmp_path):
+    from tools.d44_native_rl.campaign import selection_index
+    run=tmp_path/'run';run.mkdir()
+    cases={}
+    for i,(pdms,newzero,status)in enumerate([(91.0,20,'COMPLETE'),(90.9,2,'COMPLETE'),(94.,0,'RUNNING')]):
+        summary=tmp_path/f's{i}.json';summary.write_text(json.dumps(dict(qualification=False,scenes=12146,invalid_scenes=0,PDMS=pdms,paired=dict(new_zero=newzero))))
+        cases[str(i)]=dict(status=status,request=dict(checkpoint=str(run/str(i)),epoch=i+1),summary=str(summary))
+    r=selection_index(dict(runs=dict(D0=dict(output=str(run))),evaluations=cases))['runs']['D0']
+    assert r['evaluated_checkpoints']==2
+    assert r['best_score_checkpoint']['PDMS']==91.0
+    assert r['best_stable_proxy_checkpoint']['PDMS']==90.9

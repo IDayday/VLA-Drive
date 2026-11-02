@@ -132,6 +132,17 @@ def qualified(run):
         if (result['updates']<10 or not result['qualification']or result['status']!='QUALIFICATION_STOPPED'
                 or result.get('frozen_before')!=result.get('frozen_after')or not result.get('frozen_before')):return False
     identity=read(root/'identity.json');c=identity['recipe']
+    if c['arm']!=run['arm']or identity['architecture_id']!='D':raise ValueError('Qualification used another algorithm/model')
+    formal=read_config(run['config'])
+    for key in ('text_rank','film_last_layers','train_action_io','post_feedback'):
+        if c[key]!=formal[key]:raise ValueError('Qualification scope differs: '+key)
+    # The declared pre-formal cost/endpoint/teacher-gate delta is documented;
+    # the actual native forward/probability/adapter/codec kernels must match.
+    for name in ('starVLA/rl/d44_native_rl/actor.py','starVLA/rl/d44_native_rl/gaussian_objective.py',
+                 'starVLA/rl/d44_native_rl/expanded_scope.py','starVLA/rl/d44_native_rl/native_cleanx_aux.py',
+                 'starVLA/rl/qwen_world_compare/policy_adapter.py','starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py',
+                 'starVLA/model/modules/qwen_sourceflow/action_codec.py'):
+        if identity['source_files'].get(name)!=file_sha(Path(run['source'])/name):raise ValueError('Qualification native kernel source differs: '+name)
     expected_scenes=run.get('qualification_scenes',64)
     if c['global_scenes']!=expected_scenes or c['group']!=16 or c['inner_updates']!=2 or identity['world']!=required_world or identity['parent_model_sha256']!=read(ROOT/'parent_audit/AUDIT.json')['parent']['model_sha256']:
         raise ValueError('Wrong D44 B64/G16 qualification identity')
@@ -283,7 +294,37 @@ def evaluation_tick(campaign):
             try:
                 value=summarize(output,baseline);atomic_json(output.parent/'SUMMARY.json',value)
                 case['status']='COMPLETE';case['summary']=str(output.parent/'SUMMARY.json')
+                try:
+                    from tools.d44_native_rl.analyze import analyze
+                    analysis=analyze(output,baseline);atomic_json(output.parent/'PAIRED_ANALYSIS.json',analysis)
+                    case['paired_analysis']=str(output.parent/'PAIRED_ANALYSIS.json')
+                except Exception as error:case['analysis_error']=repr(error)
             except Exception as error:case.update(status='FAILED_SUMMARY_REQUIRES_REVIEW',summary_error=repr(error))
+
+
+def selection_index(campaign):
+    """Test-selected deployment indexes; never alter training or TRAIN sampling."""
+    rows={}
+    for arm,run in campaign['runs'].items():
+        complete=[]
+        for case in campaign.get('evaluations',{}).values():
+            if case.get('status')!='COMPLETE':continue
+            cp=Path(case['request']['checkpoint']).resolve()
+            if not cp.is_relative_to(Path(run['output']).resolve()):continue
+            summary=read(case['summary'])
+            if summary['qualification']or summary['scenes']!=12146 or summary['invalid_scenes']!=0:raise ValueError('Selection requires complete B1 Navtest')
+            complete.append(dict(checkpoint=str(cp),PDMS=summary['PDMS'],new_zero=summary['paired']['new_zero'],
+                epoch=case['request']['epoch'],summary=case['summary']))
+        item=dict(last_checkpoint=read(Path(run['output'])/'latest.json')['checkpoint']if(Path(run['output'])/'latest.json').exists()else None,
+                  evaluated_checkpoints=len(complete),test_selected=True)
+        if complete:
+            best=max(complete,key=lambda row:(row['PDMS'],-row['epoch']))
+            stable=min((row for row in complete if row['PDMS']>=best['PDMS']-.2),key=lambda row:(row['new_zero'],-row['PDMS'],row['epoch']))
+            item.update(best_score_checkpoint=best,best_stable_proxy_checkpoint=stable)
+        rows[arm]=item
+    return dict(schema='D44_test_selected_checkpoint_index_v1',runs=rows,
+        stable_proxy_rule='Lowest new-zero count among checkpoints within0.2 PDMS points of the run maximum; then higher PDMS, then earlier epoch',
+        limits='Descriptive test-selected index; not unseen-test validation or a stability/safety guarantee. No test data feed training.')
 
 
 def main():
@@ -300,6 +341,7 @@ def main():
         atomic_json(ROOT/'CAMPAIGN_OWNER.json',dict(pid=__import__('os').getpid(),started=time.time(),registry=a.registry))
         while True:
             campaign=tick(a.registry)
+            atomic_json(ROOT/'CHECKPOINT_SELECTION.json',selection_index(campaign))
             if a.command=='tick' or campaign['closed']:break
             if any(r['status']=='SAVED_AND_PAUSED_FOR_REGISTERED_FULL_NAVTEST'and not pending_evaluation(campaign,r)for r in campaign['runs'].values()):continue
             # Metadata admission only; no training journal or GPU log polling.

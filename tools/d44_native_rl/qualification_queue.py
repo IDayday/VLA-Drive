@@ -12,6 +12,7 @@ from pathlib import Path
 import subprocess
 import time
 from tools.d44_native_rl.launch import launch,DispatchPreflightFailed
+from tools.d44_native_rl.campaign import wait_for_completion
 from starVLA.rl.qwen_world_compare.contracts import allowed_hosts,fingerprint
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
@@ -84,7 +85,8 @@ def main():
             state=tick(plan,state);atomic_json(statepath,state)
             if state['complete']:break
             # Metadata heartbeat, not high-frequency training-log polling.
-            time.sleep(max(60,a.interval))
+            watched=dict(runs={t['id']:dict(qualification=t['source'],output=plan['root'],jobs=t['attempts'])for t in state['tasks']},evaluations={})
+            wait_for_completion(watched,max(60,a.interval))
 
 
 if __name__=='__main__':main()
