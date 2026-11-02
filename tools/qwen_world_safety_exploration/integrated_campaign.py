@@ -1,5 +1,6 @@
 """Independent single-arm B64/G16 campaign; never adopts F/G/H owners."""
 import argparse
+import copy
 import fcntl
 import json
 import os
@@ -16,6 +17,43 @@ PROTECTED = {'training-vla-zt', 'training-vlawm-tsinghua-zt'}
 IMMUTABLE = ('id', 'root', 'source', 'source_commit', 'config', 'config_sha256',
              'parent_checkpoint', 'owner_state', 'group_size', 'trainer_module',
              'execution_source', 'execution_migration_receipt')
+USER_10K_POLICY = 'world_integrated64_user_minimum10k_eval2k5k10k_v1'
+USER_EVALUATION_GATES = [2000, 5000, 10000]
+
+
+def validate_runtime_budget(run):
+    """Runtime authorization is independent of the frozen scientific LR clock."""
+    from starVLA.rl.qwen_world_safety_exploration.integrated64_recipe import EVALUATE_UPDATES
+    if run.get('runtime_budget_policy') == USER_10K_POLICY:
+        retained = run.get('retained_native_handoff_gates')
+        if (run['target_updates'] != 10000 or retained != [250,625]
+                or run.get('evaluation_gates') != USER_EVALUATION_GATES
+                or run.get('historical_evaluation_gates') != [250]
+                or run.get('minimum_committed_updates') != 10000
+                or run.get('score_based_stopping_before_minimum') is not False
+                or run.get('post10k_long_training_review_required') is not True
+                or run['gates'] != sorted(retained + USER_EVALUATION_GATES)):
+            raise ValueError('User explicitly requires actual10k before review and evaluations2k/5k/10k')
+    elif (run.get('runtime_budget_policy') is not None
+            or run['target_updates'] not in (6250,12500)
+            or run['gates'] != [u for u in EVALUATE_UPDATES if u <= run['target_updates']]):
+        raise ValueError('Unknown integrated runtime budget/cadence')
+    return run
+
+
+def evaluation_gates(run, *, include_history=True):
+    targets = list(run.get('evaluation_gates',run['gates']))
+    if include_history:
+        targets = sorted(set(targets + run.get('historical_evaluation_gates',[])))
+    return targets
+
+
+def evaluation_registry(value):
+    """Keep native handoffs out of the GPU evaluation queue, retaining old results."""
+    view = copy.deepcopy(value)
+    for run in view['runs']:
+        run['gates'] = evaluation_gates(run)
+    return view
 
 
 def read(path):
@@ -35,7 +73,7 @@ def validate_registry(value):
     import yaml
     from starVLA.rl.qwen_world_safety_exploration.contracts import file_sha
     from starVLA.rl.qwen_world_safety_exploration.integrated64_recipe import (
-        ARM, EVALUATE_UPDATES, validate_integrated_recipe)
+        ARM, validate_integrated_recipe)
     if (value.get('schema') != 'world_integrated64_campaign_registry_v1'
             or value.get('task') != 'qwen_world_safety_exploration_20261031'
             or value.get('root') != str(ROOT_PATH)
@@ -45,14 +83,14 @@ def validate_registry(value):
     r = value['runs'][0]
     if (r['id'] != ARM or r['root'] != str(ROOT_PATH/'runs'/ARM)
             or r['owner_state'] != str(ROOT_PATH/'owners/INTEGRATED_NATIVE/STATE.json')
-            or r['group_size'] != 16 or r['target_updates'] not in (6250,12500)
-            or r['gates'] != [u for u in EVALUATE_UPDATES if u <= r['target_updates']]
+            or r['group_size'] != 16
             or r['trainer_module'] != 'tools.qwen_world_safety_exploration.train'
             or file_sha(r['config']) != r['config_sha256']
             or not (Path(r['source'])/'tools/qwen_world_safety_exploration/train.py').is_file()
             or not r['deployment_candidates']
             or any(p['host'] in PROTECTED for p in r['deployment_candidates'])):
         raise ValueError('Integrated source/config/group/cadence/native binding changed')
+    validate_runtime_budget(r)
     validate_integrated_recipe(yaml.safe_load(Path(r['config']).read_text()))
     if r.get('execution_source') is not None:
         if (not r.get('execution_migration_receipt')
@@ -194,7 +232,7 @@ def evaluation_class():
     eval_owner.checkpoint_at_gate=checkpoint_at_gate
     class IntegratedEvaluation(eval_owner.EvaluationOwner):
         def registry_now(self):
-            return validate_registry(super().registry_now())
+            return evaluation_registry(validate_registry(super().registry_now()))
         def samples(self):
             return [(host,s)for host,s in super().samples()if host not in PROTECTED]
     return IntegratedEvaluation
@@ -209,7 +247,8 @@ def review_loop():
     review=Review()
     while True:
         registry=validate_registry(read(ROOT_PATH/'RUNS.json'));run=registry['runs'][0];published=[];pending=[]
-        for u in run['gates']:
+        targets=evaluation_gates(run)
+        for u in targets:
             ev=ROOT_PATH/f"evaluations/{run['id']}_u{u:06}/NAVTEST";summary=ev/'SUMMARY.json'
             if not summary.exists():pending.append(u);continue
             point=review.out/f"{run['id']}_u{u:06}.json"
@@ -226,9 +265,9 @@ def review_loop():
                     budget_warning='scene8x and candidate16x clocks differ; pending surplus and extraB1 cost are not equal-compute',
                     NAVTEST_never_enters_training_bank=True)
                 atomic_json(point,payload);published.append(str(point))
-            for name,ref in [('SCENE_CLOCK',8*u),('SOURCE_PG_CANDIDATE_CLOCK',16*u)]:
+            for name,ref in [('OPTIMIZER_UPDATES',u),('SCENE_CLOCK',8*u),('SOURCE_PG_CANDIDATE_CLOCK',16*u)]:
                 p=CONTROL/f'evaluations/SAFETY_G8_CONTROL_u{ref:06}/NAVTEST'
-                axis='scene'if name=='SCENE_CLOCK'else'candidate'
+                axis=('optimizer'if name=='OPTIMIZER_UPDATES'else'scene'if name=='SCENE_CLOCK'else'candidate')
                 paired=review.out/f"{run['id']}_{u}_{axis}_vs_SAFETY_G8_CONTROL_{ref}.json"
                 if not paired.exists()and(p/'SUMMARY.json').exists():
                     comparison=review.compare(ev,p,label=name)
@@ -239,7 +278,7 @@ def review_loop():
                         budget_contract='nominal '+axis+' clock only; pending surplus and additional B1 cost explicit'))
                     published.append(str(paired))
         atomic_json(review.out/'STATE.json',dict(status='WAITING_COMPLETE_NAVTEST'if pending else'COMPLETE_AT_REGISTERED_GATES',
-                    ready=len(run['gates'])-len(pending),pending=pending,published=published,heartbeat_unix=time.time()))
+                    ready=len(targets)-len(pending),pending=pending,published=published,heartbeat_unix=time.time()))
         if published:refresh(review.out/'STATE.json','Integrated64 full paired evidence published')
         if not pending or (review.out/'STOP_OWNER').exists():return
         time.sleep(120)
