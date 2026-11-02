@@ -1,0 +1,218 @@
+diff --git a/starVLA/rl/d44_native_rl/batch_runtime.py b/starVLA/rl/d44_native_rl/batch_runtime.py
+index 61bc0c8..f1f162e 100644
+--- a/starVLA/rl/d44_native_rl/batch_runtime.py
++++ b/starVLA/rl/d44_native_rl/batch_runtime.py
+@@ -25,10 +25,21 @@ def deployment_chain(actor,condition,generator):
+ 
+ 
+ @torch.no_grad()
+-def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version):
++def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None):
++    def add(**value):
++        if cost is not None:cost(**value)
++    def generate(count,forward):
++        add(candidate_requests=count);tick=time.monotonic()
++        try:
++            result=forward();add(physical_candidates=count);return result
++        finally:add(generation_worker_seconds=time.monotonic()-tick)
++    def score(request):
++        add(scorer_candidate_attempts=len(request[2]));tick=time.monotonic()
++        try:return service.score(request)
++        finally:add(scoring_wait_worker_seconds=time.monotonic()-tick)
+     start=time.monotonic()
+-    chain,times,deltas,idx=actor.sample_action_chain(descriptor,8,generator=generator)
+     g=cfg['group']
++    chain,times,deltas,idx=generate(g,lambda:actor.sample_action_chain(descriptor,8,generator=generator))
+     if chain.shape!=(g,11,8,3)or idx.tolist()!=[7,8,9]or not torch.isfinite(chain).all():raise ValueError('Native D chain contract changed')
+     sampled=copy.deepcopy(actor.sampling_terms)
+     mean,std=actor.transition_terms(descriptor,chain,times,deltas)
+@@ -39,7 +50,7 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
+     if not torch.equal(std,refstd):raise ValueError('Reference kernel variance changed')
+     torch.cuda.synchronize();generation=time.monotonic()-start
+     requested=ActionCodec.denorm_odo(chain[:,-1]).cpu().numpy();begin=time.monotonic()
+-    records=service.score((token,log,requested));score_seconds=time.monotonic()-begin
++    records=score((token,log,requested));score_seconds=time.monotonic()-begin
+     if len(records)!=g or any(r['status']!='OK'for r in records):raise ValueError('Incomplete real scorer response')
+     factors=torch.tensor([[r['metrics'][k]for k in FACTORS]for r in records],device=actor.device,dtype=torch.float64)
+     r=dict(token=token,log=log,condition=descriptor,chain=chain,timesteps=times,deltas=deltas,
+@@ -50,13 +61,13 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
+     if cfg['arm']in('D2','D6')and epoch>=cfg['rescue_start_epoch']:
+         material=actor.materialize(descriptor);one=dict(material,context=material['context'][:1])
+         nominal_generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',cfg.get('nominal_seed',2101),token))
+-        nominal,nominal_grid=deployment_chain(actor,one,nominal_generator)
+-        nominal_records=service.score((token,log,ActionCodec.denorm_odo(nominal[:,-1]).cpu().numpy()))
++        nominal,nominal_grid=generate(1,lambda:deployment_chain(actor,one,nominal_generator))
++        nominal_records=score((token,log,ActionCodec.denorm_odo(nominal[:,-1]).cpu().numpy()))
+         base=nominal_records[0]['metrics']['score'];teacher_records=records;teacher_chain=chain;r['extra_B1']=1;r['physical_candidates']+=1
+-        strict=any(all(x['metrics'][k]==1 for k in FACTORS[:3])and x['metrics']['score']>=.9 for x in records)
++        strict=verified_index(records,0.,improvement=0.)is not None
+         if g==16 and base<.90 and not strict:
+-            extra,_,_,_=actor.sample_action_chain(descriptor,8,generator=generator)
+-            extra_records=service.score((token,log,ActionCodec.denorm_odo(extra[:,-1]).cpu().numpy()))
++            extra,_,_,_=generate(g,lambda:actor.sample_action_chain(descriptor,8,generator=generator))
++            extra_records=score((token,log,ActionCodec.denorm_odo(extra[:,-1]).cpu().numpy()))
+             teacher_records=records+extra_records;teacher_chain=torch.cat((chain,extra));r['extra_G32']=g;r['physical_candidates']+=g
+         selected=verified_index(teacher_records,base);r['nominal_score']=base
+         if selected is not None:
+diff --git a/starVLA/rl/d44_native_rl/config.py b/starVLA/rl/d44_native_rl/config.py
+index bec8ff4..86818a3 100644
+--- a/starVLA/rl/d44_native_rl/config.py
++++ b/starVLA/rl/d44_native_rl/config.py
+@@ -47,4 +47,5 @@ def read(path):
+         raise ValueError('Unregistered batch/group/inner combination')
+     if cfg['innovation_clip']is not None or cfg['coordinate_reduction']!='sum24':raise ValueError('Gaussian probability contract changed')
+     if cfg['seed']!=42 or cfg['evaluation_seed']!=2101 or cfg['training_uses_navtest']:raise ValueError('Data/seed contract changed')
++    if cfg.get('probability_layout','sequential')!='sequential':raise ValueError('Packed W3 probability layout is not qualified for training')
+     return cfg
+diff --git a/starVLA/rl/d44_native_rl/recovery.py b/starVLA/rl/d44_native_rl/recovery.py
+index e2459da..4f6f8fa 100644
+--- a/starVLA/rl/d44_native_rl/recovery.py
++++ b/starVLA/rl/d44_native_rl/recovery.py
+@@ -69,6 +69,13 @@ class Attempt:
+         elif state['updates']:raise ValueError('Missing effective learning journal')
+         atomic_json(self.path,self.record)
+ 
++    def add_cost(self,**values):
++        # Physical work is append-attempt accounting, independent of committed
++        # logical samples and never rolled back with a checkpoint.
++        for key,value in values.items():self.record[key]=self.record.get(key,0)+value
++        self.record['last_physical_work_unix']=time.time()
++        atomic_json(self.path,self.record)
++
+     def finish(self,state,status):
+         elapsed=time.monotonic()-self.started;delta=state['updates']-self.record['start_update']
+         self.record.update(status=status,end_update=state['updates'],worker_wall_seconds=elapsed,
+diff --git a/starVLA/rl/d44_native_rl/safety_credit.py b/starVLA/rl/d44_native_rl/safety_credit.py
+index 1e4522a..0d2b6ff 100644
+--- a/starVLA/rl/d44_native_rl/safety_credit.py
++++ b/starVLA/rl/d44_native_rl/safety_credit.py
+@@ -7,7 +7,7 @@ FACTORS = ('no_at_fault_collisions', 'drivable_area_compliance', 'time_to_collis
+ 
+ 
+ @torch.no_grad()
+-def raw_credit(factors, *, endpoint=None, stage2=False):
++def raw_credit(factors, *, endpoint=None, endpoint_confidence=None, stage2=False):
+     values = factors.detach().double()
+     if values.ndim != 3 or values.shape[-1] != 6 or not torch.isfinite(values).all():
+         raise ValueError('Expected finite [scene,G,6] official factors')
+@@ -24,7 +24,10 @@ def raw_credit(factors, *, endpoint=None, stage2=False):
+     if stage2:
+         if endpoint is None or endpoint.shape != quality.shape:
+             raise ValueError('StageII requires explicit TRAIN endpoint quality')
+-        quality = .70*quality+.15*values[..., 4]+.15*endpoint.detach().double()
++        confidence=torch.ones_like(quality)if endpoint_confidence is None else endpoint_confidence.detach().double().expand_as(quality)
++        if not torch.isfinite(endpoint).all()or not torch.isfinite(confidence).all()or not((confidence>=0)&(confidence<=1)).all():
++            raise ValueError('Invalid TRAIN endpoint quality/confidence')
++        quality=(.70*quality+.15*values[...,4]+.15*confidence*endpoint.detach().double())/(.85+.15*confidence)
+     first=quality.gather(1,feasible.long().argmax(1,keepdim=True))
+     offsets=quality-first
+     average = (offsets*feasible).sum(1, keepdim=True)/count.clamp_min(1)
+diff --git a/starVLA/rl/d44_native_rl/two_stage_reward.py b/starVLA/rl/d44_native_rl/two_stage_reward.py
+new file mode 100644
+index 0000000..da66102
+--- /dev/null
++++ b/starVLA/rl/d44_native_rl/two_stage_reward.py
+@@ -0,0 +1,17 @@
++"""TRAIN-only endpoint shaping; labels never enter current observation inputs."""
++import torch
++
++
++@torch.no_grad()
++def endpoint_quality(ground_truth,requested,temperature=3.):
++    gt=torch.as_tensor(ground_truth,device=requested.device,dtype=torch.float32)
++    if requested.shape[-2:]!=(8,3)or not torch.isfinite(requested).all():raise ValueError('Malformed actual policy requests')
++    if gt.shape!=(8,3)or not torch.isfinite(gt).all():
++        return requested.new_zeros(len(requested)),requested.new_zeros(())
++    # A locked TRAIN-only downweighting heuristic for stationary/very short
++    # recorded motion; no claim that it is an official NAVSIM progress metric.
++    points=torch.cat((gt.new_zeros(1,2),gt[:,:2]))
++    distance=(points[1:]-points[:-1]).norm(dim=-1).sum()
++    confidence=(distance/3.).clamp(0,1)
++    score=torch.exp(-(requested[:,-1,:2]-gt[-1,:2]).norm(dim=-1)/temperature)
++    return score,confidence
+diff --git a/tools/d44_native_rl/train.py b/tools/d44_native_rl/train.py
+index 369a0e8..9c67692 100644
+--- a/tools/d44_native_rl/train.py
++++ b/tools/d44_native_rl/train.py
+@@ -24,6 +24,7 @@ from starVLA.rl.d44_native_rl.conditions import DConditions
+ from starVLA.rl.d44_native_rl.data import DataStream
+ from starVLA.rl.d44_native_rl.batch_runtime import collect_scene
+ from starVLA.rl.d44_native_rl.safety_credit import raw_credit,normalize
++from starVLA.rl.d44_native_rl.two_stage_reward import endpoint_quality
+ from starVLA.rl.d44_native_rl.adaptive_kl import AdaptiveKL
+ from starVLA.rl.d44_native_rl.expanded_scope import groups
+ from starVLA.rl.d44_native_rl.scheduler import scene_lr
+@@ -56,8 +57,10 @@ class SceneScheduler:
+ def code_identity():
+     roots=['starVLA/rl/d44_native_rl','tools/d44_native_rl','starVLA/model/modules/qwen_world_compare',
+            'starVLA/rl/qwen_world_compare','starVLA/rl/qwen_world_abcd_research','starVLA/rl/simwam_recipe',
+-           'starVLA/model/modules/qwen_world_postcot','starVLA/model/modules/qwen_sourceflow']
+-    return {str(p):file_sha(p)for folder in roots for p in sorted(Path(folder).glob('*.py'))}
++           'starVLA/model/modules/qwen_world_postcot','starVLA/model/modules/qwen_sourceflow',
++           'starVLA/rl/flow_grpo','starVLA/rl/safe_flow_improvement',
++           'scripts/analysis/constrained_flow_noise']
++    return {str(p):file_sha(p)for folder in roots for p in sorted(Path(folder).rglob('*.py'))}
+ 
+ 
+ def consensus_stop(device):
+@@ -159,24 +162,22 @@ def main():
+                 try:
+                     for j in range(cfg['global_scenes']//world):
+                         token,padding=stream.at(state['scene_cursor'],rank,j,world)
+-                        r=collect_scene(actor,conditions.get(token),token,stream.logs[token],service,generator,cfg,epoch,version)
++                        r=collect_scene(actor,conditions.get(token),token,stream.logs[token],service,generator,cfg,epoch,version,cost=attempt.add_cost)
+                         r['padding']=padding;r['beta']=dual.beta;r['expect_fresh']=True;scenes.append(r)
+-                        attempt.record['physical_candidates']+=r['physical_candidates']
+                 except Exception:
+                     error=traceback.format_exc()
+                     if checkpoint.fatal_device_error(error):raise
+                 checkpoint.check_errors(error)
+                 if a.fault=='before_finalize':raise RuntimeError('Injected collection not finalized; latest unchanged')
+-                factors=torch.stack([r['factors']for r in scenes]);endpoint=None
++                factors=torch.stack([r['factors']for r in scenes]);endpoint=None;endpoint_confidence=None
+                 if cfg['arm']=='D1'and epoch>=2:
+-                    endpoints=[]
++                    endpoints=[];confidence=[]
+                     for r in scenes:
+                         gt=stream.data.target(r['token']).to(device)
+-                        distance=(torch.as_tensor(np.stack([x['requested_trajectory']for x in r['records']]),device=device)[:,-1,:2]-gt[-1,:2]).norm(dim=-1)
+-                        if not torch.isfinite(distance).all():raise ValueError('Invalid TRAIN endpoint')
+-                        endpoints.append(torch.exp(-distance/3.))
+-                    endpoint=torch.stack(endpoints)
+-                raw,feasible=raw_credit(factors,endpoint=endpoint,stage2=endpoint is not None)
++                        quality,weight=endpoint_quality(gt,torch.as_tensor(np.stack([x['requested_trajectory']for x in r['records']]),device=device))
++                        endpoints.append(quality);confidence.append(weight)
++                    endpoint=torch.stack(endpoints);endpoint_confidence=torch.stack(confidence)[:,None]
++                raw,feasible=raw_credit(factors,endpoint=endpoint,endpoint_confidence=endpoint_confidence,stage2=endpoint is not None)
+                 if cfg['arm']=='D0_CANONICAL_CREDIT':
+                     canonical=torch.tensor([[v['metrics']['score']for v in r['records']]for r in scenes],device=device,dtype=torch.float64)
+                     offsets=canonical-canonical[:,:1];raw=offsets-offsets.mean(1,keepdim=True)
+@@ -206,7 +207,7 @@ def main():
+                 state['phase']='ROLLOUT_COMMITTED';state['next_inner']=0
+                 Boundary.validate_ranks(checkpoint.gather(Boundary.validate_boundary(state,batch,identity)))
+                 path=root/'behavior'/attempt.id/f'collection{state["collections"]:06}'/f'rank{rank}.pt';checkpoint.atomic_torch(path,batch)
+-            begin=time.monotonic();optimizer.zero_grad(set_to_none=True);totals={}
++            begin=time.monotonic();optimizer.zero_grad(set_to_none=True);totals={};valid_kl_sum=0.
+             multiplier=scene_lr(state['valid_scene_exposures']/stream.n,warmup=cfg['warmup_epochs'],hold=cfg['hold_until_epoch'],end=cfg['cosine_end_epoch'],floor=cfg['min_lr_ratio'])
+             for group in optimizer.param_groups:
+                 stage_multiplier=.5 if cfg['arm']=='D1'and batch['epoch']>=2 and group['name']=='text_lora'else 1.
+@@ -218,6 +219,7 @@ def main():
+                     loss,metrics=ddp(r)
+                     weighted=loss*(0. if r['padding']else world/batch['valid_scenes']);weighted.backward()
+                 for key,value in metrics.items():totals[key]=totals.get(key,0.)+float(value.detach())/len(batch['scenes'])
++                if not r['padding']:valid_kl_sum+=float(metrics['reference_KL_joint'].detach())
+             norm=torch.nn.utils.clip_grad_norm_(trainables,1.)
+             if not torch.isfinite(norm):raise FloatingPointError('Nonfinite native gradient')
+             grad_roles={}
+@@ -240,8 +242,9 @@ def main():
+             print(json.dumps(dict(event='optimizer_committed',rank=rank,updates=state['updates'],collection=state['collections'],
+                 scene_epochs=row['scene_epochs'],grad_norm=float(norm),fresh_ratio_error=totals['fresh_ratio_error'])),flush=True)
+             if state['next_inner']==cfg['inner_updates']:
+-                kval=torch.tensor(totals['reference_KL_joint'],device=device,dtype=torch.float64)
+-                if world>1:dist.all_reduce(kval);kval/=world
++                kval=torch.tensor(valid_kl_sum,device=device,dtype=torch.float64)
++                if world>1:dist.all_reduce(kval)
++                kval/=batch['valid_scenes']
+                 dual.update(float(kval));state['adaptive_kl']=dual.state_dict();batch=None;state['next_inner']=0;state['phase']='READY'
+             gates=[]if batch is not None or a.qualification else [e for e in(.5,1,2,3,4,6,8,12,20)if e not in state['evaluation_gates']and state['valid_scene_exposures']>=e*stream.n]
+             state['evaluation_gates']+=gates

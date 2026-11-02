@@ -1,0 +1,40 @@
+{
+  "schema": "D44_preformal_qualification_delta_review_v1",
+  "qualification_source": "61d2a4e4eb5a9761e163f431593cdc1baa03d5d4",
+  "formal_source": "955289ff747413c4dfe8b8578744ac9b20b19e66",
+  "applied_before_formal_initialization": true,
+  "not_a_cross_source_resume": true,
+  "unchanged_core_files": {
+    "starVLA/rl/d44_native_rl/actor.py": "638b77cec35d1e7c8c1fbdb375576287b8d0d2c8bc6a338c9c48d3d3b39a126f",
+    "starVLA/rl/d44_native_rl/gaussian_objective.py": "f932a2f24612f61b951ffc41bde4d7a7abd5d393f2e380bd4811e48bd94bc051",
+    "starVLA/rl/d44_native_rl/adaptive_kl.py": "b0bd1b23c10cf6a24159eba4bdfa90b3a5e9983db88e0603cb46e4f405049056",
+    "starVLA/rl/d44_native_rl/expanded_scope.py": "f3c3f2feff3acd2ec808a20e3da2ca22c5c9ea3c09f7310d400c3606af300953",
+    "starVLA/rl/d44_native_rl/native_cleanx_aux.py": "6e3eadb241620186a2c255b099fdfbc175e981166ccc33453316981f1ab08226",
+    "starVLA/rl/d44_native_rl/scheduler.py": "469c744850ae4a77ce365a44e537a83c90917c9e1893a29cad3487c767a41fd3",
+    "starVLA/rl/qwen_world_compare/policy_adapter.py": "a2e567db2b637cf358368d3ea71da85c6fe89d0618a3fa7c681f153d263a8c60",
+    "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "e95e1fcccd1aa37f8b095a83e0b134adbecc7350739b6701cd6b007042db0367",
+    "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c"
+  },
+  "differences": {
+    "batch_runtime.py": [
+      "Per-attempt physical-cost callbacks; no new RNG calls",
+      "D2 extra-G16 gate now includes required Comfort=1; verified_index unit tests cover both gates; this is a declared pre-formal selection correction"
+    ],
+    "config.py": [
+      "Reject unqualified flat_W3 layout"
+    ],
+    "recovery.py": [
+      "Append physical cost independent of logical checkpoint rollback"
+    ],
+    "safety_credit.py/two_stage_reward.py": [
+      "D1 stage-II missing or stationary TRAIN endpoint confidence; inactive in P0"
+    ],
+    "train.py": [
+      "Broaden source_files inventory",
+      "Cost callbacks",
+      "D1 endpoint confidence",
+      "Exclude epoch padding from adaptive KL global denominator; same effective distribution as PG"
+    ]
+  },
+  "limits": "Historical GPU qualification is component evidence, not a claim every file is byte-identical to formal source. Formal P0 records start at955289f, never migrate or initialize from qualification weights. All later source955 checkpoints resume strictly within same identity."
+}

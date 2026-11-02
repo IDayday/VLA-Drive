@@ -48,4 +48,18 @@ python -m tools.d44_native_rl.evaluate --summarize \
 
 `--limit`只能用于资格，结果带qualification标记。正式评测不得以小样本结果替代12146。0.5/1/2/3/4/6/8/12/20epoch生成原子评价请求；0.25epoch属于训练资格观察。所有独立算法的Adam都重新创建；恢复同一run才保留Adam。
 
-D6未完成生命周期时，读配置明确抛出NotImplementedError。尚未验收的路线不得混入已登记P0正式run。
+D6生命周期已经实现并执行八卡压缩I–V阶段资格。正式入口与campaign均要求同源码的真实stage-II inner恢复证明 `D6_REAL_STAGE_INNER_RESUME.json`；缺失时拒绝正式开跑。该恢复GPU任务仍在等待容量，不能写成已通过。D1/FPO/AWM/D4已登记，需各自B32/G16真实资格后才进入长训。
+
+
+后续实际入口：
+
+```bash
+python -m tools.d44_native_rl.export --help
+python -m tools.d44_native_rl.validate_deployment --help
+python -m tools.d44_native_rl.qualify_packing --help
+python -m tools.d44_native_rl.qualification_queue --help
+python -m tools.d44_native_rl.validate_resume --help
+python -m tools.d44_native_rl.analyze --help
+```
+
+compact export保留未merge LoRA、D5动作接口与FiLM增量，绑定不可变完整IL44资产，删除Adam与训练readout。D4/D5导出已实际生成；GPU逐值部署对照未完成前不宣布导出资格通过。完整packing oracle分别保留FP32语义误差、BF16布局误差和原生联合ratio/KL差异，不将跨布局误差强行归零。

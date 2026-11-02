@@ -1,6 +1,6 @@
 # D44 native high-performance RL
 
-本轮使用真正的 D IL44k，从同一父权重、新 Adam 状态独立启动各算法。D0/D2/D5已从同一父模型正式训练，其他路线继续资格与调度建设，**尚无本轮新 RL 完整 Navtest 分数，不是训练完成报告**。
+本轮使用真正的 D IL44k，从同一父权重、新 Adam 状态独立启动各算法。D0/D2/D5已从同一父模型正式训练，其他路线已登记并等待剩余资格与容量，**尚无本轮新 RL 完整 Navtest 分数，不是训练完成报告**。
 
 父模型完整 Navtest：**89.0601875684 PDMS**，12,146 scenes、44 physical logs、invalid=0；B1、clean-x ODE、K10、shift5、seed2101、canonical NAVSIM v1.1。
 
@@ -25,3 +25,16 @@
 - 最新状态由 `python -m tools.d44_native_rl.report --output ...` 从有效边界和invocation账本生成，不能把进程退出或资格更新记作长训完成。
 
 当前只能证明核心链路可执行且部分等价性通过。是否突破自身IL、是否超越历史Qwen-World、能否达到92，等待真正完整B1评测。
+
+
+## 20:39 UTC阶段快照
+
+D0/D2/D5八rank共同有效更新分别为116/202/174，真实新PG候选59,392/103,424/89,088。原始序列连续，第一inner sampler/recompute联合ratio最大误差均为0；这不表示后续inner的ratio也应为1。完整记录见[进度快照](experiments/PROGRESS_20261102.json)。快照不是最终预算或新的Navtest。
+
+同一IL与RNG下，三个scope在首次正式collection生成的64个不同scene、1024条候选及官方反馈逐值一致；D0与D2在rescue尚未启用前的独立100更新权重完全一致，见[P0初始化证据](P0_FORMAL_INITIAL_BEHAVIOR_IDENTITY.json)、[D0/D2早期对照](D0_D2_INDEPENDENT_100_IDENTICAL.json)。因此早于0.5epoch不能把D2与D0差异归因于rescue。
+
+本轮CPU小型验收33项通过，包含两rank显式全batch梯度归约和恢复发布失败边界；真实GPU验收另列，不将CPU测试数当成算法有效性。独立官方评分对照104次全部一致，见[评分一致性](CANONICAL_SCORING_CONSISTENCY.json)。实验性flat-W3重排未通过fresh-ratio门槛，已拒绝用于正式训练，没有放宽1e-4阈值。
+
+运行中的科学源955289f保持不变。CPU调度/统计修复与资格操作分别冻结；新的报告入口按完整run身份核验评测覆盖，不能因其他算法多测了几个点就把未评测算法记为完成。最终胜者、RL净增益和92目标目前均未判定。
+
+正式冻结前的小改动逐项保留于[资格→正式源码审计](QUALIFICATION_TO_FORMAL_RECEIPT.json)和[实际diff](qualification_to_formal.patch)：费用记录、padding KL分母、拒绝flat-W3、D1 endpoint confidence，以及D2追加教师条件补齐Comfort。核心actor/Gaussian/LoRA/codec文件hash相同；不能把历史GPU资格说成所有正式文件逐字相同。正式权重从第一步就使用955289f，未从资格权重恢复。
