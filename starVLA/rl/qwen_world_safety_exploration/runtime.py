@@ -7,6 +7,9 @@ from .quality import QualityDiagnosticsMixin
 
 def runtime_for_config(path):
     cfg=yaml.safe_load(Path(path).read_text());r=cfg['research']
+    if r.get('combined_consolidation_retention') is not None:
+        from .combined_consolidation_retention_runtime import combined_runtime
+        return combined_runtime(cfg)
     if r.get('mixed_exploration') is not None:
         from .mixed_exploration_runtime import mixed_runtime
         return mixed_runtime(cfg)

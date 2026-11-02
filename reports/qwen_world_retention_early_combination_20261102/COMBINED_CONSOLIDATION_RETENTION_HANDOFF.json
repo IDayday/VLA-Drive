@@ -1,0 +1,76 @@
+{
+  "schema": "world_combined_retention_early_implementation_handoff_v1",
+  "status": "READY_CPU_NOT_REGISTERED_NOT_TRAINED",
+  "arm": "IMPROVEMENT_RETENTION_EARLY_DECAY_G8",
+  "campaign_root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+  "standard_role": "retention_early_decay",
+  "template": "/mnt/project/qwen-world-safety-exploration-20261031/configs/improvement_training_templates/IMPROVEMENT_RETENTION_EARLY_DECAY_G8.yaml",
+  "API": {
+    "factory": "starVLA.rl.qwen_world_safety_exploration.combined_consolidation_retention_runtime:combined_runtime(cfg)",
+    "runtime": "CombinedRetentionRuntime",
+    "loss": "CombinedRetentionLoss",
+    "trainer_module": "tools.qwen_world_safety_exploration.train",
+    "router_note": "rootmustcheckresearch.combined_consolidation_retention beforeplainverified_retention; agentdidnoteditrouter"
+  },
+  "configuration": {
+    "schema": "world_verified_retention_plus_early_decay_v1",
+    "retention": {
+      "schema": "world_verified_RL_nominal_mean_retention_v1",
+      "capacity": 256,
+      "admission_start_update": 2000,
+      "history_scenes_per_rank": 1,
+      "history_share": 0.25,
+      "min_score": 0.9,
+      "regression_margin": 0.01,
+      "upgrade_margin": 1e-06,
+      "ODE_seed": 2101,
+      "bank_seed": 42,
+      "reservoir": "uniform_over_verified_admissions"
+    },
+    "schedule": {
+      "schema": "world_fixed50k_warmup1000_cosine_end20k_floor01_v1",
+      "horizon_updates": 50000,
+      "warmup_updates": 1000,
+      "cosine_decay_end_updates": 20000,
+      "min_lr_ratio": 0.1
+    }
+  },
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/combined_consolidation_retention_recipe.py": "58896a8e8190f9e4e0dea5591aa07c6dd3a0bbc6d6742b46fc97db5faaa2e995",
+    "starVLA/rl/qwen_world_safety_exploration/combined_consolidation_retention_runtime.py": "f04820f70f9ae0668166e8df2db37bec5e8e9074f00bb8d4daa876b4f5913c7c",
+    "tests/test_world_combined_consolidation_retention.py": "84578c18471c30e5fca8bf67b9c1a0d256a28bbf7b077a52fab6cd334e48ab63"
+  },
+  "CPU_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/COMBINED_CONSOLIDATION_RETENTION_CPU_CHECK.json",
+  "source_reuse": {
+    "policy_loss": "unchangedRetentionLoss._policy_loss",
+    "bank": "unchangedretention_bank/material andtrueB1 verifiedgate",
+    "scheduler": "unchangedConsolidationCosineLR andlossmixin",
+    "validation": "invokeoriginalretentionboundary withrealAdam butwithoutobsolete50k schedulercheck; validateauthenticearly scheduler/actualAdamgroupLR; overwrite returnedsummary.verified_retention.schedule/scheduler andaddcombinedcrossrankprotocol",
+    "identity": "actualcfg andretention_schedule containtrueend20k/full50k protocol; no oldidentity orforged50kcosstate"
+  },
+  "preserved": {
+    "G": 8,
+    "world": 8,
+    "inner": 4,
+    "peak_action_lr": 5e-05,
+    "peak_memory_lr": 5e-06,
+    "beta": 50,
+    "IL_reference": "originalfrozenIL70",
+    "scope_trainable_parameters": 52707840,
+    "data": "sameuniform103288",
+    "seed": 42,
+    "PG": "originalSafetyEP/rawstd/PPO.005/W3/clampedmean24"
+  },
+  "initialization": "freshsameIL70/Adam0/RNG42/emptybank; noRL10kparent/nativefork/oldteachers",
+  "loss": "gateoff:freshPG+50ILMSE; gateon:freshPG+50*(.75ILMSE+.25historicalverifiedRLMSE), unchanged originalRetention",
+  "schedule": "samewarmup1000 andfixedrunhorizon50k;cosinedecayends20k, thenhold.1floor to50k; initial20kbudget/later30k50kreviews separate",
+  "causal_design": "missingcell of Control/Early/Retention/Combination 2x2; usefreshsamestart sameupdate/scene contrasts, separatelydiscloseextraODEqueries; noaddition ofobservedscoregains",
+  "risks": [
+    "LRchangesfuturewitnessadmissions/gates/targets, so implementationseparable doesnot mean effectsadditive",
+    "smallerLR maypreservehighbutslowzero repair; two mechanismsmayberedundant",
+    "onlynewTRAINrun buildsbank; noNAVteachers; historicalbest10kfork wouldbe a separateexplicit experiment"
+  ],
+  "GPU_dispatched": false,
+  "owner_registry_router_modified": false,
+  "git_staged_or_committed": false
+}

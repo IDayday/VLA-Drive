@@ -1,0 +1,345 @@
+{
+  "schema": "world_Control_baseline_stage_scores_and_combination_facts_v1",
+  "status": "COMPLETE_EXISTING_SUMMARIES_CONFIGS_AND_NATIVE_BUDGET",
+  "scores": [
+    {
+      "label": "CONTROL_5K",
+      "PDMS": 90.71690218207044,
+      "updates": 5000,
+      "summary": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u005000/NAVTEST/SUMMARY.json",
+      "summary_file_sha256": "9e26cf466b8a9055f23bd60e58fb55e643c6bf4aaf62d1c8c38ebce79618dd67",
+      "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "delta_vs_Control5k": 0.0,
+      "delta_vs_ControlBest10k": -0.7366953795940674
+    },
+    {
+      "label": "CONTROL_BEST_10K",
+      "PDMS": 91.45359756166451,
+      "updates": 10000,
+      "summary": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json",
+      "summary_file_sha256": "3f0671a711c1d88a571bf19bb591f32edd304983cc0402116ccd2ed4d18f30f8",
+      "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "delta_vs_Control5k": 0.7366953795940674,
+      "delta_vs_ControlBest10k": 0.0
+    },
+    {
+      "label": "RETENTION_5K",
+      "PDMS": 91.00395949736324,
+      "updates": 5000,
+      "summary": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_VERIFIED_RETENTION_G8_u005000/NAVTEST/SUMMARY.json",
+      "summary_file_sha256": "9e270a5a85cc94a81fa6e03aff772a4cb2ad4edfa15badec91926536a29c2b4b",
+      "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "delta_vs_Control5k": 0.2870573152927989,
+      "delta_vs_ControlBest10k": -0.4496380643012685
+    },
+    {
+      "label": "EARLY_5K",
+      "PDMS": 90.76015261743206,
+      "updates": 5000,
+      "summary": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/evaluations/IMPROVEMENT_EARLY_DECAY_G8_u005000/NAVTEST/SUMMARY.json",
+      "summary_file_sha256": "0368dea543eb5b3fcd56499d44ea9a535a32b38dacc097890b9c99bb4f59566d",
+      "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "delta_vs_Control5k": 0.04325043536161388,
+      "delta_vs_ControlBest10k": -0.6934449442324535
+    },
+    {
+      "label": "G16_5K",
+      "PDMS": 90.77929678454697,
+      "updates": 5000,
+      "summary": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_G16_u005000/NAVTEST/SUMMARY.json",
+      "summary_file_sha256": "3c92e74223ffa7cf53764820f58c5e93e3581d3902ff0af530ce32f201dda249",
+      "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "delta_vs_Control5k": 0.06239460247653028,
+      "delta_vs_ControlBest10k": -0.6743007771175371
+    },
+    {
+      "label": "G16_10K",
+      "PDMS": 91.34195317959183,
+      "updates": 10000,
+      "summary": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/evaluations/REVIVAL_G16_u010000/NAVTEST/SUMMARY.json",
+      "summary_file_sha256": "f61978220b9e9cc1fdb5c133593d1869fde2eb5315f01f1376a650fc4edf30b7",
+      "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "parent_model_sha256": "7dda5b14b1ea67fc631b06c7fa336950fa07a0b84c969f4e714bdeb5b5436d40",
+      "delta_vs_Control5k": 0.6250509975213845,
+      "delta_vs_ControlBest10k": -0.1116443820726829
+    }
+  ],
+  "matching": "all12146/invalid0/sameIL70/samecanonicalprotocol; deltas below arepointestimates, noCI computedagain",
+  "controls": {
+    "stage_baseline": "Controlsameupdate:5k90.71690218207044",
+    "highest_observed": "Control10k91.45359756166451 isdifferenttrainingbudget; notapointtogainaddonto"
+  },
+  "configuration_sources": {
+    "Control": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/configs/SAFETY_G8_CONTROL.yaml",
+      "sha256": "2534821d3e29984c08508beff8473407feac884d703b6f0373d975bee2f41c38"
+    },
+    "Retention": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_VERIFIED_RETENTION_G8.yaml",
+      "sha256": "bcf0eea72a6344c36165deec9aa24bba6bac52373b1bf774ce6f8d37b8463dc7"
+    },
+    "Early": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+      "sha256": "32ae923d04431f014371f3d46d2ce737e0b7ec64b599bc0379ed210cbd541a78"
+    },
+    "G16": {
+      "path": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_G16.yaml",
+      "sha256": "92c990abc1e37c0b99aed8c4f19031d176addcb440cb0bfc3b0d6354f2bb1b5d"
+    }
+  },
+  "differences": {
+    "Control": "SafetyEP G8/W3,clampedmeanproxy,originalILbeta50,52.7M,freshIL70;warm1kcosdeclinesuntil50kfloor.1, nohistoricalbank",
+    "Early": "onlydecayEND50k->20k;nativeMAXhorizonremains50k, warm1k/peakLRsame, holdfloor.1 after20k; samePG/scope/data/reward/reference",
+    "Retention": "onlyverifiedTRAINhistoricalmeananchor gate; same50kcos; gate25%beta50budget reallocated, notadded50; mainPGunchanged, extrascoringnotfree",
+    "G16": "G8->16 andglobalrawA population64->128; same8freshscenes/collection,fourinner,sameoptimizerclock/LRcurve;doublecandidates atsameupdates, notdoublescenecoverage"
+  },
+  "budgets": {
+    "Control5k": {
+      "main_candidates": 80000,
+      "unique_scene_exposures": 10000
+    },
+    "Control10k": {
+      "main_candidates": 160000,
+      "unique_scene_exposures": 20000
+    },
+    "G16_5k": {
+      "main_candidates": 160000,
+      "unique_scene_exposures": 10000
+    },
+    "G16_10k": {
+      "main_candidates": 320000,
+      "unique_scene_exposures": 20000
+    },
+    "Retention5k": {
+      "schema": "world_Retention5k_actual_native_official_query_budget_v1",
+      "status": "COMPLETE_ALL8_SEALED_RANK_STATES",
+      "checkpoint": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_VERIFIED_RETENTION_G8/checkpoints/update005000_inner0",
+      "seal": {
+        "schema": 2,
+        "phase": "READY",
+        "world": 8,
+        "updates": 5000,
+        "next_inner": 0,
+        "files_sha256": "2effccff9ca2a919986355a307cf4d13011f0d06afb8479e5ad285f234d45d30"
+      },
+      "files_sha256": "2effccff9ca2a919986355a307cf4d13011f0d06afb8479e5ad285f234d45d30",
+      "ranks": [
+        {
+          "rank": 0,
+          "rank_state_sha256": "18c50f2b07866e463b62b7efa7ec23e1665d2c1637c246b2d8fe3d92a0760504",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 583,
+          "reservoir_replacements": 212,
+          "reservoir_not_retained": 115,
+          "upgrades": 128,
+          "history_selected": 749,
+          "history_activated": 59,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 749,
+          "extra_forward_seconds_local": 1890.0777281392366,
+          "extra_scoring_seconds_local": 154.68597155995667,
+          "bank_size": 256
+        },
+        {
+          "rank": 1,
+          "rank_state_sha256": "58f5c98c0473b48a340e1f4a76350b8698a6f5e2d6e03a2e213782159765750d",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 587,
+          "reservoir_replacements": 205,
+          "reservoir_not_retained": 126,
+          "upgrades": 139,
+          "history_selected": 749,
+          "history_activated": 64,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 749,
+          "extra_forward_seconds_local": 1913.1678854897618,
+          "extra_scoring_seconds_local": 156.7007094603032,
+          "bank_size": 256
+        },
+        {
+          "rank": 2,
+          "rank_state_sha256": "a52b98d2ae354a21cda6c5216731ef61dc238857b402d8b293fe439bc2939fb3",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 579,
+          "reservoir_replacements": 207,
+          "reservoir_not_retained": 116,
+          "upgrades": 139,
+          "history_selected": 748,
+          "history_activated": 56,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 748,
+          "extra_forward_seconds_local": 1911.086354020983,
+          "extra_scoring_seconds_local": 151.5224852655083,
+          "bank_size": 256
+        },
+        {
+          "rank": 3,
+          "rank_state_sha256": "574892447b41a2d4acaa03ca81ff6e72f8983810e38da374cf26009cb1c544fe",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 575,
+          "reservoir_replacements": 201,
+          "reservoir_not_retained": 118,
+          "upgrades": 134,
+          "history_selected": 749,
+          "history_activated": 54,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 749,
+          "extra_forward_seconds_local": 1886.1261666733772,
+          "extra_scoring_seconds_local": 152.54592149332166,
+          "bank_size": 256
+        },
+        {
+          "rank": 4,
+          "rank_state_sha256": "0cd2f7d3f46313431e6967018df2c7cc41b71328e6f79d3a5501a194790c1e55",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 554,
+          "reservoir_replacements": 197,
+          "reservoir_not_retained": 101,
+          "upgrades": 167,
+          "history_selected": 748,
+          "history_activated": 52,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 748,
+          "extra_forward_seconds_local": 1896.6529143881053,
+          "extra_scoring_seconds_local": 153.49257378838956,
+          "bank_size": 256
+        },
+        {
+          "rank": 5,
+          "rank_state_sha256": "7e896b1ed674b131cd89ec73466e4946763ed625174d60d7d3ddfd362f1305b0",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 583,
+          "reservoir_replacements": 218,
+          "reservoir_not_retained": 109,
+          "upgrades": 162,
+          "history_selected": 749,
+          "history_activated": 50,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 749,
+          "extra_forward_seconds_local": 1923.2183829750866,
+          "extra_scoring_seconds_local": 146.42407171986997,
+          "bank_size": 256
+        },
+        {
+          "rank": 6,
+          "rank_state_sha256": "e6efe9063ab47d3e0101b83844b0fd6951b38676a24d3518f3f374a908c85d16",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 579,
+          "reservoir_replacements": 202,
+          "reservoir_not_retained": 121,
+          "upgrades": 115,
+          "history_selected": 747,
+          "history_activated": 67,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 747,
+          "extra_forward_seconds_local": 1914.5744744893163,
+          "extra_scoring_seconds_local": 155.27669487148523,
+          "bank_size": 256
+        },
+        {
+          "rank": 7,
+          "rank_state_sha256": "5bf418defcf4e53697e164b4d5fb8e94a774a21fbfff4b550efd11d69cf096dc",
+          "sourcePG_global_candidates": 80000,
+          "sourcePG_global_scenes": 10000,
+          "collections": 1250,
+          "verified_admissions": 574,
+          "reservoir_replacements": 215,
+          "reservoir_not_retained": 103,
+          "upgrades": 139,
+          "history_selected": 749,
+          "history_activated": 62,
+          "fresh_ODE_queries_local": 750,
+          "history_ODE_queries_local": 749,
+          "extra_forward_seconds_local": 1906.21578579396,
+          "extra_scoring_seconds_local": 152.48085921257734,
+          "bank_size": 256
+        }
+      ],
+      "sourcePG": {
+        "optimizer_updates": 5000,
+        "global_fresh_scenes": 10000,
+        "global_candidates": 80000
+      },
+      "extra_verification": {
+        "fresh_TRAIN_B1": 6000,
+        "history_TRAIN_B1": 5988,
+        "total": 11988
+      },
+      "total_official_training_candidate_scores": 91988,
+      "extra_ratio": 0.14985,
+      "semantics": [
+        "SourcePG80kcounter isglobal replicated ineveryrankstate: countonce, donotsum8times",
+        "ExtraODE counters arelocal: sumall8ranks; eachB1scoreisoneadditionalofficialcandidate",
+        "Exact sealed counters only; nojournal extrapolation or inventedtheoreticalcounts",
+        "PeriodicNAV evaluation scores areexcludedfromtrainingobjectivebudget andreportedseparately",
+        "History neverentersSourcePG advantages; fourinnerreusecountsnewqueriesonce"
+      ],
+      "created_utc": "2026-11-02T00:37:39Z"
+    }
+  },
+  "LR_used": [
+    {
+      "update": 5000,
+      "Control_action_used": 4.9264500287645656e-05,
+      "Control_memory_used": 4.9264500287645656e-06,
+      "Early_action_used": 4.525794627860154e-05,
+      "Early_memory_used": 4.525794627860154e-06
+    },
+    {
+      "update": 10000,
+      "Control_action_used": 4.6357769292530405e-05,
+      "Control_memory_used": 4.635776929253041e-06,
+      "Early_action_used": 2.9361742848066485e-05,
+      "Early_memory_used": 2.9361742848066488e-06
+    },
+    {
+      "update": 20000,
+      "Control_action_used": 3.527206751307374e-05,
+      "Control_memory_used": 3.527206751307374e-06,
+      "Early_action_used": 5.000000307570774e-06,
+      "Early_memory_used": 5.000000307570774e-07
+    },
+    {
+      "update": 30000,
+      "Control_action_used": 2.109951225757902e-05,
+      "Control_memory_used": 2.109951225757902e-06,
+      "Early_action_used": 5e-06,
+      "Early_memory_used": 5.000000000000001e-07
+    },
+    {
+      "update": 50000,
+      "Control_action_used": 5.000000046244504e-06,
+      "Control_memory_used": 5.000000046244504e-07,
+      "Early_action_used": 5e-06,
+      "Early_memory_used": 5.000000000000001e-07
+    }
+  ],
+  "combination": {
+    "status": "READY_CPU_NOT_REGISTERED_NOT_TRAINED",
+    "implementation": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/analysis/COMBINED_CONSOLIDATION_RETENTION_HANDOFF.json",
+    "design": "sameIL70fresh2x2missingcell; originalRetmeanloss/bank+Earlyscheduler, nothigher-scoringRLparent",
+    "interpretation": "orthogonalsoftwarepaths, potentiallyinteractingstatistics; cannotestimate91.4536+.287, noactualcomboscoreyet",
+    "future_nativefork": "ifexplicitlyrequested wouldrequirecompleteAdam/RNG/cursor/pending/bank provenance andseparateidentity, notthisfreshtrial"
+  },
+  "NAV_training_bank": false,
+  "target_PDMS": 92.0
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "world_combined_retention_early_targeted_CPU_check_v1",
+  "status": "PASS",
+  "created_utc": "2026-11-02T00:46:09Z",
+  "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest tests/test_world_combined_consolidation_retention.py -q --disable-warnings --maxfail=1",
+  "result": "2 passed, 1 warning in 15.87s",
+  "native_proof": {
+    "world": 8,
+    "gates": [
+      "pending0",
+      "pending1",
+      "pending2",
+      "pending3",
+      "READY"
+    ],
+    "collections": [
+      "offgate1",
+      "realB1_regression_gate1"
+    ],
+    "loss": "actualScopeRecipeActor and unchangedSafetyA",
+    "fixture": "tiny dimensions; mocked canonical scorer; synthetic pre2000 counter/moment origin; no production performance claim",
+    "main_queries_local": 16,
+    "extra_B1_queries_local": 3,
+    "restored": "full bank/private RNG/Adam/schedule/fourinner material",
+    "combination": {
+      "schema": "world_verified_retention_plus_early_decay_v1",
+      "retention": {
+        "schema": "world_verified_RL_nominal_mean_retention_v1",
+        "capacity": 256,
+        "admission_start_update": 2000,
+        "history_scenes_per_rank": 1,
+        "history_share": 0.25,
+        "min_score": 0.9,
+        "regression_margin": 0.01,
+        "upgrade_margin": 1e-06,
+        "ODE_seed": 2101,
+        "bank_seed": 42,
+        "reservoir": "uniform_over_verified_admissions"
+      },
+      "schedule": {
+        "schema": "world_fixed50k_warmup1000_cosine_end20k_floor01_v1",
+        "horizon_updates": 50000,
+        "warmup_updates": 1000,
+        "cosine_decay_end_updates": 20000,
+        "min_lr_ratio": 0.1
+      }
+    },
+    "actual_factory": "CombinedRetentionRuntime",
+    "actual_scheduler": "ConsolidationCosineLR",
+    "retention_loss_implementation_unchanged": true
+  },
+  "files_sha256": {
+    "starVLA/rl/qwen_world_safety_exploration/combined_consolidation_retention_recipe.py": "58896a8e8190f9e4e0dea5591aa07c6dd3a0bbc6d6742b46fc97db5faaa2e995",
+    "starVLA/rl/qwen_world_safety_exploration/combined_consolidation_retention_runtime.py": "f04820f70f9ae0668166e8df2db37bec5e8e9074f00bb8d4daa876b4f5913c7c",
+    "tests/test_world_combined_consolidation_retention.py": "84578c18471c30e5fca8bf67b9c1a0d256a28bbf7b077a52fab6cd334e48ab63"
+  },
+  "checks": [
+    "ActualCombinedLoss._policy_loss is inherited RetentionLoss function; disabled/active gate loss andalltrainable gradients bitwise identical atsameparameters/material",
+    "Scheduler MRO isConsolidationSchedulerLossMixin beforeRetentionLoss StandardMixin; actualnative state storesconsolidation_protocol end20k/full50k; endpoints0,1k,5k,10k,20k,30k,50k match originalearly schedule",
+    "Real8CPU Scope driver reused with CombinedRuntime andearly LR initialization: off/activecollections, pending0/1/2/3/READY, bank/private RNG/Adam/scheduler/teacher material restore",
+    "Corruptcombination schedule andnative scheduler protocol rejected; oldbank/teacher pollution tests retained fromoriginal driver"
+  ],
+  "limitations": [
+    "RealScopeActor tiny dimensions/FakeQwen/mockscorer; notproduction52.7M/GPU efficacy",
+    "Nativefixture starts synthetic zero-moment/counterorigin2000 toexerciseadmission, not2000actual priorupdates",
+    "Onlytestdriver factory/config initialization patched; productionoriginalRetention/Consolidation code untouched"
+  ]
+}

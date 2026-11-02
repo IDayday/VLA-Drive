@@ -1,0 +1,12 @@
+from pathlib import Path
+import json,hashlib,torch,time
+H=Path('/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101');p=H/'runs/IMPROVEMENT_VERIFIED_RETENTION_G8/checkpoints/update005000_inner0';seal=json.load(open(p/'COMPLETE'));files=json.load(open(p/'files.json'));assert seal['updates']==5000 and seal['world']==8
+ranks=[]
+for rank in range(8):
+ f=p/f'rank{rank}.pt';h=hashlib.sha256(f.read_bytes()).hexdigest();assert h==files[f.name]
+ obj=torch.load(f,map_location='cpu',weights_only=False);s=obj['state'];b=s['retention'];assert s['updates']==5000 and s['collections']==b['collections']==1250 and s['new_candidates']==80000 and s['raw_scene_exposures']==10000 and obj['rollout']is None
+ ranks.append(dict(rank=rank,rank_state_sha256=h,sourcePG_global_candidates=s['new_candidates'],sourcePG_global_scenes=s['raw_scene_exposures'],collections=s['collections'],**{k:v for k,v in b.items()if k not in ('entries','rng_state','schema','config','run','rank','collections')},bank_size=len(b['entries'])))
+fresh=sum(r['fresh_ODE_queries_local']for r in ranks);hist=sum(r['history_ODE_queries_local']for r in ranks)
+j=dict(schema='world_Retention5k_actual_native_official_query_budget_v1',status='COMPLETE_ALL8_SEALED_RANK_STATES',checkpoint=str(p),seal=seal,files_sha256=hashlib.sha256((p/'files.json').read_bytes()).hexdigest(),ranks=ranks,sourcePG=dict(optimizer_updates=5000,global_fresh_scenes=10000,global_candidates=80000),extra_verification=dict(fresh_TRAIN_B1=fresh,history_TRAIN_B1=hist,total=fresh+hist),total_official_training_candidate_scores=80000+fresh+hist,extra_ratio=(fresh+hist)/80000,
+ semantics=['SourcePG80kcounter isglobal replicated ineveryrankstate: countonce, donotsum8times','ExtraODE counters arelocal: sumall8ranks; eachB1scoreisoneadditionalofficialcandidate','Exact sealed counters only; nojournal extrapolation or inventedtheoreticalcounts','PeriodicNAV evaluation scores areexcludedfromtrainingobjectivebudget andreportedseparately','History neverentersSourcePG advantages; fourinnerreusecountsnewqueriesonce'],created_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
+out=H/'analysis/RETENTION_5K_ACTUAL_QUERY_BUDGET.json';out.write_text(json.dumps(j,ensure_ascii=False,indent=2)+'\n');print(json.dumps({k:v for k,v in j.items()if k!='ranks'},ensure_ascii=False,indent=2));print('RANKS',[(r['rank'],r['fresh_ODE_queries_local'],r['history_ODE_queries_local'],r['history_activated'],r['bank_size'])for r in ranks])
