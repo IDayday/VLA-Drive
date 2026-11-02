@@ -59,6 +59,9 @@ def consensus_stop(device):
 
 
 def main():
+    os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8')
+    os.environ.setdefault('FLASH_ATTENTION_DETERMINISTIC','1')
+    if os.environ['CUBLAS_WORKSPACE_CONFIG']!=':4096:8':raise ValueError('Qualified deterministic CuBLAS execution changed')
     parser=argparse.ArgumentParser(__doc__);parser.add_argument('--config',required=True);parser.add_argument('--output',required=True)
     parser.add_argument('--resume');parser.add_argument('--qualification',action='store_true');parser.add_argument('--stop-after-update',type=int)
     parser.add_argument('--scenes-per-rank',type=int,help='qualification only');parser.add_argument('--fault',choices=['before_finalize','after_inner1'])
@@ -74,8 +77,10 @@ def main():
     random.seed(42);np.random.seed(42);torch.manual_seed(42)
     if a.scenes_per_rank:cfg['global_scenes']=a.scenes_per_rank*world
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True);lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    print(json.dumps(dict(event='loading_native_D44',rank=rank,at=time.time())),flush=True)
     stream=DataStream(cfg,cfg['global_scenes']);model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'])
     actor=D44Actor(model,source_config(cfg),cfg)
+    print(json.dumps(dict(event='native_D44_and_scope_loaded',rank=rank,at=time.time(),trainable=actor.closure['trainable_numel'])),flush=True)
     conditions=DConditions(model,stream.data,info,group=cfg['group'],capacity=cfg['condition_cache_scenes']);object.__setattr__(actor,'conditions',conditions)
     if a.qualification:
         token,_=stream.at(0,rank,0,world)
@@ -107,7 +112,7 @@ def main():
     ddp=DDP(actor,device_ids=[local],broadcast_buffers=False,find_unused_parameters=True,static_graph=False,bucket_cap_mb=25)if world>1 else actor
     ddp.eval();dual=AdaptiveKL(target=cfg['target_kl'])
     state=dict(updates=0,collections=0,scene_cursor=0,next_inner=0,phase='READY',
-        valid_scene_exposures=0,raw_scene_exposures=0,new_candidates=0,extra_B1_queries=0,adaptive_G32_queries=0,
+        valid_scene_exposures=0,raw_scene_exposures=0,new_candidates=0,valid_PG_candidates=0,extra_B1_queries=0,adaptive_G32_queries=0,
         padding_scene_exposures=0,adaptive_kl=dual.state_dict())
     batch=None
     if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=Boundary())
@@ -158,12 +163,15 @@ def main():
                 state['collections']+=1;state['scene_cursor']+=cfg['global_scenes'];state['raw_scene_exposures']+=cfg['global_scenes']
                 state['valid_scene_exposures']+=int(counts[0]);state['padding_scene_exposures']+=cfg['global_scenes']-int(counts[0])
                 state['new_candidates']+=cfg['global_scenes']*cfg['group'];state['extra_B1_queries']+=int(counts[1]);state['adaptive_G32_queries']+=int(counts[2])
+                state['valid_PG_candidates']+=int(counts[0])*cfg['group']
                 state['phase']='ROLLOUT_COMMITTED';state['next_inner']=0
                 Boundary.validate_ranks(checkpoint.gather(Boundary.validate_boundary(state,batch,identity)))
                 path=root/'behavior'/attempt.id/f'collection{state["collections"]:06}'/f'rank{rank}.pt';checkpoint.atomic_torch(path,batch)
             begin=time.monotonic();optimizer.zero_grad(set_to_none=True);totals={}
             multiplier=scene_lr(state['valid_scene_exposures']/stream.n,warmup=cfg['warmup_epochs'],hold=cfg['hold_until_epoch'],end=cfg['cosine_end_epoch'],floor=cfg['min_lr_ratio'])
-            for group in optimizer.param_groups:group['lr']=group['initial_lr']*multiplier
+            for group in optimizer.param_groups:
+                stage_multiplier=.5 if cfg['arm']=='D1'and batch['epoch']>=2 and group['name']=='text_lora'else 1.
+                group['lr']=group['initial_lr']*multiplier*stage_multiplier
             for j,r in enumerate(batch['scenes']):
                 r['expect_fresh']=state['next_inner']==0
                 sync=ddp.no_sync()if world>1 and j<len(batch['scenes'])-1 else contextlib.nullcontext()
@@ -178,13 +186,16 @@ def main():
             optimizer.step();scheduler.step();torch.cuda.synchronize();state['updates']+=1;state['next_inner']+=1;state['phase']='INNER_COMMITTED'
             row=dict(updates=state['updates'],run=identity['sha256'],collection=state['collections'],inner_completed=state['next_inner'],
                 behavior_update=batch['behavior_update'],invocation=attempt.id,scene_epochs=state['valid_scene_exposures']/stream.n,
-                raw_scene_exposures=state['raw_scene_exposures'],scene_exposures=state['valid_scene_exposures'],PG_candidates=state['new_candidates'],
+                raw_scene_exposures=state['raw_scene_exposures'],scene_exposures=state['valid_scene_exposures'],PG_candidates=state['valid_PG_candidates'],
+                generated_PG_candidates_including_padding=state['new_candidates'],
                 extra_B1_queries=state['extra_B1_queries'],adaptive_G32_queries=state['adaptive_G32_queries'],
                 losses=totals,gradient_norm=float(norm),role_gradient_norms=grad_roles,lr=[g['lr']for g in optimizer.param_groups],
                 update_seconds=time.monotonic()-begin,collection_seconds_generation=sum(r['seconds_generation']for r in batch['scenes']),
                 collection_seconds_scoring=sum(r['seconds_scoring']for r in batch['scenes']),peak_GPU_bytes=torch.cuda.max_memory_allocated(),
                 global_advantage_std=batch['global_std'],at=time.time(),beta=dual.beta)
             journal.write(json.dumps(row,allow_nan=False)+'\n')
+            print(json.dumps(dict(event='optimizer_committed',rank=rank,updates=state['updates'],collection=state['collections'],
+                scene_epochs=row['scene_epochs'],grad_norm=float(norm),fresh_ratio_error=totals['fresh_ratio_error'])),flush=True)
             if state['next_inner']==cfg['inner_updates']:
                 kval=torch.tensor(totals['reference_KL_joint'],device=device,dtype=torch.float64)
                 if world>1:dist.all_reduce(kval);kval/=world

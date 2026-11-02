@@ -29,13 +29,22 @@ class Boundary:
                 raise ValueError('Saved multi-scene chain/old probabilities/advantages changed')
             if any(r['chain'].requires_grad or r['old_mean'].requires_grad or r['advantages'].requires_grad for r in batch['scenes']):
                 raise ValueError('Behavior material must be detached')
+        dual=state['adaptive_kl']
+        if dual['collections']!=c-int(pending):raise ValueError('Dual updated more/less than once per fresh collection')
+        if optimizer is not None:
+            opt=optimizer if isinstance(optimizer,dict)else optimizer.state_dict()
+            steps=[int(v['step'])for v in opt['state'].values()if 'step'in v]
+            if (max(steps,default=0)!=u):raise ValueError('Adam optimizer steps differ from the committed update')
+        if scheduler is not None:
+            sch=scheduler if isinstance(scheduler,dict)else scheduler.state_dict()
+            if sch['last_epoch']!=u:raise ValueError('Scheduler update count differs')
         return dict(run=identity['sha256'],phase=state['phase'],updates=u,collections=c,scene_cursor=state['scene_cursor'],
             next_inner=i,pending=pending,digest=batch['digest']if pending else None,
-            valid_scene_exposures=state['valid_scene_exposures'],new_candidates=state['new_candidates'])
+            valid_scene_exposures=state['valid_scene_exposures'],new_candidates=state['new_candidates'],dual=dual)
 
     @staticmethod
     def validate_ranks(rows):
-        keys=('run','phase','updates','collections','scene_cursor','next_inner','pending','valid_scene_exposures','new_candidates')
+        keys=('run','phase','updates','collections','scene_cursor','next_inner','pending','valid_scene_exposures','new_candidates','dual')
         if any({k:r[k]for k in keys}!={k:rows[0][k]for k in keys}for r in rows):raise ValueError('Ranks disagree on batch commit')
         return rows
 
