@@ -12,6 +12,8 @@ ALIAS=Path('/mnt/project/qwen-world-safety-exploration-20261031/performance_trai
 SHARING_HOSTS={'training-vlawm-tsinghua-zt3','training-vlawm-tsinghua-zt5'}
 PROTOCOL=dict(schema='world_performance_measured_native_sharing_v1',maximum_campaign_native_per_host=1,
     maximum_known_native_per_host=2,minimum_free_MiB=32768,output_alias=str(ALIAS))
+PROTOCOL_V2=dict(PROTOCOL,schema='world_performance_measured_native_sharing_v2',
+    maximum_campaign_native_per_host=2)
 MIGRATION='world_performance_owned_same_run_continuation_v1'
 
 
@@ -25,18 +27,24 @@ def validate_resource_fields(run):
     if protocol is None:
         if any(r['lease_slot']!='primary'for r in run['deployment_candidates']):raise ValueError('Shared native slots require explicit opt-in')
         return
-    if protocol!=PROTOCOL:raise ValueError('Changed measured-sharing protocol')
+    if protocol not in (PROTOCOL,PROTOCOL_V2):raise ValueError('Changed measured-sharing protocol')
     expected=ALIAS/'runs'/run['id']
     if(not ALIAS.is_symlink()or not same_path(ALIAS,ROOT)
        or run.get('execution_output_root')!=str(expected)or not same_path(expected,run['root'])):
         raise ValueError('Transparent real same-directory output alias required')
     for route in run['deployment_candidates']:
         if route['lease_slot']=='primary':continue
-        if(route['lease_slot']not in('shared','research')or route['host']not in SHARING_HOSTS
-           or route['minimum_free_MiB']<32768):raise ValueError('Only qualified permanent sharing routes')
+        # v2 permits a second own learner on an already registered host. Live
+        # authorization, owner visibility, headroom and UUID locks still decide
+        # dispatch; this field confers no permanent or temporary host grant.
+        hosts=SHARING_HOSTS if protocol==PROTOCOL else {
+            r['host'] for r in run['deployment_candidates'] if r['lease_slot']=='primary'
+        }-{'training-vla-zt','training-vlawm-tsinghua-zt'}
+        if(route['lease_slot']not in('shared','research')or route['host']not in hosts
+           or route['minimum_free_MiB']<32768):raise ValueError('Only explicit registered qualified sharing routes')
 
 
-def shared_sample_ready(sample):
+def shared_sample_ready(sample,run=None):
     """Additional cap only. Caller/worker still enforce every existing GPU check."""
     outputs=set()
     for owner in sample.get('owners',[]):
@@ -44,10 +52,13 @@ def shared_sample_ready(sample):
         if 'train'not in entry or'evaluat'in entry:continue
         if not owner.get('visible')or not isinstance(owner.get('output'),str):return False,'unresolved_native_owner'
         outputs.add(Path(owner['output']).resolve())
+    protocol=(run or {}).get('resource_protocol',PROTOCOL)
+    if protocol not in (PROTOCOL,PROTOCOL_V2):return False,'unknown_sharing_protocol'
     own={p for p in outputs if p.is_relative_to(ROOT)}
-    if own:return False,'campaign_native_already_present'
-    if len(outputs)>=PROTOCOL['maximum_known_native_per_host']:return False,'two_known_native_jobs_already_present'
-    return True,'at_most_one_existing_known_native'
+    if run and Path(run['root']).resolve() in outputs:return False,'same_run_native_already_present'
+    if len(own)>=protocol['maximum_campaign_native_per_host']:return False,'campaign_native_capacity_reached'
+    if len(outputs)>=protocol['maximum_known_native_per_host']:return False,'two_known_native_jobs_already_present'
+    return True,'measured_native_capacity_available'
 
 
 def amendment_preview(registry,arms=('S1_NOMINAL_RESCUE',)):

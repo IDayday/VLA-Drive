@@ -1,0 +1,28 @@
+{
+  "schema": "world_performance_ops3_sharing_v2_ready_v1",
+  "status": "CPU_READY_NOT_STARTED",
+  "created_unix": 1793645223.755528,
+  "source": "/mnt/project/VLA-Drive-qwen-world-performance-rl-20261103",
+  "source_files_sha256": {
+    "tools/qwen_world_performance/launch.py": "c4628886959e5486f949c8e2eb8fbe08d4f594c5985161041d41c599958f039b",
+    "tools/qwen_world_performance/continuation.py": "0e4b77f0a4ad1911890f7f4807507bba14cf4036ba488c4fc6dfc7b03680d07e",
+    "tools/qwen_world_performance/evaluate.py": "8a1c2f95df42488e68797eec855c2bd8d5d59497c70c8c92533d5e692be0f079",
+    "tests/test_world_performance_sharing_v2.py": "ac2a064f94bc3ea96a43cb8fa1a15cb250b01810662af7d17a9ff21c346299b7"
+  },
+  "checks": {
+    "new_targeted_tests": 3,
+    "existing_ops_v2_regression_tests": 2,
+    "result": "5 passed in0.20s",
+    "actual_registry_validation": "PASS unchanged7run registration"
+  },
+  "s4_preview": "/mnt/project/qwen-world-performance-rl-20261103/operations/SHARING_V2_S4_AMENDMENT_PREVIEW.json",
+  "changes": [
+    "Explicit sharing_v2 cap2own/cap2known only; v1/defaultcap1 unchanged",
+    "Nativehost reservation lasts onlythrough exactvisible8GPU native startup; active jobs not lifetimehost exclusion",
+    "GPUcanonical fallback preserves admitted CUDA mask; owner/export remain CPU-only"
+  ],
+  "base_GPU_evaluation_command": "tools.qwen_world_safety_exploration.evaluate; existing formalGPU eval unaffected by wrapperCUDA issue",
+  "execution_source_reference_cache": "NOT_IMPLEMENTED inthis narrowpatch; awaiting exactscientific typedmigration API",
+  "no_runtime_registry_owner_alias_policy_mutations": true,
+  "no_signal_dispatch_or_gpu_probe": true
+}

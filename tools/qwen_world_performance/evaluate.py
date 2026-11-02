@@ -163,7 +163,13 @@ def main():
         if a.max_shards!=32 or not 1<=a.max_workers<=64 or a.interval<10:ap.error('Canonical32 shards, <=64workers, interval>=10s')
         owner_class()(a.registry,max_shards=32,max_workers=a.max_workers,minimum=32768).run(interval=a.interval);return
     # Exact old CLI and scoring implementation, including resource-return caches.
-    bootstrap()
+    visible=os.environ.get('CUDA_VISIBLE_DEVICES')
+    try:bootstrap()
+    finally:
+        # Bootstrap is CPU-only for owner/export, but the canonical fallback
+        # runs inside an already UUID-admitted GPU worker. Preserve its mask.
+        if visible is None:os.environ.pop('CUDA_VISIBLE_DEVICES',None)
+        else:os.environ['CUDA_VISIBLE_DEVICES']=visible
     from tools.qwen_world_safety_exploration.evaluate import main as canonical_main
     canonical_main()
 if __name__=='__main__':main()

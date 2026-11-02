@@ -133,17 +133,32 @@ def snapshot(root=ROOT):
     analysis=analyzer.collect_results(root)
     complete=[r for r in analysis['complete_results'] if r['updates']>0 and r.get('physical_logs')==44]
     registry=read(root/'RUNS.json',{});owner=read(root/'owners/PERFORMANCE_NATIVE/STATE.json',{})
+    previous_review=read(Path('/mnt/project/qwen-world-rl-optimization-20261030/analysis/REPORT_LATEST_COMPLETE_REVIEW_20261101/SUMMARY.json'),{})
+    previous_peak=previous_review.get('observed_peak',{})
+    previous_score=read(previous_peak.get('evidence',''),{})
+    previous_body=dict(previous_score);previous_seal=previous_body.pop('sha256',None)
+    if not (previous_score.get('status')=='COMPLETE' and previous_score.get('scenes')==12146
+            and previous_score.get('invalid_scenes')==0 and previous_score.get('physical_logs')==44
+            and previous_score.get('PDMS')==previous_peak.get('PDMS')
+            and hashlib.sha256(json.dumps(previous_body,sort_keys=True,separators=(',',':')).encode()).hexdigest()==previous_seal):
+        previous_peak={}
     current=current_runs(root,registry,owner)
     journals={r['id']:journal_rows(Path(r['output'])/'metrics_rank0.jsonl') for r in current}
     return dict(generated_UTC=datetime.now(timezone.utc).isoformat(),jobs=jobs,complete_results=complete,
         active_formal=sum(j['status']=='实际训练' for j in current),current_runs=current,journals=journals,
         active_qualification=sum(j['status']=='RUNNING' and j['qualification'] for j in jobs),
-        audit=read(root/'data/AUDIT.json',{}),registry=registry,native_owner=owner,
+        audit=read(root/'data/AUDIT.json',{}),registry=registry,native_owner=owner,previous_peak=previous_peak,
         plans=registered_plans(root,registry),qualification=read(root/'performance_qualification.json',{}),
         result_review=dict(pending=analysis['pending'],rejected=analysis['rejected']),
         deadline=read(root/'operations/RESOURCES_UNTIL_20261103T000000Z/REQUEST.json',{}),
         resume=read(root/'operations/NATIVE_RESUME_QUALIFICATION.json',{}),
-        nominal=read(root/'qualification/REAL_NOMINAL_IL70/COMPLETE.json',{}))
+        nominal=read(root/'qualification/REAL_NOMINAL_IL70/COMPLETE.json',{}),
+        training_diagnosis=read(root/'analysis/CURRENT_TRAINING_DIAGNOSIS.json',{}),
+        execution_qualifications={name:read(root/relative,{}) for name,relative in (
+            ('frozen_reference','qualification/REFERENCE_CACHE_FULL_IL70/COMPLETE.json'),
+            ('PACK2','benchmarks/COHERENT_PACK2/COMPLETE.json'),
+            ('PACK4','benchmarks/COHERENT_PACK4/COMPLETE.json'))},
+        permanent_continuation=read(root/'operations/OPS_V2_HANDOFF/S1_NATIVE_RETURN.json',{}))
 
 
 def table(headers,rows):
@@ -295,13 +310,50 @@ def render_fragment(root=ROOT):
     retired=[j for j in s['jobs'] if j['status'] not in ('RUNNING','DISPATCHED')]
     checks=s['audit'].get('checks',{})
     best=max(s['complete_results'],key=lambda r:r['PDMS'],default=None)
-    best_label=('%.8f · '%best['PDMS']+best['arm']+' / Adam '+str(best['updates'])) if best and best['PDMS']>91.45359756166451 else '91.45359756 · SafetyEP Control 10k'
+    previous=s['previous_peak'];prior_pdms=max(91.45359756166451,previous.get('PDMS',0))
+    prior_label=('%.8f · '%previous['PDMS']+previous['arm']+' / Adam '+str(previous['updates'])) if previous.get('PDMS',0)>91.45359756166451 else '91.45359756 · SafetyEP Control 10k'
+    best_label=('%.8f · '%best['PDMS']+best['arm']+' / Adam '+str(best['updates'])) if best and best['PDMS']>prior_pdms else prior_label
     body='<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>新一轮 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
-    evidence=Path(best['summary']) if best and best['PDMS']>91.45359756166451 else Path('/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json')
+    evidence=Path(best['summary']) if best and best['PDMS']>prior_pdms else Path(previous['evidence']) if previous.get('PDMS',0)>91.45359756166451 else Path('/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json')
     if evidence.exists():body+='<p><a href="'+esc(evidence)+'">最高分完整评测证据</a></p>'
     body+='<p><b>本轮实际在训 '+str(s['active_formal'])+' 条 / 已登记 '+str(len(s['current_runs']))+' 条；资格测试 '+str(s['active_qualification'])+' 个。</b>实际在训要求当前 stage job 有 RUNNING、无 RESULT，且八 rank 均有近10分钟日志；统计时间见上。旧实验独立继续。本轮完整 NAVTEST 结果 '+str(len(s['complete_results']))+' 个；native0、partial、资格测试与候选 oracle 不计为 RL 提分。</p>'
     body+='<p><b>当前任务：</b>B128/G16 工程资格 → S1 高分候选向真实 B1 吸收；S5 分阶段覆盖、吸收与持续保持。各路线均从相同 IL70k（88.79290991、SHA 7dda5b14…）和 Adam0 独立开始。</p>'
     body+=table(['正式路线','服务器','实际 Adam（8rank最小）','有效曝光 epoch','当前状态'],[(j['id'],j['host'] or '待分配',j['updates'],f'{j["exposure_epoch"]:.6f}' if j['exposure_epoch'] is not None else '等待首条更新',j['status']) for j in s['current_runs']])
+    body+='<h3>当前结论与接下来的决策</h3><p>主训练仍处于全量均匀覆盖阶段。S1 的 rescue 到 0.5 epoch 才启用；此前它与 S0 的目标相同，独立进程出现相同更新属于预期，不能据此判断 rescue 无效。S5 的历史保持到第 4 epoch 才启用，当前也不能评价其收益。</p>'
+    returned=s['permanent_continuation']
+    if returned.get('status')=='PASS':
+        cp=returned.get('checkpoint',{})
+        body+='<p>S1 已从临时主机按完整原生状态迁往长期可用的共享资源：保存于 Adam '+esc(cp.get('updates'))+' / pending inner '+esc(cp.get('next_inner'))+'；保留同一实验的 Adam、RNG、场景游标和待更新轨迹。运行是否已恢复以当前任务表为准。</p>'
+    diagnosis=s['training_diagnosis']
+    if diagnosis.get('status')=='COMPLETE':
+        quality=[]
+        for arm,item in diagnosis.get('routes',{}).items():
+            q=item.get('quality_journal_census',{})
+            if not q:continue
+            quality.append((arm,q.get('valid_scenes'),f'{100*q.get("strict_high_support_rate",0):.2f}%',
+                f'{100*q.get("PG0_rate",0):.2f}%',f'{100*q.get("canonical_allzero_rate",0):.3f}%',q.get('nominal_B1_scored')))
+        if quality:
+            body+='<details><summary>完整已观测训练日志：探索支持与无优势组（'+esc(diagnosis.get('completed_at',''))+'）</summary>'
+            body+=table(['路线','有效场景','G16 有严格高分候选','PG0 组','G16 官方全零组','真实 B1 查询'],quality)
+            body+='<p>按 collection 去重，不重复计算四 inner。PG0 是没有有效组内策略梯度；全零组是所有候选的官方分数均为零，两者不同。有限行为窗口中多数 PG0 来自成功且 EP 饱和。当前尚未查询 B1 的项目显示 0 次查询，不代表 B1 得分为零；G16 覆盖率不能代替部署成绩。不同时间窗口场景不同，比例变化不证明遗忘。</p></details>'
+        history=diagnosis.get('historical_SafetyEP_NAVTEST_zero_flow',{}).get('longitudinal',{})
+        if history:
+            body+='<p><b>历史完整分析：</b>旧独立 SafetyEP 序列在 12146 场景、13 个评测点中，有 '+esc(history.get('persistent_zero'))+' 个场景在所有已观测点均为零，'+esc(history.get('intermittent_zero'))+' 个间歇零分，其中 '+esc(history.get('relapsed_zero'))+' 个出现过修复后再归零。这支持同时研究困难场景学习信号与防退化保持，但尚不能区分内在驾驶冲突和共享参数更新的因果作用。该历史序列与本轮结果分开；NAVTEST 场景身份不进入训练优先级。</p>'
+    qualified=s['execution_qualifications'];rows=[]
+    cache=qualified['frozen_reference']
+    if cache.get('status')=='PASS':
+        original=cache.get('results',{}).get('original',{});cached=cache.get('results',{}).get('cached',{})
+        rows.append(('冻结 IL 参考计算复用','真实 IL70 / 单 GPU / 4 inner',
+            str(original.get('reference_velocity_calls'))+' → '+str(cached.get('reference_velocity_calls'))+' 次参考调用',
+            '梯度、参数、Adam、scheduler、RNG 逐位一致；八卡原生恢复验证后再上线'))
+    for name in ('PACK2','PACK4'):
+        proof=qualified[name]
+        if proof.get('status')=='PASS':
+            first=proof.get('iterations',[{}])[0]
+            rows.append((name+' 一致合批采样与更新','真实 IL70 / 单 GPU / '+str(len(proof.get('scenes',[])))+' TRAIN 场景',
+                '首更 ratio 偏差 '+str(first.get('fresh_ratio_max_abs')),
+                '八卡恢复验证中；正式训练须独立从 IL70 开始，不能替换现有单场景轨迹的更新内核'))
+    if rows:body+=table(['吞吐优化','验证范围','实际结果','当前处置'],rows)
     if s['complete_results']:
         body+='<h3>本轮完整单轨迹评测</h3>'+table(['评测','Adam','PDMS','有效场景','invalid'],[(r['arm'],r.get('updates'),r.get('PDMS'),r['scenes'],r['invalid_scenes']) for r in s['complete_results']])
     else:body+='<p><b>本轮尚无完整正式 NAVTEST 分数。</b>后续只接受 sealed SPEC + identity、全12146/invalid0/44log、seed2101 的既有结果。</p>'

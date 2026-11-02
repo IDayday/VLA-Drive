@@ -188,18 +188,23 @@ def owner_class():
                 if status is None or status in('WAITING_RESOURCE','WAITING_AUTHORIZED_RESOURCE'):
                     return None
             claims=read(ROOT/'resources/NATIVE_HOST_CLAIMS.json',{})
-            hosts={h for h,c in claims.items()if'job'in c and not(Path(c['job'])/'RESULT.json').exists()}
+            claims_runs={r['id']:r for r in self.registry['runs']}
             known=eval_owner.KNOWN_ROOTS+(str(ROOT)+'/',)
             for route in run['deployment_candidates']:
                 host=route['host']
-                if host in PROTECTED or host in hosts or host not in allowed_hosts(admit_long_job=True):continue
+                if host in PROTECTED or host not in allowed_hosts(admit_long_job=True):continue
                 try:
                     s=probe(host);g=s['gpus']
                     if(len(g)!=8 or len({x['uuid']for x in g})!=8 or not s['worker_python_exists']or s['MemAvailable_bytes']<100*2**30 or s['load1']>s['CPU_affinity']*1.5):continue
                     if any(gpu_activity_issue(x,s['owners'])for x in g)or min(x['free_MiB']for x in g)<route['minimum_free_MiB']:continue
                     if any(not o.get('visible')or not isinstance(o.get('output'),str)or not o['output'].startswith(known)for o in s['owners']):continue
+                    claim=claims.get(host)
+                    if claim and 'job'in claim and not(Path(claim['job'])/'RESULT.json').exists():
+                        from .evaluate import native_claim_startup_hold
+                        hold,_=native_claim_startup_hold(host,claim,s,claims_runs.get(claim.get('arm')))
+                        if hold:continue
                     from .continuation import shared_sample_ready
-                    ready,_=shared_sample_ready(s)
+                    ready,_=shared_sample_ready(s,run)
                     if not ready:continue
                     if any(not eval_owner.lease_free(eval_owner.LEASES[route['lease_slot']]/(x['uuid']+'.lock'))for x in g):continue
                     return route,s

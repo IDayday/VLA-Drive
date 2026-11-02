@@ -1,0 +1,136 @@
+{
+  "schema": "world_performance_sharing_v2_amendment_preview_v1",
+  "status": "PREVIEW_NOT_APPLIED",
+  "arm": "S4_TEMPORAL_RESCUE",
+  "created_unix": 1793645223.7264497,
+  "actual_gpu_inventory": "NOT_PROBED; exactlive repeated owner/headroom/UUID lease checks required at dispatch",
+  "proposed_operational_fields": {
+    "resource_protocol": {
+      "schema": "world_performance_measured_native_sharing_v2",
+      "maximum_campaign_native_per_host": 2,
+      "maximum_known_native_per_host": 2,
+      "minimum_free_MiB": 32768,
+      "output_alias": "/mnt/project/qwen-world-safety-exploration-20261031/performance_training_20261103"
+    },
+    "execution_output_root": "/mnt/project/qwen-world-safety-exploration-20261031/performance_training_20261103/runs/S4_TEMPORAL_RESCUE",
+    "deployment_candidates": [
+      {
+        "host": "training-rl-zt2",
+        "lease_slot": "shared",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-rl-zt2",
+        "lease_slot": "research",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt2",
+        "lease_slot": "shared",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt2",
+        "lease_slot": "research",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-zt",
+        "lease_slot": "shared",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-zt",
+        "lease_slot": "research",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt3",
+        "lease_slot": "shared",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt3",
+        "lease_slot": "research",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt5",
+        "lease_slot": "shared",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt5",
+        "lease_slot": "research",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt5",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-zt5",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vla-zt3",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-zt4",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-rl-zt2",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt2",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-zt",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-tsinghua-zt3",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      },
+      {
+        "host": "training-vlawm-zt2",
+        "lease_slot": "primary",
+        "minimum_free_MiB": 32768
+      }
+    ]
+  },
+  "immutable_science_fields_unchanged": {
+    "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+    "source_commit": "5e5220c6059ed7e38b54b3198415fe4af3b5bf45",
+    "worker_source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+    "config": "/mnt/project/qwen-world-performance-rl-20261103/configs/S4_TEMPORAL_RESCUE.yaml",
+    "config_sha256": "e6b0a2281432a9c568f46618adf68ce739713dc45618a63b3639fe650d586731",
+    "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT"
+  },
+  "source_claim_hosts_considered": [
+    "training-rl-zt2",
+    "training-vlawm-tsinghua-zt2",
+    "training-vlawm-zt",
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt5"
+  ],
+  "required_root_steps": [
+    "Review/apply only these operational fields atomically under registry lock; retain all concurrent amendments",
+    "Freeze reviewed CPU ops source; cooperate exactcurrent CPU owners to exit; preserve all native/eval children",
+    "Adopt sameSTATE with ops3; no fixedsource/config/Adam/RNG/stream reset",
+    "Secondnative requires original8UUID RUNNING proof, allvisibleknown owners, >=32768MiB each, independent shared/research UUID locks, real worker recheck",
+    "Foreign D44/unknown owners are never admitted or displaced; live grants and protectedhosts remain authoritative"
+  ]
+}

@@ -6,6 +6,16 @@
 
 实时 HTML：`/mnt/project/qwen-world-performance-rl-20261103/report.html`。原总报告 `/mnt/project/qwen-world-rl-optimization-20261030/report.html` 的最前方已接入本轮面板，沿用唯一原报告守护，每 30 分钟及阶段事件更新。
 
+## 已经启动的训练与当前判断
+
+2026-11-02 18:44 UTC 快照：S1、S5、S0、S2、S3 五条真实八卡训练正在进行，S4 和 LowLR 等待合适资源。[逐路线实际更新与曝光](results/PROGRESS_20261102T1844Z.json)。所有路线尚不足 0.1 epoch，无本轮完整 NAVTEST 结果，不能宣称已经改善部署成绩。
+
+S1 从临时 wm4 保存于 update205/inner1，按同一实验完整状态恢复到长期可用 tsh5 共享资源。其与独立 S0 对照的前 221 个更新、八 rank 共 1768 条记录中，轨迹、old log-prob、优势、mask、参数摘要、loss、梯度和 LR 完全一致。S1 的 rescue 从 0.5 epoch 才启用，早期目标相同，不能在启用前判断机制无效；该一致性同时支持本次原生迁移未改变训练。
+
+已另行登记固定 TRAIN2048 真实 B1 诊断，先评测同一 IL70，再与本实验自己的后续 checkpoint 逐场景配对。它属于训练分布诊断，不作为独立泛化验证，更不作为 NAVTEST 完整成绩。
+
+两项吞吐开发保留为独立证据：冻结 IL 参考项缓存在真实完整模型上四 inner 的梯度、参数、Adam、scheduler、RNG 逐位一致，参考调用 12→3；一致合批 PACK2/PACK4 的真实采样与更新首更 ratio 偏差均为零。两者的八卡原生恢复验证仍在推进。前者仅在受审计的执行迁移后用于既有实验；后者因 BF16 batch 形状改变，正式运行必须独立从 IL70/Adam0 开始。
+
 ## 当前路线
 
 | 优先级 | 路线 | 主要目标 | B / G / M |
