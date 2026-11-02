@@ -60,7 +60,7 @@ class D44Actor(FourFrameworkRecipeActor):
                 means.append(mean.float());stds.append(std)
         return torch.stack(means,1),torch.tensor(stds,device=chain.device,dtype=torch.float32)
 
-    def forward(self,r):
+    def forward(self,r,*,return_components=False):
         c=self.study_config
         with self._context_call(r['condition'])as cond:
             mean,std=self.transition_terms(cond,r['chain'],r['timesteps'],r['deltas'])
@@ -94,7 +94,7 @@ class D44Actor(FourFrameworkRecipeActor):
                 one=current_prefix().index_select(torch.zeros(1,device=self.device,dtype=torch.long))
                 with torch.autocast(self.device.type,dtype=torch.bfloat16):
                     pred=self.action_expert.denoise_x0(r['positive_state'],r['positive_sigma'],one)
-                    last=self.action_expert.denoise_x0(r['nominal_chain'][:,9],r['timesteps'][9:10]/1000,one)
+                    last=self.action_expert.denoise_x0(r['nominal_chain'][:,9],r['nominal_sigma_last'],one)
                 pos=positive_loss(pred,r['teacher']);lastloss=positive_loss(last,r['teacher'])
                 aux=aux+c['positive_weight']*pos+c['last_weight']*lastloss
                 metrics.update(positive_cleanx=pos.detach(),last_step=lastloss.detach())
@@ -106,4 +106,5 @@ class D44Actor(FourFrameworkRecipeActor):
                 aux=aux+c['post_weight']*post['loss'];metrics.update(post_loss=post['loss'].detach(),event_accuracy=post['event_accuracy'].detach())
             metrics.update(pg=pg.detach(),reference_KL_joint=anchor.detach(),reference_KL_per_coordinate=anchor.detach()/24,
                 auxiliary_loss=aux.detach(),fresh_ratio_error=logr.detach().expm1().abs().max()if r['expect_fresh']else mean.new_tensor(0.))
+            if return_components:return total+aux,metrics,dict(policy=pg,reference=r['beta']*anchor,auxiliary=aux)
             return total+aux,metrics

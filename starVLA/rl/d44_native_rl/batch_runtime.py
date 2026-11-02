@@ -6,6 +6,21 @@ from starVLA.model.modules.qwen_sourceflow.action_codec import ActionCodec
 from .safety_credit import FACTORS
 from .native_cleanx_aux import verified_index
 from .fpo import velocity_energy
+from starVLA.model.modules.qwen_world_postcot.flow import shift_sigma,clean_x_step
+
+
+@torch.no_grad()
+def deployment_chain(actor,condition,generator):
+    """Exactly model.predict's clean-x arithmetic, including FP32 grid rounding."""
+    grid=shift_sigma(torch.linspace(1,0,11,dtype=torch.float32),5.).to(actor.device)
+    state=torch.randn((1,8,3),generator=generator).to(actor.device);states=[state.clone()]
+    with actor._context_call(condition)as material:
+        prefix=actor._prepare(material,False)
+        for sigma,nxt in zip(grid[:-1],grid[1:]):
+            with torch.autocast(actor.device.type,dtype=torch.bfloat16):
+                prediction=actor.action_expert.denoise_x0(state,sigma.reshape(1),prefix)
+            state=clean_x_step(state,prediction,sigma,nxt,validate=False);states.append(state.clone())
+    return torch.stack(states,1).detach(),grid
 
 
 @torch.no_grad()
@@ -33,7 +48,7 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
         physical_candidates=g,PG_candidates=g,extra_B1=0,extra_G32=0)
     if cfg['arm']in('D2','D6')and epoch>=cfg['rescue_start_epoch']:
         material=actor.materialize(descriptor);one=dict(material,context=material['context'][:1])
-        nominal,_,_,_=actor.sample_action_chain(one,8,deterministic=True,generator=generator)
+        nominal,nominal_grid=deployment_chain(actor,one,generator)
         nominal_records=service.score((token,log,ActionCodec.denorm_odo(nominal[:,-1]).cpu().numpy()))
         base=nominal_records[0]['metrics']['score'];teacher_records=records;teacher_chain=chain;r['extra_B1']=1;r['physical_candidates']+=1
         strict=any(all(x['metrics'][k]==1 for k in FACTORS[:3])and x['metrics']['score']>=.9 for x in records)
@@ -45,9 +60,10 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
         if selected is not None:
             teacher=teacher_chain[selected:selected+1,-1].detach();r['teacher']=teacher;r['teacher_record']=teacher_records[selected]
             r['nominal_chain']=nominal.detach()
+            r['nominal_sigma_last']=nominal_grid[-2:-1].detach()
             # Frozen mixture of continuous sigma and actual deployment nodes.
             u=torch.rand((),generator=generator)
-            sigma=(.1+.8*torch.rand((),generator=generator))if u<.5 else times[torch.randint(10,(),generator=generator)].cpu()/1000
+            sigma=(.1+.8*torch.rand((),generator=generator))if u<.5 else nominal_grid[torch.randint(10,(),generator=generator)].cpu()
             sigma=sigma.reshape(1).to(actor.device).float();eps=torch.randn(teacher.shape,generator=generator).to(actor.device)
             r.update(positive_sigma=sigma,positive_state=(1-sigma[:,None,None])*teacher+sigma[:,None,None]*eps)
     if cfg['arm']in('D3_FPO','D3_AWM'):

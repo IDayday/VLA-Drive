@@ -11,7 +11,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 def material_digest(batch):
     keys=('condition','chain','old_mean','ref_mean','std','advantages','behavior_version','teacher',
-          'positive_state','positive_sigma','nominal_chain','fm_state','fm_sigma','fm_target','old_energy','factors','beta')
+          'positive_state','positive_sigma','nominal_chain','nominal_sigma_last','fm_state','fm_sigma','fm_target','old_energy','factors','beta')
     return tensor_digest([{k:r[k]for k in keys if k in r}for r in batch['scenes']])
 
 

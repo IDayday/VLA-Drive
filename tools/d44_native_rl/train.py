@@ -4,6 +4,7 @@ import contextlib
 import copy
 from datetime import timedelta
 import fcntl
+import hashlib
 import json
 import math
 import os
@@ -36,6 +37,13 @@ STOP=False
 def stop(*_):
     global STOP
     STOP=True
+
+
+def frozen_parameter_hash(actor):
+    result=hashlib.sha256()
+    for name,p in actor.named_parameters():
+        if not p.requires_grad:result.update(name.encode());result.update(p.detach().cpu().contiguous().numpy().tobytes())
+    return result.hexdigest()
 
 
 class SceneScheduler:
@@ -79,6 +87,15 @@ def main():
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True);lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     print(json.dumps(dict(event='loading_native_D44',rank=rank,at=time.time())),flush=True)
     stream=DataStream(cfg,cfg['global_scenes']);model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'])
+    original_prediction=None
+    if a.qualification:
+        from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
+        from starVLA.rl.qwen_sourceflow.contracts import QWEN_PATH
+        token,_=stream.at(0,rank,0,world);observation=stream.data.observation(token)
+        original_inputs=QwenObservationProcessor(str(QWEN_PATH))([observation])
+        original_ego=torch.tensor([observation['proprio']],device=device,dtype=torch.float32)
+        original_noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(2101)).to(device)
+        original_prediction=model.predict(original_inputs,original_ego,original_noise)
     actor=D44Actor(model,source_config(cfg),cfg)
     print(json.dumps(dict(event='native_D44_and_scope_loaded',rank=rank,at=time.time(),trainable=actor.closure['trainable_numel'])),flush=True)
     conditions=DConditions(model,stream.data,info,group=cfg['group'],capacity=cfg['condition_cache_scenes']);object.__setattr__(actor,'conditions',conditions)
@@ -91,8 +108,11 @@ def main():
             reference_chain,_,_,_=actor.sample_action_chain(conditions.get(token),8,deterministic=True,init_actions=root_noise,velocity_use_ref=True)
         error=float((current_chain-reference_chain).abs().max())
         if error!=0:raise FloatingPointError('Zero LoRA must exactly preserve native D44 ODE: '+str(error))
+        wrapped_prediction=actor.action_expert.predict(original_inputs,original_ego,original_noise)
+        for key in ('normalized_action','requested_trajectory'):
+            if not torch.equal(original_prediction[key],wrapped_prediction[key]):raise FloatingPointError('Wrapped native clean-x deployment changed '+key)
         atomic_json(root/f'initial_native_parity_rank{rank}.json',dict(status='PASS',ODE_chain_max_abs=error,
-            trainable=actor.closure,reference_frozen=True,parent=info['model_sha256']))
+            original_cleanx_deployment_max_abs=0.,trainable=actor.closure,reference_frozen=True,parent=info['model_sha256']))
     optimizer=torch.optim.AdamW(groups(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01)
     scheduler=SceneScheduler(optimizer);generator=torch.Generator(device='cpu').manual_seed(420000+rank)
     service=RewardService(Path.cwd(),workers=cfg['scoring_workers'],cache_roots=stream.data.manifest['canonical_metric_cache_roots'])
@@ -118,6 +138,7 @@ def main():
     if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=Boundary())
     dual.load_state_dict(state['adaptive_kl']);attempt=Attempt(root,rank,state,identity,a.resume)
     trainables=[p for p in actor.parameters()if p.requires_grad]
+    frozen_before=frozen_parameter_hash(actor)if a.qualification else None
     def save():
         begin=time.monotonic();result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,batch,identity,runtime=Boundary())
         attempt.record['seconds_save']+=time.monotonic()-begin;return result
@@ -158,7 +179,16 @@ def main():
                 counts=torch.tensor([int(valid.sum()),sum(r['extra_B1']for r in scenes),sum(r['extra_G32']for r in scenes)],device=device,dtype=torch.long)
                 if world>1:dist.all_reduce(counts)
                 for r,adv in zip(scenes,advantages):r['advantages']=adv.detach()
-                batch=dict(scenes=scenes,behavior_update=state['updates'],global_std=float(std),valid_scenes=int(counts[0]),epoch=epoch)
+                scores=torch.tensor([[q['metrics']['score']for q in r['records']]for r in scenes],device=device,dtype=torch.float64)
+                diagnostic=torch.tensor([scores.sum().item(),scores.max(1).values.sum().item(),feasible.double().sum().item(),
+                    int((raw.abs().amax(1)>0).sum()),int((scores==1).all(1).sum()),int((scores==0).all(1).sum()),len(scenes)],device=device,dtype=torch.float64)
+                if world>1:dist.all_reduce(diagnostic)
+                diagnostic=diagnostic.cpu().tolist();nscene=diagnostic[-1]
+                summary=dict(random_candidate_mean=diagnostic[0]/(nscene*cfg['group']),oracle_mean=diagnostic[1]/nscene,
+                    feasible_candidate_fraction=diagnostic[2]/(nscene*cfg['group']),effective_PG_group_fraction=diagnostic[3]/nscene,
+                    all_one_groups=diagnostic[4],all_zero_groups=diagnostic[5],raw_groups=nscene,
+                    sigma_by_stochastic_step=scenes[0]['std'].detach().cpu().tolist())
+                batch=dict(scenes=scenes,behavior_update=state['updates'],global_std=float(std),valid_scenes=int(counts[0]),epoch=epoch,diagnostics=summary)
                 batch['digest']=material_digest(batch)
                 state['collections']+=1;state['scene_cursor']+=cfg['global_scenes'];state['raw_scene_exposures']+=cfg['global_scenes']
                 state['valid_scene_exposures']+=int(counts[0]);state['padding_scene_exposures']+=cfg['global_scenes']-int(counts[0])
@@ -193,6 +223,10 @@ def main():
                 update_seconds=time.monotonic()-begin,collection_seconds_generation=sum(r['seconds_generation']for r in batch['scenes']),
                 collection_seconds_scoring=sum(r['seconds_scoring']for r in batch['scenes']),peak_GPU_bytes=torch.cuda.max_memory_allocated(),
                 global_advantage_std=batch['global_std'],at=time.time(),beta=dual.beta)
+            row['exploration']=batch['diagnostics']
+            row['model_work']=dict(velocity_calls=actor._velocity_calls,reference_velocity_calls=actor._reference_calls,
+                current_prefix_builds=actor.prepared_context_builds['current'],reference_prefix_builds=actor.prepared_context_builds['reference'],
+                frozen_vision_prefills=conditions.prefill_calls,frozen_vision_prefill_seconds=conditions.prefill_seconds)
             journal.write(json.dumps(row,allow_nan=False)+'\n')
             print(json.dumps(dict(event='optimizer_committed',rank=rank,updates=state['updates'],collection=state['collections'],
                 scene_epochs=row['scene_epochs'],grad_norm=float(norm),fresh_ratio_error=totals['fresh_ratio_error'])),flush=True)
@@ -207,6 +241,10 @@ def main():
         if last_saved is None or json.loads((Path(last_saved)/'COMPLETE').read_text())['updates']!=state['updates']:last_saved=save()
         result=dict(state,status='QUALIFICATION_STOPPED'if a.qualification else'COMPLETE'if state['valid_scene_exposures']>=cfg['target_epochs']*stream.n and batch is None else'STOPPED_AT_SAVED_BOUNDARY',
             checkpoint=last_saved,rank=rank,host=host,seconds=time.monotonic()-started,qualification=a.qualification,scope=actor.closure)
+        if a.qualification:
+            after=frozen_parameter_hash(actor)
+            if after!=frozen_before:raise ValueError('Frozen D44/reference parameter bytes changed')
+            result.update(frozen_before=frozen_before,frozen_after=after)
         atomic_json(root/f'result_rank{rank}.json',result);attempt.finish(state,result['status'])
     except BaseException:
         checkpoint.failure_evidence(root,state,traceback.format_exc(),attempt.id,rollout=batch);attempt.finish(state,'ABORTED');raise
