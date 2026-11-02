@@ -11,9 +11,12 @@ ROOT=Path('/mnt/project/qwen-world-performance-rl-20261103')
 TASK='qwen_world_safety_exploration_20261031'
 SOURCE=ROOT/'runtime/formal_v1'
 OWNER='PERFORMANCE_NATIVE'
-ORDER=['S1_NOMINAL_RESCUE','S5_PERFORMANCE_MAX','S0_LARGE_SAFETYEP','S2_CONSERVATIVE_AWFM','S3_LARGE_FPO','S4_TEMPORAL_RESCUE','S0_LOW_LR']
+BASE_ORDER=['S1_NOMINAL_RESCUE','S5_PERFORMANCE_MAX','S0_LARGE_SAFETYEP','S2_CONSERVATIVE_AWFM','S3_LARGE_FPO','S4_TEMPORAL_RESCUE','S0_LOW_LR']
+FAST='S0_FAST_PACK4'
+ORDER=BASE_ORDER[:-1]+[FAST]+BASE_ORDER[-1:]
 EPOCHS=[.25,.5,1,2,3,4,6,8,12,20]
 PROTECTED={'training-vla-zt','training-vlawm-tsinghua-zt'}
+_PACKED_RECIPE_CHECKS={}
 
 def read(p,default=None):return json.loads(Path(p).read_text())if Path(p).exists()else default
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
@@ -98,13 +101,61 @@ def seal_source():
     publish(ROOT/'RUNS.json',r);publish(ROOT/'REGISTRATION.json',r);return validate_registry(r)
 
 
+def validate_run_recipe(run):
+    """Only the two explicitly registered trainer families; no arbitrary module."""
+    if run['id']==FAST:
+        trainer='tools.qwen_world_multiscene.train'
+        if run['trainer_module']!=trainer:raise ValueError('Wrong exact packed trainer')
+        cfg=yaml.safe_load(Path(run['config']).read_text())
+        key=(str(Path(run['source']).resolve()),run.get('source_commit'),sha(run['config']))
+        if key not in _PACKED_RECIPE_CHECKS:
+            from starVLA.rl.qwen_world_safety_exploration.resources import MODEL_PYTHON
+            code='import sys,yaml;from starVLA.rl.qwen_world_multiscene.recipe import validate_recipe;validate_recipe(yaml.safe_load(open(sys.argv[1])))'
+            subprocess.check_call([MODEL_PYTHON,'-c',code,run['config']],cwd=run['source'],
+                env=dict(os.environ,CUDA_VISIBLE_DEVICES='',PYTHONPATH=run['source']))
+            _PACKED_RECIPE_CHECKS[key]=True
+        return cfg
+    else:
+        from starVLA.rl.qwen_world_performance.contracts import validate_recipe
+        trainer='tools.qwen_world_performance.train'
+    if run['trainer_module']!=trainer:raise ValueError('Wrong exact trainer for registered family')
+    return validate_recipe(yaml.safe_load(Path(run['config']).read_text()))
+
+
+def fast_registration(registry,config,source,*,worker_source):
+    """Pure reviewed eight-arm registration proposal; never publishes RUNS."""
+    r=copy.deepcopy(validate_registry(registry))
+    if any(x['id']==FAST for x in r['runs']):raise ValueError('FAST already registered; never duplicate lineage')
+    source=Path(source).resolve();config=Path(config).resolve()
+    if not source.is_dir():raise ValueError('Freeze actual multiscene_v3 before proposing registration')
+    commit=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip()
+    base=next(x for x in r['runs']if x['id']=='S0_LARGE_SAFETYEP')
+    run={k:copy.deepcopy(v)for k,v in base.items()if k not in ('resource_protocol','execution_output_root')and not k.startswith('execution_')}
+    run.update(id=FAST,root=str(ROOT/'runs'/FAST),source=str(source),source_commit=commit,source_pending=False,
+        worker_source=str(Path(worker_source).resolve()),config=str(config),config_sha256=sha(config),
+        trainer_module='tools.qwen_world_multiscene.train',status='REGISTERED',priority=ORDER.index(FAST))
+    from .continuation import ALIAS,PROTOCOL_V2
+    primaries=[r for r in run['deployment_candidates']if r['lease_slot']=='primary'and r['host']not in PROTECTED]
+    run.update(resource_protocol=copy.deepcopy(PROTOCOL_V2),execution_output_root=str(ALIAS/'runs'/FAST),
+        deployment_candidates=[dict(r,lease_slot=slot)for r in primaries for slot in ('shared','research')]+primaries)
+    cfg=validate_run_recipe(run);mapping=exposure_gates(cfg)
+    if mapping!=base['exposure_mapping']:raise ValueError('FAST must retain exact S0 B128/G16/M4 exposure/query clock')
+    run['exposure_mapping']=mapping;r['runs'].append(run)
+    for row in r['runs']:row['priority']=ORDER.index(row['id'])
+    r['runs'].sort(key=lambda x:x['priority'])
+    from starVLA.rl.qwen_world_research_data.manifest import fingerprint
+    r['registration_sha256']=fingerprint({k:v for k,v in r.items()if k!='registration_sha256'})
+    return validate_registry(r)
+
+
 def validate_registry(r,*,allow_pending=False):
-    from starVLA.rl.qwen_world_performance.contracts import validate_recipe
+    ids={v['id']for v in r['runs']}
     if(r['task']!=TASK or Path(r['root']).resolve()!=ROOT or r['training_population']!=103288
-       or{v['id']for v in r['runs']}!=set(ORDER)or len(r['runs'])!=7):raise ValueError('Wrong explicit7arm performance campaign')
+       or ids not in (set(BASE_ORDER),set(ORDER))or len(r['runs'])!=len(ids)):
+        raise ValueError('Only original seven arms plus optional independent FAST_PACK4')
     if sha(r['manifest'])!=r['manifest_sha256']:raise ValueError('Registered data manifest changed')
     for run in r['runs']:
-        cfg=validate_recipe(yaml.safe_load(Path(run['config']).read_text()));mapping=exposure_gates(cfg);cap=run['target_epochs']
+        cfg=validate_run_recipe(run);mapping=exposure_gates(cfg);cap=run['target_epochs']
         nav_epochs=run['navtest_epochs']
         if sorted(set(nav_epochs))!=nav_epochs or not set(nav_epochs)<=set(e for e in EPOCHS if e<=cap)or cap not in nav_epochs:
             raise ValueError('Explicit registered full-NAV exposure cadence required')
@@ -112,7 +163,6 @@ def validate_registry(r,*,allow_pending=False):
         if(cfg['research']['arm']!=run['id']or sha(run['config'])!=run['config_sha256']
            or Path(run['root']).resolve()!=ROOT/'runs'/run['id']
            or run['owner_state']!=str(ROOT/'owners'/OWNER/'STATE.json')
-           or run['trainer_module']!='tools.qwen_world_performance.train'
            or run['native_gates']!=[point(mapping,e)['updates']for e in EPOCHS if e<=cap]
            or run['gates']!=[point(mapping,e)['updates']for e in nav_epochs]
            or run['target_updates']!=point(mapping,cap)['updates']or run['exposure_mapping']!=mapping):raise ValueError('Run/config/clock/owner contract changed')
@@ -120,6 +170,8 @@ def validate_registry(r,*,allow_pending=False):
             if run.get('source_pending')or not run.get('source_commit')or not Path(run['source']).is_dir():raise ValueError('Actual frozen source required, no fabricated commit')
         from .continuation import validate_resource_fields
         validate_resource_fields(run)
+        from .execution import validate_execution_fields
+        validate_execution_fields(run)
     return r
 
 
@@ -155,7 +207,8 @@ def resource_return(run,node,result,latest,target,*,authorized_hosts,grant,now=N
     migration=verified_migration(run,node,result,cp)
     due=host not in authorized_hosts or(host in grant.get('temporary_hosts',[])and now>=grant['expires_unix']-grant['checkpoint_guard_seconds'])
     if(not due and migration is None)or not 0<=u<target:return None
-    if result.get('cwd')!=run.get('execution_source',run['source']):raise ValueError('Native resource return source changed')
+    effective=node.get('execution_source',run['source'])
+    if effective not in (run['source'],run.get('execution_source',run['source']))or result.get('cwd')!=effective:raise ValueError('Native resource return source changed')
     for rank in range(8):
         rr=read(Path(run['root'])/f'result_rank{rank}.json',{})
         if rr.get('updates')!=u or not same_path(rr.get('checkpoint'),cp['path'])or rr.get('rank')!=rank or rr.get('host')!=host:raise ValueError('Incomplete8rank cooperative return')
@@ -171,13 +224,17 @@ def owner_class():
     from starVLA.rl.qwen_world_safety_exploration.contracts import allowed_hosts,authorization
     class PerformanceOwner(Owner):
         def __init__(self):
-            super().__init__(selected_ids=ORDER,owner_name=OWNER);validate_registry(self.registry)
+            selected=[r['id']for r in validate_registry(read(ROOT/'RUNS.json'))['runs']]
+            super().__init__(selected_ids=selected,owner_name=OWNER);validate_registry(self.registry)
             self.immutable={r['id']:{k:r[k]for k in('id','root','source','source_commit','worker_source','config','config_sha256','parent_checkpoint','inner_updates','group_size','owner_state','trainer_module')}for r in self.runs}
+            from .execution import FIELDS
+            for run in self.runs:
+                self.immutable[run['id']].update({k:run.get(k)for k in FIELDS})
             self.runs.sort(key=lambda r:r['priority']);self.handoff=False
             publish(self.directory/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),host=socket.gethostname(),source=__file__,source_sha256=sha(__file__),started_unix=time.time()))
         def current(self,arm):
             registry=validate_registry(read(ROOT/'RUNS.json'));run=next(r for r in registry['runs']if r['id']==arm)
-            if any(run[k]!=v for k,v in self.immutable[arm].items()):raise ValueError('Frozen native identity/config/parent binding changed')
+            if any(run.get(k)!=v for k,v in self.immutable[arm].items()):raise ValueError('Frozen native identity/config/parent/execution binding changed; explicit CPU adoption required')
             return run
         def candidate(self,run):
             # Admit the two designated primary studies before lower priorities,
@@ -236,10 +293,13 @@ def owner_class():
                             route,s=chosen;attempt=int(node.get('attempt',0))+1;name=f'{arm}/formal_to{target:06}_attempt{attempt:03}'
                             command=[MODEL_PYTHON,'-m','torch.distributed.run','--standalone','--nnodes=1','--nproc_per_node=8','-m',run['trainer_module'],'--config',run['config'],'--manifest',self.registry['manifest'],'--il-checkpoint',run['parent_checkpoint'],'--data',self.registry['observation_data'],'--parent-selection',self.registry['parent_selection'],'--output',run.get('execution_output_root',run['root']),'--stop-after-update',str(target),'--save-every',str(run['save_every'])]
                             if resume:command+=['--resume',resume]
+                            from .execution import command_execution
+                            execution_source,execution_flags=command_execution(run,resume)
+                            command+=execution_flags
                             with self.mutex:
-                                node.update(attempt=attempt,job=str(ROOT/'jobs'/name),host=route['host'],resume=resume,command=command,status='DISPATCHING');self.update(arm,status='DISPATCHING',job=node['job'],host=route['host'])
+                                node.update(attempt=attempt,job=str(ROOT/'jobs'/name),host=route['host'],resume=resume,command=command,execution_source=execution_source,status='DISPATCHING');self.update(arm,status='DISPATCHING',job=node['job'],host=route['host'])
                             claims=read(ROOT/'resources/NATIVE_HOST_CLAIMS.json',{});claims[route['host']]=dict(job=node['job'],arm=arm,at_unix=time.time());publish(ROOT/'resources/NATIVE_HOST_CLAIMS.json',claims)
-                            try:dispatch.launch(route['host'],run['source'],command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[x['uuid']for x in s['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'],worker_source=run.get('worker_source',run['source']))
+                            try:dispatch.launch(route['host'],execution_source,command,name,gpus='0,1,2,3,4,5,6,7',expected_uuids=[x['uuid']for x in s['gpus']],share_minimum=route['minimum_free_MiB'],lease_slot=route['lease_slot'],worker_source=run.get('worker_source',run['source']))
                             except Exception:
                                 with self.mutex:
                                     node['dispatch_error']=traceback.format_exc();self.update(arm,status='DISPATCH_TRANSPORT_REVIEW',job=node['job'])
@@ -283,7 +343,7 @@ def owner_class():
             except Exception:self.update(arm,status='FAILED_REVIEW_REQUIRED',error=traceback.format_exc())
         def run(self):
             from concurrent.futures import ThreadPoolExecutor
-            with ThreadPoolExecutor(max_workers=7)as pool:list(pool.map(self.run_arm,self.runs))
+            with ThreadPoolExecutor(max_workers=len(self.runs))as pool:list(pool.map(self.run_arm,self.runs))
             self.state['status']='CPU_OWNER_QUIESCED_CHILDREN_PRESERVED'if self.handoff else'COMPLETED_AT_REGISTERED_CAP'if all(r.get('status')=='COMPLETED_AT_REGISTERED_CAP'for r in self.state['runs'].values())else'FINISHED_WITH_REVIEW_REQUIRED'
             if not self.handoff:self.state['native_owner_finished_unix']=time.time()
             publish(self.state_path,self.state)

@@ -6,7 +6,7 @@ exporter. No policy scoring is implemented a second time here.
 """
 import argparse,gc,json,os,socket,time
 from pathlib import Path
-from .launch import ROOT,TASK,PROTECTED,ORDER,bootstrap,read,sha,publish,validate_registry,inspect_native
+from .launch import ROOT,TASK,PROTECTED,ORDER,FAST,bootstrap,read,sha,publish,validate_registry,inspect_native
 
 
 def native_claim_startup_hold(host,claim,sample,run):
@@ -45,6 +45,19 @@ def native_claim_startup_hold(host,claim,sample,run):
         return True,'ambiguous_claim_kept_for_review'
 
 
+def validate_native_export_receipt(run,checkpoint,receipt):
+    if run['id']==FAST:
+        from .continuation import same_path
+        if(receipt.get('schema')!='world_packed_export_native_validation_v1'or receipt.get('status')!='PASS'
+           or not same_path(receipt.get('checkpoint'),checkpoint['path'])
+           or receipt.get('files_sha256')!=checkpoint['files_sha256']
+           or receipt.get('counts',{}).get('updates')!=checkpoint['updates']or receipt.get('micro_scenes')!=4):
+            raise ValueError('Packed export lacks its own exact native validation receipt')
+    elif(receipt.get('status')!='PASS'or receipt.get('checkpoint',{}).get('files_sha256')!=checkpoint['files_sha256']):
+        raise ValueError('A performance export lacks native validation')
+    return receipt
+
+
 def strict_export(parent,output,checkpoint):
     bootstrap()
     import torch
@@ -56,19 +69,44 @@ def strict_export(parent,output,checkpoint):
     if run is None or Path(parent).resolve()!=Path(run['parent_checkpoint']).resolve():raise ValueError('Foreign export parent/native checkpoint')
     cp=inspect_native(run,checkpoint);root=Path(cp['path']);identity=read(root/'identity.json');files=read(root/'files.json')
     if cp['next_inner']!=0 or cp['phase']not in('READY','COMPLETE'):raise ValueError('Periodic export requires completed source window')
+    if run['id']==FAST:
+        # Execute the packed family's own complete native validator/exporter in
+        # its frozen source, avoiding mixed imports into the ops interpreter.
+        import subprocess
+        from starVLA.rl.qwen_world_safety_exploration.resources import MODEL_PYTHON
+        source=str(Path(run['source']).resolve());env=dict(os.environ,CUDA_VISIBLE_DEVICES='',PYTHONPATH=source)
+        if not(Path(output)/'COMPLETE').exists():
+            subprocess.check_call([MODEL_PYTHON,'-m','tools.qwen_world_multiscene.native_review','export',
+                '--parent-checkpoint',str(parent),'--rl-checkpoint',cp['path'],'--output',str(output)],cwd=source,env=env)
+        else:
+            # Adoption still validates the actual packed pending/cursor schema.
+            subprocess.check_call([MODEL_PYTHON,'-c',
+                'import sys;from tools.qwen_world_multiscene.native_review import load_validated;load_validated(sys.argv[1])',cp['path']],cwd=source,env=env)
+        meta=inspect_export(output)
+        if meta.get('RL_checkpoint_files_sha256')!=cp['files_sha256']or meta.get('RL_updates')!=cp['updates']:raise ValueError('Packed export bound to another checkpoint')
+        receipt=Path(output).with_name(Path(output).name+'.native_validation.json')
+        proof=validate_native_export_receipt(run,cp,read(receipt,{}))
+        if proof.get('identity_sha256')!=identity['sha256']:raise ValueError('Packed native receipt identity changed')
+        # Keep the packed scientist's immutable receipt; do not rewrite it using
+        # the baseline family's schema or hide its full recovery proof.
+        return meta
     # A complete payload hash is essential once for an exported model. Metadata
     # polling/admission uses inspect_native and never repeatedly loads optimizer.
     for name,digest in files.items():
         if sha(root/name)!=digest:raise ValueError('Changed export payload: '+name)
-    common=torch.load(root/'optimizer.pt',map_location='cpu',weights_only=False);summaries=[];stream_digests=[]
-    for rank in range(8):
-        own=torch.load(root/f'rank{rank}.pt',map_location='cpu',weights_only=False)
-        if own['identity_sha256']!=identity['sha256']:raise ValueError('Export rank identity changed')
-        summaries.append(recovery.validate_boundary(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'],expected_rank=rank))
-        stream_digests.append(stream_state_validation(own['state'],run_identity=identity['sha256'],stream_identity=identity['data_stream_identity'])['stream_state_sha256'])
-    recovery.validate_ranks(summaries)
-    if len(set(stream_digests))!=1:raise ValueError('Export ranks disagree on exact scene/feedback state')
-    del common,own;gc.collect()
+    if run.get('execution_source'):
+        from .execution import validate_checkpoint_in_execution
+        checked=validate_checkpoint_in_execution(run,root);stream_digests=[checked['scene_stream_sha256']]
+    else:
+        common=torch.load(root/'optimizer.pt',map_location='cpu',weights_only=False);summaries=[];stream_digests=[]
+        for rank in range(8):
+            own=torch.load(root/f'rank{rank}.pt',map_location='cpu',weights_only=False)
+            if own['identity_sha256']!=identity['sha256']:raise ValueError('Export rank identity changed')
+            summaries.append(recovery.validate_boundary(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'],expected_rank=rank))
+            stream_digests.append(stream_state_validation(own['state'],run_identity=identity['sha256'],stream_identity=identity['data_stream_identity'])['stream_state_sha256'])
+        recovery.validate_ranks(summaries)
+        if len(set(stream_digests))!=1:raise ValueError('Export ranks disagree on exact scene/feedback state')
+        del common,own;gc.collect()
     output=Path(output);receipt=output.with_name(output.name+'.native_validation.json')
     publish(receipt,dict(schema='world_performance_export_native_validation_v1',status='PASS',checkpoint=cp,
         run_identity=identity['sha256'],scene_stream_sha256=stream_digests[0],source=str(Path.cwd()),source_file_sha256=sha(__file__),at_unix=time.time()))
@@ -132,13 +170,13 @@ def owner_class():
             super().dispatch_ranks([(h,s)for h,s in samples if h not in held])
         def advance(self,samples):
             super().advance(samples)
-            for record in self.state['runs'].values():
+            runs={r['id']:r for r in self.registry['runs']}
+            for arm,record in self.state['runs'].items():
                 for gate in record['gates'].values():
                     export=gate.get('export',{})
                     if export.get('status')=='COMPLETE':
                         receipt=Path(export['path']).with_name(Path(export['path']).name+'.native_validation.json');r=read(receipt,{})
-                        if r.get('status')!='PASS'or r.get('checkpoint',{}).get('files_sha256')!=gate['checkpoint']['files_sha256']:
-                            raise ValueError('A performance export lacks new native validation; never silently adopt an old export')
+                        validate_native_export_receipt(runs[arm],gate['checkpoint'],r)
             signature=tuple(sorted((k,v.get('summary'))for k,v in self.state['evaluations'].items()if v.get('status')=='COMPLETE'))
             if(signature and signature!=getattr(self,'_checkpoint_selection_signature',None)
                and time.time()>=getattr(self,'_checkpoint_selection_retry_unix',0)):

@@ -36,6 +36,7 @@ TRAIN_MODULES = {
     'tools.qwen_world_compare.train_rl', 'tools.qwen_world_postcot.train_il',
     'tools.qwen_world_postcot.train_rl', 'tools.qwen_world_postcot.train_scope_rl',
     'tools.qwen_world_safety_exploration.train', 'tools.qwen_world_performance.train',
+    'tools.qwen_world_multiscene.train',
 }
 EVAL_MODULES = {
     'tools.qwen_world_compare.evaluate', 'tools.qwen_world_research.evaluate',

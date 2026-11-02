@@ -84,14 +84,17 @@ def make_migration_intent(run,node,target_host,lease_slot='shared'):
     if not job.is_relative_to(ROOT/'jobs'/run['id']):raise ValueError('Foreign source job')
     running=read(job/'RUNNING.json',{});dispatch=read(job/'DISPATCH.json',{})
     if(job/'RESULT.json').exists()or running.get('status')!='RUNNING':raise ValueError('Exact current native attempt must still be running')
+    effective=node.get('execution_source',run['source'])
+    if effective not in (run['source'],run.get('execution_source',run['source'])):raise ValueError('Unreviewed attempt execution source')
     if(running.get('host')!=node['host']or dispatch.get('worker_pid')!=running.get('worker_pid')
        or dispatch.get('worker_start_ticks')!=running.get('worker_start_ticks')
-       or dispatch.get('command')!=running.get('command')or running.get('cwd')!=run['source']):raise ValueError('Worker/source attempt binding changed')
+       or dispatch.get('command')!=running.get('command')or running.get('cwd')!=effective):raise ValueError('Worker/source attempt binding changed')
     latest=read(Path(run['root'])/'latest.json');cp=inspect_native(run,latest['checkpoint'])
     body=dict(schema=MIGRATION,id=uuid.uuid4().hex,requested_unix=time.time(),requester='root_operator',
         reason='PERMANENT_HOST_MEASURED_SHARING_CONTINUATION',run=run['id'],run_root=str(Path(run['root']).resolve()),
         run_identity=read(Path(run['root'])/'identity.json')['sha256'],source_job=str(job),source_host=node['host'],
         source=run['source'],source_commit=run['source_commit'],config_sha256=run['config_sha256'],
+        execution_source=running['cwd'],execution_migration_receipt_sha256=run.get('execution_migration_receipt_sha256')if effective!=run['source']else None,
         source_worker_pid=running['worker_pid'],source_worker_start_ticks=running['worker_start_ticks'],
         command_sha256=fingerprint(running['command']),requested_latest_checkpoint=cp,
         target_host=target_host,target_lease_slot=lease_slot,execution_output_root=str(ALIAS/'runs'/run['id']),
@@ -110,6 +113,15 @@ def verified_migration(run,node,result,cp):
             source_worker_pid=result.get('worker_pid'),source_worker_start_ticks=result.get('worker_start_ticks'),command_sha256=fingerprint(command),
             optimizer_rng_scene_cursor_pending_inherited=True,weights_only=False,phase_reset=False)
         if any(intent.get(k)!=v for k,v in expected.items()):return None
+        # Preserve scientific provenance, while binding this exact attempt's
+        # actual execution source. An older attempt may be returning before a
+        # reviewed cache migration starts; never compare it to a future cwd.
+        effective=node.get('execution_source',run['source'])
+        if effective not in (run['source'],run.get('execution_source',run['source'])):return None
+        if result.get('cwd')!=effective:return None
+        if intent.get('execution_source',run['source'])!=effective:return None
+        expected_migration=run.get('execution_migration_receipt_sha256')if effective!=run['source']else None
+        if intent.get('execution_migration_receipt_sha256')!=expected_migration:return None
         if(result.get('returncode')!=0 or result.get('forced_expiry')or intent['target_host']not in SHARING_HOSTS
            or intent['target_lease_slot']not in('shared','research')or intent['requested_unix']>result.get('end_unix',0)
            or(job/'STOP_REQUESTED').stat().st_mtime<intent['requested_unix']-2
