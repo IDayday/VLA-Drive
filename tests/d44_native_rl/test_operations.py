@@ -103,3 +103,32 @@ def test_deployment_selector_never_uses_partial_results(tmp_path):
     assert r['evaluated_checkpoints']==2
     assert r['best_score_checkpoint']['PDMS']==91.0
     assert r['best_stable_proxy_checkpoint']['PDMS']==90.9
+
+
+def test_profiled_qualification_requires_measured_scope_and_bounded_updates(tmp_path,monkeypatch):
+    monkeypatch.setattr(worker,'D44_ROOT',tmp_path)
+    c=dict(global_scenes=32,group=16,text_rank=16,film_last_layers=0,train_action_io=False,checkpoint_policy='all_off',inner_updates=2,arm='D3_FPO',parent_checkpoint=str(tmp_path/'IL44_PARENT'))
+    monkeypatch.setattr(worker.subprocess,'check_output',lambda *a,**k:json.dumps(c))
+    cmd=['python','-m','torch.distributed.run','--nproc_per_node=2','-m','tools.d44_native_rl.train','--qualification','--config','C','--output',str(tmp_path/'qualification/FPO'),'--stop-after-update','10']
+    worker.validate_profiled_native_qualification(cmd,49152)
+    with pytest.raises(ValueError):worker.validate_profiled_native_qualification(cmd,41000)
+    with pytest.raises(ValueError):worker.validate_profiled_native_qualification(cmd[:-1]+['100000'],49152)
+    c['group']=32
+    with pytest.raises(ValueError):worker.validate_profiled_native_qualification(cmd,49152)
+    assert not worker.frozen_evaluation_owner(['python','-m','tools.qwen_world_multiscene.train'])
+    assert not worker.frozen_evaluation_owner(['python','-m','tools.qwen_world_compare.evaluate'])
+
+
+def test_prechild_qualification_validation_writes_real_failure_not_hanging(tmp_path,monkeypatch):
+    import sys
+    monkeypatch.setattr(sys,'argv',['job_worker','--receipt-root',str(tmp_path),'--gpus','','--cwd',str(tmp_path),
+        '--command-json',json.dumps(['python','-m','tools.d44_native_rl.train']),
+        '--share-min-free-mib','41000','--profiled-native-qualification-third-slot'])
+    assert worker.main()==2
+    value=json.loads((tmp_path/'RESULT.json').read_text())
+    assert value['status']=='FAILED_BEFORE_CHILD'and value['child_not_started']is True
+    assert 'child_pid'not in value and not(tmp_path/'RUNNING.json').exists()
+
+
+def test_an_input_directory_does_not_turn_an_unknown_process_into_an_owner():
+    assert not worker.known_owner_args(['python','-m','unrelated.project','--data','/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST'])

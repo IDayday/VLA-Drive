@@ -11,7 +11,7 @@ class DispatchPreflightFailed(RuntimeError):
     """Remote GPU inventory failed before any worker/Popen was attempted."""
 
 
-def launch(host,source,job,command,gpus,*,share_min_free_mib=None,worker_source=None,profiled_d0_third_slot=False):
+def launch(host,source,job,command,gpus,*,share_min_free_mib=None,worker_source=None,profiled_d0_third_slot=False,profiled_native_qualification_third_slot=False):
     source=Path(source).resolve();job=Path(job).resolve();job.mkdir(parents=True,exist_ok=True)
     worker_source=Path(worker_source).resolve()if worker_source is not None else source
     if(job/'LAUNCH.json').exists():raise FileExistsError('Invocation already dispatched; inspect its receipt')
@@ -30,6 +30,7 @@ def launch(host,source,job,command,gpus,*,share_min_free_mib=None,worker_source=
     if share_min_free_mib is not None:
         args=args[:-2]+['--share-min-free-mib',str(share_min_free_mib),'--lease-slot','shared']
     if profiled_d0_third_slot:args+=['--profiled-d0-third-slot']
+    if profiled_native_qualification_third_slot:args+=['--profiled-native-qualification-third-slot']
     program='import subprocess,os;f=open('+repr(str(job/'transport.log'))+',"ab",buffering=0);p=subprocess.Popen('+repr(args)+',cwd='+repr(str(worker_source))+',env=dict(os.environ,PYTHONPATH='+repr(str(worker_source))+',PYTHONUTF8="1",WORLD_COMPARE_ROOT="/mnt/project/d44-native-rl-20261103",WORLD_COMPARE_TASK="d44_native_rl_20261103"),stdout=f,stderr=subprocess.STDOUT,start_new_session=True);print(p.pid)'
     r=subprocess.run(['ssh','-o','BatchMode=yes',host,'/usr/bin/python3','-'],input=program,text=True,capture_output=True,timeout=20)
     if r.returncode:raise RuntimeError(r.stderr)

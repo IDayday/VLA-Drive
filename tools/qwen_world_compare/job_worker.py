@@ -13,6 +13,7 @@ import signal
 import socket
 import subprocess
 import time
+import traceback
 from starVLA.rl.qwen_world_compare.contracts import authorization,require_dispatch,file_sha
 
 def write(path,value):
@@ -143,7 +144,9 @@ def known_owner_args(args):
                 and value['recipe']['training_uses_navtest']is False and value['data']['NAVTEST_overlap']==0
                 and value['parent_model_sha256']==D44_PARENT_SHA)
         except (OSError,KeyError,ValueError,TypeError):return False
-    if any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
+    legacy=('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl','tools.qwen_world_postcot.train_scope_rl',
+            'tools.qwen_world_postcot.evaluate','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.qwen_world_compare.evaluate')
+    if entry in legacy and any(arg.startswith(('/mnt/project/qwen-sourceflow-','/mnt/project/qwen-world-postcot-'))for arg in args):
         return True
     # The already running, separately authorized Safety F/G jobs were added
     # after this worker's legacy allowlist. Recognize their actual module AND
@@ -167,6 +170,50 @@ def validate_profiled_d0_resume(command,minimum):
     required=dict(arm='D0',global_scenes=64,group=16,text_rank=16,film_last_layers=0,train_action_io=False,post_feedback=False,checkpoint_policy='all_off')
     if not known_owner_args(['python','-m','tools.d44_native_rl.train','--output',str(output)])or any(c.get(k)!=v for k,v in required.items()):
         raise ValueError('Only the actually profiled D0 native scope may use a third slot')
+
+
+def validate_profiled_native_qualification(command,minimum):
+    """Bounded actual D scopes beside frozen B1 evaluation, >=48GiB free."""
+    if (minimum or 0)<49152:raise ValueError('Native qualification sharing requires48GiB free')
+    if 'tools.d44_native_rl.validate_deployment'in command:
+        cp=Path(command[command.index('--checkpoint')+1]);identity=json.loads((cp.parent.parent/'identity.json').read_text())
+        if not cp.resolve().is_relative_to(D44_ROOT/'qualification')or not(cp/'COMPLETE').exists():raise ValueError('Unsealed qualification deployment checkpoint')
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        body=dict(identity);saved=body.pop('sha256')
+        if fingerprint(body)!=saved or not identity['qualification']or identity['parent_model_sha256']!=D44_PARENT_SHA or identity['recipe']['arm']not in('D4','D5'):
+            raise ValueError('Wrong native qualification asset')
+        return
+    if ('tools.d44_native_rl.train'not in command or '--qualification'not in command or '--config'not in command
+            or '--stop-after-update'not in command or '--scenes-per-rank'in command
+            or '--nproc_per_node=2'not in command or not 1<=int(command[command.index('--stop-after-update')+1])<=16):
+        raise ValueError('Only bounded two-rank native qualification is profiled')
+    output=Path(command[command.index('--output')+1]).resolve()
+    if not output.is_relative_to(D44_ROOT/'qualification'):raise ValueError('Not a qualification output')
+    # Use the already installed model environment's YAML parser, no GPU/import
+    # of a model and no additional dependency in the stdlib operations worker.
+    code='import json,yaml,sys;print(json.dumps(yaml.safe_load(open(sys.argv[1]))))'
+    c=json.loads(subprocess.check_output([command[0],'-c',code,command[command.index('--config')+1]],text=True))
+    expected=dict(global_scenes=32,group=16,text_rank=16,film_last_layers=0,train_action_io=False,checkpoint_policy='all_off',inner_updates=2)
+    if c['arm']not in('D1','D3_FPO','D3_AWM','D4')or c['parent_checkpoint']!=str(D44_ROOT/'IL44_PARENT')or any(c.get(k)!=v for k,v in expected.items()):
+        raise ValueError('Unprofiled native scope cannot enter third slot')
+
+
+def frozen_evaluation_owner(args):
+    if '-m'not in args or args.index('-m')+1>=len(args):return False
+    entry=args[args.index('-m')+1]
+    if entry not in('tools.qwen_world_compare.evaluate','tools.qwen_world_safety_exploration.evaluate')or not known_owner_args(args)or '--export'not in args:return False
+    try:
+        export=Path(args[args.index('--export')+1]).resolve()
+        if entry=='tools.qwen_world_compare.evaluate':
+            if not export.is_relative_to('/mnt/project/qwen-world-four-frameworks-20261029'):return False
+        elif export!=Path('/mnt/project/qwen-world-performance-rl-20261103/diagnostics/IL70_export'):return False
+        seal=json.loads((export/'COMPLETE').read_text());meta=json.loads((export/'export.json').read_text())
+        return seal['export_sha256']==file_sha(export/'export.json')and meta['qualification']is False and(export/'model.pt').is_file()
+    except(OSError,ValueError,KeyError,IndexError):return False
+
+
+def _profiled_slot(args):
+    return getattr(args,'profiled_d0_third_slot',False)or getattr(args,'profiled_native_qualification_third_slot',False)
 
 
 def _known_owners(rows,mapping,indices):
@@ -219,7 +266,12 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             if not shared_training_host(host,grant)or args.share_min_free_mib<8192:
                 raise ValueError('Sharing requires an explicitly authorized host and measured valid headroom')
             _known_owners(owners,mapping,indices)
-            maximum=2 if getattr(args,'profiled_d0_third_slot',False)else 1
+            maximum=2 if _profiled_slot(args)else 1
+            if getattr(args,'profiled_native_qualification_third_slot',False):
+                for row in owners:
+                    if row['uuid']not in physical:continue
+                    argv=[a for a in(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')if a]
+                    if not frozen_evaluation_owner(argv):raise ResourceRefused('Profiled qualification sharing requires only known frozen B1 evaluation cohosts')
             if any(sum(r['uuid']==mapping[i]for r in owners)>maximum for i in indices):
                 raise ResourceRefused('Two existing CUDA owners leave no qualified third slot')
         elif any(row['uuid']in physical for row in owners):
@@ -232,7 +284,7 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
             raise ResourceRefused('Measured GPU headroom changed '+('under admission lock'if locked else'before dispatch'))
     devices,owners=_admission_sample();verify(devices,owners,locked=False)
     PRIMARY_LEASE_ROOT.mkdir(exist_ok=True);SHARED_LEASE_ROOT.mkdir(exist_ok=True)
-    if getattr(args,'profiled_d0_third_slot',False):PROFILED_THIRD_LEASE_ROOT.mkdir(exist_ok=True)
+    if _profiled_slot(args):PROFILED_THIRD_LEASE_ROOT.mkdir(exist_ok=True)
     # Slot ownership and whether this process shares CUDA capacity are distinct.
     # A previous learner can still hold the shared slot after its original
     # cohost exits. Reuse the vacant primary slot with the SAME owner/headroom
@@ -241,7 +293,7 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     if slot=='shared' and not args.share_min_free_mib:
         raise ValueError('The shared slot requires explicit measured sharing admission')
     choices=[slot]+(['primary']if slot=='shared'and args.share_min_free_mib else[])
-    if getattr(args,'profiled_d0_third_slot',False):choices+=['profiled_third']
+    if _profiled_slot(args):choices+=['profiled_third']
     for candidate in choices:
         if candidate=='profiled_third'and any(sum(r['uuid']==mapping[i]for r in owners)!=2 for i in indices):continue
         acquired=[]
@@ -286,10 +338,10 @@ def main():
     parser.add_argument('--lease-slot',choices=('primary','shared'))
     parser.add_argument('--admission-wait-seconds',type=int,default=0)
     parser.add_argument('--profiled-d0-third-slot',action='store_true')
+    parser.add_argument('--profiled-native-qualification-third-slot',action='store_true')
     args=parser.parse_args();root=Path(args.receipt_root);root.mkdir(parents=True,exist_ok=True)
     command=json.loads(args.command_json)
     if not isinstance(command,list)or not command or not all(isinstance(value,str)for value in command):raise ValueError('Exact argument vector required')
-    if args.profiled_d0_third_slot:validate_profiled_d0_resume(command,args.share_min_free_mib)
     indices=[]if not args.gpus else[int(value)for value in args.gpus.split(',')]
     if len(indices)!=len(set(indices)):raise ValueError('GPU indices must be unique')
     if args.minimum_free_mib is not None and args.minimum_free_mib<1:raise ValueError('Minimum headroom must be positive')
@@ -306,6 +358,8 @@ def main():
     state.update(lease_slot=args.lease_slot or ('shared' if args.share_min_free_mib else 'primary'),
         execution_worker=str(Path(__file__).resolve()),execution_worker_sha256=file_sha(__file__))
     try:
+        if args.profiled_d0_third_slot:validate_profiled_d0_resume(command,args.share_min_free_mib)
+        if args.profiled_native_qualification_third_slot:validate_profiled_native_qualification(command,args.share_min_free_mib)
         grant=admission_with_wait(args,host,indices,expected,mapping,locks,state,root)
     except ResourceRefused as error:
         state.update(status='REFUSED_RESOURCE',child_not_started=True,returncode=75,reason=str(error),end_unix=time.time(),
@@ -313,6 +367,9 @@ def main():
         if state['requested_gpu_uuids']is None:state['requested_gpu_uuids']=state['gpu_uuids']
         write(root/'REFUSED_RESOURCE.json',state);write(root/'RESULT.json',state)
         return 75
+    except Exception:
+        state.update(status='FAILED_BEFORE_CHILD',child_not_started=True,returncode=2,error=traceback.format_exc(),end_unix=time.time())
+        write(root/'RESULT.json',state);return 2
     stop=root/'STOP_REQUESTED'
     env=dict(os.environ,WORLD_POSTCOT_STOP_FILE=str(stop),OMP_NUM_THREADS='4',OPENBLAS_NUM_THREADS='1',TOKENIZERS_PARALLELISM='false',
         PYTHONPATH=str(Path(args.cwd).resolve())+(os.pathsep+os.environ['PYTHONPATH']if os.environ.get('PYTHONPATH')else''))
@@ -323,7 +380,10 @@ def main():
         stop.touch();state['stop_requested_unix']=time.time();write(root/'RUNNING.json',state)
     signal.signal(signal.SIGTERM,request);signal.signal(signal.SIGINT,request)
     with(root/'stdout.log').open('ab',buffering=0)as log:
-        child=subprocess.Popen(command,cwd=args.cwd,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+        try:child=subprocess.Popen(command,cwd=args.cwd,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+        except Exception:
+            state.update(status='FAILED_BEFORE_CHILD',child_not_started=True,returncode=2,error=traceback.format_exc(),end_unix=time.time())
+            write(root/'RESULT.json',state);return 2
         state['child_pid']=child.pid;state['child_start_ticks']=int(Path(f'/proc/{child.pid}/stat').read_text().split()[21]);write(root/'RUNNING.json',state)
         while child.poll()is None or task_ranks(state):
             state['known_rank_processes']=task_ranks(state);deadline_tick(state,child,root,stop);time.sleep(5)

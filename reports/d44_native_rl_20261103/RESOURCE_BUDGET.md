@@ -35,3 +35,6 @@ deadline CPU guardian收据位于`/mnt/project/d44-native-rl-20261103/operations
 D1/FPO/AWM/D4的B32真实资格、D4/D5部署对照、完整packing与D6阶段恢复由独立有限资格队列管理。资源拒绝只计为准入失败，不冒充GPU数学失败或已运行样本。队列每10分钟检查实际容量，启动时仍由worker复核；有限节点到guard后禁止新派发。没有可用容量就等待，不挤占B/D IL或其他项目。
 
 当前训练节点：D0=training-vlawm-zt4，D2=training-vlawm-tsinghua-zt2，D5=training-vlawm-tsinghua-zt3；均属于本次到期六节点，不能据此延长许可。永久队列仍受真实容量约束；vla-zt/Tshzt的B/D IL保持保护，wm5连接失败不能作为可用GPU容量。
+
+
+资格队列额外共享规则：仅在既有cohost均为已确认、封存export的只读B1评测、至少48GiB实际空闲时，允许已测范围的D1/FPO/AWM/D4两卡B32/G16短资格（最多16updates）或D4/D5部署对照占用第三槽。D4既有实测峰值28.85GiB；新scope/G32/FiLM扩大长训不继承此许可。所有原子lease与双重UUID/进程检查保留；新GPU任务不向B/D IL节点派发。qualification exit0还必须有PASS证据/完整更新及冻结hash；到期短停按合法checkpoint继续剩余更新。源码/参数精度/主训练budget不受此运维规则影响。
