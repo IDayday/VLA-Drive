@@ -148,6 +148,10 @@ def owner_class(max_known_evaluations_per_gpu=1):
             # Budget/gates may append under explicit Root authorization; all
             # scientific/existing checkpoint/spec bindings remain immutable.
             return {k:run[k]for k in('id','architecture_id','root','source','source_commit','config','config_sha256','parent_checkpoint')}
+        def checkpoint_at_gate(self,run,updates):
+            from .continuous import enabled,published_checkpoint_at_gate
+            if enabled(run):return published_checkpoint_at_gate(run,updates)
+            return super().checkpoint_at_gate(run,updates)
         def registry_now(self):
             registry=validate_registry(read(self.registry_path))
             for location in registry['evaluation']['data_paths'].values():

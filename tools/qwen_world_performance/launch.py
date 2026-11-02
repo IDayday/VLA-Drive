@@ -221,6 +221,8 @@ def validate_registry(r,*,allow_pending=False):
         validate_resource_fields(run)
         from .execution import validate_execution_fields
         validate_execution_fields(run)
+        from .continuous import enabled
+        enabled(run)
     return r
 
 
@@ -295,6 +297,7 @@ def owner_class():
             from .execution import FIELDS
             for run in self.runs:
                 self.immutable[run['id']].update({k:run.get(k)for k in FIELDS})
+                self.immutable[run['id']]['native_execution']=run.get('native_execution')
             self.runs.sort(key=lambda r:r['priority']);self.handoff=False
             publish(self.directory/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),host=socket.gethostname(),source=__file__,source_sha256=sha(__file__),started_unix=time.time()))
         def current(self,arm):
@@ -341,6 +344,14 @@ def owner_class():
                 if(self.directory/'STOP_OWNER').exists():self.handoff=True;return None
                 run=self.current(arm)
                 if not node.get('job')and((ROOT/'STOP_REQUESTED').exists()or run.get('disposition')):raise StopBeforeDispatch('Explicit stop/reserve prevents new work')
+                from .continuous import enabled
+                if not node.get('job')and enabled(run)and target!=run['target_updates']:
+                    # The old exact job was harvested/refused/returned. Never
+                    # launch another short attempt or mark this gate complete.
+                    with self.mutex:
+                        node.update(status='LEGACY_ATTEMPT_RETURNED_CONTINUE_TO_CAP',future_attempt_target_updates=run['target_updates'])
+                        self.update(arm,status='CONTINUING_TO_REGISTERED_CAP')
+                    return resume
                 if not node.get('job'):
                     exact=Path(run['root'])/'checkpoints'/f'update{target:06}_inner0'
                     if(exact/'COMPLETE').exists():
@@ -401,7 +412,9 @@ def owner_class():
             try:
                 while True:
                     run=self.current(arm)
-                    for target in run['native_gates']:
+                    from .continuous import attempt_targets
+                    targets=attempt_targets(run,self.state['runs'].get(arm,{}),ROOT)
+                    for target in targets:
                         resume=self.run_stage(run,target,resume)
                         if self.handoff:return
                         if(ROOT/'STOP_REQUESTED').exists():raise StopBeforeDispatch('Global cooperative stop')

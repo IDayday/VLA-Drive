@@ -334,6 +334,9 @@ class EvaluationOwner:
         with ThreadPoolExecutor(max_workers=4) as pool:
             return [row for row in pool.map(sample_host, allowed_hosts(admit_long_job=True)) if row]
 
+    def checkpoint_at_gate(self,run,updates):
+        return checkpoint_at_gate(run,updates)
+
     def discover(self):
         self.registry = self.registry_now()
         current_ids={r['id']for r in self.registry['runs']}
@@ -350,7 +353,7 @@ class EvaluationOwner:
                 gate = record['gates'].setdefault(str(updates), {})
                 if gate.get('status') == 'FAILED_REVIEW_REQUIRED':
                     continue
-                cp, native = checkpoint_at_gate(run, updates)
+                cp, native = self.checkpoint_at_gate(run, updates)
                 if cp is None:
                     status=native.get('status','')
                     terminal=(status.startswith(('FAILED','STOPPED')) or
