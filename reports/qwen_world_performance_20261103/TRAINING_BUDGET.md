@@ -28,3 +28,24 @@ The split/native-resume qualification passed adapter, Adam, scheduler and all ei
 The separate real IL70 nominal auxiliary qualification used68 official queries on4 TRAIN scenes, injected gate=.5 at actual exposure0, and a strict teacher gain .4167. CFM/ODE/PPO gradients and final ODE-head equality were checked. It is not formal training, a natural gate activation rate, a throughput benchmark, or NAVTEST improvement.
 
 Evidence: `performance_qualification.json`, `operations/NATIVE_RESUME_QUALIFICATION.json`, and `qualification/REAL_NOMINAL_IL70/COMPLETE.json`.
+
+
+## Actual completed-invocation cost audit
+
+As of2026-11-02T23:47:05.062176+00:00,230 completed own admitted training/evaluation
+invocations account for301.77342857 GPU-slot-hours. Merging overlapping
+intervals on the same physical device gives258.55064195 device-interval hours.
+These are wall-time/slot accounting measures, **not exclusive GPU kernel use,
+measured utilization or inference-only cost**. Ongoing invocations are outside
+the completed subset; unknown/foreign workloads are not charged to this task.
+CPU core-hours are null because they were not recorded; thread counts must not
+be multiplied into invented CPU usage. The audit rejected0 malformed/out-of-scope
+receipts in its inspected set, which does not mean no resource refusal ever
+occurred. Raw source hashes and scope limits are retained in
+[ACTUAL_COMPLETED_COST_AUDIT.json](results/ACTUAL_COMPLETED_COST_AUDIT.json).
+
+The original six-host grant still ends at UTC00:00/Beijing08:00. Its original
+900-second save guard is restored: UTC23:45/Beijing07:45, not23:15. The older
+qualification estimate of6.983h remaining was an initial snapshot, not the
+current remaining authorization. Actual close-window/native exit receipts
+control the deadline; no completed6epoch training is claimed.

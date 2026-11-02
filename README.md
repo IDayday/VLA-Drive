@@ -9,6 +9,9 @@
 > DDP / Flow-GRPO 强化学习的完整开发记录、最终五推理 seed 结果与可复核数据：
 > [结果汇总报告（2026-10-13）](reports/ddp_flow_grpo_final_report_20261013/README.md)。
 
+> Qwen-World 性能优先 RL 的当前代码、完整单轨迹结果、S6/S7 资格及 TRAIN 教师诊断：
+> [研究总览与实时报告入口](reports/qwen_world_performance_20261103/README.md)。
+
 [![arXiv](https://img.shields.io/badge/arXiv-2604.01765-b31b1b.svg)](https://arxiv.org/abs/2604.01765)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 

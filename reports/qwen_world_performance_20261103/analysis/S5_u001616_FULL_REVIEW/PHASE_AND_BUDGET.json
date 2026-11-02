@@ -1,0 +1,245 @@
+{
+  "schema": "world_S5_complete_NAV_point_actual_native_phase_audit_v1",
+  "status": "COMPLETE",
+  "at": "2026-11-02T23:44:16.447853+00:00",
+  "checkpoint": "/mnt/project/qwen-world-performance-rl-20261103/runs/S5_PERFORMANCE_MAX/checkpoints/update001616_inner0",
+  "checkpoint_files_sha256": "3a8a225c0727c19c72220cc76add0f7cc802adf8116b015f28b915d636b4c1ce",
+  "identity_file_sha256": "5713d39a320af7310c7a80a201d33ccbec47ffc80d90be4c7432259cbf6ea0aa",
+  "config_file_sha256": "248a4491189476ba3d5947ed50ad059a69f904f076f73db6e2f2cf96f6d2a082",
+  "actual_recipe_matches_registration": true,
+  "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+  "source_commit": "5e5220c6059ed7e38b54b3198415fe4af3b5bf45",
+  "phase": "phase1_coverage_only",
+  "configured_stages": [
+    {
+      "name": "coverage",
+      "start_epoch": 0.0,
+      "B": 64,
+      "action_lr": 5e-05,
+      "memory_lr": 5e-06,
+      "rescue": false,
+      "history": false
+    },
+    {
+      "name": "absorb",
+      "start_epoch": 1.0,
+      "B": 128,
+      "action_lr": 3e-05,
+      "memory_lr": 3e-06,
+      "rescue": true,
+      "history": false
+    },
+    {
+      "name": "retain",
+      "start_epoch": 4.0,
+      "B": 128,
+      "action_lr": 1e-05,
+      "memory_lr": 1e-06,
+      "rescue": true,
+      "history": true
+    },
+    {
+      "name": "refine",
+      "start_epoch": 8.0,
+      "B": 128,
+      "action_lr": 5e-06,
+      "memory_lr": 5e-07,
+      "rescue": true,
+      "history": true
+    }
+  ],
+  "global_scene_exposures": 25856,
+  "population": 103288,
+  "actual_exposure_epoch": 0.2503291766710557,
+  "global_main_PG_queries": 413696,
+  "extra_true_B1_queries": 0,
+  "extra_teacher_SDE_queries": 0,
+  "extra_history_queries": 0,
+  "total_actual_training_PDM_queries": 413696,
+  "counters_unit": "All-rank native copies contain same global totals; do not add the8copies.",
+  "B": 64,
+  "G": 16,
+  "M": 4,
+  "actual_Adam_updates": 1616,
+  "old_Control10k_global_scenes": 20000,
+  "old_Control10k_main_PG_queries": 160000,
+  "scene_budget_ratio_vs_old_Control10k": 1.2928,
+  "query_budget_ratio_vs_old_Control10k": 2.5856,
+  "matched_compute": false,
+  "all_rank_state_evidence": [
+    {
+      "rank": 0,
+      "rank_file_sha256": "c7d8514045667413d488672274bc1a8edf96cbc28623ebcae388f5886db49fe4",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    },
+    {
+      "rank": 1,
+      "rank_file_sha256": "44b981cea7ac0b5ce90268cc62bd06ddc1b01e4a03c4438bbdf13f13cea9def7",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    },
+    {
+      "rank": 2,
+      "rank_file_sha256": "9d79e938e9a547f4e3911591921f0b107baa7b3b2b2ac3fef5c3458c20bcb6f9",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    },
+    {
+      "rank": 3,
+      "rank_file_sha256": "d0814c1d1a348085ca851e80464a1cb37b9bb8b1790c7047db38a27b772792f1",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    },
+    {
+      "rank": 4,
+      "rank_file_sha256": "87964ae050c2652767b80a79e43a8ee287c8ba6543c6edbc5bcfb4e31c929225",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    },
+    {
+      "rank": 5,
+      "rank_file_sha256": "90eec676019c6b342f330150b881bc747db20af3c5e72b0ac4a2d2b12149afb3",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    },
+    {
+      "rank": 6,
+      "rank_file_sha256": "93e6153c90ac95da655b12355bb761ce1559d90a33b401b144de289cbd195448",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    },
+    {
+      "rank": 7,
+      "rank_file_sha256": "253ee7778e3dbb65fa91f77dcfdd4b210ada524255b397ba556dcabb9776929d",
+      "counts": {
+        "updates": 1616,
+        "collections": 404,
+        "scene_cursor": 25856,
+        "valid_scene_exposures": 25856,
+        "padded_scene_exposures": 0,
+        "new_candidates": 413696,
+        "extra_B1_queries": 0,
+        "adaptive_G_queries": 0,
+        "history_B1_queries": 0
+      },
+      "current_stage": "coverage",
+      "stage_transitions": [],
+      "all_collection_ledger_phase1": true,
+      "calibration_calls": 0,
+      "history_admissions": 0,
+      "history_entries": 0
+    }
+  ],
+  "interpretation_zh": [
+    "本点仍phase1 coverage：原SafetyEP PPO+IL70 anchor，B64/G16/M4；没有rescue/history实际激活或额外教师评分。",
+    "rescue需实际stage absorb(1epoch)且nominalstart门同时满足；history需stage retain(4epoch)，不能用本点判这些未激活机制有效或无效。",
+    "这是0.250329epoch早期完整部署评测，至少3/首6epoch预算未变；IL/Control对比是部署分数配对，不是等query/等Adam。",
+    "只读取既有NAVTEST评测用于分析，没有NAVTEST token/label加入TRAIN。"
+  ]
+}

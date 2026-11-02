@@ -241,6 +241,30 @@ def zero2_evidence(root):
             qualified=c['synthetic_all']['qualifying_teacher'],minimum_delta=c['minimum_successful_delta_path_coordinate_at4_m']) for c in value.get('cases',[])])
 
 
+def credit_lineage_evidence(root):
+    path=root/'analysis/SAFETYEP_CREDIT_LINEAGE_REVIEW.json';value=read(path,{})
+    if value.get('status')!='COMPLETE_BOUNDED_CPU_SOURCE_AND_BEHAVIOR_REVIEW':return {}
+    return dict(path=str(path),file_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        groups=sum(v.get('groups',0)for v in value.get('bounded_TRAIN_windows',{}).values()),
+        summary=value.get('summary_zh',[]),limits=value.get('limits',[]))
+
+
+def S5_review_evidence(root,complete_results):
+    directory=root/'analysis/S5_u001616_FULL_REVIEW';path=directory/'SUMMARY.json'
+    value=read(path,{});body=dict(value);seal=body.pop('sha256',None)
+    phase=read(directory/'PHASE_AND_BUDGET.json',{})
+    point=next((r for r in complete_results if r['arm']=='S5_PERFORMANCE_MAX' and r['updates']==1616),None)
+    if (not point or value.get('status')!='COMPLETE' or phase.get('status')!='COMPLETE'
+            or phase.get('actual_Adam_updates')!=1616 or phase.get('actual_recipe_matches_registration') is not True
+            or phase.get('checkpoint')!=point.get('checkpoint')
+            or abs(value.get('evaluations',{}).get('S5_1616',{}).get('PDMS',-1)-point['PDMS'])>1e-8
+            or hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=seal):return {}
+    return dict(path=str(path),phase_path=str(directory/'PHASE_AND_BUDGET.json'),
+        zero_IL=value['contrasts']['IL70']['zero'],zero_Control=value['contrasts']['Control10k']['zero'],
+        fixed=value['fixed_IL70_high_between_arm']['target_vs_Control10k'],
+        phase={k:phase[k]for k in ('phase','actual_exposure_epoch','extra_true_B1_queries','extra_teacher_SDE_queries','extra_history_queries','global_scene_exposures','global_main_PG_queries','matched_compute')})
+
+
 def current_runs(root, registry, owner):
     now=time.time();runs=[]
     for registered in registry.get('runs',[]):
@@ -348,6 +372,11 @@ def snapshot(root=ROOT):
         first_window_progress=first_window_progress_evidence(root),
         FAST_review=FAST_review_evidence(root,complete),
         S7=S7_evidence(root,registry),zero2=zero2_evidence(root),
+        credit_lineage=credit_lineage_evidence(root),
+        S5_review=S5_review_evidence(root,complete),
+        resource_window=read(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/WINDOW_CORRECTION.json',{}),
+        resource_restore=read(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/RESTORATION_RECEIPT.json',{}),
+        S7_permanent_wait=read(root/'operations/S7_PERMANENT_CAPACITY_WAIT/STATE.json',{}),
         full_TRAIN_census=read(root/'diagnostics/FULL_TRAIN_REGISTRATION.json',{}))
 
 
@@ -641,6 +670,10 @@ def render_fragment(root=ROOT):
         S5=next((r for r in results if r['arm']=='S5_PERFORMANCE_MAX' and r['updates']==1616),None)
         if S5:
             body+='<p><b>S5 首个完整 0.25 epoch：'+esc(f'{S5["PDMS"]:.8f}')+'</b>。该检查点仍为 phase1 基础 SafetyEP 覆盖，rescue 与历史保持均未激活；不能将此分数归功于尚未启用的组件。它与 FAST 的训练批量/Adam时钟不同，尚不能据两个早期点判算法优劣。</p>'
+            review=s['S5_review']
+            if review:
+                z=review['zero_Control'];p=review['phase'];f=review['fixed']
+                body+='<p>S5 与 Control10k 的零分总数同为 '+esc(z['target'])+'，但修复 '+esc(z['repaired'])+'、新增 '+esc(z['new'])+'；固定 IL70 高分队列相 Control 的全局差额 '+esc(f'{f["global_PDMS_contribution"]:+.6f}')+' 点，其余 '+esc(f'{f["other_scenes_global_contribution"]:+.6f}')+' 点。八 rank 原生审计确认曝光 '+esc(f'{p["actual_exposure_epoch"]:.6f}')+' epoch，B1/额外教师/history查询均为0，尚未检验 PMax 的后续吸收/保持机制。<a href="'+esc(review['path'])+'">S5全量分析</a> · <a href="'+esc(review['phase_path'])+'">实际阶段与预算</a>；描述性关联，非等算力因果结论。</p>'
     else:body+='<p><b>本轮尚无完整正式 NAVTEST 分数。</b>后续只接受 sealed SPEC + identity、全12146/invalid0/44log、seed2101 的既有结果。</p>'
     body+=FAST_review_fragment(s)
     body+=S7_fragment(s)
@@ -652,6 +685,11 @@ def render_fragment(root=ROOT):
     body+=reviewed_I_fragment(root)
     body+='<h3>当前结论与接下来的决策</h3><p>主训练仍处于全量均匀覆盖阶段。S1 的 rescue 到 0.5 epoch 才启用；此前它与 S0 的目标相同，独立进程出现相同更新属于预期，不能据此判断 rescue 无效。S5 的历史保持到第 4 epoch 才启用，当前也不能评价其收益。</p>'
     body+='<p>S0（Adam890/inner2）与 S2（Adam404）已原生保存，为 S7 让出资源；S4 与 LOWLR 也保留原生状态。代码、结果与 Adam/RNG 保留，这是研究优先级处置，不判方法无效。正式分数只读完整 NAVTEST；资格、GT 和合成教师诊断不计入排行榜。</p>'
+    lineage=s['credit_lineage']
+    if lineage:
+        body+='<details><summary>优势信用谱系核对：'+esc(lineage['groups'])+' 组有界真实 TRAIN 重放</summary>'
+        for line in lineage['summary'][:2]:body+='<p>'+esc(line)+'</p>'
+        body+='<p>该窗口不能代表完整训练人口，rawA能量占比不是参数梯度比例；前1024 token集合匹配也不等于G/Adam/算力匹配。保留原至少3/首6epoch长期检验，不能据早期0.25epoch判断上限。<a href="'+esc(lineage['path'])+'">完整谱系与同材料反事实</a></p></details>'
     tq=s['TRAIN2048_quality']
     if tq.get('status')=='COMPLETE':
         body+='<p>固定 TRAIN2048 初始 IL70 真实 B1 诊断完成：零分 '+esc(tq.get('zero_count'))+'，严格高质量 '+esc(tq.get('strict_high_count'))+'。这是训练集诊断，后续按同场景配对；不计入 NAVTEST 成绩。全 NAVTRAIN 初始 B1 普查单独使用 7 张可核验 GPU，查询预算 103288，当前状态 '+esc(s['full_TRAIN_census'].get('status','未启动'))+'，未完成时不发布全量均分。</p>'
@@ -689,7 +727,12 @@ def render_fragment(root=ROOT):
                 '首更 ratio 偏差 '+str(first.get('fresh_ratio_max_abs')),
                 'PACK4 八卡参数/Adam/八rank RNG/stream 逐位恢复通过；独立正式训练从 IL70 开始' if name=='PACK4' and s['packed_world8'].get('status')=='PASS' else '单卡通过；须独立从 IL70 开始，不能替换现有单场景轨迹的更新内核'))
     if rows:body+=table(['吞吐优化','验证范围','实际结果','当前处置'],rows)
-    body+='<p><b>资源期限：</b>wm4 / rl2 / tsh2 / wmzt / tsh3 / wm2 至北京时间 11月3日08:00；23:45 UTC 起保存退出。其它授权按原许可执行，未知任务不回收。</p>'
+    window=s['resource_window'];restore=s['resource_restore'];deadline=window.get('deadline_unix',1793664000.)
+    guard=restore.get('new_guard_seconds',900);phase='尚未进入保存窗口' if time.time()<deadline-guard else '已进入保存退出窗口' if time.time()<deadline else '临时授权已到期，退出情况以实际收据为准'
+    body+='<p><b>资源期限：</b>六台 wm4 / rl2 / tsh2 / wmzt / tsh3 / wm2 于 UTC11月3日00:00（北京时间08:00）硬截止；本任务原900秒余量已恢复，UTC23:45（北京时间07:45）开始保存，当前：'+esc(phase)+'。UTC23:40对应北京时间07:40。<a href="'+esc(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/WINDOW_CORRECTION.json')+'">窗口纠正</a> · <a href="'+esc(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/CLOSE_WINDOW_LAUNCH.json')+'">close_window实际启动</a>。其它任务授权不变，未知任务不回收。</p>'
+    release=root/'operations/RESOURCES_UNTIL_20261103T000000Z/ACTUAL_PRE_EXPIRY_RELEASE.json'
+    if release.exists():body+='<p><a href="'+esc(release)+'">23:51实际归还核对：六机自有任务进程为0</a>；永久资源上的训练与foreign任务分开，不把它们误报已退出。</p>'
+    body+='<p>S7 长期槽位等待器当前只观察旧 I 自然完成10k；之后仍须满足实际显存、可见 owner 与最多2个已知 native 的准入限制。当前 '+esc(s['S7_permanent_wait'].get('status','尚无收据'))+'；不停止旧 I、第三方 D44 或 B/D，也不降低门槛硬塞。评测未齐不发均分，资源等待不判算法无效。<a href="'+esc(root/'operations/S7_PERMANENT_CAPACITY_WAIT/STATE.json')+'">等待器状态</a></p>'
     body+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px"><article><h3>已完成：全量数据审计</h3><p>'+esc(checks.get('unique_tokens','待查'))+' 唯一 TRAIN；NAVTEST token/log 交集 0。309864 图像文件、103288 cache 文件逐个筛查无缺失；cache 格式筛查不等同完整语义评分。</p></article><article><h3>尚待回答：是否真正提分</h3><p>重点看固定 TRAIN 中 sampled-good/B1-bad 的后续修复，以及全 NAVTEST 的零分修复和高分退化。不会以扩大采样覆盖率代替单轨迹部署成绩。</p></article></div>'
     body+='<h3>实测工程成本与评分预算</h3><p><a href="'+esc(root/'performance_qualification.json')+'">资格计时与预算原始汇总</a></p>'+engineering_figure(root,s)
     body+='<h3>登记学习率计划：两类参数分别显示</h3>'+planned_figure(root,s)

@@ -1,0 +1,398 @@
+{
+  "schema": "world_TRAIN_zero2_structured_progress_research_readout_v1",
+  "status": "COMPLETE_DISCOVERY_ONLY_NOT_TRAINING",
+  "created_at": "2026-11-02T22:23:10.815369+00:00",
+  "summary_zh": [
+    "固定2个真实IL70 B1零分场景，原G16与G32均无strict-high见证；沿原协议确定性生成GT/B1路径各8条，32次新CPU官方评分完整完成。",
+    "10/32合成候选满足NC/DAC/TTC/Comfort1、score>=.9且比真实B1至少+.02，覆盖2/2；全部来自GT路径族。",
+    "GT路径16/16严格四项通过，其中10条合格；B1路径16/16均DAC失败且score0。不能把给任何路径增加progress等同于安全修复。",
+    "992641d426ba5dc3原GT.857625，合格4/8GT族，最佳.971158；最小成功附加终点path-coordinate3m。948ba6565e015ca0原GT.890610，合格6/8，最佳.944913；最小成功附加1.5m。",
+    "这是特权TRAIN教师发现，非模型输出、非训练后B1提升、非NAVTEST部署分。未改变S6/S7/runtime/任何owner，也未建立训练bank。"
+  ],
+  "population": {
+    "scenes": 2,
+    "tokens": [
+      "992641d426ba5dc3",
+      "948ba6565e015ca0"
+    ],
+    "sourceTRAIN_only": true,
+    "NAVTEST_trajectory_or_label_read": false,
+    "later_than4s_GT_read": false
+  },
+  "budget": {
+    "actual_new_CPU_candidate_queries": 32,
+    "cap": 32,
+    "workers": 2,
+    "GPU_forwards": 0,
+    "Adam_updates": 0,
+    "canonical_reference_rows": 2,
+    "total_reference_plus_candidate_simulation_rows": 34,
+    "final_successful_driver_wall_seconds": 7.753575086593628,
+    "prequery_error_attempts": 2,
+    "prequery_new_queries": 0,
+    "prequery_evidence": [
+      "PREQUERY_ATTEMPT001",
+      "PREQUERY_ATTEMPT002"
+    ]
+  },
+  "protocol": {
+    "source": "/mnt/project/qwen-world-performance-rl-20261103/runtime/formal_v1",
+    "scorer_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "exact_reused_geometry_script": "/mnt/project/qwen-world-performance-rl-20261103/analysis/S6_FIRST_WINDOW_SYNTHETIC_PROGRESS_AUDIT/audit_synthetic_progress.py",
+    "exact_reused_geometry_script_sha256": "38cf14b661715092c046a52a6b8e66f65cf7582ab2a91efb55a9f29d35d9dab3",
+    "inherited112_protocol_file_sha256": "1655ff16fa83332f5bfd2a83907f110284ac33f6d3760aeee08008ec7e639451",
+    "deltas_at4_m": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0
+    ],
+    "actual_scored_request": "CPU FP32 ActionCodec denorm(norm(synthetic_xy_yaw_FP32)),8 poses at fixed0.5..4s",
+    "teacher": "NC=DAC=TTC=Comfort1 AND canonical>=.9 AND gain_vs_actual_B1>=.02; unchanged"
+  },
+  "cohorts": {
+    "B1_path_statistics": {
+      "Comfort_failed": 0,
+      "DAC_failed": 16,
+      "NC_failed": 0,
+      "TTC_failed": 0,
+      "candidates": 16,
+      "qualifying_teacher": 0,
+      "scenes_with_qualifying_teacher": 0,
+      "strict4": 0,
+      "strict_high": 0
+    },
+    "GT_path_statistics": {
+      "Comfort_failed": 0,
+      "DAC_failed": 0,
+      "NC_failed": 0,
+      "TTC_failed": 0,
+      "candidates": 16,
+      "qualifying_teacher": 10,
+      "scenes_with_qualifying_teacher": 2,
+      "strict4": 16,
+      "strict_high": 10
+    },
+    "old_G16_statistics": {
+      "Comfort_failed": 14,
+      "DAC_failed": 19,
+      "NC_failed": 0,
+      "TTC_failed": 0,
+      "candidates": 32,
+      "qualifying_teacher": 0,
+      "scenes_with_qualifying_teacher": 0,
+      "strict4": 6,
+      "strict_high": 0
+    },
+    "old_G32_statistics": {
+      "Comfort_failed": 22,
+      "DAC_failed": 39,
+      "NC_failed": 0,
+      "TTC_failed": 0,
+      "candidates": 64,
+      "qualifying_teacher": 0,
+      "scenes_with_qualifying_teacher": 0,
+      "strict4": 16,
+      "strict_high": 0
+    },
+    "statistics": {
+      "Comfort_failed": 0,
+      "DAC_failed": 16,
+      "NC_failed": 0,
+      "TTC_failed": 0,
+      "candidates": 32,
+      "qualifying_teacher": 10,
+      "scenes_with_qualifying_teacher": 2,
+      "strict4": 16,
+      "strict_high": 10
+    }
+  },
+  "cases": [
+    {
+      "token": "992641d426ba5dc3",
+      "log": "2021.10.05.07.49.39_veh-52_00934_01406",
+      "B1_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.0,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "GT_original_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.6582998995599206,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.8576249581499669,
+        "time_to_collision_within_bound": 1.0
+      },
+      "old_G16": {
+        "Comfort_failed": 8,
+        "DAC_failed": 5,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": null,
+        "best_score": 0.8425834160070882,
+        "best_strict4_score": 0.8425834160070882,
+        "candidates": 16,
+        "qualifying_indices": [],
+        "qualifying_teacher": 0,
+        "strict4": 6,
+        "strict_high": 0
+      },
+      "old_G32": {
+        "Comfort_failed": 9,
+        "DAC_failed": 13,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": null,
+        "best_score": 0.8518458180702257,
+        "best_strict4_score": 0.8518458180702257,
+        "candidates": 32,
+        "qualifying_indices": [],
+        "qualifying_teacher": 0,
+        "strict4": 13,
+        "strict_high": 0
+      },
+      "synthetic_all": {
+        "Comfort_failed": 0,
+        "DAC_failed": 8,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": 0.9711580701935199,
+        "best_score": 0.9711580701935199,
+        "best_strict4_score": 0.9711580701935199,
+        "candidates": 16,
+        "qualifying_indices": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "qualifying_teacher": 4,
+        "strict4": 8,
+        "strict_high": 4
+      },
+      "GT_path": {
+        "Comfort_failed": 0,
+        "DAC_failed": 0,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": 0.9711580701935199,
+        "best_score": 0.9711580701935199,
+        "best_strict4_score": 0.9711580701935199,
+        "candidates": 8,
+        "qualifying_indices": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "qualifying_teacher": 4,
+        "strict4": 8,
+        "strict_high": 4
+      },
+      "B1_path": {
+        "Comfort_failed": 0,
+        "DAC_failed": 8,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": null,
+        "best_score": 0.0,
+        "best_strict4_score": null,
+        "candidates": 8,
+        "qualifying_indices": [],
+        "qualifying_teacher": 0,
+        "strict4": 0,
+        "strict_high": 0
+      },
+      "successful_delta_path_coordinate_at4_m": [
+        3.0,
+        4.0,
+        5.0,
+        6.0
+      ],
+      "minimum_successful_delta_path_coordinate_at4_m": 3.0,
+      "best_actual_feedback_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.9307793684644476,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.9711580701935199,
+        "time_to_collision_within_bound": 1.0
+      },
+      "best_actual_feedback_typed_request_sha256": "2e40f88bd328a677e7f6eb545ab2dc2082b3236a69383348c3003f62e2108e54",
+      "actual_physical_cache_sha256": "c8bb48b73a1b94b014b24cde16df73eca3a2066b02e8438b3003bd0ce77a484f",
+      "cache_origin_validation": {
+        "cache": {
+          "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.05.07.49.39_veh-52_00934_01406/unknown/992641d426ba5dc3/metric_cache.pkl",
+          "sha256": "c8bb48b73a1b94b014b24cde16df73eca3a2066b02e8438b3003bd0ce77a484f"
+        },
+        "max_abs_origin_error": 0.0,
+        "timestamp_us": 1633421605100469,
+        "token": "992641d426ba5dc3"
+      }
+    },
+    {
+      "token": "948ba6565e015ca0",
+      "log": "2021.10.05.07.49.39_veh-52_00563_00680",
+      "B1_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.0,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "GT_original_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.737463760825561,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.8906099003439838,
+        "time_to_collision_within_bound": 1.0
+      },
+      "old_G16": {
+        "Comfort_failed": 6,
+        "DAC_failed": 14,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": null,
+        "best_score": 0.7407822853453755,
+        "best_strict4_score": null,
+        "candidates": 16,
+        "qualifying_indices": [],
+        "qualifying_teacher": 0,
+        "strict4": 0,
+        "strict_high": 0
+      },
+      "old_G32": {
+        "Comfort_failed": 13,
+        "DAC_failed": 26,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": null,
+        "best_score": 0.897259077003722,
+        "best_strict4_score": 0.897259077003722,
+        "candidates": 32,
+        "qualifying_indices": [],
+        "qualifying_teacher": 0,
+        "strict4": 3,
+        "strict_high": 0
+      },
+      "synthetic_all": {
+        "Comfort_failed": 0,
+        "DAC_failed": 8,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": 0.9449127487190605,
+        "best_score": 0.9449127487190605,
+        "best_strict4_score": 0.9449127487190605,
+        "candidates": 16,
+        "qualifying_indices": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "qualifying_teacher": 6,
+        "strict4": 8,
+        "strict_high": 6
+      },
+      "GT_path": {
+        "Comfort_failed": 0,
+        "DAC_failed": 0,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": 0.9449127487190605,
+        "best_score": 0.9449127487190605,
+        "best_strict4_score": 0.9449127487190605,
+        "candidates": 8,
+        "qualifying_indices": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "qualifying_teacher": 6,
+        "strict4": 8,
+        "strict_high": 6
+      },
+      "B1_path": {
+        "Comfort_failed": 0,
+        "DAC_failed": 8,
+        "NC_failed": 0,
+        "TTC_failed": 0,
+        "best_qualified_score": null,
+        "best_score": 0.0,
+        "best_strict4_score": null,
+        "candidates": 8,
+        "qualifying_indices": [],
+        "qualifying_teacher": 0,
+        "strict4": 0,
+        "strict_high": 0
+      },
+      "successful_delta_path_coordinate_at4_m": [
+        1.5,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0
+      ],
+      "minimum_successful_delta_path_coordinate_at4_m": 1.5,
+      "best_actual_feedback_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.8677905969257454,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.9449127487190605,
+        "time_to_collision_within_bound": 1.0
+      },
+      "best_actual_feedback_typed_request_sha256": "ba1a4f1fc0b20813ff56e4a997e70162fad80ea356e320f1d13635245fed0d72",
+      "actual_physical_cache_sha256": "281c5434a6da39b166d73d45d1cb6b1e56619f96919b9770a2e7444992fcb9eb",
+      "cache_origin_validation": {
+        "cache": {
+          "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.05.07.49.39_veh-52_00563_00680/unknown/948ba6565e015ca0/metric_cache.pkl",
+          "sha256": "281c5434a6da39b166d73d45d1cb6b1e56619f96919b9770a2e7444992fcb9eb"
+        },
+        "max_abs_origin_error": 0.0,
+        "timestamp_us": 1633420841599875,
+        "token": "948ba6565e015ca0"
+      }
+    }
+  ],
+  "limits": [
+    "Two targeted TRAIN cases, not population-level or deployment results.",
+    "Synthetic retiming/extrapolation is neither logged GT nor current policy action; every teacher needs official validation.",
+    "Uses offline TRAIN GT and different generation/query costs, so not a fair observation-only stochastic sampler causal comparison.",
+    "No post-update B1 evaluation, training, bank admission, NAVTEST data or later-than4s GT was used.",
+    "GT-path uses privileged offline TRAIN geometry and different candidate-construction/cost; no fair observation-only sampler superiority or population generalization claim.",
+    "The old G16/G32 pools were nonzero-credit groups despite lacking high witnesses; B1 zero is not proof of all-candidate zero or PG starvation.",
+    "Added path-coordinate/kinematic descriptors are synthetic interpolation metadata, not guaranteed physical-vehicle acceleration or safety. Official scored strict conditions remain mandatory."
+  ],
+  "artifacts": {
+    "SUMMARY": "/mnt/project/qwen-world-performance-rl-20261103/analysis/TRAIN_ZERO2_STRUCTURED_PROGRESS_AUDIT/SUMMARY.json",
+    "COMPLETE": "/mnt/project/qwen-world-performance-rl-20261103/analysis/TRAIN_ZERO2_STRUCTURED_PROGRESS_AUDIT/COMPLETE.json",
+    "PROTOCOL": "/mnt/project/qwen-world-performance-rl-20261103/analysis/TRAIN_ZERO2_STRUCTURED_PROGRESS_AUDIT/PROTOCOL.json",
+    "PREPARED": "/mnt/project/qwen-world-performance-rl-20261103/analysis/TRAIN_ZERO2_STRUCTURED_PROGRESS_AUDIT/PREPARED.json",
+    "TRAJECTORIES": "/mnt/project/qwen-world-performance-rl-20261103/analysis/TRAIN_ZERO2_STRUCTURED_PROGRESS_AUDIT/TRAJECTORIES.npz",
+    "CPU_log": "/mnt/project/qwen-world-performance-rl-20261103/analysis/TRAIN_ZERO2_STRUCTURED_PROGRESS_AUDIT/CPU.log"
+  },
+  "sha256": "e3e051c8c41788311d2c84edb84e1759d5626c920af7fed0c7730d3aa1b949e5"
+}
