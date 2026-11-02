@@ -1,0 +1,131 @@
+{
+  "schema": "world_Safety_exploration_between_arms_v1",
+  "status": "COMPLETE",
+  "arm": "STANDARD_COMBINED_G8",
+  "updates": 38000,
+  "reference_arm": "SAFETY_G8_CONTROL",
+  "reference_updates": 38000,
+  "budget_contract": "same_scene_exposures_updates_candidates_actual_token_coverage_may_differ",
+  "comparison": {
+    "label": "SAFETY_G8_CONTROL",
+    "baseline": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u038000/NAVTEST",
+    "baseline_identity_sha256": "31c765ae8a877b1135f5ce62c92b7d609e6564e536440fb27f48f01051641641",
+    "result": {
+      "mean_delta": -4.5362013281411475e-06,
+      "CI95": [
+        -0.0010053410957569847,
+        0.0012839756771953622
+      ],
+      "bootstrap": 2000,
+      "bootstrap_seed": 42,
+      "physical_groups": 44,
+      "repaired_zero": 29,
+      "new_zero": 14,
+      "high_to_zero": 12,
+      "scene_denominator": 12146,
+      "baseline_zero_denominator": 270,
+      "baseline_nonzero_denominator": 11876,
+      "baseline_high_denominator": 11300,
+      "repaired_zero_rate": 0.10740740740740741,
+      "new_zero_rate": 0.0011788480970023577,
+      "high_to_zero_rate": 0.0010619469026548673,
+      "safety_transitions": {
+        "no_at_fault_collisions": {
+          "new_failure": 3,
+          "repaired_failure": 18,
+          "baseline_pass": 11990,
+          "baseline_failure": 156
+        },
+        "drivable_area_compliance": {
+          "new_failure": 13,
+          "repaired_failure": 14,
+          "baseline_pass": 12015,
+          "baseline_failure": 131
+        },
+        "time_to_collision_within_bound": {
+          "new_failure": 25,
+          "repaired_failure": 44,
+          "baseline_pass": 11766,
+          "baseline_failure": 380
+        }
+      },
+      "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+      "PDMS_delta": -0.00045362013281411475,
+      "PDMS_CI95": [
+        -0.10053410957569847,
+        0.12839756771953623
+      ],
+      "fixed_0p9_cohorts": {
+        "bins": [
+          "score<=1e-8",
+          "0<score<.5",
+          ".5<=score<.9",
+          "score>=.9"
+        ],
+        "row_is_fixed_baseline": true,
+        "transition_counts": [
+          [
+            241,
+            2,
+            15,
+            12
+          ],
+          [
+            0,
+            32,
+            4,
+            2
+          ],
+          [
+            6,
+            6,
+            2780,
+            105
+          ],
+          [
+            8,
+            0,
+            199,
+            8734
+          ]
+        ],
+        "fixed_cohorts": {
+          "zero": {
+            "count": 270,
+            "mean_delta_PDMS": 8.431186337276438,
+            "global_contribution_PDMS": 0.18742139890207793,
+            "to_zero": 241,
+            "below_high": 258
+          },
+          "low": {
+            "count": 38,
+            "mean_delta_PDMS": 5.046967521022552,
+            "global_contribution_PDMS": 0.015789952725082903,
+            "to_zero": 0,
+            "below_high": 36
+          },
+          "middle": {
+            "count": 2897,
+            "mean_delta_PDMS": 0.313268429200809,
+            "global_contribution_PDMS": 0.07471913711466686,
+            "to_zero": 6,
+            "below_high": 2792
+          },
+          "high": {
+            "count": 8941,
+            "mean_delta_PDMS": -0.37817396112195506,
+            "global_contribution_PDMS": -0.2783841088746419,
+            "to_zero": 8,
+            "below_high": 207
+          }
+        },
+        "G_plus_PDMS": 0.4236058387967105,
+        "G_minus_PDMS": -0.4240594589295245,
+        "losses_are_signed": true,
+        "full_population": 12146
+      },
+      "legacy_high_0p8_caveat": "Original paired high_to_zero uses .8; fixed_0p9_cohorts explicitly uses .9."
+    }
+  },
+  "sha256": "d2c30990ec807edb0b57a499dd9388ec95cfbc86bef494b54dee1f47a8e13cf2"
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "world_Safety_exploration_async_evaluation_owner_v1",
+  "label": "INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC_u000250",
+  "arm": "INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC",
+  "architecture_id": "QWEN_WORLD_IL70",
+  "updates": 250,
+  "checkpoint": {
+    "path": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runs/INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC/checkpoints/update000250_inner2",
+    "updates": 250,
+    "next_inner": 2,
+    "files_sha256": "d88efc47af8d1bfca47af64b25b00e60bfb0997b59e08f48161fca872899a5fb",
+    "identity_sha256": "5fefad78dcce0e3e426470d78a868c5bf5e1af932a64ae3b1d03ca052594285d",
+    "actual_collection_budget": {
+      "optimizer_updates": 250,
+      "next_inner": 2,
+      "collected_windows": 63,
+      "scene_exposures": 4032,
+      "candidate_queries": 64512,
+      "nominal_scene_reference_updates": 2000,
+      "nominal_candidate_reference_updates": 4000,
+      "scene_surplus_at_pending_boundary": 32,
+      "candidate_surplus_at_pending_boundary": 512,
+      "strict_equal_nominal_source_budget": false,
+      "additional_official_query_accounting_required": false,
+      "query_scope": "candidate_queries is fresh sourcePG only; actual TRAIN B1 verification must be added separately",
+      "matching": "scene/candidate clocks are different; pending surplus and history cost prevent a same-compute claim"
+    }
+  },
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/integrated64_v1",
+  "config_sha256": "1942bd52fa4d158be9cc70189cc1637a7c453a0d164a89d84190677383e46263",
+  "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+  "parent_selection": "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+  "cohort": "NAVTEST",
+  "count": 12146,
+  "world": 32,
+  "inference": "single_candidate_cleanx_K10_shift5",
+  "seed": 2101,
+  "sha256": "d231df17ac0bd9d2d06b4ae3c55726c8317b5e8b2768cf1e3685ddb61c5ebc57"
+}

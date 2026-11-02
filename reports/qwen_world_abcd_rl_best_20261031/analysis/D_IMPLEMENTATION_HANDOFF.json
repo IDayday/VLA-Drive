@@ -1,0 +1,52 @@
+{
+  "schema": "ABCD_D_scientific_and_deployment_handoff_v1",
+  "status": "READY_FOR_ROOT_INTEGRATION",
+  "created_at": "2026-10-31T16:03:01.958831+00:00",
+  "worktree": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031",
+  "source_files": {
+    "starVLA/rl/qwen_world_abcd_research/d_objective.py": "e8f9fb424fe5a5d3c6d14a0f49c9d2ee1837bca443dc062f94516376611f6f35",
+    "starVLA/rl/qwen_world_abcd_research/d_entry.py": "56a71d11673e7b018443ad62fc8c0cd964c320e9c35764318c19d30323a5263d",
+    "tests/world_compare/test_d_jat_objective.py": "daeeee866cb484fe418bc0d205b2e8335882936bef4e63c7bad09ade8a3816a1",
+    "starVLA/rl/qwen_world_abcd_research/deployment.py": "e92d8794500a2a43546c572010b0a697fb1bd58eb362fbc716e49b3853966581",
+    "tools/qwen_world_abcd_research/evaluate.py": "7c7f9e302bfaf719e704da216bd9e97a618f062593c993f0252b492081f9bed5",
+    "tests/world_compare/test_abcd_best_deployment.py": "8c3d3dc67ab85167d48d395cd1ef40774fe622281efe52be01ee447d268d7bdc"
+  },
+  "D_entry": "starVLA.rl.qwen_world_abcd_research.d_entry",
+  "D_mixin": "DRuntimeMixin",
+  "D_objective": "DActionJaTLoss",
+  "configuration_template": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/D_CONFIG_TEMPLATE.json",
+  "configuration_template_sha256": "619472b9b7e958a6497897829a6c21983e89da2ed81a3c9fb5758c266f6d190d",
+  "design": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/D_PAPER_RL_DESIGN.json",
+  "D_CPU_receipt": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/D_CPU_CHECK.json",
+  "deployment_CPU_receipt": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/ABCD_DEPLOYMENT_CPU_CHECK.json",
+  "deployment": {
+    "module": "starVLA.rl.qwen_world_abcd_research.deployment",
+    "load_native_policy": "load_native_policy(selected_IL_export, native_RL_checkpoint=None, device=cpu) -> model, sources",
+    "export_policy": "export_policy(selected_IL_export, output, native_RL_checkpoint=None) -> metadata",
+    "load_export": "strict new RL standalone; old protected IL uses explicit parent-source migration, no weight duplication",
+    "parent_path": "meta.parent_export or meta.IL_parent.export_parent.path; NEVER meta.IL_parent.path"
+  },
+  "evaluation": {
+    "module": "tools.qwen_world_abcd_research.evaluate",
+    "arguments": "--export EXPORT --cohort NAVTEST --data DATA --rank RANK --world WORLD --output OUTPUT --selection BEST_PARENT_SELECTION.json [--native-parity-output PROOF]",
+    "explicit_environment": [
+      "WORLD_COMPARE_ROOT",
+      "WORLD_COMPARE_TASK"
+    ],
+    "same_original_schema": true,
+    "new_research_identity": "ABCD_current_best_RL_research_v1",
+    "formal_NAVTEST": "requires sealed current-best selection; optional same-policy full DEV binding, not old DEV-only selection",
+    "canonical": "original NAVSIMv1.1 exact scene/cache/full denominator, fixed seed2101, one current-image K10shift5 trajectory, no candidate selection",
+    "native_parity": "selected IL export plus native RL adapters; exact normalized/requested equality, no retired native loading",
+    "baseline": "reuse already complete own-best IL NAVTEST; no new baseline GPU evaluation requested"
+  },
+  "integration_guards": [
+    "D cfg randn_clip=null while actor narrow initialization shim uses +inf; do not serialize sentinel in JSON",
+    "all collection/checkpoint save/recovery boundaries must use D canonical-centered64 semantic validator instead of source raw-rewardstd validator",
+    "fresh current prefix graph rebuild per current logprob call; independent immutable own-IL reference",
+    "D native equal-cov Gaussian KL.001 replaces physical mean anchor50; not paper lambda_t, no CoT",
+    "D joint24-coordinate Gaussian sum differs from official implementation mean; explicitly adapted"
+  ],
+  "no_GPU_dispatch": true,
+  "no_git_stage_or_commit": true
+}

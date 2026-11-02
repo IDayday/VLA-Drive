@@ -1,0 +1,159 @@
+{
+  "schema": "rl_primary_recipe_configuration_catalogue_v1",
+  "as_of_utc": "2026-11-02 13:46:31 UTC",
+  "papers": [
+    {
+      "name": "REINFORCE++（原始v1）",
+      "domain": "LLM",
+      "batch_and_group": "rollout batch=256；training batch=128；每prompt4条；保留论文原始口径",
+      "learning_rate": "actor5e-7；无critic",
+      "schedule": "该表未明确调度，待补，不能填为cosine",
+      "BC_KL": "token级KL罚：通用β=.01、数学β=.001；未列BC",
+      "advantage": "KL罚后return，批级优势归一化；非必须组相对baseline",
+      "clipping": "PPO ε=.2",
+      "source": "https://arxiv.org/html/2501.03262v1",
+      "location": "§3、Table1",
+      "notes": "Table1还列了critic LR9e-6，是对照配置，不能解释为REINFORCE++训练critic。"
+    },
+    {
+      "name": "DAPO",
+      "domain": "LLM",
+      "batch_and_group": "512个prompt×G16=8192候选；minibatch512，约16次gradient updates/rollout",
+      "learning_rate": "AdamW1e-6",
+      "schedule": "20个rollout step线性warmup后恒定",
+      "BC_KL": "去除reference KL；无额外BC",
+      "advantage": "组内reward减均值／组std；token级loss聚合，动态补采有信号组",
+      "clipping": "εlow=.2；εhigh=.28",
+      "source": "https://arxiv.org/html/2503.14476v1",
+      "location": "§2.3、§3、§4.1",
+      "notes": "warmup的时钟是rollout步，与我们实际Adam步不能直接等同。"
+    },
+    {
+      "name": "ScaleRL",
+      "domain": "LLM",
+      "batch_and_group": "代表配置48prompt×G16=768completions/gradient step；另做batch与G8/16/24/32消融",
+      "learning_rate": "AdamW5e-7；eps1e-15；weight decay.01",
+      "schedule": "100个训练step线性warmup后恒定",
+      "BC_KL": "最终所列目标无额外reference KL／BC项",
+      "advantage": "组内减均值、批级std；prompt级loss；零方差过滤＋no-positive-resampling",
+      "clipping": "CISPO截断IS权重；实验比较多种阈值",
+      "source": "https://arxiv.org/html/2510.13786v1",
+      "location": "§3.1、§4、AppendixA.3 Reinforcement Learning",
+      "notes": "正文部分batch扩展称prompts，但基准明确48×16=768completions；不把768当768不同prompt。"
+    },
+    {
+      "name": "Tricks or Traps?",
+      "domain": "LLM",
+      "batch_and_group": "128prompt×G8=1024候选；Qwen3 4B/8B base与aligned",
+      "learning_rate": "1e-6",
+      "schedule": "所核对正文未给明确调度，待补",
+      "BC_KL": "统一PPO/REINFORCE基线；本次未核定额外KL/BC系数",
+      "advantage": "比较归一化方案；推荐组均值＋批std，适用性受reward机制影响",
+      "clipping": "Clip-Higher收益依base/aligned变化",
+      "source": "https://arxiv.org/html/2508.08221v1",
+      "location": "§3.1、§4.1–4.3",
+      "notes": "不能把某一消融的trick默认视为全部模型的统一最优配置。"
+    },
+    {
+      "name": "JustRL",
+      "domain": "LLM",
+      "batch_and_group": "train batch256prompt；G8；PPO minibatch64；micro/GPU1",
+      "learning_rate": "1e-6",
+      "schedule": "恒定",
+      "BC_KL": "KL关闭；entropy关闭；不加额外长度惩罚；无附加BC",
+      "advantage": "veRL标准GRPO、二元结果奖励；不做动态数据筛选",
+      "clipping": "ratio范围[.8,1.28]",
+      "source": "https://arxiv.org/html/2512.16649v1",
+      "location": "§3.1、Table2",
+      "notes": "固定参数、单阶段、G8也能获得强结果；不支持“必须堆trick”。"
+    },
+    {
+      "name": "GSPO",
+      "domain": "LLM",
+      "batch_and_group": "原文未披露完整batch/G配置",
+      "learning_rate": "原文未披露完整LR",
+      "schedule": "未披露",
+      "BC_KL": "所列核心GSPO目标无额外BC/KL项；不推断生产整套配方",
+      "advantage": "组相对reward；长度归一化序列概率比；序列级裁剪与loss",
+      "clipping": "与token PPO的阈值数量级不同，不能照抄.2",
+      "source": "https://arxiv.org/html/2507.18071v1",
+      "location": "§4、§5",
+      "notes": "算法设计与完整生产训练配方的公开程度不同；不能拿另一实现默认值冒充原论文设置。"
+    },
+    {
+      "name": "CISPO／MiniMax-M1",
+      "domain": "LLM",
+      "batch_and_group": "原报告未完整披露RL batch/G",
+      "learning_rate": "未核定RL LR；8e-5是continual pretraining，不填入RL",
+      "schedule": "RL调度未完整披露",
+      "BC_KL": "所列CISPO核心目标无reference KL／BC项",
+      "advantage": "沿用优势，截断并stop-gradient IS权重，保留logπ梯度",
+      "clipping": "主要调IS上界；未使用实质下界",
+      "source": "https://arxiv.org/html/2506.13585v1",
+      "location": "§2.1、§3.1–3.2",
+      "notes": "不把同文CPT/SFT超参、或ScaleRL中的CISPO配置误当M1原生RL配方。"
+    },
+    {
+      "name": "TOPR",
+      "domain": "LLM",
+      "batch_and_group": "每GPU batch1；单H100节点；offline数据复用，G不是必需参数",
+      "learning_rate": "Adafactor5e-7",
+      "schedule": "恒定",
+      "BC_KL": "不加KL、不加weight decay；无额外BC项",
+      "advantage": "奖励±1，主实验不减baseline；正负样本非对称离策略加权",
+      "clipping": "tapered／truncated IS，区别于PPO硬截断",
+      "source": "https://arxiv.org/html/2503.14286v2",
+      "location": "§3、§4.2",
+      "notes": "可借鉴正负样本与历史数据利用；不能忽略行为策略概率而直接重放PPO。"
+    },
+    {
+      "name": "SimpleVLA-RL",
+      "domain": "VLA",
+      "batch_and_group": "train batch64；G8；minibatch128；8×A800全参数训练",
+      "learning_rate": "5e-6",
+      "schedule": "所核对实验段未说明调度类型，待补",
+      "BC_KL": "最终训练移除reference KL；未列额外BC",
+      "advantage": "GRPO结果奖励，基于同初始状态的组相对学习；动态采样",
+      "clipping": "εlow=.2、εhigh=.28；temperature1.6",
+      "source": "https://arxiv.org/html/2509.09674v1",
+      "location": "§3.3–3.4、§4.1 Implementation Details",
+      "notes": "动作token全参数VLA，与冻结Qwen＋连续flow头的参数化不同。"
+    },
+    {
+      "name": "DPPO：Furniture-Bench示例",
+      "domain": "Diffusion／robotics",
+      "batch_and_group": "论文DPPO batch44000，含扩散MDP采样口径；K′5；非GRPO的G",
+      "learning_rate": "actor1e-5→1e-6；Gym另用1e-4",
+      "schedule": "有LR衰减；本次未核定RL曲线类型，不混用预训练cosine",
+      "BC_KL": "DPPO主方案无额外BC；αBC=.1是Gaussian baseline的单独消融",
+      "advantage": "critic＋GAE λ=.95，γenv=.999；denoise discount.9",
+      "clipping": "Furniture ε=.001；其他任务.01",
+      "source": "https://arxiv.org/html/2409.00588v3",
+      "location": "§4.3、AppendixE.8、TablesA7/A11",
+      "notes": "预训练与RL、Gym与Furniture的batch/LR必须分开；BC消融降低抖动也可能限制上限。"
+    },
+    {
+      "name": "FPO：Humanoid示例",
+      "domain": "Flow／continuous control",
+      "batch_and_group": "batch131072；minibatch32768；4epochs；非GRPO的G",
+      "learning_rate": "1e-4；Playground另用3e-4",
+      "schedule": "Humanoid LR annealing=False；表中保留的decay字段不能当作启用证据",
+      "BC_KL": "target KL=None；无额外BC；entropy0",
+      "advantage": "critic＋GAE λ=.2、γ=.98，优势归一化；CFM损失比代替精确likelihood",
+      "clipping": "ε=.01；Playground另扫多个ε",
+      "source": "https://arxiv.org/html/2507.21053v1",
+      "location": "§4.2、AppendixA.3/A.4、TableA.3",
+      "notes": "ratio定义和动作尺度共同决定clip/LR可迁移范围。"
+    }
+  ],
+  "conventions": [
+    "Batch指原文定义；分开prompt/scene、候选总数、minibatch、环境transition。",
+    "未披露／未核定明确标记，不用框架默认值补齐。",
+    "LR和KL必须同时看训练参数、策略参数化、loss reduction及计时单位。"
+  ],
+  "conclusions": [
+    "warmup+cosine不是这些工作的共同最优设置；多篇LLM强基线采用恒定LR。",
+    "我们的kl_type=x,beta50是动作转移均值MSE锚定，不是token分布KL，也不是独立BC loss。",
+    "获益按独立对照证据划分：SafetyEP信用有效，Retention和Early有阶段收益，G16有预算相关与发现收益，尚无变体超过91.4536。"
+  ]
+}

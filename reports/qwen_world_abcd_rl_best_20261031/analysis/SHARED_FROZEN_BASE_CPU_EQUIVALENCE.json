@@ -1,0 +1,92 @@
+{
+  "schema": "qwen_world_abcd_shared_frozen_base_CPU_equivalence_v1",
+  "status": "PASS",
+  "at_unix": 1793463061.9275599,
+  "pytest_exitcode": 0,
+  "results": {
+    "A": {
+      "status": "PASS",
+      "tiny_trainable_numel": 8192,
+      "shared_frozen_parameter_numel": 13779,
+      "sample_current_reference_terms_bit_equal": true,
+      "four_inner_losses": [
+        -9.934107758624577e-09,
+        0.002106443280354142,
+        0.0028149085119366646,
+        0.0015241316286846995
+      ],
+      "four_inner_loss_grad_and_Adam_parameters_bit_equal": true,
+      "frozen_parameters_reference_and_buffers_unchanged": true,
+      "D_semantic_null_runtime_infinity_identity_clip": false,
+      "GPU_used": false
+    },
+    "B": {
+      "status": "PASS",
+      "tiny_trainable_numel": 8192,
+      "shared_frozen_parameter_numel": 14323,
+      "sample_current_reference_terms_bit_equal": true,
+      "four_inner_losses": [
+        -9.934107758624577e-09,
+        0.0005629521911032498,
+        0.0010074384044855833,
+        0.002624918706715107
+      ],
+      "four_inner_loss_grad_and_Adam_parameters_bit_equal": true,
+      "frozen_parameters_reference_and_buffers_unchanged": true,
+      "D_semantic_null_runtime_infinity_identity_clip": false,
+      "GPU_used": false
+    },
+    "C": {
+      "status": "PASS",
+      "tiny_trainable_numel": 15232,
+      "shared_frozen_parameter_numel": 20265,
+      "sample_current_reference_terms_bit_equal": true,
+      "four_inner_losses": [
+        -9.934107758624577e-09,
+        -0.0007479453342966735,
+        -0.0001878528855741024,
+        -0.0007201464031822979
+      ],
+      "four_inner_loss_grad_and_Adam_parameters_bit_equal": true,
+      "frozen_parameters_reference_and_buffers_unchanged": true,
+      "D_semantic_null_runtime_infinity_identity_clip": false,
+      "GPU_used": false
+    },
+    "D": {
+      "status": "PASS",
+      "tiny_trainable_numel": 10752,
+      "shared_frozen_parameter_numel": 392499,
+      "sample_current_reference_terms_bit_equal": true,
+      "four_inner_losses": [
+        -4.967053879312289e-09,
+        -0.001211075228638947,
+        0.0023762856144458055,
+        -0.011720024980604649
+      ],
+      "four_inner_loss_grad_and_Adam_parameters_bit_equal": true,
+      "frozen_parameters_reference_and_buffers_unchanged": true,
+      "D_semantic_null_runtime_infinity_identity_clip": true,
+      "GPU_used": false
+    },
+    "checkpoint": {
+      "status": "PASS",
+      "runtime_hooks_called": [
+        "boundary",
+        "ranks",
+        "boundary",
+        "ranks"
+      ],
+      "fallback_forbidden": true,
+      "CPU_toy_roundtrip_restored_parameters_Adam_RNG_pending": true
+    }
+  },
+  "source_files": {
+    "starVLA/rl/qwen_world_abcd_research/actor.py": "2625f890086473981f62df5ad9687b2a440ee1ca9bd111b763fd2d72af4414aa",
+    "starVLA/rl/qwen_world_abcd_research/runtime.py": "2a955134ffddeefc2189967d021ccc9268cb099cf1051845242ca69d673d7ac6",
+    "starVLA/rl/qwen_world_abcd_research/checkpoint.py": "78bdf3f70debc269c16580d65d8c2d9d856d65e948674a99807238c94dfea731",
+    "tools/qwen_world_abcd_research/train.py": "6af7d5c25db9c90db70e2aff94e4de5bcb478f6957ba4a76a45d94b41177362e",
+    "tests/test_qwen_world_abcd_abc.py": "546acb0326dbc436a40b7a57ecae70f457d0fac8a9353163cf8f135e29a61071"
+  },
+  "scope": "tiny realABC decision/nativeQwen3VL D; CPU syntheticcredit only,no realmodelpayload/GPU/scoring; existing frozen source unchanged",
+  "limitation": "CPU tiny mathematical equivalence and hook route,not productionBF16/NCCL recovery/performance qualification"
+}

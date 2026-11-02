@@ -1,0 +1,224 @@
+{
+  "schema": "abcd_D_paper_informed_RL_design_v1",
+  "status": "CPU_IMPLEMENTATION_READY_ROOT_INTEGRATION_PENDING",
+  "created_at": "2026-10-31T15:54:58.818166+00:00",
+  "architecture": "D",
+  "guide_provenance": [
+    {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/reports/qwen_world_four_frameworks_il_rl_20261029/D_IMPLEMENTATION.md",
+      "sha256": "e502ae06d0dc0125afa04ac4a203ddb0b7168cd2dc3a1f16990d5d3407b30613"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/reports/qwen_world_four_frameworks_il_rl_20261029/README.md",
+      "sha256": "bba4f6c0193f97540226c977de7ed514432defad53d69ccc0e1e338dd72be0f8"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/reports/qwen_world_four_frameworks_il_rl_20261029/CAMPAIGN.md",
+      "sha256": "e5424d64dd343fd8b23de71dec956102fd2203fe6d3cef6a34a2e10ffaf01a4c"
+    }
+  ],
+  "architecture_facts": {
+    "backbone": "native Qwen3-VL-2B 28textblocks/2048width/GQA Q16 KV8/head128, ownIL",
+    "action_path": "Ccausal -> ego+P32 -> bidirectional A8 cleanx; shared textlayers; A-only timeFiLM",
+    "no_independent_action_DiT": true,
+    "not_C160": true,
+    "no_generated_text_CoT_branch": true,
+    "IL_R16_readouts_removed_in_RL_and_deploy": true,
+    "trainable": "r16 alpha32 dropout0 LoRA on decision.qwen_model.language_model.layers.{0..27}.self_attn.{q,k,v,o}_proj",
+    "projection_modules": 112,
+    "LoRA_parameters": 6422528,
+    "frozen": [
+      "visual/merger/DeepStack",
+      "baseembeddings/textbase/FFN/norm",
+      "actioninput/output/positions",
+      "Ptoken/role/egointerface",
+      "timeembedding/allFiLM",
+      "ownILreference fullindependentcopy"
+    ],
+    "gradient_lifetime": "Only frozen visual/baseembedding inputs cached; trainable textC+P prefix rebuilt with graph eachcurrentlogprob, oneprefix sharedwithinG8/W3, discard aftercall. Reference prefix independent no_grad. Never detach currentCP."
+  },
+  "primary_sources": [
+    {
+      "title": "AUGUstus: Autonomous Driving VLA Model with Unified Generation and Understanding",
+      "URL": "https://arxiv.org/html/2610.16985v1",
+      "date": "2026-10-12",
+      "official_repo": "https://github.com/haha-yuki-haha/AUGUstus",
+      "commit": "edf3422304e4b2987e839a9212cf1176782e7380",
+      "paper_sections": [
+        "3.3",
+        "AppendixB.1-B.3",
+        "AppendixD.2.2",
+        "Table7"
+      ],
+      "verified_findings": "The paper gives equal-covariance x0 Gaussian transition ratio/KL and an action-only ablation. Its shared action+CoT two-stage result is a different fullsystem. Official stage1/2 YAML: actorLR1e-6, actionclip.2, actionKLcoef.001, lambda_t schedule; official jit function averages actioncoordinates. Our sum24 reduction and sourcekernel are explicit adaptations, not exactcode reproduction.",
+      "author_reported_scores": {
+        "AUGUstus_SFT": 90.6,
+        "JaT_action_only": 92.6,
+        "joint_CoT_two_stage": 94.6
+      },
+      "external_scores_are_not_our_results": true
+    },
+    {
+      "title": "DriveWLA: Unifying Future Dynamics and Scene Semantics through World-Language-Action Modeling for Autonomous Driving",
+      "URL": "https://arxiv.org/abs/2610.17903v1",
+      "date": "2026-10-13",
+      "relationship": "MoT separate World/Language/Action experts maps closer toC. Dguide explicitly references nativeunifiedAUGUstus, not DriveWLA actionexpert freezing."
+    }
+  ],
+  "official_code_inputs": [
+    {
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/haha-yuki-haha/AUGUstus/edf3422304e4b2987e839a9212cf1176782e7380/README.md",
+      "local": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/paper_sources/AUGUstus_edf3422/README.md",
+      "sha256": "e6bc95fc87ecc97e4aa8a9d79f83d803436c5136ea079e85852624d45e7ed029",
+      "bytes": 24950
+    },
+    {
+      "path": "AUGUstus_GRPO/recipe/transfusion/config/stage1.yaml",
+      "url": "https://raw.githubusercontent.com/haha-yuki-haha/AUGUstus/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/config/stage1.yaml",
+      "local": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/paper_sources/AUGUstus_edf3422/AUGUstus_GRPO__recipe__transfusion__config__stage1.yaml",
+      "sha256": "2d7c20775f69195284fb0250a441784ec3761cb1d9b499cf372254a2ba7adfd2",
+      "bytes": 43897
+    },
+    {
+      "path": "AUGUstus_GRPO/recipe/transfusion/config/stage2.yaml",
+      "url": "https://raw.githubusercontent.com/haha-yuki-haha/AUGUstus/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/config/stage2.yaml",
+      "local": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/paper_sources/AUGUstus_edf3422/AUGUstus_GRPO__recipe__transfusion__config__stage2.yaml",
+      "sha256": "e4b7d2f68a8573caa78642eda9009d84c98a5005b89786fb750c0afb20dd90c6",
+      "bytes": 44337
+    },
+    {
+      "path": "AUGUstus_GRPO/README.md",
+      "url": "https://raw.githubusercontent.com/haha-yuki-haha/AUGUstus/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/README.md",
+      "local": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/paper_sources/AUGUstus_edf3422/AUGUstus_GRPO__README.md",
+      "sha256": "6b3159848a5c5c80e67d27b30cdbaafd5868e2c881ed5133ef40a51af703aba7",
+      "bytes": 6222
+    },
+    {
+      "path": "AUGUstus_GRPO/recipe/transfusion/algorithms/jit_grpo.py",
+      "url": "https://raw.githubusercontent.com/haha-yuki-haha/AUGUstus/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/algorithms/jit_grpo.py",
+      "local": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/paper_sources/AUGUstus_edf3422/AUGUstus_GRPO__recipe__transfusion__algorithms__jit_grpo.py",
+      "sha256": "e951c54ad1bfa13cff12f0676eaefa6e89f2ca029b9ee3169306dfdc0120db47",
+      "bytes": 8111
+    },
+    {
+      "path": "AUGUstus_GRPO/recipe/transfusion/loss.py",
+      "url": "https://raw.githubusercontent.com/haha-yuki-haha/AUGUstus/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/loss.py",
+      "local": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/paper_sources/AUGUstus_edf3422/AUGUstus_GRPO__recipe__transfusion__loss.py",
+      "sha256": "2a3c52fdfc4336be67da0f3a3e856ff75b8adb4aed6f0fe0485b5ec8ee342e3e",
+      "bytes": 22365
+    },
+    {
+      "path": "AUGUstus_GRPO/recipe/transfusion/algorithms/fm_sde_logprob.py",
+      "url": "https://raw.githubusercontent.com/haha-yuki-haha/AUGUstus/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/algorithms/fm_sde_logprob.py",
+      "local": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/paper_sources/AUGUstus_edf3422/AUGUstus_GRPO__recipe__transfusion__algorithms__fm_sde_logprob.py",
+      "sha256": "6f20c279660a89f0545634fdd6c4ee174f298ed106b20045b219c62f82ce2585",
+      "bytes": 21854
+    }
+  ],
+  "chosen_first_method": {
+    "name": "paper-inspired JaT action-only jointGaussian PPO on sourceW3",
+    "entry": "starVLA.rl.qwen_world_abcd_research.d_entry",
+    "runtime_mixin": "DRuntimeMixin",
+    "loss": "DActionJaTLoss(cfg)._policy_loss(actor,rollout)",
+    "configuration": {
+      "learning_rate": 1e-06,
+      "warmup_optimizer_updates": 100,
+      "scheduler": "constant",
+      "clip": 0.2,
+      "native_reference_KL_coefficient": 0.001,
+      "physical_beta50_anchor": false,
+      "randn_clip": null,
+      "W": 3,
+      "steps": [
+        7,
+        8,
+        9
+      ],
+      "rigorous_eta": 0.1,
+      "G": 8,
+      "world": 8,
+      "inner_updates": 4,
+      "advantage": "canonicalR minusgroupmean /populationstd64centeredR +1e-8, Acap5",
+      "scope": "ownD 6.422528MtextattentionLoRA",
+      "TRAIN": 90890,
+      "DEV": 1696,
+      "embargoed_DEVphysical_train_tokens_excluded": 10702
+    },
+    "mathematics": {
+      "u": "(mean_current-mean_behavior)/std",
+      "z": "(recorded_next-mean_behavior)/std",
+      "logratio": "sum24(u*z-.5*u^2) perGW3, no relativeclamp",
+      "reference_KL": ".5sum24[((mean_current-mean_ownIL)/std)^2], meanGW; equal covariance",
+      "loss": "mean_masked_GW max(-A*rho,-A*clip(rho,.8,1.2)) +.001*mean_GW(nativeownILKL)",
+      "raw_clamped_source_logp": "still computed solely for originalnominalfreshaudit; never used in DPG",
+      "ties": "PG0 but nativeownILKL stays active; zero rewards do not fabricate direction"
+    },
+    "kernel_caveats": [
+      "source rigg\u00b2=eta\u00b2sigma/(1-sigma), notpaperlambda*sigma",
+      "W3eta.1 independentinitialroots, notauthors3step sharedroot/noisesmoothing/perdim[.05,.05,.02]",
+      "innovationclipNone via runtime-only +inf sentinel removes pointmasses; sealedJSON remainsnull",
+      "officialcode coordinate mean differsfromjointsum24; clip/KLcoeff do not become dimensionless equivalent",
+      "noCoT/format/predictionreward ornewreadouts",
+      "noendpointGT reward stageII in firstpilot",
+      "ourwarmup100/4inners/LoRA differfrompapersfulltrainingrecipe"
+    ]
+  },
+  "deployment": {
+    "prediction": "unchanged singlecandidate cleanx ODE10shift5 seed2101,8x3poses",
+    "LoRA": "preserve wrappers; no merge",
+    "no_on_policy_teacher_score_or_future_input": true,
+    "canonical": "NAVSIMv1.1 independentreferencepair unchanged",
+    "best_parent": "D12k alreadycompleteNAVTEST86.0014573598; selectedexportsurvives whileoriginalnative removed",
+    "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_D_IL012000/export",
+    "selected_export_model_sha256": "4a98d5241fd0d895821618376895c75588018d9b67faf6750bde8c4999736309",
+    "parent_handling": "explicitexport-parent provenance +migrationreceipt; preserve historicalnativeidentity, never fabricate nativeCOMPLETE/Adam. FreshRLAdam/RNG42update0.",
+    "CPU_receipt": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/ABCD_DEPLOYMENT_CPU_CHECK.json",
+    "independent_entry": "tools.qwen_world_abcd_research.evaluate"
+  },
+  "source_files": {
+    "starVLA/rl/qwen_world_abcd_research/d_objective.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/starVLA/rl/qwen_world_abcd_research/d_objective.py",
+      "sha256": "e8f9fb424fe5a5d3c6d14a0f49c9d2ee1837bca443dc062f94516376611f6f35"
+    },
+    "starVLA/rl/qwen_world_abcd_research/d_entry.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/starVLA/rl/qwen_world_abcd_research/d_entry.py",
+      "sha256": "56a71d11673e7b018443ad62fc8c0cd964c320e9c35764318c19d30323a5263d"
+    },
+    "tests/world_compare/test_d_jat_objective.py": {
+      "path": "/mnt/project/VLA-Drive-qwen-world-abcd-rl-research-20261031/tests/world_compare/test_d_jat_objective.py",
+      "sha256": "daeeee866cb484fe418bc0d205b2e8335882936bef4e63c7bad09ade8a3816a1"
+    }
+  },
+  "config_template": {
+    "path": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/D_CONFIG_TEMPLATE.json",
+    "sha256": "840883b8ba1b326238c8bad1d25d2e20e5ac5a0055c212a7c4b75c1d3639ba9a",
+    "not_registered": true
+  },
+  "CPU_receipt": {
+    "path": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/D_CPU_CHECK.json",
+    "sha256": "1014ae7f13b384e7aaae420eed97fba6516f25f1cb0facb21b8eafc01f001a4e"
+  },
+  "initial_gates": [
+    1000,
+    5000
+  ],
+  "scientific_claim": "readyto test; no guarantee paper94.6 or PDMS>=92 transfers. Fullownparent baseline and samebudget fullNavtest required.",
+  "integration_pending": [
+    "rootABCDBestRuntime/runnerhooks/sourcehash",
+    "unclippedGaussian initshim",
+    "parentexport exactsourcemigration andstrictloader",
+    "newregistration/namespace resources",
+    "actualsealednewexports+nativeparity+completeeval"
+  ],
+  "scope": {
+    "new_GPU": 0,
+    "source_live_snapshot_modified": false,
+    "IL_modified": false,
+    "controller_modified": false,
+    "agent_registered": false,
+    "agent_commit": false
+  },
+  "configuration_template_sha256": "619472b9b7e958a6497897829a6c21983e89da2ed81a3c9fb5758c266f6d190d",
+  "implementation_handoff": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis/D_IMPLEMENTATION_HANDOFF.json"
+}

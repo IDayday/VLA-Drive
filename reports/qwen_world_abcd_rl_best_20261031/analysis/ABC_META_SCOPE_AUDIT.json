@@ -1,0 +1,154 @@
+{
+  "status": "PASS_META_ONLY_NO_WEIGHTS",
+  "architectures": {
+    "A": {
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_A_IL020000/export",
+      "model_config": {
+        "decision": {
+          "actor_config": {
+            "action_dim": 3,
+            "action_tokens": 8,
+            "activation_checkpointing": true,
+            "dropout": 0.0,
+            "ego_dim": 8,
+            "ffn_dim": 4096,
+            "hidden_dim": 1024,
+            "num_heads": 16,
+            "num_layers": 20
+          },
+          "world_config": {
+            "activation_checkpointing": true,
+            "actor_dim": 1024,
+            "bridge_groups": 4,
+            "ego_dim": 8,
+            "ffn_dim": 1536,
+            "hidden_dim": 384,
+            "num_heads": 6,
+            "num_layers": 20,
+            "post_tokens": 16,
+            "prefix_tokens": 32,
+            "scene_dim": 1024
+          }
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "attention_linear_objects": 160,
+      "LoRA_trainable_numel": 5242880,
+      "by_scope_numel": {
+        "actor_attention": 5242880
+      }
+    },
+    "B": {
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_B_IL016000/export",
+      "model_config": {
+        "decision": {
+          "activation_checkpointing": true,
+          "ego_dim": 8,
+          "ffn_dim": 4096,
+          "hidden_dim": 1024,
+          "num_heads": 16,
+          "num_layers": 20
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "attention_linear_objects": 160,
+      "LoRA_trainable_numel": 5242880,
+      "by_scope_numel": {
+        "shared_P_A_attention": 5242880
+      }
+    },
+    "C": {
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_C_IL012000/export",
+      "model_config": {
+        "decision": {
+          "actor_config": {
+            "action_dim": 3,
+            "action_tokens": 8,
+            "activation_checkpointing": true,
+            "dropout": 0.0,
+            "ego_dim": 8,
+            "ffn_dim": 4096,
+            "hidden_dim": 1024,
+            "num_heads": 16,
+            "num_layers": 20
+          },
+          "world_config": {
+            "activation_checkpointing": true,
+            "actor_dim": 1024,
+            "bridge_groups": 4,
+            "ego_dim": 8,
+            "ffn_dim": 1536,
+            "hidden_dim": 384,
+            "num_heads": 6,
+            "num_layers": 20,
+            "post_tokens": 16,
+            "prefix_tokens": 32,
+            "scene_dim": 1024
+          }
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "attention_linear_objects": 328,
+      "LoRA_trainable_numel": 7389184,
+      "by_scope_numel": {
+        "world_KV_bridges": 180224,
+        "world_attention": 1966080,
+        "actor_attention": 5242880
+      }
+    }
+  }
+}

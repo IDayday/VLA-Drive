@@ -1,0 +1,4020 @@
+{
+  "schema": "world_fixed50k_warmup1000_cosine_floor01_v1",
+  "clock": "completed optimizer updates; u is LR for next update, metric optimizer_group_lrs_used is authoritative for actual step",
+  "horizon_updates": 50000,
+  "warmup_updates": 1000,
+  "min_lr_ratio": 0.1,
+  "initial_lr_ratio": 0.001,
+  "cycle_restarts": false,
+  "stage_horizon_reset": false,
+  "planned_curve_not_actual_observations": [
+    {
+      "completed_updates": 0,
+      "multiplier": 0.001,
+      "W3_action_next_lr": 5.0000000000000004e-08,
+      "W3_memory_next_lr": 5e-09,
+      "endpoint_action_next_lr": 1e-08,
+      "endpoint_memory_next_lr": 1e-09
+    },
+    {
+      "completed_updates": 100,
+      "multiplier": 0.1009,
+      "W3_action_next_lr": 5.045000000000001e-06,
+      "W3_memory_next_lr": 5.045000000000001e-07,
+      "endpoint_action_next_lr": 1.0090000000000002e-06,
+      "endpoint_memory_next_lr": 1.009e-07
+    },
+    {
+      "completed_updates": 200,
+      "multiplier": 0.2008,
+      "W3_action_next_lr": 1.004e-05,
+      "W3_memory_next_lr": 1.004e-06,
+      "endpoint_action_next_lr": 2.008e-06,
+      "endpoint_memory_next_lr": 2.008e-07
+    },
+    {
+      "completed_updates": 300,
+      "multiplier": 0.30069999999999997,
+      "W3_action_next_lr": 1.5035e-05,
+      "W3_memory_next_lr": 1.5034999999999999e-06,
+      "endpoint_action_next_lr": 3.0069999999999998e-06,
+      "endpoint_memory_next_lr": 3.0069999999999993e-07
+    },
+    {
+      "completed_updates": 400,
+      "multiplier": 0.4006,
+      "W3_action_next_lr": 2.0030000000000003e-05,
+      "W3_memory_next_lr": 2.003e-06,
+      "endpoint_action_next_lr": 4.006e-06,
+      "endpoint_memory_next_lr": 4.006e-07
+    },
+    {
+      "completed_updates": 500,
+      "multiplier": 0.5005,
+      "W3_action_next_lr": 2.5025e-05,
+      "W3_memory_next_lr": 2.5024999999999998e-06,
+      "endpoint_action_next_lr": 5.0049999999999995e-06,
+      "endpoint_memory_next_lr": 5.004999999999999e-07
+    },
+    {
+      "completed_updates": 600,
+      "multiplier": 0.6003999999999999,
+      "W3_action_next_lr": 3.0019999999999997e-05,
+      "W3_memory_next_lr": 3.002e-06,
+      "endpoint_action_next_lr": 6.004e-06,
+      "endpoint_memory_next_lr": 6.003999999999999e-07
+    },
+    {
+      "completed_updates": 700,
+      "multiplier": 0.7002999999999999,
+      "W3_action_next_lr": 3.5014999999999996e-05,
+      "W3_memory_next_lr": 3.5015e-06,
+      "endpoint_action_next_lr": 7.003e-06,
+      "endpoint_memory_next_lr": 7.002999999999999e-07
+    },
+    {
+      "completed_updates": 800,
+      "multiplier": 0.8002,
+      "W3_action_next_lr": 4.0010000000000005e-05,
+      "W3_memory_next_lr": 4.001e-06,
+      "endpoint_action_next_lr": 8.002e-06,
+      "endpoint_memory_next_lr": 8.002e-07
+    },
+    {
+      "completed_updates": 900,
+      "multiplier": 0.9001,
+      "W3_action_next_lr": 4.5005e-05,
+      "W3_memory_next_lr": 4.5005e-06,
+      "endpoint_action_next_lr": 9.001e-06,
+      "endpoint_memory_next_lr": 9.001e-07
+    },
+    {
+      "completed_updates": 1000,
+      "multiplier": 1.0,
+      "W3_action_next_lr": 5e-05,
+      "W3_memory_next_lr": 5e-06,
+      "endpoint_action_next_lr": 1e-05,
+      "endpoint_memory_next_lr": 1e-06
+    },
+    {
+      "completed_updates": 1100,
+      "multiplier": 0.9999907511312647,
+      "W3_action_next_lr": 4.9999537556563234e-05,
+      "W3_memory_next_lr": 4.999953755656324e-06,
+      "endpoint_action_next_lr": 9.999907511312648e-06,
+      "endpoint_memory_next_lr": 9.999907511312647e-07
+    },
+    {
+      "completed_updates": 1200,
+      "multiplier": 0.9999630049052437,
+      "W3_action_next_lr": 4.9998150245262186e-05,
+      "W3_memory_next_lr": 4.999815024526219e-06,
+      "endpoint_action_next_lr": 9.999630049052437e-06,
+      "endpoint_memory_next_lr": 9.999630049052436e-07
+    },
+    {
+      "completed_updates": 1300,
+      "multiplier": 0.9999167624624755,
+      "W3_action_next_lr": 4.999583812312378e-05,
+      "W3_memory_next_lr": 4.999583812312378e-06,
+      "endpoint_action_next_lr": 9.999167624624756e-06,
+      "endpoint_memory_next_lr": 9.999167624624755e-07
+    },
+    {
+      "completed_updates": 1400,
+      "multiplier": 0.9998520257038059,
+      "W3_action_next_lr": 4.99926012851903e-05,
+      "W3_memory_next_lr": 4.99926012851903e-06,
+      "endpoint_action_next_lr": 9.99852025703806e-06,
+      "endpoint_memory_next_lr": 9.99852025703806e-07
+    },
+    {
+      "completed_updates": 1500,
+      "multiplier": 0.9997687972903095,
+      "W3_action_next_lr": 4.998843986451548e-05,
+      "W3_memory_next_lr": 4.998843986451548e-06,
+      "endpoint_action_next_lr": 9.997687972903096e-06,
+      "endpoint_memory_next_lr": 9.997687972903095e-07
+    },
+    {
+      "completed_updates": 1600,
+      "multiplier": 0.9996670806431804,
+      "W3_action_next_lr": 4.998335403215902e-05,
+      "W3_memory_next_lr": 4.998335403215903e-06,
+      "endpoint_action_next_lr": 9.996670806431805e-06,
+      "endpoint_memory_next_lr": 9.996670806431804e-07
+    },
+    {
+      "completed_updates": 1700,
+      "multiplier": 0.9995468799435916,
+      "W3_action_next_lr": 4.9977343997179584e-05,
+      "W3_memory_next_lr": 4.997734399717958e-06,
+      "endpoint_action_next_lr": 9.995468799435916e-06,
+      "endpoint_memory_next_lr": 9.995468799435916e-07
+    },
+    {
+      "completed_updates": 1800,
+      "multiplier": 0.999408200132523,
+      "W3_action_next_lr": 4.997041000662615e-05,
+      "W3_memory_next_lr": 4.9970410006626155e-06,
+      "endpoint_action_next_lr": 9.994082001325231e-06,
+      "endpoint_memory_next_lr": 9.99408200132523e-07
+    },
+    {
+      "completed_updates": 1900,
+      "multiplier": 0.9992510469105584,
+      "W3_action_next_lr": 4.9962552345527925e-05,
+      "W3_memory_next_lr": 4.996255234552792e-06,
+      "endpoint_action_next_lr": 9.992510469105585e-06,
+      "endpoint_memory_next_lr": 9.992510469105583e-07
+    },
+    {
+      "completed_updates": 2000,
+      "multiplier": 0.9990754267376514,
+      "W3_action_next_lr": 4.995377133688257e-05,
+      "W3_memory_next_lr": 4.995377133688257e-06,
+      "endpoint_action_next_lr": 9.990754267376514e-06,
+      "endpoint_memory_next_lr": 9.990754267376512e-07
+    },
+    {
+      "completed_updates": 2100,
+      "multiplier": 0.9988813468328593,
+      "W3_action_next_lr": 4.994406734164297e-05,
+      "W3_memory_next_lr": 4.994406734164297e-06,
+      "endpoint_action_next_lr": 9.988813468328595e-06,
+      "endpoint_memory_next_lr": 9.988813468328593e-07
+    },
+    {
+      "completed_updates": 2200,
+      "multiplier": 0.9986688151740468,
+      "W3_action_next_lr": 4.993344075870234e-05,
+      "W3_memory_next_lr": 4.993344075870235e-06,
+      "endpoint_action_next_lr": 9.98668815174047e-06,
+      "endpoint_memory_next_lr": 9.986688151740468e-07
+    },
+    {
+      "completed_updates": 2300,
+      "multiplier": 0.9984378404975582,
+      "W3_action_next_lr": 4.992189202487791e-05,
+      "W3_memory_next_lr": 4.992189202487792e-06,
+      "endpoint_action_next_lr": 9.984378404975583e-06,
+      "endpoint_memory_next_lr": 9.984378404975583e-07
+    },
+    {
+      "completed_updates": 2400,
+      "multiplier": 0.9981884322978576,
+      "W3_action_next_lr": 4.990942161489288e-05,
+      "W3_memory_next_lr": 4.9909421614892885e-06,
+      "endpoint_action_next_lr": 9.981884322978577e-06,
+      "endpoint_memory_next_lr": 9.981884322978574e-07
+    },
+    {
+      "completed_updates": 2500,
+      "multiplier": 0.9979206008271392,
+      "W3_action_next_lr": 4.989603004135696e-05,
+      "W3_memory_next_lr": 4.989603004135696e-06,
+      "endpoint_action_next_lr": 9.979206008271393e-06,
+      "endpoint_memory_next_lr": 9.97920600827139e-07
+    },
+    {
+      "completed_updates": 2600,
+      "multiplier": 0.9976343570949058,
+      "W3_action_next_lr": 4.988171785474529e-05,
+      "W3_memory_next_lr": 4.9881717854745294e-06,
+      "endpoint_action_next_lr": 9.976343570949059e-06,
+      "endpoint_memory_next_lr": 9.976343570949058e-07
+    },
+    {
+      "completed_updates": 2700,
+      "multiplier": 0.9973297128675161,
+      "W3_action_next_lr": 4.986648564337581e-05,
+      "W3_memory_next_lr": 4.986648564337581e-06,
+      "endpoint_action_next_lr": 9.973297128675162e-06,
+      "endpoint_memory_next_lr": 9.97329712867516e-07
+    },
+    {
+      "completed_updates": 2800,
+      "multiplier": 0.9970066806677012,
+      "W3_action_next_lr": 4.985033403338506e-05,
+      "W3_memory_next_lr": 4.985033403338506e-06,
+      "endpoint_action_next_lr": 9.970066806677013e-06,
+      "endpoint_memory_next_lr": 9.97006680667701e-07
+    },
+    {
+      "completed_updates": 2900,
+      "multiplier": 0.9966652737740492,
+      "W3_action_next_lr": 4.983326368870247e-05,
+      "W3_memory_next_lr": 4.983326368870247e-06,
+      "endpoint_action_next_lr": 9.966652737740494e-06,
+      "endpoint_memory_next_lr": 9.966652737740492e-07
+    },
+    {
+      "completed_updates": 3000,
+      "multiplier": 0.9963055062204608,
+      "W3_action_next_lr": 4.981527531102304e-05,
+      "W3_memory_next_lr": 4.981527531102304e-06,
+      "endpoint_action_next_lr": 9.963055062204609e-06,
+      "endpoint_memory_next_lr": 9.963055062204608e-07
+    },
+    {
+      "completed_updates": 3100,
+      "multiplier": 0.9959273927955706,
+      "W3_action_next_lr": 4.979636963977853e-05,
+      "W3_memory_next_lr": 4.979636963977854e-06,
+      "endpoint_action_next_lr": 9.959273927955708e-06,
+      "endpoint_memory_next_lr": 9.959273927955705e-07
+    },
+    {
+      "completed_updates": 3200,
+      "multiplier": 0.9955309490421408,
+      "W3_action_next_lr": 4.977654745210704e-05,
+      "W3_memory_next_lr": 4.977654745210704e-06,
+      "endpoint_action_next_lr": 9.955309490421408e-06,
+      "endpoint_memory_next_lr": 9.955309490421407e-07
+    },
+    {
+      "completed_updates": 3300,
+      "multiplier": 0.9951161912564213,
+      "W3_action_next_lr": 4.9755809562821064e-05,
+      "W3_memory_next_lr": 4.975580956282107e-06,
+      "endpoint_action_next_lr": 9.951161912564214e-06,
+      "endpoint_memory_next_lr": 9.951161912564212e-07
+    },
+    {
+      "completed_updates": 3400,
+      "multiplier": 0.9946831364874801,
+      "W3_action_next_lr": 4.9734156824374005e-05,
+      "W3_memory_next_lr": 4.973415682437401e-06,
+      "endpoint_action_next_lr": 9.946831364874801e-06,
+      "endpoint_memory_next_lr": 9.9468313648748e-07
+    },
+    {
+      "completed_updates": 3500,
+      "multiplier": 0.9942318025365027,
+      "W3_action_next_lr": 4.971159012682514e-05,
+      "W3_memory_next_lr": 4.971159012682514e-06,
+      "endpoint_action_next_lr": 9.942318025365027e-06,
+      "endpoint_memory_next_lr": 9.942318025365027e-07
+    },
+    {
+      "completed_updates": 3600,
+      "multiplier": 0.9937622079560596,
+      "W3_action_next_lr": 4.968811039780298e-05,
+      "W3_memory_next_lr": 4.968811039780298e-06,
+      "endpoint_action_next_lr": 9.937622079560597e-06,
+      "endpoint_memory_next_lr": 9.937622079560596e-07
+    },
+    {
+      "completed_updates": 3700,
+      "multiplier": 0.9932743720493455,
+      "W3_action_next_lr": 4.966371860246728e-05,
+      "W3_memory_next_lr": 4.966371860246728e-06,
+      "endpoint_action_next_lr": 9.932743720493457e-06,
+      "endpoint_memory_next_lr": 9.932743720493455e-07
+    },
+    {
+      "completed_updates": 3800,
+      "multiplier": 0.9927683148693833,
+      "W3_action_next_lr": 4.9638415743469166e-05,
+      "W3_memory_next_lr": 4.963841574346917e-06,
+      "endpoint_action_next_lr": 9.927683148693834e-06,
+      "endpoint_memory_next_lr": 9.927683148693833e-07
+    },
+    {
+      "completed_updates": 3900,
+      "multiplier": 0.9922440572182017,
+      "W3_action_next_lr": 4.961220286091009e-05,
+      "W3_memory_next_lr": 4.961220286091009e-06,
+      "endpoint_action_next_lr": 9.922440572182018e-06,
+      "endpoint_memory_next_lr": 9.922440572182017e-07
+    },
+    {
+      "completed_updates": 4000,
+      "multiplier": 0.9917016206459794,
+      "W3_action_next_lr": 4.9585081032298974e-05,
+      "W3_memory_next_lr": 4.958508103229898e-06,
+      "endpoint_action_next_lr": 9.917016206459796e-06,
+      "endpoint_memory_next_lr": 9.917016206459794e-07
+    },
+    {
+      "completed_updates": 4100,
+      "multiplier": 0.9911410274501593,
+      "W3_action_next_lr": 4.9557051372507966e-05,
+      "W3_memory_next_lr": 4.955705137250797e-06,
+      "endpoint_action_next_lr": 9.911410274501595e-06,
+      "endpoint_memory_next_lr": 9.911410274501592e-07
+    },
+    {
+      "completed_updates": 4200,
+      "multiplier": 0.9905623006745318,
+      "W3_action_next_lr": 4.9528115033726594e-05,
+      "W3_memory_next_lr": 4.952811503372659e-06,
+      "endpoint_action_next_lr": 9.905623006745318e-06,
+      "endpoint_memory_next_lr": 9.905623006745316e-07
+    },
+    {
+      "completed_updates": 4300,
+      "multiplier": 0.9899654641082882,
+      "W3_action_next_lr": 4.9498273205414414e-05,
+      "W3_memory_next_lr": 4.949827320541442e-06,
+      "endpoint_action_next_lr": 9.899654641082883e-06,
+      "endpoint_memory_next_lr": 9.899654641082882e-07
+    },
+    {
+      "completed_updates": 4400,
+      "multiplier": 0.9893505422850418,
+      "W3_action_next_lr": 4.9467527114252094e-05,
+      "W3_memory_next_lr": 4.94675271142521e-06,
+      "endpoint_action_next_lr": 9.89350542285042e-06,
+      "endpoint_memory_next_lr": 9.893505422850418e-07
+    },
+    {
+      "completed_updates": 4500,
+      "multiplier": 0.9887175604818206,
+      "W3_action_next_lr": 4.943587802409103e-05,
+      "W3_memory_next_lr": 4.943587802409103e-06,
+      "endpoint_action_next_lr": 9.887175604818207e-06,
+      "endpoint_memory_next_lr": 9.887175604818206e-07
+    },
+    {
+      "completed_updates": 4600,
+      "multiplier": 0.9880665447180271,
+      "W3_action_next_lr": 4.940332723590136e-05,
+      "W3_memory_next_lr": 4.940332723590136e-06,
+      "endpoint_action_next_lr": 9.880665447180271e-06,
+      "endpoint_memory_next_lr": 9.880665447180272e-07
+    },
+    {
+      "completed_updates": 4700,
+      "multiplier": 0.9873975217543696,
+      "W3_action_next_lr": 4.936987608771848e-05,
+      "W3_memory_next_lr": 4.936987608771848e-06,
+      "endpoint_action_next_lr": 9.873975217543696e-06,
+      "endpoint_memory_next_lr": 9.873975217543695e-07
+    },
+    {
+      "completed_updates": 4800,
+      "multiplier": 0.9867105190917617,
+      "W3_action_next_lr": 4.9335525954588084e-05,
+      "W3_memory_next_lr": 4.933552595458809e-06,
+      "endpoint_action_next_lr": 9.867105190917617e-06,
+      "endpoint_memory_next_lr": 9.867105190917616e-07
+    },
+    {
+      "completed_updates": 4900,
+      "multiplier": 0.9860055649701919,
+      "W3_action_next_lr": 4.930027824850959e-05,
+      "W3_memory_next_lr": 4.93002782485096e-06,
+      "endpoint_action_next_lr": 9.86005564970192e-06,
+      "endpoint_memory_next_lr": 9.860055649701918e-07
+    },
+    {
+      "completed_updates": 5000,
+      "multiplier": 0.9852826883675633,
+      "W3_action_next_lr": 4.926413441837816e-05,
+      "W3_memory_next_lr": 4.926413441837817e-06,
+      "endpoint_action_next_lr": 9.852826883675634e-06,
+      "endpoint_memory_next_lr": 9.852826883675632e-07
+    },
+    {
+      "completed_updates": 5100,
+      "multiplier": 0.9845419189985015,
+      "W3_action_next_lr": 4.9227095949925076e-05,
+      "W3_memory_next_lr": 4.922709594992508e-06,
+      "endpoint_action_next_lr": 9.845419189985015e-06,
+      "endpoint_memory_next_lr": 9.845419189985016e-07
+    },
+    {
+      "completed_updates": 5200,
+      "multiplier": 0.9837832873131339,
+      "W3_action_next_lr": 4.91891643656567e-05,
+      "W3_memory_next_lr": 4.91891643656567e-06,
+      "endpoint_action_next_lr": 9.83783287313134e-06,
+      "endpoint_memory_next_lr": 9.83783287313134e-07
+    },
+    {
+      "completed_updates": 5300,
+      "multiplier": 0.983006824495838,
+      "W3_action_next_lr": 4.91503412247919e-05,
+      "W3_memory_next_lr": 4.9150341224791905e-06,
+      "endpoint_action_next_lr": 9.830068244958381e-06,
+      "endpoint_memory_next_lr": 9.83006824495838e-07
+    },
+    {
+      "completed_updates": 5400,
+      "multiplier": 0.9822125624639587,
+      "W3_action_next_lr": 4.911062812319794e-05,
+      "W3_memory_next_lr": 4.911062812319794e-06,
+      "endpoint_action_next_lr": 9.822125624639589e-06,
+      "endpoint_memory_next_lr": 9.822125624639586e-07
+    },
+    {
+      "completed_updates": 5500,
+      "multiplier": 0.9814005338664973,
+      "W3_action_next_lr": 4.907002669332487e-05,
+      "W3_memory_next_lr": 4.907002669332487e-06,
+      "endpoint_action_next_lr": 9.814005338664973e-06,
+      "endpoint_memory_next_lr": 9.814005338664973e-07
+    },
+    {
+      "completed_updates": 5600,
+      "multiplier": 0.9805707720827689,
+      "W3_action_next_lr": 4.902853860413845e-05,
+      "W3_memory_next_lr": 4.902853860413845e-06,
+      "endpoint_action_next_lr": 9.80570772082769e-06,
+      "endpoint_memory_next_lr": 9.80570772082769e-07
+    },
+    {
+      "completed_updates": 5700,
+      "multiplier": 0.9797233112210307,
+      "W3_action_next_lr": 4.898616556105154e-05,
+      "W3_memory_next_lr": 4.898616556105154e-06,
+      "endpoint_action_next_lr": 9.797233112210309e-06,
+      "endpoint_memory_next_lr": 9.797233112210308e-07
+    },
+    {
+      "completed_updates": 5800,
+      "multiplier": 0.9788581861170792,
+      "W3_action_next_lr": 4.894290930585396e-05,
+      "W3_memory_next_lr": 4.894290930585396e-06,
+      "endpoint_action_next_lr": 9.788581861170792e-06,
+      "endpoint_memory_next_lr": 9.788581861170792e-07
+    },
+    {
+      "completed_updates": 5900,
+      "multiplier": 0.9779754323328191,
+      "W3_action_next_lr": 4.889877161664096e-05,
+      "W3_memory_next_lr": 4.889877161664096e-06,
+      "endpoint_action_next_lr": 9.779754323328192e-06,
+      "endpoint_memory_next_lr": 9.779754323328192e-07
+    },
+    {
+      "completed_updates": 6000,
+      "multiplier": 0.9770750861548009,
+      "W3_action_next_lr": 4.8853754307740043e-05,
+      "W3_memory_next_lr": 4.885375430774005e-06,
+      "endpoint_action_next_lr": 9.77075086154801e-06,
+      "endpoint_memory_next_lr": 9.770750861548008e-07
+    },
+    {
+      "completed_updates": 6100,
+      "multiplier": 0.9761571845927296,
+      "W3_action_next_lr": 4.8807859229636485e-05,
+      "W3_memory_next_lr": 4.8807859229636485e-06,
+      "endpoint_action_next_lr": 9.761571845927297e-06,
+      "endpoint_memory_next_lr": 9.761571845927295e-07
+    },
+    {
+      "completed_updates": 6200,
+      "multiplier": 0.9752217653779431,
+      "W3_action_next_lr": 4.876108826889716e-05,
+      "W3_memory_next_lr": 4.876108826889716e-06,
+      "endpoint_action_next_lr": 9.752217653779432e-06,
+      "endpoint_memory_next_lr": 9.75221765377943e-07
+    },
+    {
+      "completed_updates": 6300,
+      "multiplier": 0.9742688669618618,
+      "W3_action_next_lr": 4.8713443348093093e-05,
+      "W3_memory_next_lr": 4.871344334809309e-06,
+      "endpoint_action_next_lr": 9.742688669618618e-06,
+      "endpoint_memory_next_lr": 9.742688669618617e-07
+    },
+    {
+      "completed_updates": 6400,
+      "multiplier": 0.9732985285144071,
+      "W3_action_next_lr": 4.866492642572036e-05,
+      "W3_memory_next_lr": 4.866492642572036e-06,
+      "endpoint_action_next_lr": 9.732985285144072e-06,
+      "endpoint_memory_next_lr": 9.732985285144072e-07
+    },
+    {
+      "completed_updates": 6500,
+      "multiplier": 0.9723107899223922,
+      "W3_action_next_lr": 4.8615539496119614e-05,
+      "W3_memory_next_lr": 4.861553949611961e-06,
+      "endpoint_action_next_lr": 9.723107899223922e-06,
+      "endpoint_memory_next_lr": 9.72310789922392e-07
+    },
+    {
+      "completed_updates": 6600,
+      "multiplier": 0.9713056917878817,
+      "W3_action_next_lr": 4.856528458939409e-05,
+      "W3_memory_next_lr": 4.856528458939409e-06,
+      "endpoint_action_next_lr": 9.713056917878818e-06,
+      "endpoint_memory_next_lr": 9.713056917878816e-07
+    },
+    {
+      "completed_updates": 6700,
+      "multiplier": 0.9702832754265235,
+      "W3_action_next_lr": 4.8514163771326175e-05,
+      "W3_memory_next_lr": 4.851416377132618e-06,
+      "endpoint_action_next_lr": 9.702832754265235e-06,
+      "endpoint_memory_next_lr": 9.702832754265235e-07
+    },
+    {
+      "completed_updates": 6800,
+      "multiplier": 0.9692435828658493,
+      "W3_action_next_lr": 4.846217914329247e-05,
+      "W3_memory_next_lr": 4.846217914329247e-06,
+      "endpoint_action_next_lr": 9.692435828658493e-06,
+      "endpoint_memory_next_lr": 9.692435828658492e-07
+    },
+    {
+      "completed_updates": 6900,
+      "multiplier": 0.9681866568435484,
+      "W3_action_next_lr": 4.840933284217742e-05,
+      "W3_memory_next_lr": 4.840933284217742e-06,
+      "endpoint_action_next_lr": 9.681866568435484e-06,
+      "endpoint_memory_next_lr": 9.681866568435484e-07
+    },
+    {
+      "completed_updates": 7000,
+      "multiplier": 0.9671125408057097,
+      "W3_action_next_lr": 4.835562704028549e-05,
+      "W3_memory_next_lr": 4.835562704028549e-06,
+      "endpoint_action_next_lr": 9.671125408057099e-06,
+      "endpoint_memory_next_lr": 9.671125408057098e-07
+    },
+    {
+      "completed_updates": 7100,
+      "multiplier": 0.9660212789050366,
+      "W3_action_next_lr": 4.8301063945251835e-05,
+      "W3_memory_next_lr": 4.830106394525184e-06,
+      "endpoint_action_next_lr": 9.660212789050368e-06,
+      "endpoint_memory_next_lr": 9.660212789050365e-07
+    },
+    {
+      "completed_updates": 7200,
+      "multiplier": 0.9649129159990317,
+      "W3_action_next_lr": 4.824564579995159e-05,
+      "W3_memory_next_lr": 4.824564579995159e-06,
+      "endpoint_action_next_lr": 9.649129159990319e-06,
+      "endpoint_memory_next_lr": 9.649129159990318e-07
+    },
+    {
+      "completed_updates": 7300,
+      "multiplier": 0.9637874976481529,
+      "W3_action_next_lr": 4.8189374882407644e-05,
+      "W3_memory_next_lr": 4.818937488240765e-06,
+      "endpoint_action_next_lr": 9.63787497648153e-06,
+      "endpoint_memory_next_lr": 9.637874976481528e-07
+    },
+    {
+      "completed_updates": 7400,
+      "multiplier": 0.9626450701139403,
+      "W3_action_next_lr": 4.813225350569702e-05,
+      "W3_memory_next_lr": 4.813225350569702e-06,
+      "endpoint_action_next_lr": 9.626450701139405e-06,
+      "endpoint_memory_next_lr": 9.626450701139402e-07
+    },
+    {
+      "completed_updates": 7500,
+      "multiplier": 0.9614856803571156,
+      "W3_action_next_lr": 4.807428401785578e-05,
+      "W3_memory_next_lr": 4.807428401785578e-06,
+      "endpoint_action_next_lr": 9.614856803571156e-06,
+      "endpoint_memory_next_lr": 9.614856803571156e-07
+    },
+    {
+      "completed_updates": 7600,
+      "multiplier": 0.9603093760356506,
+      "W3_action_next_lr": 4.801546880178253e-05,
+      "W3_memory_next_lr": 4.801546880178253e-06,
+      "endpoint_action_next_lr": 9.603093760356507e-06,
+      "endpoint_memory_next_lr": 9.603093760356506e-07
+    },
+    {
+      "completed_updates": 7700,
+      "multiplier": 0.9591162055028087,
+      "W3_action_next_lr": 4.795581027514044e-05,
+      "W3_memory_next_lr": 4.795581027514044e-06,
+      "endpoint_action_next_lr": 9.591162055028088e-06,
+      "endpoint_memory_next_lr": 9.591162055028088e-07
+    },
+    {
+      "completed_updates": 7800,
+      "multiplier": 0.9579062178051572,
+      "W3_action_next_lr": 4.789531089025786e-05,
+      "W3_memory_next_lr": 4.789531089025786e-06,
+      "endpoint_action_next_lr": 9.579062178051573e-06,
+      "endpoint_memory_next_lr": 9.57906217805157e-07
+    },
+    {
+      "completed_updates": 7900,
+      "multiplier": 0.956679462680551,
+      "W3_action_next_lr": 4.783397313402756e-05,
+      "W3_memory_next_lr": 4.783397313402755e-06,
+      "endpoint_action_next_lr": 9.56679462680551e-06,
+      "endpoint_memory_next_lr": 9.56679462680551e-07
+    },
+    {
+      "completed_updates": 8000,
+      "multiplier": 0.9554359905560885,
+      "W3_action_next_lr": 4.777179952780443e-05,
+      "W3_memory_next_lr": 4.777179952780443e-06,
+      "endpoint_action_next_lr": 9.554359905560887e-06,
+      "endpoint_memory_next_lr": 9.554359905560885e-07
+    },
+    {
+      "completed_updates": 8100,
+      "multiplier": 0.9541758525460385,
+      "W3_action_next_lr": 4.7708792627301926e-05,
+      "W3_memory_next_lr": 4.770879262730193e-06,
+      "endpoint_action_next_lr": 9.541758525460386e-06,
+      "endpoint_memory_next_lr": 9.541758525460385e-07
+    },
+    {
+      "completed_updates": 8200,
+      "multiplier": 0.9528991004497389,
+      "W3_action_next_lr": 4.764495502248695e-05,
+      "W3_memory_next_lr": 4.764495502248695e-06,
+      "endpoint_action_next_lr": 9.52899100449739e-06,
+      "endpoint_memory_next_lr": 9.528991004497388e-07
+    },
+    {
+      "completed_updates": 8300,
+      "multiplier": 0.9516057867494677,
+      "W3_action_next_lr": 4.758028933747339e-05,
+      "W3_memory_next_lr": 4.758028933747339e-06,
+      "endpoint_action_next_lr": 9.516057867494677e-06,
+      "endpoint_memory_next_lr": 9.516057867494677e-07
+    },
+    {
+      "completed_updates": 8400,
+      "multiplier": 0.9502959646082854,
+      "W3_action_next_lr": 4.751479823041427e-05,
+      "W3_memory_next_lr": 4.751479823041427e-06,
+      "endpoint_action_next_lr": 9.502959646082854e-06,
+      "endpoint_memory_next_lr": 9.502959646082853e-07
+    },
+    {
+      "completed_updates": 8500,
+      "multiplier": 0.9489696878678501,
+      "W3_action_next_lr": 4.744848439339251e-05,
+      "W3_memory_next_lr": 4.744848439339251e-06,
+      "endpoint_action_next_lr": 9.489696878678502e-06,
+      "endpoint_memory_next_lr": 9.4896968786785e-07
+    },
+    {
+      "completed_updates": 8600,
+      "multiplier": 0.9476270110462038,
+      "W3_action_next_lr": 4.7381350552310195e-05,
+      "W3_memory_next_lr": 4.73813505523102e-06,
+      "endpoint_action_next_lr": 9.47627011046204e-06,
+      "endpoint_memory_next_lr": 9.476270110462038e-07
+    },
+    {
+      "completed_updates": 8700,
+      "multiplier": 0.9462679893355321,
+      "W3_action_next_lr": 4.731339946677661e-05,
+      "W3_memory_next_lr": 4.731339946677661e-06,
+      "endpoint_action_next_lr": 9.462679893355322e-06,
+      "endpoint_memory_next_lr": 9.462679893355321e-07
+    },
+    {
+      "completed_updates": 8800,
+      "multiplier": 0.9448926785998942,
+      "W3_action_next_lr": 4.724463392999472e-05,
+      "W3_memory_next_lr": 4.724463392999471e-06,
+      "endpoint_action_next_lr": 9.448926785998943e-06,
+      "endpoint_memory_next_lr": 9.448926785998942e-07
+    },
+    {
+      "completed_updates": 8900,
+      "multiplier": 0.943501135372928,
+      "W3_action_next_lr": 4.7175056768646405e-05,
+      "W3_memory_next_lr": 4.71750567686464e-06,
+      "endpoint_action_next_lr": 9.43501135372928e-06,
+      "endpoint_memory_next_lr": 9.43501135372928e-07
+    },
+    {
+      "completed_updates": 9000,
+      "multiplier": 0.9420934168555253,
+      "W3_action_next_lr": 4.710467084277627e-05,
+      "W3_memory_next_lr": 4.7104670842776266e-06,
+      "endpoint_action_next_lr": 9.420934168555253e-06,
+      "endpoint_memory_next_lr": 9.420934168555252e-07
+    },
+    {
+      "completed_updates": 9100,
+      "multiplier": 0.9406695809134803,
+      "W3_action_next_lr": 4.7033479045674014e-05,
+      "W3_memory_next_lr": 4.703347904567402e-06,
+      "endpoint_action_next_lr": 9.406695809134803e-06,
+      "endpoint_memory_next_lr": 9.406695809134803e-07
+    },
+    {
+      "completed_updates": 9200,
+      "multiplier": 0.939229686075112,
+      "W3_action_next_lr": 4.696148430375561e-05,
+      "W3_memory_next_lr": 4.69614843037556e-06,
+      "endpoint_action_next_lr": 9.39229686075112e-06,
+      "endpoint_memory_next_lr": 9.39229686075112e-07
+    },
+    {
+      "completed_updates": 9300,
+      "multiplier": 0.9377737915288578,
+      "W3_action_next_lr": 4.688868957644289e-05,
+      "W3_memory_next_lr": 4.688868957644289e-06,
+      "endpoint_action_next_lr": 9.377737915288578e-06,
+      "endpoint_memory_next_lr": 9.377737915288577e-07
+    },
+    {
+      "completed_updates": 9400,
+      "multiplier": 0.9363019571208397,
+      "W3_action_next_lr": 4.6815097856041986e-05,
+      "W3_memory_next_lr": 4.681509785604199e-06,
+      "endpoint_action_next_lr": 9.363019571208398e-06,
+      "endpoint_memory_next_lr": 9.363019571208397e-07
+    },
+    {
+      "completed_updates": 9500,
+      "multiplier": 0.9348142433524058,
+      "W3_action_next_lr": 4.6740712167620296e-05,
+      "W3_memory_next_lr": 4.6740712167620294e-06,
+      "endpoint_action_next_lr": 9.348142433524059e-06,
+      "endpoint_memory_next_lr": 9.348142433524058e-07
+    },
+    {
+      "completed_updates": 9600,
+      "multiplier": 0.933310711377642,
+      "W3_action_next_lr": 4.6665535568882104e-05,
+      "W3_memory_next_lr": 4.666553556888211e-06,
+      "endpoint_action_next_lr": 9.333107113776421e-06,
+      "endpoint_memory_next_lr": 9.333107113776419e-07
+    },
+    {
+      "completed_updates": 9700,
+      "multiplier": 0.9317914230008586,
+      "W3_action_next_lr": 4.6589571150042934e-05,
+      "W3_memory_next_lr": 4.658957115004294e-06,
+      "endpoint_action_next_lr": 9.317914230008588e-06,
+      "endpoint_memory_next_lr": 9.317914230008586e-07
+    },
+    {
+      "completed_updates": 9800,
+      "multiplier": 0.9302564406740506,
+      "W3_action_next_lr": 4.651282203370253e-05,
+      "W3_memory_next_lr": 4.651282203370253e-06,
+      "endpoint_action_next_lr": 9.302564406740506e-06,
+      "endpoint_memory_next_lr": 9.302564406740505e-07
+    },
+    {
+      "completed_updates": 9900,
+      "multiplier": 0.928705827494329,
+      "W3_action_next_lr": 4.643529137471645e-05,
+      "W3_memory_next_lr": 4.6435291374716455e-06,
+      "endpoint_action_next_lr": 9.287058274943291e-06,
+      "endpoint_memory_next_lr": 9.287058274943289e-07
+    },
+    {
+      "completed_updates": 10000,
+      "multiplier": 0.9271396472013282,
+      "W3_action_next_lr": 4.6356982360066416e-05,
+      "W3_memory_next_lr": 4.635698236006642e-06,
+      "endpoint_action_next_lr": 9.271396472013284e-06,
+      "endpoint_memory_next_lr": 9.271396472013282e-07
+    },
+    {
+      "completed_updates": 10100,
+      "multiplier": 0.9255579641745861,
+      "W3_action_next_lr": 4.627789820872931e-05,
+      "W3_memory_next_lr": 4.627789820872931e-06,
+      "endpoint_action_next_lr": 9.255579641745862e-06,
+      "endpoint_memory_next_lr": 9.25557964174586e-07
+    },
+    {
+      "completed_updates": 10200,
+      "multiplier": 0.9239608434308968,
+      "W3_action_next_lr": 4.619804217154484e-05,
+      "W3_memory_next_lr": 4.619804217154484e-06,
+      "endpoint_action_next_lr": 9.239608434308968e-06,
+      "endpoint_memory_next_lr": 9.239608434308968e-07
+    },
+    {
+      "completed_updates": 10300,
+      "multiplier": 0.9223483506216384,
+      "W3_action_next_lr": 4.6117417531081926e-05,
+      "W3_memory_next_lr": 4.611741753108193e-06,
+      "endpoint_action_next_lr": 9.223483506216386e-06,
+      "endpoint_memory_next_lr": 9.223483506216384e-07
+    },
+    {
+      "completed_updates": 10400,
+      "multiplier": 0.9207205520300746,
+      "W3_action_next_lr": 4.6036027601503735e-05,
+      "W3_memory_next_lr": 4.603602760150374e-06,
+      "endpoint_action_next_lr": 9.207205520300748e-06,
+      "endpoint_memory_next_lr": 9.207205520300746e-07
+    },
+    {
+      "completed_updates": 10500,
+      "multiplier": 0.9190775145686302,
+      "W3_action_next_lr": 4.595387572843151e-05,
+      "W3_memory_next_lr": 4.595387572843151e-06,
+      "endpoint_action_next_lr": 9.190775145686303e-06,
+      "endpoint_memory_next_lr": 9.190775145686301e-07
+    },
+    {
+      "completed_updates": 10600,
+      "multiplier": 0.9174193057761394,
+      "W3_action_next_lr": 4.587096528880697e-05,
+      "W3_memory_next_lr": 4.587096528880697e-06,
+      "endpoint_action_next_lr": 9.174193057761394e-06,
+      "endpoint_memory_next_lr": 9.174193057761394e-07
+    },
+    {
+      "completed_updates": 10700,
+      "multiplier": 0.9157459938150713,
+      "W3_action_next_lr": 4.5787299690753564e-05,
+      "W3_memory_next_lr": 4.578729969075357e-06,
+      "endpoint_action_next_lr": 9.157459938150714e-06,
+      "endpoint_memory_next_lr": 9.157459938150713e-07
+    },
+    {
+      "completed_updates": 10800,
+      "multiplier": 0.9140576474687263,
+      "W3_action_next_lr": 4.570288237343632e-05,
+      "W3_memory_next_lr": 4.570288237343632e-06,
+      "endpoint_action_next_lr": 9.140576474687263e-06,
+      "endpoint_memory_next_lr": 9.140576474687263e-07
+    },
+    {
+      "completed_updates": 10900,
+      "multiplier": 0.9123543361384102,
+      "W3_action_next_lr": 4.5617716806920515e-05,
+      "W3_memory_next_lr": 4.561771680692051e-06,
+      "endpoint_action_next_lr": 9.123543361384102e-06,
+      "endpoint_memory_next_lr": 9.123543361384102e-07
+    },
+    {
+      "completed_updates": 11000,
+      "multiplier": 0.9106361298405805,
+      "W3_action_next_lr": 4.5531806492029025e-05,
+      "W3_memory_next_lr": 4.553180649202903e-06,
+      "endpoint_action_next_lr": 9.106361298405806e-06,
+      "endpoint_memory_next_lr": 9.106361298405805e-07
+    },
+    {
+      "completed_updates": 11100,
+      "multiplier": 0.9089030992039681,
+      "W3_action_next_lr": 4.54451549601984e-05,
+      "W3_memory_next_lr": 4.544515496019841e-06,
+      "endpoint_action_next_lr": 9.089030992039681e-06,
+      "endpoint_memory_next_lr": 9.08903099203968e-07
+    },
+    {
+      "completed_updates": 11200,
+      "multiplier": 0.9071553154666746,
+      "W3_action_next_lr": 4.5357765773333734e-05,
+      "W3_memory_next_lr": 4.5357765773333734e-06,
+      "endpoint_action_next_lr": 9.071553154666747e-06,
+      "endpoint_memory_next_lr": 9.071553154666746e-07
+    },
+    {
+      "completed_updates": 11300,
+      "multiplier": 0.905392850473244,
+      "W3_action_next_lr": 4.52696425236622e-05,
+      "W3_memory_next_lr": 4.52696425236622e-06,
+      "endpoint_action_next_lr": 9.05392850473244e-06,
+      "endpoint_memory_next_lr": 9.05392850473244e-07
+    },
+    {
+      "completed_updates": 11400,
+      "multiplier": 0.9036157766717091,
+      "W3_action_next_lr": 4.518078883358546e-05,
+      "W3_memory_next_lr": 4.518078883358546e-06,
+      "endpoint_action_next_lr": 9.036157766717092e-06,
+      "endpoint_memory_next_lr": 9.036157766717091e-07
+    },
+    {
+      "completed_updates": 11500,
+      "multiplier": 0.9018241671106134,
+      "W3_action_next_lr": 4.509120835553067e-05,
+      "W3_memory_next_lr": 4.509120835553068e-06,
+      "endpoint_action_next_lr": 9.018241671106135e-06,
+      "endpoint_memory_next_lr": 9.018241671106134e-07
+    },
+    {
+      "completed_updates": 11600,
+      "multiplier": 0.9000180954360087,
+      "W3_action_next_lr": 4.500090477180044e-05,
+      "W3_memory_next_lr": 4.500090477180044e-06,
+      "endpoint_action_next_lr": 9.000180954360088e-06,
+      "endpoint_memory_next_lr": 9.000180954360087e-07
+    },
+    {
+      "completed_updates": 11700,
+      "multiplier": 0.898197635888428,
+      "W3_action_next_lr": 4.49098817944214e-05,
+      "W3_memory_next_lr": 4.4909881794421405e-06,
+      "endpoint_action_next_lr": 8.981976358884281e-06,
+      "endpoint_memory_next_lr": 8.98197635888428e-07
+    },
+    {
+      "completed_updates": 11800,
+      "multiplier": 0.8963628632998327,
+      "W3_action_next_lr": 4.481814316499164e-05,
+      "W3_memory_next_lr": 4.481814316499164e-06,
+      "endpoint_action_next_lr": 8.963628632998328e-06,
+      "endpoint_memory_next_lr": 8.963628632998327e-07
+    },
+    {
+      "completed_updates": 11900,
+      "multiplier": 0.8945138530905375,
+      "W3_action_next_lr": 4.472569265452688e-05,
+      "W3_memory_next_lr": 4.472569265452688e-06,
+      "endpoint_action_next_lr": 8.945138530905376e-06,
+      "endpoint_memory_next_lr": 8.945138530905375e-07
+    },
+    {
+      "completed_updates": 12000,
+      "multiplier": 0.8926506812661105,
+      "W3_action_next_lr": 4.4632534063305524e-05,
+      "W3_memory_next_lr": 4.463253406330553e-06,
+      "endpoint_action_next_lr": 8.926506812661106e-06,
+      "endpoint_memory_next_lr": 8.926506812661104e-07
+    },
+    {
+      "completed_updates": 12100,
+      "multiplier": 0.8907734244142475,
+      "W3_action_next_lr": 4.453867122071237e-05,
+      "W3_memory_next_lr": 4.453867122071238e-06,
+      "endpoint_action_next_lr": 8.907734244142476e-06,
+      "endpoint_memory_next_lr": 8.907734244142475e-07
+    },
+    {
+      "completed_updates": 12200,
+      "multiplier": 0.888882159701625,
+      "W3_action_next_lr": 4.444410798508125e-05,
+      "W3_memory_next_lr": 4.4444107985081255e-06,
+      "endpoint_action_next_lr": 8.888821597016251e-06,
+      "endpoint_memory_next_lr": 8.88882159701625e-07
+    },
+    {
+      "completed_updates": 12300,
+      "multiplier": 0.8869769648707276,
+      "W3_action_next_lr": 4.434884824353638e-05,
+      "W3_memory_next_lr": 4.4348848243536385e-06,
+      "endpoint_action_next_lr": 8.869769648707277e-06,
+      "endpoint_memory_next_lr": 8.869769648707275e-07
+    },
+    {
+      "completed_updates": 12400,
+      "multiplier": 0.8850579182366531,
+      "W3_action_next_lr": 4.425289591183266e-05,
+      "W3_memory_next_lr": 4.4252895911832664e-06,
+      "endpoint_action_next_lr": 8.850579182366533e-06,
+      "endpoint_memory_next_lr": 8.850579182366531e-07
+    },
+    {
+      "completed_updates": 12500,
+      "multiplier": 0.883125098683892,
+      "W3_action_next_lr": 4.41562549341946e-05,
+      "W3_memory_next_lr": 4.415625493419461e-06,
+      "endpoint_action_next_lr": 8.831250986838921e-06,
+      "endpoint_memory_next_lr": 8.831250986838919e-07
+    },
+    {
+      "completed_updates": 12600,
+      "multiplier": 0.8811785856630858,
+      "W3_action_next_lr": 4.405892928315429e-05,
+      "W3_memory_next_lr": 4.405892928315429e-06,
+      "endpoint_action_next_lr": 8.811785856630859e-06,
+      "endpoint_memory_next_lr": 8.811785856630858e-07
+    },
+    {
+      "completed_updates": 12700,
+      "multiplier": 0.8792184591877606,
+      "W3_action_next_lr": 4.3960922959388034e-05,
+      "W3_memory_next_lr": 4.396092295938804e-06,
+      "endpoint_action_next_lr": 8.792184591877607e-06,
+      "endpoint_memory_next_lr": 8.792184591877607e-07
+    },
+    {
+      "completed_updates": 12800,
+      "multiplier": 0.8772447998310389,
+      "W3_action_next_lr": 4.386223999155195e-05,
+      "W3_memory_next_lr": 4.386223999155195e-06,
+      "endpoint_action_next_lr": 8.77244799831039e-06,
+      "endpoint_memory_next_lr": 8.772447998310389e-07
+    },
+    {
+      "completed_updates": 12900,
+      "multiplier": 0.8752576887223261,
+      "W3_action_next_lr": 4.376288443611631e-05,
+      "W3_memory_next_lr": 4.376288443611631e-06,
+      "endpoint_action_next_lr": 8.752576887223262e-06,
+      "endpoint_memory_next_lr": 8.752576887223261e-07
+    },
+    {
+      "completed_updates": 13000,
+      "multiplier": 0.8732572075439774,
+      "W3_action_next_lr": 4.366286037719887e-05,
+      "W3_memory_next_lr": 4.3662860377198875e-06,
+      "endpoint_action_next_lr": 8.732572075439775e-06,
+      "endpoint_memory_next_lr": 8.732572075439773e-07
+    },
+    {
+      "completed_updates": 13100,
+      "multiplier": 0.8712434385279384,
+      "W3_action_next_lr": 4.356217192639692e-05,
+      "W3_memory_next_lr": 4.356217192639692e-06,
+      "endpoint_action_next_lr": 8.712434385279385e-06,
+      "endpoint_memory_next_lr": 8.712434385279383e-07
+    },
+    {
+      "completed_updates": 13200,
+      "multiplier": 0.869216464452366,
+      "W3_action_next_lr": 4.34608232226183e-05,
+      "W3_memory_next_lr": 4.34608232226183e-06,
+      "endpoint_action_next_lr": 8.69216464452366e-06,
+      "endpoint_memory_next_lr": 8.69216464452366e-07
+    },
+    {
+      "completed_updates": 13300,
+      "multiplier": 0.8671763686382253,
+      "W3_action_next_lr": 4.3358818431911266e-05,
+      "W3_memory_next_lr": 4.335881843191127e-06,
+      "endpoint_action_next_lr": 8.671763686382254e-06,
+      "endpoint_memory_next_lr": 8.671763686382253e-07
+    },
+    {
+      "completed_updates": 13400,
+      "multiplier": 0.8651232349458647,
+      "W3_action_next_lr": 4.325616174729324e-05,
+      "W3_memory_next_lr": 4.325616174729324e-06,
+      "endpoint_action_next_lr": 8.651232349458649e-06,
+      "endpoint_memory_next_lr": 8.651232349458647e-07
+    },
+    {
+      "completed_updates": 13500,
+      "multiplier": 0.8630571477715689,
+      "W3_action_next_lr": 4.315285738857845e-05,
+      "W3_memory_next_lr": 4.315285738857845e-06,
+      "endpoint_action_next_lr": 8.63057147771569e-06,
+      "endpoint_memory_next_lr": 8.630571477715689e-07
+    },
+    {
+      "completed_updates": 13600,
+      "multiplier": 0.8609781920440891,
+      "W3_action_next_lr": 4.3048909602204455e-05,
+      "W3_memory_next_lr": 4.304890960220446e-06,
+      "endpoint_action_next_lr": 8.609781920440891e-06,
+      "endpoint_memory_next_lr": 8.609781920440891e-07
+    },
+    {
+      "completed_updates": 13700,
+      "multiplier": 0.8588864532211526,
+      "W3_action_next_lr": 4.2944322661057636e-05,
+      "W3_memory_next_lr": 4.294432266105764e-06,
+      "endpoint_action_next_lr": 8.588864532211528e-06,
+      "endpoint_memory_next_lr": 8.588864532211526e-07
+    },
+    {
+      "completed_updates": 13800,
+      "multiplier": 0.8567820172859498,
+      "W3_action_next_lr": 4.283910086429749e-05,
+      "W3_memory_next_lr": 4.283910086429749e-06,
+      "endpoint_action_next_lr": 8.567820172859498e-06,
+      "endpoint_memory_next_lr": 8.567820172859498e-07
+    },
+    {
+      "completed_updates": 13900,
+      "multiplier": 0.8546649707435993,
+      "W3_action_next_lr": 4.2733248537179964e-05,
+      "W3_memory_next_lr": 4.2733248537179964e-06,
+      "endpoint_action_next_lr": 8.546649707435993e-06,
+      "endpoint_memory_next_lr": 8.546649707435992e-07
+    },
+    {
+      "completed_updates": 14000,
+      "multiplier": 0.8525354006175926,
+      "W3_action_next_lr": 4.262677003087963e-05,
+      "W3_memory_next_lr": 4.262677003087963e-06,
+      "endpoint_action_next_lr": 8.525354006175926e-06,
+      "endpoint_memory_next_lr": 8.525354006175926e-07
+    },
+    {
+      "completed_updates": 14100,
+      "multiplier": 0.8503933944462166,
+      "W3_action_next_lr": 4.2519669722310836e-05,
+      "W3_memory_next_lr": 4.2519669722310835e-06,
+      "endpoint_action_next_lr": 8.503933944462167e-06,
+      "endpoint_memory_next_lr": 8.503933944462166e-07
+    },
+    {
+      "completed_updates": 14200,
+      "multiplier": 0.8482390402789554,
+      "W3_action_next_lr": 4.241195201394777e-05,
+      "W3_memory_next_lr": 4.2411952013947775e-06,
+      "endpoint_action_next_lr": 8.482390402789555e-06,
+      "endpoint_memory_next_lr": 8.482390402789553e-07
+    },
+    {
+      "completed_updates": 14300,
+      "multiplier": 0.8460724266728706,
+      "W3_action_next_lr": 4.230362133364354e-05,
+      "W3_memory_next_lr": 4.230362133364354e-06,
+      "endpoint_action_next_lr": 8.460724266728707e-06,
+      "endpoint_memory_next_lr": 8.460724266728705e-07
+    },
+    {
+      "completed_updates": 14400,
+      "multiplier": 0.8438936426889618,
+      "W3_action_next_lr": 4.219468213444809e-05,
+      "W3_memory_next_lr": 4.21946821344481e-06,
+      "endpoint_action_next_lr": 8.43893642688962e-06,
+      "endpoint_memory_next_lr": 8.438936426889618e-07
+    },
+    {
+      "completed_updates": 14500,
+      "multiplier": 0.8417027778885048,
+      "W3_action_next_lr": 4.208513889442524e-05,
+      "W3_memory_next_lr": 4.208513889442524e-06,
+      "endpoint_action_next_lr": 8.417027778885048e-06,
+      "endpoint_memory_next_lr": 8.417027778885048e-07
+    },
+    {
+      "completed_updates": 14600,
+      "multiplier": 0.8394999223293703,
+      "W3_action_next_lr": 4.197499611646852e-05,
+      "W3_memory_next_lr": 4.1974996116468515e-06,
+      "endpoint_action_next_lr": 8.394999223293703e-06,
+      "endpoint_memory_next_lr": 8.394999223293702e-07
+    },
+    {
+      "completed_updates": 14700,
+      "multiplier": 0.8372851665623225,
+      "W3_action_next_lr": 4.186425832811613e-05,
+      "W3_memory_next_lr": 4.186425832811613e-06,
+      "endpoint_action_next_lr": 8.372851665623227e-06,
+      "endpoint_memory_next_lr": 8.372851665623225e-07
+    },
+    {
+      "completed_updates": 14800,
+      "multiplier": 0.8350586016272965,
+      "W3_action_next_lr": 4.1752930081364826e-05,
+      "W3_memory_next_lr": 4.175293008136483e-06,
+      "endpoint_action_next_lr": 8.350586016272966e-06,
+      "endpoint_memory_next_lr": 8.350586016272964e-07
+    },
+    {
+      "completed_updates": 14900,
+      "multiplier": 0.8328203190496556,
+      "W3_action_next_lr": 4.164101595248278e-05,
+      "W3_memory_next_lr": 4.1641015952482785e-06,
+      "endpoint_action_next_lr": 8.328203190496557e-06,
+      "endpoint_memory_next_lr": 8.328203190496555e-07
+    },
+    {
+      "completed_updates": 15000,
+      "multiplier": 0.8305704108364301,
+      "W3_action_next_lr": 4.1528520541821506e-05,
+      "W3_memory_next_lr": 4.152852054182151e-06,
+      "endpoint_action_next_lr": 8.305704108364301e-06,
+      "endpoint_memory_next_lr": 8.305704108364301e-07
+    },
+    {
+      "completed_updates": 15100,
+      "multiplier": 0.8283089694725342,
+      "W3_action_next_lr": 4.1415448473626714e-05,
+      "W3_memory_next_lr": 4.141544847362671e-06,
+      "endpoint_action_next_lr": 8.283089694725343e-06,
+      "endpoint_memory_next_lr": 8.283089694725342e-07
+    },
+    {
+      "completed_updates": 15200,
+      "multiplier": 0.8260360879169649,
+      "W3_action_next_lr": 4.1301804395848247e-05,
+      "W3_memory_next_lr": 4.130180439584825e-06,
+      "endpoint_action_next_lr": 8.26036087916965e-06,
+      "endpoint_memory_next_lr": 8.260360879169649e-07
+    },
+    {
+      "completed_updates": 15300,
+      "multiplier": 0.8237518595989808,
+      "W3_action_next_lr": 4.118759297994904e-05,
+      "W3_memory_next_lr": 4.118759297994904e-06,
+      "endpoint_action_next_lr": 8.237518595989808e-06,
+      "endpoint_memory_next_lr": 8.237518595989807e-07
+    },
+    {
+      "completed_updates": 15400,
+      "multiplier": 0.8214563784142613,
+      "W3_action_next_lr": 4.107281892071307e-05,
+      "W3_memory_next_lr": 4.107281892071307e-06,
+      "endpoint_action_next_lr": 8.214563784142614e-06,
+      "endpoint_memory_next_lr": 8.214563784142613e-07
+    },
+    {
+      "completed_updates": 15500,
+      "multiplier": 0.8191497387210472,
+      "W3_action_next_lr": 4.095748693605237e-05,
+      "W3_memory_next_lr": 4.095748693605236e-06,
+      "endpoint_action_next_lr": 8.191497387210473e-06,
+      "endpoint_memory_next_lr": 8.191497387210472e-07
+    },
+    {
+      "completed_updates": 15600,
+      "multiplier": 0.8168320353362616,
+      "W3_action_next_lr": 4.084160176681308e-05,
+      "W3_memory_next_lr": 4.084160176681309e-06,
+      "endpoint_action_next_lr": 8.168320353362617e-06,
+      "endpoint_memory_next_lr": 8.168320353362615e-07
+    },
+    {
+      "completed_updates": 15700,
+      "multiplier": 0.814503363531613,
+      "W3_action_next_lr": 4.0725168176580654e-05,
+      "W3_memory_next_lr": 4.072516817658066e-06,
+      "endpoint_action_next_lr": 8.145033635316131e-06,
+      "endpoint_memory_next_lr": 8.145033635316129e-07
+    },
+    {
+      "completed_updates": 15800,
+      "multiplier": 0.8121638190296783,
+      "W3_action_next_lr": 4.0608190951483915e-05,
+      "W3_memory_next_lr": 4.060819095148391e-06,
+      "endpoint_action_next_lr": 8.121638190296783e-06,
+      "endpoint_memory_next_lr": 8.121638190296782e-07
+    },
+    {
+      "completed_updates": 15900,
+      "multiplier": 0.8098134979999688,
+      "W3_action_next_lr": 4.049067489999844e-05,
+      "W3_memory_next_lr": 4.0490674899998445e-06,
+      "endpoint_action_next_lr": 8.098134979999689e-06,
+      "endpoint_memory_next_lr": 8.098134979999688e-07
+    },
+    {
+      "completed_updates": 16000,
+      "multiplier": 0.8074524970549763,
+      "W3_action_next_lr": 4.037262485274882e-05,
+      "W3_memory_next_lr": 4.037262485274882e-06,
+      "endpoint_action_next_lr": 8.074524970549764e-06,
+      "endpoint_memory_next_lr": 8.074524970549763e-07
+    },
+    {
+      "completed_updates": 16100,
+      "multiplier": 0.8050809132462025,
+      "W3_action_next_lr": 4.0254045662310126e-05,
+      "W3_memory_next_lr": 4.0254045662310124e-06,
+      "endpoint_action_next_lr": 8.050809132462025e-06,
+      "endpoint_memory_next_lr": 8.050809132462024e-07
+    },
+    {
+      "completed_updates": 16200,
+      "multiplier": 0.8026988440601687,
+      "W3_action_next_lr": 4.0134942203008436e-05,
+      "W3_memory_next_lr": 4.013494220300844e-06,
+      "endpoint_action_next_lr": 8.026988440601687e-06,
+      "endpoint_memory_next_lr": 8.026988440601687e-07
+    },
+    {
+      "completed_updates": 16300,
+      "multiplier": 0.8003063874144092,
+      "W3_action_next_lr": 4.0015319370720464e-05,
+      "W3_memory_next_lr": 4.001531937072046e-06,
+      "endpoint_action_next_lr": 8.003063874144092e-06,
+      "endpoint_memory_next_lr": 8.003063874144091e-07
+    },
+    {
+      "completed_updates": 16400,
+      "multiplier": 0.7979036416534462,
+      "W3_action_next_lr": 3.9895182082672314e-05,
+      "W3_memory_next_lr": 3.989518208267231e-06,
+      "endpoint_action_next_lr": 7.979036416534462e-06,
+      "endpoint_memory_next_lr": 7.979036416534461e-07
+    },
+    {
+      "completed_updates": 16500,
+      "multiplier": 0.795490705544747,
+      "W3_action_next_lr": 3.977453527723735e-05,
+      "W3_memory_next_lr": 3.9774535277237356e-06,
+      "endpoint_action_next_lr": 7.954907055447471e-06,
+      "endpoint_memory_next_lr": 7.95490705544747e-07
+    },
+    {
+      "completed_updates": 16600,
+      "multiplier": 0.793067678274664,
+      "W3_action_next_lr": 3.96533839137332e-05,
+      "W3_memory_next_lr": 3.9653383913733205e-06,
+      "endpoint_action_next_lr": 7.930676782746641e-06,
+      "endpoint_memory_next_lr": 7.930676782746639e-07
+    },
+    {
+      "completed_updates": 16700,
+      "multiplier": 0.7906346594443583,
+      "W3_action_next_lr": 3.953173297221792e-05,
+      "W3_memory_next_lr": 3.953173297221792e-06,
+      "endpoint_action_next_lr": 7.906346594443584e-06,
+      "endpoint_memory_next_lr": 7.906346594443583e-07
+    },
+    {
+      "completed_updates": 16800,
+      "multiplier": 0.7881917490657043,
+      "W3_action_next_lr": 3.940958745328522e-05,
+      "W3_memory_next_lr": 3.940958745328522e-06,
+      "endpoint_action_next_lr": 7.881917490657045e-06,
+      "endpoint_memory_next_lr": 7.881917490657043e-07
+    },
+    {
+      "completed_updates": 16900,
+      "multiplier": 0.7857390475571794,
+      "W3_action_next_lr": 3.928695237785897e-05,
+      "W3_memory_next_lr": 3.928695237785897e-06,
+      "endpoint_action_next_lr": 7.857390475571794e-06,
+      "endpoint_memory_next_lr": 7.857390475571794e-07
+    },
+    {
+      "completed_updates": 17000,
+      "multiplier": 0.7832766557397364,
+      "W3_action_next_lr": 3.916383278698682e-05,
+      "W3_memory_next_lr": 3.916383278698682e-06,
+      "endpoint_action_next_lr": 7.832766557397364e-06,
+      "endpoint_memory_next_lr": 7.832766557397363e-07
+    },
+    {
+      "completed_updates": 17100,
+      "multiplier": 0.7808046748326578,
+      "W3_action_next_lr": 3.904023374163289e-05,
+      "W3_memory_next_lr": 3.904023374163289e-06,
+      "endpoint_action_next_lr": 7.808046748326578e-06,
+      "endpoint_memory_next_lr": 7.808046748326578e-07
+    },
+    {
+      "completed_updates": 17200,
+      "multiplier": 0.778323206449397,
+      "W3_action_next_lr": 3.891616032246985e-05,
+      "W3_memory_next_lr": 3.891616032246985e-06,
+      "endpoint_action_next_lr": 7.78323206449397e-06,
+      "endpoint_memory_next_lr": 7.78323206449397e-07
+    },
+    {
+      "completed_updates": 17300,
+      "multiplier": 0.7758323525933998,
+      "W3_action_next_lr": 3.879161762966999e-05,
+      "W3_memory_next_lr": 3.879161762966999e-06,
+      "endpoint_action_next_lr": 7.758323525933998e-06,
+      "endpoint_memory_next_lr": 7.758323525933997e-07
+    },
+    {
+      "completed_updates": 17400,
+      "multiplier": 0.7733322156539126,
+      "W3_action_next_lr": 3.866661078269563e-05,
+      "W3_memory_next_lr": 3.866661078269563e-06,
+      "endpoint_action_next_lr": 7.733322156539127e-06,
+      "endpoint_memory_next_lr": 7.733322156539126e-07
+    },
+    {
+      "completed_updates": 17500,
+      "multiplier": 0.7708228984017721,
+      "W3_action_next_lr": 3.854114492008861e-05,
+      "W3_memory_next_lr": 3.8541144920088605e-06,
+      "endpoint_action_next_lr": 7.708228984017721e-06,
+      "endpoint_memory_next_lr": 7.70822898401772e-07
+    },
+    {
+      "completed_updates": 17600,
+      "multiplier": 0.7683045039851825,
+      "W3_action_next_lr": 3.841522519925913e-05,
+      "W3_memory_next_lr": 3.8415225199259125e-06,
+      "endpoint_action_next_lr": 7.683045039851825e-06,
+      "endpoint_memory_next_lr": 7.683045039851825e-07
+    },
+    {
+      "completed_updates": 17700,
+      "multiplier": 0.7657771359254743,
+      "W3_action_next_lr": 3.828885679627372e-05,
+      "W3_memory_next_lr": 3.828885679627371e-06,
+      "endpoint_action_next_lr": 7.657771359254742e-06,
+      "endpoint_memory_next_lr": 7.657771359254742e-07
+    },
+    {
+      "completed_updates": 17800,
+      "multiplier": 0.7632408981128493,
+      "W3_action_next_lr": 3.816204490564247e-05,
+      "W3_memory_next_lr": 3.816204490564247e-06,
+      "endpoint_action_next_lr": 7.632408981128493e-06,
+      "endpoint_memory_next_lr": 7.632408981128493e-07
+    },
+    {
+      "completed_updates": 17900,
+      "multiplier": 0.7606958948021106,
+      "W3_action_next_lr": 3.8034794740105535e-05,
+      "W3_memory_next_lr": 3.8034794740105536e-06,
+      "endpoint_action_next_lr": 7.606958948021107e-06,
+      "endpoint_memory_next_lr": 7.606958948021106e-07
+    },
+    {
+      "completed_updates": 18000,
+      "multiplier": 0.7581422306083759,
+      "W3_action_next_lr": 3.79071115304188e-05,
+      "W3_memory_next_lr": 3.79071115304188e-06,
+      "endpoint_action_next_lr": 7.58142230608376e-06,
+      "endpoint_memory_next_lr": 7.581422306083759e-07
+    },
+    {
+      "completed_updates": 18100,
+      "multiplier": 0.7555800105027782,
+      "W3_action_next_lr": 3.777900052513891e-05,
+      "W3_memory_next_lr": 3.7779000525138916e-06,
+      "endpoint_action_next_lr": 7.555800105027783e-06,
+      "endpoint_memory_next_lr": 7.555800105027782e-07
+    },
+    {
+      "completed_updates": 18200,
+      "multiplier": 0.7530093398081505,
+      "W3_action_next_lr": 3.7650466990407526e-05,
+      "W3_memory_next_lr": 3.765046699040753e-06,
+      "endpoint_action_next_lr": 7.530093398081506e-06,
+      "endpoint_memory_next_lr": 7.530093398081506e-07
+    },
+    {
+      "completed_updates": 18300,
+      "multiplier": 0.7504303241946967,
+      "W3_action_next_lr": 3.752151620973484e-05,
+      "W3_memory_next_lr": 3.7521516209734836e-06,
+      "endpoint_action_next_lr": 7.504303241946967e-06,
+      "endpoint_memory_next_lr": 7.504303241946966e-07
+    },
+    {
+      "completed_updates": 18400,
+      "multiplier": 0.747843069675647,
+      "W3_action_next_lr": 3.739215348378235e-05,
+      "W3_memory_next_lr": 3.7392153483782353e-06,
+      "endpoint_action_next_lr": 7.4784306967564705e-06,
+      "endpoint_memory_next_lr": 7.47843069675647e-07
+    },
+    {
+      "completed_updates": 18500,
+      "multiplier": 0.7452476826029011,
+      "W3_action_next_lr": 3.7262384130145054e-05,
+      "W3_memory_next_lr": 3.7262384130145058e-06,
+      "endpoint_action_next_lr": 7.4524768260290115e-06,
+      "endpoint_memory_next_lr": 7.45247682602901e-07
+    },
+    {
+      "completed_updates": 18600,
+      "multiplier": 0.7426442696626565,
+      "W3_action_next_lr": 3.7132213483132827e-05,
+      "W3_memory_next_lr": 3.713221348313283e-06,
+      "endpoint_action_next_lr": 7.426442696626566e-06,
+      "endpoint_memory_next_lr": 7.426442696626565e-07
+    },
+    {
+      "completed_updates": 18700,
+      "multiplier": 0.740032937871022,
+      "W3_action_next_lr": 3.70016468935511e-05,
+      "W3_memory_next_lr": 3.7001646893551104e-06,
+      "endpoint_action_next_lr": 7.400329378710221e-06,
+      "endpoint_memory_next_lr": 7.400329378710219e-07
+    },
+    {
+      "completed_updates": 18800,
+      "multiplier": 0.7374137945696196,
+      "W3_action_next_lr": 3.6870689728480985e-05,
+      "W3_memory_next_lr": 3.6870689728480984e-06,
+      "endpoint_action_next_lr": 7.374137945696197e-06,
+      "endpoint_memory_next_lr": 7.374137945696196e-07
+    },
+    {
+      "completed_updates": 18900,
+      "multiplier": 0.7347869474211721,
+      "W3_action_next_lr": 3.673934737105861e-05,
+      "W3_memory_next_lr": 3.6739347371058607e-06,
+      "endpoint_action_next_lr": 7.347869474211721e-06,
+      "endpoint_memory_next_lr": 7.347869474211721e-07
+    },
+    {
+      "completed_updates": 19000,
+      "multiplier": 0.7321525044050772,
+      "W3_action_next_lr": 3.660762522025386e-05,
+      "W3_memory_next_lr": 3.6607625220253864e-06,
+      "endpoint_action_next_lr": 7.321525044050773e-06,
+      "endpoint_memory_next_lr": 7.321525044050771e-07
+    },
+    {
+      "completed_updates": 19100,
+      "multiplier": 0.7295105738129688,
+      "W3_action_next_lr": 3.647552869064844e-05,
+      "W3_memory_next_lr": 3.6475528690648442e-06,
+      "endpoint_action_next_lr": 7.2951057381296885e-06,
+      "endpoint_memory_next_lr": 7.295105738129688e-07
+    },
+    {
+      "completed_updates": 19200,
+      "multiplier": 0.7268612642442657,
+      "W3_action_next_lr": 3.634306321221328e-05,
+      "W3_memory_next_lr": 3.6343063212213285e-06,
+      "endpoint_action_next_lr": 7.268612642442657e-06,
+      "endpoint_memory_next_lr": 7.268612642442656e-07
+    },
+    {
+      "completed_updates": 19300,
+      "multiplier": 0.7242046846017077,
+      "W3_action_next_lr": 3.621023423008539e-05,
+      "W3_memory_next_lr": 3.621023423008539e-06,
+      "endpoint_action_next_lr": 7.242046846017078e-06,
+      "endpoint_memory_next_lr": 7.242046846017077e-07
+    },
+    {
+      "completed_updates": 19400,
+      "multiplier": 0.7215409440868787,
+      "W3_action_next_lr": 3.6077047204343936e-05,
+      "W3_memory_next_lr": 3.607704720434394e-06,
+      "endpoint_action_next_lr": 7.215409440868788e-06,
+      "endpoint_memory_next_lr": 7.215409440868788e-07
+    },
+    {
+      "completed_updates": 19500,
+      "multiplier": 0.7188701521957184,
+      "W3_action_next_lr": 3.594350760978592e-05,
+      "W3_memory_next_lr": 3.5943507609785924e-06,
+      "endpoint_action_next_lr": 7.188701521957185e-06,
+      "endpoint_memory_next_lr": 7.188701521957183e-07
+    },
+    {
+      "completed_updates": 19600,
+      "multiplier": 0.7161924187140204,
+      "W3_action_next_lr": 3.580962093570102e-05,
+      "W3_memory_next_lr": 3.5809620935701024e-06,
+      "endpoint_action_next_lr": 7.161924187140205e-06,
+      "endpoint_memory_next_lr": 7.161924187140203e-07
+    },
+    {
+      "completed_updates": 19700,
+      "multiplier": 0.7135078537129201,
+      "W3_action_next_lr": 3.567539268564601e-05,
+      "W3_memory_next_lr": 3.567539268564601e-06,
+      "endpoint_action_next_lr": 7.135078537129202e-06,
+      "endpoint_memory_next_lr": 7.135078537129201e-07
+    },
+    {
+      "completed_updates": 19800,
+      "multiplier": 0.7108165675443705,
+      "W3_action_next_lr": 3.554082837721853e-05,
+      "W3_memory_next_lr": 3.554082837721853e-06,
+      "endpoint_action_next_lr": 7.108165675443706e-06,
+      "endpoint_memory_next_lr": 7.108165675443705e-07
+    },
+    {
+      "completed_updates": 19900,
+      "multiplier": 0.7081186708366043,
+      "W3_action_next_lr": 3.5405933541830215e-05,
+      "W3_memory_next_lr": 3.5405933541830217e-06,
+      "endpoint_action_next_lr": 7.081186708366043e-06,
+      "endpoint_memory_next_lr": 7.081186708366043e-07
+    },
+    {
+      "completed_updates": 20000,
+      "multiplier": 0.7054142744895884,
+      "W3_action_next_lr": 3.527071372447942e-05,
+      "W3_memory_next_lr": 3.5270713724479424e-06,
+      "endpoint_action_next_lr": 7.054142744895885e-06,
+      "endpoint_memory_next_lr": 7.054142744895884e-07
+    },
+    {
+      "completed_updates": 20100,
+      "multiplier": 0.7027034896704645,
+      "W3_action_next_lr": 3.5135174483523226e-05,
+      "W3_memory_next_lr": 3.5135174483523226e-06,
+      "endpoint_action_next_lr": 7.027034896704645e-06,
+      "endpoint_memory_next_lr": 7.027034896704644e-07
+    },
+    {
+      "completed_updates": 20200,
+      "multiplier": 0.6999864278089788,
+      "W3_action_next_lr": 3.4999321390448944e-05,
+      "W3_memory_next_lr": 3.4999321390448944e-06,
+      "endpoint_action_next_lr": 6.999864278089789e-06,
+      "endpoint_memory_next_lr": 6.999864278089788e-07
+    },
+    {
+      "completed_updates": 20300,
+      "multiplier": 0.6972632005929026,
+      "W3_action_next_lr": 3.486316002964513e-05,
+      "W3_memory_next_lr": 3.4863160029645132e-06,
+      "endpoint_action_next_lr": 6.9726320059290265e-06,
+      "endpoint_memory_next_lr": 6.972632005929025e-07
+    },
+    {
+      "completed_updates": 20400,
+      "multiplier": 0.6945339199634405,
+      "W3_action_next_lr": 3.4726695998172025e-05,
+      "W3_memory_next_lr": 3.4726695998172027e-06,
+      "endpoint_action_next_lr": 6.9453391996344055e-06,
+      "endpoint_memory_next_lr": 6.945339199634405e-07
+    },
+    {
+      "completed_updates": 20500,
+      "multiplier": 0.6917986981106293,
+      "W3_action_next_lr": 3.458993490553147e-05,
+      "W3_memory_next_lr": 3.458993490553147e-06,
+      "endpoint_action_next_lr": 6.917986981106294e-06,
+      "endpoint_memory_next_lr": 6.917986981106293e-07
+    },
+    {
+      "completed_updates": 20600,
+      "multiplier": 0.6890576474687263,
+      "W3_action_next_lr": 3.4452882373436316e-05,
+      "W3_memory_next_lr": 3.445288237343632e-06,
+      "endpoint_action_next_lr": 6.890576474687264e-06,
+      "endpoint_memory_next_lr": 6.890576474687263e-07
+    },
+    {
+      "completed_updates": 20700,
+      "multiplier": 0.6863108807115875,
+      "W3_action_next_lr": 3.4315544035579376e-05,
+      "W3_memory_next_lr": 3.431554403557938e-06,
+      "endpoint_action_next_lr": 6.863108807115876e-06,
+      "endpoint_memory_next_lr": 6.863108807115875e-07
+    },
+    {
+      "completed_updates": 20800,
+      "multiplier": 0.6835585107480358,
+      "W3_action_next_lr": 3.417792553740179e-05,
+      "W3_memory_next_lr": 3.417792553740179e-06,
+      "endpoint_action_next_lr": 6.835585107480358e-06,
+      "endpoint_memory_next_lr": 6.835585107480357e-07
+    },
+    {
+      "completed_updates": 20900,
+      "multiplier": 0.6808006507172202,
+      "W3_action_next_lr": 3.404003253586101e-05,
+      "W3_memory_next_lr": 3.4040032535861013e-06,
+      "endpoint_action_next_lr": 6.8080065071722025e-06,
+      "endpoint_memory_next_lr": 6.808006507172201e-07
+    },
+    {
+      "completed_updates": 21000,
+      "multiplier": 0.6780374139839646,
+      "W3_action_next_lr": 3.3901870699198226e-05,
+      "W3_memory_next_lr": 3.390187069919823e-06,
+      "endpoint_action_next_lr": 6.780374139839646e-06,
+      "endpoint_memory_next_lr": 6.780374139839645e-07
+    },
+    {
+      "completed_updates": 21100,
+      "multiplier": 0.6752689141341085,
+      "W3_action_next_lr": 3.3763445706705425e-05,
+      "W3_memory_next_lr": 3.376344570670543e-06,
+      "endpoint_action_next_lr": 6.752689141341086e-06,
+      "endpoint_memory_next_lr": 6.752689141341085e-07
+    },
+    {
+      "completed_updates": 21200,
+      "multiplier": 0.672495264969837,
+      "W3_action_next_lr": 3.3624763248491856e-05,
+      "W3_memory_next_lr": 3.3624763248491853e-06,
+      "endpoint_action_next_lr": 6.724952649698371e-06,
+      "endpoint_memory_next_lr": 6.72495264969837e-07
+    },
+    {
+      "completed_updates": 21300,
+      "multiplier": 0.6697165805050038,
+      "W3_action_next_lr": 3.348582902525019e-05,
+      "W3_memory_next_lr": 3.3485829025250194e-06,
+      "endpoint_action_next_lr": 6.697165805050039e-06,
+      "endpoint_memory_next_lr": 6.697165805050038e-07
+    },
+    {
+      "completed_updates": 21400,
+      "multiplier": 0.6669329749604438,
+      "W3_action_next_lr": 3.334664874802219e-05,
+      "W3_memory_next_lr": 3.3346648748022193e-06,
+      "endpoint_action_next_lr": 6.6693297496044385e-06,
+      "endpoint_memory_next_lr": 6.669329749604438e-07
+    },
+    {
+      "completed_updates": 21500,
+      "multiplier": 0.6641445627592784,
+      "W3_action_next_lr": 3.320722813796392e-05,
+      "W3_memory_next_lr": 3.320722813796392e-06,
+      "endpoint_action_next_lr": 6.641445627592784e-06,
+      "endpoint_memory_next_lr": 6.641445627592783e-07
+    },
+    {
+      "completed_updates": 21600,
+      "multiplier": 0.6613514585222114,
+      "W3_action_next_lr": 3.306757292611057e-05,
+      "W3_memory_next_lr": 3.3067572926110575e-06,
+      "endpoint_action_next_lr": 6.613514585222115e-06,
+      "endpoint_memory_next_lr": 6.613514585222114e-07
+    },
+    {
+      "completed_updates": 21700,
+      "multiplier": 0.6585537770628186,
+      "W3_action_next_lr": 3.292768885314093e-05,
+      "W3_memory_next_lr": 3.292768885314093e-06,
+      "endpoint_action_next_lr": 6.585537770628186e-06,
+      "endpoint_memory_next_lr": 6.585537770628186e-07
+    },
+    {
+      "completed_updates": 21800,
+      "multiplier": 0.6557516333828268,
+      "W3_action_next_lr": 3.278758166914134e-05,
+      "W3_memory_next_lr": 3.2787581669141344e-06,
+      "endpoint_action_next_lr": 6.557516333828269e-06,
+      "endpoint_memory_next_lr": 6.557516333828268e-07
+    },
+    {
+      "completed_updates": 21900,
+      "multiplier": 0.6529451426673875,
+      "W3_action_next_lr": 3.2647257133369373e-05,
+      "W3_memory_next_lr": 3.2647257133369377e-06,
+      "endpoint_action_next_lr": 6.529451426673875e-06,
+      "endpoint_memory_next_lr": 6.529451426673874e-07
+    },
+    {
+      "completed_updates": 22000,
+      "multiplier": 0.6501344202803414,
+      "W3_action_next_lr": 3.250672101401707e-05,
+      "W3_memory_next_lr": 3.2506721014017075e-06,
+      "endpoint_action_next_lr": 6.501344202803415e-06,
+      "endpoint_memory_next_lr": 6.501344202803414e-07
+    },
+    {
+      "completed_updates": 22100,
+      "multiplier": 0.6473195817594777,
+      "W3_action_next_lr": 3.236597908797388e-05,
+      "W3_memory_next_lr": 3.236597908797389e-06,
+      "endpoint_action_next_lr": 6.473195817594778e-06,
+      "endpoint_memory_next_lr": 6.473195817594776e-07
+    },
+    {
+      "completed_updates": 22200,
+      "multiplier": 0.6445007428117822,
+      "W3_action_next_lr": 3.222503714058911e-05,
+      "W3_memory_next_lr": 3.222503714058911e-06,
+      "endpoint_action_next_lr": 6.445007428117822e-06,
+      "endpoint_memory_next_lr": 6.445007428117822e-07
+    },
+    {
+      "completed_updates": 22300,
+      "multiplier": 0.6416780193086841,
+      "W3_action_next_lr": 3.208390096543421e-05,
+      "W3_memory_next_lr": 3.2083900965434205e-06,
+      "endpoint_action_next_lr": 6.416780193086841e-06,
+      "endpoint_memory_next_lr": 6.41678019308684e-07
+    },
+    {
+      "completed_updates": 22400,
+      "multiplier": 0.6388515272812901,
+      "W3_action_next_lr": 3.194257636406451e-05,
+      "W3_memory_next_lr": 3.194257636406451e-06,
+      "endpoint_action_next_lr": 6.388515272812902e-06,
+      "endpoint_memory_next_lr": 6.388515272812901e-07
+    },
+    {
+      "completed_updates": 22500,
+      "multiplier": 0.6360213829156176,
+      "W3_action_next_lr": 3.180106914578088e-05,
+      "W3_memory_next_lr": 3.1801069145780883e-06,
+      "endpoint_action_next_lr": 6.3602138291561766e-06,
+      "endpoint_memory_next_lr": 6.360213829156176e-07
+    },
+    {
+      "completed_updates": 22600,
+      "multiplier": 0.6331877025478159,
+      "W3_action_next_lr": 3.16593851273908e-05,
+      "W3_memory_next_lr": 3.1659385127390794e-06,
+      "endpoint_action_next_lr": 6.331877025478159e-06,
+      "endpoint_memory_next_lr": 6.331877025478158e-07
+    },
+    {
+      "completed_updates": 22700,
+      "multiplier": 0.6303506026593865,
+      "W3_action_next_lr": 3.1517530132969326e-05,
+      "W3_memory_next_lr": 3.1517530132969327e-06,
+      "endpoint_action_next_lr": 6.303506026593865e-06,
+      "endpoint_memory_next_lr": 6.303506026593864e-07
+    },
+    {
+      "completed_updates": 22800,
+      "multiplier": 0.6275101998723935,
+      "W3_action_next_lr": 3.137550999361968e-05,
+      "W3_memory_next_lr": 3.137550999361968e-06,
+      "endpoint_action_next_lr": 6.275101998723936e-06,
+      "endpoint_memory_next_lr": 6.275101998723935e-07
+    },
+    {
+      "completed_updates": 22900,
+      "multiplier": 0.6246666109446706,
+      "W3_action_next_lr": 3.123333054723353e-05,
+      "W3_memory_next_lr": 3.123333054723353e-06,
+      "endpoint_action_next_lr": 6.246666109446706e-06,
+      "endpoint_memory_next_lr": 6.246666109446706e-07
+    },
+    {
+      "completed_updates": 23000,
+      "multiplier": 0.6218199527650208,
+      "W3_action_next_lr": 3.109099763825104e-05,
+      "W3_memory_next_lr": 3.1090997638251042e-06,
+      "endpoint_action_next_lr": 6.2181995276502084e-06,
+      "endpoint_memory_next_lr": 6.218199527650208e-07
+    },
+    {
+      "completed_updates": 23100,
+      "multiplier": 0.6189703423484121,
+      "W3_action_next_lr": 3.09485171174206e-05,
+      "W3_memory_next_lr": 3.0948517117420606e-06,
+      "endpoint_action_next_lr": 6.189703423484121e-06,
+      "endpoint_memory_next_lr": 6.189703423484121e-07
+    },
+    {
+      "completed_updates": 23200,
+      "multiplier": 0.616117896831168,
+      "W3_action_next_lr": 3.0805894841558403e-05,
+      "W3_memory_next_lr": 3.0805894841558403e-06,
+      "endpoint_action_next_lr": 6.1611789683116805e-06,
+      "endpoint_memory_next_lr": 6.161178968311679e-07
+    },
+    {
+      "completed_updates": 23300,
+      "multiplier": 0.6132627334661513,
+      "W3_action_next_lr": 3.066313667330757e-05,
+      "W3_memory_next_lr": 3.066313667330757e-06,
+      "endpoint_action_next_lr": 6.132627334661514e-06,
+      "endpoint_memory_next_lr": 6.132627334661513e-07
+    },
+    {
+      "completed_updates": 23400,
+      "multiplier": 0.6104049696179451,
+      "W3_action_next_lr": 3.0520248480897255e-05,
+      "W3_memory_next_lr": 3.052024848089726e-06,
+      "endpoint_action_next_lr": 6.104049696179452e-06,
+      "endpoint_memory_next_lr": 6.104049696179451e-07
+    },
+    {
+      "completed_updates": 23500,
+      "multiplier": 0.6075447227580277,
+      "W3_action_next_lr": 3.037723613790139e-05,
+      "W3_memory_next_lr": 3.0377236137901387e-06,
+      "endpoint_action_next_lr": 6.0754472275802775e-06,
+      "endpoint_memory_next_lr": 6.075447227580277e-07
+    },
+    {
+      "completed_updates": 23600,
+      "multiplier": 0.6046821104599451,
+      "W3_action_next_lr": 3.0234105522997257e-05,
+      "W3_memory_next_lr": 3.023410552299726e-06,
+      "endpoint_action_next_lr": 6.046821104599452e-06,
+      "endpoint_memory_next_lr": 6.046821104599452e-07
+    },
+    {
+      "completed_updates": 23700,
+      "multiplier": 0.6018172503944768,
+      "W3_action_next_lr": 3.009086251972384e-05,
+      "W3_memory_next_lr": 3.009086251972384e-06,
+      "endpoint_action_next_lr": 6.018172503944768e-06,
+      "endpoint_memory_next_lr": 6.018172503944767e-07
+    },
+    {
+      "completed_updates": 23800,
+      "multiplier": 0.5989502603247989,
+      "W3_action_next_lr": 2.994751301623995e-05,
+      "W3_memory_next_lr": 2.9947513016239947e-06,
+      "endpoint_action_next_lr": 5.9895026032479895e-06,
+      "endpoint_memory_next_lr": 5.989502603247989e-07
+    },
+    {
+      "completed_updates": 23900,
+      "multiplier": 0.5960812581016441,
+      "W3_action_next_lr": 2.980406290508221e-05,
+      "W3_memory_next_lr": 2.980406290508221e-06,
+      "endpoint_action_next_lr": 5.960812581016442e-06,
+      "endpoint_memory_next_lr": 5.960812581016442e-07
+    },
+    {
+      "completed_updates": 24000,
+      "multiplier": 0.5932103616584568,
+      "W3_action_next_lr": 2.966051808292284e-05,
+      "W3_memory_next_lr": 2.966051808292284e-06,
+      "endpoint_action_next_lr": 5.932103616584568e-06,
+      "endpoint_memory_next_lr": 5.932103616584567e-07
+    },
+    {
+      "completed_updates": 24100,
+      "multiplier": 0.5903376890065452,
+      "W3_action_next_lr": 2.951688445032726e-05,
+      "W3_memory_next_lr": 2.951688445032726e-06,
+      "endpoint_action_next_lr": 5.903376890065452e-06,
+      "endpoint_memory_next_lr": 5.903376890065451e-07
+    },
+    {
+      "completed_updates": 24200,
+      "multiplier": 0.5874633582302303,
+      "W3_action_next_lr": 2.937316791151152e-05,
+      "W3_memory_next_lr": 2.937316791151152e-06,
+      "endpoint_action_next_lr": 5.874633582302304e-06,
+      "endpoint_memory_next_lr": 5.874633582302303e-07
+    },
+    {
+      "completed_updates": 24300,
+      "multiplier": 0.5845874874819925,
+      "W3_action_next_lr": 2.9229374374099627e-05,
+      "W3_memory_next_lr": 2.922937437409963e-06,
+      "endpoint_action_next_lr": 5.845874874819926e-06,
+      "endpoint_memory_next_lr": 5.845874874819925e-07
+    },
+    {
+      "completed_updates": 24400,
+      "multiplier": 0.5817101949776142,
+      "W3_action_next_lr": 2.9085509748880713e-05,
+      "W3_memory_next_lr": 2.9085509748880715e-06,
+      "endpoint_action_next_lr": 5.817101949776143e-06,
+      "endpoint_memory_next_lr": 5.817101949776142e-07
+    },
+    {
+      "completed_updates": 24500,
+      "multiplier": 0.5788315989913209,
+      "W3_action_next_lr": 2.8941579949566045e-05,
+      "W3_memory_next_lr": 2.8941579949566043e-06,
+      "endpoint_action_next_lr": 5.788315989913209e-06,
+      "endpoint_memory_next_lr": 5.788315989913208e-07
+    },
+    {
+      "completed_updates": 24600,
+      "multiplier": 0.5759518178509186,
+      "W3_action_next_lr": 2.8797590892545935e-05,
+      "W3_memory_next_lr": 2.8797590892545936e-06,
+      "endpoint_action_next_lr": 5.759518178509187e-06,
+      "endpoint_memory_next_lr": 5.759518178509186e-07
+    },
+    {
+      "completed_updates": 24700,
+      "multiplier": 0.5730709699329307,
+      "W3_action_next_lr": 2.8653548496646538e-05,
+      "W3_memory_next_lr": 2.8653548496646538e-06,
+      "endpoint_action_next_lr": 5.7307096993293075e-06,
+      "endpoint_memory_next_lr": 5.730709699329307e-07
+    },
+    {
+      "completed_updates": 24800,
+      "multiplier": 0.5701891736577317,
+      "W3_action_next_lr": 2.8509458682886585e-05,
+      "W3_memory_next_lr": 2.8509458682886587e-06,
+      "endpoint_action_next_lr": 5.701891736577317e-06,
+      "endpoint_memory_next_lr": 5.701891736577316e-07
+    },
+    {
+      "completed_updates": 24900,
+      "multiplier": 0.5673065474846792,
+      "W3_action_next_lr": 2.8365327374233964e-05,
+      "W3_memory_next_lr": 2.8365327374233965e-06,
+      "endpoint_action_next_lr": 5.673065474846793e-06,
+      "endpoint_memory_next_lr": 5.673065474846792e-07
+    },
+    {
+      "completed_updates": 25000,
+      "multiplier": 0.5644232099072449,
+      "W3_action_next_lr": 2.822116049536225e-05,
+      "W3_memory_next_lr": 2.822116049536225e-06,
+      "endpoint_action_next_lr": 5.64423209907245e-06,
+      "endpoint_memory_next_lr": 5.644232099072449e-07
+    },
+    {
+      "completed_updates": 25100,
+      "multiplier": 0.561539279448143,
+      "W3_action_next_lr": 2.807696397240715e-05,
+      "W3_memory_next_lr": 2.807696397240715e-06,
+      "endpoint_action_next_lr": 5.61539279448143e-06,
+      "endpoint_memory_next_lr": 5.615392794481429e-07
+    },
+    {
+      "completed_updates": 25200,
+      "multiplier": 0.5586548746544592,
+      "W3_action_next_lr": 2.793274373272296e-05,
+      "W3_memory_next_lr": 2.7932743732722962e-06,
+      "endpoint_action_next_lr": 5.5865487465445924e-06,
+      "endpoint_memory_next_lr": 5.586548746544592e-07
+    },
+    {
+      "completed_updates": 25300,
+      "multiplier": 0.5557701140927773,
+      "W3_action_next_lr": 2.778850570463887e-05,
+      "W3_memory_next_lr": 2.7788505704638867e-06,
+      "endpoint_action_next_lr": 5.5577011409277735e-06,
+      "endpoint_memory_next_lr": 5.557701140927773e-07
+    },
+    {
+      "completed_updates": 25400,
+      "multiplier": 0.552885116344305,
+      "W3_action_next_lr": 2.7644255817215252e-05,
+      "W3_memory_next_lr": 2.7644255817215252e-06,
+      "endpoint_action_next_lr": 5.5288511634430504e-06,
+      "endpoint_memory_next_lr": 5.528851163443051e-07
+    },
+    {
+      "completed_updates": 25500,
+      "multiplier": 0.55,
+      "W3_action_next_lr": 2.7500000000000004e-05,
+      "W3_memory_next_lr": 2.7500000000000004e-06,
+      "endpoint_action_next_lr": 5.500000000000001e-06,
+      "endpoint_memory_next_lr": 5.5e-07
+    },
+    {
+      "completed_updates": 25600,
+      "multiplier": 0.5471148836556952,
+      "W3_action_next_lr": 2.735574418278476e-05,
+      "W3_memory_next_lr": 2.735574418278476e-06,
+      "endpoint_action_next_lr": 5.471148836556952e-06,
+      "endpoint_memory_next_lr": 5.471148836556951e-07
+    },
+    {
+      "completed_updates": 25700,
+      "multiplier": 0.5442298859072227,
+      "W3_action_next_lr": 2.7211494295361133e-05,
+      "W3_memory_next_lr": 2.7211494295361135e-06,
+      "endpoint_action_next_lr": 5.442298859072227e-06,
+      "endpoint_memory_next_lr": 5.442298859072226e-07
+    },
+    {
+      "completed_updates": 25800,
+      "multiplier": 0.5413451253455408,
+      "W3_action_next_lr": 2.7067256267277042e-05,
+      "W3_memory_next_lr": 2.706725626727704e-06,
+      "endpoint_action_next_lr": 5.413451253455408e-06,
+      "endpoint_memory_next_lr": 5.413451253455407e-07
+    },
+    {
+      "completed_updates": 25900,
+      "multiplier": 0.5384607205518571,
+      "W3_action_next_lr": 2.692303602759286e-05,
+      "W3_memory_next_lr": 2.6923036027592856e-06,
+      "endpoint_action_next_lr": 5.384607205518571e-06,
+      "endpoint_memory_next_lr": 5.384607205518571e-07
+    },
+    {
+      "completed_updates": 26000,
+      "multiplier": 0.5355767900927553,
+      "W3_action_next_lr": 2.6778839504637766e-05,
+      "W3_memory_next_lr": 2.6778839504637766e-06,
+      "endpoint_action_next_lr": 5.355767900927553e-06,
+      "endpoint_memory_next_lr": 5.355767900927553e-07
+    },
+    {
+      "completed_updates": 26100,
+      "multiplier": 0.5326934525153207,
+      "W3_action_next_lr": 2.6634672625766038e-05,
+      "W3_memory_next_lr": 2.6634672625766037e-06,
+      "endpoint_action_next_lr": 5.3269345251532075e-06,
+      "endpoint_memory_next_lr": 5.326934525153207e-07
+    },
+    {
+      "completed_updates": 26200,
+      "multiplier": 0.5298108263422684,
+      "W3_action_next_lr": 2.649054131711342e-05,
+      "W3_memory_next_lr": 2.649054131711342e-06,
+      "endpoint_action_next_lr": 5.298108263422684e-06,
+      "endpoint_memory_next_lr": 5.298108263422684e-07
+    },
+    {
+      "completed_updates": 26300,
+      "multiplier": 0.5269290300670694,
+      "W3_action_next_lr": 2.634645150335347e-05,
+      "W3_memory_next_lr": 2.634645150335347e-06,
+      "endpoint_action_next_lr": 5.269290300670694e-06,
+      "endpoint_memory_next_lr": 5.269290300670694e-07
+    },
+    {
+      "completed_updates": 26400,
+      "multiplier": 0.5240481821490816,
+      "W3_action_next_lr": 2.6202409107454078e-05,
+      "W3_memory_next_lr": 2.620240910745408e-06,
+      "endpoint_action_next_lr": 5.240481821490816e-06,
+      "endpoint_memory_next_lr": 5.240481821490816e-07
+    },
+    {
+      "completed_updates": 26500,
+      "multiplier": 0.5211684010086791,
+      "W3_action_next_lr": 2.6058420050433957e-05,
+      "W3_memory_next_lr": 2.605842005043396e-06,
+      "endpoint_action_next_lr": 5.211684010086792e-06,
+      "endpoint_memory_next_lr": 5.21168401008679e-07
+    },
+    {
+      "completed_updates": 26600,
+      "multiplier": 0.5182898050223858,
+      "W3_action_next_lr": 2.591449025111929e-05,
+      "W3_memory_next_lr": 2.5914490251119288e-06,
+      "endpoint_action_next_lr": 5.1828980502238576e-06,
+      "endpoint_memory_next_lr": 5.182898050223858e-07
+    },
+    {
+      "completed_updates": 26700,
+      "multiplier": 0.5154125125180076,
+      "W3_action_next_lr": 2.577062562590038e-05,
+      "W3_memory_next_lr": 2.577062562590038e-06,
+      "endpoint_action_next_lr": 5.154125125180076e-06,
+      "endpoint_memory_next_lr": 5.154125125180076e-07
+    },
+    {
+      "completed_updates": 26800,
+      "multiplier": 0.5125366417697699,
+      "W3_action_next_lr": 2.5626832088488496e-05,
+      "W3_memory_next_lr": 2.5626832088488495e-06,
+      "endpoint_action_next_lr": 5.125366417697699e-06,
+      "endpoint_memory_next_lr": 5.125366417697699e-07
+    },
+    {
+      "completed_updates": 26900,
+      "multiplier": 0.509662310993455,
+      "W3_action_next_lr": 2.5483115549672752e-05,
+      "W3_memory_next_lr": 2.5483115549672756e-06,
+      "endpoint_action_next_lr": 5.096623109934551e-06,
+      "endpoint_memory_next_lr": 5.09662310993455e-07
+    },
+    {
+      "completed_updates": 27000,
+      "multiplier": 0.5067896383415432,
+      "W3_action_next_lr": 2.5339481917077163e-05,
+      "W3_memory_next_lr": 2.5339481917077164e-06,
+      "endpoint_action_next_lr": 5.067896383415433e-06,
+      "endpoint_memory_next_lr": 5.067896383415432e-07
+    },
+    {
+      "completed_updates": 27100,
+      "multiplier": 0.5039187418983558,
+      "W3_action_next_lr": 2.5195937094917792e-05,
+      "W3_memory_next_lr": 2.519593709491779e-06,
+      "endpoint_action_next_lr": 5.039187418983558e-06,
+      "endpoint_memory_next_lr": 5.039187418983558e-07
+    },
+    {
+      "completed_updates": 27200,
+      "multiplier": 0.5010497396752012,
+      "W3_action_next_lr": 2.505248698376006e-05,
+      "W3_memory_next_lr": 2.505248698376006e-06,
+      "endpoint_action_next_lr": 5.010497396752012e-06,
+      "endpoint_memory_next_lr": 5.010497396752012e-07
+    },
+    {
+      "completed_updates": 27300,
+      "multiplier": 0.49818274960552344,
+      "W3_action_next_lr": 2.4909137480276175e-05,
+      "W3_memory_next_lr": 2.4909137480276176e-06,
+      "endpoint_action_next_lr": 4.981827496055235e-06,
+      "endpoint_memory_next_lr": 4.981827496055235e-07
+    },
+    {
+      "completed_updates": 27400,
+      "multiplier": 0.49531788954005485,
+      "W3_action_next_lr": 2.4765894477002745e-05,
+      "W3_memory_next_lr": 2.4765894477002744e-06,
+      "endpoint_action_next_lr": 4.953178895400549e-06,
+      "endpoint_memory_next_lr": 4.953178895400548e-07
+    },
+    {
+      "completed_updates": 27500,
+      "multiplier": 0.49245527724197224,
+      "W3_action_next_lr": 2.4622763862098614e-05,
+      "W3_memory_next_lr": 2.4622763862098615e-06,
+      "endpoint_action_next_lr": 4.924552772419723e-06,
+      "endpoint_memory_next_lr": 4.924552772419722e-07
+    },
+    {
+      "completed_updates": 27600,
+      "multiplier": 0.4895950303820551,
+      "W3_action_next_lr": 2.4479751519102758e-05,
+      "W3_memory_next_lr": 2.4479751519102757e-06,
+      "endpoint_action_next_lr": 4.895950303820551e-06,
+      "endpoint_memory_next_lr": 4.895950303820551e-07
+    },
+    {
+      "completed_updates": 27700,
+      "multiplier": 0.48673726653384886,
+      "W3_action_next_lr": 2.4336863326692445e-05,
+      "W3_memory_next_lr": 2.4336863326692446e-06,
+      "endpoint_action_next_lr": 4.867372665338489e-06,
+      "endpoint_memory_next_lr": 4.867372665338489e-07
+    },
+    {
+      "completed_updates": 27800,
+      "multiplier": 0.48388210316883196,
+      "W3_action_next_lr": 2.41941051584416e-05,
+      "W3_memory_next_lr": 2.41941051584416e-06,
+      "endpoint_action_next_lr": 4.83882103168832e-06,
+      "endpoint_memory_next_lr": 4.838821031688319e-07
+    },
+    {
+      "completed_updates": 27900,
+      "multiplier": 0.4810296576515879,
+      "W3_action_next_lr": 2.4051482882579396e-05,
+      "W3_memory_next_lr": 2.4051482882579396e-06,
+      "endpoint_action_next_lr": 4.810296576515879e-06,
+      "endpoint_memory_next_lr": 4.810296576515879e-07
+    },
+    {
+      "completed_updates": 28000,
+      "multiplier": 0.4781800472349793,
+      "W3_action_next_lr": 2.3909002361748967e-05,
+      "W3_memory_next_lr": 2.390900236174897e-06,
+      "endpoint_action_next_lr": 4.781800472349794e-06,
+      "endpoint_memory_next_lr": 4.781800472349793e-07
+    },
+    {
+      "completed_updates": 28100,
+      "multiplier": 0.4753333890553296,
+      "W3_action_next_lr": 2.3766669452766482e-05,
+      "W3_memory_next_lr": 2.3766669452766485e-06,
+      "endpoint_action_next_lr": 4.753333890553297e-06,
+      "endpoint_memory_next_lr": 4.753333890553296e-07
+    },
+    {
+      "completed_updates": 28200,
+      "multiplier": 0.47248980012760655,
+      "W3_action_next_lr": 2.362449000638033e-05,
+      "W3_memory_next_lr": 2.362449000638033e-06,
+      "endpoint_action_next_lr": 4.724898001276066e-06,
+      "endpoint_memory_next_lr": 4.7248980012760655e-07
+    },
+    {
+      "completed_updates": 28300,
+      "multiplier": 0.4696493973406135,
+      "W3_action_next_lr": 2.3482469867030676e-05,
+      "W3_memory_next_lr": 2.3482469867030676e-06,
+      "endpoint_action_next_lr": 4.696493973406135e-06,
+      "endpoint_memory_next_lr": 4.696493973406135e-07
+    },
+    {
+      "completed_updates": 28400,
+      "multiplier": 0.4668122974521841,
+      "W3_action_next_lr": 2.3340614872609205e-05,
+      "W3_memory_next_lr": 2.334061487260921e-06,
+      "endpoint_action_next_lr": 4.668122974521842e-06,
+      "endpoint_memory_next_lr": 4.668122974521841e-07
+    },
+    {
+      "completed_updates": 28500,
+      "multiplier": 0.4639786170843826,
+      "W3_action_next_lr": 2.3198930854219132e-05,
+      "W3_memory_next_lr": 2.3198930854219133e-06,
+      "endpoint_action_next_lr": 4.6397861708438266e-06,
+      "endpoint_memory_next_lr": 4.6397861708438255e-07
+    },
+    {
+      "completed_updates": 28600,
+      "multiplier": 0.46114847271870985,
+      "W3_action_next_lr": 2.3057423635935494e-05,
+      "W3_memory_next_lr": 2.3057423635935493e-06,
+      "endpoint_action_next_lr": 4.6114847271870986e-06,
+      "endpoint_memory_next_lr": 4.611484727187098e-07
+    },
+    {
+      "completed_updates": 28700,
+      "multiplier": 0.458321980691316,
+      "W3_action_next_lr": 2.29160990345658e-05,
+      "W3_memory_next_lr": 2.2916099034565802e-06,
+      "endpoint_action_next_lr": 4.5832198069131605e-06,
+      "endpoint_memory_next_lr": 4.58321980691316e-07
+    },
+    {
+      "completed_updates": 28800,
+      "multiplier": 0.4554992571882178,
+      "W3_action_next_lr": 2.277496285941089e-05,
+      "W3_memory_next_lr": 2.2774962859410894e-06,
+      "endpoint_action_next_lr": 4.554992571882179e-06,
+      "endpoint_memory_next_lr": 4.554992571882178e-07
+    },
+    {
+      "completed_updates": 28900,
+      "multiplier": 0.4526804182405225,
+      "W3_action_next_lr": 2.2634020912026126e-05,
+      "W3_memory_next_lr": 2.2634020912026127e-06,
+      "endpoint_action_next_lr": 4.526804182405225e-06,
+      "endpoint_memory_next_lr": 4.526804182405225e-07
+    },
+    {
+      "completed_updates": 29000,
+      "multiplier": 0.44986557971965857,
+      "W3_action_next_lr": 2.249327898598293e-05,
+      "W3_memory_next_lr": 2.2493278985982932e-06,
+      "endpoint_action_next_lr": 4.4986557971965865e-06,
+      "endpoint_memory_next_lr": 4.4986557971965856e-07
+    },
+    {
+      "completed_updates": 29100,
+      "multiplier": 0.44705485733261274,
+      "W3_action_next_lr": 2.235274286663064e-05,
+      "W3_memory_next_lr": 2.235274286663064e-06,
+      "endpoint_action_next_lr": 4.470548573326128e-06,
+      "endpoint_memory_next_lr": 4.470548573326127e-07
+    },
+    {
+      "completed_updates": 29200,
+      "multiplier": 0.44424836661717315,
+      "W3_action_next_lr": 2.221241833085866e-05,
+      "W3_memory_next_lr": 2.221241833085866e-06,
+      "endpoint_action_next_lr": 4.442483666171732e-06,
+      "endpoint_memory_next_lr": 4.442483666171731e-07
+    },
+    {
+      "completed_updates": 29300,
+      "multiplier": 0.4414462229371814,
+      "W3_action_next_lr": 2.207231114685907e-05,
+      "W3_memory_next_lr": 2.207231114685907e-06,
+      "endpoint_action_next_lr": 4.414462229371814e-06,
+      "endpoint_memory_next_lr": 4.4144622293718137e-07
+    },
+    {
+      "completed_updates": 29400,
+      "multiplier": 0.43864854147778853,
+      "W3_action_next_lr": 2.193242707388943e-05,
+      "W3_memory_next_lr": 2.1932427073889427e-06,
+      "endpoint_action_next_lr": 4.3864854147778855e-06,
+      "endpoint_memory_next_lr": 4.386485414777885e-07
+    },
+    {
+      "completed_updates": 29500,
+      "multiplier": 0.43585543724072173,
+      "W3_action_next_lr": 2.179277186203609e-05,
+      "W3_memory_next_lr": 2.179277186203609e-06,
+      "endpoint_action_next_lr": 4.358554372407218e-06,
+      "endpoint_memory_next_lr": 4.3585543724072174e-07
+    },
+    {
+      "completed_updates": 29600,
+      "multiplier": 0.4330670250395562,
+      "W3_action_next_lr": 2.1653351251977812e-05,
+      "W3_memory_next_lr": 2.165335125197781e-06,
+      "endpoint_action_next_lr": 4.330670250395562e-06,
+      "endpoint_memory_next_lr": 4.330670250395562e-07
+    },
+    {
+      "completed_updates": 29700,
+      "multiplier": 0.43028341949499627,
+      "W3_action_next_lr": 2.1514170974749814e-05,
+      "W3_memory_next_lr": 2.1514170974749817e-06,
+      "endpoint_action_next_lr": 4.302834194949963e-06,
+      "endpoint_memory_next_lr": 4.3028341949499623e-07
+    },
+    {
+      "completed_updates": 29800,
+      "multiplier": 0.42750473503016306,
+      "W3_action_next_lr": 2.1375236751508153e-05,
+      "W3_memory_next_lr": 2.1375236751508154e-06,
+      "endpoint_action_next_lr": 4.275047350301631e-06,
+      "endpoint_memory_next_lr": 4.2750473503016306e-07
+    },
+    {
+      "completed_updates": 29900,
+      "multiplier": 0.4247310858658916,
+      "W3_action_next_lr": 2.123655429329458e-05,
+      "W3_memory_next_lr": 2.1236554293294582e-06,
+      "endpoint_action_next_lr": 4.2473108586589164e-06,
+      "endpoint_memory_next_lr": 4.247310858658916e-07
+    },
+    {
+      "completed_updates": 30000,
+      "multiplier": 0.4219625860160353,
+      "W3_action_next_lr": 2.1098129300801765e-05,
+      "W3_memory_next_lr": 2.1098129300801765e-06,
+      "endpoint_action_next_lr": 4.219625860160353e-06,
+      "endpoint_memory_next_lr": 4.219625860160353e-07
+    },
+    {
+      "completed_updates": 30100,
+      "multiplier": 0.4191993492827799,
+      "W3_action_next_lr": 2.0959967464138997e-05,
+      "W3_memory_next_lr": 2.0959967464139e-06,
+      "endpoint_action_next_lr": 4.1919934928278e-06,
+      "endpoint_memory_next_lr": 4.191993492827799e-07
+    },
+    {
+      "completed_updates": 30200,
+      "multiplier": 0.4164414892519642,
+      "W3_action_next_lr": 2.0822074462598212e-05,
+      "W3_memory_next_lr": 2.0822074462598213e-06,
+      "endpoint_action_next_lr": 4.1644148925196426e-06,
+      "endpoint_memory_next_lr": 4.164414892519642e-07
+    },
+    {
+      "completed_updates": 30300,
+      "multiplier": 0.41368911928841257,
+      "W3_action_next_lr": 2.068445596442063e-05,
+      "W3_memory_next_lr": 2.068445596442063e-06,
+      "endpoint_action_next_lr": 4.136891192884126e-06,
+      "endpoint_memory_next_lr": 4.136891192884125e-07
+    },
+    {
+      "completed_updates": 30400,
+      "multiplier": 0.41094235253127376,
+      "W3_action_next_lr": 2.054711762656369e-05,
+      "W3_memory_next_lr": 2.054711762656369e-06,
+      "endpoint_action_next_lr": 4.109423525312738e-06,
+      "endpoint_memory_next_lr": 4.1094235253127374e-07
+    },
+    {
+      "completed_updates": 30500,
+      "multiplier": 0.40820130188937076,
+      "W3_action_next_lr": 2.0410065094468538e-05,
+      "W3_memory_next_lr": 2.041006509446854e-06,
+      "endpoint_action_next_lr": 4.082013018893708e-06,
+      "endpoint_memory_next_lr": 4.0820130188937075e-07
+    },
+    {
+      "completed_updates": 30600,
+      "multiplier": 0.4054660800365595,
+      "W3_action_next_lr": 2.0273304001827974e-05,
+      "W3_memory_next_lr": 2.0273304001827975e-06,
+      "endpoint_action_next_lr": 4.054660800365595e-06,
+      "endpoint_memory_next_lr": 4.054660800365595e-07
+    },
+    {
+      "completed_updates": 30700,
+      "multiplier": 0.4027367994070975,
+      "W3_action_next_lr": 2.0136839970354876e-05,
+      "W3_memory_next_lr": 2.0136839970354875e-06,
+      "endpoint_action_next_lr": 4.027367994070975e-06,
+      "endpoint_memory_next_lr": 4.027367994070975e-07
+    },
+    {
+      "completed_updates": 30800,
+      "multiplier": 0.4000135721910213,
+      "W3_action_next_lr": 2.0000678609551065e-05,
+      "W3_memory_next_lr": 2.0000678609551067e-06,
+      "endpoint_action_next_lr": 4.0001357219102135e-06,
+      "endpoint_memory_next_lr": 4.0001357219102126e-07
+    },
+    {
+      "completed_updates": 30900,
+      "multiplier": 0.3972965103295355,
+      "W3_action_next_lr": 1.9864825516476776e-05,
+      "W3_memory_next_lr": 1.9864825516476777e-06,
+      "endpoint_action_next_lr": 3.972965103295355e-06,
+      "endpoint_memory_next_lr": 3.972965103295355e-07
+    },
+    {
+      "completed_updates": 31000,
+      "multiplier": 0.3945857255104116,
+      "W3_action_next_lr": 1.972928627552058e-05,
+      "W3_memory_next_lr": 1.9729286275520583e-06,
+      "endpoint_action_next_lr": 3.945857255104117e-06,
+      "endpoint_memory_next_lr": 3.9458572551041156e-07
+    },
+    {
+      "completed_updates": 31100,
+      "multiplier": 0.3918813291633959,
+      "W3_action_next_lr": 1.9594066458169797e-05,
+      "W3_memory_next_lr": 1.95940664581698e-06,
+      "endpoint_action_next_lr": 3.91881329163396e-06,
+      "endpoint_memory_next_lr": 3.918813291633959e-07
+    },
+    {
+      "completed_updates": 31200,
+      "multiplier": 0.3891834324556297,
+      "W3_action_next_lr": 1.9459171622781485e-05,
+      "W3_memory_next_lr": 1.9459171622781488e-06,
+      "endpoint_action_next_lr": 3.8918343245562975e-06,
+      "endpoint_memory_next_lr": 3.8918343245562967e-07
+    },
+    {
+      "completed_updates": 31300,
+      "multiplier": 0.38649214628707973,
+      "W3_action_next_lr": 1.9324607314353988e-05,
+      "W3_memory_next_lr": 1.9324607314353987e-06,
+      "endpoint_action_next_lr": 3.8649214628707975e-06,
+      "endpoint_memory_next_lr": 3.864921462870797e-07
+    },
+    {
+      "completed_updates": 31400,
+      "multiplier": 0.3838075812859797,
+      "W3_action_next_lr": 1.9190379064298987e-05,
+      "W3_memory_next_lr": 1.9190379064298987e-06,
+      "endpoint_action_next_lr": 3.838075812859797e-06,
+      "endpoint_memory_next_lr": 3.8380758128597966e-07
+    },
+    {
+      "completed_updates": 31500,
+      "multiplier": 0.3811298478042817,
+      "W3_action_next_lr": 1.9056492390214087e-05,
+      "W3_memory_next_lr": 1.9056492390214088e-06,
+      "endpoint_action_next_lr": 3.8112984780428175e-06,
+      "endpoint_memory_next_lr": 3.811298478042817e-07
+    },
+    {
+      "completed_updates": 31600,
+      "multiplier": 0.37845905591312134,
+      "W3_action_next_lr": 1.892295279565607e-05,
+      "W3_memory_next_lr": 1.8922952795656069e-06,
+      "endpoint_action_next_lr": 3.7845905591312138e-06,
+      "endpoint_memory_next_lr": 3.7845905591312134e-07
+    },
+    {
+      "completed_updates": 31700,
+      "multiplier": 0.3757953153982925,
+      "W3_action_next_lr": 1.8789765769914624e-05,
+      "W3_memory_next_lr": 1.8789765769914625e-06,
+      "endpoint_action_next_lr": 3.757953153982925e-06,
+      "endpoint_memory_next_lr": 3.7579531539829243e-07
+    },
+    {
+      "completed_updates": 31800,
+      "multiplier": 0.3731387357557344,
+      "W3_action_next_lr": 1.8656936787786722e-05,
+      "W3_memory_next_lr": 1.8656936787786722e-06,
+      "endpoint_action_next_lr": 3.7313873575573445e-06,
+      "endpoint_memory_next_lr": 3.731387357557344e-07
+    },
+    {
+      "completed_updates": 31900,
+      "multiplier": 0.3704894261870313,
+      "W3_action_next_lr": 1.8524471309351566e-05,
+      "W3_memory_next_lr": 1.8524471309351567e-06,
+      "endpoint_action_next_lr": 3.7048942618703134e-06,
+      "endpoint_memory_next_lr": 3.704894261870313e-07
+    },
+    {
+      "completed_updates": 32000,
+      "multiplier": 0.3678474955949228,
+      "W3_action_next_lr": 1.839237477974614e-05,
+      "W3_memory_next_lr": 1.8392374779746141e-06,
+      "endpoint_action_next_lr": 3.6784749559492282e-06,
+      "endpoint_memory_next_lr": 3.6784749559492277e-07
+    },
+    {
+      "completed_updates": 32100,
+      "multiplier": 0.36521305257882786,
+      "W3_action_next_lr": 1.8260652628941392e-05,
+      "W3_memory_next_lr": 1.8260652628941394e-06,
+      "endpoint_action_next_lr": 3.6521305257882787e-06,
+      "endpoint_memory_next_lr": 3.6521305257882783e-07
+    },
+    {
+      "completed_updates": 32200,
+      "multiplier": 0.36258620543038034,
+      "W3_action_next_lr": 1.8129310271519017e-05,
+      "W3_memory_next_lr": 1.8129310271519018e-06,
+      "endpoint_action_next_lr": 3.6258620543038037e-06,
+      "endpoint_memory_next_lr": 3.625862054303803e-07
+    },
+    {
+      "completed_updates": 32300,
+      "multiplier": 0.3599670621289782,
+      "W3_action_next_lr": 1.7998353106448912e-05,
+      "W3_memory_next_lr": 1.7998353106448912e-06,
+      "endpoint_action_next_lr": 3.5996706212897823e-06,
+      "endpoint_memory_next_lr": 3.599670621289782e-07
+    },
+    {
+      "completed_updates": 32400,
+      "multiplier": 0.3573557303373437,
+      "W3_action_next_lr": 1.7867786516867186e-05,
+      "W3_memory_next_lr": 1.7867786516867186e-06,
+      "endpoint_action_next_lr": 3.573557303373437e-06,
+      "endpoint_memory_next_lr": 3.5735573033734367e-07
+    },
+    {
+      "completed_updates": 32500,
+      "multiplier": 0.3547523173970989,
+      "W3_action_next_lr": 1.7737615869854944e-05,
+      "W3_memory_next_lr": 1.7737615869854945e-06,
+      "endpoint_action_next_lr": 3.547523173970989e-06,
+      "endpoint_memory_next_lr": 3.547523173970989e-07
+    },
+    {
+      "completed_updates": 32600,
+      "multiplier": 0.35215693032435313,
+      "W3_action_next_lr": 1.7607846516217657e-05,
+      "W3_memory_next_lr": 1.7607846516217659e-06,
+      "endpoint_action_next_lr": 3.5215693032435317e-06,
+      "endpoint_memory_next_lr": 3.5215693032435314e-07
+    },
+    {
+      "completed_updates": 32700,
+      "multiplier": 0.3495696758053034,
+      "W3_action_next_lr": 1.747848379026517e-05,
+      "W3_memory_next_lr": 1.747848379026517e-06,
+      "endpoint_action_next_lr": 3.495696758053034e-06,
+      "endpoint_memory_next_lr": 3.495696758053034e-07
+    },
+    {
+      "completed_updates": 32800,
+      "multiplier": 0.3469906601918494,
+      "W3_action_next_lr": 1.734953300959247e-05,
+      "W3_memory_next_lr": 1.734953300959247e-06,
+      "endpoint_action_next_lr": 3.469906601918494e-06,
+      "endpoint_memory_next_lr": 3.469906601918494e-07
+    },
+    {
+      "completed_updates": 32900,
+      "multiplier": 0.34441998949722197,
+      "W3_action_next_lr": 1.72209994748611e-05,
+      "W3_memory_next_lr": 1.72209994748611e-06,
+      "endpoint_action_next_lr": 3.44419989497222e-06,
+      "endpoint_memory_next_lr": 3.4441998949722197e-07
+    },
+    {
+      "completed_updates": 33000,
+      "multiplier": 0.34185776939162427,
+      "W3_action_next_lr": 1.7092888469581213e-05,
+      "W3_memory_next_lr": 1.7092888469581214e-06,
+      "endpoint_action_next_lr": 3.418577693916243e-06,
+      "endpoint_memory_next_lr": 3.418577693916242e-07
+    },
+    {
+      "completed_updates": 33100,
+      "multiplier": 0.3393041051978895,
+      "W3_action_next_lr": 1.6965205259894477e-05,
+      "W3_memory_next_lr": 1.6965205259894476e-06,
+      "endpoint_action_next_lr": 3.393041051978895e-06,
+      "endpoint_memory_next_lr": 3.393041051978895e-07
+    },
+    {
+      "completed_updates": 33200,
+      "multiplier": 0.33675910188715064,
+      "W3_action_next_lr": 1.6837955094357533e-05,
+      "W3_memory_next_lr": 1.6837955094357533e-06,
+      "endpoint_action_next_lr": 3.3675910188715067e-06,
+      "endpoint_memory_next_lr": 3.367591018871506e-07
+    },
+    {
+      "completed_updates": 33300,
+      "multiplier": 0.33422286407452584,
+      "W3_action_next_lr": 1.6711143203726292e-05,
+      "W3_memory_next_lr": 1.6711143203726293e-06,
+      "endpoint_action_next_lr": 3.3422286407452586e-06,
+      "endpoint_memory_next_lr": 3.342228640745258e-07
+    },
+    {
+      "completed_updates": 33400,
+      "multiplier": 0.33169549601481774,
+      "W3_action_next_lr": 1.658477480074089e-05,
+      "W3_memory_next_lr": 1.6584774800740888e-06,
+      "endpoint_action_next_lr": 3.3169549601481777e-06,
+      "endpoint_memory_next_lr": 3.3169549601481774e-07
+    },
+    {
+      "completed_updates": 33500,
+      "multiplier": 0.32917710159822794,
+      "W3_action_next_lr": 1.64588550799114e-05,
+      "W3_memory_next_lr": 1.6458855079911398e-06,
+      "endpoint_action_next_lr": 3.2917710159822795e-06,
+      "endpoint_memory_next_lr": 3.2917710159822793e-07
+    },
+    {
+      "completed_updates": 33600,
+      "multiplier": 0.32666778434608745,
+      "W3_action_next_lr": 1.6333389217304373e-05,
+      "W3_memory_next_lr": 1.6333389217304373e-06,
+      "endpoint_action_next_lr": 3.2666778434608746e-06,
+      "endpoint_memory_next_lr": 3.2666778434608745e-07
+    },
+    {
+      "completed_updates": 33700,
+      "multiplier": 0.3241676474066002,
+      "W3_action_next_lr": 1.620838237033001e-05,
+      "W3_memory_next_lr": 1.6208382370330012e-06,
+      "endpoint_action_next_lr": 3.2416764740660023e-06,
+      "endpoint_memory_next_lr": 3.241676474066002e-07
+    },
+    {
+      "completed_updates": 33800,
+      "multiplier": 0.3216767935506031,
+      "W3_action_next_lr": 1.6083839677530155e-05,
+      "W3_memory_next_lr": 1.6083839677530156e-06,
+      "endpoint_action_next_lr": 3.216767935506031e-06,
+      "endpoint_memory_next_lr": 3.2167679355060304e-07
+    },
+    {
+      "completed_updates": 33900,
+      "multiplier": 0.3191953251673423,
+      "W3_action_next_lr": 1.5959766258367115e-05,
+      "W3_memory_next_lr": 1.5959766258367115e-06,
+      "endpoint_action_next_lr": 3.191953251673423e-06,
+      "endpoint_memory_next_lr": 3.1919532516734225e-07
+    },
+    {
+      "completed_updates": 34000,
+      "multiplier": 0.3167233442602637,
+      "W3_action_next_lr": 1.5836167213013186e-05,
+      "W3_memory_next_lr": 1.5836167213013188e-06,
+      "endpoint_action_next_lr": 3.1672334426026376e-06,
+      "endpoint_memory_next_lr": 3.167233442602637e-07
+    },
+    {
+      "completed_updates": 34100,
+      "multiplier": 0.3142609524428205,
+      "W3_action_next_lr": 1.5713047622141026e-05,
+      "W3_memory_next_lr": 1.5713047622141026e-06,
+      "endpoint_action_next_lr": 3.1426095244282052e-06,
+      "endpoint_memory_next_lr": 3.142609524428205e-07
+    },
+    {
+      "completed_updates": 34200,
+      "multiplier": 0.31180825093429587,
+      "W3_action_next_lr": 1.5590412546714795e-05,
+      "W3_memory_next_lr": 1.5590412546714794e-06,
+      "endpoint_action_next_lr": 3.118082509342959e-06,
+      "endpoint_memory_next_lr": 3.1180825093429586e-07
+    },
+    {
+      "completed_updates": 34300,
+      "multiplier": 0.3093653405556418,
+      "W3_action_next_lr": 1.546826702778209e-05,
+      "W3_memory_next_lr": 1.546826702778209e-06,
+      "endpoint_action_next_lr": 3.093653405556418e-06,
+      "endpoint_memory_next_lr": 3.0936534055564176e-07
+    },
+    {
+      "completed_updates": 34400,
+      "multiplier": 0.3069323217253359,
+      "W3_action_next_lr": 1.5346616086266796e-05,
+      "W3_memory_next_lr": 1.5346616086266796e-06,
+      "endpoint_action_next_lr": 3.0693232172533592e-06,
+      "endpoint_memory_next_lr": 3.0693232172533587e-07
+    },
+    {
+      "completed_updates": 34500,
+      "multiplier": 0.30450929445525315,
+      "W3_action_next_lr": 1.5225464722762658e-05,
+      "W3_memory_next_lr": 1.522546472276266e-06,
+      "endpoint_action_next_lr": 3.045092944552532e-06,
+      "endpoint_memory_next_lr": 3.0450929445525316e-07
+    },
+    {
+      "completed_updates": 34600,
+      "multiplier": 0.3020963583465539,
+      "W3_action_next_lr": 1.5104817917327696e-05,
+      "W3_memory_next_lr": 1.5104817917327696e-06,
+      "endpoint_action_next_lr": 3.020963583465539e-06,
+      "endpoint_memory_next_lr": 3.020963583465539e-07
+    },
+    {
+      "completed_updates": 34700,
+      "multiplier": 0.2996936125855909,
+      "W3_action_next_lr": 1.4984680629279546e-05,
+      "W3_memory_next_lr": 1.4984680629279546e-06,
+      "endpoint_action_next_lr": 2.996936125855909e-06,
+      "endpoint_memory_next_lr": 2.996936125855909e-07
+    },
+    {
+      "completed_updates": 34800,
+      "multiplier": 0.29730115593983136,
+      "W3_action_next_lr": 1.4865057796991569e-05,
+      "W3_memory_next_lr": 1.4865057796991569e-06,
+      "endpoint_action_next_lr": 2.9730115593983137e-06,
+      "endpoint_memory_next_lr": 2.9730115593983134e-07
+    },
+    {
+      "completed_updates": 34900,
+      "multiplier": 0.2949190867537975,
+      "W3_action_next_lr": 1.4745954337689878e-05,
+      "W3_memory_next_lr": 1.4745954337689876e-06,
+      "endpoint_action_next_lr": 2.9491908675379753e-06,
+      "endpoint_memory_next_lr": 2.949190867537975e-07
+    },
+    {
+      "completed_updates": 35000,
+      "multiplier": 0.29254750294502374,
+      "W3_action_next_lr": 1.4627375147251187e-05,
+      "W3_memory_next_lr": 1.4627375147251188e-06,
+      "endpoint_action_next_lr": 2.9254750294502375e-06,
+      "endpoint_memory_next_lr": 2.9254750294502375e-07
+    },
+    {
+      "completed_updates": 35100,
+      "multiplier": 0.2901865020000314,
+      "W3_action_next_lr": 1.4509325100001569e-05,
+      "W3_memory_next_lr": 1.450932510000157e-06,
+      "endpoint_action_next_lr": 2.901865020000314e-06,
+      "endpoint_memory_next_lr": 2.901865020000314e-07
+    },
+    {
+      "completed_updates": 35200,
+      "multiplier": 0.28783618097032176,
+      "W3_action_next_lr": 1.4391809048516088e-05,
+      "W3_memory_next_lr": 1.439180904851609e-06,
+      "endpoint_action_next_lr": 2.878361809703218e-06,
+      "endpoint_memory_next_lr": 2.8783618097032174e-07
+    },
+    {
+      "completed_updates": 35300,
+      "multiplier": 0.2854966364683872,
+      "W3_action_next_lr": 1.427483182341936e-05,
+      "W3_memory_next_lr": 1.427483182341936e-06,
+      "endpoint_action_next_lr": 2.854966364683872e-06,
+      "endpoint_memory_next_lr": 2.854966364683872e-07
+    },
+    {
+      "completed_updates": 35400,
+      "multiplier": 0.2831679646637384,
+      "W3_action_next_lr": 1.415839823318692e-05,
+      "W3_memory_next_lr": 1.4158398233186921e-06,
+      "endpoint_action_next_lr": 2.8316796466373842e-06,
+      "endpoint_memory_next_lr": 2.831679646637384e-07
+    },
+    {
+      "completed_updates": 35500,
+      "multiplier": 0.28085026127895285,
+      "W3_action_next_lr": 1.4042513063947644e-05,
+      "W3_memory_next_lr": 1.4042513063947644e-06,
+      "endpoint_action_next_lr": 2.8085026127895288e-06,
+      "endpoint_memory_next_lr": 2.8085026127895286e-07
+    },
+    {
+      "completed_updates": 35600,
+      "multiplier": 0.27854362158573875,
+      "W3_action_next_lr": 1.3927181079286938e-05,
+      "W3_memory_next_lr": 1.3927181079286939e-06,
+      "endpoint_action_next_lr": 2.7854362158573877e-06,
+      "endpoint_memory_next_lr": 2.7854362158573875e-07
+    },
+    {
+      "completed_updates": 35700,
+      "multiplier": 0.2762481404010191,
+      "W3_action_next_lr": 1.3812407020050955e-05,
+      "W3_memory_next_lr": 1.3812407020050956e-06,
+      "endpoint_action_next_lr": 2.762481404010191e-06,
+      "endpoint_memory_next_lr": 2.7624814040101905e-07
+    },
+    {
+      "completed_updates": 35800,
+      "multiplier": 0.27396391208303517,
+      "W3_action_next_lr": 1.3698195604151759e-05,
+      "W3_memory_next_lr": 1.369819560415176e-06,
+      "endpoint_action_next_lr": 2.739639120830352e-06,
+      "endpoint_memory_next_lr": 2.7396391208303517e-07
+    },
+    {
+      "completed_updates": 35900,
+      "multiplier": 0.27169103052746585,
+      "W3_action_next_lr": 1.3584551526373293e-05,
+      "W3_memory_next_lr": 1.3584551526373293e-06,
+      "endpoint_action_next_lr": 2.7169103052746587e-06,
+      "endpoint_memory_next_lr": 2.7169103052746584e-07
+    },
+    {
+      "completed_updates": 36000,
+      "multiplier": 0.26942958916356996,
+      "W3_action_next_lr": 1.3471479458178499e-05,
+      "W3_memory_next_lr": 1.3471479458178499e-06,
+      "endpoint_action_next_lr": 2.6942958916356997e-06,
+      "endpoint_memory_next_lr": 2.6942958916356994e-07
+    },
+    {
+      "completed_updates": 36100,
+      "multiplier": 0.2671796809503444,
+      "W3_action_next_lr": 1.335898404751722e-05,
+      "W3_memory_next_lr": 1.335898404751722e-06,
+      "endpoint_action_next_lr": 2.671796809503444e-06,
+      "endpoint_memory_next_lr": 2.671796809503444e-07
+    },
+    {
+      "completed_updates": 36200,
+      "multiplier": 0.2649413983727036,
+      "W3_action_next_lr": 1.3247069918635179e-05,
+      "W3_memory_next_lr": 1.324706991863518e-06,
+      "endpoint_action_next_lr": 2.649413983727036e-06,
+      "endpoint_memory_next_lr": 2.649413983727036e-07
+    },
+    {
+      "completed_updates": 36300,
+      "multiplier": 0.26271483343767743,
+      "W3_action_next_lr": 1.3135741671883872e-05,
+      "W3_memory_next_lr": 1.3135741671883873e-06,
+      "endpoint_action_next_lr": 2.6271483343767747e-06,
+      "endpoint_memory_next_lr": 2.6271483343767745e-07
+    },
+    {
+      "completed_updates": 36400,
+      "multiplier": 0.26050007767062977,
+      "W3_action_next_lr": 1.302500388353149e-05,
+      "W3_memory_next_lr": 1.302500388353149e-06,
+      "endpoint_action_next_lr": 2.605000776706298e-06,
+      "endpoint_memory_next_lr": 2.6050007767062976e-07
+    },
+    {
+      "completed_updates": 36500,
+      "multiplier": 0.2582972221114953,
+      "W3_action_next_lr": 1.2914861105574767e-05,
+      "W3_memory_next_lr": 1.2914861105574767e-06,
+      "endpoint_action_next_lr": 2.5829722211149534e-06,
+      "endpoint_memory_next_lr": 2.582972221114953e-07
+    },
+    {
+      "completed_updates": 36600,
+      "multiplier": 0.25610635731103826,
+      "W3_action_next_lr": 1.2805317865551914e-05,
+      "W3_memory_next_lr": 1.2805317865551913e-06,
+      "endpoint_action_next_lr": 2.5610635731103826e-06,
+      "endpoint_memory_next_lr": 2.5610635731103823e-07
+    },
+    {
+      "completed_updates": 36700,
+      "multiplier": 0.25392757332712934,
+      "W3_action_next_lr": 1.2696378666356468e-05,
+      "W3_memory_next_lr": 1.2696378666356468e-06,
+      "endpoint_action_next_lr": 2.5392757332712936e-06,
+      "endpoint_memory_next_lr": 2.5392757332712935e-07
+    },
+    {
+      "completed_updates": 36800,
+      "multiplier": 0.25176095972104473,
+      "W3_action_next_lr": 1.2588047986052237e-05,
+      "W3_memory_next_lr": 1.2588047986052238e-06,
+      "endpoint_action_next_lr": 2.5176095972104477e-06,
+      "endpoint_memory_next_lr": 2.517609597210447e-07
+    },
+    {
+      "completed_updates": 36900,
+      "multiplier": 0.24960660555378356,
+      "W3_action_next_lr": 1.2480330277689178e-05,
+      "W3_memory_next_lr": 1.2480330277689179e-06,
+      "endpoint_action_next_lr": 2.4960660555378358e-06,
+      "endpoint_memory_next_lr": 2.4960660555378357e-07
+    },
+    {
+      "completed_updates": 37000,
+      "multiplier": 0.24746459938240742,
+      "W3_action_next_lr": 1.2373229969120371e-05,
+      "W3_memory_next_lr": 1.2373229969120372e-06,
+      "endpoint_action_next_lr": 2.4746459938240744e-06,
+      "endpoint_memory_next_lr": 2.474645993824074e-07
+    },
+    {
+      "completed_updates": 37100,
+      "multiplier": 0.2453350292564007,
+      "W3_action_next_lr": 1.2266751462820036e-05,
+      "W3_memory_next_lr": 1.2266751462820036e-06,
+      "endpoint_action_next_lr": 2.4533502925640072e-06,
+      "endpoint_memory_next_lr": 2.453350292564007e-07
+    },
+    {
+      "completed_updates": 37200,
+      "multiplier": 0.2432179827140503,
+      "W3_action_next_lr": 1.2160899135702515e-05,
+      "W3_memory_next_lr": 1.2160899135702516e-06,
+      "endpoint_action_next_lr": 2.4321798271405033e-06,
+      "endpoint_memory_next_lr": 2.4321798271405027e-07
+    },
+    {
+      "completed_updates": 37300,
+      "multiplier": 0.24111354677884742,
+      "W3_action_next_lr": 1.2055677338942371e-05,
+      "W3_memory_next_lr": 1.2055677338942371e-06,
+      "endpoint_action_next_lr": 2.4111354677884743e-06,
+      "endpoint_memory_next_lr": 2.411135467788474e-07
+    },
+    {
+      "completed_updates": 37400,
+      "multiplier": 0.2390218079559109,
+      "W3_action_next_lr": 1.1951090397795546e-05,
+      "W3_memory_next_lr": 1.1951090397795546e-06,
+      "endpoint_action_next_lr": 2.390218079559109e-06,
+      "endpoint_memory_next_lr": 2.390218079559109e-07
+    },
+    {
+      "completed_updates": 37500,
+      "multiplier": 0.23694285222843114,
+      "W3_action_next_lr": 1.1847142611421558e-05,
+      "W3_memory_next_lr": 1.1847142611421559e-06,
+      "endpoint_action_next_lr": 2.3694285222843117e-06,
+      "endpoint_memory_next_lr": 2.3694285222843113e-07
+    },
+    {
+      "completed_updates": 37600,
+      "multiplier": 0.23487676505413527,
+      "W3_action_next_lr": 1.1743838252706764e-05,
+      "W3_memory_next_lr": 1.1743838252706764e-06,
+      "endpoint_action_next_lr": 2.3487676505413528e-06,
+      "endpoint_memory_next_lr": 2.3487676505413527e-07
+    },
+    {
+      "completed_updates": 37700,
+      "multiplier": 0.2328236313617748,
+      "W3_action_next_lr": 1.164118156808874e-05,
+      "W3_memory_next_lr": 1.1641181568088741e-06,
+      "endpoint_action_next_lr": 2.3282363136177482e-06,
+      "endpoint_memory_next_lr": 2.328236313617748e-07
+    },
+    {
+      "completed_updates": 37800,
+      "multiplier": 0.23078353554763412,
+      "W3_action_next_lr": 1.1539176777381706e-05,
+      "W3_memory_next_lr": 1.1539176777381707e-06,
+      "endpoint_action_next_lr": 2.3078353554763415e-06,
+      "endpoint_memory_next_lr": 2.307835355476341e-07
+    },
+    {
+      "completed_updates": 37900,
+      "multiplier": 0.2287565614720617,
+      "W3_action_next_lr": 1.1437828073603085e-05,
+      "W3_memory_next_lr": 1.1437828073603085e-06,
+      "endpoint_action_next_lr": 2.287565614720617e-06,
+      "endpoint_memory_next_lr": 2.287565614720617e-07
+    },
+    {
+      "completed_updates": 38000,
+      "multiplier": 0.22674279245602263,
+      "W3_action_next_lr": 1.1337139622801132e-05,
+      "W3_memory_next_lr": 1.1337139622801132e-06,
+      "endpoint_action_next_lr": 2.2674279245602265e-06,
+      "endpoint_memory_next_lr": 2.2674279245602263e-07
+    },
+    {
+      "completed_updates": 38100,
+      "multiplier": 0.22474231127767386,
+      "W3_action_next_lr": 1.1237115563883693e-05,
+      "W3_memory_next_lr": 1.1237115563883694e-06,
+      "endpoint_action_next_lr": 2.247423112776739e-06,
+      "endpoint_memory_next_lr": 2.2474231127767384e-07
+    },
+    {
+      "completed_updates": 38200,
+      "multiplier": 0.22275520016896122,
+      "W3_action_next_lr": 1.1137760008448062e-05,
+      "W3_memory_next_lr": 1.113776000844806e-06,
+      "endpoint_action_next_lr": 2.227552001689612e-06,
+      "endpoint_memory_next_lr": 2.227552001689612e-07
+    },
+    {
+      "completed_updates": 38300,
+      "multiplier": 0.22078154081223939,
+      "W3_action_next_lr": 1.103907704061197e-05,
+      "W3_memory_next_lr": 1.103907704061197e-06,
+      "endpoint_action_next_lr": 2.207815408122394e-06,
+      "endpoint_memory_next_lr": 2.2078154081223937e-07
+    },
+    {
+      "completed_updates": 38400,
+      "multiplier": 0.21882141433691427,
+      "W3_action_next_lr": 1.0941070716845714e-05,
+      "W3_memory_next_lr": 1.0941070716845714e-06,
+      "endpoint_action_next_lr": 2.1882141433691427e-06,
+      "endpoint_memory_next_lr": 2.1882141433691425e-07
+    },
+    {
+      "completed_updates": 38500,
+      "multiplier": 0.2168749013161081,
+      "W3_action_next_lr": 1.0843745065805406e-05,
+      "W3_memory_next_lr": 1.0843745065805405e-06,
+      "endpoint_action_next_lr": 2.168749013161081e-06,
+      "endpoint_memory_next_lr": 2.168749013161081e-07
+    },
+    {
+      "completed_updates": 38600,
+      "multiplier": 0.2149420817633469,
+      "W3_action_next_lr": 1.0747104088167344e-05,
+      "W3_memory_next_lr": 1.0747104088167345e-06,
+      "endpoint_action_next_lr": 2.149420817633469e-06,
+      "endpoint_memory_next_lr": 2.1494208176334688e-07
+    },
+    {
+      "completed_updates": 38700,
+      "multiplier": 0.21302303512927234,
+      "W3_action_next_lr": 1.0651151756463617e-05,
+      "W3_memory_next_lr": 1.0651151756463618e-06,
+      "endpoint_action_next_lr": 2.1302303512927236e-06,
+      "endpoint_memory_next_lr": 2.1302303512927232e-07
+    },
+    {
+      "completed_updates": 38800,
+      "multiplier": 0.2111178402983751,
+      "W3_action_next_lr": 1.0555892014918756e-05,
+      "W3_memory_next_lr": 1.0555892014918756e-06,
+      "endpoint_action_next_lr": 2.1111784029837513e-06,
+      "endpoint_memory_next_lr": 2.1111784029837509e-07
+    },
+    {
+      "completed_updates": 38900,
+      "multiplier": 0.20922657558575258,
+      "W3_action_next_lr": 1.0461328779287629e-05,
+      "W3_memory_next_lr": 1.046132877928763e-06,
+      "endpoint_action_next_lr": 2.092265755857526e-06,
+      "endpoint_memory_next_lr": 2.0922657558575258e-07
+    },
+    {
+      "completed_updates": 39000,
+      "multiplier": 0.2073493187338895,
+      "W3_action_next_lr": 1.0367465936694476e-05,
+      "W3_memory_next_lr": 1.0367465936694477e-06,
+      "endpoint_action_next_lr": 2.0734931873388954e-06,
+      "endpoint_memory_next_lr": 2.073493187338895e-07
+    },
+    {
+      "completed_updates": 39100,
+      "multiplier": 0.20548614690946249,
+      "W3_action_next_lr": 1.0274307345473125e-05,
+      "W3_memory_next_lr": 1.0274307345473125e-06,
+      "endpoint_action_next_lr": 2.054861469094625e-06,
+      "endpoint_memory_next_lr": 2.0548614690946247e-07
+    },
+    {
+      "completed_updates": 39200,
+      "multiplier": 0.20363713670016728,
+      "W3_action_next_lr": 1.0181856835008365e-05,
+      "W3_memory_next_lr": 1.0181856835008365e-06,
+      "endpoint_action_next_lr": 2.036371367001673e-06,
+      "endpoint_memory_next_lr": 2.0363713670016728e-07
+    },
+    {
+      "completed_updates": 39300,
+      "multiplier": 0.20180236411157204,
+      "W3_action_next_lr": 1.0090118205578602e-05,
+      "W3_memory_next_lr": 1.0090118205578602e-06,
+      "endpoint_action_next_lr": 2.0180236411157205e-06,
+      "endpoint_memory_next_lr": 2.0180236411157202e-07
+    },
+    {
+      "completed_updates": 39400,
+      "multiplier": 0.19998190456399118,
+      "W3_action_next_lr": 9.99909522819956e-06,
+      "W3_memory_next_lr": 9.99909522819956e-07,
+      "endpoint_action_next_lr": 1.999819045639912e-06,
+      "endpoint_memory_next_lr": 1.9998190456399116e-07
+    },
+    {
+      "completed_updates": 39500,
+      "multiplier": 0.19817583288938662,
+      "W3_action_next_lr": 9.90879164446933e-06,
+      "W3_memory_next_lr": 9.908791644469333e-07,
+      "endpoint_action_next_lr": 1.9817583288938665e-06,
+      "endpoint_memory_next_lr": 1.9817583288938662e-07
+    },
+    {
+      "completed_updates": 39600,
+      "multiplier": 0.19638422332829097,
+      "W3_action_next_lr": 9.81921116641455e-06,
+      "W3_memory_next_lr": 9.819211166414549e-07,
+      "endpoint_action_next_lr": 1.9638422332829098e-06,
+      "endpoint_memory_next_lr": 1.9638422332829097e-07
+    },
+    {
+      "completed_updates": 39700,
+      "multiplier": 0.19460714952675595,
+      "W3_action_next_lr": 9.730357476337799e-06,
+      "W3_memory_next_lr": 9.7303574763378e-07,
+      "endpoint_action_next_lr": 1.94607149526756e-06,
+      "endpoint_memory_next_lr": 1.9460714952675595e-07
+    },
+    {
+      "completed_updates": 39800,
+      "multiplier": 0.19284468453332537,
+      "W3_action_next_lr": 9.64223422666627e-06,
+      "W3_memory_next_lr": 9.642234226666269e-07,
+      "endpoint_action_next_lr": 1.9284468453332537e-06,
+      "endpoint_memory_next_lr": 1.9284468453332537e-07
+    },
+    {
+      "completed_updates": 39900,
+      "multiplier": 0.19109690079603203,
+      "W3_action_next_lr": 9.554845039801602e-06,
+      "W3_memory_next_lr": 9.554845039801603e-07,
+      "endpoint_action_next_lr": 1.9109690079603205e-06,
+      "endpoint_memory_next_lr": 1.9109690079603202e-07
+    },
+    {
+      "completed_updates": 40000,
+      "multiplier": 0.1893638701594194,
+      "W3_action_next_lr": 9.46819350797097e-06,
+      "W3_memory_next_lr": 9.468193507970972e-07,
+      "endpoint_action_next_lr": 1.8936387015941943e-06,
+      "endpoint_memory_next_lr": 1.8936387015941941e-07
+    },
+    {
+      "completed_updates": 40100,
+      "multiplier": 0.18764566386158976,
+      "W3_action_next_lr": 9.382283193079488e-06,
+      "W3_memory_next_lr": 9.382283193079489e-07,
+      "endpoint_action_next_lr": 1.8764566386158978e-06,
+      "endpoint_memory_next_lr": 1.8764566386158974e-07
+    },
+    {
+      "completed_updates": 40200,
+      "multiplier": 0.18594235253127372,
+      "W3_action_next_lr": 9.297117626563687e-06,
+      "W3_memory_next_lr": 9.297117626563687e-07,
+      "endpoint_action_next_lr": 1.8594235253127373e-06,
+      "endpoint_memory_next_lr": 1.8594235253127372e-07
+    },
+    {
+      "completed_updates": 40300,
+      "multiplier": 0.18425400618492882,
+      "W3_action_next_lr": 9.212700309246441e-06,
+      "W3_memory_next_lr": 9.212700309246441e-07,
+      "endpoint_action_next_lr": 1.8425400618492883e-06,
+      "endpoint_memory_next_lr": 1.842540061849288e-07
+    },
+    {
+      "completed_updates": 40400,
+      "multiplier": 0.1825806942238607,
+      "W3_action_next_lr": 9.129034711193035e-06,
+      "W3_memory_next_lr": 9.129034711193036e-07,
+      "endpoint_action_next_lr": 1.8258069422386072e-06,
+      "endpoint_memory_next_lr": 1.8258069422386068e-07
+    },
+    {
+      "completed_updates": 40500,
+      "multiplier": 0.18092248543136982,
+      "W3_action_next_lr": 9.046124271568492e-06,
+      "W3_memory_next_lr": 9.046124271568492e-07,
+      "endpoint_action_next_lr": 1.8092248543136984e-06,
+      "endpoint_memory_next_lr": 1.8092248543136982e-07
+    },
+    {
+      "completed_updates": 40600,
+      "multiplier": 0.17927944796992523,
+      "W3_action_next_lr": 8.963972398496261e-06,
+      "W3_memory_next_lr": 8.963972398496262e-07,
+      "endpoint_action_next_lr": 1.7927944796992524e-06,
+      "endpoint_memory_next_lr": 1.7927944796992523e-07
+    },
+    {
+      "completed_updates": 40700,
+      "multiplier": 0.17765164937836164,
+      "W3_action_next_lr": 8.882582468918083e-06,
+      "W3_memory_next_lr": 8.882582468918083e-07,
+      "endpoint_action_next_lr": 1.7765164937836165e-06,
+      "endpoint_memory_next_lr": 1.7765164937836163e-07
+    },
+    {
+      "completed_updates": 40800,
+      "multiplier": 0.17603915656910324,
+      "W3_action_next_lr": 8.801957828455162e-06,
+      "W3_memory_next_lr": 8.801957828455162e-07,
+      "endpoint_action_next_lr": 1.7603915656910325e-06,
+      "endpoint_memory_next_lr": 1.7603915656910324e-07
+    },
+    {
+      "completed_updates": 40900,
+      "multiplier": 0.17444203582541382,
+      "W3_action_next_lr": 8.722101791270692e-06,
+      "W3_memory_next_lr": 8.722101791270692e-07,
+      "endpoint_action_next_lr": 1.7444203582541384e-06,
+      "endpoint_memory_next_lr": 1.744420358254138e-07
+    },
+    {
+      "completed_updates": 41000,
+      "multiplier": 0.17286035279867173,
+      "W3_action_next_lr": 8.643017639933586e-06,
+      "W3_memory_next_lr": 8.643017639933587e-07,
+      "endpoint_action_next_lr": 1.7286035279867174e-06,
+      "endpoint_memory_next_lr": 1.7286035279867171e-07
+    },
+    {
+      "completed_updates": 41100,
+      "multiplier": 0.17129417250567108,
+      "W3_action_next_lr": 8.564708625283555e-06,
+      "W3_memory_next_lr": 8.564708625283555e-07,
+      "endpoint_action_next_lr": 1.712941725056711e-06,
+      "endpoint_memory_next_lr": 1.7129417250567109e-07
+    },
+    {
+      "completed_updates": 41200,
+      "multiplier": 0.1697435593259496,
+      "W3_action_next_lr": 8.48717796629748e-06,
+      "W3_memory_next_lr": 8.48717796629748e-07,
+      "endpoint_action_next_lr": 1.697435593259496e-06,
+      "endpoint_memory_next_lr": 1.6974355932594958e-07
+    },
+    {
+      "completed_updates": 41300,
+      "multiplier": 0.1682085769991415,
+      "W3_action_next_lr": 8.410428849957074e-06,
+      "W3_memory_next_lr": 8.410428849957076e-07,
+      "endpoint_action_next_lr": 1.6820857699914151e-06,
+      "endpoint_memory_next_lr": 1.6820857699914147e-07
+    },
+    {
+      "completed_updates": 41400,
+      "multiplier": 0.16668928862235816,
+      "W3_action_next_lr": 8.334464431117908e-06,
+      "W3_memory_next_lr": 8.334464431117908e-07,
+      "endpoint_action_next_lr": 1.6668928862235817e-06,
+      "endpoint_memory_next_lr": 1.6668928862235815e-07
+    },
+    {
+      "completed_updates": 41500,
+      "multiplier": 0.16518575664759427,
+      "W3_action_next_lr": 8.259287832379714e-06,
+      "W3_memory_next_lr": 8.259287832379714e-07,
+      "endpoint_action_next_lr": 1.6518575664759428e-06,
+      "endpoint_memory_next_lr": 1.6518575664759427e-07
+    },
+    {
+      "completed_updates": 41600,
+      "multiplier": 0.16369804287916026,
+      "W3_action_next_lr": 8.184902143958014e-06,
+      "W3_memory_next_lr": 8.184902143958014e-07,
+      "endpoint_action_next_lr": 1.6369804287916028e-06,
+      "endpoint_memory_next_lr": 1.6369804287916025e-07
+    },
+    {
+      "completed_updates": 41700,
+      "multiplier": 0.16222620847114225,
+      "W3_action_next_lr": 8.111310423557113e-06,
+      "W3_memory_next_lr": 8.111310423557113e-07,
+      "endpoint_action_next_lr": 1.6222620847114226e-06,
+      "endpoint_memory_next_lr": 1.6222620847114225e-07
+    },
+    {
+      "completed_updates": 41800,
+      "multiplier": 0.16077031392488794,
+      "W3_action_next_lr": 8.038515696244398e-06,
+      "W3_memory_next_lr": 8.038515696244398e-07,
+      "endpoint_action_next_lr": 1.6077031392488796e-06,
+      "endpoint_memory_next_lr": 1.6077031392488793e-07
+    },
+    {
+      "completed_updates": 41900,
+      "multiplier": 0.15933041908651968,
+      "W3_action_next_lr": 7.966520954325984e-06,
+      "W3_memory_next_lr": 7.966520954325985e-07,
+      "endpoint_action_next_lr": 1.593304190865197e-06,
+      "endpoint_memory_next_lr": 1.5933041908651967e-07
+    },
+    {
+      "completed_updates": 42000,
+      "multiplier": 0.15790658314447487,
+      "W3_action_next_lr": 7.895329157223743e-06,
+      "W3_memory_next_lr": 7.895329157223744e-07,
+      "endpoint_action_next_lr": 1.5790658314447487e-06,
+      "endpoint_memory_next_lr": 1.5790658314447487e-07
+    },
+    {
+      "completed_updates": 42100,
+      "multiplier": 0.15649886462707197,
+      "W3_action_next_lr": 7.824943231353598e-06,
+      "W3_memory_next_lr": 7.824943231353599e-07,
+      "endpoint_action_next_lr": 1.5649886462707197e-06,
+      "endpoint_memory_next_lr": 1.5649886462707195e-07
+    },
+    {
+      "completed_updates": 42200,
+      "multiplier": 0.15510732140010575,
+      "W3_action_next_lr": 7.755366070005288e-06,
+      "W3_memory_next_lr": 7.755366070005288e-07,
+      "endpoint_action_next_lr": 1.5510732140010576e-06,
+      "endpoint_memory_next_lr": 1.5510732140010574e-07
+    },
+    {
+      "completed_updates": 42300,
+      "multiplier": 0.1537320106644679,
+      "W3_action_next_lr": 7.686600533223395e-06,
+      "W3_memory_next_lr": 7.686600533223395e-07,
+      "endpoint_action_next_lr": 1.537320106644679e-06,
+      "endpoint_memory_next_lr": 1.5373201066446789e-07
+    },
+    {
+      "completed_updates": 42400,
+      "multiplier": 0.15237298895379614,
+      "W3_action_next_lr": 7.618649447689807e-06,
+      "W3_memory_next_lr": 7.618649447689807e-07,
+      "endpoint_action_next_lr": 1.5237298895379614e-06,
+      "endpoint_memory_next_lr": 1.5237298895379612e-07
+    },
+    {
+      "completed_updates": 42500,
+      "multiplier": 0.15103031213214996,
+      "W3_action_next_lr": 7.5515156066074985e-06,
+      "W3_memory_next_lr": 7.551515606607499e-07,
+      "endpoint_action_next_lr": 1.5103031213214998e-06,
+      "endpoint_memory_next_lr": 1.5103031213214994e-07
+    },
+    {
+      "completed_updates": 42600,
+      "multiplier": 0.14970403539171476,
+      "W3_action_next_lr": 7.485201769585738e-06,
+      "W3_memory_next_lr": 7.485201769585739e-07,
+      "endpoint_action_next_lr": 1.4970403539171478e-06,
+      "endpoint_memory_next_lr": 1.4970403539171475e-07
+    },
+    {
+      "completed_updates": 42700,
+      "multiplier": 0.14839421325053237,
+      "W3_action_next_lr": 7.419710662526619e-06,
+      "W3_memory_next_lr": 7.419710662526619e-07,
+      "endpoint_action_next_lr": 1.4839421325053238e-06,
+      "endpoint_memory_next_lr": 1.4839421325053236e-07
+    },
+    {
+      "completed_updates": 42800,
+      "multiplier": 0.14710089955026115,
+      "W3_action_next_lr": 7.355044977513058e-06,
+      "W3_memory_next_lr": 7.355044977513058e-07,
+      "endpoint_action_next_lr": 1.4710089955026117e-06,
+      "endpoint_memory_next_lr": 1.4710089955026116e-07
+    },
+    {
+      "completed_updates": 42900,
+      "multiplier": 0.14582414745396138,
+      "W3_action_next_lr": 7.291207372698069e-06,
+      "W3_memory_next_lr": 7.29120737269807e-07,
+      "endpoint_action_next_lr": 1.458241474539614e-06,
+      "endpoint_memory_next_lr": 1.4582414745396138e-07
+    },
+    {
+      "completed_updates": 43000,
+      "multiplier": 0.14456400944391146,
+      "W3_action_next_lr": 7.228200472195573e-06,
+      "W3_memory_next_lr": 7.228200472195574e-07,
+      "endpoint_action_next_lr": 1.4456400944391147e-06,
+      "endpoint_memory_next_lr": 1.4456400944391144e-07
+    },
+    {
+      "completed_updates": 43100,
+      "multiplier": 0.14332053731944897,
+      "W3_action_next_lr": 7.166026865972449e-06,
+      "W3_memory_next_lr": 7.166026865972449e-07,
+      "endpoint_action_next_lr": 1.4332053731944898e-06,
+      "endpoint_memory_next_lr": 1.4332053731944895e-07
+    },
+    {
+      "completed_updates": 43200,
+      "multiplier": 0.14209378219484292,
+      "W3_action_next_lr": 7.104689109742147e-06,
+      "W3_memory_next_lr": 7.104689109742146e-07,
+      "endpoint_action_next_lr": 1.4209378219484293e-06,
+      "endpoint_memory_next_lr": 1.4209378219484291e-07
+    },
+    {
+      "completed_updates": 43300,
+      "multiplier": 0.1408837944971913,
+      "W3_action_next_lr": 7.0441897248595655e-06,
+      "W3_memory_next_lr": 7.044189724859565e-07,
+      "endpoint_action_next_lr": 1.408837944971913e-06,
+      "endpoint_memory_next_lr": 1.408837944971913e-07
+    },
+    {
+      "completed_updates": 43400,
+      "multiplier": 0.13969062396434936,
+      "W3_action_next_lr": 6.984531198217469e-06,
+      "W3_memory_next_lr": 6.984531198217468e-07,
+      "endpoint_action_next_lr": 1.3969062396434937e-06,
+      "endpoint_memory_next_lr": 1.3969062396434935e-07
+    },
+    {
+      "completed_updates": 43500,
+      "multiplier": 0.13851431964288444,
+      "W3_action_next_lr": 6.925715982144222e-06,
+      "W3_memory_next_lr": 6.925715982144222e-07,
+      "endpoint_action_next_lr": 1.3851431964288444e-06,
+      "endpoint_memory_next_lr": 1.3851431964288444e-07
+    },
+    {
+      "completed_updates": 43600,
+      "multiplier": 0.1373549298860597,
+      "W3_action_next_lr": 6.867746494302986e-06,
+      "W3_memory_next_lr": 6.867746494302986e-07,
+      "endpoint_action_next_lr": 1.3735492988605973e-06,
+      "endpoint_memory_next_lr": 1.373549298860597e-07
+    },
+    {
+      "completed_updates": 43700,
+      "multiplier": 0.1362125023518473,
+      "W3_action_next_lr": 6.810625117592365e-06,
+      "W3_memory_next_lr": 6.810625117592365e-07,
+      "endpoint_action_next_lr": 1.362125023518473e-06,
+      "endpoint_memory_next_lr": 1.362125023518473e-07
+    },
+    {
+      "completed_updates": 43800,
+      "multiplier": 0.13508708400096828,
+      "W3_action_next_lr": 6.754354200048414e-06,
+      "W3_memory_next_lr": 6.754354200048414e-07,
+      "endpoint_action_next_lr": 1.3508708400096828e-06,
+      "endpoint_memory_next_lr": 1.3508708400096828e-07
+    },
+    {
+      "completed_updates": 43900,
+      "multiplier": 0.13397872109496328,
+      "W3_action_next_lr": 6.698936054748165e-06,
+      "W3_memory_next_lr": 6.698936054748164e-07,
+      "endpoint_action_next_lr": 1.3397872109496328e-06,
+      "endpoint_memory_next_lr": 1.3397872109496328e-07
+    },
+    {
+      "completed_updates": 44000,
+      "multiplier": 0.13288745919429026,
+      "W3_action_next_lr": 6.644372959714514e-06,
+      "W3_memory_next_lr": 6.644372959714514e-07,
+      "endpoint_action_next_lr": 1.3288745919429028e-06,
+      "endpoint_memory_next_lr": 1.3288745919429026e-07
+    },
+    {
+      "completed_updates": 44100,
+      "multiplier": 0.13181334315645166,
+      "W3_action_next_lr": 6.590667157822583e-06,
+      "W3_memory_next_lr": 6.590667157822584e-07,
+      "endpoint_action_next_lr": 1.3181334315645167e-06,
+      "endpoint_memory_next_lr": 1.3181334315645166e-07
+    },
+    {
+      "completed_updates": 44200,
+      "multiplier": 0.13075641713415062,
+      "W3_action_next_lr": 6.5378208567075314e-06,
+      "W3_memory_next_lr": 6.537820856707531e-07,
+      "endpoint_action_next_lr": 1.3075641713415062e-06,
+      "endpoint_memory_next_lr": 1.307564171341506e-07
+    },
+    {
+      "completed_updates": 44300,
+      "multiplier": 0.1297167245734766,
+      "W3_action_next_lr": 6.48583622867383e-06,
+      "W3_memory_next_lr": 6.48583622867383e-07,
+      "endpoint_action_next_lr": 1.297167245734766e-06,
+      "endpoint_memory_next_lr": 1.297167245734766e-07
+    },
+    {
+      "completed_updates": 44400,
+      "multiplier": 0.12869430821211827,
+      "W3_action_next_lr": 6.434715410605914e-06,
+      "W3_memory_next_lr": 6.434715410605914e-07,
+      "endpoint_action_next_lr": 1.2869430821211828e-06,
+      "endpoint_memory_next_lr": 1.2869430821211826e-07
+    },
+    {
+      "completed_updates": 44500,
+      "multiplier": 0.12768921007760792,
+      "W3_action_next_lr": 6.384460503880396e-06,
+      "W3_memory_next_lr": 6.384460503880396e-07,
+      "endpoint_action_next_lr": 1.2768921007760793e-06,
+      "endpoint_memory_next_lr": 1.276892100776079e-07
+    },
+    {
+      "completed_updates": 44600,
+      "multiplier": 0.12670147148559288,
+      "W3_action_next_lr": 6.335073574279644e-06,
+      "W3_memory_next_lr": 6.335073574279644e-07,
+      "endpoint_action_next_lr": 1.2670147148559288e-06,
+      "endpoint_memory_next_lr": 1.2670147148559288e-07
+    },
+    {
+      "completed_updates": 44700,
+      "multiplier": 0.12573113303813815,
+      "W3_action_next_lr": 6.286556651906908e-06,
+      "W3_memory_next_lr": 6.286556651906909e-07,
+      "endpoint_action_next_lr": 1.2573113303813817e-06,
+      "endpoint_memory_next_lr": 1.2573113303813814e-07
+    },
+    {
+      "completed_updates": 44800,
+      "multiplier": 0.1247782346220569,
+      "W3_action_next_lr": 6.238911731102845e-06,
+      "W3_memory_next_lr": 6.238911731102846e-07,
+      "endpoint_action_next_lr": 1.2477823462205691e-06,
+      "endpoint_memory_next_lr": 1.2477823462205688e-07
+    },
+    {
+      "completed_updates": 44900,
+      "multiplier": 0.12384281540727048,
+      "W3_action_next_lr": 6.192140770363524e-06,
+      "W3_memory_next_lr": 6.192140770363524e-07,
+      "endpoint_action_next_lr": 1.2384281540727048e-06,
+      "endpoint_memory_next_lr": 1.2384281540727046e-07
+    },
+    {
+      "completed_updates": 45000,
+      "multiplier": 0.12292491384519917,
+      "W3_action_next_lr": 6.1462456922599585e-06,
+      "W3_memory_next_lr": 6.146245692259959e-07,
+      "endpoint_action_next_lr": 1.2292491384519918e-06,
+      "endpoint_memory_next_lr": 1.2292491384519917e-07
+    },
+    {
+      "completed_updates": 45100,
+      "multiplier": 0.12202456766718092,
+      "W3_action_next_lr": 6.1012283833590465e-06,
+      "W3_memory_next_lr": 6.101228383359046e-07,
+      "endpoint_action_next_lr": 1.2202456766718092e-06,
+      "endpoint_memory_next_lr": 1.220245676671809e-07
+    },
+    {
+      "completed_updates": 45200,
+      "multiplier": 0.12114181388292078,
+      "W3_action_next_lr": 6.057090694146039e-06,
+      "W3_memory_next_lr": 6.057090694146039e-07,
+      "endpoint_action_next_lr": 1.2114181388292079e-06,
+      "endpoint_memory_next_lr": 1.2114181388292078e-07
+    },
+    {
+      "completed_updates": 45300,
+      "multiplier": 0.12027668877896935,
+      "W3_action_next_lr": 6.013834438948468e-06,
+      "W3_memory_next_lr": 6.013834438948468e-07,
+      "endpoint_action_next_lr": 1.2027668877896937e-06,
+      "endpoint_memory_next_lr": 1.2027668877896934e-07
+    },
+    {
+      "completed_updates": 45400,
+      "multiplier": 0.11942922791723103,
+      "W3_action_next_lr": 5.971461395861551e-06,
+      "W3_memory_next_lr": 5.971461395861552e-07,
+      "endpoint_action_next_lr": 1.1942922791723104e-06,
+      "endpoint_memory_next_lr": 1.1942922791723102e-07
+    },
+    {
+      "completed_updates": 45500,
+      "multiplier": 0.1185994661335027,
+      "W3_action_next_lr": 5.929973306675135e-06,
+      "W3_memory_next_lr": 5.929973306675136e-07,
+      "endpoint_action_next_lr": 1.1859946613350271e-06,
+      "endpoint_memory_next_lr": 1.1859946613350269e-07
+    },
+    {
+      "completed_updates": 45600,
+      "multiplier": 0.11778743753604137,
+      "W3_action_next_lr": 5.889371876802069e-06,
+      "W3_memory_next_lr": 5.889371876802069e-07,
+      "endpoint_action_next_lr": 1.1778743753604139e-06,
+      "endpoint_memory_next_lr": 1.1778743753604136e-07
+    },
+    {
+      "completed_updates": 45700,
+      "multiplier": 0.11699317550416208,
+      "W3_action_next_lr": 5.849658775208104e-06,
+      "W3_memory_next_lr": 5.849658775208104e-07,
+      "endpoint_action_next_lr": 1.1699317550416208e-06,
+      "endpoint_memory_next_lr": 1.1699317550416208e-07
+    },
+    {
+      "completed_updates": 45800,
+      "multiplier": 0.11621671268686609,
+      "W3_action_next_lr": 5.810835634343305e-06,
+      "W3_memory_next_lr": 5.810835634343305e-07,
+      "endpoint_action_next_lr": 1.162167126868661e-06,
+      "endpoint_memory_next_lr": 1.1621671268686609e-07
+    },
+    {
+      "completed_updates": 45900,
+      "multiplier": 0.11545808100149851,
+      "W3_action_next_lr": 5.772904050074926e-06,
+      "W3_memory_next_lr": 5.772904050074926e-07,
+      "endpoint_action_next_lr": 1.1545808100149853e-06,
+      "endpoint_memory_next_lr": 1.1545808100149851e-07
+    },
+    {
+      "completed_updates": 46000,
+      "multiplier": 0.11471731163243676,
+      "W3_action_next_lr": 5.735865581621838e-06,
+      "W3_memory_next_lr": 5.735865581621839e-07,
+      "endpoint_action_next_lr": 1.1471731163243678e-06,
+      "endpoint_memory_next_lr": 1.1471731163243675e-07
+    },
+    {
+      "completed_updates": 46100,
+      "multiplier": 0.11399443502980819,
+      "W3_action_next_lr": 5.69972175149041e-06,
+      "W3_memory_next_lr": 5.69972175149041e-07,
+      "endpoint_action_next_lr": 1.139944350298082e-06,
+      "endpoint_memory_next_lr": 1.1399443502980819e-07
+    },
+    {
+      "completed_updates": 46200,
+      "multiplier": 0.11328948090823841,
+      "W3_action_next_lr": 5.664474045411921e-06,
+      "W3_memory_next_lr": 5.664474045411921e-07,
+      "endpoint_action_next_lr": 1.1328948090823842e-06,
+      "endpoint_memory_next_lr": 1.1328948090823841e-07
+    },
+    {
+      "completed_updates": 46300,
+      "multiplier": 0.11260247824563048,
+      "W3_action_next_lr": 5.630123912281524e-06,
+      "W3_memory_next_lr": 5.630123912281525e-07,
+      "endpoint_action_next_lr": 1.126024782456305e-06,
+      "endpoint_memory_next_lr": 1.1260247824563048e-07
+    },
+    {
+      "completed_updates": 46400,
+      "multiplier": 0.11193345528197292,
+      "W3_action_next_lr": 5.596672764098646e-06,
+      "W3_memory_next_lr": 5.596672764098646e-07,
+      "endpoint_action_next_lr": 1.1193345528197293e-06,
+      "endpoint_memory_next_lr": 1.1193345528197291e-07
+    },
+    {
+      "completed_updates": 46500,
+      "multiplier": 0.11128243951817937,
+      "W3_action_next_lr": 5.564121975908968e-06,
+      "W3_memory_next_lr": 5.564121975908969e-07,
+      "endpoint_action_next_lr": 1.1128243951817939e-06,
+      "endpoint_memory_next_lr": 1.1128243951817936e-07
+    },
+    {
+      "completed_updates": 46600,
+      "multiplier": 0.11064945771495815,
+      "W3_action_next_lr": 5.532472885747908e-06,
+      "W3_memory_next_lr": 5.532472885747908e-07,
+      "endpoint_action_next_lr": 1.1064945771495816e-06,
+      "endpoint_memory_next_lr": 1.1064945771495815e-07
+    },
+    {
+      "completed_updates": 46700,
+      "multiplier": 0.11003453589171185,
+      "W3_action_next_lr": 5.501726794585593e-06,
+      "W3_memory_next_lr": 5.501726794585593e-07,
+      "endpoint_action_next_lr": 1.1003453589171186e-06,
+      "endpoint_memory_next_lr": 1.1003453589171184e-07
+    },
+    {
+      "completed_updates": 46800,
+      "multiplier": 0.10943769932546821,
+      "W3_action_next_lr": 5.47188496627341e-06,
+      "W3_memory_next_lr": 5.471884966273411e-07,
+      "endpoint_action_next_lr": 1.0943769932546822e-06,
+      "endpoint_memory_next_lr": 1.094376993254682e-07
+    },
+    {
+      "completed_updates": 46900,
+      "multiplier": 0.1088589725498408,
+      "W3_action_next_lr": 5.44294862749204e-06,
+      "W3_memory_next_lr": 5.44294862749204e-07,
+      "endpoint_action_next_lr": 1.088589725498408e-06,
+      "endpoint_memory_next_lr": 1.088589725498408e-07
+    },
+    {
+      "completed_updates": 47000,
+      "multiplier": 0.10829837935402056,
+      "W3_action_next_lr": 5.4149189677010285e-06,
+      "W3_memory_next_lr": 5.414918967701028e-07,
+      "endpoint_action_next_lr": 1.0829837935402057e-06,
+      "endpoint_memory_next_lr": 1.0829837935402056e-07
+    },
+    {
+      "completed_updates": 47100,
+      "multiplier": 0.10775594278179829,
+      "W3_action_next_lr": 5.3877971390899145e-06,
+      "W3_memory_next_lr": 5.387797139089914e-07,
+      "endpoint_action_next_lr": 1.0775594278179828e-06,
+      "endpoint_memory_next_lr": 1.0775594278179828e-07
+    },
+    {
+      "completed_updates": 47200,
+      "multiplier": 0.10723168513061665,
+      "W3_action_next_lr": 5.361584256530833e-06,
+      "W3_memory_next_lr": 5.361584256530833e-07,
+      "endpoint_action_next_lr": 1.0723168513061665e-06,
+      "endpoint_memory_next_lr": 1.0723168513061665e-07
+    },
+    {
+      "completed_updates": 47300,
+      "multiplier": 0.10672562795065448,
+      "W3_action_next_lr": 5.336281397532724e-06,
+      "W3_memory_next_lr": 5.336281397532724e-07,
+      "endpoint_action_next_lr": 1.0672562795065448e-06,
+      "endpoint_memory_next_lr": 1.0672562795065447e-07
+    },
+    {
+      "completed_updates": 47400,
+      "multiplier": 0.10623779204394028,
+      "W3_action_next_lr": 5.311889602197014e-06,
+      "W3_memory_next_lr": 5.311889602197015e-07,
+      "endpoint_action_next_lr": 1.062377920439403e-06,
+      "endpoint_memory_next_lr": 1.0623779204394027e-07
+    },
+    {
+      "completed_updates": 47500,
+      "multiplier": 0.10576819746349743,
+      "W3_action_next_lr": 5.288409873174871e-06,
+      "W3_memory_next_lr": 5.288409873174872e-07,
+      "endpoint_action_next_lr": 1.0576819746349743e-06,
+      "endpoint_memory_next_lr": 1.0576819746349742e-07
+    },
+    {
+      "completed_updates": 47600,
+      "multiplier": 0.10531686351251995,
+      "W3_action_next_lr": 5.265843175625998e-06,
+      "W3_memory_next_lr": 5.265843175625999e-07,
+      "endpoint_action_next_lr": 1.0531686351251997e-06,
+      "endpoint_memory_next_lr": 1.0531686351251995e-07
+    },
+    {
+      "completed_updates": 47700,
+      "multiplier": 0.10488380874357872,
+      "W3_action_next_lr": 5.244190437178936e-06,
+      "W3_memory_next_lr": 5.244190437178936e-07,
+      "endpoint_action_next_lr": 1.0488380874357872e-06,
+      "endpoint_memory_next_lr": 1.0488380874357872e-07
+    },
+    {
+      "completed_updates": 47800,
+      "multiplier": 0.10446905095785913,
+      "W3_action_next_lr": 5.2234525478929565e-06,
+      "W3_memory_next_lr": 5.223452547892957e-07,
+      "endpoint_action_next_lr": 1.0446905095785914e-06,
+      "endpoint_memory_next_lr": 1.0446905095785913e-07
+    },
+    {
+      "completed_updates": 47900,
+      "multiplier": 0.10407260720442939,
+      "W3_action_next_lr": 5.20363036022147e-06,
+      "W3_memory_next_lr": 5.203630360221469e-07,
+      "endpoint_action_next_lr": 1.0407260720442939e-06,
+      "endpoint_memory_next_lr": 1.0407260720442939e-07
+    },
+    {
+      "completed_updates": 48000,
+      "multiplier": 0.10369449377953928,
+      "W3_action_next_lr": 5.184724688976964e-06,
+      "W3_memory_next_lr": 5.184724688976964e-07,
+      "endpoint_action_next_lr": 1.0369449377953928e-06,
+      "endpoint_memory_next_lr": 1.0369449377953927e-07
+    },
+    {
+      "completed_updates": 48100,
+      "multiplier": 0.10333472622595075,
+      "W3_action_next_lr": 5.166736311297537e-06,
+      "W3_memory_next_lr": 5.166736311297538e-07,
+      "endpoint_action_next_lr": 1.0333472622595076e-06,
+      "endpoint_memory_next_lr": 1.0333472622595074e-07
+    },
+    {
+      "completed_updates": 48200,
+      "multiplier": 0.10299331933229894,
+      "W3_action_next_lr": 5.149665966614947e-06,
+      "W3_memory_next_lr": 5.149665966614947e-07,
+      "endpoint_action_next_lr": 1.0299331933229894e-06,
+      "endpoint_memory_next_lr": 1.0299331933229893e-07
+    },
+    {
+      "completed_updates": 48300,
+      "multiplier": 0.10267028713248386,
+      "W3_action_next_lr": 5.133514356624193e-06,
+      "W3_memory_next_lr": 5.133514356624193e-07,
+      "endpoint_action_next_lr": 1.0267028713248386e-06,
+      "endpoint_memory_next_lr": 1.0267028713248386e-07
+    },
+    {
+      "completed_updates": 48400,
+      "multiplier": 0.10236564290509423,
+      "W3_action_next_lr": 5.118282145254712e-06,
+      "W3_memory_next_lr": 5.118282145254712e-07,
+      "endpoint_action_next_lr": 1.0236564290509423e-06,
+      "endpoint_memory_next_lr": 1.0236564290509423e-07
+    },
+    {
+      "completed_updates": 48500,
+      "multiplier": 0.1020793991728608,
+      "W3_action_next_lr": 5.10396995864304e-06,
+      "W3_memory_next_lr": 5.10396995864304e-07,
+      "endpoint_action_next_lr": 1.020793991728608e-06,
+      "endpoint_memory_next_lr": 1.0207939917286079e-07
+    },
+    {
+      "completed_updates": 48600,
+      "multiplier": 0.10181156770214242,
+      "W3_action_next_lr": 5.0905783851071216e-06,
+      "W3_memory_next_lr": 5.090578385107121e-07,
+      "endpoint_action_next_lr": 1.0181156770214243e-06,
+      "endpoint_memory_next_lr": 1.0181156770214242e-07
+    },
+    {
+      "completed_updates": 48700,
+      "multiplier": 0.1015621595024418,
+      "W3_action_next_lr": 5.07810797512209e-06,
+      "W3_memory_next_lr": 5.07810797512209e-07,
+      "endpoint_action_next_lr": 1.015621595024418e-06,
+      "endpoint_memory_next_lr": 1.0156215950244179e-07
+    },
+    {
+      "completed_updates": 48800,
+      "multiplier": 0.10133118482595317,
+      "W3_action_next_lr": 5.066559241297659e-06,
+      "W3_memory_next_lr": 5.066559241297659e-07,
+      "endpoint_action_next_lr": 1.0133118482595318e-06,
+      "endpoint_memory_next_lr": 1.0133118482595317e-07
+    },
+    {
+      "completed_updates": 48900,
+      "multiplier": 0.10111865316714076,
+      "W3_action_next_lr": 5.055932658357039e-06,
+      "W3_memory_next_lr": 5.055932658357039e-07,
+      "endpoint_action_next_lr": 1.0111865316714078e-06,
+      "endpoint_memory_next_lr": 1.0111865316714076e-07
+    },
+    {
+      "completed_updates": 49000,
+      "multiplier": 0.10092457326234866,
+      "W3_action_next_lr": 5.046228663117433e-06,
+      "W3_memory_next_lr": 5.046228663117433e-07,
+      "endpoint_action_next_lr": 1.0092457326234866e-06,
+      "endpoint_memory_next_lr": 1.0092457326234865e-07
+    },
+    {
+      "completed_updates": 49100,
+      "multiplier": 0.10074895308944158,
+      "W3_action_next_lr": 5.037447654472079e-06,
+      "W3_memory_next_lr": 5.03744765447208e-07,
+      "endpoint_action_next_lr": 1.007489530894416e-06,
+      "endpoint_memory_next_lr": 1.0074895308944158e-07
+    },
+    {
+      "completed_updates": 49200,
+      "multiplier": 0.10059179986747703,
+      "W3_action_next_lr": 5.029589993373852e-06,
+      "W3_memory_next_lr": 5.029589993373852e-07,
+      "endpoint_action_next_lr": 1.0059179986747704e-06,
+      "endpoint_memory_next_lr": 1.0059179986747703e-07
+    },
+    {
+      "completed_updates": 49300,
+      "multiplier": 0.10045312005640844,
+      "W3_action_next_lr": 5.022656002820422e-06,
+      "W3_memory_next_lr": 5.022656002820423e-07,
+      "endpoint_action_next_lr": 1.0045312005640845e-06,
+      "endpoint_memory_next_lr": 1.0045312005640844e-07
+    },
+    {
+      "completed_updates": 49400,
+      "multiplier": 0.10033291935681955,
+      "W3_action_next_lr": 5.0166459678409775e-06,
+      "W3_memory_next_lr": 5.016645967840978e-07,
+      "endpoint_action_next_lr": 1.0033291935681955e-06,
+      "endpoint_memory_next_lr": 1.0033291935681955e-07
+    },
+    {
+      "completed_updates": 49500,
+      "multiplier": 0.10023120270969045,
+      "W3_action_next_lr": 5.011560135484523e-06,
+      "W3_memory_next_lr": 5.011560135484523e-07,
+      "endpoint_action_next_lr": 1.0023120270969046e-06,
+      "endpoint_memory_next_lr": 1.0023120270969044e-07
+    },
+    {
+      "completed_updates": 49600,
+      "multiplier": 0.1001479742961941,
+      "W3_action_next_lr": 5.007398714809705e-06,
+      "W3_memory_next_lr": 5.007398714809705e-07,
+      "endpoint_action_next_lr": 1.001479742961941e-06,
+      "endpoint_memory_next_lr": 1.001479742961941e-07
+    },
+    {
+      "completed_updates": 49700,
+      "multiplier": 0.1000832375375245,
+      "W3_action_next_lr": 5.004161876876226e-06,
+      "W3_memory_next_lr": 5.004161876876226e-07,
+      "endpoint_action_next_lr": 1.0008323753752452e-06,
+      "endpoint_memory_next_lr": 1.000832375375245e-07
+    },
+    {
+      "completed_updates": 49800,
+      "multiplier": 0.10003699509475633,
+      "W3_action_next_lr": 5.0018497547378165e-06,
+      "W3_memory_next_lr": 5.001849754737816e-07,
+      "endpoint_action_next_lr": 1.0003699509475633e-06,
+      "endpoint_memory_next_lr": 1.0003699509475632e-07
+    },
+    {
+      "completed_updates": 49900,
+      "multiplier": 0.10000924886873529,
+      "W3_action_next_lr": 5.000462443436765e-06,
+      "W3_memory_next_lr": 5.000462443436764e-07,
+      "endpoint_action_next_lr": 1.0000924886873529e-06,
+      "endpoint_memory_next_lr": 1.0000924886873529e-07
+    },
+    {
+      "completed_updates": 50000,
+      "multiplier": 0.1,
+      "W3_action_next_lr": 5e-06,
+      "W3_memory_next_lr": 5.000000000000001e-07,
+      "endpoint_action_next_lr": 1.0000000000000002e-06,
+      "endpoint_memory_next_lr": 1e-07
+    }
+  ]
+}

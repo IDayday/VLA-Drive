@@ -1,0 +1,97 @@
+{
+  "status": "PASS_ACTUAL_UNINTERRUPTED_TRAINING",
+  "unix": 1793605632.9372585,
+  "owners": {
+    "main": {
+      "pid": 3624447,
+      "start_ticks": 1504416505,
+      "host": "training-vla-zt-worker-0",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/budget_v4",
+      "helpers": {
+        "evaluate": {
+          "pid": 3624579,
+          "start_ticks": 1504416914
+        },
+        "review": {
+          "pid": 3624580,
+          "start_ticks": 1504416915
+        }
+      },
+      "started_unix": 1793605555.9784453
+    },
+    "eval": {
+      "pid": 3624579,
+      "start_ticks": 1504416914,
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/budget_v4/tools/qwen_world_safety_exploration/eval_owner.py",
+      "source_sha256": "ed7c0fa24e96786437cc246f5715b895d597cd5c8a5a58f696814816e683ee2f",
+      "started_unix": 1793605559.930505,
+      "registry": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/RUNS.json",
+      "task": "qwen_world_safety_exploration_20261031",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102"
+    },
+    "review": {
+      "pid": 3624580,
+      "start_ticks": 1504416915,
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/budget_v4/tools/qwen_world_safety_exploration/review.py",
+      "source_sha256": "031b63a76ae11fa6c0707e390afff8ec187b93be06b6c7bf85079d91df295694",
+      "no_GPU": true,
+      "started_unix": 1793605560.0600393
+    }
+  },
+  "job": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/jobs/INTEGRATED_SAFETY_EP_B64_G16_RETENTION_WKC/formal_to000625_attempt002",
+  "child_pid": 1493442,
+  "child_start_ticks": 209786207,
+  "all8_rank_updates_before": {
+    "0": 388,
+    "1": 388,
+    "2": 388,
+    "3": 388,
+    "4": 388,
+    "5": 388,
+    "6": 388,
+    "7": 388
+  },
+  "all8_rank_updates_after": {
+    "0": 392,
+    "1": 392,
+    "2": 392,
+    "3": 392,
+    "4": 392,
+    "5": 392,
+    "6": 392,
+    "7": 392
+  },
+  "all8_rank_invocations": {
+    "0": "a75b5d765c8c4fba90333c535142108a",
+    "1": "a75b5d765c8c4fba90333c535142108a",
+    "2": "a75b5d765c8c4fba90333c535142108a",
+    "3": "a75b5d765c8c4fba90333c535142108a",
+    "4": "a75b5d765c8c4fba90333c535142108a",
+    "5": "a75b5d765c8c4fba90333c535142108a",
+    "6": "a75b5d765c8c4fba90333c535142108a",
+    "7": "a75b5d765c8c4fba90333c535142108a"
+  },
+  "GPU_signals": 0,
+  "model_optimizer_rng_and_bank_reset": false,
+  "scientific_config_sha256": "1942bd52fa4d158be9cc70189cc1637a7c453a0d164a89d84190677383e46263",
+  "scientific_source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/integrated64_v1",
+  "gpu_execution_source": "/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102/runtime/reporting_v2",
+  "target_updates": 10000,
+  "future_evaluation_gates": [
+    2000,
+    5000,
+    10000
+  ],
+  "historical_complete_250_preserved": true,
+  "eval_gate_keys": [
+    "250",
+    "2000",
+    "5000",
+    "10000"
+  ],
+  "review_pending": [
+    2000,
+    5000,
+    10000
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "ABCD_current_best_RL_registered_four_v1",
+  "task": "qwen_world_abcd_rl_best_20261031",
+  "registered_unix": 1793463574.3092256,
+  "manifest": "/mnt/project/qwen-world-abcd-rl-best-20261031/data/FULL_TRAIN_090890.json",
+  "parent_selection": "/mnt/project/qwen-world-abcd-rl-best-20261031/BEST_PARENT_SELECTION_LOCKED.json",
+  "runs": [
+    {
+      "id": "ARCH_A_SAFETY_EP",
+      "architecture_id": "A",
+      "root": "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_A_SAFETY_EP",
+      "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/runtime/abcd_parentfix",
+      "source_commit": "2c795c7",
+      "config": "/mnt/project/qwen-world-abcd-rl-best-20261031/configs/ARCH_A_SAFETY_EP.yaml",
+      "config_sha256": "cee6fb6525ad1777ceedb7b73dc443ba64fcf69ee8ca63422292fdb5eac935d3",
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_A_IL020000/export",
+      "parent_IL_updates": 20000,
+      "parent_PDMS": 85.12312631763868,
+      "status": "REGISTERED",
+      "target_updates": 10000,
+      "gates": [
+        1000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-abcd-rl-best-20261031/owners/ABCD_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 37000
+        }
+      ],
+      "research_method": "SAFETY_EP_SOURCE_PPO_OWN_ARCHITECTURE",
+      "seed": 42,
+      "startup_dependency_root": "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_C_SAFETY_EP"
+    },
+    {
+      "id": "ARCH_B_SAFETY_EP",
+      "architecture_id": "B",
+      "root": "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_B_SAFETY_EP",
+      "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/runtime/abcd_parentfix",
+      "source_commit": "2c795c7",
+      "config": "/mnt/project/qwen-world-abcd-rl-best-20261031/configs/ARCH_B_SAFETY_EP.yaml",
+      "config_sha256": "2a20bb63f62387ce2cb27df3b68532c171c721a744a87a78154d9e23017a2384",
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_B_IL016000/export",
+      "parent_IL_updates": 16000,
+      "parent_PDMS": 84.3067953836316,
+      "status": "REGISTERED",
+      "target_updates": 10000,
+      "gates": [
+        1000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-abcd-rl-best-20261031/owners/ABCD_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 37000
+        }
+      ],
+      "research_method": "SAFETY_EP_SOURCE_PPO_OWN_ARCHITECTURE",
+      "seed": 42,
+      "startup_dependency_root": "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION"
+    },
+    {
+      "id": "ARCH_C_SAFETY_EP",
+      "architecture_id": "C",
+      "root": "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_C_SAFETY_EP",
+      "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/runtime/abcd_parentfix",
+      "source_commit": "2c795c7",
+      "config": "/mnt/project/qwen-world-abcd-rl-best-20261031/configs/ARCH_C_SAFETY_EP.yaml",
+      "config_sha256": "b50e122e65059ce340acdecc756556ebb851d40daa373dd702a7da0efd3a84e1",
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_C_IL012000/export",
+      "parent_IL_updates": 12000,
+      "parent_PDMS": 85.38691838314051,
+      "status": "REGISTERED",
+      "target_updates": 10000,
+      "gates": [
+        1000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-abcd-rl-best-20261031/owners/ABCD_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 37000
+        }
+      ],
+      "research_method": "SAFETY_EP_SOURCE_PPO_OWN_ARCHITECTURE",
+      "seed": 42
+    },
+    {
+      "id": "ARCH_D_JAT_ACTION",
+      "architecture_id": "D",
+      "root": "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION",
+      "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/runtime/abcd_parentfix",
+      "source_commit": "2c795c7",
+      "config": "/mnt/project/qwen-world-abcd-rl-best-20261031/configs/ARCH_D_JAT_ACTION.yaml",
+      "config_sha256": "3c126095ff0f64a11f4dda5698cadc4844de69c6322ffafaad7820122502b66f",
+      "parent_export": "/mnt/project/qwen-world-abcd-rl-best-20261031/parents/ARCH_D_IL012000/export",
+      "parent_IL_updates": 12000,
+      "parent_PDMS": 86.00145735984253,
+      "status": "REGISTERED",
+      "target_updates": 5000,
+      "gates": [
+        1000,
+        5000
+      ],
+      "owner_state": "/mnt/project/qwen-world-abcd-rl-best-20261031/owners/ABCD_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 37000
+        }
+      ],
+      "research_method": "D_ACTION_JAT_INSPIRED_JOINT24",
+      "seed": 42
+    }
+  ],
+  "evaluation": {
+    "cohorts": [
+      "DEV",
+      "NAVTEST"
+    ],
+    "max_shards": 32,
+    "asynchronous": true,
+    "inference": "single_candidate_cleanx_K10_shift5",
+    "seed": 2101,
+    "invalid_scenes_required": 0
+  },
+  "long_training_beyond10k_NAVTEST_interval": 2000,
+  "automatic50k_budget": false,
+  "multi_seed": false,
+  "execution_revision": "exact_protected_parent_execution_helper_admission_before_any_update"
+}

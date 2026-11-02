@@ -1,0 +1,797 @@
+{
+  "schema": "world_legacy_method_revival_registration_v1",
+  "study_id": "revival_training_20261101",
+  "study_kind": "historical_revival",
+  "display_name": "\u5386\u53f2\u65b9\u6cd5\u590d\u5ba1\uff1a\u7edf\u4e00\u914d\u65b9\u8f83\u957f\u8bad\u7ec3",
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+  "registry": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/RUNS.json",
+  "source": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+  "source_commit": "597386d4211c876df3fe4743037f7296ee8f637d",
+  "source_pending": false,
+  "status": "RUNNING_ACTUAL_ALL_FOUR_8RANK",
+  "registered_unix": 1793509687.7421598,
+  "initial_budget_updates": 10000,
+  "data_population_count": 103288,
+  "arms": [
+    {
+      "id": "REVIVAL_G16",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_G16",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+      "source_commit": "597386d4211c876df3fe4743037f7296ee8f637d",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_G16.yaml",
+      "config_sha256": "92c990abc1e37c0b99aed8c4f19031d176addcb440cb0bfc3b0d6354f2bb1b5d",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 16,
+      "target_updates": 10000,
+      "gates": [
+        2000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 48000
+        }
+      ],
+      "initialization": "fresh same IL70/Adam/RNG42/update0; historical method, unified new scheduler",
+      "status": "RUNNING_ACTUAL_8RANK",
+      "revival_role": "g16",
+      "algorithm": "\u7ec4\u5185\u91c7\u683716",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "scheduler": {
+        "warmup_updates": 1000,
+        "total_updates": 50000,
+        "min_ratio": 0.1,
+        "initial_ratio": 0.001,
+        "peak_action_lr": 5e-05,
+        "peak_memory_lr": 5e-06
+      },
+      "reassesses_legacy_arm": "SAFETY_G16"
+    },
+    {
+      "id": "REVIVAL_DENSE_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_DENSE_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+      "source_commit": "597386d4211c876df3fe4743037f7296ee8f637d",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_DENSE_G8.yaml",
+      "config_sha256": "2acde9209521b2dbd9684f345b38937cbd97aab1f50cbaf6faf4184a5e6e32db",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 10000,
+      "gates": [
+        2000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same IL70/Adam/RNG42/update0; historical method, unified new scheduler",
+      "status": "RUNNING_ACTUAL_8RANK",
+      "revival_role": "dense",
+      "algorithm": "\u5168\u5931\u8d25DAC\u5e73\u5206\u65f6\u7684\u771f\u5b9e\u8d8a\u754c\u65f6\u957f\u4fe1\u7528",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "scheduler": {
+        "warmup_updates": 1000,
+        "total_updates": 50000,
+        "min_ratio": 0.1,
+        "initial_ratio": 0.001,
+        "peak_action_lr": 5e-05,
+        "peak_memory_lr": 5e-06
+      },
+      "reassesses_legacy_arm": "SAFETY_DAC_DENSE_G8"
+    },
+    {
+      "id": "REVIVAL_SATURATED_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_SATURATED_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+      "source_commit": "597386d4211c876df3fe4743037f7296ee8f637d",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_SATURATED_G8.yaml",
+      "config_sha256": "e5e3e3904c6f49bcbdf60f2e36c6b7e37d648b09eb0afb19fddb8d80ef54dbe2",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 10000,
+      "gates": [
+        2000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same IL70/Adam/RNG42/update0; historical method, unified new scheduler",
+      "status": "RUNNING_ACTUAL_8RANK",
+      "revival_role": "saturated",
+      "algorithm": "\u6210\u529f\u9971\u548c\u7ec4\u7684canonical\u589e\u91cf\u4fe1\u7528",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "scheduler": {
+        "warmup_updates": 1000,
+        "total_updates": 50000,
+        "min_ratio": 0.1,
+        "initial_ratio": 0.001,
+        "peak_action_lr": 5e-05,
+        "peak_memory_lr": 5e-06
+      },
+      "reassesses_legacy_arm": "SAFETY_SATURATED_G8"
+    },
+    {
+      "id": "REVIVAL_ACTIVE_DATA_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runs/REVIVAL_ACTIVE_DATA_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+      "source_commit": "597386d4211c876df3fe4743037f7296ee8f637d",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/configs/REVIVAL_ACTIVE_DATA_G8.yaml",
+      "config_sha256": "e05355a511fb30406f5bb1aa0a279b429b56f4baecae8ee54b89e7b4bfd0c011",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 10000,
+      "gates": [
+        2000,
+        5000,
+        10000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt4",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vla-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same IL70/Adam/RNG42/update0; historical method, unified new scheduler",
+      "status": "RUNNING_ACTUAL_8RANK",
+      "revival_role": "active_data",
+      "algorithm": "\u539f\u5728\u7ebf\u4fe1\u53f7\u4f18\u5148\u8bfe\u7a0b\uff0c\u4fdd\u755975%\u5747\u5300\u91c7\u6837",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "scheduler": {
+        "warmup_updates": 1000,
+        "total_updates": 50000,
+        "min_ratio": 0.1,
+        "initial_ratio": 0.001,
+        "peak_action_lr": 5e-05,
+        "peak_memory_lr": 5e-06
+      },
+      "reassesses_legacy_arm": "SAFETY_ACTIVE_DATA_G8"
+    }
+  ],
+  "shared_controls": [
+    {
+      "study_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+      "arm": "SAFETY_G8_CONTROL",
+      "registry": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json",
+      "read_only": true
+    }
+  ],
+  "scheduler": {
+    "warmup_updates": 1000,
+    "total_updates": 50000,
+    "min_ratio": 0.1,
+    "initial_ratio": 0.001,
+    "clock": "completed optimizer updates, fixed global horizon across stages"
+  },
+  "scheduler_protocol": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/SCHEDULER_PROTOCOL.json",
+  "historical_audit": "/mnt/project/qwen-world-safety-exploration-20261031/analysis/REVIVAL_METHOD_BUDGET_AUDIT_20261101/SUMMARY.json",
+  "ABCD_RL_remains_terminated": true,
+  "old_records_preserved": true,
+  "freeze_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/SOURCE_FREEZE.json",
+  "launch": {
+    "pid": 3029053,
+    "start_ticks": 1494870778,
+    "host": "training-vla-zt-worker-0",
+    "source": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/runtime/revival_v1",
+    "source_commit": "597386d4211c876df3fe4743037f7296ee8f637d",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-u",
+      "-m",
+      "tools.qwen_world_safety_exploration.revival_campaign",
+      "run",
+      "--root",
+      "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101",
+      "--allow-continuation"
+    ],
+    "started_unix": 1793510094.613776
+  },
+  "launch_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/owners/REVIVAL_CAMPAIGN/LAUNCH.json",
+  "actual_deployment": "/mnt/project/qwen-world-safety-exploration-20261031/revival_training_20261101/analysis/ACTUAL_REVIVAL_DEPLOYMENT.json"
+}

@@ -1,0 +1,1155 @@
+{
+  "arm_failures": {},
+  "completed_pairs": 6,
+  "contrasts": {
+    "PPO_MEMORYLR20_u001000_NAVTEST_minus_PPO_FULL_u001000_NAVTEST": {
+      "CI95_PDMS": [
+        -0.10902759484834536,
+        0.1793795187887572
+      ],
+      "CI_excludes_zero": false,
+      "G_minus_PDMS": -0.5266997865507972,
+      "G_plus_PDMS": 0.5574818047512988,
+      "baseline": "PPO_FULL_u001000_NAVTEST",
+      "baseline_PDMS": 90.43253691024785,
+      "changed_scores": {
+        "degraded": 4575,
+        "degraded_at_least5_scene_PDMS": 57,
+        "improved": 3681,
+        "improved_at_least5_scene_PDMS": 102,
+        "unchanged_within_epsilon": 3890
+      },
+      "completed_UTC": "2026-10-30T17:47:51.521635+00:00",
+      "delta_PDMS": 0.030782018200501585,
+      "loss_decomposition": {
+        "EP_down_safety_unchanged_Gminus_PDMS": -0.20570376946973684,
+        "EP_down_safety_unchanged_scenes": 4519,
+        "new_safety_violation_Gminus_PDMS": -0.31620791176967805,
+        "new_safety_violation_degraded_scenes": 53
+      },
+      "paired": {
+        "CI95": [
+          -0.0010902759484834536,
+          0.001793795187887572
+        ],
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+        "baseline_high_denominator": 11322,
+        "baseline_nonzero_denominator": 11830,
+        "baseline_zero_denominator": 316,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "high_to_zero": 29,
+        "high_to_zero_rate": 0.002561384914326091,
+        "mean_delta": 0.00030782018200501587,
+        "new_zero": 33,
+        "new_zero_rate": 0.0027895181741335586,
+        "physical_groups": 44,
+        "repaired_zero": 31,
+        "repaired_zero_rate": 0.0981012658227848,
+        "safety_transitions": {
+          "drivable_area_compliance": {
+            "baseline_failure": 180,
+            "baseline_pass": 11966,
+            "new_failure": 28,
+            "repaired_failure": 17
+          },
+          "no_at_fault_collisions": {
+            "baseline_failure": 156,
+            "baseline_pass": 11990,
+            "new_failure": 5,
+            "repaired_failure": 15
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failure": 421,
+            "baseline_pass": 11725,
+            "new_failure": 26,
+            "repaired_failure": 64
+          }
+        },
+        "scene_denominator": 12146
+      },
+      "review": {
+        "no_automatic_training_action": true,
+        "recommendation_zh": "总分配对区间跨零；当前不能确认优于FULL，按预注册下一预算观察，不根据点排名推广。",
+        "safety_decrease_CI_excludes_zero": [],
+        "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+      },
+      "safety_metrics": {
+        "comfort": {
+          "CI95_delta_percentage_points": [
+            -0.03710064075362306,
+            0.018388524451836915
+          ],
+          "baseline_mean_percent": 99.98353367363741,
+          "delta_percentage_points": -0.008233163181294254,
+          "target_mean_percent": 99.97530051045612
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.2327123800536839,
+            0.05378315134239213
+          ],
+          "baseline_failure": 180,
+          "baseline_mean_percent": 98.51803062736704,
+          "baseline_pass": 11966,
+          "delta_percentage_points": -0.09056479499423678,
+          "new_failure": 28,
+          "repaired_failure": 17,
+          "target_mean_percent": 98.42746583237279
+        },
+        "driving_direction_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.041840784189389135,
+            0.08460753959545068
+          ],
+          "baseline_mean_percent": 98.47274822986991,
+          "delta_percentage_points": 0.016466326362588508,
+          "target_mean_percent": 98.48921455623251
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            -0.3102497017431805,
+            -0.028549182156792165
+          ],
+          "baseline_mean_percent": 82.96749756523755,
+          "delta_percentage_points": -0.17015049714777286,
+          "target_mean_percent": 82.79734706808976
+        },
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            0.019375082588522486,
+            0.13415806850849954
+          ],
+          "baseline_failure": 156,
+          "baseline_mean_percent": 98.77325868598716,
+          "baseline_pass": 11990,
+          "delta_percentage_points": 0.07821505022229541,
+          "new_failure": 5,
+          "repaired_failure": 15,
+          "target_mean_percent": 98.85147373620946
+        },
+        "score": {
+          "CI95_delta_percentage_points": [
+            -0.10902759484834536,
+            0.17937951878875727
+          ],
+          "baseline_mean_percent": 90.43253691024752,
+          "delta_percentage_points": 0.030782018200501575,
+          "target_mean_percent": 90.46331892844803
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            0.10678264103572879,
+            0.5110959190709541
+          ],
+          "baseline_failure": 421,
+          "baseline_mean_percent": 96.53383830067513,
+          "baseline_pass": 11725,
+          "delta_percentage_points": 0.31286020088918165,
+          "new_failure": 26,
+          "repaired_failure": 64,
+          "target_mean_percent": 96.8466985015643
+        }
+      },
+      "status": "COMPLETE",
+      "target": "PPO_MEMORYLR20_u001000_NAVTEST",
+      "target_PDMS": 90.4633189284479
+    },
+    "PPO_MEMORYLR20_u005000_NAVTEST_minus_PPO_FULL_u005000_NAVTEST": {
+      "CI95_PDMS": [
+        -0.32657391432834,
+        0.09721219802742632
+      ],
+      "CI_excludes_zero": false,
+      "G_minus_PDMS": -0.7042537311064517,
+      "G_plus_PDMS": 0.583013584028799,
+      "baseline": "PPO_FULL_u005000_NAVTEST",
+      "baseline_PDMS": 90.58224721647319,
+      "changed_scores": {
+        "degraded": 4170,
+        "degraded_at_least5_scene_PDMS": 113,
+        "improved": 4140,
+        "improved_at_least5_scene_PDMS": 88,
+        "unchanged_within_epsilon": 3836
+      },
+      "completed_UTC": "2026-10-30T19:19:52.953723+00:00",
+      "delta_PDMS": -0.1212401470776527,
+      "loss_decomposition": {
+        "EP_down_safety_unchanged_Gminus_PDMS": -0.1548011551839492,
+        "EP_down_safety_unchanged_scenes": 4063,
+        "new_safety_violation_Gminus_PDMS": -0.5480803820589536,
+        "new_safety_violation_degraded_scenes": 106
+      },
+      "paired": {
+        "CI95": [
+          -0.0032657391432834,
+          0.0009721219802742633
+        ],
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+        "baseline_high_denominator": 11251,
+        "baseline_nonzero_denominator": 11865,
+        "baseline_zero_denominator": 281,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "high_to_zero": 40,
+        "high_to_zero_rate": 0.003555239534263621,
+        "mean_delta": -0.001212401470776527,
+        "new_zero": 54,
+        "new_zero_rate": 0.004551201011378002,
+        "physical_groups": 44,
+        "repaired_zero": 39,
+        "repaired_zero_rate": 0.1387900355871886,
+        "safety_transitions": {
+          "drivable_area_compliance": {
+            "baseline_failure": 151,
+            "baseline_pass": 11995,
+            "new_failure": 37,
+            "repaired_failure": 27
+          },
+          "no_at_fault_collisions": {
+            "baseline_failure": 148,
+            "baseline_pass": 11998,
+            "new_failure": 20,
+            "repaired_failure": 16
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failure": 392,
+            "baseline_pass": 11754,
+            "new_failure": 59,
+            "repaired_failure": 38
+          }
+        },
+        "scene_denominator": 12146
+      },
+      "review": {
+        "no_automatic_training_action": true,
+        "recommendation_zh": "总分配对区间跨零；当前不能确认优于FULL，按预注册下一预算观察，不根据点排名推广。",
+        "safety_decrease_CI_excludes_zero": [],
+        "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+      },
+      "safety_metrics": {
+        "comfort": {
+          "CI95_delta_percentage_points": [
+            -0.02635572824919352,
+            0.0
+          ],
+          "baseline_mean_percent": 99.99176683681871,
+          "delta_percentage_points": -0.008233163181294254,
+          "target_mean_percent": 99.98353367363741
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.26583211645054144,
+            0.09797364851793038
+          ],
+          "baseline_failure": 151,
+          "baseline_mean_percent": 98.75679235962457,
+          "baseline_pass": 11995,
+          "delta_percentage_points": -0.08233163181294254,
+          "new_failure": 37,
+          "repaired_failure": 27,
+          "target_mean_percent": 98.67446072781163
+        },
+        "driving_direction_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.057611091590052455,
+            0.06353368529536366
+          ],
+          "baseline_mean_percent": 98.21752017124979,
+          "delta_percentage_points": 0.004116581590647127,
+          "target_mean_percent": 98.22163675284045
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            -0.24152320788787388,
+            0.19862338215509567
+          ],
+          "baseline_mean_percent": 82.7874166605394,
+          "delta_percentage_points": -0.02500033858337116,
+          "target_mean_percent": 82.76241632195604
+        },
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            -0.13843698853575215,
+            0.058602866408490044
+          ],
+          "baseline_failure": 148,
+          "baseline_mean_percent": 98.83089082825622,
+          "baseline_pass": 11998,
+          "delta_percentage_points": -0.03704923431582414,
+          "new_failure": 20,
+          "repaired_failure": 16,
+          "target_mean_percent": 98.79384159394039
+        },
+        "score": {
+          "CI95_delta_percentage_points": [
+            -0.3265739143283399,
+            0.09721219802742645
+          ],
+          "baseline_mean_percent": 90.58224721647305,
+          "delta_percentage_points": -0.12124014707765265,
+          "target_mean_percent": 90.46100706939541
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            -0.37162032411915435,
+            0.01646350878271833
+          ],
+          "baseline_failure": 392,
+          "baseline_mean_percent": 96.77260003293266,
+          "baseline_pass": 11754,
+          "delta_percentage_points": -0.17289642680717932,
+          "new_failure": 59,
+          "repaired_failure": 38,
+          "target_mean_percent": 96.59970360612547
+        }
+      },
+      "status": "COMPLETE",
+      "target": "PPO_MEMORYLR20_u005000_NAVTEST",
+      "target_PDMS": 90.46100706939573
+    },
+    "PPO_MEMORYLR20_u010000_NAVTEST_minus_PPO_FULL_u010000_NAVTEST": {
+      "CI95_PDMS": [
+        -0.40031932362100614,
+        0.06806623756595064
+      ],
+      "CI_excludes_zero": false,
+      "G_minus_PDMS": -0.8268467602330534,
+      "G_plus_PDMS": 0.6661811321866166,
+      "baseline": "PPO_FULL_u010000_NAVTEST",
+      "baseline_PDMS": 91.01948815223066,
+      "changed_scores": {
+        "degraded": 2794,
+        "degraded_at_least5_scene_PDMS": 147,
+        "improved": 5542,
+        "improved_at_least5_scene_PDMS": 83,
+        "unchanged_within_epsilon": 3810
+      },
+      "completed_UTC": "2026-10-30T21:15:27.365253+00:00",
+      "delta_PDMS": -0.1606656280464368,
+      "loss_decomposition": {
+        "EP_down_safety_unchanged_Gminus_PDMS": -0.10731960312935461,
+        "EP_down_safety_unchanged_scenes": 2650,
+        "new_safety_violation_Gminus_PDMS": -0.7195271571036989,
+        "new_safety_violation_degraded_scenes": 144
+      },
+      "paired": {
+        "CI95": [
+          -0.0040031932362100614,
+          0.0006806623756595064
+        ],
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+        "baseline_high_denominator": 11426,
+        "baseline_nonzero_denominator": 11903,
+        "baseline_zero_denominator": 243,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "high_to_zero": 48,
+        "high_to_zero_rate": 0.004200945212672852,
+        "mean_delta": -0.001606656280464368,
+        "new_zero": 66,
+        "new_zero_rate": 0.005544820633453751,
+        "physical_groups": 44,
+        "repaired_zero": 31,
+        "repaired_zero_rate": 0.12757201646090535,
+        "safety_transitions": {
+          "drivable_area_compliance": {
+            "baseline_failure": 128,
+            "baseline_pass": 12018,
+            "new_failure": 43,
+            "repaired_failure": 25
+          },
+          "no_at_fault_collisions": {
+            "baseline_failure": 133,
+            "baseline_pass": 12013,
+            "new_failure": 24,
+            "repaired_failure": 8
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failure": 357,
+            "baseline_pass": 11789,
+            "new_failure": 91,
+            "repaired_failure": 34
+          }
+        },
+        "scene_denominator": 12146
+      },
+      "review": {
+        "no_automatic_training_action": true,
+        "recommendation_zh": "安全指标存在配对下降证据；优先检查新增failure及效率交换，扩预算前由root审查，不因总分上涨自动推广。",
+        "safety_decrease_CI_excludes_zero": [
+          "no_at_fault_collisions",
+          "time_to_collision_within_bound"
+        ],
+        "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+      },
+      "safety_metrics": {
+        "comfort": {
+          "CI95_delta_percentage_points": [
+            0.0,
+            0.028800513397545708
+          ],
+          "baseline_mean_percent": 99.97530051045612,
+          "delta_percentage_points": 0.008233163181294254,
+          "target_mean_percent": 99.98353367363741
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.3217157931977354,
+            0.0550133399670727
+          ],
+          "baseline_failure": 128,
+          "baseline_mean_percent": 98.94615511279433,
+          "baseline_pass": 12018,
+          "delta_percentage_points": -0.14819693726329655,
+          "new_failure": 43,
+          "repaired_failure": 25,
+          "target_mean_percent": 98.79795817553104
+        },
+        "driving_direction_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.07108264104539373,
+            0.10255357625784449
+          ],
+          "baseline_mean_percent": 98.35336736374116,
+          "delta_percentage_points": 0.012349744771941378,
+          "target_mean_percent": 98.3657171085131
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            0.08248851262258626,
+            0.5434229515819086
+          ],
+          "baseline_mean_percent": 83.22404940028608,
+          "delta_percentage_points": 0.29871408973735575,
+          "target_mean_percent": 83.52276349002345
+        },
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            -0.23696469276374468,
+            -0.05278171111746008
+          ],
+          "baseline_failure": 133,
+          "baseline_mean_percent": 98.95438827597562,
+          "baseline_pass": 12013,
+          "delta_percentage_points": -0.13173061090070806,
+          "new_failure": 24,
+          "repaired_failure": 8,
+          "target_mean_percent": 98.82265766507491
+        },
+        "score": {
+          "CI95_delta_percentage_points": [
+            -0.4003193236210059,
+            0.0680662375659508
+          ],
+          "baseline_mean_percent": 91.01948815223028,
+          "delta_percentage_points": -0.16066562804643686,
+          "target_mean_percent": 90.85882252418384
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            -0.7276919936226145,
+            -0.24397818537164015
+          ],
+          "baseline_failure": 357,
+          "baseline_mean_percent": 97.06076074427796,
+          "baseline_pass": 11789,
+          "delta_percentage_points": -0.4692903013337724,
+          "new_failure": 91,
+          "repaired_failure": 34,
+          "target_mean_percent": 96.59147044294419
+        }
+      },
+      "status": "COMPLETE",
+      "target": "PPO_MEMORYLR20_u010000_NAVTEST",
+      "target_PDMS": 90.85882252418371
+    },
+    "PPO_SAFETY_EP_u001000_NAVTEST_minus_PPO_FULL_u001000_NAVTEST": {
+      "CI95_PDMS": [
+        0.1239296395010845,
+        0.4588347341094954
+      ],
+      "CI_excludes_zero": true,
+      "G_minus_PDMS": -0.407973311994107,
+      "G_plus_PDMS": 0.6830445816171792,
+      "baseline": "PPO_FULL_u001000_NAVTEST",
+      "baseline_PDMS": 90.43253691024785,
+      "changed_scores": {
+        "degraded": 2577,
+        "degraded_at_least5_scene_PDMS": 62,
+        "improved": 5644,
+        "improved_at_least5_scene_PDMS": 82,
+        "unchanged_within_epsilon": 3925
+      },
+      "completed_UTC": "2026-10-30T17:58:11.190571+00:00",
+      "delta_PDMS": 0.2750712696230721,
+      "loss_decomposition": {
+        "EP_down_safety_unchanged_Gminus_PDMS": -0.08780349996623019,
+        "EP_down_safety_unchanged_scenes": 2515,
+        "new_safety_violation_Gminus_PDMS": -0.3133088427101316,
+        "new_safety_violation_degraded_scenes": 57
+      },
+      "paired": {
+        "CI95": [
+          0.001239296395010845,
+          0.004588347341094954
+        ],
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+        "baseline_high_denominator": 11322,
+        "baseline_nonzero_denominator": 11830,
+        "baseline_zero_denominator": 316,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "high_to_zero": 26,
+        "high_to_zero_rate": 0.0022964140611199434,
+        "mean_delta": 0.002750712696230721,
+        "new_zero": 32,
+        "new_zero_rate": 0.002704987320371936,
+        "physical_groups": 44,
+        "repaired_zero": 30,
+        "repaired_zero_rate": 0.0949367088607595,
+        "safety_transitions": {
+          "drivable_area_compliance": {
+            "baseline_failure": 180,
+            "baseline_pass": 11966,
+            "new_failure": 28,
+            "repaired_failure": 18
+          },
+          "no_at_fault_collisions": {
+            "baseline_failure": 156,
+            "baseline_pass": 11990,
+            "new_failure": 7,
+            "repaired_failure": 14
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failure": 421,
+            "baseline_pass": 11725,
+            "new_failure": 29,
+            "repaired_failure": 46
+          }
+        },
+        "scene_denominator": 12146
+      },
+      "review": {
+        "no_automatic_training_action": true,
+        "recommendation_zh": "同预算总分正差且区间排除零；支持在既定pilot内继续观察持续性。安全无显著下降不等于证明安全。",
+        "safety_decrease_CI_excludes_zero": [],
+        "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+      },
+      "safety_metrics": {
+        "comfort": {
+          "CI95_delta_percentage_points": [
+            -0.11067766711122462,
+            0.01790121846427506
+          ],
+          "baseline_mean_percent": 99.98353367363741,
+          "delta_percentage_points": -0.032932652725177015,
+          "target_mean_percent": 99.95060102091223
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.24520546994008752,
+            0.11782193180154751
+          ],
+          "baseline_failure": 180,
+          "baseline_mean_percent": 98.51803062736704,
+          "baseline_pass": 11966,
+          "delta_percentage_points": -0.08233163181294254,
+          "new_failure": 28,
+          "repaired_failure": 18,
+          "target_mean_percent": 98.43569899555409
+        },
+        "driving_direction_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.16431467636545855,
+            -0.058085222826100937
+          ],
+          "baseline_mean_percent": 98.47274822986991,
+          "delta_percentage_points": -0.1070311213568253,
+          "target_mean_percent": 98.3657171085131
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            0.40383525018133803,
+            0.7709970319051681
+          ],
+          "baseline_mean_percent": 82.96749756523755,
+          "delta_percentage_points": 0.5787201412056402,
+          "target_mean_percent": 83.54621770644319
+        },
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            0.0,
+            0.12026328439454263
+          ],
+          "baseline_failure": 156,
+          "baseline_mean_percent": 98.77325868598716,
+          "baseline_pass": 11990,
+          "delta_percentage_points": 0.05351556067841265,
+          "new_failure": 7,
+          "repaired_failure": 14,
+          "target_mean_percent": 98.82677424666556
+        },
+        "score": {
+          "CI95_delta_percentage_points": [
+            0.12392963950108445,
+            0.45883473410949527
+          ],
+          "baseline_mean_percent": 90.43253691024752,
+          "delta_percentage_points": 0.2750712696230721,
+          "target_mean_percent": 90.7076081798706
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            0.008723590176117773,
+            0.29157760098151425
+          ],
+          "baseline_failure": 421,
+          "baseline_mean_percent": 96.53383830067513,
+          "baseline_pass": 11725,
+          "delta_percentage_points": 0.1399637740820023,
+          "new_failure": 29,
+          "repaired_failure": 46,
+          "target_mean_percent": 96.67380207475712
+        }
+      },
+      "status": "COMPLETE",
+      "target": "PPO_SAFETY_EP_u001000_NAVTEST",
+      "target_PDMS": 90.70760817987055
+    },
+    "PPO_SAFETY_EP_u005000_NAVTEST_minus_PPO_FULL_u005000_NAVTEST": {
+      "CI95_PDMS": [
+        0.20335302731309138,
+        0.6070275411879986
+      ],
+      "CI_excludes_zero": true,
+      "G_minus_PDMS": -0.4477219598190011,
+      "G_plus_PDMS": 0.8557428193363428,
+      "baseline": "PPO_FULL_u005000_NAVTEST",
+      "baseline_PDMS": 90.58224721647319,
+      "changed_scores": {
+        "degraded": 2239,
+        "degraded_at_least5_scene_PDMS": 72,
+        "improved": 6042,
+        "improved_at_least5_scene_PDMS": 123,
+        "unchanged_within_epsilon": 3865
+      },
+      "completed_UTC": "2026-10-30T19:46:47.323723+00:00",
+      "delta_PDMS": 0.4080208595173417,
+      "loss_decomposition": {
+        "EP_down_safety_unchanged_Gminus_PDMS": -0.12078346548456773,
+        "EP_down_safety_unchanged_scenes": 2170,
+        "new_safety_violation_Gminus_PDMS": -0.32556630047088425,
+        "new_safety_violation_degraded_scenes": 68
+      },
+      "paired": {
+        "CI95": [
+          0.0020335302731309137,
+          0.006070275411879986
+        ],
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+        "baseline_high_denominator": 11251,
+        "baseline_nonzero_denominator": 11865,
+        "baseline_zero_denominator": 281,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "high_to_zero": 20,
+        "high_to_zero_rate": 0.0017776197671318106,
+        "mean_delta": 0.004080208595173417,
+        "new_zero": 28,
+        "new_zero_rate": 0.002359882005899705,
+        "physical_groups": 44,
+        "repaired_zero": 35,
+        "repaired_zero_rate": 0.12455516014234876,
+        "safety_transitions": {
+          "drivable_area_compliance": {
+            "baseline_failure": 151,
+            "baseline_pass": 11995,
+            "new_failure": 20,
+            "repaired_failure": 21
+          },
+          "no_at_fault_collisions": {
+            "baseline_failure": 148,
+            "baseline_pass": 11998,
+            "new_failure": 8,
+            "repaired_failure": 16
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failure": 392,
+            "baseline_pass": 11754,
+            "new_failure": 44,
+            "repaired_failure": 55
+          }
+        },
+        "scene_denominator": 12146
+      },
+      "review": {
+        "no_automatic_training_action": true,
+        "recommendation_zh": "同预算总分正差且区间排除零；支持在既定pilot内继续观察持续性。安全无显著下降不等于证明安全。",
+        "safety_decrease_CI_excludes_zero": [],
+        "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+      },
+      "safety_metrics": {
+        "comfort": {
+          "CI95_delta_percentage_points": [
+            -0.02635572824919352,
+            0.0
+          ],
+          "baseline_mean_percent": 99.99176683681871,
+          "delta_percentage_points": -0.008233163181294254,
+          "target_mean_percent": 99.98353367363741
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.10661046397434998,
+            0.1476428284801643
+          ],
+          "baseline_failure": 151,
+          "baseline_mean_percent": 98.75679235962457,
+          "baseline_pass": 11995,
+          "delta_percentage_points": 0.008233163181294254,
+          "new_failure": 20,
+          "repaired_failure": 21,
+          "target_mean_percent": 98.76502552280586
+        },
+        "driving_direction_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.023659707136695712,
+            0.06955609644509435
+          ],
+          "baseline_mean_percent": 98.21752017124979,
+          "delta_percentage_points": 0.020582907953235634,
+          "target_mean_percent": 98.23810307920303
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            0.4813375787430618,
+            1.1337714483037251
+          ],
+          "baseline_mean_percent": 82.7874166605394,
+          "delta_percentage_points": 0.8179301390764002,
+          "target_mean_percent": 83.6053467996158
+        },
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            -0.02299071599399598,
+            0.1480919791108453
+          ],
+          "baseline_failure": 148,
+          "baseline_mean_percent": 98.83089082825622,
+          "baseline_pass": 11998,
+          "delta_percentage_points": 0.05763214226905978,
+          "new_failure": 8,
+          "repaired_failure": 16,
+          "target_mean_percent": 98.88852297052527
+        },
+        "score": {
+          "CI95_delta_percentage_points": [
+            0.20335302731309135,
+            0.6070275411879983
+          ],
+          "baseline_mean_percent": 90.58224721647305,
+          "delta_percentage_points": 0.4080208595173417,
+          "target_mean_percent": 90.9902680759904
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            -0.10590379874103999,
+            0.28390454023766293
+          ],
+          "baseline_failure": 392,
+          "baseline_mean_percent": 96.77260003293266,
+          "baseline_pass": 11754,
+          "delta_percentage_points": 0.09056479499423678,
+          "new_failure": 44,
+          "repaired_failure": 55,
+          "target_mean_percent": 96.86316482792688
+        }
+      },
+      "status": "COMPLETE",
+      "target": "PPO_SAFETY_EP_u005000_NAVTEST",
+      "target_PDMS": 90.99026807599043
+    },
+    "PPO_SAFETY_EP_u010000_NAVTEST_minus_PPO_FULL_u010000_NAVTEST": {
+      "CI95_PDMS": [
+        0.04875789672806739,
+        0.6225692546393999
+      ],
+      "CI_excludes_zero": true,
+      "G_minus_PDMS": -0.7147829062741975,
+      "G_plus_PDMS": 1.045186491068213,
+      "baseline": "PPO_FULL_u010000_NAVTEST",
+      "baseline_PDMS": 91.01948815223066,
+      "changed_scores": {
+        "degraded": 1574,
+        "degraded_at_least5_scene_PDMS": 196,
+        "improved": 6763,
+        "improved_at_least5_scene_PDMS": 186,
+        "unchanged_within_epsilon": 3809
+      },
+      "completed_UTC": "2026-10-30T21:46:47.994009+00:00",
+      "delta_PDMS": 0.3304035847940154,
+      "loss_decomposition": {
+        "EP_down_safety_unchanged_Gminus_PDMS": -0.15541798484403346,
+        "EP_down_safety_unchanged_scenes": 1450,
+        "new_safety_violation_Gminus_PDMS": -0.5511317582488698,
+        "new_safety_violation_degraded_scenes": 118
+      },
+      "paired": {
+        "CI95": [
+          0.0004875789672806739,
+          0.006225692546393999
+        ],
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+        "baseline_high_denominator": 11426,
+        "baseline_nonzero_denominator": 11903,
+        "baseline_zero_denominator": 243,
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "high_to_zero": 29,
+        "high_to_zero_rate": 0.0025380710659898475,
+        "mean_delta": 0.0033040358479401537,
+        "new_zero": 50,
+        "new_zero_rate": 0.004200621692010418,
+        "physical_groups": 44,
+        "repaired_zero": 37,
+        "repaired_zero_rate": 0.1522633744855967,
+        "safety_transitions": {
+          "drivable_area_compliance": {
+            "baseline_failure": 128,
+            "baseline_pass": 12018,
+            "new_failure": 27,
+            "repaired_failure": 28
+          },
+          "no_at_fault_collisions": {
+            "baseline_failure": 133,
+            "baseline_pass": 12013,
+            "new_failure": 23,
+            "repaired_failure": 11
+          },
+          "time_to_collision_within_bound": {
+            "baseline_failure": 357,
+            "baseline_pass": 11789,
+            "new_failure": 72,
+            "repaired_failure": 51
+          }
+        },
+        "scene_denominator": 12146
+      },
+      "review": {
+        "no_automatic_training_action": true,
+        "recommendation_zh": "安全指标存在配对下降证据；优先检查新增failure及效率交换，扩预算前由root审查，不因总分上涨自动推广。",
+        "safety_decrease_CI_excludes_zero": [
+          "no_at_fault_collisions"
+        ],
+        "scope_zh": "固定IL70、训练seed42与评测seed2101；只能检验此单因素pilot，不能推出knowledge sufficient或已具备场景风险推理。"
+      },
+      "safety_metrics": {
+        "comfort": {
+          "CI95_delta_percentage_points": [
+            -0.10097492131896592,
+            -0.013527673431805665
+          ],
+          "baseline_mean_percent": 99.97530051045612,
+          "delta_percentage_points": -0.04939897908776551,
+          "target_mean_percent": 99.92590153136835
+        },
+        "drivable_area_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.1658250552649725,
+            0.2498553939501864
+          ],
+          "baseline_failure": 128,
+          "baseline_mean_percent": 98.94615511279433,
+          "baseline_pass": 12018,
+          "delta_percentage_points": 0.008233163181294254,
+          "new_failure": 27,
+          "repaired_failure": 28,
+          "target_mean_percent": 98.95438827597562
+        },
+        "driving_direction_compliance": {
+          "CI95_delta_percentage_points": [
+            -0.13963861604421965,
+            0.06627266925128314
+          ],
+          "baseline_mean_percent": 98.35336736374116,
+          "delta_percentage_points": -0.04116581590647127,
+          "target_mean_percent": 98.31220154783468
+        },
+        "ego_progress": {
+          "CI95_delta_percentage_points": [
+            0.5405911627166059,
+            1.4702355362653996
+          ],
+          "baseline_mean_percent": 83.22404940028608,
+          "delta_percentage_points": 0.9997166256829926,
+          "target_mean_percent": 84.22376602596908
+        },
+        "no_at_fault_collisions": {
+          "CI95_delta_percentage_points": [
+            -0.20679910286593917,
+            -0.008113761188453522
+          ],
+          "baseline_failure": 133,
+          "baseline_mean_percent": 98.95438827597562,
+          "baseline_pass": 12013,
+          "delta_percentage_points": -0.10291453976617818,
+          "new_failure": 23,
+          "repaired_failure": 11,
+          "target_mean_percent": 98.85147373620946
+        },
+        "score": {
+          "CI95_delta_percentage_points": [
+            0.04875789672806744,
+            0.6225692546393998
+          ],
+          "baseline_mean_percent": 91.01948815223028,
+          "delta_percentage_points": 0.3304035847940154,
+          "target_mean_percent": 91.3498917370243
+        },
+        "time_to_collision_within_bound": {
+          "CI95_delta_percentage_points": [
+            -0.4251615384418038,
+            0.07528124381239205
+          ],
+          "baseline_failure": 357,
+          "baseline_mean_percent": 97.06076074427796,
+          "baseline_pass": 11789,
+          "delta_percentage_points": -0.17289642680717932,
+          "new_failure": 72,
+          "repaired_failure": 51,
+          "target_mean_percent": 96.88786431747077
+        }
+      },
+      "status": "COMPLETE",
+      "target": "PPO_SAFETY_EP_u010000_NAVTEST",
+      "target_PDMS": 91.34989173702405
+    }
+  },
+  "evaluations": {
+    "PPO_FULL_u001000_NAVTEST": {
+      "PDMS": 90.43253691024785,
+      "RL_updates": 1000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u001000_NAVTEST.npz",
+        "identity_file_sha256": "198c673adbffe28c04465e0bd10b34a67b3bc0832022eaec8a4ce31ec5e7f22e",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/identity.json",
+        "identity_seal": "fd3bb00010486c36229172b470c4997eeed3a5e82214ceb4429851c6516e3053",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u001000_NAVTEST.json",
+        "npz_sha256": "5700411eeda58f3122a6d848d732a538a9a2bdb2adcfcc8a6217d81abb69df20",
+        "scene_raw_hash_inventory_sha256": "4e8f4bda675fca1ca820c4f7fd78b83622ff66f1a2303b2ce81ad08562db3d93",
+        "summary_file_sha256": "fc0758d90a9cc9c69e4d58197c2a12f2490a85e397bac881672a78f46d9ccf5a",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u001000_NAVTEST/SUMMARY.json",
+        "summary_seal": "29165d101fa57b816edd651a6d3463ac62e7730b904193d15b79917462668979"
+      }
+    },
+    "PPO_FULL_u005000_NAVTEST": {
+      "PDMS": 90.58224721647319,
+      "RL_updates": 5000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u005000_NAVTEST.npz",
+        "identity_file_sha256": "51f15a2aa76735d707568b682d6d1d59d3c5a2412ec276fe3ebbd3c0d9fa170a",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u005000_NAVTEST/identity.json",
+        "identity_seal": "3a75705f33b90da2df7ee946bdc66463934b5639479a3109f9872fab978cee69",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u005000_NAVTEST.json",
+        "npz_sha256": "167432cf7e5ec891dd3594bd9ecc54838841107a45052ce5598329c64b6aefc7",
+        "scene_raw_hash_inventory_sha256": "f9c165646961754aa4f3ef565e753d7f49f65bf545924c2adcabf2c2efb2ea42",
+        "summary_file_sha256": "eb9de48f7d8b8635e0e48a9f4723095ea6957a0d63618cbab4db652a9f2b056d",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u005000_NAVTEST/SUMMARY.json",
+        "summary_seal": "6e9113e59a23fb4983f925632952cdc1bcf82361d2912a458f93088da0d91386"
+      }
+    },
+    "PPO_FULL_u010000_NAVTEST": {
+      "PDMS": 91.01948815223066,
+      "RL_updates": 10000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u010000_NAVTEST.npz",
+        "identity_file_sha256": "712f1e4466cc4951682f365259718588e5a2daccde67594b8e5a7c7c2690d594",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/identity.json",
+        "identity_seal": "450d95b62d52c1b5a2a8908610b93d143df50bbb35cb073866ec6da3d428993d",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_FULL_u010000_NAVTEST.json",
+        "npz_sha256": "91d5508cd6f230a2f20c0276ac54c36e51062e9886db44c5cd07a8cddfb2c17d",
+        "scene_raw_hash_inventory_sha256": "73963901ba0a1739b9e6242e00980cd700969d88381c57b0ae3486a189e14589",
+        "summary_file_sha256": "533395c690f427e82ce6787a447b67971dec92b2735a5739236326dacd833dcd",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_FULL_u010000_NAVTEST/SUMMARY.json",
+        "summary_seal": "9f5f1c6fd4077fd75763cb22cf59e20af7ab77766082d7241e4932be9d4a04f2"
+      }
+    },
+    "PPO_MEMORYLR20_u001000_NAVTEST": {
+      "PDMS": 90.4633189284479,
+      "RL_updates": 1000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_MEMORYLR20_u001000_NAVTEST.npz",
+        "identity_file_sha256": "28f6e40980accf7cbc7c5ee661c386eff82a0cae4c27603890b2f801b7d6224d",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u001000_NAVTEST/identity.json",
+        "identity_seal": "b4e924dfa71b4e7baeebab14a332c302878a8b23bed3c77b374dcb0c4e2e1bf8",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_MEMORYLR20_u001000_NAVTEST.json",
+        "npz_sha256": "7b81f7d6bc3e3c4d1af456e8236bad0e3192f73d342b06a002313d9d6ed8cbc0",
+        "scene_raw_hash_inventory_sha256": "9bb5fd9fce36866d9f1fd90fa0398b1affad8cc87473e0ff5689ebd08fcb1896",
+        "summary_file_sha256": "d848818228ac0542244c824e7d9269095658405aca857a391699fecb51e328ac",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u001000_NAVTEST/SUMMARY.json",
+        "summary_seal": "b57c240b0807bb9dab4d6735281b2ffa3737bbd050809c636199fcce50c4c936"
+      }
+    },
+    "PPO_MEMORYLR20_u005000_NAVTEST": {
+      "PDMS": 90.46100706939573,
+      "RL_updates": 5000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_MEMORYLR20_u005000_NAVTEST.npz",
+        "identity_file_sha256": "18a715dd942523fef9e3cee781aa3dee86596c5336339644a73dda2a335fd7a8",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u005000_NAVTEST/identity.json",
+        "identity_seal": "d3c008a735c4847013a4eb559ebd2d3e0dde2e731ea6d0132f98d37d734ce886",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_MEMORYLR20_u005000_NAVTEST.json",
+        "npz_sha256": "78fbd2124a3be1a46df5011337ebb6898de2a225a8a07ebb4d86f231d63ff59d",
+        "scene_raw_hash_inventory_sha256": "d30c4a532eabbe78d45555a501912d609861a9ef4ab8707b7f3017f3e007deb3",
+        "summary_file_sha256": "800829036855bd55ed371f3e9065040c98f21abed175a26298e56809354aadba",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u005000_NAVTEST/SUMMARY.json",
+        "summary_seal": "8ce960880c7eddb074754710ae62c1edb02d38d8e2bfbac25b1ebda3c639d31c"
+      }
+    },
+    "PPO_MEMORYLR20_u010000_NAVTEST": {
+      "PDMS": 90.85882252418371,
+      "RL_updates": 10000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_MEMORYLR20_u010000_NAVTEST.npz",
+        "identity_file_sha256": "3f4bc1b472e078229c1a363460a52feefa59bfd6adebd9f27554a2696450518e",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u010000_NAVTEST/identity.json",
+        "identity_seal": "8d995331f73001cbb3b2802e64d46d97765d287bcd7ec630b4de0208ba993dc4",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_MEMORYLR20_u010000_NAVTEST.json",
+        "npz_sha256": "257cfdc9a224a0dd2e73e12acf64dbae4ab24eec63df161c413f8705dee69d3d",
+        "scene_raw_hash_inventory_sha256": "868e668f1db2925c5660047fcb03f6249b9bb482cb7917b7fdf28bd50e2d3e08",
+        "summary_file_sha256": "dac59ed4d4e5f826e55084e2fa495927881e8f2675be88be7a2dda6fc7de9fe8",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_MEMORYLR20_u010000_NAVTEST/SUMMARY.json",
+        "summary_seal": "748547e532e616b67f7834b909b89ea22215c41a69cfc97e1945818462aebdf0"
+      }
+    },
+    "PPO_SAFETY_EP_u001000_NAVTEST": {
+      "PDMS": 90.70760817987055,
+      "RL_updates": 1000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u001000_NAVTEST.npz",
+        "identity_file_sha256": "8f819c8a090589d913d72f8fa0345f8e66bee5e8d783419245580ec21d43366a",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u001000_NAVTEST/identity.json",
+        "identity_seal": "fd2032288911c3930e75ec26e386201e74d6f9e06048aa40a480670adef44806",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u001000_NAVTEST.json",
+        "npz_sha256": "0a9733981b50e6e8d3fc7755a539082ff5ff01e59fec3a9ab280260a5d4e9379",
+        "scene_raw_hash_inventory_sha256": "8e8db1b29b579146e6e2a4b2cb7a460d1aa87db8420370088d0ecc37be525991",
+        "summary_file_sha256": "c03f61d4d05e9a1b43e120dd2ed8055502444b77b7564524da32a0fb65a649e9",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u001000_NAVTEST/SUMMARY.json",
+        "summary_seal": "5783dfebd457e4732023b7d8b73cdba1b69f4a5345f1da6792bdbfc701710c67"
+      }
+    },
+    "PPO_SAFETY_EP_u005000_NAVTEST": {
+      "PDMS": 90.99026807599043,
+      "RL_updates": 5000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u005000_NAVTEST.npz",
+        "identity_file_sha256": "14e23319fea69cf95a7183e3e96d1cfec5124b4ab422f1dee0cfaad75512c576",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u005000_NAVTEST/identity.json",
+        "identity_seal": "3cf1c16262f3717a7c88d6f8c5be656b2667779665993f66b9e8684707b65ba5",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u005000_NAVTEST.json",
+        "npz_sha256": "badb09853b4b04ae1ecc373fdb1ca609eb3d1c6747b68d6c605fd63ce706d203",
+        "scene_raw_hash_inventory_sha256": "38571385c4264504e09730759d7ed7e826ee527e74d504c420d647d30be24bea",
+        "summary_file_sha256": "acb8a546eb07a0e0855ff5b982456606c85d6606e989082468ab92a69cffa6d3",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u005000_NAVTEST/SUMMARY.json",
+        "summary_seal": "34cf7c477453910410800d6675812cf519867e553131737a4e282ac82951ccc7"
+      }
+    },
+    "PPO_SAFETY_EP_u010000_NAVTEST": {
+      "PDMS": 91.34989173702405,
+      "RL_updates": 10000,
+      "provenance": {
+        "exact_metric_cache": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.npz",
+        "identity_file_sha256": "64e24aa4cf72a3e4ace5785edc2ed826b984dae139f4720d0ebcf5901b965e3e",
+        "identity_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/identity.json",
+        "identity_seal": "da06f385513fd68335eac65505787cc50ec3a09ae1b1f3a0c2879e07bb515cbc",
+        "metric_cache_metadata": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/evaluation_metric_cache/PPO_SAFETY_EP_u010000_NAVTEST.json",
+        "npz_sha256": "a82a772e752220df081d1b8f0434d9fad1f5815f369121800e93b3ee203fadcf",
+        "scene_raw_hash_inventory_sha256": "54842308a82c72f3137d8f20f5ad5c484d1c5a4df5ec7f712dbc1babc7bc7ebc",
+        "summary_file_sha256": "6872436ea06369f249263cbfd4e32a46e198b918823251c1095ade97160d2b67",
+        "summary_path": "/mnt/project/qwen-world-postcot-20261025/rl_optimization_20261030/evaluations/PPO_SAFETY_EP_u010000_NAVTEST/SUMMARY.json",
+        "summary_seal": "0691455812f6602fba3304706de8a5eb8d9bb22c1f98ac0f8c47dc839ef59828"
+      }
+    }
+  },
+  "interpretation_zh": "每组仅在双方完整正式结果齐备后写入；单seed物理log簇bootstrap不是跨训练重复不确定性，未校正多重比较。NAVTEST已用于研究选择。",
+  "knowledge_scope_zh": "两个pilot均固定IL70知识基础；MemoryLR20只变适应强度，SafetyEP只分解RL信用，不能推广为知识已充分或场景风险输入已充分。",
+  "matching_evidence": {
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "component_CIs_same_pooled_physical_log_draws": true,
+    "evaluation_seed": 2101,
+    "formal_NAVTEST_only": true,
+    "inference": "single-candidate ODE10 shift5",
+    "matched_budget_only": true,
+    "physical_logs": 44,
+    "scenes": 12146,
+    "training_seed": 42
+  },
+  "pending_pairs": [],
+  "provenance": {
+    "CPU_only": true,
+    "GPU_process_actions": 0,
+    "deadline_UTC": "2026-10-31T02:12:48.756161+00:00",
+    "event_backend": "Linux directory inotify; STATE/spec/SUMMARY/exact worker RESULT atomic metadata events",
+    "journal_polling": false,
+    "pid": 2101497,
+    "registrations": {
+      "PPO_MEMORYLR20": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_PPO_MEMORYLR20_REGISTRATION.json",
+        "sha256": "19fcf2e7773e1f7b7a6c21670e28b1fc808d6358ee867c1f8f58cf282353131d"
+      },
+      "PPO_SAFETY_EP": {
+        "path": "/mnt/project/qwen-world-rl-optimization-20261030/EXPERIMENT_PPO_SAFETY_EP_REGISTRATION.json",
+        "sha256": "51aae1e489910a8c275a009e3a7ea24a29ac5d854c9ca8e263ef0ec44d6b135a"
+      }
+    },
+    "source_file": "/mnt/project/qwen-world-rl-optimization-20261030/analysis/finite_new_pilot_analyzer.py",
+    "source_sha256": "12b4b3130a58d78e117f89d01070eecd43eeded309270a70723cbe753fe754d2",
+    "start_ticks": 1481898189,
+    "started_UTC": "2026-10-30T17:12:48.759341+00:00",
+    "targets": [
+      {
+        "baseline": "PPO_FULL_u001000_NAVTEST",
+        "target": "PPO_MEMORYLR20_u001000_NAVTEST"
+      },
+      {
+        "baseline": "PPO_FULL_u005000_NAVTEST",
+        "target": "PPO_MEMORYLR20_u005000_NAVTEST"
+      },
+      {
+        "baseline": "PPO_FULL_u010000_NAVTEST",
+        "target": "PPO_MEMORYLR20_u010000_NAVTEST"
+      },
+      {
+        "baseline": "PPO_FULL_u001000_NAVTEST",
+        "target": "PPO_SAFETY_EP_u001000_NAVTEST"
+      },
+      {
+        "baseline": "PPO_FULL_u005000_NAVTEST",
+        "target": "PPO_SAFETY_EP_u005000_NAVTEST"
+      },
+      {
+        "baseline": "PPO_FULL_u010000_NAVTEST",
+        "target": "PPO_SAFETY_EP_u010000_NAVTEST"
+      }
+    ]
+  },
+  "schema": "world_new_pilot_matched_review_v1",
+  "scope": {
+    "CPU_only": true,
+    "GPU_process_actions": 0,
+    "automatic_training_actions": false,
+    "each_uncached_complete_population_read_at_most_once": true,
+    "existing_compact_caches_reused": true,
+    "new_forwards": 0,
+    "new_scores": 0,
+    "new_seeds": 0,
+    "partial_scores_imputed": false
+  },
+  "sha256": "a6fec3642f28a47494cfb1dedf98e45c8f8e8c0c9d6f212556b90eae4e1eaf66",
+  "skipped_pairs": [],
+  "status": "COMPLETE",
+  "target_pairs": 6,
+  "utc": "2026-10-30T21:46:48.437779+00:00"
+}

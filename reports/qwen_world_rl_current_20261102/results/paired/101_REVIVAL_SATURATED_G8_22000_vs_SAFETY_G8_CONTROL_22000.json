@@ -1,0 +1,135 @@
+{
+  "schema": "world_revival_external_control_comparison_v1",
+  "status": "COMPLETE",
+  "arm": "REVIVAL_SATURATED_G8",
+  "updates": 22000,
+  "reference_arm": "SAFETY_G8_CONTROL",
+  "reference_updates": 22000,
+  "external_control_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+  "external_control_summary_file_sha256": "9d19361b47fdef3af1884209302110d849f1c1d091719855b1076c2a9fdfffe7",
+  "budget_contract": "same_scenes_updates_candidates",
+  "comparison": {
+    "label": "F_SAFETY_G8_CONTROL",
+    "baseline": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u022000/NAVTEST",
+    "baseline_identity_sha256": "b7c575665fece7f3aaf787d787715abbdb91cfa991061aa5a4d3cfd515e17fcc",
+    "result": {
+      "mean_delta": 6.066297417594173e-05,
+      "CI95": [
+        -0.0016448659106959374,
+        0.001904228856384876
+      ],
+      "bootstrap": 2000,
+      "bootstrap_seed": 42,
+      "physical_groups": 44,
+      "repaired_zero": 37,
+      "new_zero": 28,
+      "high_to_zero": 22,
+      "scene_denominator": 12146,
+      "baseline_zero_denominator": 249,
+      "baseline_nonzero_denominator": 11897,
+      "baseline_high_denominator": 11278,
+      "repaired_zero_rate": 0.14859437751004015,
+      "new_zero_rate": 0.002353534504496932,
+      "high_to_zero_rate": 0.0019507004788082993,
+      "safety_transitions": {
+        "no_at_fault_collisions": {
+          "new_failure": 7,
+          "repaired_failure": 16,
+          "baseline_pass": 12003,
+          "baseline_failure": 143
+        },
+        "drivable_area_compliance": {
+          "new_failure": 22,
+          "repaired_failure": 22,
+          "baseline_pass": 12024,
+          "baseline_failure": 122
+        },
+        "time_to_collision_within_bound": {
+          "new_failure": 21,
+          "repaired_failure": 42,
+          "baseline_pass": 11798,
+          "baseline_failure": 348
+        }
+      },
+      "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+      "PDMS_delta": 0.006066297417594173,
+      "PDMS_CI95": [
+        -0.16448659106959373,
+        0.1904228856384876
+      ],
+      "fixed_0p9_cohorts": {
+        "bins": [
+          "score<=1e-8",
+          "0<score<.5",
+          ".5<=score<.9",
+          "score>=.9"
+        ],
+        "row_is_fixed_baseline": true,
+        "transition_counts": [
+          [
+            212,
+            3,
+            13,
+            21
+          ],
+          [
+            2,
+            26,
+            9,
+            2
+          ],
+          [
+            9,
+            6,
+            3043,
+            97
+          ],
+          [
+            17,
+            0,
+            185,
+            8501
+          ]
+        ],
+        "fixed_cohorts": {
+          "zero": {
+            "count": 249,
+            "mean_delta_PDMS": 12.270904946670456,
+            "global_contribution_PDMS": 0.2515606233921409,
+            "to_zero": 212,
+            "below_high": 228
+          },
+          "low": {
+            "count": 39,
+            "mean_delta_PDMS": 9.488816987568402,
+            "global_contribution_PDMS": 0.03046796167587417,
+            "to_zero": 2,
+            "below_high": 37
+          },
+          "middle": {
+            "count": 3155,
+            "mean_delta_PDMS": 0.1309040646516854,
+            "global_contribution_PDMS": 0.03400315527548719,
+            "to_zero": 9,
+            "below_high": 3058
+          },
+          "high": {
+            "count": 8703,
+            "mean_delta_PDMS": -0.43259109155211767,
+            "global_contribution_PDMS": -0.30996544292590816,
+            "to_zero": 17,
+            "below_high": 202
+          }
+        },
+        "G_plus_PDMS": 0.5088855131052061,
+        "G_minus_PDMS": -0.502819215687612,
+        "losses_are_signed": true,
+        "full_population": 12146
+      },
+      "legacy_high_0p8_caveat": "Original paired high_to_zero uses .8; fixed_0p9_cohorts explicitly uses .9."
+    }
+  },
+  "fixed_IL70_high_advantage_PDMS": -0.05550076574779239,
+  "F_evaluation_or_training_launched_here": false,
+  "sha256": "0b4744ec514574ec66a09d4cc039c1e8b953c8925f49665342a11c718ed5ead0"
+}

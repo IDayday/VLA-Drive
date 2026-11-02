@@ -1,0 +1,135 @@
+{
+  "schema": "world_revival_external_control_comparison_v1",
+  "status": "COMPLETE",
+  "arm": "REVIVAL_DENSE_G8",
+  "updates": 14000,
+  "reference_arm": "SAFETY_G8_CONTROL",
+  "reference_updates": 14000,
+  "external_control_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+  "external_control_summary_file_sha256": "65fdfddad0c4c1522fa6e6142f8ff1130bda4fff6b79014096a208f9ac8a92ee",
+  "budget_contract": "same_scenes_updates_candidates",
+  "comparison": {
+    "label": "F_SAFETY_G8_CONTROL",
+    "baseline": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u014000/NAVTEST",
+    "baseline_identity_sha256": "6f526ad023b64e49254a948c90b54fea8e0f4907d24ca0282a83710d095b75ff",
+    "result": {
+      "mean_delta": -0.001039979496356729,
+      "CI95": [
+        -0.00261618708226437,
+        0.00044741146975416974
+      ],
+      "bootstrap": 2000,
+      "bootstrap_seed": 42,
+      "physical_groups": 44,
+      "repaired_zero": 26,
+      "new_zero": 29,
+      "high_to_zero": 25,
+      "scene_denominator": 12146,
+      "baseline_zero_denominator": 258,
+      "baseline_nonzero_denominator": 11888,
+      "baseline_high_denominator": 11295,
+      "repaired_zero_rate": 0.10077519379844961,
+      "new_zero_rate": 0.002439434724091521,
+      "high_to_zero_rate": 0.002213368747233289,
+      "safety_transitions": {
+        "no_at_fault_collisions": {
+          "new_failure": 8,
+          "repaired_failure": 10,
+          "baseline_pass": 12006,
+          "baseline_failure": 140
+        },
+        "drivable_area_compliance": {
+          "new_failure": 23,
+          "repaired_failure": 19,
+          "baseline_pass": 12010,
+          "baseline_failure": 136
+        },
+        "time_to_collision_within_bound": {
+          "new_failure": 28,
+          "repaired_failure": 23,
+          "baseline_pass": 11806,
+          "baseline_failure": 340
+        }
+      },
+      "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+      "PDMS_delta": -0.10399794963567291,
+      "PDMS_CI95": [
+        -0.261618708226437,
+        0.04474114697541697
+      ],
+      "fixed_0p9_cohorts": {
+        "bins": [
+          "score<=1e-8",
+          "0<score<.5",
+          ".5<=score<.9",
+          "score>=.9"
+        ],
+        "row_is_fixed_baseline": true,
+        "transition_counts": [
+          [
+            232,
+            1,
+            11,
+            14
+          ],
+          [
+            0,
+            37,
+            5,
+            2
+          ],
+          [
+            7,
+            5,
+            3193,
+            118
+          ],
+          [
+            22,
+            1,
+            86,
+            8412
+          ]
+        ],
+        "fixed_cohorts": {
+          "zero": {
+            "count": 258,
+            "mean_delta_PDMS": 8.679450472736638,
+            "global_contribution_PDMS": 0.18436507673028593,
+            "to_zero": 232,
+            "below_high": 244
+          },
+          "low": {
+            "count": 44,
+            "mean_delta_PDMS": 5.487337390327034,
+            "global_contribution_PDMS": 0.019878383432767124,
+            "to_zero": 0,
+            "below_high": 42
+          },
+          "middle": {
+            "count": 3323,
+            "mean_delta_PDMS": -0.360184930510032,
+            "global_contribution_PDMS": -0.09854227927587983,
+            "to_zero": 7,
+            "below_high": 3205
+          },
+          "high": {
+            "count": 8521,
+            "mean_delta_PDMS": -0.29890924062087654,
+            "global_contribution_PDMS": -0.2096991305228461,
+            "to_zero": 22,
+            "below_high": 109
+          }
+        },
+        "G_plus_PDMS": 0.3789166866523598,
+        "G_minus_PDMS": -0.48291463628803266,
+        "losses_are_signed": true,
+        "full_population": 12146
+      },
+      "legacy_high_0p8_caveat": "Original paired high_to_zero uses .8; fixed_0p9_cohorts explicitly uses .9."
+    }
+  },
+  "fixed_IL70_high_advantage_PDMS": -0.05913250782642421,
+  "F_evaluation_or_training_launched_here": false,
+  "sha256": "81f89e965215d0c28acbe17cb8e98b5ce1d3545d8be4c559e3609cce2690c878"
+}

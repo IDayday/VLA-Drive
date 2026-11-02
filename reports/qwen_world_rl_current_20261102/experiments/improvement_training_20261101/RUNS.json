@@ -1,0 +1,645 @@
+{
+  "task": "qwen_world_safety_exploration_20261031",
+  "manifest": "/mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json",
+  "parent_selection": "/mnt/project/qwen-world-rl-optimization-20261030/PARENT_SELECTION.json",
+  "observation_data": "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+  "training_population": 103288,
+  "original_DEV_independent": false,
+  "NAVTEST_training_feedback": false,
+  "multi_seed": false,
+  "evaluation": {
+    "cohorts": [
+      "NAVTEST"
+    ],
+    "data_paths": {
+      "NAVTEST": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST"
+    },
+    "manifests": {
+      "NAVTEST": "/mnt/project/qwen-world-safety-exploration-20261031/data/NAVTEST.json"
+    },
+    "max_shards": 32,
+    "max_workers": 64,
+    "inference": "single ODE K10 shift5 seed2101",
+    "partial_scores_publishable": false
+  },
+  "evidence_root": "/mnt/project/qwen-world-abcd-rl-best-20261031/analysis",
+  "schema": "world_improvement_campaign_registry_v1",
+  "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101",
+  "registered_unix": 1793546899.418316,
+  "automatic50k_budget": false,
+  "runs": [
+    {
+      "id": "IMPROVEMENT_EARLY_DECAY_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_EARLY_DECAY_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/early_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_EARLY_DECAY_G8.yaml",
+      "config_sha256": "32ae923d04431f014371f3d46d2ce737e0b7ec64b599bc0379ed210cbd541a78",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 20000,
+      "gates": [
+        2000,
+        5000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same original IL70, Adam/RNG42, update0; no nativefork",
+      "status": "REGISTERED_READY_FOR_DISPATCH",
+      "improvement_role": "early_decay",
+      "algorithm": "SafetyEP with warmup1000/cosine decay end20k then held0.1floor; budget50k independent",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "continuation_max_updates": 50000,
+      "source_commit": "e13a4b6",
+      "native_resource_priority": 70
+    },
+    {
+      "id": "IMPROVEMENT_MULTISCENE32_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_MULTISCENE32_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/batch32_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_MULTISCENE32_G8.yaml",
+      "config_sha256": "9ce88252cc4558e268ce248aaa3e891f08bb17f5fb4a82f119aa22f73b21a14a",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 5000,
+      "gates": [
+        500,
+        1250,
+        2500,
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "same original IL70 freshAdam/RNG42; no single-scene native transplant",
+      "status": "REGISTERED_READY_FOR_DISPATCH",
+      "improvement_role": "multiscene32",
+      "algorithm": "32 distinct scenes/G8; true microbatch accumulation;256 rawA normalization; query-clock50k equivalent",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "continuation_max_updates": 12500,
+      "source_commit": "dfa83e2",
+      "native_resource_priority": 70
+    },
+    {
+      "id": "IMPROVEMENT_VERIFIED_RETENTION_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_VERIFIED_RETENTION_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/retention_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_VERIFIED_RETENTION_G8.yaml",
+      "config_sha256": "bcf0eea72a6344c36165deec9aa24bba6bac52373b1bf774ce6f8d37b8463dc7",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 20000,
+      "gates": [
+        2000,
+        5000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same original IL70, Adam/RNG42, update0; no nativefork",
+      "status": "REGISTERED_READY_FOR_DISPATCH",
+      "improvement_role": "verified_retention",
+      "algorithm": "TRAIN trueB1 verified historicalRL mean-anchor reservoir;regression-gated25%ofbeta50budget;freshSafetyPG unchanged",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "continuation_max_updates": 50000,
+      "source_commit": "df50bce",
+      "native_resource_priority": 90
+    },
+    {
+      "id": "IMPROVEMENT_FP32_OUTPUT_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_FP32_OUTPUT_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/precision_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_FP32_OUTPUT_G8.yaml",
+      "config_sha256": "211c7aad947eab4bea993cea5f9ecbb23836bbf19e1d67e9bd9b133ba4f4e1fb",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 20000,
+      "gates": [
+        0,
+        2000,
+        5000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same original IL70, Adam/RNG42, update0; no nativefork",
+      "status": "REGISTERED_READY_FOR_DISPATCH",
+      "improvement_role": "fp32_output",
+      "algorithm": "SafetyEP/W3/G8 with actual FP32 final action projection; fixed50k cosine warm1000 floor.1; evaluate native0 execution change",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "continuation_max_updates": 50000,
+      "source_commit": "d068341",
+      "native_resource_priority": 80,
+      "new_evaluation_authorized": true,
+      "evaluation_source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/eval_precision_v2",
+      "evaluation_source_receipt": "/mnt/project/qwen-world-safety-exploration-20261031/operations/NEW_TRIALS_NATIVE_PRIORITY_20261101/FP32_NATIVE_PARITY_REPAIR/EVALUATION_EXECUTION_RECEIPT.json"
+    },
+    {
+      "id": "IMPROVEMENT_MIXED_NOISE_G8",
+      "architecture_id": "QWEN_WORLD_IL70",
+      "root": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runs/IMPROVEMENT_MIXED_NOISE_G8",
+      "source": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/runtime/mixed_v1",
+      "config": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/configs/IMPROVEMENT_MIXED_NOISE_G8.yaml",
+      "config_sha256": "8bf733c29c9419305c13a280a4210c1f07b9e344b28a20f68390c71bd21e9bf2",
+      "parent_checkpoint": "/mnt/project/qwen-world-rl-optimization-20261030/IL_PARENT",
+      "group_size": 8,
+      "target_updates": 20000,
+      "gates": [
+        2000,
+        5000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000
+      ],
+      "owner_state": "/mnt/project/qwen-world-safety-exploration-20261031/improvement_training_20261101/owners/IMPROVEMENT_NATIVE/STATE.json",
+      "deployment_candidates": [
+        {
+          "host": "training-vlawm-tsinghua-zt5",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "primary",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "research",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-rl-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt6",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        },
+        {
+          "host": "training-vlawm-zt",
+          "lease_slot": "shared",
+          "minimum_free_MiB": 32768
+        }
+      ],
+      "initialization": "fresh same original IL70, Adam/RNG42, update0; no nativefork",
+      "status": "REGISTERED_READY_FOR_DISPATCH",
+      "improvement_role": "mixed_noise",
+      "algorithm": "SafetyEP/G8 fixed4late4early W3 candidate kernels; unchanged global64 advantage; fixed50k cosine warm1000 floor.1",
+      "trainer_module": "tools.qwen_world_safety_exploration.train",
+      "save_every": 500,
+      "continuation_max_updates": 50000,
+      "source_commit": "3f2114f",
+      "native_resource_priority": 80
+    }
+  ],
+  "source_commit": "e13a4b6",
+  "initial_budget_updates": 20000,
+  "external_control": {
+    "registry": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/RUNS.json",
+    "arm": "SAFETY_G8_CONTROL",
+    "root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+    "read_only": true
+  },
+  "comparison_contract": {
+    "primary": "Full12146 paired NAV vs samebudget FControl; fixedIL70 high cohort/zero transitions; no Navtokens TRAINselection",
+    "P0": "Same original IL70/scenes/G8/4inner/loss/peaks/seed42; only decayend changes",
+    "batch_future": "Separate actual32scene collection, queryclock matching andAdam accounting; not yet registered",
+    "no_multi_seed": true
+  }
+}

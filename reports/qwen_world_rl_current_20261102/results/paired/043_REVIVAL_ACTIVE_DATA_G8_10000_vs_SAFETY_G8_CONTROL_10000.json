@@ -1,0 +1,135 @@
+{
+  "schema": "world_revival_external_control_comparison_v1",
+  "status": "COMPLETE",
+  "arm": "REVIVAL_ACTIVE_DATA_G8",
+  "updates": 10000,
+  "reference_arm": "SAFETY_G8_CONTROL",
+  "reference_updates": 10000,
+  "external_control_root": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101",
+  "external_control_summary_file_sha256": "3f0671a711c1d88a571bf19bb591f32edd304983cc0402116ccd2ed4d18f30f8",
+  "budget_contract": "same_updates_and_raw_exposure_count_different_scene_distribution",
+  "comparison": {
+    "label": "F_SAFETY_G8_CONTROL",
+    "baseline": "/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST",
+    "baseline_identity_sha256": "ba56664ecc900739f3c54a4f4d9acb69efed37849375f3961760c695cc9f1526",
+    "result": {
+      "mean_delta": -0.005457173397811161,
+      "CI95": [
+        -0.00779141255258247,
+        -0.003102394431464171
+      ],
+      "bootstrap": 2000,
+      "bootstrap_seed": 42,
+      "physical_groups": 44,
+      "repaired_zero": 53,
+      "new_zero": 70,
+      "high_to_zero": 65,
+      "scene_denominator": 12146,
+      "baseline_zero_denominator": 265,
+      "baseline_nonzero_denominator": 11881,
+      "baseline_high_denominator": 11426,
+      "repaired_zero_rate": 0.2,
+      "new_zero_rate": 0.005891759952865921,
+      "high_to_zero_rate": 0.005688779975494486,
+      "safety_transitions": {
+        "no_at_fault_collisions": {
+          "new_failure": 12,
+          "repaired_failure": 29,
+          "baseline_pass": 11993,
+          "baseline_failure": 153
+        },
+        "drivable_area_compliance": {
+          "new_failure": 60,
+          "repaired_failure": 28,
+          "baseline_pass": 12016,
+          "baseline_failure": 130
+        },
+        "time_to_collision_within_bound": {
+          "new_failure": 49,
+          "repaired_failure": 71,
+          "baseline_pass": 11766,
+          "baseline_failure": 380
+        }
+      },
+      "all_scores_units": "0..1; PDMS_display_explicitly_times100",
+      "PDMS_delta": -0.545717339781116,
+      "PDMS_CI95": [
+        -0.7791412552582471,
+        -0.3102394431464171
+      ],
+      "fixed_0p9_cohorts": {
+        "bins": [
+          "score<=1e-8",
+          "0<score<.5",
+          ".5<=score<.9",
+          "score>=.9"
+        ],
+        "row_is_fixed_baseline": true,
+        "transition_counts": [
+          [
+            212,
+            2,
+            23,
+            28
+          ],
+          [
+            0,
+            31,
+            8,
+            1
+          ],
+          [
+            13,
+            7,
+            2763,
+            99
+          ],
+          [
+            57,
+            3,
+            377,
+            8522
+          ]
+        ],
+        "fixed_cohorts": {
+          "zero": {
+            "count": 265,
+            "mean_delta_PDMS": 16.515705035211262,
+            "global_contribution_PDMS": 0.3603377107138963,
+            "to_zero": 212,
+            "below_high": 237
+          },
+          "low": {
+            "count": 40,
+            "mean_delta_PDMS": 7.5896553186478855,
+            "global_contribution_PDMS": 0.02499474829128235,
+            "to_zero": 0,
+            "below_high": 39
+          },
+          "middle": {
+            "count": 2882,
+            "mean_delta_PDMS": -0.6241034086340693,
+            "global_contribution_PDMS": -0.14808710881635004,
+            "to_zero": 13,
+            "below_high": 2783
+          },
+          "high": {
+            "count": 8959,
+            "mean_delta_PDMS": -1.061487312465113,
+            "global_contribution_PDMS": -0.7829626899699447,
+            "to_zero": 57,
+            "below_high": 437
+          }
+        },
+        "G_plus_PDMS": 0.6652736161520441,
+        "G_minus_PDMS": -1.2109909559331604,
+        "losses_are_signed": true,
+        "full_population": 12146
+      },
+      "legacy_high_0p8_caveat": "Original paired high_to_zero uses .8; fixed_0p9_cohorts explicitly uses .9."
+    }
+  },
+  "fixed_IL70_high_advantage_PDMS": -0.4447949709100969,
+  "F_evaluation_or_training_launched_here": false,
+  "sha256": "6be6363fd9235c72b158dc70766e4f7cf49bf530bc2f7616b6d490e5a128b949"
+}

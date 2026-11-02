@@ -1,0 +1,359 @@
+{
+  "schema": "world_integrated64_all_logged_groups_trick_review_v1",
+  "as_of_UTC": "2026-11-02T09:36:01.340205+00:00",
+  "through_optimizer_update": 625,
+  "all8_ranks": true,
+  "full_summary": {
+    "counts": {
+      "rank_windows": 1256,
+      "fresh_B1_queries": 6016,
+      "history_B1_queries": 5797,
+      "history_slots_selected": 5952,
+      "history_gates": 23,
+      "groups": 10048,
+      "fresh_PG_candidates": 160768,
+      "all_zero": 4,
+      "all_full": 1,
+      "tied": 7,
+      "zero_PG": 385,
+      "safety_differing": 8011,
+      "all_zero_with_PG": 1,
+      "all_zero_without_PG": 3,
+      "no_feasible_candidate": 20,
+      "one_feasible_candidate": 40,
+      "rank_optimizer_records": 5000
+    },
+    "unique_fresh_tokens": 10048,
+    "group_percent": {
+      "all_zero": 0.03980891719745223,
+      "all_full": 0.009952229299363057,
+      "tied": 0.0696656050955414,
+      "zero_PG": 3.8316082802547773,
+      "all_zero_with_PG": 0.009952229299363057,
+      "all_zero_without_PG": 0.029856687898089172,
+      "no_feasible_candidate": 0.19904458598726116,
+      "one_feasible_candidate": 0.3980891719745223
+    },
+    "history_gate_percent_of_selected": 0.3864247311827957,
+    "nominal_history_anchor_share_percent_of_all_scene_slots": 0.05722531847133758,
+    "extra_B1_queries": 11813,
+    "extra_B1_queries_percent_of_fresh_PG": 7.347855294585988,
+    "groups_with_strict_high_percent": 90.12738853503184,
+    "strict_high_candidate_count": 56809,
+    "strict_high_negative_advantage_percent": 6.305338942773152,
+    "mean_random_canonical_PDMS": 71.36529928107305,
+    "mean_optimizer_record_metrics": {
+      "retention_effective_RL_share": 0.000575,
+      "quality_high_positive_PPO_blocked": 0.010060119673237205,
+      "clipfrac": 0.026947396633727475,
+      "approx_kl": 3.1878409831642786e-05,
+      "quality_active_positive_high_weight": 0.19510315247178078,
+      "quality_active_negative_high_weight": 0.0025479157464428,
+      "quality_active_positive_unsafe_weight": 0.00029231695989146827,
+      "lr": 4.4965039999997056e-05
+    },
+    "cautions": [
+      "Mean scalar losses or surrogate coefficients do not measure parameter-gradient competition.",
+      "Counts are deduplicated by rank and collection; the same rollout reused for four updates is counted once.",
+      "Admission starts after update250; early history counts are zero by design.",
+      "TRAIN sampling quality is distinct from deployed single-B1 NAVTEST performance.",
+      "This is the active valid lineage; archived failed-attempt and recovery replay costs remain separate."
+    ]
+  },
+  "intervals": {
+    "before_history": {
+      "behavior_updates": [
+        0,
+        249
+      ],
+      "counts": {
+        "rank_windows": 504,
+        "fresh_B1_queries": 0,
+        "history_B1_queries": 0,
+        "history_slots_selected": 0,
+        "history_gates": 0,
+        "groups": 4032,
+        "fresh_PG_candidates": 64512,
+        "all_zero": 2,
+        "all_full": 0,
+        "tied": 2,
+        "zero_PG": 137,
+        "safety_differing": 3310,
+        "all_zero_with_PG": 0,
+        "all_zero_without_PG": 2,
+        "no_feasible_candidate": 4,
+        "one_feasible_candidate": 17,
+        "rank_optimizer_records": 2016
+      },
+      "unique_fresh_tokens": 4032,
+      "group_percent": {
+        "all_zero": 0.0496031746031746,
+        "all_full": 0.0,
+        "tied": 0.0496031746031746,
+        "zero_PG": 3.3978174603174605,
+        "all_zero_with_PG": 0.0,
+        "all_zero_without_PG": 0.0496031746031746,
+        "no_feasible_candidate": 0.0992063492063492,
+        "one_feasible_candidate": 0.42162698412698413
+      },
+      "history_gate_percent_of_selected": null,
+      "nominal_history_anchor_share_percent_of_all_scene_slots": 0.0,
+      "extra_B1_queries": 0,
+      "extra_B1_queries_percent_of_fresh_PG": 0.0,
+      "groups_with_strict_high_percent": 90.17857142857143,
+      "strict_high_candidate_count": 21716,
+      "strict_high_negative_advantage_percent": 5.696260821514091,
+      "mean_random_canonical_PDMS": 68.6299177964516,
+      "mean_optimizer_record_metrics": {
+        "retention_effective_RL_share": 0.0,
+        "quality_high_positive_PPO_blocked": 0.008408989714105643,
+        "clipfrac": 0.0230138068422786,
+        "approx_kl": 3.070360501503331e-05,
+        "quality_active_positive_high_weight": 0.19999173900023812,
+        "quality_active_negative_high_weight": 0.002047088824823396,
+        "quality_active_positive_unsafe_weight": 3.270354835198275e-05,
+        "lr": 3.7512499999999855e-05
+      },
+      "cautions": [
+        "Mean scalar losses or surrogate coefficients do not measure parameter-gradient competition.",
+        "Counts are deduplicated by rank and collection; the same rollout reused for four updates is counted once.",
+        "Admission starts after update250; early history counts are zero by design.",
+        "TRAIN sampling quality is distinct from deployed single-B1 NAVTEST performance.",
+        "This is the active valid lineage; archived failed-attempt and recovery replay costs remain separate."
+      ]
+    },
+    "history_early": {
+      "behavior_updates": [
+        250,
+        499
+      ],
+      "counts": {
+        "rank_windows": 496,
+        "fresh_B1_queries": 3968,
+        "history_B1_queries": 3767,
+        "history_slots_selected": 3904,
+        "history_gates": 13,
+        "groups": 3968,
+        "fresh_PG_candidates": 63488,
+        "all_zero": 1,
+        "all_full": 1,
+        "tied": 4,
+        "zero_PG": 176,
+        "safety_differing": 3080,
+        "all_zero_with_PG": 0,
+        "all_zero_without_PG": 1,
+        "no_feasible_candidate": 9,
+        "one_feasible_candidate": 16,
+        "rank_optimizer_records": 1984
+      },
+      "unique_fresh_tokens": 3968,
+      "group_percent": {
+        "all_zero": 0.025201612903225805,
+        "all_full": 0.025201612903225805,
+        "tied": 0.10080645161290322,
+        "zero_PG": 4.435483870967742,
+        "all_zero_with_PG": 0.0,
+        "all_zero_without_PG": 0.025201612903225805,
+        "no_feasible_candidate": 0.22681451612903225,
+        "one_feasible_candidate": 0.4032258064516129
+      },
+      "history_gate_percent_of_selected": 0.33299180327868855,
+      "nominal_history_anchor_share_percent_of_all_scene_slots": 0.08190524193548387,
+      "extra_B1_queries": 7735,
+      "extra_B1_queries_percent_of_fresh_PG": 12.183404737903226,
+      "groups_with_strict_high_percent": 90.07056451612904,
+      "strict_high_candidate_count": 23221,
+      "strict_high_negative_advantage_percent": 6.614702209207183,
+      "mean_random_canonical_PDMS": 73.14227066036068,
+      "mean_optimizer_record_metrics": {
+        "retention_effective_RL_share": 0.0008190524193548387,
+        "quality_high_positive_PPO_blocked": 0.010663052781432446,
+        "clipfrac": 0.029138053236824963,
+        "approx_kl": 3.387969265661138e-05,
+        "quality_active_positive_high_weight": 0.19030706261682714,
+        "quality_active_negative_high_weight": 0.002922918806729608,
+        "quality_active_positive_unsafe_weight": 0.00045033120982078536,
+        "lr": 4.9999999999998606e-05
+      },
+      "cautions": [
+        "Mean scalar losses or surrogate coefficients do not measure parameter-gradient competition.",
+        "Counts are deduplicated by rank and collection; the same rollout reused for four updates is counted once.",
+        "Admission starts after update250; early history counts are zero by design.",
+        "TRAIN sampling quality is distinct from deployed single-B1 NAVTEST performance.",
+        "This is the active valid lineage; archived failed-attempt and recovery replay costs remain separate."
+      ]
+    },
+    "history_latest": {
+      "behavior_updates": [
+        500,
+        625
+      ],
+      "counts": {
+        "rank_windows": 256,
+        "fresh_B1_queries": 2048,
+        "history_B1_queries": 2030,
+        "history_slots_selected": 2048,
+        "history_gates": 10,
+        "groups": 2048,
+        "fresh_PG_candidates": 32768,
+        "all_zero": 1,
+        "all_full": 0,
+        "tied": 1,
+        "zero_PG": 72,
+        "safety_differing": 1621,
+        "all_zero_with_PG": 1,
+        "all_zero_without_PG": 0,
+        "no_feasible_candidate": 7,
+        "one_feasible_candidate": 7,
+        "rank_optimizer_records": 1000
+      },
+      "unique_fresh_tokens": 2048,
+      "group_percent": {
+        "all_zero": 0.048828125,
+        "all_full": 0.0,
+        "tied": 0.048828125,
+        "zero_PG": 3.515625,
+        "all_zero_with_PG": 0.048828125,
+        "all_zero_without_PG": 0.0,
+        "no_feasible_candidate": 0.341796875,
+        "one_feasible_candidate": 0.341796875
+      },
+      "history_gate_percent_of_selected": 0.48828125,
+      "nominal_history_anchor_share_percent_of_all_scene_slots": 0.1220703125,
+      "extra_B1_queries": 4078,
+      "extra_B1_queries_percent_of_fresh_PG": 12.445068359375,
+      "groups_with_strict_high_percent": 90.13671875,
+      "strict_high_candidate_count": 11872,
+      "strict_high_negative_advantage_percent": 6.814353099730458,
+      "mean_random_canonical_PDMS": 73.30769953154905,
+      "mean_optimizer_record_metrics": {
+        "retention_effective_RL_share": 0.00125,
+        "quality_high_positive_PPO_blocked": 0.012192578384187072,
+        "clipfrac": 0.030531250952742995,
+        "approx_kl": 3.027627121718979e-05,
+        "quality_active_positive_high_weight": 0.19476320430263877,
+        "quality_active_negative_high_weight": 0.002813576748818491,
+        "quality_active_positive_unsafe_weight": 0.000502197325695306,
+        "lr": 5.000000000000092e-05
+      },
+      "cautions": [
+        "Mean scalar losses or surrogate coefficients do not measure parameter-gradient competition.",
+        "Counts are deduplicated by rank and collection; the same rollout reused for four updates is counted once.",
+        "Admission starts after update250; early history counts are zero by design.",
+        "TRAIN sampling quality is distinct from deployed single-B1 NAVTEST performance.",
+        "This is the active valid lineage; archived failed-attempt and recovery replay costs remain separate."
+      ]
+    }
+  },
+  "live_scientific_training_modified": false,
+  "within_G16_first8_counterfactual": {
+    "counts": {
+      "groups": 10048,
+      "strict_high_first8": 8406,
+      "strict_high_full16": 9056,
+      "strict_high_rescued_by_second8": 650,
+      "feasible_first8": 9961,
+      "feasible_full16": 10028,
+      "feasible_rescued_by_second8": 67,
+      "all_zero16": 4,
+      "all_zero16_with_PG": 1,
+      "all_zero16_without_PG": 3
+    },
+    "percent_of_all_groups": {
+      "strict_high_first8": 83.65843949044586,
+      "strict_high_full16": 90.12738853503184,
+      "strict_high_rescued_by_second8": 6.468949044585988,
+      "feasible_first8": 99.13415605095541,
+      "feasible_full16": 99.80095541401273,
+      "feasible_rescued_by_second8": 0.6667993630573248,
+      "all_zero16": 0.03980891719745223,
+      "all_zero16_with_PG": 0.009952229299363057,
+      "all_zero16_without_PG": 0.029856687898089172
+    },
+    "first8_strict_count_bins": {
+      "5": {
+        "groups": 1236,
+        "second8_adds_first_strict_high": 0
+      },
+      "6": {
+        "groups": 755,
+        "second8_adds_first_strict_high": 0
+      },
+      "0": {
+        "groups": 1642,
+        "second8_adds_first_strict_high": 650
+      },
+      "2": {
+        "groups": 1544,
+        "second8_adds_first_strict_high": 0
+      },
+      "4": {
+        "groups": 1548,
+        "second8_adds_first_strict_high": 0
+      },
+      "3": {
+        "groups": 1622,
+        "second8_adds_first_strict_high": 0
+      },
+      "1": {
+        "groups": 1373,
+        "second8_adds_first_strict_high": 0
+      },
+      "7": {
+        "groups": 273,
+        "second8_adds_first_strict_high": 0
+      },
+      "8": {
+        "groups": 55,
+        "second8_adds_first_strict_high": 0
+      }
+    },
+    "all_zero_no_signal_examples": [
+      {
+        "token": "c0eb5a77ef4958e6",
+        "log": "2021.06.23.14.54.32_veh-16_01187_03336",
+        "rank": 6,
+        "collection": 1,
+        "NC_DAC_TTC": [
+          [
+            1.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      {
+        "token": "f98fc2468abb5e7a",
+        "log": "2021.08.17.18.54.02_veh-45_00511_00579",
+        "rank": 5,
+        "collection": 14,
+        "NC_DAC_TTC": [
+          [
+            1.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      {
+        "token": "fc4db1f915e35335",
+        "log": "2021.10.05.07.49.39_veh-52_00934_01406",
+        "rank": 5,
+        "collection": 106,
+        "NC_DAC_TTC": [
+          [
+            1.0,
+            0.0,
+            1.0
+          ]
+        ]
+      }
+    ],
+    "source": "All sealed TRAIN behavior files for all common logged collections/ranks, fixed policy per window.",
+    "interpretation": "First8 is a prefix of the same G16 draw: measures marginal discovery only; not an independent G8 training ablation.",
+    "candidate_order_not_adaptive": true,
+    "noncausal": true
+  },
+  "audit_completeness": "All10048 distinct TRAIN groups and all160768 recorded candidates on all8ranks through actual625; no subsampling.",
+  "completed_UTC": "2026-11-02 09:50:11 UTC"
+}
