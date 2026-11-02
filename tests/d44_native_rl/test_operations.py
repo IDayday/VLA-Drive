@@ -132,3 +132,27 @@ def test_prechild_qualification_validation_writes_real_failure_not_hanging(tmp_p
 
 def test_an_input_directory_does_not_turn_an_unknown_process_into_an_owner():
     assert not worker.known_owner_args(['python','-m','unrelated.project','--data','/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST'])
+
+
+def test_waiting_p0_soft_yields_only_owned_lower_priority_stable_job(tmp_path,monkeypatch):
+    from tools.d44_native_rl import campaign
+    monkeypatch.setattr(campaign,'ROOT',tmp_path);(tmp_path/'jobs').mkdir()
+    monkeypatch.setattr(campaign,'authorization',lambda:(dict(permanent_hosts=['fixed']),None))
+    monkeypatch.setattr(campaign,'allowed_hosts',lambda **kwargs:['fixed'])
+    done=tmp_path/'jobs/done';done.mkdir();(done/'RESULT.json').write_text(json.dumps(dict(returncode=0)))
+    lower=tmp_path/'jobs/lower';lower.mkdir();cmd=['python','-m','tools.d44_native_rl.train','--output','OWN']
+    (lower/'RUNNING.json').write_text(json.dumps(dict(command=cmd,cwd='SCI')))
+    value=dict(runs=dict(D0=dict(status='WAITING_FOR_AUTHORIZED_CAPACITY',jobs=[dict(job=str(done))]),
+        D1=dict(priority=1,status='RUNNING_OR_ADMITTING',source='SCI',source_sha='HASH',jobs=[dict(job=str(lower),host='fixed',command=cmd)])))
+    campaign.yield_owned_lower_priority(value)
+    assert(lower/'STOP_REQUESTED').exists()and len(value['priority_yields'])==1
+    campaign.yield_owned_lower_priority(value)
+    assert len(value['priority_yields'])==1
+
+
+def test_evaluation_shares_known_capacity_but_protects_whole_il_node(monkeypatch):
+    from types import SimpleNamespace
+    from tools.d44_native_rl import campaign
+    monkeypatch.setattr(campaign.subprocess,'run',lambda *a,**k:SimpleNamespace(returncode=0,stdout=json.dumps('0, 81000, 0\n1, 50000, 100\n')))
+    assert campaign.free_evaluation_gpus('training-vla-zt',shared=False)==[]
+    assert campaign.free_evaluation_gpus('other_authorized',shared=True)==[0,1]

@@ -8,7 +8,7 @@ import time
 import math
 from tools.d44_native_rl.launch import launch,DispatchPreflightFailed
 from starVLA.rl.d44_native_rl.config import defaults
-from starVLA.rl.qwen_world_compare.contracts import allowed_hosts,file_sha
+from starVLA.rl.qwen_world_compare.contracts import allowed_hosts,file_sha,authorization
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 ROOT=Path('/mnt/project/d44-native-rl-20261103')
@@ -228,6 +228,7 @@ def tick(registry):
                 run.update(status='DISPATCH_RETRY_REQUIRED',last_dispatch_error=repr(error));break
         else:run['status']='WAITING_FOR_REACHABLE_AUTHORIZED_HOST'
     evaluation_tick(campaign)
+    yield_owned_lower_priority(campaign)
     campaign['at']=time.time();campaign['completion_claim']=False;atomic_json(registry,campaign)
     return campaign
 
@@ -236,11 +237,12 @@ def free_evaluation_gpus(host,*,shared=False):
     code="import subprocess,json;print(json.dumps(subprocess.check_output(['nvidia-smi','--query-gpu=index,memory.free,utilization.gpu','--format=csv,noheader,nounits'],text=True)))"
     r=subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=5',host,'/usr/bin/python3','-'],input=code,text=True,capture_output=True,timeout=12)
     if r.returncode:return []
+    rows=[tuple(map(int,line.split(',')))for line in json.loads(r.stdout).splitlines()]
+    if host in PROTECTED and any(free<79000 or util>10 for _,free,util in rows):return []
     result=[]
-    for line in json.loads(r.stdout).splitlines():
-        index,free,util=map(int,line.split(','))
+    for index,free,util in rows:
         if host=='training-vlawm-zt2'and index==6:continue
-        if free>=(24000 if shared else 65000)and util<=(80 if shared else 10):result.append(index)
+        if free>=(24000 if shared else 65000)and(shared or util<=10):result.append(index)
     return result
 
 
@@ -266,7 +268,7 @@ def evaluation_tick(campaign):
             released.add(run['jobs'][-1]['host'])
     for host in dict.fromkeys(list(sorted(released))+['training-vlawm-zt2','training-vlawm-zt5','training-vlawm-tsinghua-zt5','training-vla-zt','training-vlawm-tsinghua-zt']):
         if host not in allowed:continue
-        shared=host in released and host not in PROTECTED
+        shared=host not in PROTECTED
         try:pool += [(host,gpu,shared)for gpu in free_evaluation_gpus(host,shared=shared)if(host,gpu)not in reserved]
         except (subprocess.SubprocessError,OSError,ValueError):continue
     for case in pending:
@@ -300,6 +302,32 @@ def evaluation_tick(campaign):
                     case['paired_analysis']=str(output.parent/'PAIRED_ANALYSIS.json')
                 except Exception as error:case['analysis_error']=repr(error)
             except Exception as error:case.update(status='FAILED_SUMMARY_REQUIRES_REVIEW',summary_error=repr(error))
+
+
+def yield_owned_lower_priority(campaign):
+    """Only our own lower-priority job yields a native boundary for waiting P0.
+
+    This never signals a process, changes optimizer state, or preempts B/D IL
+    or another project. A STOP file invokes the existing exact native save.
+    """
+    grant,_=authorization();stable=set(grant['permanent_hosts']+grant.get('unbounded_temporary_hosts',[]))&set(allowed_hosts(admit_long_job=True))
+    pending=campaign.setdefault('priority_yields',[])
+    for arm,run in campaign['runs'].items():
+        if run.get('priority',0)!=0 or run['status']not in('WAITING_FOR_AUTHORIZED_CAPACITY','WAITING_FOR_REACHABLE_AUTHORIZED_HOST')or not run['jobs']:continue
+        result=Path(run['jobs'][-1]['job'])/'RESULT.json'
+        if not result.exists()or read(result).get('returncode')not in(0,75):continue
+        if any(r['beneficiary']==arm and not(Path(r['yielded_job'])/'RESULT.json').exists()for r in pending):continue
+        candidates=[(other,v)for other,v in campaign['runs'].items()if v.get('priority',0)>0 and v['jobs']and v['jobs'][-1]['host']in stable]
+        for other,lower in sorted(candidates,key=lambda pair:-pair[1].get('priority',0)):
+            job=lower['jobs'][-1];root=Path(job['job']);running=root/'RUNNING.json'
+            if not root.resolve().is_relative_to((ROOT/'jobs').resolve()):raise ValueError('Priority yield is outside our own job root')
+            if(root/'RESULT.json').exists()or(root/'STOP_REQUESTED').exists()or not running.exists():continue
+            state=read(running)
+            if state['command']!=job['command']or state['cwd']!=lower['source']:raise ValueError('Own-job priority yield identity differs')
+            (root/'STOP_REQUESTED').touch()
+            pending.append(dict(beneficiary=arm,yielded_algorithm=other,yielded_job=str(root),host=job['host'],at=time.time(),
+                scientific_source=lower['source_sha'],native_boundary_requested=True,processes_signalled=0,reset_optimizer=False))
+            break
 
 
 def selection_index(campaign):

@@ -38,3 +38,6 @@ D1/FPO/AWM/D4的B32真实资格、D4/D5部署对照、完整packing与D6阶段�
 
 
 资格队列额外共享规则：仅在既有cohost均为已确认、封存export的只读B1评测、至少48GiB实际空闲时，允许已测范围的D1/FPO/AWM/D4两卡B32/G16短资格（最多16updates）或D4/D5部署对照占用第三槽。D4既有实测峰值28.85GiB；新scope/G32/FiLM扩大长训不继承此许可。所有原子lease与双重UUID/进程检查保留；新GPU任务不向B/D IL节点派发。qualification exit0还必须有PASS证据/完整更新及冻结hash；到期短停按合法checkpoint继续剩余更新。源码/参数精度/主训练budget不受此运维规则影响。
+
+
+为有限节点到期后的恢复保留P0优先级：只有P0已保存且确实等待容量时，才允许向**本campaign自己**占用常驻节点的低优先级任务写一次native STOP文件，完整保存后让出节点；不发送进程信号、不重置Adam、不触碰B/D IL或其他项目。每次只处理一个受益P0对应的待让出任务，保留前后源身份和恢复祖先。完整Navtest可在其他已授权非保护节点上使用已确认的共享槽，保护IL节点仍要求全机空闲；不把GPU utilization快照当作owner身份。
