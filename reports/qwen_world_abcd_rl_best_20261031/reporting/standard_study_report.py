@@ -255,6 +255,17 @@ def load_related(h,warnings,inputs):
             first_review=h.read_json(first_review_path,warnings,inputs)or{}
             studies[-1]['integrated_first_review']={k:first_review[k]for k in ['metric_mean_deltas_percentage_points','failure','history_efficacy_not_tested_at250']if k in first_review}
             studies[-1]['integrated_first_review_path']=str(first_review_path)
+            trick_path=root/'analysis'/'TRICK_REVIEW_20261102'/'DIAGNOSTICS.json'
+            trick=h.read_json(trick_path,warnings,inputs)or{}
+            studies[-1]['integrated_trick_diagnostics']={k:trick[k]for k in ['schema','as_of_UTC','through_optimizer_update','all8_ranks','full_summary','within_G16_first8_counterfactual','audit_completeness','live_scientific_training_modified']if k in trick}
+            studies[-1]['integrated_trick_diagnostics_path']=str(trick_path)
+            nominal_path=trick_path.parent/'NOMINAL_VS_SAMPLED.json'
+            nominal=h.read_json(nominal_path,warnings,inputs)or{}
+            studies[-1]['integrated_nominal_sampled']={k:v for k,v in nominal.items()if k!='rescue_pairs'}
+            studies[-1]['integrated_nominal_sampled_path']=str(nominal_path)
+            proposal_path=trick_path.parent/'REFINEMENT_PROPOSALS.json'
+            studies[-1]['integrated_refinement_proposals']=h.read_json(proposal_path,warnings,inputs)or{}
+            studies[-1]['integrated_refinement_proposals_path']=str(proposal_path)
     by_root={s['root']:s for s in studies}
     for study in studies:
         shared=[];refs=h.object_rows(study['registration'].get('shared_controls',[]),'shared_controls')

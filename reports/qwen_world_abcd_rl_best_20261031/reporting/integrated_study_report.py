@@ -59,6 +59,40 @@ def execution_evidence(study,live,h,link):
     return '<details><summary>'+title+'</summary><p>前次θ256后的step257曾因history_gates的NumPy int64不能写JSON而退出；修复仅将统计转换Python int，不改门控或训练数学。CPU检查不代替恢复证明，实际训练分类见本节实时卡。'+evidence+'</p></details>'
 
 
+def trick_diagnostics(study,h,link):
+    audit=study.get('integrated_trick_diagnostics',{})
+    if audit.get('all8_ranks')is not True:return ''
+    summary=audit.get('full_summary',{});counts=summary.get('counts',{});rates=summary.get('group_percent',{})
+    if not counts.get('groups'):return ''
+    optimizer=summary.get('mean_optimizer_record_metrics',{})
+    blocked=optimizer.get('quality_high_positive_PPO_blocked')
+    blocked=100*blocked if isinstance(blocked,(int,float))else None
+    rows=[
+        ['历史保持','选中 '+h.number(counts.get('history_slots_selected'))+' 次，gate激活 '+h.number(counts.get('history_gates'))+' 次（'+h.fmt(summary.get('history_gate_percent_of_selected'),4)+'%）','25%是gate条件下原β50的历史份额；按全部scene折算的名义历史anchor预算仅 '+h.fmt(summary.get('nominal_history_anchor_share_percent_of_all_scene_slots'),4)+'%，不是参数梯度占比'],
+        ['额外官方B1验证',h.number(summary.get('extra_B1_queries'))+' 次，相对主PG查询 '+h.fmt(summary.get('extra_B1_queries_percent_of_fresh_PG'),4)+'%','已按rank／collection去重；查询次数不等于GPU耗时，四inner复用不重复计新query'],
+        ['真实PG零信用',h.number(counts.get('zero_PG'))+'／'+h.number(counts.get('groups'))+'（'+h.fmt(rates.get('zero_PG'),4)+'%）','canonical全零仅 '+h.number(counts.get('all_zero'))+' 组：'+h.number(counts.get('all_zero_with_PG'))+' 组仍有SafetyEP方向，'+h.number(counts.get('all_zero_without_PG'))+' 组无PG；不能把PG0都当失败'],
+        ['优质候选支持','含strict-good候选的组 '+h.fmt(summary.get('groups_with_strict_high_percent'),4)+'%','TRAIN候选可发现不等于单B1 ODE部署会选中；需配套部署差距诊断'],
+        ['好候选的相对信用','strict-good中负A占 '+h.fmt(summary.get('strict_high_negative_advantage_percent'),3)+'%','可能只是相对更好候选的正常下调；负号不等于参数负梯度或实现错误'],
+        ['PPO保护／阻断','好正A候选平均真正阻断 '+h.fmt(blocked,3)+'%','该范围不支持“clip普遍封死学习”；标量阻断也不代表梯度竞争结论']]
+    body='<h3>综合trick实际生效多少，下一步怎样验证</h3><p>截至实际 '+h.number(audit.get('through_optimizer_update'))+' Adam，完整8rank训练记录覆盖 '+h.number(counts.get('groups'))+' 个去重TRAIN组／'+h.number(summary.get('unique_fresh_tokens'))+' 个unique场景、'+h.number(counts.get('fresh_PG_candidates'))+' 主PG候选；这是已运行前缀的全量审计，不是完整TRAIN人口或NAVTEST收益。strict-good指NC／DAC／TTC／Comfort均1且canonical≥0.9。</p>'
+    discovery=audit.get('within_G16_first8_counterfactual',{});dc=discovery.get('counts',{});dr=discovery.get('percent_of_all_groups',{})
+    if dc:
+        body+='<p><b>G16确实增加候选发现：</b>同一G16抽样内，前8条找到strict-good的组 '+h.number(dc.get('strict_high_first8'))+'／'+h.number(dc.get('groups'))+'（'+h.fmt(dr.get('strict_high_first8'),4)+'%），全部16条为 '+h.number(dc.get('strict_high_full16'))+'（'+h.fmt(dr.get('strict_high_full16'),4)+'%）；后8条新增 '+h.number(dc.get('strict_high_rescued_by_second8'))+' 组（+'+h.fmt(dr.get('strict_high_rescued_by_second8'),5)+'pp）。这是同组边际发现，不是独立G8策略对照，更不是PDMS增益。</p>'
+    nominal=study.get('integrated_nominal_sampled',{});nc=nominal.get('counts',{})
+    if nominal.get('TRAIN_only')is True and nominal.get('NAVTEST_labels_used')is False and nc:
+        body+='<p><b>好候选尚有转化为B1的空间：</b>逐组同一behavior版本的 '+h.number(nc.get('groups_with_actual_B1'))+' 个fresh TRAIN场景，G16有strict-good '+h.number(nc.get('sampled_strict_high'))+'，实际B1为 '+h.number(nc.get('nominal_strict_high'))+'；'+h.number(nc.get('sampled_high_but_nominal_not_high'))+' 个场景采样有好解但B1不优质（含 '+h.number(nc.get('sampled_high_but_nominal_unsafe'))+' 个B1不安全／'+h.number(nc.get('sampled_high_but_nominal_zero'))+' 个B1零分，两项不相加），反向 '+h.number(nc.get('nominal_high_but_no_sampled_high'))+' 个B1优质而G16未找到。'+h.number(nc.get('rescue_pair_with_margin_0p02'))+' 对满足候选比B1至少高0.02的TRAIN救援条件。<b>这些均为更新前fresh测量，是转化机会；不是训练后仍未学会的证明。</b>需以后续固定TRAIN复访验证持续性，不使用NAVTEST标签。'+link(study['integrated_nominal_sampled_path'],'同版本B1／采样全量诊断')+'</p>'
+    body+='<p>历史保持 '+h.number(counts.get('history_gates'))+'／'+h.number(counts.get('history_slots_selected'))+'（'+h.fmt(summary.get('history_gate_percent_of_selected'),4)+'%）触发，全局名义历史anchor份额 '+h.fmt(summary.get('nominal_history_anchor_share_percent_of_all_scene_slots'),4)+'%；额外B1查询 '+h.fmt(summary.get('extra_B1_queries_percent_of_fresh_PG'),4)+'%而非GPU时间。好正A候选阻断约 '+h.fmt(blocked,3)+'%，不支持直接把clip视为主瓶颈。'+link(study['integrated_trick_diagnostics_path'],'全8rank机制审计')+'</p>'
+    body+='<details><summary>展开完整机制统计与分母</summary>'+h.table(['组件／机制','实际观测','解释边界'],rows)+'</details>'
+    proposals=study.get('integrated_refinement_proposals',{})
+    if proposals.get('status')=='PROPOSALS_NOT_REGISTERED_NOT_DISPATCHED':
+        ideas=[['1','严格候选救援／自模仿','将满足质量与≥0.02差距的本场景G16好解，作为独立flow-matching辅助目标；在固定β50内预留5%条件预算，不混入fresh PPO。','检验能否转化B1与保持高分；5%是目标系数，不是梯度份额'],
+               ['2','小历史保持底座＋退化门控','有效历史teacher存在时，历史份额改为5%＋20%×gate，其余给IL；只改该权重规则。','可能保住次优旧策略；早期gate稀疏不证明原10k保持无效'],
+               ['3','只延后cosine终点','cos结束actual2500→5000；warm125／keep625／floor0.1／horizon12500及两组峰值保持。','独立fresh对照是否过早收敛；不热改当前run，不把调度疑虑当已证原因']]
+        body+='<h4>按证据排序的三个后续消融：尚未注册、尚未训练</h4>'+h.table(['优先级','待验方向','仅拟改动','判据／风险'],ideas)
+        body+='<p><b>当前10k参考试验保持不变，等实际2k／5k／10k完整NAVTEST。</b>'+link(study['integrated_refinement_proposals_path'],'未部署方案与独立预算设计')+'。候选好行为再学习借鉴 <a href="https://arxiv.org/abs/1806.05635">Self-Imitation Learning</a>，本地flow辅助并非原算法复现；<a href="https://arxiv.org/html/2510.13786v1">ScaleRL</a>的采样规模证据来自LLM，只作迁移假说。</p>'
+    return body
+
+
 def render_integrated(report_root,study,h,section_id,native_summary=None):
     root=Path(study['root']);reg=study['registration'];runs=study['runs']
     registry_runs=study.get('registry',{}).get('runs',[])
@@ -74,6 +108,7 @@ def render_integrated(report_root,study,h,section_id,native_summary=None):
     body='<div class="notice"><b>独立I综合试验，沿用最高SafetyEP配方和同一原始IL70 fresh初始化。</b>同时加入64个不同场景、G16、质量门控历史RL保持与warmup→keep→cosine。它检验整套配方，不能把单因素阶段涨幅相加，也不能单独归因给某个组件。旧H两因素prepared计划被此方案取代，不启动旧H第六臂。</div>'
     body+=first_result_evidence(study,h,link)
     body+=execution_evidence(study,live,h,link)
+    body+=trick_diagnostics(study,h,link)
     if target>=10000 and eval_gates:
         body+='<div class="notice"><b>现行判断门槛：完整实际 '+h.number(target)+' 次Adam更新后，再评审是否值得长训。</b>未来完整NAVTEST仅按实际 '+ '／'.join(h.number(u)for u in eval_gates)+' 更新安排；已完成250保留为历史，不重复评测。场景／候选时钟不替代实际Adam步数，现有科学调度与native状态保持。</div>'
         applied=root/'operations'/'USER_10K_2K5K10K_20261102'/'APPLIED.json'
