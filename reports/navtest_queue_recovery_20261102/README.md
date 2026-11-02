@@ -66,3 +66,23 @@ wm-zt4 实际连接成功，部署前八卡约 81,153 MiB 空闲，无 GPU 进�
 前两条分别为 8/8 和 7/7 PASS。后三条是已经执行的一次性明确审查，遇到已有完成凭证会拒绝重复启动。不要复制命令重新启动第二套 owner。
 
 阶段报告仍复用原 IL/RL 报告 owner；每2k评测规则和半小时/重要事件报告机制不变。时间分布加权85,711步终止、其他暂停/终止决定及 B/D 保护均保留。
+
+## wm-zt5 连接恢复后的实际接入
+
+用户通知 SSH 已恢复后，实际发现八卡空闲、共享代码/数据挂载正常，但新容器没有节点本地的 `/root/miniconda3/envs/ddp`，导致共享 venv 的 Python 符号链接失效。没有修改共享 venv，也没有升级依赖。
+
+从已验证的 wm-zt4 将同一节点本地运行时复制到 wm-zt5 的独立 staging，再以相同绝对前缀原子发布；约 9.233 GB、38.37 秒，两端 tar 返回0。随后两端验证结果一致：Python3.10.20、Torch2.5.1+cu124、Transformers4.57.0，以及 numpy/scipy/shapely/OpenCV；Python、Torch `_C`、FlashAttention2 二进制 hash 一致。BF16 GPU 小张量运算和现有 IL/RL evaluator 导入均通过。资格脚本首次发生的操作员语法错误在导入前退出，两端原始失败凭证保留，修正后通过；不是模型或评分故障。
+
+现有调度器已自动接入 wm-zt5，未新建重复 owner。实际 NVML 快照确认八个物理 GPU 均有评测进程；该快照为22个进程（14个IL、8个RL），不能把已派发但仍在加载的24个 worker都写成已占用GPU。C40k、B44k和G16 34k分片在该节点已分别产生113、116、110条新场景记录。它们仍是过程计数，不是最终Navtest成绩。
+
+实际证据：
+
+```text
+/mnt/project/qwen-world-il-research-20261030/maintenance/wm5_runtime_recovery_20261102/
+    OWNER.json
+    QUALIFICATION.json
+    GPU_ACTUAL_DISPATCH.json
+    ACTUAL_PROGRESS_VERIFIED.json
+```
+
+无其他主机重新授权，无现有训练暂停、Adam重置或 B/D 干扰。运行时二进制、权重及数据不提交仓库。
