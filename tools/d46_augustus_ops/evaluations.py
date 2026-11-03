@@ -291,9 +291,9 @@ def tick(root, eval_state, routes, *, ops_source=SOURCE, execute=True):
     changed=False
     for case in state['cases'].values():
         if case['status']!='COMPLETE':continue
-        summary=read(case['summary']);sha=summary.get('sha256')
-        if case.get('report_notified_sha256')==sha:continue
         try:
+            summary=read(case['summary']);sha=summary['sha256']
+            if case.get('report_notified_sha256')==sha:continue
             receipt=notify(state_path(root),case['id'],sha,root=root)
             case['report_notified_sha256']=receipt['notified_sha']
             case['report_notification']=receipt
