@@ -105,7 +105,7 @@ def D46_early_checkpoint_matches(case):
         and sealed_JSON(identity)and identity.get('sha256')==case.get('identity_sha256')
         and identity.get('architecture_id')=='D'and identity.get('qualification')is False
         and identity.get('recipe',{}).get('parent')=='D_IL46K'
-        and seal.get('world')==8 and seal.get('phase')=='READY'and seal.get('next_inner')==0
+        and seal.get('world')in(8,16)and seal.get('phase')=='READY'and seal.get('next_inner')==0
         and seal.get('updates')==case.get('updates')and files.get('optimizer.pt')==case.get('payload_sha256')
         and hashlib.sha256(json.dumps(signature,sort_keys=True,separators=(',',':')).encode()).hexdigest()==case.get('policy_signature'))
 
@@ -135,7 +135,7 @@ def D46_early_complete(case,node,baseline):
             or abs(summary['PDMS']-100*summary.get('means',{}).get('score',-1))>1e-8):return None,None
     paired_path=output.parent/'PAIRED_ANALYSIS.json';paired=read(paired_path,{})
     if (node.get('paired_analysis')not in(None,str(paired_path))or not sealed_JSON(paired)
-            or paired.get('analysis_schema')!='D46_complete_B1_paired_gain_loss_v1'
+            or paired.get('analysis_schema')not in('D46_complete_B1_paired_gain_loss_v1','D44_complete_B1_paired_gain_loss_v1')
             or paired.get('source_summary_sha256')!=summary['sha256']
             or any(paired.get(k)!=v for k,v in expected.items())
             or paired.get('paired',{}).get('scene_denominator')!=12146
@@ -182,8 +182,8 @@ def D46_early_evaluation_fragment():
             scored_signatures.add(case['policy_signature']);label='完整分数与配对已验证'if paired else'完整分数已验证；配对分析中'
         entries.append((case['arm'],case['updates'],case['scene_exposures'],f'{case["exposure_epoch"]:.5f}',progress.format(**counts),label))
         if paired:
-            p=paired['paired'];high=paired.get('gain_loss',{}).get('fixed_reference_cohorts',{}).get('IL46_high_ge_0.9',{})
-            paired_rows.append((case['arm'],f'{100*p["mean_delta"]:+.6f}',
+            p=paired['paired'];cohorts=paired.get('gain_loss',{}).get('fixed_reference_cohorts',{});high=cohorts.get('IL46_high_ge_0.9',cohorts.get('IL44_high_ge_0.9',{}))
+            paired_rows.append((case['arm']+' / '+str(case['updates']),f'{100*p["mean_delta"]:+.6f}',
                 '['+', '.join(f'{100*x:+.6f}'for x in p['CI95'])+']',p['repaired_zero'],p['new_zero'],
                 f'{100*high["population_contribution"]:+.6f}'if high.get('population_contribution')is not None else'未提供',
                 high.get('new_zero','未提供')))
@@ -203,10 +203,15 @@ def D46_early_evaluation_fragment():
             jobs=node.get('jobs',{}).get(str(rank),[]);shard=read(Path(output_path)/f'rank{rank}.json',{})
             if (not jobs or read(Path(jobs[-1]['job'])/'RESULT.json',{}).get('returncode')!=0
                     or shard.get('status')!='COMPLETE'or shard.get('rank')!=rank or shard.get('world')!=node.get('world',world)):complete=False;break
-        summary,_=D46_early_complete(case,node,baseline)if complete else(None,None)
+        summary,paired=D46_early_complete(case,node,baseline)if complete else(None,None)
         if summary:
             scored_signatures.add(signature)
             scores.append((case['arm'],case['updates'],f'{summary["PDMS"]:.8f}',f'{summary["PDMS"]-baseline["PDMS"]:+.6f}',str(Path(output_path).parent/'SUMMARY.json')))
+        if paired:
+            p=paired['paired'];cohorts=paired.get('gain_loss',{}).get('fixed_reference_cohorts',{});high=cohorts.get('IL46_high_ge_0.9',cohorts.get('IL44_high_ge_0.9',{}))
+            paired_rows.append((case['arm']+' / '+str(case['updates']),f'{100*p["mean_delta"]:+.6f}',
+                '['+', '.join(f'{100*x:+.6f}'for x in p['CI95'])+']',p['repaired_zero'],p['new_zero'],
+                f'{100*high["population_contribution"]:+.6f}'if high.get('population_contribution')is not None else'未提供',high.get('new_zero','未提供')))
     if scores:
         best=max(scores,key=lambda r:float(r[2]))
         body+='<p><b>当前 D46 最高完整 RL：'+esc(best[2])+' · '+esc(best[0])+' / Adam '+esc(best[1])+'；相固定 IL46 '+esc(best[3])+'。</b>已验证的独立完整策略点 '+esc(len(scores))+' 个（合并提前批次与常规评测，等参数reference不另计）。<b>NAVTEST_SELECTED</b>：用于当前资源择优，不是独立未选择测试；历史 IL70 最高91.45359756另列，不是D46父基线。</p>'
@@ -225,7 +230,7 @@ def D46_early_evaluation_fragment():
         body+='<p>'+ ' · '.join('<a href="'+esc(path)+'">'+esc(a)+'完整结果</a>'for a,u,p,d,path in scores)+'</p>'
         if len(paired_rows)<len(scores):body+='<p>部分完整分数的配对分析仍在汇总；未通过配对封印校验的修复/退化统计暂不发布。</p>'
     else:body+='<p><b>该提前批次尚无通过全量封印校验的完整 D46 RL 分数。</b>需 sealed identity、12146场景/44log/invalid0、seed2101及精确检查点绑定。</p>'
-    if paired_rows:body+=table(['完整配对 vs IL46','ΔPDMS','44log CI95','修复零分','新增零分','固定IL46≥.9全局贡献','该高分群体新增零分'],paired_rows)
+    if paired_rows:body+=table(['完整配对 vs IL46 / Adam','ΔPDMS','44log CI95','修复零分','新增零分','固定IL46≥.9全局贡献','该高分群体新增零分'],paired_rows)+'<p>自动聚合器部分沿用D44/IL44字段名；这里已按相同IL46父策略/人口/protocol及完整摘要封印绑定解释，不改原artifact。</p>'
     return body
 
 
@@ -304,6 +309,32 @@ def D46_formal_world16_fragment():
             ('新场景/小时',f'{3600*a["steady_scenes_per_second"]:.0f}',f'{3600*b["steady_scenes_per_second"]:.0f}'),
             ('按当前吞吐外推1E小时',f'{103288/a["steady_scenes_per_second"]/3600:.1f}',f'{103288/b["steady_scenes_per_second"]/3600:.1f}')])
         body+='<p>这是已测短窗口完整cycle加速，外推不含启动和完整评测；不是长期保证，也不是新PDMS或算法胜出。<a href="'+esc(speed_path)+'">真实journal窗口输入</a></p>'
+    return body
+
+
+def D46_FPO_world16_fragment():
+    directory=D46_ROOT/'operations/WORLD16_STAGES/FPO_WORLD16_PRIORITY_v1';plan=read(directory/'PLAN.json',{})
+    audit_path=D46_ROOT/'operations/FPO_WORLD16_TSH4_20261103/GPU_QUALIFICATION_AUDIT.json';audit=read(audit_path,{})
+    if (audit.get('status')!='PASS'or audit.get('world')!=16 or len(audit.get('ranks',[]))!=16
+            or not audit_path.is_file()or hashlib.sha256(audit_path.read_bytes()).hexdigest()!=plan.get('engineering_qualification_sha256')):return ''
+    proof_path=directory/'ACTUAL_FORMAL_TRAINING.json';proof=read(proof_path,{})
+    actual=(proof.get('schema')=='d46_FPO_formal_world16_actual_training_started_v1'and proof.get('status')=='ALL16_ACTUAL_FORMAL_TRAINING'and proof.get('world')==16
+        and len(proof.get('ranks',[]))==16 and proof.get('actual_new_updates_min',0)>0
+        and proof.get('optimizer_reset')is False and proof.get('qualification_weights_used')is False
+        and proof.get('identity_sha256')==plan.get('identity_sha256'))
+    body='<h3>FPO · 新TSH4双节点阶段</h3><p><b>'+('正式16rank实际训练已确认'if actual else'GPU16资格已通过，正式阶段恢复/启动中，尚不计实际训练')+'</b>。TSH3+TSH4；原自身1440_READY/Adam/RNG/MC4材料继承，原6E预算，无资格stop-after；不使用资格后的1444权重作为正式起点。<a href="'+esc(audit_path)+'">真实GPU资格与pending恢复</a>'
+    if actual:body+=' · <a href="'+esc(proof_path)+'">正式16rank新更新实证</a>'
+    body+='</p><p>first3+pending resume1通过，16份RNG、虚拟8流/材料/Adam与B1零差，pending恢复未新增PG查询。早期资源75/peer rendezvous失败保留；最终按已知受保护D IL60k评测共同驻留、每卡65000MiB余量准入，不触碰IL。资格前三步纯更新时间不当完整cycle；正式进度不是新分数，FPO最新完整PDMS仍90.12278094 / Adam900。</p>'
+    speed_path=D46_ROOT/'analysis/FPO_WORLD16_THROUGHPUT_20261103.json';speed=read(speed_path,{})
+    if actual and speed.get('schema')=='d46_fixed_window_actual_journal_throughput_v1'and speed.get('arm')=='D3_FPO':
+        a=speed['world8'];b=speed['world16']
+        body+='<p><b>FPO独立实测完整cycle '+esc(f'{speed["full_cycle_speedup"]:.4f}')+'×</b>，与D0的2.0727×分开。B64/G16/M2/MC4不变，正式窗口跳前4次warm更新。</p>'
+        body+=table(['FPO实测指标','8卡窗口','正式16卡窗口'],[
+            ('实际更新区间',str(a['updates']),str(b['updates'])),('完整collection数',a['steady_collections'],b['steady_collections']),
+            ('完整cycle秒',f'{a["steady_collection_seconds"]:.5f}',f'{b["steady_collection_seconds"]:.5f}'),
+            ('纯更新中位秒',f'{a["optimizer_seconds_median"]:.4f}',f'{b["optimizer_seconds_median"]:.4f}'),
+            ('新场景/秒',f'{a["steady_scenes_per_second"]:.6f}',f'{b["steady_scenes_per_second"]:.6f}')])
+        body+='<p>短窗口且允许受保护IL共同驻留；不含启动、完整评测或长期保证，不声明新PDMS。<a href="'+esc(speed_path)+'">FPO真实journal计时输入</a></p>'
     return body
 
 
@@ -398,7 +429,9 @@ def D46_priority_fragment(other_active=None):
     if isinstance(count,int)and isinstance(other_active,int):body+='<p><b>当前实际 RL 训练合计 '+esc(count+other_active)+' 条：D46 '+esc(count)+'，既有 IL70 系 '+esc(other_active)+'。</b>不同研究分别读取实际任务与八rank日志，不按注册数计。</p>'
     hold=legacy_I_resource_hold()
     if hold:body+='<p>旧 IL70 综合 I 已协作完整保存于 '+esc(hold['updates'])+' / inner'+esc(hold['inner'])+'，原job EXIT0，现临时资源保留，为D0让位；原 '+esc(hold['budget'])+' 次实际更新承诺保留，未终止算法、未改父模型/Adam/RNG。<a href="'+esc(hold['path'])+'">实际保存退出收据</a> · <a href="'+esc(hold['request'])+'">资源保留与原预算</a></p>'
-    body+=D46_formal_world16_fragment()
+    body+=D46_formal_world16_fragment()+D46_FPO_world16_fragment()
+    additional=D46_ROOT/'operations/ADD_TSH4_20261103/AUTHORIZATION.json';grant=read(additional,{})
+    if 'training-vlawm-tsinghua-zt4'in grant.get('unbounded_temporary_hosts',[]):body+='<p>新增TSH4八卡已获D46授权，供FPO双节点按实际准入使用；授权不代表空闲或独占，受保护IL不受影响。<a href="'+esc(additional)+'">新增主机不可变授权</a></p>'
     transition_path=D46_ROOT/'operations/CONTINUOUS_EVAL_20261103/OWNER_TRANSITION.json'
     policy_path=D46_ROOT/'operations/EXECUTION_POLICY.json'
     transition=read(transition_path,{});policy=read(policy_path,{})

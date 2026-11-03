@@ -4,6 +4,12 @@
 
 ## 当前优先：D46 六条专用 RL 路线
 
+新增TSH4八卡已授权用于FPO双节点。FPO自身8卡1440_READY/EXIT0后，以同Adam/RNG/MC4材料进入新 `FPO_WORLD16_PRIORITY_v1`（TSH3+TSH4，science82d5f78）；资格first3+pending恢复1已PASS，资格权重不进入正式起点。**正式16rank现全部≥1464，从自身1440增加至少24次真实Adam、B1恢复零差，原6E和无stop-after保持。** 当前D0/FPO各16卡，D2/AWM/D5各8卡，共5路线/56逻辑卡位；后续数量仍活读状态。protected D IL60k评测不被停止，实际按shared65000MiB余量准入，原75/peer失败保留。[正式更新实证](/mnt/project/d46-priority-rl-20261103/operations/WORLD16_STAGES/FPO_WORLD16_PRIORITY_v1/ACTUAL_FORMAL_TRAINING.json)、[GPU资格审计](/mnt/project/d46-priority-rl-20261103/operations/FPO_WORLD16_TSH4_20261103/GPU_QUALIFICATION_AUDIT.json)、[新增TSH4授权](/mnt/project/d46-priority-rl-20261103/operations/ADD_TSH4_20261103/AUTHORIZATION.json)。
+
+FPO正式短窗完整cycle独立实测 **1.900523×**：旧1409–1440/15完整cycle平均63.31731秒，新1445–1464跳前4warm/9cycle平均33.31574秒；纯更新中位18.66498→9.77126秒，scene/s1.010782→1.921014。B64/G16/M2/MC4不变；shared65k允许受保护IL共同驻留，不是长期保证或新分数，不能套用D0的2.0727×。**FPO当前完整分仍90.12278094@900，1464是训练进度。**[独立FPO正式计时](/mnt/project/d46-priority-rl-20261103/analysis/FPO_WORLD16_THROUGHPUT_20261103.json)
+
+常规0.5E官方完整结果已新增：D0/Adam1614 **90.13428003**（IL46+0.63875906；修复266/新增98；固定高分净贡献约−1.5423），比其1400点90.17112884低0.03685，不宣称该小变化显著或触及上限。D5/Adam1614 **89.70890336** 同样完整12146/invalid0。原四个早评点与新常规点合并但不重复计等参引用；现D46最高仍D0/1400的90.17112884。FPO低曝光90.12278094与较少高分回退是加速研究的动机，不是最终胜利。[D0.5完整分数](/mnt/project/d46-priority-rl-20261103/evaluations/D0_epoch0.5/SUMMARY.json)、[配对分析](/mnt/project/d46-priority-rl-20261103/evaluations/D0_epoch0.5/PAIRED_ANALYSIS.json)、[D5.5完整分数](/mnt/project/d46-priority-rl-20261103/evaluations/D5_epoch0.5/SUMMARY.json)。
+
 **正式D0双节点16卡已经启动并持续更新**：实际阶段为 `D0_WORLD16_PRIORITY_v2`，TSH5+WM4，从自身1714_READY继承Adam/RNG与原6E预算，16rank真实超过22次新Adam、B1原生恢复零差，无资格stepcap；旧v1 DEFERRED不是当前阶段。[正式启动实证](/mnt/project/d46-priority-rl-20261103/operations/WORLD16_STAGES/D0_WORLD16_PRIORITY_v2/ACTUAL_FORMAL_TRAINING.json)
 
 实际完整cycle短窗吞吐 **2.072719×**：8卡独占1677–1714（17完整collection）43.77093秒/cycle，正式16卡跳过4次warm更新后1719–1796（38collection）21.11764秒/cycle，B64/G16/M2不变；纯更新中位10.6821→5.1880秒、新场景/小时5264→10910。按当前吞吐外推1E约19.6→9.5小时，不含启动/完整评测，不作长期保证或新PDMS声明。[真实计时输入](/mnt/project/d46-priority-rl-20261103/analysis/D0_WORLD16_THROUGHPUT_WORKING.json)
