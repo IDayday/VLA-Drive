@@ -58,7 +58,7 @@ def D46_throughput_fragment():
             or hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=seal):return ''
     rows=value.get('runs',[])
     if not rows:return ''
-    body='<h3>D46 当前速度与首评进度</h3><p>实测快照 '+esc(value['generated_UTC'])+'；每条全八rank、同一 invocation 最近100个完整 collection / 200次 Adam，不跨保存暂停。纯更新与端到端耗时分开；后者包括本窗口采样、评分等待、材料准备、更新和保存。</p>'
+    body='<h3>D46 速度实测（带时间的窗口）</h3><p>实测快照 '+esc(value['generated_UTC'])+'；每条全八rank、同一 invocation 最近100个完整 collection / 200次 Adam，不跨保存暂停。实时 Adam / 曝光 epoch 以最前训练表的最新 PRIORITY_STATUS 为准，本窗口不代替实时进度。纯更新与端到端耗时分开；后者包括本窗口采样、评分等待、材料准备、更新和保存。</p>'
     body+=table(['路线','纯更新 秒/Adam','端到端 秒/Adam','新场景/秒','新PG候选/秒','到首评触发约需小时'],[
         (r['arm'],f'{r["optimizer_seconds_mean"]:.3f}',f'{r["end_to_end_seconds_per_Adam"]:.3f}',
             f'{r["fresh_scenes_per_second"]:.3f}',f'{r["fresh_main_candidates_per_second"]:.2f}',
@@ -66,7 +66,7 @@ def D46_throughput_fragment():
     gates=sorted({(r['first_NAVTEST']['epoch'],r['first_NAVTEST']['trigger_updates'])for r in rows})
     requested=sum(bool(r['first_NAVTEST'].get('requests_already_written'))for r in rows)
     complete=value.get('complete_D46_NAVTEST_results',[])
-    body+='<p><b>本快照首评门：'+esc('；'.join(str(e)+' exposure epoch / '+str(u)+'次实际 Adam'for e,u in gates))+'；已写请求 '+esc(requested)+' 条，完整 D46 RL NAVTEST '+esc(len(complete))+' 个。</b>IL46 的89.49552098是父策略分数。上表估时只在当前负载不变时成立，尚未包括全12146评测耗时；D1两阶段信用、D2救援激活后需重测吞吐。<a href="'+esc(path)+'">全八rank速度与首评审计</a></p>'
+    body+='<p><b>该速度快照时的常规首评门：'+esc('；'.join(str(e)+' exposure epoch / '+str(u)+'次实际 Adam'for e,u in gates))+'；当时已写请求 '+esc(requested)+' 条，完整 D46 RL NAVTEST '+esc(len(complete))+' 个。</b>此后提前批次的实际进度见上方面板。IL46 的89.49552098是父策略分数。上表估时只在当时负载不变时成立，未包括全12146评测耗时；D1两阶段信用、D2救援激活后需重测吞吐。<a href="'+esc(path)+'">全八rank速度与首评审计</a></p>'
     historical_path=D46_ROOT/'analysis/D_THROUGHPUT_ORIGINAL_BASELINES_20261103.json'
     historical=read(historical_path,{})
     if historical.get('status')=='COMPLETE_READ_ONLY_ACTUAL_HISTORY':
@@ -170,7 +170,10 @@ def D46_early_evaluation_fragment():
                 else:counts['failed']+=1
             elif running.get('child_pid'):counts['started']+=1
             elif running or jobs[-1].get('pid'):counts['admitting']+=1
-        progress='完成 {complete}/'+str(world)+'；已启动待返回 {started}；准入 {admitting}；资源待派 {waiting}；异常 {failed}'
+        try:
+            with os.scandir(output/'scenes')as files:written=sum(1 for f in files if f.name.endswith('.json')and f.is_file())
+        except OSError:written=0
+        progress='已写场景 '+str(written)+'/12146；分片完成 {complete}/'+str(world)+'；已启动待返回 {started}；准入 {admitting}；资源待派 {waiting}；异常 {failed}'
         label=node.get('status','等待状态收据')if matched else'检查点封印/身份不匹配'
         entries.append((case['arm'],case['updates'],case['scene_exposures'],f'{case["exposure_epoch"]:.5f}',progress.format(**counts),label))
         summary,paired=D46_early_complete(case,node,baseline)if matched and counts['complete']==world else(None,None)
@@ -214,6 +217,16 @@ def D46_priority_fragment():
     body+='<p><b>最新状态：'+esc(label)+'</b>；收据时间 '+esc(stamp)+'。<a href="'+esc(path)+'">实际优先级与执行状态</a></p>'
     count=value.get('actual_training')
     if isinstance(count,int)and count>=0:body+='<p><b>D46 实际正式训练数量：'+esc(count)+' 条</b>（按该时间的实际核对收据，资格训练与注册数量不计入）。</p>'
+    transition_path=D46_ROOT/'operations/CONTINUOUS_EVAL_20261103/OWNER_TRANSITION.json'
+    policy_path=D46_ROOT/'operations/EXECUTION_POLICY.json'
+    transition=read(transition_path,{});policy=read(policy_path,{})
+    if (policy.get('schema')=='D46_evaluation_execution_policy_v1'and transition.get('control')==policy
+            and transition.get('CPU_owner_only_signal')is True and transition.get('GPU_processes_signalled')==[]
+            and policy.get('continue_training_during_evaluation')is True):
+        operations=read(D46_ROOT/'CAMPAIGN.json',{}).get('evaluation_operations',{})
+        deferred=operations.get('registered_dispatch_deferred')
+        state='当前常规 gate 派发暂缓，早评继续'if deferred is True else'当前未暂缓常规 gate 派发'if deferred is False else'当前派发状态以控制收据为准'
+        body+='<p><b>评测期间训练继续。</b>仅 CPU 运营接管，原 GPU job、科学源、Adam/RNG 保持；早评运行期间只暂缓重复的常规 gate 评测派发，不丢 gate、不暂停训练。'+esc(state)+'。<a href="'+esc(transition_path)+'">实际接管与原job保持收据</a> · <a href="'+esc(policy_path)+'">执行策略</a></p>'
     restored_path=D46_ROOT/'operations/RESTORE_SIX_UNBOUNDED_20261103/APPLIED.json'
     restored=read(restored_path,{})
     if restored.get('finite_deadline_applies') is False:
@@ -244,8 +257,10 @@ def D46_priority_fragment():
             host=r.get('host')or(history[-1].get('host')if history else None)or'待分配'
             method,gate=methods.get(arm,('以登记配方为准',''))
             qualification=D46_qualification_status(registered)if registered.get('qualification')else'等待登记'
-            entries.append((r.get('id',''),method,gate,qualification,host,r.get('updates')if r.get('updates')is not None else'尚无实际日志',states.get(r.get('status'),r.get('status','待确认'))))
-        body+=table(['D46 路线','方法','阶段启用与边界','独立资格','服务器','正式更新（收据）','正式阶段状态'],entries)
+            exposure=r.get('scene_exposures');progress=str(r['updates'])if r.get('updates')is not None else'尚无实际日志'
+            if isinstance(exposure,(int,float)):progress+=' / '+format(exposure,',')+'场景 / '+f'{exposure/103288:.5f}E'
+            entries.append((r.get('id',''),method,gate,qualification,host,progress,states.get(r.get('status'),r.get('status','待确认'))))
+        body+=table(['D46 路线','方法','阶段启用与边界','独立资格','服务器','实时 Adam / 有效曝光 / epoch','正式阶段状态'],entries)
     body+=D46_early_evaluation_fragment()+D46_throughput_fragment()
     reviewed=[]
     for arm,registered in campaign.items():

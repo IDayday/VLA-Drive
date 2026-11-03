@@ -40,6 +40,8 @@
 
 HTML从每片最新job的RESULT/RUNNING读取完成、已启动待返回、准入、资源等待与异常，避免整轮派发尚未刷新的STATE计数掩盖已发任务。仅完整12146/44log/invalid0、seed2101的封印identity与指定检查点绑定后才发布分数；完整配对分析封印后再报告IL46相对修复/新增零分和固定IL46≥.9队列变化。四策略曝光预算不同，提前结果用于资源分配观察，不作同预算算法排名；不将NAV标签加入训练bank。
 
+运营控制已实际升级为评测期间持续训练：仅替换CPU owner，原GPU job/科学源/Adam/RNG保持；有限早评批次运行时暂缓重复的常规gate派发，gate保留而非丢弃。HTML训练表从最新PRIORITY_STATUS读取Adam与有效曝光/epoch；提前批次显示已写场景文件数和逐分片实际收据，绝不发布partial均值。上文08:20计时仍是历史窗口，不代替当前进度。[CPU实际接管](/mnt/project/d46-priority-rl-20261103/operations/CONTINUOUS_EVAL_20261103/OWNER_TRANSITION.json)、[执行策略](/mnt/project/d46-priority-rl-20261103/operations/EXECUTION_POLICY.json)。
+
 ## 既有 IL70 研究的完整结果
 
 **最高已确认完整部署成绩仍为 SafetyEP Control10k：91.45359756，尚未达到92。** 相同完整 IL70 为88.79290991。以下本轮结果均为真实单轨 B1、12146场景/44 physical logs/invalid0；不是候选 best-of 或 TRAIN 分数。
