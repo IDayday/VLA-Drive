@@ -1,0 +1,38 @@
+{
+  "at": 1793711922.7256029,
+  "old_CPU_owner": {
+    "pid": 217718,
+    "start_ticks": 1514883898,
+    "source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v6",
+    "started": 1793710229.7877226
+  },
+  "new_CPU_owner_pid": 228528,
+  "new_CPU_owner_start_ticks": 1515053589,
+  "new_source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v7",
+  "new_source_commit": "c5cb727",
+  "command": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "-u",
+    "-m",
+    "tools.d46_priority_rl.owner",
+    "run",
+    "--interval",
+    "60"
+  ],
+  "policy": {
+    "enabled": true,
+    "arms": [
+      "D3_AWM",
+      "D5",
+      "D1"
+    ],
+    "hosts": [
+      "training-vlawm-zt",
+      "training-vlawm-tsinghua-zt2"
+    ],
+    "minimum_free_MiB": 79000,
+    "reason": "Only if all8 cards later become fully available; do not alter unknown occupancy. Same-run native continuation, original6E budgets preserved."
+  },
+  "D0_formal_world16_owner_unchanged": 222598,
+  "all_GPU_jobs_continue": true
+}
