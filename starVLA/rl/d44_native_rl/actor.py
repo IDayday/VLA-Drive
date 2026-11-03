@@ -14,6 +14,7 @@ class D44Actor(FourFrameworkRecipeActor):
     def __init__(self,model,backend,cfg):
         self.study_config=copy.deepcopy(cfg)
         super().__init__(model,backend)
+        self._after_policy_initialization()
         if cfg['train_action_io']:
             for path in ('decision.action_input','decision.action_output'):
                 independent_trainable_module(self.action_expert,path)
@@ -23,6 +24,9 @@ class D44Actor(FourFrameworkRecipeActor):
                 independent_trainable_module(self.action_expert,path)
         self.closure=self.scope_audit()
         self.record_sampling_terms=True
+
+    def _after_policy_initialization(self):
+        """Opt-in current-only modules after strict base/LoRA/reference setup."""
 
     def _configure_action_grpo(self,cfg):
         self.eval().requires_grad_(False)

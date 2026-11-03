@@ -1,0 +1,33 @@
+{
+  "protocol": {
+    "D6": "initializer/scope reusable later; D6_FRESH_AUX not implemented or qualified here",
+    "R_learning_rate": 2e-05,
+    "algorithm_base": "D4",
+    "deployment": "original single B1 K10shift5 A-only ODE; prune all fresh R/readouts",
+    "deployment_payload": "strict separate policy closure: discard BOTH action_expert.decision.r_embeddings AND action_expert.readouts.*; legacy D44 exporter is not sufficient",
+    "experiment_id": "D4_FRESH_AUX",
+    "formal_admission": "prototype only, requires independently registered fresh-aux route and actual fullD46 GPU qualification",
+    "head_learning_rate": 2e-05,
+    "inactive": "unused parameters have gradNone and no Adamstate; never add modules after DDP construction",
+    "initialization": "private CPU default generator42, restored after construction; no CUDA RNG use",
+    "initializer_draw_order": [
+      "R16 Normal(0,.02)",
+      "LayerNorm+Linear bridge",
+      "EvaluationReadout"
+    ],
+    "kept": "every existing C/P/action/FiLM/role tensor unchanged; zero RL LoRA",
+    "labels": "existing scored TRAIN candidates factors/score/pairs/native event classes only",
+    "missing_IL_modules_recovered": false,
+    "new_modules": [
+      "decision.r_embeddings",
+      "readouts.bridge",
+      "readouts.evaluation"
+    ],
+    "objective": "unchanged native joint24 GaussianSafetyEP PPO/adaptiveKL plus original D4 post_feedback.loss",
+    "parent": "strict complete verified IL46 deployment policy, never original auxiliary heads",
+    "reference": "pure original pruned IL46, copied before fresh modules",
+    "schema": "d46_current_only_fresh_R16_reward_readout_v1",
+    "trainable": "registered textLoRA + fresh R16 + bridge/evaluation only"
+  },
+  "protocol_sha256": "f7bf523b377065975821ee621206193d74f776198ab7a678fb9ab21d62f61313"
+}

@@ -1,0 +1,72 @@
+{
+  "base_commit": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "branch": "research/d46-fresh-aux-20261103",
+  "config_paths": {
+    "formal_recipe_draft_only": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/configs/d46_fresh_aux/D4_FRESH_AUX_FORMAL_RECIPE_DRAFT.yaml",
+    "qualification": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/configs/d46_fresh_aux/D4_FRESH_AUX_QUALIFICATION.yaml"
+  },
+  "created": "2026-11-03T01:17:21.294735+00:00",
+  "deployment": {
+    "APIs": [
+      "policy_payload(adapters,scope)",
+      "restore_policy(pruned_model,adapters,scope)"
+    ],
+    "deployment_closure": "only policy text LoRA, explicitly drop R AND all readouts; original IL46 parent remains required",
+    "module": "starVLA.rl.d46_fresh_aux.deployment",
+    "training_closure": "exact names/shapes/FP32 tensors includes fresh R/head weights"
+  },
+  "entry": "tools.d46_fresh_aux.train",
+  "entry_api": "shared tools.d44_native_rl.train.main(extension=FreshAuxQualification())",
+  "evidence": {
+    "CPU_receipt": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/reports/d46_fresh_aux_20261103/analysis/CPU_RECEIPT.json",
+    "contract_DRAFT": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/reports/d46_fresh_aux_20261103/FRESH_AUX_CONTRACT_DRAFT.json",
+    "protocol": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/reports/d46_fresh_aux_20261103/PROTOCOL.json",
+    "qualification_plan": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/reports/d46_fresh_aux_20261103/QUALIFICATION_PLAN.json"
+  },
+  "experiment_id": "D4_FRESH_AUX",
+  "fresh": [
+    "R16 per hidden width, private CPU RNG42 Normal(0,.02)",
+    "LayerNorm+Linear bridge512 plus EvaluationReadout512 only; no DINO/future/object modules"
+  ],
+  "not_done": [
+    "no GPU qualification or new scoring",
+    "no production/formal registration and no live parent v3",
+    "no full export command/native_review integration",
+    "D6 extension not implemented"
+  ],
+  "preserved": [
+    "all existing IL46 C/P/action/time-FiLM/role parameters and IDs",
+    "pure original IL46 permanent reference",
+    "original SDE W3/source Gaussian24/SafetyEP/adaptiveKL/post-feedback replay/scorer/deployment ODE",
+    "original default D44 trainer path when extension=None"
+  ],
+  "protocol_sha256": "f7bf523b377065975821ee621206193d74f776198ab7a678fb9ab21d62f61313",
+  "schema": "d46_fresh_auxiliary_prototype_handoff_v1",
+  "scopes": {
+    "bridge_evaluation": "original post_readout LR2e-5",
+    "fresh_R16": "explicit fresh_post_queries role LR2e-5; never text_LoRA",
+    "frozen": "all original C/P/action/FiLM base tensors and reference",
+    "text_LoRA": "original D4 r16/alpha32, 6422528 parameters for full architecture"
+  },
+  "shared_patch": {
+    "actor_hook": "no-op _after_policy_initialization after strict policy/LoRA setup; new actor attaches current modules here",
+    "patch": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/reports/d46_fresh_aux_20261103/SHARED_ENGINE_HOOKS.patch",
+    "trainer_hook": "optional explicit extension for recipe/parent/factory/optimizer/identity; no loop, loss, sampler, DDP or recovery algorithm copy"
+  },
+  "source_files": {
+    "starVLA/rl/d44_native_rl/actor.py": "9faf408564e451c01ef50b9e7463897c69948f70baa84572583e7ede8df6f8c5",
+    "starVLA/rl/d46_fresh_aux/__init__.py": "a91ca8691cf5ec5e3c8c06387eb5a170281e12f90dd5862a01683035068336dd",
+    "starVLA/rl/d46_fresh_aux/actor.py": "28dd078da0419306672bf0bb9c5de94ea0c3deab8f9da907a73265e010634c58",
+    "starVLA/rl/d46_fresh_aux/config.py": "d10e02ab2e107d5a60477620a3b143645248151701de20925eee4e530cff76d7",
+    "starVLA/rl/d46_fresh_aux/deployment.py": "2d77b2b04f9298100d3496c223a8d11ae5c7b4ce87d5d08ed31e6eeb59b97958",
+    "starVLA/rl/d46_fresh_aux/integration.py": "6ced071bb75d6d96d33d9555e18a9bde72ca7c7218f5c4cdaf842542cb66dfaa",
+    "starVLA/rl/d46_fresh_aux/modules.py": "b5973295a3c23de01adf1e1f3512e434da99947932b5cfb53eccf0bbe4e93a08",
+    "starVLA/rl/d46_fresh_aux/protocol.py": "bfccbf55dae70410faedfcb32b9c09d1fc2e073a410d11944f30e8b514a56487",
+    "tests/test_d46_fresh_aux.py": "efa9b92158d9bb864a79f8e6d48fb60581947f4e9f64f918240d47fc71eb5073",
+    "tools/d44_native_rl/train.py": "12ad36f06fa4bbff08cb755de0465d1f626583d958a782f1b6934ef84e185a43",
+    "tools/d46_fresh_aux/__init__.py": "c140a14320841b921765398ba3b31fbc3d21bb9e9f99ca919baec3341ebe6db2",
+    "tools/d46_fresh_aux/train.py": "aafa40754fa2a1a14325df3c371bca00f320c36740c64cd98ec1e4fbe762c19a"
+  },
+  "status": "CPU_READY_GPU_AND_FORMAL_PENDING",
+  "worktree": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103"
+}

@@ -71,14 +71,14 @@ def consensus_stop(device):
     return bool(x)
 
 
-def main():
+def main(*,extension=None):
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8')
     os.environ.setdefault('FLASH_ATTENTION_DETERMINISTIC','1')
     if os.environ['CUBLAS_WORKSPACE_CONFIG']!=':4096:8':raise ValueError('Qualified deterministic CuBLAS execution changed')
     parser=argparse.ArgumentParser(__doc__);parser.add_argument('--config',required=True);parser.add_argument('--output',required=True)
     parser.add_argument('--resume');parser.add_argument('--qualification',action='store_true');parser.add_argument('--stop-after-update',type=int)
     parser.add_argument('--scenes-per-rank',type=int,help='qualification only');parser.add_argument('--fault',choices=['before_finalize','after_inner1'])
-    a=parser.parse_args();cfg=read(a.config)
+    a=parser.parse_args();cfg=read(a.config)if extension is None else extension.read_recipe(a)
     if cfg['arm']=='D6'and not a.qualification:
         proof_path=Path('/mnt/project/d44-native-rl-20261103/qualification/D6_REAL_STAGE_INNER_RESUME.json')
         proof=json.loads(proof_path.read_text())if proof_path.exists()else{}
@@ -96,7 +96,8 @@ def main():
     if a.scenes_per_rank:cfg['global_scenes']=a.scenes_per_rank*world
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True);lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     print(json.dumps(dict(event='loading_native_D44',rank=rank,at=time.time())),flush=True)
-    stream=DataStream(cfg,cfg['global_scenes']);model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
+    parent_loader=parent.load if extension is None else extension.load_parent
+    stream=DataStream(cfg,cfg['global_scenes']);model,info=parent_loader(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
     original_prediction=None
     if a.qualification:
         from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
@@ -106,7 +107,7 @@ def main():
         original_ego=torch.tensor([observation['proprio']],device=device,dtype=torch.float32)
         original_noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(2101)).to(device)
         original_prediction=model.predict(original_inputs,original_ego,original_noise)
-    actor=D44Actor(model,source_config(cfg),cfg)
+    actor=(D44Actor if extension is None else extension.make_actor)(model,source_config(cfg),cfg)
     checkpoint_policy=cfg.get('checkpoint_policy','source')
     if checkpoint_policy not in('source','short_off','all_off'):raise ValueError('Unqualified checkpoint execution policy')
     model.decision.activation_checkpointing=checkpoint_policy!='all_off'
@@ -128,13 +129,15 @@ def main():
             if not torch.equal(original_prediction[key],wrapped_prediction[key]):raise FloatingPointError('Wrapped native clean-x deployment changed '+key)
         atomic_json(root/f'initial_native_parity_rank{rank}.json',dict(status='PASS',ODE_chain_max_abs=error,
             original_cleanx_deployment_max_abs=0.,trainable=actor.closure,reference_frozen=True,parent=info['model_sha256']))
-    optimizer=torch.optim.AdamW(groups(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01)
+    optimizer=torch.optim.AdamW((groups if extension is None else extension.optimizer_groups)(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01)
     scheduler=SceneScheduler(optimizer);generator=torch.Generator(device='cpu').manual_seed(420000+rank)
     service=RewardService(Path.cwd(),workers=cfg['scoring_workers'],cache_roots=stream.data.manifest['canonical_metric_cache_roots'])
     identity=dict(schema='d44_native_rl_v1',architecture_id='D',world=world,recipe=cfg,parent=info,
         parent_model_sha256=info['model_sha256'],conditions=conditions.identity,data=stream.identity,
         scope=actor.closure,source_files=code_identity(),score_protocol=service.protocol,
         qualification=a.qualification,fresh_Adam=True,stage_reuse='same chains/old means/std/A for all inner updates')
+    if extension is not None:
+        identity.update(extension.identity_fields(actor));identity['source_files'].update(extension.source_files())
     identity=json.loads(json.dumps(identity));identity['sha256']=fingerprint(identity)
     error=None
     if rank==0:

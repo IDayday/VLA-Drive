@@ -1,0 +1,68 @@
+{
+  "base_commit": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "checks": [
+    {
+      "CPU_RNG_preserved": true,
+      "name": "strict initialization, separate R optimizer role, actual native tiny Qwen B1 parity",
+      "no_CUDA_seed_call": true,
+      "normalized_action_max_abs": 0.0,
+      "qualification_only_recipe_checked": true,
+      "tiny_fresh_parameters": 299592,
+      "tiny_trainable_parameters": 310344
+    },
+    {
+      "fresh_ratio_error": 0.0,
+      "mask_invariance": [
+        "FP32",
+        "BF16"
+      ],
+      "name": "native W3/replay/post-feedback gradients and R mask",
+      "norm_definition": "sum of individual parameter gradient L2 norms within each role; NOT full-model gradient norm",
+      "post_loss": 0.1108739897608757,
+      "role_parameter_norm_sums": {
+        "decision.r_embeddings": 0.004113104194402695,
+        "language_model": 0.021529379999265075,
+        "readouts.bridge": 0.09087021416053176,
+        "readouts.evaluation": 0.5161593173688743
+      }
+    },
+    {
+      "deployment_payload_explicitly_drops_R_and_heads": true,
+      "missing_training_R_rejected": true,
+      "name": "actual shared native checkpoint mid-inner1 to update2",
+      "parameters_Adam_scheduler_generator_bitexact": true,
+      "trained_full_vs_pruned_B1_bitexact": true,
+      "training_payload_has_R_and_heads": true
+    }
+  ],
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q -s tests/test_d46_fresh_aux.py",
+  "created": "2026-11-03T01:17:21.294735+00:00",
+  "limitations": [
+    "CPU actual tiny native Qwen, not full IL46 weights or full 2B model",
+    "single CPU rank synthetic TRAIN labels; no new canonical score/GPU computation",
+    "world8 DDP and full IL46 deployment B1/active post native-resume qualification still required",
+    "D6_FRESH_AUX is not implemented or qualified"
+  ],
+  "result": "3 passed, 1 warning in 5.58s",
+  "schema": "d46_fresh_auxiliary_targeted_CPU_receipt_v1",
+  "source_files": {
+    "starVLA/rl/d44_native_rl/actor.py": "9faf408564e451c01ef50b9e7463897c69948f70baa84572583e7ede8df6f8c5",
+    "starVLA/rl/d46_fresh_aux/__init__.py": "a91ca8691cf5ec5e3c8c06387eb5a170281e12f90dd5862a01683035068336dd",
+    "starVLA/rl/d46_fresh_aux/actor.py": "28dd078da0419306672bf0bb9c5de94ea0c3deab8f9da907a73265e010634c58",
+    "starVLA/rl/d46_fresh_aux/config.py": "d10e02ab2e107d5a60477620a3b143645248151701de20925eee4e530cff76d7",
+    "starVLA/rl/d46_fresh_aux/deployment.py": "2d77b2b04f9298100d3496c223a8d11ae5c7b4ce87d5d08ed31e6eeb59b97958",
+    "starVLA/rl/d46_fresh_aux/integration.py": "6ced071bb75d6d96d33d9555e18a9bde72ca7c7218f5c4cdaf842542cb66dfaa",
+    "starVLA/rl/d46_fresh_aux/modules.py": "b5973295a3c23de01adf1e1f3512e434da99947932b5cfb53eccf0bbe4e93a08",
+    "starVLA/rl/d46_fresh_aux/protocol.py": "bfccbf55dae70410faedfcb32b9c09d1fc2e073a410d11944f30e8b514a56487",
+    "tests/test_d46_fresh_aux.py": "efa9b92158d9bb864a79f8e6d48fb60581947f4e9f64f918240d47fc71eb5073",
+    "tools/d44_native_rl/train.py": "12ad36f06fa4bbff08cb755de0465d1f626583d958a782f1b6934ef84e185a43",
+    "tools/d46_fresh_aux/__init__.py": "c140a14320841b921765398ba3b31fbc3d21bb9e9f99ca919baec3341ebe6db2",
+    "tools/d46_fresh_aux/train.py": "aafa40754fa2a1a14325df3c371bca00f320c36740c64cd98ec1e4fbe762c19a"
+  },
+  "status": "PASS",
+  "stdout": {
+    "path": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103/reports/d46_fresh_aux_20261103/analysis/CPU_TEST_STDOUT.log",
+    "sha256": "b7140ff5c55faa1e768d81345ac28f3b68df1d0b33b147123056846c933353f0"
+  },
+  "worktree": "/mnt/project/VLA-Drive-d46-fresh-aux-20261103"
+}

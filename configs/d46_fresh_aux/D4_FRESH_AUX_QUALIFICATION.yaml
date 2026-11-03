@@ -1,0 +1,108 @@
+schema: d44_native_rl_v1
+arm: D4
+parent: D_IL46K
+seed: 42
+evaluation_seed: 2101
+global_scenes: 32
+group: 16
+inner_updates: 2
+learning_rate: 1.0e-06
+text_rank: 16
+film_last_layers: 0
+train_action_io: false
+post_feedback: true
+clip: 0.1
+beta: 0.001
+target_kl: 0.015
+entropy: 0.0
+target_epochs: 6
+maximum_epochs: 20
+reference_coefficient: 0.001
+rescue_start_epoch: 0.5
+post_start_epoch: 0.0
+positive_weight: 0.05
+last_weight: 0.02
+post_weight: 0.05
+nominal_seed: 2101
+mc_samples: 4
+save_every: 100
+scoring_workers: 2
+condition_cache_scenes: 8
+warmup_epochs: 0.08
+hold_until_epoch: 0.6
+cosine_end_epoch: 4.0
+min_lr_ratio: 0.05
+data: /mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN
+population_manifest: /mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json
+parent_checkpoint: /mnt/project/d46-priority-rl-20261103/IL46_PARENT
+canonical_reward_scale: raw_0_1
+action_shape:
+- 8
+- 3
+steps: 10
+shift: 5.0
+stochastic_steps:
+- 7
+- 8
+- 9
+innovation_clip: null
+coordinate_reduction: sum24
+dtype: FP32_parameters_states_probability_BF16_forward
+checkpoint_policy: source
+probability_layout: sequential
+sampler_selection: fixed_K10_shift5_no_scorer
+training_uses_navtest: false
+stage_boundaries:
+- 1.0
+- 4.0
+- 8.0
+- 12.0
+historical_teacher_capacity: 8192
+parent_registration:
+  path: /mnt/project/d46-priority-rl-20261103/PARENT_REGISTRATION_v2.json
+  file_sha256: 584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632
+initialization: strict_IL46_policy_then_current_only_fresh_R16_reward_heads_seed42
+permanent_reference: same_verified_IL46_deployment_policy_without_R_or_readouts
+experiment_id: D4_FRESH_AUX
+fresh_auxiliary:
+  schema: d46_current_only_fresh_R16_reward_readout_v1
+  experiment_id: D4_FRESH_AUX
+  algorithm_base: D4
+  parent: strict complete verified IL46 deployment policy, never original auxiliary
+    heads
+  initialization: private CPU default generator42, restored after construction; no
+    CUDA RNG use
+  initializer_draw_order:
+  - R16 Normal(0,.02)
+  - LayerNorm+Linear bridge
+  - EvaluationReadout
+  new_modules:
+  - decision.r_embeddings
+  - readouts.bridge
+  - readouts.evaluation
+  missing_IL_modules_recovered: false
+  reference: pure original pruned IL46, copied before fresh modules
+  kept: every existing C/P/action/FiLM/role tensor unchanged; zero RL LoRA
+  trainable: registered textLoRA + fresh R16 + bridge/evaluation only
+  R_learning_rate: 2.0e-05
+  head_learning_rate: 2.0e-05
+  inactive: unused parameters have gradNone and no Adamstate; never add modules after
+    DDP construction
+  objective: unchanged native joint24 GaussianSafetyEP PPO/adaptiveKL plus original
+    D4 post_feedback.loss
+  labels: existing scored TRAIN candidates factors/score/pairs/native event classes
+    only
+  deployment: original single B1 K10shift5 A-only ODE; prune all fresh R/readouts
+  deployment_payload: 'strict separate policy closure: discard BOTH action_expert.decision.r_embeddings
+    AND action_expert.readouts.*; legacy D44 exporter is not sufficient'
+  formal_admission: prototype only, requires independently registered fresh-aux route
+    and actual fullD46 GPU qualification
+  D6: initializer/scope reusable later; D6_FRESH_AUX not implemented or qualified
+    here
+fresh_auxiliary_protocol_sha256: f7bf523b377065975821ee621206193d74f776198ab7a678fb9ab21d62f61313
+admission_status: PROTOTYPE_QUALIFICATION_ONLY_NO_FORMAL_CONTRACT
+qualification_overrides:
+  post_start_epoch: 0.0
+  formal_post_start_epoch: 1.0
+  reason: exercise fresh R/head gradients and active-post pending restore in a finite
+    qualification; never formal initialization
