@@ -313,7 +313,9 @@ def D46_formal_world16_fragment():
 
 
 def D46_FPO_world16_fragment():
-    directory=D46_ROOT/'operations/WORLD16_STAGES/FPO_WORLD16_PRIORITY_v1';plan=read(directory/'PLAN.json',{})
+    current=next((r for r in read(D46_ROOT/'PRIORITY_STATUS.json',{}).get('runs',[])if r.get('id')=='D46_D3_FPO'),{})
+    stage=current.get('execution_stage','FPO_WORLD16_PRIORITY_v1')
+    directory=D46_ROOT/'operations/WORLD16_STAGES'/stage;plan=read(directory/'PLAN.json',{})
     audit_path=D46_ROOT/'operations/FPO_WORLD16_TSH4_20261103/GPU_QUALIFICATION_AUDIT.json';audit=read(audit_path,{})
     if (audit.get('status')!='PASS'or audit.get('world')!=16 or len(audit.get('ranks',[]))!=16
             or not audit_path.is_file()or hashlib.sha256(audit_path.read_bytes()).hexdigest()!=plan.get('engineering_qualification_sha256')):return ''
@@ -322,15 +324,16 @@ def D46_FPO_world16_fragment():
         and len(proof.get('ranks',[]))==16 and proof.get('actual_new_updates_min',0)>0
         and proof.get('optimizer_reset')is False and proof.get('qualification_weights_used')is False
         and proof.get('identity_sha256')==plan.get('identity_sha256'))
-    current=next((r for r in read(D46_ROOT/'PRIORITY_STATUS.json',{}).get('runs',[])if r.get('id')=='D46_D3_FPO'),{})
-    current_label=('当前正式16rank训练'if current.get('status')in('TRAINING','TRAINING_WORLD16')else'当前 '+str(current.get('status','待核对'))+'；历史正式16rank启动已验证')if actual else'GPU16资格已通过，正式阶段恢复/启动中，尚不计实际训练'
-    body='<h3>FPO · TSH4双节点阶段与历史吞吐</h3><p><b>'+esc(current_label)+'</b>。TSH3+TSH4；原自身1440_READY/Adam/RNG/MC4材料继承，原6E预算，无资格stop-after；不使用资格后的1444权重作为正式起点。<a href="'+esc(audit_path)+'">真实GPU资格与pending恢复</a>'
+    current_label='当前正式16rank训练'if current.get('status')in('TRAINING','TRAINING_WORLD16')else'当前 '+str(current.get('status','待核对'))+'；仅启动/恢复收据不计实际训练'
+    body='<h3>FPO · 当前双节点阶段与历史吞吐</h3><p><b>'+esc(current_label)+'</b>。'+esc(stage)+'；当前主机 '+esc(current.get('host','待分配'))+'。自身Adam/RNG/MC4材料与原6E预算继承，无资格stop-after；不使用资格权重作为正式起点。<a href="'+esc(directory/'STATE.json')+'">当前阶段</a> · <a href="'+esc(audit_path)+'">原GPU资格与pending恢复</a>'
     if actual:body+=' · <a href="'+esc(proof_path)+'">正式16rank新更新实证</a>'
-    body+='</p><p>first3+pending resume1通过，16份RNG、虚拟8流/材料/Adam与B1零差，pending恢复未新增PG查询。早期资源75/peer rendezvous失败保留；最终按已知受保护D IL60k评测共同驻留、每卡65000MiB余量准入，不触碰IL。资格前三步纯更新时间不当完整cycle；正式进度不是新分数，FPO最新完整PDMS仍90.12278094 / Adam900。</p>'
+    recovery=plan.get('operator_recovery_review',{})
+    if recovery.get('checkpoint'):body+=' · 从 '+esc(Path(recovery['checkpoint']).name)+' 原生恢复，科学源保持不变'
+    body+='</p><p>原first3+pending resume1通过，16份RNG、虚拟8流/材料/Adam与B1零差，pending恢复未新增PG查询。早期资源75/peer rendezvous失败保留；按已知受保护IL共同驻留的标准显存准入，不触碰IL。资格前三步纯更新时间不当完整cycle；正式进度不是新分数。FPO Adam900的完整PDMS为90.12278094，后续分数只以前部完整结果表为准。</p>'
     speed_path=D46_ROOT/'analysis/FPO_WORLD16_THROUGHPUT_20261103.json';speed=read(speed_path,{})
-    if actual and speed.get('schema')=='d46_fixed_window_actual_journal_throughput_v1'and speed.get('arm')=='D3_FPO':
+    if speed.get('schema')=='d46_fixed_window_actual_journal_throughput_v1'and speed.get('arm')=='D3_FPO':
         a=speed['world8'];b=speed['world16']
-        body+='<p><b>FPO独立实测完整cycle '+esc(f'{speed["full_cycle_speedup"]:.4f}')+'×</b>，与D0的2.0727×分开。B64/G16/M2/MC4不变，正式窗口跳前4次warm更新。</p>'
+        body+='<p><b>FPO历史TSH3+TSH4独立实测完整cycle '+esc(f'{speed["full_cycle_speedup"]:.4f}')+'×</b>，与D0的2.0727×分开。B64/G16/M2/MC4不变，原正式窗口跳前4次warm更新；不能套作当前新主机组合的速度。</p>'
         body+=table(['FPO实测指标','8卡窗口','正式16卡窗口'],[
             ('实际更新区间',str(a['updates']),str(b['updates'])),('完整collection数',a['steady_collections'],b['steady_collections']),
             ('完整cycle秒',f'{a["steady_collection_seconds"]:.5f}',f'{b["steady_collection_seconds"]:.5f}'),
@@ -367,7 +370,7 @@ def D46_execution_benchmark_fragment():
         gradient='基准'if mode=='baseline'else'梯度对比待齐'if not checked else'逐位一致'if checked.get('bitexact')is True else'非逐位一致；梯度相对L2 '+format(checked.get('gradient_relative_L2',float('nan')),'.5f')
         rows.append((label,format(value['median_seconds'],'.4f'),format(value['peak_GPU_allocated_bytes']/2**30,'.2f'),gradient))
     if not rows:return ''
-    return '<details><summary>执行微基准：尚未采用到正式训练</summary>'+table(['同材料实测模式','中位秒','峰值allocated GiB','实际梯度比较'],rows)+'<p>这是固定checkpoint/同材料的局部前后向微基准，不是完整训练cycle、分数改善或正式执行准入。融合模式改变BF16矩阵形状，梯度非逐位一致；不会因计时更快就自动采用。历史D0/FPO完整cycle约2.07×/1.90×属于双节点独立实测。<a href="'+esc(directory/'baseline.json')+'">原始计时</a> · <a href="'+esc(directory/'COMPARISON_0ab.json')+'">当前比较收据</a></p></details>'
+    return '<details><summary>执行微基准：checkpoint开启的局部测试，尚未采用正式训练</summary><p><b>重要边界：这四项原始微基准都开启activation checkpoint；正式训练使用all_off。</b>15.75→10.49秒是该同一checkpoint/同材料局部条件下的真实计时，不能当作正式all_off配置的绝对耗时或加速承诺；生产配置对照另行测量。</p>'+table(['同材料实测模式','中位秒','峰值allocated GiB','实际梯度比较'],rows)+'<p>不是完整训练cycle、分数改善或正式执行准入。融合模式改变BF16矩阵形状，梯度非逐位一致；不会因计时更快就自动采用。历史D0/FPO完整cycle约2.07×/1.90×属于双节点独立实测。<a href="'+esc(directory/'baseline.json')+'">原始计时</a> · <a href="'+esc(directory/'COMPARISON_0ab.json')+'">当前比较收据</a></p></details>'
 
 
 def D46_registered_evaluation_progress_fragment():
@@ -460,6 +463,10 @@ def D46_priority_fragment(other_active=None):
     body+='<p>当前逻辑训练rank/卡位合计 '+esc(allocation)+'（各路线world见实时表；不等于独占GPU利用率）。</p>'
     if isinstance(count,int)and isinstance(other_active,int):body+='<p><b>当前实际 RL 训练合计 '+esc(count+other_active)+' 条：D46 '+esc(count)+'，既有 IL70 系 '+esc(other_active)+'。</b>不同研究分别读取实际任务与八rank日志，不按注册数计。</p>'
     body+=D46_current_interruption_fragment(value)
+    dedicated_path=D46_ROOT/'operations/DEDICATED_TWO_NODE_OPTIMIZATION_20261103/REQUEST.json'
+    dedicated=read(dedicated_path,{})
+    if dedicated.get('automatic_capacity_resume_disabled')is True and dedicated.get('all_original_training_budgets_preserved')is True:
+        body+='<p style="background:#e2eefc;padding:12px"><b>当前优先腾出两节点，专做真实执行优化资格后再部署。</b>'+esc(' + '.join(dedicated.get('hosts',[])))+'；FPO/D1协作保存，AWM保留自身状态，原训练预算均保留，不判算法无效；自动capacity恢复已关闭。D0/D2/D5继续，实际数量与保存进度见本表。计划比较同1500权重的baseline/fast真实12次Adam及fast中途恢复，尚无该完整资格结果。原15.75→10.49秒微基准开启checkpoint，不能代表正式all_off配置。<a href="'+esc(dedicated_path)+'">用户要求与两节点资格安排</a></p>'
     hold=legacy_I_resource_hold()
     if hold:body+='<p>旧 IL70 综合 I 已协作完整保存于 '+esc(hold['updates'])+' / inner'+esc(hold['inner'])+'，原job EXIT0，现临时资源保留，为D0让位；原 '+esc(hold['budget'])+' 次实际更新承诺保留，未终止算法、未改父模型/Adam/RNG。<a href="'+esc(hold['path'])+'">实际保存退出收据</a> · <a href="'+esc(hold['request'])+'">资源保留与原预算</a></p>'
     additional=D46_ROOT/'operations/ADD_TSH4_20261103/AUTHORIZATION.json';grant=read(additional,{})
@@ -499,6 +506,7 @@ def D46_priority_fragment(other_active=None):
             'WAITING_FOR_AUTHORIZED_CAPACITY':'等待有权限资源','RUNNING_OR_ADMITTING':'正式已派发/初始化，待八rank更新',
             'SAVED_AND_HELD_FOR_REGISTERED_STAGE':'已完整保存，资源保留/等待（非无效结论）',
             'FAILED_REQUIRES_REVIEW':'执行中断待复核/恢复，当前不计在训',
+            'STOPPED_AT_NATIVE_BOUNDARY':'已原生边界保存，资源让位优化资格；预算保留',
             'TRAINING':'正式实际训练','TRAINING_WORLD16':'正式16rank实际训练','RUNNING':'运行中（以实际日志核对）'}
         for r in rows:
             arm=r.get('id','').removeprefix('D46_');registered=campaign.get(arm,{})

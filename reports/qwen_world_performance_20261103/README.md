@@ -1,8 +1,11 @@
 # Qwen-World：以真实单轨迹 PDMS 为目标的规模化 RL
 
+2026-11-03 15:55 UTC最新优先级：两节点TSH3+WMzt专用于真实baseline/fast执行优化资格，暂停自动capacity恢复。FPO已在自身1711原生边界保存，D1在1621保存，AWM1442保留，原6E预算均保留；D0/world16、D2/world8、D5/world8继续，实际3路线/32逻辑卡位，以动态状态为准。计划同1500权重真实12Adam加fast中途恢复；本段不宣称该资格已完成。原15.75→10.49秒微基准全部checkpoint=True，正式生产all_off，不能套生产绝对耗时。[两节点优化安排](/mnt/project/d46-priority-rl-20261103/operations/DEDICATED_TWO_NODE_OPTIMIZATION_20261103/REQUEST.json)
+
+
 2026-11-03 15:44 UTC 状态更新：FPO world16 在1707/inner1后，节点1收到外部SIGTERM而中断，当前等待原生恢复，不能沿用“五条健康训练/56卡”快照；其它四路线仍推进，当前数量和Adam/曝光由实时 PRIORITY_STATUS 展示。FPO .5E全评测仍收尾，只发布完整封印分数；D46最高仍D0/1400的90.17112884，历史IL70最高91.45359756。[实时状态](/mnt/project/d46-priority-rl-20261103/PRIORITY_STATUS.json)、[当前FPO stage](/mnt/project/d46-priority-rl-20261103/operations/WORLD16_STAGES/FPO_WORLD16_PRIORITY_v1/STATE.json)
 
-执行微基准局部中位15.7466s（原执行）、15.3713s（prefix）、10.6735s（融合MC）、10.4852s（组合）；prefix梯度逐位一致，融合梯度相对L2差约.01754，非逐位一致。仅局部实测、未采用正式训练，不是PDMS提升或完整cycle承诺；原D0/FPO双节点2.07×/1.90×计时保留为历史独立结果。[比较收据](/mnt/project/d46-priority-rl-20261103/qualification/EXECUTION_BENCHMARK_20261103/COMPARISON_0ab.json)
+**微基准条件纠正：以下四项都开启activation checkpoint，正式生产配置为all_off。局部时间不能代表生产all_off的绝对耗时；正确配置正在另测，尚未正式采用。** 执行微基准局部中位15.7466s（原执行）、15.3713s（prefix）、10.6735s（融合MC）、10.4852s（组合）；prefix梯度逐位一致，融合梯度相对L2差约.01754，非逐位一致。仅局部实测、未采用正式训练，不是PDMS提升或完整cycle承诺；原D0/FPO双节点2.07×/1.90×计时保留为历史独立结果。[比较收据](/mnt/project/d46-priority-rl-20261103/qualification/EXECUTION_BENCHMARK_20261103/COMPARISON_0ab.json)
 
 下列启动与资源数量为各自时间的历史记录，以前部实时表为准。
 
