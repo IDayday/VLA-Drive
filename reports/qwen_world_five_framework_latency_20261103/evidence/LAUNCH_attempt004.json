@@ -1,0 +1,22 @@
+{
+  "at": 1793667411.1230156,
+  "host": "training-vlawm-zt2",
+  "cpu_admission_pid": "3557792",
+  "driver_commit": "aa86f3f",
+  "command": [
+    "env",
+    "PYTHONPATH=/mnt/project/qwen-world-four-frameworks-20261029/runtime/formal_fdaff80",
+    "WORLD_COMPARE_TASK=qwen_world_latency_20261103",
+    "WORLD_COMPARE_ROOT=/mnt/project/qwen-world-latency-20261103",
+    "/usr/bin/python3",
+    "-u",
+    "/mnt/project/VLA-Drive-qwen-world-latency-20261103/tools/latency_five_frameworks/exclusive.py",
+    "--config",
+    "/mnt/project/qwen-world-latency-20261103/config_v4.json",
+    "--output",
+    "/mnt/project/qwen-world-latency-20261103/attempt004",
+    "--wait-seconds",
+    "1800"
+  ],
+  "reason": "Previous RL2 GPU received an invisible foreign CUDA owner after completed World measurement; no foreign signals. All five fresh measurements now on one free WM2 GPU7, retaining failed attempt003."
+}

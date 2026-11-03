@@ -1,0 +1,52 @@
+{
+  "schema": "five_framework_latency_v1",
+  "scientist_source": "/mnt/project/qwen-world-four-frameworks-20261029/runtime/formal_fdaff80",
+  "python": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+  "data": "/mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN",
+  "scene_manifest": "/mnt/project/qwen-world-latency-20261103/scenes.json",
+  "models": [
+    {
+      "name": "Qwen-World",
+      "original_export": "/mnt/project/qwen-world-performance-rl-20261103/diagnostics/IL70_export",
+      "export": "/mnt/project/qwen-world-latency-20261103/exports/Qwen-World"
+    },
+    {
+      "name": "A",
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_A_046000_20261101T192944Z/A_IL_046000/export",
+      "export": "/mnt/project/qwen-world-latency-20261103/exports/A"
+    },
+    {
+      "name": "B",
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_B_062000_20261102T222450Z/B_IL_062000/export",
+      "export": "/mnt/project/qwen-world-latency-20261103/exports/B"
+    },
+    {
+      "name": "C",
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_C_044000_20261102T054050Z/C_IL_044000/export",
+      "export": "/mnt/project/qwen-world-latency-20261103/exports/C"
+    },
+    {
+      "name": "D",
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_050000_20261102T230654Z/D_IL_050000/export",
+      "export": "/mnt/project/qwen-world-latency-20261103/exports/D"
+    }
+  ],
+  "warmup": 5,
+  "repeats": 3,
+  "cpu_threads": 4,
+  "gpu_index": 7,
+  "gpu_uuid": "GPU-f7653835-479b-07e2-0adf-2b34baf826fe",
+  "inference": {
+    "B": 1,
+    "candidate_count": 1,
+    "K": 10,
+    "shift": 5,
+    "seed": 2101,
+    "parameters": "FP32",
+    "forward": "BF16",
+    "latent": "FP32",
+    "post_R": false,
+    "scorer": false
+  },
+  "data_role": "NAVTRAIN"
+}

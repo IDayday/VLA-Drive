@@ -1,0 +1,406 @@
+{
+  "scientist_source_commit": "fdaff809652370328e45c0d996ad706e1af2fc0c",
+  "assets": [
+    {
+      "name": "Qwen-World",
+      "IL_updates": 70000,
+      "original_export": "/mnt/project/qwen-world-performance-rl-20261103/diagnostics/IL70_export",
+      "pinned_export": "/mnt/project/qwen-world-latency-20261103/exports/Qwen-World",
+      "export_sha256": "f201e7c4b161d5c61505d777650259b47e7f3375ddf069d8c2e9c94e9b504137",
+      "model_sha256": "202cf5b4ba1ee87e0b5994741f31f1e58c75bf220531f47d35ee13520da99482",
+      "qualification": false,
+      "rl_lora": null,
+      "processor": {
+        "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+        "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "runtime_libraries": null,
+      "model_config": {
+        "action": {
+          "action_dim": 3,
+          "action_tokens": 8,
+          "activation_checkpointing": false,
+          "dropout": 0.0,
+          "ego_dim": 8,
+          "ffn_dim": 4096,
+          "hidden_dim": 1024,
+          "num_heads": 16,
+          "num_layers": 20
+        },
+        "dino_readout": {},
+        "future_readout": {},
+        "memory": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        },
+        "object_readout": {},
+        "post_head": {},
+        "predictive": {
+          "hidden_dim": 512,
+          "input_dim": 1024,
+          "intervals": 4,
+          "num_heads": 8,
+          "num_layers": 2,
+          "tokens_per_interval": 8
+        }
+      },
+      "scientist_runtime_source_files": {
+        "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+        "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+        "starVLA/model/modules/qwen_world_postcot/__init__.py": "6f2774ad3b3ed04f903bf0ab987ecacebc2cfd2fe04a0a23ba1b48a07e1ef4df",
+        "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+        "starVLA/model/modules/qwen_world_postcot/candidate_bank.py": "d252021074b93cfbbaa5b5154ac6c36187da82ab563a997b3a34c82626f02493",
+        "starVLA/model/modules/qwen_world_postcot/flow.py": "4488c085019f1a886fde743838399a2e357c86aa83423f0121d62d53d9619a4f",
+        "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+        "starVLA/model/modules/qwen_world_postcot/model.py": "83e12e7d34646a928b5757788091288c96b0be7f3200fe3d256b4342d4be837e",
+        "starVLA/model/modules/qwen_world_postcot/post_action.py": "25f8e626d00ad954f0b629beac75da1ae097108d5d3b276cd70b8afac18e6e8a",
+        "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+        "starVLA/model/modules/qwen_world_postcot/readouts.py": "c3bec264542b399321c9d053bacb194556134a294aeb34902b56f764c70438ce",
+        "starVLA/model/modules/qwen_world_postcot/rgb_decoder.py": "898d93bc5267ff84580a9a8edfbeef96475a8d54775419c0d93907e1699a69a8",
+        "starVLA/model/modules/qwen_world_postcot/teacher_targets.py": "fa8ea84a171d8f64290fb10def7f9bed6408adace2c5e527391641f16d299207",
+        "starVLA/model/modules/qwen_world_postcot/teachers.py": "5d0dac3e07cb3fb62f40f30ee2793ea2b11b6b509091c06caf350efd45606f22"
+      }
+    },
+    {
+      "name": "A",
+      "IL_updates": 46000,
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_A_046000_20261101T192944Z/A_IL_046000/export",
+      "pinned_export": "/mnt/project/qwen-world-latency-20261103/exports/A",
+      "export_sha256": "e849d3d01b9ad1cb2045c6c46f5eca720c74484e903e5e01fcb576197841ef7a",
+      "model_sha256": "ce513b79e88821665a81a0dd629615cbc7ebc82d000e80de6cf809530eefd66e",
+      "qualification": false,
+      "rl_lora": null,
+      "processor": {
+        "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+        "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "runtime_libraries": {
+        "torch": "2.5.1+cu124",
+        "transformers": "4.57.0",
+        "native_qwen_modeling_sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da",
+        "parameters": "float32",
+        "model_forward": "bfloat16",
+        "action_state_ODE": "float32"
+      },
+      "model_config": {
+        "decision": {
+          "actor_config": {
+            "action_dim": 3,
+            "action_tokens": 8,
+            "activation_checkpointing": true,
+            "dropout": 0.0,
+            "ego_dim": 8,
+            "ffn_dim": 4096,
+            "hidden_dim": 1024,
+            "num_heads": 16,
+            "num_layers": 20
+          },
+          "world_config": {
+            "activation_checkpointing": true,
+            "actor_dim": 1024,
+            "bridge_groups": 4,
+            "ego_dim": 8,
+            "ffn_dim": 1536,
+            "hidden_dim": 384,
+            "num_heads": 6,
+            "num_layers": 20,
+            "post_tokens": 16,
+            "prefix_tokens": 32,
+            "scene_dim": 1024
+          }
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "scientist_runtime_source_files": {
+        "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+        "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+        "starVLA/model/modules/qwen_world_compare/__init__.py": "d943809eec66bc7815766ced3adfa04fb1f06de15f95cdf1bca019b41c040239",
+        "starVLA/model/modules/qwen_world_compare/contracts.py": "1783e7e0a2f3ef8da6999e9a9af93f8bc6f650b5d13c017d97c71e5b08da4142",
+        "starVLA/model/modules/qwen_world_compare/factory.py": "80003a3248c7d4f330473b94bba8604705cb1b56d6e555feefd748306bea8eb2",
+        "starVLA/model/modules/qwen_world_compare/heads.py": "6b273e23bf980842f598addb3bb5cd4adce4dfbe500d3a979a865fcce982119b",
+        "starVLA/model/modules/qwen_world_compare/independent_actor.py": "15cddb527d827070896aab4b8ebd2b5b8e3bc0ff73612b1c586b89ee90bc8f77",
+        "starVLA/model/modules/qwen_world_compare/masks.py": "63aeee53a0a8fa620dbdf1a30b4855fb712adee72811fa78ad8ce5df74d5e7b6",
+        "starVLA/model/modules/qwen_world_compare/model.py": "c8e992b102108da5808338a4fdb79cf6ade71b0dbdaf6682824f9343931cd9d1",
+        "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "3f6e0abf84b5f0afed34f710ea07040516342c2e67597b6fcf0f1278ebc15043",
+        "starVLA/model/modules/qwen_world_compare/shared_actor.py": "518e54b7d9b41d898c722b743c156dd949d70b20262de2c437a6c356ac2751c8",
+        "starVLA/model/modules/qwen_world_compare/world_stream.py": "5c0572f9579ec7c7449cb227b0a236cc10ccd39d32d13c9859322b6e8d43b9b7",
+        "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+        "starVLA/model/modules/qwen_world_postcot/flow.py": "4488c085019f1a886fde743838399a2e357c86aa83423f0121d62d53d9619a4f",
+        "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+        "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+        "starVLA/rl/qwen_world_compare/rl_scope.py": "48f4369023cb18d9191e61deacc9a0a70c7c7de30cb95f0fa9b1b435bcfeb0a1"
+      }
+    },
+    {
+      "name": "B",
+      "IL_updates": 62000,
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_B_062000_20261102T222450Z/B_IL_062000/export",
+      "pinned_export": "/mnt/project/qwen-world-latency-20261103/exports/B",
+      "export_sha256": "30eddfc51294bac2c337b1e8d5bea12445a555d8daa76f53c8638a3bc1a169e3",
+      "model_sha256": "2d90c81eed3119024d03443fe3e30d7c14f098863f042ec7a0dd57f19abd5d1b",
+      "qualification": false,
+      "rl_lora": null,
+      "processor": {
+        "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+        "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "runtime_libraries": {
+        "torch": "2.5.1+cu124",
+        "transformers": "4.57.0",
+        "native_qwen_modeling_sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da",
+        "parameters": "float32",
+        "model_forward": "bfloat16",
+        "action_state_ODE": "float32"
+      },
+      "model_config": {
+        "decision": {
+          "activation_checkpointing": true,
+          "ego_dim": 8,
+          "ffn_dim": 4096,
+          "hidden_dim": 1024,
+          "num_heads": 16,
+          "num_layers": 20
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "scientist_runtime_source_files": {
+        "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+        "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+        "starVLA/model/modules/qwen_world_compare/__init__.py": "d943809eec66bc7815766ced3adfa04fb1f06de15f95cdf1bca019b41c040239",
+        "starVLA/model/modules/qwen_world_compare/contracts.py": "1783e7e0a2f3ef8da6999e9a9af93f8bc6f650b5d13c017d97c71e5b08da4142",
+        "starVLA/model/modules/qwen_world_compare/factory.py": "80003a3248c7d4f330473b94bba8604705cb1b56d6e555feefd748306bea8eb2",
+        "starVLA/model/modules/qwen_world_compare/heads.py": "6b273e23bf980842f598addb3bb5cd4adce4dfbe500d3a979a865fcce982119b",
+        "starVLA/model/modules/qwen_world_compare/independent_actor.py": "15cddb527d827070896aab4b8ebd2b5b8e3bc0ff73612b1c586b89ee90bc8f77",
+        "starVLA/model/modules/qwen_world_compare/masks.py": "63aeee53a0a8fa620dbdf1a30b4855fb712adee72811fa78ad8ce5df74d5e7b6",
+        "starVLA/model/modules/qwen_world_compare/model.py": "c8e992b102108da5808338a4fdb79cf6ade71b0dbdaf6682824f9343931cd9d1",
+        "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "3f6e0abf84b5f0afed34f710ea07040516342c2e67597b6fcf0f1278ebc15043",
+        "starVLA/model/modules/qwen_world_compare/shared_actor.py": "518e54b7d9b41d898c722b743c156dd949d70b20262de2c437a6c356ac2751c8",
+        "starVLA/model/modules/qwen_world_compare/world_stream.py": "5c0572f9579ec7c7449cb227b0a236cc10ccd39d32d13c9859322b6e8d43b9b7",
+        "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+        "starVLA/model/modules/qwen_world_postcot/flow.py": "4488c085019f1a886fde743838399a2e357c86aa83423f0121d62d53d9619a4f",
+        "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+        "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+        "starVLA/rl/qwen_world_compare/rl_scope.py": "48f4369023cb18d9191e61deacc9a0a70c7c7de30cb95f0fa9b1b435bcfeb0a1"
+      }
+    },
+    {
+      "name": "C",
+      "IL_updates": 44000,
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_C_044000_20261102T054050Z/C_IL_044000/export",
+      "pinned_export": "/mnt/project/qwen-world-latency-20261103/exports/C",
+      "export_sha256": "eeefbb284561c312657d141fbd391920b04a30bf34c574cbb90a642a1d3ff0d1",
+      "model_sha256": "2f2daaca05e406d3a60d8549ff7dbb91490cbdaf2f67414a30d6ca01f49aa51e",
+      "qualification": false,
+      "rl_lora": null,
+      "processor": {
+        "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+        "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "runtime_libraries": {
+        "torch": "2.5.1+cu124",
+        "transformers": "4.57.0",
+        "native_qwen_modeling_sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da",
+        "parameters": "float32",
+        "model_forward": "bfloat16",
+        "action_state_ODE": "float32"
+      },
+      "model_config": {
+        "decision": {
+          "actor_config": {
+            "action_dim": 3,
+            "action_tokens": 8,
+            "activation_checkpointing": true,
+            "dropout": 0.0,
+            "ego_dim": 8,
+            "ffn_dim": 4096,
+            "hidden_dim": 1024,
+            "num_heads": 16,
+            "num_layers": 20
+          },
+          "world_config": {
+            "activation_checkpointing": true,
+            "actor_dim": 1024,
+            "bridge_groups": 4,
+            "ego_dim": 8,
+            "ffn_dim": 1536,
+            "hidden_dim": 384,
+            "num_heads": 6,
+            "num_layers": 20,
+            "post_tokens": 16,
+            "prefix_tokens": 32,
+            "scene_dim": 1024
+          }
+        },
+        "scene": {
+          "camera_count": 3,
+          "ego_dim": 8,
+          "global_tokens": 16,
+          "hidden_dim": 1024,
+          "input_dim": 2048,
+          "num_heads": 16,
+          "num_layers": 2,
+          "selected_layers": [
+            8,
+            16,
+            28
+          ],
+          "spatial_grid": [
+            6,
+            8
+          ],
+          "use_merged_visual": true
+        }
+      },
+      "scientist_runtime_source_files": {
+        "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+        "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+        "starVLA/model/modules/qwen_world_compare/__init__.py": "d943809eec66bc7815766ced3adfa04fb1f06de15f95cdf1bca019b41c040239",
+        "starVLA/model/modules/qwen_world_compare/contracts.py": "1783e7e0a2f3ef8da6999e9a9af93f8bc6f650b5d13c017d97c71e5b08da4142",
+        "starVLA/model/modules/qwen_world_compare/factory.py": "80003a3248c7d4f330473b94bba8604705cb1b56d6e555feefd748306bea8eb2",
+        "starVLA/model/modules/qwen_world_compare/heads.py": "6b273e23bf980842f598addb3bb5cd4adce4dfbe500d3a979a865fcce982119b",
+        "starVLA/model/modules/qwen_world_compare/independent_actor.py": "15cddb527d827070896aab4b8ebd2b5b8e3bc0ff73612b1c586b89ee90bc8f77",
+        "starVLA/model/modules/qwen_world_compare/masks.py": "63aeee53a0a8fa620dbdf1a30b4855fb712adee72811fa78ad8ce5df74d5e7b6",
+        "starVLA/model/modules/qwen_world_compare/model.py": "c8e992b102108da5808338a4fdb79cf6ade71b0dbdaf6682824f9343931cd9d1",
+        "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "3f6e0abf84b5f0afed34f710ea07040516342c2e67597b6fcf0f1278ebc15043",
+        "starVLA/model/modules/qwen_world_compare/shared_actor.py": "518e54b7d9b41d898c722b743c156dd949d70b20262de2c437a6c356ac2751c8",
+        "starVLA/model/modules/qwen_world_compare/world_stream.py": "5c0572f9579ec7c7449cb227b0a236cc10ccd39d32d13c9859322b6e8d43b9b7",
+        "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+        "starVLA/model/modules/qwen_world_postcot/flow.py": "4488c085019f1a886fde743838399a2e357c86aa83423f0121d62d53d9619a4f",
+        "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+        "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+        "starVLA/rl/qwen_world_compare/rl_scope.py": "48f4369023cb18d9191e61deacc9a0a70c7c7de30cb95f0fa9b1b435bcfeb0a1"
+      }
+    },
+    {
+      "name": "D",
+      "IL_updates": 50000,
+      "original_export": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_050000_20261102T230654Z/D_IL_050000/export",
+      "pinned_export": "/mnt/project/qwen-world-latency-20261103/exports/D",
+      "export_sha256": "96a69d3b9d2de72ac5481abf692dbb1ed5f77e51887e45938e58b1a9df18a389",
+      "model_sha256": "5d63b477fb32313d09960538f4145a15d3d2df757112d7127a7c57efa983e922",
+      "qualification": false,
+      "rl_lora": null,
+      "processor": {
+        "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+        "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "runtime_libraries": {
+        "torch": "2.5.1+cu124",
+        "transformers": "4.57.0",
+        "native_qwen_modeling_sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da",
+        "parameters": "float32",
+        "model_forward": "bfloat16",
+        "action_state_ODE": "float32"
+      },
+      "model_config": {
+        "d": {
+          "activation_checkpointing": true,
+          "ego_dim": 8,
+          "p_tokens": 32,
+          "r_tokens": 16,
+          "time_dim": 256
+        }
+      },
+      "scientist_runtime_source_files": {
+        "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+        "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+        "starVLA/model/modules/qwen_world_compare/__init__.py": "d943809eec66bc7815766ced3adfa04fb1f06de15f95cdf1bca019b41c040239",
+        "starVLA/model/modules/qwen_world_compare/contracts.py": "1783e7e0a2f3ef8da6999e9a9af93f8bc6f650b5d13c017d97c71e5b08da4142",
+        "starVLA/model/modules/qwen_world_compare/factory.py": "80003a3248c7d4f330473b94bba8604705cb1b56d6e555feefd748306bea8eb2",
+        "starVLA/model/modules/qwen_world_compare/heads.py": "6b273e23bf980842f598addb3bb5cd4adce4dfbe500d3a979a865fcce982119b",
+        "starVLA/model/modules/qwen_world_compare/independent_actor.py": "15cddb527d827070896aab4b8ebd2b5b8e3bc0ff73612b1c586b89ee90bc8f77",
+        "starVLA/model/modules/qwen_world_compare/masks.py": "63aeee53a0a8fa620dbdf1a30b4855fb712adee72811fa78ad8ce5df74d5e7b6",
+        "starVLA/model/modules/qwen_world_compare/model.py": "c8e992b102108da5808338a4fdb79cf6ade71b0dbdaf6682824f9343931cd9d1",
+        "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "3f6e0abf84b5f0afed34f710ea07040516342c2e67597b6fcf0f1278ebc15043",
+        "starVLA/model/modules/qwen_world_compare/shared_actor.py": "518e54b7d9b41d898c722b743c156dd949d70b20262de2c437a6c356ac2751c8",
+        "starVLA/model/modules/qwen_world_compare/world_stream.py": "5c0572f9579ec7c7449cb227b0a236cc10ccd39d32d13c9859322b6e8d43b9b7",
+        "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+        "starVLA/model/modules/qwen_world_postcot/flow.py": "4488c085019f1a886fde743838399a2e357c86aa83423f0121d62d53d9619a4f",
+        "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+        "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+        "starVLA/rl/qwen_world_compare/rl_scope.py": "48f4369023cb18d9191e61deacc9a0a70c7c7de30cb95f0fa9b1b435bcfeb0a1"
+      }
+    }
+  ]
+}
