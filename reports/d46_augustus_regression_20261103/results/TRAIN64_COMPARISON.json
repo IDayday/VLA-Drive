@@ -1,0 +1,46 @@
+{
+  "schema": "d46_fixed_TRAIN64_K3_K10_diagnostic_v1",
+  "count": 64,
+  "NAVTEST": false,
+  "root_seed": 2101,
+  "baseline": {
+    "parent": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+    "updates": 0
+  },
+  "versions": {
+    "AUG1_u100": {
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/AUG1_FULL_v1/checkpoints/update000100_inner0",
+      "updates": 100,
+      "model_sha": "9561795f49acb04c07740093d55fc1375b4dbcc238120c43bcfdac41d94eda74"
+    },
+    "AUG2_u400": {
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/AUG2_LORA_v1/checkpoints/update000400_inner0",
+      "updates": 400,
+      "model_sha": "e9d804d16b1ad0fe9171ea53090e1a38c857f6b4f1618f82e5c8315b0a36a27c"
+    }
+  },
+  "means": {
+    "IL46": {
+      "K10": 89.05098829892462,
+      "K3": 88.98664649503746
+    },
+    "AUG1_u100": {
+      "K10": 85.72099888887466,
+      "K3": 85.72859136590264
+    },
+    "AUG2_u400": {
+      "K10": 89.68292224474655,
+      "K3": 88.13420037182347
+    }
+  },
+  "conclusion_zh": [
+    "FULL100在K10和K3均退化，单靠部署网格差异不足以解释全参数崩坏，更新稳定性/奖励冲突仍是重点。",
+    "LoRA400在该64 TRAIN panel的K10较IL改善，但完整NAVTEST下降；该面板来自已训练场景，不能用于替代完整部署评测或声称泛化收益。",
+    "K3/K10差异是可测风险，并未证明它是掉分主因。"
+  ],
+  "source_summaries": {
+    "IL46": "/mnt/project/d46-priority-rl-20261103/analysis/AUGUSTUS_REGRESSION_20261103/IL46/SUMMARY.json",
+    "AUG1_u100": "/mnt/project/d46-priority-rl-20261103/analysis/AUGUSTUS_REGRESSION_20261103/AUG1_u100/SUMMARY.json",
+    "AUG2_u400": "/mnt/project/d46-priority-rl-20261103/analysis/AUGUSTUS_REGRESSION_20261103/AUG2_u400/SUMMARY.json"
+  }
+}

@@ -32,3 +32,15 @@ Multiple mechanisms change together for performance; this is not a clean attribu
 
 Live assets: `/mnt/project/d46-priority-rl-20261103/analysis/AUGUSTUS_REGRESSION_20261103/`.
 Live HTML: `/mnt/project/qwen-world-performance-rl-20261103/report.html`.
+
+Actual fixed TRAIN64 follow-up (already exposed scenes, not validation or NAVTEST):
+
+| Policy | Native K10 PDMS | Old K3 PDMS |
+|---|---:|---:|
+| IL46 |89.05098830|88.98664650|
+| FULL100 |85.72099889|85.72859137|
+| LoRA400 |89.68292224|88.13420037|
+
+FULL drops under both grids: grid mismatch alone is insufficient to explain the collapse. FULL TTC decreases98.4375%→82.8125%, while EP increases81.847%→88.230%. LoRA's training-panel improvement does not transfer to complete NAVTEST. This strengthens the priority of safety credit and update stability; it does not isolate their causal contributions.
+
+The actual32-GPU corrected FULL first update, native pending-inner audit and exact cached-condition native B1 parity passed all32ranks. Official single-B1 qualification uses zero output difference, not a permissive score proxy. Native own-resume and LoRA16 qualification follow. Initial resource refusals were prechild: D66 IL evaluation acquired otherwise idle GPUs; keep those evaluations intact and use measured authorized sharing. Failed receipts remain, and no optimizer reset is hidden.
