@@ -1,0 +1,78 @@
+{
+  "CLI_unchanged": true,
+  "CPU": {
+    "COMPLETE_sha256": "0f9a0f4b9c5163811348f6c0160fd5bb594d0dc8996c0610ea73846bbb3eb59d",
+    "evidence": "actual native Tiny CPU/Gloo8->16 READY restore,16rank B1+loss/Adam/native pending resume; explicit hook checks600 while old default hook remains90",
+    "exit_code": 0,
+    "limitation": "Not full IL46/CUDA/NCCL startup qualification; no wait600s or new GPU/PDM scores performed",
+    "native_result": {
+      "B": 64,
+      "G": 16,
+      "GPU_used": false,
+      "M": 2,
+      "READY16_parameters_Adam_scheduler_exact": true,
+      "actual_distributed_backend": "gloo",
+      "actual_model": "native TinyQwen32x3, NOT full IL46 weights",
+      "all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact": true,
+      "canonical_PDM_queries": 0,
+      "continuous_final_update": 4,
+      "limitation": "CPU engineering only. Full IL46/CUDA/NCCL/two-host B1/ratio/throughput qualification required; test labels synthetic TRAIN fixtures.",
+      "optimizer_origin_updates": 2,
+      "post_native_B1_parity_all16": true,
+      "restored_inner_update": 3,
+      "restored_next_inner": 1,
+      "schema": "d46_world16_Tiny_native_CPU_engine_qualification_v1",
+      "seconds": 13.630903884768486,
+      "source_world": 8,
+      "status": "PASS",
+      "target_world": 16,
+      "world16_control_timeout_seconds": 600,
+      "world8_control_timeout_seconds": 90
+    },
+    "result": "4 passed,1 warning in18.52s",
+    "stdout": "/mnt/project/VLA-Drive-d46-world16-20261103/reports/d46_world16_20261103/analysis/CONTROL600_CPU_FINAL.log",
+    "stdout_sha256": "1ec195e8d378719924e915082369e8bb7580950653d7b4934675ba7397537d89"
+  },
+  "created_UTC": "2026-11-03T10:47:02.521407+00:00",
+  "diagnosis": {
+    "OOM": false,
+    "actual_first_error": "Gloo all_gather_object Timed out waiting90000ms while other ranks still loading/validating true B1",
+    "algorithm_conclusion": "none; execution startup failure, not reward or gradient result",
+    "evidence": [
+      "/mnt/project/d46-priority-rl-20261103/jobs/WORLD16_QUALIFICATION/D0_u1400/first/node0/stdout.log",
+      "/mnt/project/d46-priority-rl-20261103/jobs/WORLD16_QUALIFICATION/D0_u1400/first/node1/stdout.log"
+    ],
+    "kind": "CONTROL_GROUP_STARTUP_TIMEOUT",
+    "original_GPU_Adam_updates": 0
+  },
+  "fix": {
+    "actual_handle": "starVLA.rl.simwam_recipe.checkpoint.CONTROL_GROUP",
+    "backend": "gloo",
+    "hook": "extension.init_control_group() immediately after main NCCL init and before any model load",
+    "identity_field": "native_world_transition.control_plane",
+    "old_simwam_checkpoint_source_changed": false,
+    "original8rank_default_timeout_seconds": 90,
+    "permanent_NCCL_timeout_changed": false,
+    "receipt_field": "WORLD_TRANSITION.control_plane",
+    "scope": "world16 opt-in only",
+    "strict_restoration_binding": true,
+    "timeout_seconds": 600
+  },
+  "identities": {
+    "execution_source_and_new_receipt_identity_changed": true,
+    "old_v1_source_CP_failure_results_unchanged": true,
+    "retry": "freeze new source, re-run same converter from original D0u1400 READY into NEW v2 qualification root; never edit v1 identity/source",
+    "scientific_recipe_parent_scope_sampler_loss_Adam_RNG_unchanged": true
+  },
+  "modified_files": {
+    "starVLA/rl/d46_world16/native.py": "cdfbca78a907e2af224b47711657314b10f73678ca2dcc6bab32c250605b0a88",
+    "starVLA/rl/d46_world16/runtime.py": "1c20f647f7e52f6a171bfbd4c4ac6a234c608a5cb3d2b3492f269bde8d5a09b9",
+    "tests/test_d46_world16_engine.py": "a48c3a2e30bec0764f49fa8016fe7a49c9e456097763c9c1f8b3772d7ed0bc96",
+    "tools/d44_native_rl/train.py": "64f7736913c3e414afb06354f0d410b2457de2e18a50714d02b26b993bc24c72",
+    "tools/d46_world16/qualify_native.py": "7e3db2d4a7b5801a541f77b0681540e53bfa2fd6b40dcea6ce1274f1c061b7c1"
+  },
+  "schema": "d46_world16_control_plane_timeout_fix_v1",
+  "source_checkpoint_file_sha256": "998fbf1a3eb4ce438759311c92d2f24c1f0018889019a5ebb0f4cd87cdf6872e",
+  "source_parent_commit": "a58c7036031311d7e01cb3c006bf0de54dd601d8",
+  "status": "CPU_READY_GPU_RETRY_PENDING"
+}

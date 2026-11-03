@@ -87,7 +87,9 @@ def _worker(rank,world,port,root,stop_update,resume):
     root=Path(root);torch.set_num_threads(1);random.seed(42);np.random.seed(42);torch.manual_seed(42)
     torch.cuda.synchronize=lambda *_,**__:None
     dist.init_process_group('gloo',init_method=f'tcp://127.0.0.1:{port}',rank=rank,world_size=world,timeout=timedelta(seconds=120))
-    checkpoint.init_control_group();cfg=defaults46('D0');cfg['checkpoint_policy']='all_off'
+    if world==8:checkpoint.init_control_group()
+    else:World16Extension.init_control_group()
+    cfg=defaults46('D0');cfg['checkpoint_policy']='all_off'
     actor=make_actor(cfg);opt=torch.optim.AdamW(groups(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01);sched=SceneScheduler(opt);generator=torch.Generator().manual_seed(420000+rank)
     boundary=Boundary();extension=None
     if world==8:
@@ -187,7 +189,7 @@ def qualify(output):
     original=torch.load(old/'optimizer.pt',map_location='cpu',weights_only=False)
     ready=torch.load(output/'continuous16/checkpoints/READY_world16_roundtrip/optimizer.pt',map_location='cpu',weights_only=False);exact(original,ready,'READY_common')
     result=dict(schema='d46_world16_Tiny_native_CPU_engine_qualification_v1',status='PASS',source_world=8,target_world=16,B=64,G=16,M=2,
-        actual_distributed_backend='gloo',GPU_used=False,canonical_PDM_queries=0,actual_model='native TinyQwen32x3, NOT full IL46 weights',
+        actual_distributed_backend='gloo',world8_control_timeout_seconds=90,world16_control_timeout_seconds=600,GPU_used=False,canonical_PDM_queries=0,actual_model='native TinyQwen32x3, NOT full IL46 weights',
         optimizer_origin_updates=2,READY16_parameters_Adam_scheduler_exact=True,continuous_final_update=4,restored_inner_update=3,restored_next_inner=1,
         all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact=True,post_native_B1_parity_all16=True,seconds=time.monotonic()-tick,
         limitation='CPU engineering only. Full IL46/CUDA/NCCL/two-host B1/ratio/throughput qualification required; test labels synthetic TRAIN fixtures.')

@@ -7,7 +7,7 @@ import torch
 import yaml
 from tools.d46_world16.qualify_native import qualify,make_actor
 from starVLA.rl.d46_world16.runtime import World16Extension,World16Attempt,receipt,compare_restored_B1
-from starVLA.rl.d46_world16.native import prepare,transition_identity,source_inventory
+from starVLA.rl.d46_world16.native import prepare,transition_identity,source_inventory,CONTROL_PROTOCOL
 
 @pytest.fixture(scope='module')
 def qualified(tmp_path_factory):
@@ -18,6 +18,7 @@ def qualified(tmp_path_factory):
 def test_actual_native8_to16_READY_and_pending_DDP_exact(qualified):
     root,result=qualified
     assert result['actual_distributed_backend']=='gloo'and result['READY16_parameters_Adam_scheduler_exact']
+    assert result['world8_control_timeout_seconds']==90 and result['world16_control_timeout_seconds']==600
     assert result['all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact']and result['post_native_B1_parity_all16']
     for rank in range(16):
         parity=json.loads((root/'continuous16'/f'native_B1_restore_parity_rank{rank}_u000002.json').read_text())
@@ -44,6 +45,7 @@ def test_runtime_exact_recipe_identity_and_journal_origin(qualified,tmp_path,mon
     cfg=tmp_path/'recipe.yaml';cfg.write_text(yaml.safe_dump(identity['recipe']))
     ext=World16Extension();args=SimpleNamespace(config=str(cfg),output=str(execution),resume=str(execution/'checkpoints/update000002_inner0'),qualification=True)
     assert ext.read_recipe(args)==identity['recipe'];ext.validate_world(16)
+    assert identity['native_world_transition']['control_plane']==CONTROL_PROTOCOL
     from tools.d46_world16 import gang
     monkeypatch.setattr(gang.subprocess,'check_output',lambda command,**kwargs:'mock_frozen_SHA'if 'rev-parse'in command else'')
     plan=gang.build(execution,cfg,Path.cwd(),['training-mock0','training-mock1'],29785,4)
@@ -73,3 +75,21 @@ def test_converter_refuses_pending_and_second_conversion(qualified,tmp_path):
     old=json.loads((cp/'identity.json').read_text());old['qualification']=False
     new=transition_identity(old,cp,json.loads((cp/'files.json').read_text()),source_inventory(),True)
     assert new['qualification']is True and new['native_world_transition']['source_qualification']is False
+
+
+def test_world16_only_control_group_hook_preserves_default90(monkeypatch):
+    from datetime import timedelta
+    from unittest.mock import Mock
+    from starVLA.rl.simwam_recipe import checkpoint as source
+    calls=Mock(return_value=object())
+    previous=source.CONTROL_GROUP
+    try:
+        monkeypatch.setattr(torch.distributed,'is_initialized',lambda:True)
+        monkeypatch.setattr(torch.distributed,'get_world_size',lambda:16)
+        monkeypatch.setattr(torch.distributed,'new_group',calls)
+        source.CONTROL_GROUP=None;World16Extension.init_control_group()
+        calls.assert_called_once_with(backend='gloo',timeout=timedelta(seconds=600))
+        assert source.CONTROL_GROUP is calls.return_value
+        source.CONTROL_GROUP=None;calls.reset_mock();source.init_control_group()
+        calls.assert_called_once_with(backend='gloo',timeout=timedelta(seconds=90))
+    finally:source.CONTROL_GROUP=previous

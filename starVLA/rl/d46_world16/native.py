@@ -20,6 +20,8 @@ from .planning import validate_recipe
 SCHEMA='d46_exact_native_READY_world8_to16_v1'
 STATE_SCHEMA='d46_world16_virtual8_sampler_state_v1'
 BASE='ff3013c4045e9505ae9cd39b9418247cc03a596d'
+CONTROL_PROTOCOL=dict(schema='d46_world16_CPU_control_plane_v1',backend='gloo',timeout_seconds=600,
+    purpose='allow full model load and true B1 startup skew; no policy/optimizer change')
 
 
 def source_inventory():
@@ -52,6 +54,7 @@ class World16Boundary(Boundary):
         if identity.get('world')!=16 or identity.get('native_world_transition',{}).get('schema')!=SCHEMA:
             raise ValueError('World16 requires typed native transition identity')
         if identity['recipe']['arm']not in('D0','D5'):raise ValueError('Variable-draw/other arms not admitted')
+        if identity['native_world_transition'].get('control_plane')!=CONTROL_PROTOCOL:raise ValueError('World16 control protocol changed')
         out=Boundary.validate_boundary(state,batch,identity,optimizer,scheduler,**kw)
         out['virtual8_rng_sha256']=validate_virtual(state)
         if state.get('journal_origin_updates')!=identity['native_world_transition']['origin_updates']:
@@ -70,7 +73,7 @@ def transition_identity(old,checkpoint,files,new_sources,qualification):
         origin_updates=json.loads((Path(checkpoint)/'COMPLETE').read_text())['updates'],source_qualification=old['qualification'],target_qualification=qualification,
         source_run_identity_sha256=old['sha256'],source_checkpoint=str(Path(checkpoint).resolve()),
         source_files_sha256=file_sha(Path(checkpoint)/'files.json'),common_optimizer_sha256=files['optimizer.pt'],
-        virtual_sampler_lanes=8,global_scenes=64,group=16,inner_updates=2,
+        virtual_sampler_lanes=8,global_scenes=64,group=16,inner_updates=2,control_plane=copy.deepcopy(CONTROL_PROTOCOL),
         compatibility='same real-valued update target; FP32 DDP summation topology may differ, not cross-world bitexact',
         parent_policy_unchanged=True,optimizer='inherited_AdamW_no_reset',old_owner_may_adopt=False)
     body['sha256']=fingerprint(body);return body
@@ -136,7 +139,7 @@ def prepare(old_checkpoint,new_root,*,qualification=False):
         receipt=dict(schema=SCHEMA,source_identity_sha256=old['sha256'],target_identity_sha256=identity['sha256'],
             source_checkpoint=str(old_checkpoint),source_files_sha256=seal['files_sha256'],source_rank_files_sha256={str(r):files[f'rank{r}.pt']for r in range(8)},
             common_optimizer_sha256=files['optimizer.pt'],origin_updates=seal['updates'],phase='READY',
-            native_weights_and_Adam_inherited=True,source_inventory=current,qualification=qualification,source_qualification=old['qualification'],qualification_weights_never_return_to_formal=True,source_world=8,target_world=16)
+            native_weights_and_Adam_inherited=True,source_inventory=current,qualification=qualification,source_qualification=old['qualification'],control_plane=copy.deepcopy(CONTROL_PROTOCOL),qualification_weights_never_return_to_formal=True,source_world=8,target_world=16)
         receipt['sha256']=fingerprint(receipt)
         atomic_json(cp/'world_transition.json',receipt);atomic_json(attempt/'WORLD_TRANSITION.json',receipt)
         atomic_json(cp/'transaction.json',dict(schema=CHECKPOINT_CONTRACT,attempt=uuid.uuid4().hex,ranks=summaries,

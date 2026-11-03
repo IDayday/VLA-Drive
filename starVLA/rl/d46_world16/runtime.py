@@ -11,7 +11,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.d44_native_rl.config import read
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.recovery import Attempt,checkpoint
-from .native import SCHEMA,STATE_SCHEMA,World16Boundary,source_inventory,validate_virtual
+from .native import SCHEMA,STATE_SCHEMA,CONTROL_PROTOCOL,World16Boundary,source_inventory,validate_virtual
 from .planning import fixed_scene_rng_plan,assert_scene_rng_end
 
 
@@ -30,7 +30,8 @@ def receipt(root,identity):
     if (fingerprint(body)!=sha or value.get('schema')!=SCHEMA or value.get('target_identity_sha256')!=identity['sha256']
         or value.get('source_identity_sha256')!=transition.get('source_run_identity_sha256')
         or value.get('common_optimizer_sha256')!=transition.get('common_optimizer_sha256')
-        or value.get('source_inventory')!=identity.get('source_files') or value.get('source_inventory')!=source_inventory()):
+        or value.get('source_inventory')!=identity.get('source_files') or value.get('source_inventory')!=source_inventory()
+        or value.get('control_plane')!=CONTROL_PROTOCOL or transition.get('control_plane')!=CONTROL_PROTOCOL):
         raise ValueError('World16 native transition receipt/source changed')
     return value
 
@@ -59,6 +60,15 @@ class World16Attempt(Attempt):
 
 class World16Extension:
     boundary=World16Boundary()
+    @staticmethod
+    def init_control_group():
+        from datetime import timedelta
+        from starVLA.rl.simwam_recipe import checkpoint as source
+        if not torch.distributed.is_initialized()or torch.distributed.get_world_size()!=16:
+            raise ValueError('World16 control group requires initialized16 ranks')
+        if source.CONTROL_GROUP is not None:raise RuntimeError('Do not replace an existing control group')
+        source.CONTROL_GROUP=torch.distributed.new_group(backend=CONTROL_PROTOCOL['backend'],
+            timeout=timedelta(seconds=CONTROL_PROTOCOL['timeout_seconds']))
     make_attempt=staticmethod(World16Attempt)
     def read_recipe(self,args):
         self.args=args

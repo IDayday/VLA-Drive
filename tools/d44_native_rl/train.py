@@ -92,7 +92,8 @@ def main(*,extension=None):
     else:extension.validate_world(world)
     torch.cuda.set_device(local);device=torch.device('cuda',local)
     if world>1:dist.init_process_group('nccl',timeout=timedelta(minutes=20))
-    checkpoint.init_control_group()
+    if extension is None:checkpoint.init_control_group()
+    else:extension.init_control_group()
     for sig in (signal.SIGTERM,signal.SIGUSR1):signal.signal(sig,stop)
     random.seed(42);np.random.seed(42);torch.manual_seed(42)
     if a.scenes_per_rank:cfg['global_scenes']=a.scenes_per_rank*world
