@@ -445,15 +445,61 @@ def legacy_I_resource_hold():
         updates=saved['seal']['updates'],inner=saved['seal']['next_inner'],budget=saved['original_minimum_updates_preserved'])
 
 
+def D46_augustus_qualification_fragment():
+    directory=D46_ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103'
+    plan=read(directory/'QUALIFICATION_PLAN.json',{});launches=read(directory/'QUALIFICATION_LAUNCHES.json',{})
+    if plan.get('maximum_simultaneous_routes')!=2 or not plan.get('routes'):return ''
+    entries=[];active_routes=0;active_workers=0;uuids=set()
+    for route in plan['routes']:
+        if route.get('qualification')is not True:continue
+        cfg=Path(route['config']);fields={}
+        if cfg.is_file()and hashlib.sha256(cfg.read_bytes()).hexdigest()==route.get('config_sha256'):
+            for line in cfg.read_text().splitlines():
+                key,sep,v=line.partition(':')
+                if sep and key in('global_scenes','group','inner_updates'):fields[key]=v.strip()
+        jobs=[r for r in launches.get('receipts',[])if route['output']in r.get('command',[])]
+        running=done=failed=0
+        for job in jobs:
+            path=Path(job['job']);result=read(path/'RESULT.json',{});worker=read(path/'RUNNING.json',{})
+            if result:
+                if result.get('returncode')==0:done+=1
+                else:failed+=1
+            elif worker.get('child_pid'):
+                running+=1;uuids.update(job.get('expected_gpu_uuids',[]))
+        active_workers+=running;active_routes+=int(running>0)
+        rows=[tail(Path(route['output'])/f'metrics_rank{rank}.jsonl')for rank in range(route['world'])]
+        common=min(r.get('updates',0)for r in rows)if all(r.get('updates',0)>0 for r in rows)else None
+        progress='全rank实际Adam '+str(common)if common else'原生模型加载/初始化，等待全rank首更新'
+        status='异常待复核'if failed else'初段结束，等待自身恢复资格'if jobs and done==len(jobs)else'资格进行中'if running else'资格已派发/等待worker'
+        method='全28层dense text+norm+动作/时间/P/ego/role；ViT与embedding冻结'if route['experiment']=='AUG1_FULL'else'attention LoRA r16+last8 FiLM与动作I/O；冻结其余base'
+        entries.append((route['experiment']+' / world'+str(route['world']),
+            '/'.join(fields.get(k,'待核对')for k in('global_scenes','group','inner_updates')),method,
+            ' + '.join(route['hosts']),progress,f'{running} 已启动未返回 / {done} EXIT0 / {failed}异常',status))
+    body='<h3>AUGUstus 当前资格任务：'+esc(active_routes)+' 组，'+esc(active_workers)+' 个CUDA子进程worker已启动，覆盖 '+esc(len(uuids))+' 个物理GPU UUID</h3>'
+    body+='<p><b>这是资格，不是正式训练；正式训练尚未开始。</b>两条均从同IL46/Adam0起步，先1次真实Adam再自身原生恢复核对；正式阶段另从原IL46和新空Adam开始，绝不继承资格权重。资格设备、模型加载、真实更新与正式计数分开；最大同时两路线。</p>'
+    body+=table(['路线/资格world','实际配置B/G/M','训练范围','已派发主机','真实共同进度','逐node收据','当前阶段'],entries)
+    body+='<p>科学源 augustus_science_v1@78cea8f，运营源 operations_augustus_v1@81c997e；FULL B128、LORA B64也有batch差异，不能把之后成绩直接解释为纯scope消融。<a href="'+esc(directory/'QUALIFICATION_PLAN.json')+'">资格计划/配置SHA</a> · <a href="'+esc(directory/'QUALIFICATION_LAUNCHES.json')+'">实际六node派发收据</a></p>'
+    return body
+
+
+def D46_dedicated_execution_fragment():
+    path=D46_ROOT/'analysis/DEDICATED_TWO_NODE_EXECUTION_REVIEW_20261103.json';v=read(path,{})
+    if v.get('schema')!='d46_same_native_world16_full_cycle_execution_benchmark_v1'or v.get('status')!='COMPLETE'or not sealed_JSON(v):return ''
+    a=v['baseline'];b=v['candidate']
+    return '<p><b>两节点真实完整cycle优化资格已完成：'+esc(f'{a["steady_seconds_per_collection"]:.3f}')+'→'+esc(f'{b["steady_seconds_per_collection"]:.3f}')+'秒，'+esc(f'{v["full_cycle_speedup"]:.5f}')+'×</b>（匹配cycle '+esc(f'{v["matched_full_cycle_speedup"]:.5f}')+'×）。同1500原生起点、实际采样/评分/2Adam/控制/I/O；fast的1511 pending→1512原生恢复通过。短资格不是长期吞吐承诺或PDMS提升；融合改变BF16运算分组，不宣称跨执行最终参数逐位一致。<a href="'+esc(path)+'">完整cycle与恢复收据</a>。旧15.75→10.49秒四模式均开启checkpoint，仅作历史微基准，不能当production all_off耗时。</p>'
+
+
 def D46_priority_fragment(other_active=None):
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
     augustus_path=D46_ROOT/'operations/AUGUSTUS_PRIORITY_ALL_RESOURCES_20261103/PRIORITY_CHANGE_REQUEST.json'
     augustus=read(augustus_path,{})
     augustus_priority=augustus.get('maximum_concurrent_training')==2 and augustus.get('old_results_and_native_state_retained')is True
-    body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>'+('AUGUstus 主线 · IL46k 独立 fresh RL 准备'if augustus_priority else'D 框架 · IL46k 父策略优先 RL')+'</h2>'
+    body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>'+('AUGUstus 主线 · IL46k fresh RL 资格与正式状态'if augustus_priority else'D 框架 · IL46k 父策略优先 RL')+'</h2>'
     if augustus_priority:
-        body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>候选 AUG_ACTION_FULL 与 AUG_ACTION_LORA 均拟从同一IL46策略、fresh Adam0独立开始；32+16卡属于资格通过后的部署计划，尚未注册/启动。旧D0/D2/D5亦按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效；保存是否完成及仍在退出中的任务见下面实时表。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p><p>当前D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方默认LoRA关闭、文本主干可训练、RL冻结视觉；本地旧D0仅attention-LoRA约642万参数，且sum24/W3与官方mean-coordinate/lambda_t/3步不同。新路线资格与正式启动须另有实际收据，不能把旧训练数当新主线已开训。</p>'
+        qualification=D46_augustus_qualification_fragment()
+        phase='AUG1_FULL/world32 与 AUG2_LORA/world16已登记并实际派发资格，六node CUDA子进程加载中/进度如下；尚非正式训练。'if qualification else'候选FULL/LORA尚待实际资格派发收据，不据计划称已训练。'
+        body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>'+esc(phase)+'旧D0/D2/D5按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p>'+qualification+D46_dedicated_execution_fragment()+'<p>旧D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方默认LoRA关闭、文本主干可训练、RL冻结视觉；本地旧D0仅attention-LoRA约642万参数，且sum24/W3与官方mean-coordinate/lambda_t/3步不同。</p>'
         scope_path=Path(__file__).resolve().parents[2]/'reports/d46_augustus_scope_audit_20261103/SCOPE_AUDIT.json'
         if scope_path.is_file():body+='<p><a href="'+esc(scope_path)+'">官方scope与本地精确路径只读审计</a>：FULL建议dense text layers/FFN/norm与动作/时间接口，LORA保同接口作范围对照；当前缓存embedding合同与永久参考参数别名必须处理，不能直接把旧共享base解冻。该建议未部署，不含性能提升声明。</p>'
     if not value:

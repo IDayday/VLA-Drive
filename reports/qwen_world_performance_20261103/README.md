@@ -1,5 +1,10 @@
 # Qwen-World：以真实单轨迹 PDMS 为目标的规模化 RL
 
+2026-11-03 16:30 UTC：**两组AUG资格已实际启动，共48物理GPU，不是正式训练。** AUG1_FULL/world32使用TSH5/WM4/TSHzt/TSH2，B128/G8/M1；AUG2_LORA/world16使用TSH3/WMzt，B64/G8/M1。六node CUDA子进程已开始原生模型加载，先完成真实1Adam及自身原生恢复核对；正式权重仍另从IL46/Adam0起步，不使用资格权重。科学源78cea8f/运营81c997e冻结，原六条已保存hold，max2路线保持。[计划](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/QUALIFICATION_PLAN.json)、[实际派发](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/QUALIFICATION_LAUNCHES.json)
+
+两节点完整cycle对照已实际COMPLETE：32.87205→23.36442秒，**1.40693×**（匹配cycle1.41027×），fast1511pending→1512恢复通过；包含采样/评分/2Adam/控制/I/O，短资格不是PDMS或长期保证，融合BF16分组非跨执行参数逐位一致。原15.75→10.49秒是checkpoint开启的旧微基准，不能作为生产all_off绝对耗时。[完整周期实测](/mnt/project/d46-priority-rl-20261103/analysis/DEDICATED_TWO_NODE_EXECUTION_REVIEW_20261103.json)
+
+
 最新完整D系列分数：**FPO Adam1614 / 0.5E：90.32032058**，12146/44log/invalid0；相固定IL46 **+0.82479960**，零分修复235/新增73，成为当前D46最高完整点。历史IL70 SafetyEP Control10k的91.45359756属于另一父模型研究，仍单列。当前旧六条D46已协作保存/资源hold，未将新AUG候选计为已训练；各路线精确保存步数均以实时状态为准（精确保存步数见下表/PRIORITY_STATUS）。[FPO完整分数](/mnt/project/d46-priority-rl-20261103/evaluations/D3_FPO_epoch0.5/SUMMARY.json)
 
 官方scope只读审计已完成：[精确路径、默认scope和推荐边界](../d46_augustus_scope_audit_20261103/README.md)。EDF默认lora_rank0、freeze_llm=false，RL视觉冻结；新FULL核心应是dense text blocks/FFN/norm加既有action/time接口，LORA保同接口作对照。旧D44参考共享base不能直接解冻，训练embedding也不能复用已detach缓存；实际新参数closure/资格与分数须另证。
