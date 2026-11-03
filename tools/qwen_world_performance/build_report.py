@@ -260,7 +260,7 @@ def D46_world16_qualification_fragment():
         error=attempt.get('error',attempt.get('first_error'))
         if error:facts.append('保留错误：'+str(error))
         body+='<p>'+esc(key)+'：'+esc('；'.join(facts))+'</p>'
-    followup='工程恢复已通过，下一步据完整分数选择并登记正式资源；长期吞吐仍需实测。'if engineering else'当前工程资格仍待完整收尾与中途恢复核对。'
+    followup=('正式D0 world16已启动，最新进度与短窗口吞吐见前部；长期效果仍待评估。'if value.get('formal_world16_started')is True else'工程恢复已通过，下一步据完整分数选择并登记正式资源；长期吞吐仍需实测。')if engineering else'当前工程资格仍待完整收尾与中途恢复核对。'
     body+='</details><p>资格短窗本身不能证明长期稳定或稳定2倍加速；正式启动标记见上。'+followup+'现有六路线和早评资源是否改变，只以实际运行/资源收据为准。</p>'
     return body
 
@@ -282,6 +282,53 @@ def D46_optimization_health_fragment():
     body+='<p>原始A有效组约96%；同25600组的canonical全零仅 '+esc(zeros)+'。这说明本窗口多数有训练信用，不代表信用方向已改善部署。D5每步触发norm1裁剪、action I/O主导且近期参考beta升高，仍需完整B1和高分保持证据；不能据单一loss、小grad或clip诊断淘汰，更不能据其推断clip/epsilon/anchor的提分因果。<a href="'+esc(path)+'">完整健康审计与边界</a></p>'
     body+=D46_world16_qualification_fragment()+'</details>'
     return body
+
+
+def D46_formal_world16_fragment():
+    status=read(D46_ROOT/'operations/MULTINODE_NETWORK_20261103/GPU16_QUALIFICATION_STATUS.json',{})
+    path=Path(status.get('formal_world16_actual_proof',''));proof=read(path,{})
+    if (status.get('formal_world16_started')is not True or status.get('formal_world16_stage_id')!='D0_WORLD16_PRIORITY_v2'
+            or proof.get('schema')!='d46_formal_world16_actual_training_started_v1'
+            or proof.get('status')!='ALL16_ACTUAL_FORMAL_TRAINING'or proof.get('world')!=16
+            or proof.get('own_optimizer_inherited_without_reset')is not True or proof.get('actual_new_updates_min',0)<22
+            or len(proof.get('ranks',[]))!=16):return ''
+    body='<p><b>D0正式双节点16卡已实际训练，非资格任务。</b>当前v2阶段从自身1714_READY继承Adam/RNG与原6E预算；全部16rank已实际跨过原点至少22次Adam，原生B1恢复零差，无资格stop-after上限。实际主机/最新更新见实时表。<a href="'+esc(path)+'">正式16rank启动证明</a>。工程资格通过与长期效果分开，尚无该16卡阶段新增完整PDMS。</p>'
+    speed_path=D46_ROOT/'analysis/D0_WORLD16_THROUGHPUT_WORKING.json';speed=read(speed_path,{})
+    if speed.get('full_cycle_speedup')and speed.get('world8')and speed.get('world16'):
+        a=speed['world8'];b=speed['world16'];stamp=datetime.fromtimestamp(speed['at'],timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+        body+='<h3>D0实测双节点吞吐：完整cycle '+esc(f'{speed["full_cycle_speedup"]:.4f}')+'×</h3><p>'+esc(stamp)+'固定实测窗口，B64/G16/M2不变；16卡跳过前4次warm updates。</p>'
+        body+=table(['实测指标','8卡独占窗口','正式16卡窗口'],[
+            ('实际更新区间',str(a['updates']),str(b['updates'])),('完整collection数',a['steady_collections'],b['steady_collections']),
+            ('完整cycle秒',f'{a["steady_collection_seconds"]:.5f}',f'{b["steady_collection_seconds"]:.5f}'),
+            ('纯更新中位秒',f'{a["optimizer_seconds_median"]:.4f}',f'{b["optimizer_seconds_median"]:.4f}'),
+            ('新场景/小时',f'{3600*a["steady_scenes_per_second"]:.0f}',f'{3600*b["steady_scenes_per_second"]:.0f}'),
+            ('按当前吞吐外推1E小时',f'{103288/a["steady_scenes_per_second"]/3600:.1f}',f'{103288/b["steady_scenes_per_second"]/3600:.1f}')])
+        body+='<p>这是已测短窗口完整cycle加速，外推不含启动和完整评测；不是长期保证，也不是新PDMS或算法胜出。<a href="'+esc(speed_path)+'">真实journal窗口输入</a></p>'
+    return body
+
+
+def D46_registered_evaluation_progress_fragment():
+    rows=[]
+    for name,node in read(D46_ROOT/'CAMPAIGN.json',{}).get('evaluations',{}).items():
+        if name.startswith('EARLY_'):continue
+        if node.get('status','').startswith('EQUIVALENT_REFERENCE'):
+            rows.append((name,'同参引用 '+str(node.get('reference_case','D0_epoch0.5')),'不独立计分','独立jobs '+str(sum(len(v)for v in node.get('jobs',{}).values())),node['status']));continue
+        world=node.get('world',32);done=active=waiting=failed=0;output=Path(node['output'])
+        for rank in range(world):
+            jobs=node.get('jobs',{}).get(str(rank),[])
+            if not jobs:waiting+=1;continue
+            job=Path(jobs[-1]['job']);result=read(job/'RESULT.json',{});running=read(job/'RUNNING.json',{})
+            if result:
+                if result.get('returncode')==0 and read(output/f'rank{rank}.json',{}).get('status')=='COMPLETE':done+=1
+                elif result.get('returncode')==75:waiting+=1
+                else:failed+=1
+            elif running.get('child_pid'):active+=1
+            else:waiting+=1
+        try:
+            with os.scandir(output/'scenes')as files:scenes=sum(1 for f in files if f.name.endswith('.json')and f.is_file())
+        except OSError:scenes=0
+        rows.append((name,str(scenes)+'/12146',str(done)+'/'+str(world),'已启动未返回 '+str(active)+'；排队/准入 '+str(waiting)+'；异常 '+str(failed),'评测待齐'if node.get('status')=='RUNNING'else node.get('status','待确认')))
+    return '<h3>常规0.5E全评测：实际分片与引用</h3>'+table(['检查点','已写场景/引用','完成分片','当前worker收据','状态'],rows)+'<p>case标记RUNNING不等于此刻有GPU评分；完成片、未返回worker与排队分开，不发布partial均值。D1/D2等参别名不复制独立分数。</p>'if rows else ''
 
 
 def D46_full_result_figures_fragment():
@@ -346,9 +393,12 @@ def D46_priority_fragment(other_active=None):
     body+='<p><b>最新状态：'+esc(label)+'</b>；收据时间 '+esc(stamp)+'。<a href="'+esc(path)+'">实际优先级与执行状态</a></p>'
     count=value.get('actual_training')
     if isinstance(count,int)and count>=0:body+='<p><b>D46 实际正式训练数量：'+esc(count)+' 条</b>（按该时间的实际核对收据，资格训练与注册数量不计入）。</p>'
+    allocation=sum(r.get('world',8)for r in value.get('runs',[])if isinstance(r,dict)and r.get('status')in('TRAINING','TRAINING_WORLD16'))
+    body+='<p>当前逻辑训练rank/卡位合计 '+esc(allocation)+'（各路线world见实时表；不等于独占GPU利用率）。</p>'
     if isinstance(count,int)and isinstance(other_active,int):body+='<p><b>当前实际 RL 训练合计 '+esc(count+other_active)+' 条：D46 '+esc(count)+'，既有 IL70 系 '+esc(other_active)+'。</b>不同研究分别读取实际任务与八rank日志，不按注册数计。</p>'
     hold=legacy_I_resource_hold()
     if hold:body+='<p>旧 IL70 综合 I 已协作完整保存于 '+esc(hold['updates'])+' / inner'+esc(hold['inner'])+'，原job EXIT0，现临时资源保留，为D0让位；原 '+esc(hold['budget'])+' 次实际更新承诺保留，未终止算法、未改父模型/Adam/RNG。<a href="'+esc(hold['path'])+'">实际保存退出收据</a> · <a href="'+esc(hold['request'])+'">资源保留与原预算</a></p>'
+    body+=D46_formal_world16_fragment()
     transition_path=D46_ROOT/'operations/CONTINUOUS_EVAL_20261103/OWNER_TRANSITION.json'
     policy_path=D46_ROOT/'operations/EXECUTION_POLICY.json'
     transition=read(transition_path,{});policy=read(policy_path,{})
@@ -383,7 +433,7 @@ def D46_priority_fragment(other_active=None):
         states={'RUNNING_QUALIFICATION':'资格阶段，非正式训练','WAITING_RESOURCE':'等待资源',
             'WAITING_FOR_AUTHORIZED_CAPACITY':'等待有权限资源','RUNNING_OR_ADMITTING':'正式已派发/初始化，待八rank更新',
             'SAVED_AND_HELD_FOR_REGISTERED_STAGE':'已完整保存，资源保留/等待（非无效结论）',
-            'TRAINING':'正式实际训练','RUNNING':'运行中（以实际日志核对）'}
+            'TRAINING':'正式实际训练','TRAINING_WORLD16':'正式16rank实际训练','RUNNING':'运行中（以实际日志核对）'}
         for r in rows:
             arm=r.get('id','').removeprefix('D46_');registered=campaign.get(arm,{})
             history=registered.get('qualification_jobs',[])if r.get('status')=='RUNNING_QUALIFICATION'else registered.get('jobs',[])
@@ -392,9 +442,9 @@ def D46_priority_fragment(other_active=None):
             qualification=D46_qualification_status(registered)if registered.get('qualification')else'等待登记'
             exposure=r.get('scene_exposures');progress=str(r['updates'])if r.get('updates')is not None else'尚无实际日志'
             if isinstance(exposure,(int,float)):progress+=' / '+format(exposure,',')+'场景 / '+f'{exposure/103288:.5f}E'
-            entries.append((r.get('id',''),method,gate,qualification,host,progress,states.get(r.get('status'),r.get('status','待确认'))))
+            entries.append((r.get('id','')+' / world'+str(r.get('world',8)),method,gate,qualification,host,progress,states.get(r.get('status'),r.get('status','待确认'))))
         body+=table(['D46 路线','方法','阶段启用与边界','独立资格','实际当前/最近服务器','实时 Adam / 有效曝光 / epoch','正式阶段状态'],entries)
-    body+=D46_execution_recovery_fragment()+D46_early_evaluation_fragment()+D46_full_result_figures_fragment()+D46_optimization_health_fragment()+D46_throughput_fragment()
+    body+=D46_execution_recovery_fragment()+D46_registered_evaluation_progress_fragment()+D46_early_evaluation_fragment()+D46_full_result_figures_fragment()+D46_optimization_health_fragment()+D46_throughput_fragment()
     reviewed=[]
     for arm,registered in campaign.items():
         review=registered.get('qualification_resource_retry_review',{});review_path=Path(review.get('receipt',''))

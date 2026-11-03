@@ -4,6 +4,12 @@
 
 ## 当前优先：D46 六条专用 RL 路线
 
+**正式D0双节点16卡已经启动并持续更新**：实际阶段为 `D0_WORLD16_PRIORITY_v2`，TSH5+WM4，从自身1714_READY继承Adam/RNG与原6E预算，16rank真实超过22次新Adam、B1原生恢复零差，无资格stepcap；旧v1 DEFERRED不是当前阶段。[正式启动实证](/mnt/project/d46-priority-rl-20261103/operations/WORLD16_STAGES/D0_WORLD16_PRIORITY_v2/ACTUAL_FORMAL_TRAINING.json)
+
+实际完整cycle短窗吞吐 **2.072719×**：8卡独占1677–1714（17完整collection）43.77093秒/cycle，正式16卡跳过4次warm更新后1719–1796（38collection）21.11764秒/cycle，B64/G16/M2不变；纯更新中位10.6821→5.1880秒、新场景/小时5264→10910。按当前吞吐外推1E约19.6→9.5小时，不含启动/完整评测，不作长期保证或新PDMS声明。[真实计时输入](/mnt/project/d46-priority-rl-20261103/analysis/D0_WORLD16_THROUGHPUT_WORKING.json)
+
+FPO在TSH3/world8、D2在TSHzt/world8继续；AWM曾1194_READY退出资源hold，D1/D5同样保留原预算。v7仅在WMzt/TSH2今后完整8卡可归因空闲且每卡≥79000MiB时按AWM>D5>D1自动恢复自己的CP，不触未知占用；是否实际恢复及当前训练数量只按实时PRIORITY_STATUS，不能固定沿用“三条”。旧I仍4877/inner1资源hold，原10000承诺保留。常规.5E队列按实际完成片、worker收据与排队显示；D1/D2等价别名已落账，不作额外独立结果。
+
 新研究根 `/mnt/project/d46-priority-rl-20261103`；固定完整 IL46 部署策略 NAVTEST **89.49552098**（model SHA `386a0a27…`），各路线 fresh Adam0/RNG42，不接续 D44 RL 或资格权重。父合同 v2 允许六条 policy-only 路线，优先顺序如下；它们适配 D 原生 Qwen，不是把旧 IL70 Safety 配方替换父权重。
 
 | 路线 | 方法与实际阶段门 |
@@ -48,7 +54,7 @@
 
 常规0.5E评测已在可用RL2/WM2派发；D1/D2自身1614与D0自身1614的完整payload/scope/parent/loader配置等价证明已准备。别名只在实际新控制器应用后按EQUIVALENT_REFERENCE展示，不新增独立分数或复制D0结果；当前实际引用状态仍以评测controller收据为准。
 
-world16仅D0的真实GPU pending恢复工程资格已通过，短4次更新约5–6秒不等于长期吞吐验证、稳定2倍加速或正式16卡启动；D5只属引擎支持。正式world16仍未启动，实际主机/资源以收据为准，不把D0首选独占TSHzt当实际。12:40资源核查中WMzt/TSH2仍有待归因占用，未停止未知进程或假设空闲。[动态资格边界](/mnt/project/d46-priority-rl-20261103/operations/MULTINODE_NETWORK_20261103/GPU16_QUALIFICATION_STATUS.json)
+world16早期仅D0的GPU pending恢复工程资格通过时，短4次更新约5–6秒并不等于正式长训；D5只属引擎支持。后续正式D0 v2与更长实测吞吐已见最前状态，仍不保证长期2倍或部署提分。12:40资源核查中的未知占用未被停止，实际主机/资源以动态收据为准。[动态资格边界](/mnt/project/d46-priority-rl-20261103/operations/MULTINODE_NETWORK_20261103/GPU16_QUALIFICATION_STATUS.json)
 
 128个GPU评测worker已正常EXIT0；随后只替换有限CPU聚合器，用四CPU并行、官方validator每个不可变数据只读一次并复用。canonical公式未改，该次聚合接管未向GPU发信号；后续执行恢复、资源hold和在训状态见实时表。HTML完整分数不依赖STATE是否已结束paired汇总：32片与identity/摘要封印通过即可发布分数，paired未齐明确“分析中”，不编修复/退化统计。[聚合接管证据](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/AGGREGATION_OWNER_TRANSITION.json)。
 
