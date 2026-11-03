@@ -1,0 +1,43 @@
+.....F...                                                                [100%]
+=================================== FAILURES ===================================
+___________ test_main_ingest_same_logical_arm_and_stage_eval_mailbox ___________
+
+setup = ({'_path': '/tmp/pytest-of-root/pytest-1475/test_main_ingest_same_logical_0/PLAN.json', '_sha256': '2512c64b08a924876c...ingest_same_logical_0/PLAN.json', 'plan_sha256': '2512c64b08a924876c49afb873ad34234933cc30894ddfa9cbd2146e0937ba81'}}})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f67db008910>
+
+    def test_main_ingest_same_logical_arm_and_stage_eval_mailbox(setup,monkeypatch):
+        p,_,_,campaign,control=setup;state=w.initial(p);w.persist(p,state)
+        w.ingest(campaign,control)
+        assert list(campaign['runs'])==['D0']and campaign['runs']['D0']['output'].endswith('/D46_D0')
+        assert campaign['world16_reserved_hosts']==p['hosts']and campaign['runs']['D0']['world16_stage']['output']==p['output']
+        from tools.d46_priority_rl import owner
+>       assert owner.startup_hosts(campaign)==set(p['hosts'])
+
+tests/d46_priority_rl/test_world16_owner.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+campaign = {'evaluation_world': 32, 'evaluations': {}, 'runs': {'D0': {'arm': 'D0', 'config': '/tmp/pytest-of-root/pytest-1475/te...3979aef4e2597752cf3fc4fac376c', 'jobs': [], ...}}, 'world16_reserved_hosts': ['training-mock0', 'training-mock1'], ...}
+
+    def startup_hosts(campaign):
+        """Reserve a launching world until all8 ranks prove a current update.
+    
+        GPU allocation can lag Popen by minutes. Free memory observed during that
+        interval is not an invitation to start another world on the same devices.
+        Once ready, the worker's existing max2/UUID/identity/memory checks decide.
+        """
+        blocked=set(campaign.get('world16_reserved_hosts',[]))
+        blocked.update(j['host']for j in campaign.get('world16_stage_jobs',[])if not(Path(j['job'])/'RESULT.json').exists())
+        for run in campaign['runs'].values():
+>           for key,output in [('jobs',run['output']),('qualification_jobs',run['qualification'])]:
+E           KeyError: 'qualification'
+
+tools/d46_priority_rl/owner.py:103: KeyError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/d46_priority_rl/test_world16_owner.py::test_main_ingest_same_logical_arm_and_stage_eval_mailbox
+1 failed, 8 passed, 1 warning in 4.87s
