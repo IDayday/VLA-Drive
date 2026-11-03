@@ -1,0 +1,86 @@
+{
+  "CPU": {
+    "added_checks": [
+      "actual all16 finite worker terminal atomicJSON after native checkpoint",
+      "json.dumps(terminal summary,allow_nanFalse)",
+      "actual checkpoint.failure_evidence public JSON with expected synthetic serializer fixture",
+      "original native state retains same8 CPU Tensor values and exact continuous/resume checkpoint comparison"
+    ],
+    "exit_code": 0,
+    "limitation": "Tiny CPU/Gloo only; no fullIL46/CUDA/NCCL/GPU operation or new PDM query",
+    "native_COMPLETE_sha256": "b15669258298b8ce8fd38d34950ecd818e6716b1a991d249efdf62bcd1725b2d",
+    "native_result": {
+      "B": 64,
+      "G": 16,
+      "GPU_used": false,
+      "M": 2,
+      "READY16_parameters_Adam_scheduler_exact": true,
+      "actual_distributed_backend": "gloo",
+      "actual_model": "native TinyQwen32x3, NOT full IL46 weights",
+      "all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact": true,
+      "canonical_PDM_queries": 0,
+      "continuous_final_update": 4,
+      "limitation": "CPU engineering only. Full IL46/CUDA/NCCL/two-host B1/ratio/throughput qualification required; test labels synthetic TRAIN fixtures.",
+      "optimizer_origin_updates": 2,
+      "post_native_B1_parity_all16": true,
+      "restored_inner_update": 3,
+      "restored_next_inner": 1,
+      "schema": "d46_world16_Tiny_native_CPU_engine_qualification_v1",
+      "seconds": 13.272278562188148,
+      "source_world": 8,
+      "status": "PASS",
+      "target_world": 16,
+      "terminal_JSON_all16": true,
+      "world16_control_timeout_seconds": 600,
+      "world8_control_timeout_seconds": 90
+    },
+    "result": "4 passed,1 warning in18.02s",
+    "stdout": "/mnt/project/VLA-Drive-d46-world16-20261103/reports/d46_world16_20261103/analysis/JSON_SUMMARY_CPU_FINAL.log",
+    "stdout_sha256": "ddc7f68b6105384c25d93574587ca4f5815b8022f7caff59a718ddd5b6f3f0d7"
+  },
+  "created_UTC": "2026-11-03T11:00:10.154507+00:00",
+  "fix": {
+    "JSON_bank_fields": [
+      "schema",
+      "summary_schema",
+      "committed_collections",
+      "lane_count",
+      "lane_sha256",
+      "full_tensor_storage"
+    ],
+    "JSON_schema": "d46_world16_virtual8_sampler_JSON_SHA_summary_v1",
+    "complete_RNG_storage": "full native rankN.pt state.world16_virtual_sampler.lanes plus ordinary rng bundle",
+    "native_state_and_full_Tensors_unchanged": true,
+    "no_generic_Tensor_str": true,
+    "no_loss_sampler_scheduler_Adam_mutation": true,
+    "original_traceback_preserved": "captured before JSON summary formatting",
+    "shared_hook": "extension.json_result(result) for success and extension.json_result(state) for failure evidence; extensionNone retains original default"
+  },
+  "identity_effect": {
+    "execution_source_inventory_changed": true,
+    "next_qualification": "reconvert original D0u1400 READY under new source into NEW v3 root, then1403 and same-source1404resume; do not hot-edit/relabel v2 or its sealed1403",
+    "scientific_recipe_math_parent_scope_unchanged": true
+  },
+  "original_failure": {
+    "actual_GPU_Adam_updates_completed": [
+      1401,
+      1402,
+      1403
+    ],
+    "error": "Tensor in state.world16_virtual_sampler.lanes cannot be serialized by result/failure JSON",
+    "evidence": "/mnt/project/d46-priority-rl-20261103/jobs/WORLD16_QUALIFICATION/D0_u1400/second/node*/stdout.log",
+    "kind": "CLI_TERMINAL_SERIALIZATION",
+    "latest_valid_native": "update001403_inner1",
+    "old_CPU_gap": "Earlier finite native driver exercised collect/loss/Adam/save/restore but did not exercise production terminal JSON. This regression now writes actual all16 result summaries.",
+    "scientific_conclusion": "none; actual finite updates and sealed native remain valid evidence, old transport failure retained"
+  },
+  "parent_commit": "d56eb8c74d79c23f4ea0c4ec7f7f082af63cbb36",
+  "schema": "d46_world16_terminal_JSON_fix_v1",
+  "source_files": {
+    "starVLA/rl/d46_world16/runtime.py": "104718ddc173fa3ad2f80c302f51dfa06868b38c4f491753ff35046e3127ca30",
+    "tests/test_d46_world16_engine.py": "866887fdab4cde60b11477e7944640dd0ad997ca07cdbc1b19a9b8ed4111f5e9",
+    "tools/d44_native_rl/train.py": "fd9843ccc0e161e29ccbe9fba713117c553d2add34aa71a60fe7ff5941333ee6",
+    "tools/d46_world16/qualify_native.py": "71c0d481349e6868caa4d13b7d401a189c1390c0db392e499498ee331f5f2cec"
+  },
+  "status": "CPU_READY_GPU_RETRY_PENDING"
+}

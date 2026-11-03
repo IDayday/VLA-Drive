@@ -11,7 +11,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.d44_native_rl.config import read
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.recovery import Attempt,checkpoint
-from .native import SCHEMA,STATE_SCHEMA,CONTROL_PROTOCOL,World16Boundary,source_inventory,validate_virtual
+from .native import SCHEMA,STATE_SCHEMA,CONTROL_PROTOCOL,World16Boundary,source_inventory,validate_virtual,tensor_sha
 from .planning import fixed_scene_rng_plan,assert_scene_rng_end
 
 
@@ -60,6 +60,21 @@ class World16Attempt(Attempt):
 
 class World16Extension:
     boundary=World16Boundary()
+    @staticmethod
+    def json_result(value):
+        """Public JSON summary only; never mutate or stringify native RNG tensors."""
+        output=dict(value)
+        if 'world16_virtual_sampler'in value:
+            bank=value['world16_virtual_sampler']
+            if bank.get('schema')!=STATE_SCHEMA or len(bank.get('lanes',[]))!=8:
+                raise ValueError('Invalid virtual sampler for public JSON summary')
+            output['world16_virtual_sampler']=dict(schema=STATE_SCHEMA,
+                summary_schema='d46_world16_virtual8_sampler_JSON_SHA_summary_v1',
+                committed_collections=bank['committed_collections'],lane_count=8,
+                lane_sha256=[tensor_sha(x)for x in bank['lanes']],
+                full_tensor_storage='native checkpoint rank state only')
+        json.dumps(output,allow_nan=False)
+        return output
     @staticmethod
     def init_control_group():
         from datetime import timedelta

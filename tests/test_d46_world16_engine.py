@@ -15,14 +15,16 @@ def qualified(tmp_path_factory):
     result=qualify(root);return root,result
 
 
-def test_actual_native8_to16_READY_and_pending_DDP_exact(qualified):
+def test_actual_native8_to16_READY_and_pending_DDP_exact(qualified,tmp_path):
     root,result=qualified
-    assert result['actual_distributed_backend']=='gloo'and result['READY16_parameters_Adam_scheduler_exact']
+    assert result['actual_distributed_backend']=='gloo'and result['READY16_parameters_Adam_scheduler_exact']and result['terminal_JSON_all16']
     assert result['world8_control_timeout_seconds']==90 and result['world16_control_timeout_seconds']==600
     assert result['all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact']and result['post_native_B1_parity_all16']
     for rank in range(16):
         parity=json.loads((root/'continuous16'/f'native_B1_restore_parity_rank{rank}_u000002.json').read_text())
         assert parity['max_abs']==dict(normalized_action=0.,requested_trajectory=0.)
+        terminal=json.loads((root/'continuous16'/f'result_rank{rank}.json').read_text())
+        assert terminal['world16_virtual_sampler']['lane_count']==8 and'lanes'not in terminal['world16_virtual_sampler']
     a=torch.load(root/'old8/checkpoints/update000002_inner0/optimizer.pt',weights_only=False)
     b=torch.load(root/'continuous16/checkpoints/update000002_inner0/optimizer.pt',weights_only=False)
     assert a.keys()==b.keys()and a['scheduler']==b['scheduler']=={'last_epoch':2}
@@ -30,6 +32,17 @@ def test_actual_native8_to16_READY_and_pending_DDP_exact(qualified):
     own=torch.load(root/'continuous16/checkpoints/update000004_inner0/rank15.pt',weights_only=False)
     assert own['state']['scene_cursor']==128 and own['state']['valid_PG_candidates']==2048
     assert own['state']['world16_virtual_sampler']['committed_collections']==2
+    original=[x.clone()for x in own['state']['world16_virtual_sampler']['lanes']]
+    public=World16Extension.json_result(dict(own['state'],status='QUALIFICATION_STOPPED'))
+    json.dumps(public,allow_nan=False)
+    assert all(torch.equal(a,b)for a,b in zip(original,own['state']['world16_virtual_sampler']['lanes']))
+    assert all(torch.is_tensor(x)for x in own['state']['world16_virtual_sampler']['lanes'])
+    from starVLA.rl.d44_native_rl.recovery import checkpoint
+    evidence=checkpoint.failure_evidence(tmp_path,World16Extension.json_result(own['state']),
+        'intentional CPU serializer failure-path probe, not a training failure','serializer_fixture')
+    failure=json.loads((Path(evidence)/'evidence.json').read_text())
+    assert failure['state']['world16_virtual_sampler']['lane_sha256']==public['world16_virtual_sampler']['lane_sha256']
+    assert all(torch.equal(a,b)for a,b in zip(original,own['state']['world16_virtual_sampler']['lanes']))
     from starVLA.rl.d44_native_rl.config import defaults46
     from starVLA.rl.simwam_recipe.lora_adapter import restore_adapters
     torch.manual_seed(42);cfg=defaults46('D0');cfg['checkpoint_policy']='all_off';actor=make_actor(cfg)

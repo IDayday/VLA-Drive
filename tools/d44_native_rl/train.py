@@ -330,9 +330,12 @@ def main(*,extension=None):
             after=frozen_parameter_hash(actor)
             if after!=frozen_before:raise ValueError('Frozen D44/reference parameter bytes changed')
             result.update(frozen_before=frozen_before,frozen_after=after)
-        atomic_json(root/f'result_rank{rank}.json',result);attempt.finish(state,result['status'])
+        result_json=result if extension is None else extension.json_result(result)
+        atomic_json(root/f'result_rank{rank}.json',result_json);attempt.finish(state,result['status'])
     except BaseException:
-        checkpoint.failure_evidence(root,state,traceback.format_exc(),attempt.id,rollout=batch);attempt.finish(state,'ABORTED');raise
+        failure_error=traceback.format_exc()
+        failure_state=state if extension is None else extension.json_result(state)
+        checkpoint.failure_evidence(root,failure_state,failure_error,attempt.id,rollout=batch);attempt.finish(state,'ABORTED');raise
     finally:
         journal.close();service.close()
         if dist.is_initialized():dist.destroy_process_group()

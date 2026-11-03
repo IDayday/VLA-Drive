@@ -141,6 +141,13 @@ def _worker(rank,world,port,root,stop_update,resume):
         if state['next_inner']==2:
             value=torch.tensor(kval/64,dtype=torch.float64);dist.all_reduce(value);dual.update(float(value));state['adaptive_kl']=dual.state_dict();batch=None;state.update(next_inner=0,phase='READY')
         checkpoint.save(root,actor,opt,sched,generator,state,batch,identity,runtime=boundary)
+    # Exercise the actual CLI terminal JSON path as well as native save/restore.
+    from starVLA.rl.flow_grpo.transactions import atomic_json
+    result=dict(state,status='QUALIFICATION_STOPPED',rank=rank,checkpoint=str(root/'checkpoints'/f"update{state['updates']:06}_inner{state['next_inner']}"))
+    public=result if extension is None else extension.json_result(result)
+    json.dumps(public,allow_nan=False);atomic_json(root/f'result_rank{rank}.json',public)
+    if extension and not all(torch.is_tensor(x)for x in state['world16_virtual_sampler']['lanes']):
+        raise ValueError('JSON result mutated native RNG state')
     dist.destroy_process_group()
 
 
@@ -191,7 +198,7 @@ def qualify(output):
     result=dict(schema='d46_world16_Tiny_native_CPU_engine_qualification_v1',status='PASS',source_world=8,target_world=16,B=64,G=16,M=2,
         actual_distributed_backend='gloo',world8_control_timeout_seconds=90,world16_control_timeout_seconds=600,GPU_used=False,canonical_PDM_queries=0,actual_model='native TinyQwen32x3, NOT full IL46 weights',
         optimizer_origin_updates=2,READY16_parameters_Adam_scheduler_exact=True,continuous_final_update=4,restored_inner_update=3,restored_next_inner=1,
-        all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact=True,post_native_B1_parity_all16=True,seconds=time.monotonic()-tick,
+        all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact=True,terminal_JSON_all16=True,post_native_B1_parity_all16=True,seconds=time.monotonic()-tick,
         limitation='CPU engineering only. Full IL46/CUDA/NCCL/two-host B1/ratio/throughput qualification required; test labels synthetic TRAIN fixtures.')
     (output/'COMPLETE.json').write_text(json.dumps(result,indent=2)+'\n');return result
 
