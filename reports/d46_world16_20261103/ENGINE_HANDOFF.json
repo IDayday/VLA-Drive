@@ -1,0 +1,137 @@
+{
+  "CLI": {
+    "continuous_comparison": "independently convert the SAME old1400 parent into another new qualification root and runstop1404. Compare final optimizer.pt + all16 rankN.pt with tools.d46_world16.qualify_native.exact (CPU), same identity, no admin payload exclusions needed for actual checkpoint tensors.",
+    "convert_qualification": "python -m tools.d46_world16.convert --checkpoint <own D0/D5 old native READY u1400> --output <NEW_ROOT>/split16 --qualification",
+    "dispatch": "Root passes each pinned plan.participants[i].command directly to its admitted8UUID worker (worker_source separate), applying participant.environment; tools.d46_world16.train is exact rankmodule.",
+    "environment": "cd <frozen science>; WORLD_COMPARE_ROOT=/mnt/project/d46-priority-rl-20261103 WORLD_COMPARE_TASK=d46_priority_rl_20261103; use existing modelvenv",
+    "formal_continuation": "after full GPU qualification and explicit owner handoff only, convert exact intended ownREADY parent WITHOUT --qualification; this never accepts qualification parent weights",
+    "gang_prepare": "python -m tools.d46_world16.gang prepare --root <NEW_ROOT>/split16 --config <EXACT old saved cfg> --source <frozen science> --hosts training-vlawm-tsinghua-zt training-vlawm-tsinghua-zt3 --master-address 172.16.144.229 --port 29785 --stop-after-update 1403 --output <newGang.json>",
+    "optional_participant_wrapper": "WORLD16_GANG_PLAN_SHA256=<sha> python -m tools.d46_world16.gang participate --plan <newGang.json> --node-rank 0|1 --expected-sha256 <sha>; execs torchrun without detached session, no SSH/resource locks",
+    "resume": "after both native1403 participants EXIT0/sealedinner1, prepare a NEW gang plan at same split root using latest1403 and --stop-after-update1404; new Root worker attempts/port as needed"
+  },
+  "CPU_pytest": {
+    "checks": "real native TinyQwen sampler+BF16/current/ref loss/Gloo8→16DDP, inherited Adam/READY checkpoint,16rank B1 parity, pending restore exact; recipe/identity/Attempt/gang/qual-toformal guards",
+    "exit_code": 0,
+    "result": "3 passed,1 warning in18.04s",
+    "stdout": "/mnt/project/VLA-Drive-d46-world16-20261103/reports/d46_world16_20261103/analysis/ENGINE_CPU_FINAL.log",
+    "stdout_sha256": "873df55ccddbe46cd7255f7dab6c40b1338bfa55f37f628716e054a21c437eef"
+  },
+  "actual_CPU_native_evidence": {
+    ".pt_files": "actual CPU local qualification files retained but excluded from Git; not full IL46 weights and never formal",
+    "COMPLETE": "/mnt/project/VLA-Drive-d46-world16-20261103/reports/d46_world16_20261103/qualification_cpu_release_v6/COMPLETE.json",
+    "COMPLETE_sha256": "106cc1637dbced2224405de2de172289e50efb7ccffb0701e0defbdcbb62a999",
+    "root": "/mnt/project/VLA-Drive-d46-world16-20261103/reports/d46_world16_20261103/qualification_cpu_release_v6",
+    "world16_final_files_sha256": "1a4cfca0658a3abd3070316a5d9fb10a6b7b671e0b524ac3ee461412e6817e96",
+    "world16_identity_sha256": "abf4cd7130911c527350297ea7e5260849eb32c9c06d7f0bd84aa4ea58d611f4"
+  },
+  "actual_CPU_result": {
+    "B": 64,
+    "G": 16,
+    "GPU_used": false,
+    "M": 2,
+    "READY16_parameters_Adam_scheduler_exact": true,
+    "actual_distributed_backend": "gloo",
+    "actual_model": "native TinyQwen32x3, NOT full IL46 weights",
+    "all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact": true,
+    "canonical_PDM_queries": 0,
+    "continuous_final_update": 4,
+    "limitation": "CPU engineering only. Full IL46/CUDA/NCCL/two-host B1/ratio/throughput qualification required; test labels synthetic TRAIN fixtures.",
+    "optimizer_origin_updates": 2,
+    "post_native_B1_parity_all16": true,
+    "restored_inner_update": 3,
+    "restored_next_inner": 1,
+    "schema": "d46_world16_Tiny_native_CPU_engine_qualification_v1",
+    "seconds": 13.267886187881231,
+    "source_world": 8,
+    "status": "PASS",
+    "target_world": 16
+  },
+  "actual_GPU_not_done": [
+    "No fullIL46 model load/CUDA/NCCL/network/PDMS calls here",
+    "D0 first, D5 full scope still needs its actual full-model qualification before scaling that route",
+    "No throughput claim until stable multi-node end-to-end measurement"
+  ],
+  "base": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "branch": "perf/d46-world16-qualification-20261103",
+  "created_UTC": "2026-11-03T10:31:56.432935+00:00",
+  "execution": {
+    "RNG": "CPU-preview original four randn calls per scene, set exact savedstart and assert actualend for each real source collection; no fresh seed for ranks8..15; global Torch CPU/CUDA RNG must not secretly advance",
+    "budget": "same B64/G16/M2 queries/update; qualification model probes do not train/evaluate new policies into formal",
+    "default_extension_None": "original world8 restrictions/data/math/recovery path unchanged; only controlled conditional hooks added, no new trainer copy",
+    "gradient": "4 per-scene no_sync forwards/backwards, sync final; weight16/valid_scenes then DDP mean; one global clip1/Adam/scheduler per inner",
+    "native_parity": "after EVERY actual resume, independent trainable-only clone applies checkpoint payload over immutable shared ILbase; true B1 with seed_for(native_qwen_sourceflow_ODE,2101,token), reports normalized/requested maxabs0; not official scoring",
+    "scenes": "virtual8 source assignment base.at(cursor,rank%8,local+4*(rank//8),8); same64tokens and same per-scene root/innovations",
+    "shared_hook_file": "tools/d44_native_rl/train.py",
+    "source_rule": "Freeze science from this independent branch rootedff3013c. Current ops worker must be a separate worker_source; do not merge changing old job_worker source files into science without new explicit source review."
+  },
+  "gang_limits": {
+    "GPUs_per_node": 8,
+    "NCCL_environment": {
+      "NCCL_IB_DISABLE": "1",
+      "NCCL_SOCKET_IFNAME": "eth0"
+    },
+    "finite_helper_max_added_Adam": 10,
+    "max_restarts": 0,
+    "participants": 2,
+    "rendezvous_timeout_seconds": 120,
+    "worker_prerequisite": "Root exact entry/world16 typed parent/rank ownership admission, both host grants/UUID/leases/cohost/memory. Neither helper acquires locks, SSH dispatches, or stops tasks."
+  },
+  "loader_compatibility": {
+    "full_review_export": "python -m tools.d46_world16.native_review --checkpoint <native16cp> --output <newExport> ; validates16ranks/RNG/state/receipt before unchanged compact export",
+    "official_evaluator": "tools.d44_native_rl.evaluate and d44_native_rl.deployment.load_policy unchanged; schema/recipe/parent/scope preserved. Full IL46/GPU parity still mandatory; Tiny CPU fixture not admitted as IL46 by original inspector.",
+    "production_converter": "calls unchanged official d44_native_rl.deployment.inspect after writing target native16 seal; no model load/GPU needed"
+  },
+  "native_contract": {
+    "checkpoint_schema": "qwen_world_abcd_research_checkpoint_v1 (unchanged full native)",
+    "common": "optimizer.pt copied byte-for-byte; current adapters, complete inherited Adam and scheduler unchanged at READY16",
+    "global_counters": "all old updates/collection/scene_cursor/exposures/candidates/dual/evaluation_gates retained. No scene coverage reset or LR scaling.",
+    "identity_extra": "native_world_transition schema d46_exact_native_READY_world8_to16_v1; source/target_world, source run/cp/files/commonsha, source/target qualification, same_algorithm, old_owner_may_adopt=False",
+    "identity_schema": "d44_native_rl_v1 (unchanged official deployment reader)",
+    "new_journal": "verified origin_updates+1 onward; never clone old invocations/runhash or invent oldrank8..15 history",
+    "receipt": "newroot/WORLD_TRANSITION.json and initial cp/world_transition.json, sealed sha256; does not modify original run/source/CP",
+    "state": "world16_virtual_sampler={schema:d46_world16_virtual8_sampler_state_v1,lanes:8 original CPU generator states,committed_collections}; journal_origin_updates inherited original committedu"
+  },
+  "previous_CPU_plan_commit": "00748477615b237d0408aeb7a63b66c045504a16",
+  "schema": "d46_native_world16_engine_handoff_v1",
+  "source_files": {
+    "starVLA/rl/d46_world16/__init__.py": "3a8c596ab92ff4741bc7521de6033566ad065fbc318b83a510ee18610ae61536",
+    "starVLA/rl/d46_world16/native.py": "ab2849b8258e10de8ab31575867a25dac3d4e661408077f03ba9b33389844a22",
+    "starVLA/rl/d46_world16/planning.py": "f477c8ba51b2fce248ac251db999a5271a89c816de417db4f2bda9e36a11bedf",
+    "starVLA/rl/d46_world16/runtime.py": "ae07c5fbaac8ec14ec039111510c4cbdf7948a0c8998584cc1029c3737c519ec",
+    "tests/test_d46_world16_engine.py": "fe564aaa3d20d167f74f7d7bfb84d31abdaeebaaa612d32c6ea7566426f30ad9",
+    "tools/d44_native_rl/train.py": "b85af26cd90a32d893f7a6652a98dc0e9d280444d614208985c93ae454a95012",
+    "tools/d46_world16/__init__.py": "c2ff1ed3cc6361306e77739cafcedf29eb0a34b064069cf7264963b971e2d0e2",
+    "tools/d46_world16/convert.py": "25a16776b260da5364add46cd24db35dbc91751825394a57638c36badeac727a",
+    "tools/d46_world16/gang.py": "6212955d9b349e6ec2e001d001a75d40488889aecaed62ba975ac51ca40da31a",
+    "tools/d46_world16/native_review.py": "74d7d6d39d7cc38ad57179432508cc52b9d3d03d43e0f0a42912c4b7ae193182",
+    "tools/d46_world16/qualify.py": "0778957389a3e08a34b8893a59f7d0cf74e51061d4cc8eea12f40214d6d48eef",
+    "tools/d46_world16/qualify_native.py": "1cf880665e660cb87e4ece86e3299d6a70a107bc97164e690168aa25081f0793",
+    "tools/d46_world16/train.py": "3e40f1ff7abb8b0365bd5f729499561838c3c8daa1fee7913c138968917eaa50"
+  },
+  "status": "CPU_ENGINE_READY_FULL_IL46_TWO_NODE_GPU_QUALIFICATION_PENDING",
+  "supported": {
+    "B": 64,
+    "G": 16,
+    "M": 2,
+    "arms": [
+      "D0",
+      "D5"
+    ],
+    "boundary": "only original READY/inner0 parents; migrated16 pending inner1 resumes normally",
+    "entry": "tools.d46_world16.train",
+    "explicitly_refused": [
+      "D2 or any conditional random draws",
+      "old8 pending rollout",
+      "qualification weights into formal",
+      "new execution inside old run",
+      "old source inventory differs outside reviewed train hook"
+    ],
+    "global_candidates": 1024,
+    "local_scenes": 4,
+    "precision": "world8->16 mathematical target same; FP32 accumulation/NCCL topology not crossworld bitexact. Within world16 exact native resume required.",
+    "same_algorithm": "preserve original per-scene source Gaussian/SafetyEP/scope/ref/LR/sceneclock, 8virtual sampler lanes and current full Adam; not fresh RL or weights-only fork",
+    "source_world": 8,
+    "target_world": 16
+  },
+  "worktree": "/mnt/project/VLA-Drive-d46-world16-20261103"
+}

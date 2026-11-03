@@ -1,0 +1,109 @@
+diff --git a/tools/d44_native_rl/train.py b/tools/d44_native_rl/train.py
+index e95f446..2c70c2d 100644
+--- a/tools/d44_native_rl/train.py
++++ b/tools/d44_native_rl/train.py
+@@ -71,14 +71,14 @@ def consensus_stop(device):
+     return bool(x)
+ 
+ 
+-def main():
++def main(*,extension=None):
+     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8')
+     os.environ.setdefault('FLASH_ATTENTION_DETERMINISTIC','1')
+     if os.environ['CUBLAS_WORKSPACE_CONFIG']!=':4096:8':raise ValueError('Qualified deterministic CuBLAS execution changed')
+     parser=argparse.ArgumentParser(__doc__);parser.add_argument('--config',required=True);parser.add_argument('--output',required=True)
+     parser.add_argument('--resume');parser.add_argument('--qualification',action='store_true');parser.add_argument('--stop-after-update',type=int)
+     parser.add_argument('--scenes-per-rank',type=int,help='qualification only');parser.add_argument('--fault',choices=['before_finalize','after_inner1'])
+-    a=parser.parse_args();cfg=read(a.config)
++    a=parser.parse_args();cfg=read(a.config)if extension is None else extension.read_recipe(a)
+     if cfg['arm']=='D6'and not a.qualification:
+         proof_path=Path('/mnt/project/d44-native-rl-20261103/qualification/D6_REAL_STAGE_INNER_RESUME.json')
+         proof=json.loads(proof_path.read_text())if proof_path.exists()else{}
+@@ -87,7 +87,9 @@ def main():
+     if a.scenes_per_rank and not a.qualification:raise ValueError('Formal scene batch cannot be overridden')
+     host=require_dispatch();configure_numerics();torch.set_num_threads(2)
+     rank=int(os.environ.get('RANK',0));world=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
+-    if world!=8 and not a.qualification:raise ValueError('Formal native D44 uses eight GPUs')
++    if extension is None:
++        if world!=8 and not a.qualification:raise ValueError('Formal native D44 uses eight GPUs')
++    else:extension.validate_world(world)
+     torch.cuda.set_device(local);device=torch.device('cuda',local)
+     if world>1:dist.init_process_group('nccl',timeout=timedelta(minutes=20))
+     checkpoint.init_control_group()
+@@ -96,7 +98,8 @@ def main():
+     if a.scenes_per_rank:cfg['global_scenes']=a.scenes_per_rank*world
+     root=Path(a.output);root.mkdir(parents=True,exist_ok=True);lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+     print(json.dumps(dict(event='loading_native_D44',rank=rank,at=time.time())),flush=True)
+-    stream=DataStream(cfg,cfg['global_scenes']);model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
++    stream=DataStream(cfg,cfg['global_scenes'])if extension is None else extension.make_stream(cfg)
++    model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
+     original_prediction=None
+     if a.qualification:
+         from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
+@@ -136,6 +139,8 @@ def main():
+         scope=actor.closure,source_files=code_identity(),score_protocol=service.protocol,
+         qualification=a.qualification,fresh_Adam=True,stage_reuse='same chains/old means/std/A for all inner updates')
+     identity=json.loads(json.dumps(identity));identity['sha256']=fingerprint(identity)
++    if extension is not None:identity=extension.identity(identity)
++    runtime=Boundary()if extension is None else extension.boundary
+     error=None
+     if rank==0:
+         try:
+@@ -151,12 +156,20 @@ def main():
+         padding_scene_exposures=0,adaptive_kl=dual.state_dict(),evaluation_gates=[])
+     if cfg['arm']=='D6':state.update(d6_history=self_history.initial(identity['sha256']),stage_id='I',stage_transitions=[])
+     batch=None
+-    if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=Boundary())
+-    dual.load_state_dict(state['adaptive_kl']);attempt=Attempt(root,rank,state,identity,a.resume)
++    if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=runtime)
++    if extension is not None:
++        error=None
++        try:extension.after_restore(actor,conditions,stream,state,identity)
++        except Exception:
++            error=traceback.format_exc()
++            if checkpoint.fatal_device_error(error):raise
++        checkpoint.check_errors(error)
++    dual.load_state_dict(state['adaptive_kl'])
++    attempt=Attempt(root,rank,state,identity,a.resume)if extension is None else extension.make_attempt(root,rank,state,identity,a.resume)
+     trainables=[p for p in actor.parameters()if p.requires_grad]
+     frozen_before=frozen_parameter_hash(actor)if a.qualification else None
+     def save():
+-        begin=time.monotonic();result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,batch,identity,runtime=Boundary())
++        begin=time.monotonic();result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,batch,identity,runtime=runtime)
+         attempt.record['seconds_save']+=time.monotonic()-begin;return result
+     journal=(root/f'metrics_rank{rank}.jsonl').open('a',buffering=1);last_saved=a.resume;started=time.monotonic()
+     try:
+@@ -182,20 +195,24 @@ def main():
+                     plan=checkpoint.gather(plan)[0]
+                 version=dict(run=identity['sha256'],update=state['updates'],collection=state['collections']+1)
+                 actor.set_policy_version(str(version));scenes=[];error=None
++                if extension is not None:extension.before_collection(state,generator,rank,world)
+                 batch=dict(scenes=scenes,uncommitted=True)
+                 try:
+                     for j in range(global_scenes//world):
+                         if plan is None:token,padding=stream.at(state['scene_cursor'],rank,j,world);sampling_source='uniform'
+                         else:entry=plan[j*world+rank];token,padding,sampling_source=entry['token'],entry['padding'],entry['source']
+                         descriptor=conditions.get_for_group(token,actual_group)if stage is not None else conditions.get(token)
++                        if extension is not None:extension.before_scene(generator,j)
+                         r=collect_scene(actor,descriptor,token,stream.logs[token],service,generator,collection_cfg,epoch,version,
+                             cost=attempt.add_cost,history=state.get('d6_history'))
++                        if extension is not None:extension.after_scene(generator,j)
+                         r['sampling_source']=sampling_source
+                         r['padding']=padding;r['beta']=dual.beta;r['expect_fresh']=True;scenes.append(r)
+                 except Exception:
+                     error=traceback.format_exc()
+                     if checkpoint.fatal_device_error(error):raise
+                 checkpoint.check_errors(error)
++                if extension is not None:extension.after_collection(state,generator,rank,world)
+                 if a.fault=='before_finalize':raise RuntimeError('Injected collection not finalized; latest unchanged')
+                 factors=torch.stack([r['factors']for r in scenes]);endpoint=None;endpoint_confidence=None
+                 if(cfg['arm']=='D1'and epoch>=2)or(stage is not None and stage.endpoint):
+@@ -245,7 +262,7 @@ def main():
+                 state['new_candidates']+=global_scenes*actual_group;state['extra_B1_queries']+=int(counts[1]);state['adaptive_G32_queries']+=int(counts[2])
+                 state['valid_PG_candidates']+=int(counts[0])*actual_group
+                 state['phase']='ROLLOUT_COMMITTED';state['next_inner']=0
+-                Boundary.validate_ranks(checkpoint.gather(Boundary.validate_boundary(state,batch,identity)))
++                runtime.validate_ranks(checkpoint.gather(runtime.validate_boundary(state,batch,identity)))
+                 path=root/'behavior'/attempt.id/f'collection{state["collections"]:06}'/f'rank{rank}.pt';checkpoint.atomic_torch(path,batch)
+             begin=time.monotonic();optimizer.zero_grad(set_to_none=True);totals={};valid_kl_sum=0.
+             multiplier=scene_lr(state['valid_scene_exposures']/stream.n,warmup=cfg['warmup_epochs'],hold=cfg['hold_until_epoch'],end=cfg['cosine_end_epoch'],floor=cfg['min_lr_ratio'])
