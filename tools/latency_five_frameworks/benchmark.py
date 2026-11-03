@@ -92,7 +92,7 @@ def main():
                     CUDA=torch.version.cuda, cpu_threads=torch.get_num_threads(),
                     started_unix=time.time(), config=cfg)
     write(root/'IDENTITY.json', identity)
-    data = WorldSceneData(cfg['data'], role='TRAIN')
+    data = WorldSceneData(cfg['data'], role=cfg['data_role'])
     processor_maps = [json.loads((Path(v['export'])/'export.json').read_text())['processor'] for v in cfg['models']]
     if any(v != processor_maps[0] for v in processor_maps):
         raise ValueError('The five official processors differ')
@@ -108,7 +108,7 @@ def main():
         start = time.perf_counter()
         obs = data.observation(s['token'])
         jpeg_ms = 1000*(time.perf_counter() - start)
-        cpu = processor([obs])
+        cpu = dict(processor([obs]))
         seed = seed_for('native_qwen_sourceflow_ODE', 2101, s['token'])
         noise = torch.randn((1, 8, 3), generator=torch.Generator().manual_seed(seed), dtype=torch.float32)
         prepared.append((s, obs, cpu, noise, jpeg_ms))
@@ -136,7 +136,7 @@ def main():
                       parameter_bytes=sum(v.numel()*v.element_size() for v in model.parameters()))
         if any(v.dtype != torch.float32 for v in model.parameters()):
             raise ValueError('Parameter precision differs from the deployment contract')
-        processor_warmup = processor([prepared[0][1]])
+        processor_warmup = dict(processor([prepared[0][1]]))
         cur = to_device(processor_warmup, device)
         ego = torch.tensor([prepared[0][1]['proprio']], device=device, dtype=torch.float32)
         noise = prepared[0][3].to(device)
@@ -162,7 +162,7 @@ def main():
                     # Primary 2: already decoded RGB -> CPU physical trajectory.
                     # No synchronization is inserted between its sub-phases.
                     start = time.perf_counter()
-                    fresh_cpu = processor([obs])
+                    fresh_cpu = dict(processor([obs]))
                     fresh = to_device(fresh_cpu, device)
                     fresh_ego = torch.tensor([obs['proprio']], device=device, dtype=torch.float32)
                     fresh_noise = root_noise.to(device)
