@@ -445,10 +445,46 @@ def legacy_I_resource_hold():
         updates=saved['seal']['updates'],inner=saved['seal']['next_inner'],budget=saved['original_minimum_updates_preserved'])
 
 
+def D46_augustus_formal_fragment(plan,directory):
+    launch_path=directory/'FORMAL_LAUNCHES.json';launches=read(launch_path,{})
+    if not launches.get('receipts'):return '',0,0
+    entries=[];actual=starting=slots=0
+    for route in plan.get('routes',[]):
+        exp=route['experiment'];output=D46_ROOT/'runs'/(exp+'_v1');identity=read(output/'identity.json',{})
+        jobs=[r for r in launches['receipts']if str(output)in r.get('command',[])]
+        live=failed=0;starts=[]
+        for receipt in jobs:
+            job=Path(receipt['job']);result=read(job/'RESULT.json',{});running=read(job/'RUNNING.json',{})
+            if result:
+                if result.get('returncode')!=0:failed+=1
+            elif running.get('child_pid'):live+=1;starts.append(running.get('start_unix',float('inf')))
+        rows=[tail(output/f'metrics_rank{rank}.jsonl')for rank in range(route['world'])]
+        fresh=(identity.get('algorithm_schema')=='d46_augustus_native_v1'and identity.get('qualification')is False
+            and identity.get('experiment_id')==exp and len(jobs)==len(route['hosts'])and live==len(jobs)
+            and all(r.get('updates',0)>0 and r.get('run')==identity.get('sha256')and 0<=time.time()-r.get('at',0)<600
+                    and r.get('at',0)>=min(starts,default=float('inf'))for r in rows))
+        common=min(r.get('updates',0)for r in rows)if all(r.get('updates',0)>0 for r in rows)else None
+        exposure=min(r.get('scene_exposures',0)for r in rows)if common else 0
+        if fresh:actual+=1;slots+=route['world']
+        elif live:starting+=1
+        status='正式全rank实际训练'if fresh else'执行异常待复核'if failed else'正式已派发/初始化，等待全rank更新'if live else'正式worker已结束/状态待核对'
+        cfg=identity.get('recipe',{})
+        entries.append((exp+' / world'+str(route['world']),str(identity.get('scope',{}).get('trainable_numel','待核对')),
+            '/'.join(str(cfg.get(k,'待核对'))for k in('global_scenes','group','inner_updates')),
+            ' + '.join(route['hosts']),str(common)if common else'尚无全rank正式Adam',
+            format(exposure,',')+' / '+format(exposure/103288,'.5f')+'E',status))
+    body='<h3>当前AUG正式实际训练 '+esc(actual)+' 条 / '+esc(slots)+' 逻辑卡位；正式初始化 '+esc(starting)+' 条</h3>'
+    body+=table(['正式路线','实际trainable参数','B/G/M','实际派发主机','全rank共同Adam','有效场景 / epoch','实际状态'],entries)
+    body+='<p>真实训练必须同时有当前正式job未返回、全部rank新日志和相同run身份；初始化/资格不冒充Adam进展。正式两条均独立IL46/Adam0，目标6E，不能继承资格权重；目前尚无AUG完整NAVTEST分数。<a href="'+esc(launch_path)+'">六node正式派发收据</a></p>'
+    proof_path=directory/'GPU_NATIVE_RESUME_RNG_AUDIT.json';proof=read(proof_path,{})
+    if proof.get('status')=='PASS':body+='<p>资格1→2的两路线全部EXIT0，48rank私有RNG原生接续审计PASS；这是恢复证据，不是GPU不中断参数对照或PDMS提升。<a href="'+esc(proof_path)+'">实际RNG恢复审计</a></p>'
+    return body,actual,slots
+
+
 def D46_augustus_qualification_fragment():
     directory=D46_ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103'
     plan=read(directory/'QUALIFICATION_PLAN.json',{});launches=read(directory/'QUALIFICATION_LAUNCHES.json',{})
-    if plan.get('maximum_simultaneous_routes')!=2 or not plan.get('routes'):return ''
+    if plan.get('maximum_simultaneous_routes')!=2 or not plan.get('routes'):return '',0,0
     entries=[];active_routes=0;active_workers=0;uuids=set()
     for route in plan['routes']:
         if route.get('qualification')is not True:continue
@@ -475,11 +511,13 @@ def D46_augustus_qualification_fragment():
         entries.append((route['experiment']+' / world'+str(route['world']),
             '/'.join(fields.get(k,'待核对')for k in('global_scenes','group','inner_updates')),method,
             ' + '.join(route['hosts']),progress,f'{running} 已启动未返回 / {done} EXIT0 / {failed}异常',status))
-    body='<h3>AUGUstus 当前资格任务：'+esc(active_routes)+' 组，'+esc(active_workers)+' 个CUDA子进程worker已启动，覆盖 '+esc(len(uuids))+' 个物理GPU UUID</h3>'
-    body+='<p><b>这是资格，不是正式训练；正式训练尚未开始。</b>两条均从同IL46/Adam0起步，先1次真实Adam再自身原生恢复核对；正式阶段另从原IL46和新空Adam开始，绝不继承资格权重。资格设备、模型加载、真实更新与正式计数分开；最大同时两路线。</p>'
+    formal,formal_actual,formal_slots=D46_augustus_formal_fragment(plan,directory)
+    body=formal+('<details><summary>原生资格与正式起点分开核对</summary>'if formal else'')
+    body+='<h3>AUGUstus 当前资格任务：'+esc(active_routes)+' 组，'+esc(active_workers)+' 个CUDA子进程worker已启动，覆盖 '+esc(len(uuids))+' 个物理GPU UUID</h3>'
+    body+='<p><b>此表仅资格，不是正式训练。</b>两条均从同IL46/Adam0起步，先1次真实Adam再自身原生恢复核对；正式阶段另从原IL46和新空Adam开始，绝不继承资格权重。资格设备、模型加载、真实更新与正式计数分开；最大同时两路线。</p>'
     body+=table(['路线/资格world','实际配置B/G/M','训练范围','已派发主机','真实共同进度','逐node收据','当前阶段'],entries)
     body+='<p>科学源 augustus_science_v1@78cea8f，运营源 operations_augustus_v1@81c997e；FULL B128、LORA B64也有batch差异，不能把之后成绩直接解释为纯scope消融。<a href="'+esc(directory/'QUALIFICATION_PLAN.json')+'">资格计划/配置SHA</a> · <a href="'+esc(directory/'QUALIFICATION_LAUNCHES.json')+'">实际六node派发收据</a></p>'
-    return body
+    return body+('</details>'if formal else''),formal_actual,formal_slots
 
 
 def D46_dedicated_execution_fragment():
@@ -495,10 +533,12 @@ def D46_priority_fragment(other_active=None):
     augustus_path=D46_ROOT/'operations/AUGUSTUS_PRIORITY_ALL_RESOURCES_20261103/PRIORITY_CHANGE_REQUEST.json'
     augustus=read(augustus_path,{})
     augustus_priority=augustus.get('maximum_concurrent_training')==2 and augustus.get('old_results_and_native_state_retained')is True
+    aug_actual=aug_slots=0
     body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>'+('AUGUstus 主线 · IL46k fresh RL 资格与正式状态'if augustus_priority else'D 框架 · IL46k 父策略优先 RL')+'</h2>'
     if augustus_priority:
-        qualification=D46_augustus_qualification_fragment()
-        phase='AUG1_FULL/world32 与 AUG2_LORA/world16已登记并实际派发资格，六node CUDA子进程加载中/进度如下；尚非正式训练。'if qualification else'候选FULL/LORA尚待实际资格派发收据，不据计划称已训练。'
+        qualification,aug_actual,aug_slots=D46_augustus_qualification_fragment()
+        formal_receipts=read(D46_ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103/FORMAL_LAUNCHES.json',{})
+        phase=('两条AUG均已正式派发；真实更新与初始化按全rank新日志区分，见最前表。'if formal_receipts.get('receipts')else'AUG1_FULL/world32 与 AUG2_LORA/world16已实际派发资格，尚非正式训练。')if qualification else'候选FULL/LORA尚待实际派发收据，不据计划称已训练。'
         body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>'+esc(phase)+'旧D0/D2/D5按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p>'+qualification+D46_dedicated_execution_fragment()+'<p>旧D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方默认LoRA关闭、文本主干可训练、RL冻结视觉；本地旧D0仅attention-LoRA约642万参数，且sum24/W3与官方mean-coordinate/lambda_t/3步不同。</p>'
         scope_path=Path(__file__).resolve().parents[2]/'reports/d46_augustus_scope_audit_20261103/SCOPE_AUDIT.json'
         if scope_path.is_file():body+='<p><a href="'+esc(scope_path)+'">官方scope与本地精确路径只读审计</a>：FULL建议dense text layers/FFN/norm与动作/时间接口，LORA保同接口作范围对照；当前缓存embedding合同与永久参考参数别名必须处理，不能直接把旧共享base解冻。该建议未部署，不含性能提升声明。</p>'
@@ -511,10 +551,10 @@ def D46_priority_fragment(other_active=None):
         'D46_FRESH_IL46_PRIORITY_CAMPAIGN':'D46 六路线已登记，资格与正式训练按各行实际状态区分'}.get(status,status)
     body+='<p><b>最新状态：'+esc(label)+'</b>；收据时间 '+esc(stamp)+'。<a href="'+esc(path)+'">实际优先级与执行状态</a></p>'
     count=value.get('actual_training')
-    if isinstance(count,int)and count>=0:body+='<p><b>D46 实际正式训练数量：'+esc(count)+' 条</b>（按该时间的实际核对收据，资格训练与注册数量不计入）。</p>'
+    if isinstance(count,int)and count>=0:body+='<p><b>旧D46六路线实际正式训练数量：'+esc(count)+' 条</b>（资格与新AUG不计入此旧路线数；AUG实际 '+esc(aug_actual)+' 条）。</p>'
     allocation=sum(r.get('world',8)for r in value.get('runs',[])if isinstance(r,dict)and r.get('status')in('TRAINING','TRAINING_WORLD16'))
-    body+='<p>当前逻辑训练rank/卡位合计 '+esc(allocation)+'（各路线world见实时表；不等于独占GPU利用率）。</p>'
-    if isinstance(count,int)and isinstance(other_active,int):body+='<p><b>当前实际 RL 训练合计 '+esc(count+other_active)+' 条：D46 '+esc(count)+'，既有 IL70 系 '+esc(other_active)+'。</b>不同研究分别读取实际任务与八rank日志，不按注册数计。</p>'
+    body+='<p>当前逻辑训练rank/卡位合计 '+esc(allocation+aug_slots)+'（含新AUG；不等于独占GPU利用率）。</p>'
+    if isinstance(count,int)and isinstance(other_active,int):body+='<p><b>当前实际 RL 训练合计 '+esc(count+other_active+aug_actual)+' 条：AUG '+esc(aug_actual)+'，旧D46 '+esc(count)+'，既有 IL70 系 '+esc(other_active)+'。</b>按各路线world的实际任务与全rank新日志，不按注册数计。</p>'
     body+=D46_current_interruption_fragment(value)
     dedicated_path=D46_ROOT/'operations/DEDICATED_TWO_NODE_OPTIMIZATION_20261103/REQUEST.json'
     dedicated=read(dedicated_path,{})

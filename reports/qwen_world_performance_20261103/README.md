@@ -1,5 +1,8 @@
 # Qwen-World：以真实单轨迹 PDMS 为目标的规模化 RL
 
+**AUG正式阶段已经派发，不能再把资格结束写成整体未训练。** 六node正式收据已落；当前真实Adam以全32/16rank各自最新日志为准，FULL初始化与LORA已更新分开计数。实际trainable closure从正式identity读取：FULL **1,472,810,499**，LORA **7,010,307**；两条均独立IL46/新Adam0，不继承资格权重，无新AUG完整NAV分数。[正式派发](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/FORMAL_LAUNCHES.json)。资格1→2 all48私有RNG接续审计PASS，不冒充GPU不中断参数对照。[恢复审计](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/GPU_NATIVE_RESUME_RNG_AUDIT.json)
+
+
 2026-11-03 16:30 UTC：**两组AUG资格已实际启动，共48物理GPU，不是正式训练。** AUG1_FULL/world32使用TSH5/WM4/TSHzt/TSH2，B128/G8/M1；AUG2_LORA/world16使用TSH3/WMzt，B64/G8/M1。六node CUDA子进程已开始原生模型加载，先完成真实1Adam及自身原生恢复核对；正式权重仍另从IL46/Adam0起步，不使用资格权重。科学源78cea8f/运营81c997e冻结，原六条已保存hold，max2路线保持。[计划](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/QUALIFICATION_PLAN.json)、[实际派发](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/QUALIFICATION_LAUNCHES.json)
 
 两节点完整cycle对照已实际COMPLETE：32.87205→23.36442秒，**1.40693×**（匹配cycle1.41027×），fast1511pending→1512恢复通过；包含采样/评分/2Adam/控制/I/O，短资格不是PDMS或长期保证，融合BF16分组非跨执行参数逐位一致。原15.75→10.49秒是checkpoint开启的旧微基准，不能作为生产all_off绝对耗时。[完整周期实测](/mnt/project/d46-priority-rl-20261103/analysis/DEDICATED_TWO_NODE_EXECUTION_REVIEW_20261103.json)
