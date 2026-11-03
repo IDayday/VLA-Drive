@@ -1,0 +1,201 @@
+{
+  "arm_RNG_support": {
+    "D2_limitation": "Conditional extra G16 and teacher-dependent sigma/noise consume variable random draws after real scoring. Cannot split lane halves in parallel using fixed skip. Either keep old8 collector lane processes/sequence while16 ranks share backward (limited sampling speedup), or register a new per-scene private-RNG recipe as an explicit stochastic execution change. No silent RNG change.",
+    "D4_D6": "Not in current six-route policy-only scope; fresh-aux qualification is separate.",
+    "fixed_draw_ready_for_prototype": [
+      "D0",
+      "D1",
+      "D3_FPO",
+      "D3_AWM",
+      "D5"
+    ],
+    "source_calls": "G16 W3:4 CPU FP32 randn([16,8,3]) per scene; FPO/AWM add rand([4,16]) and randn([4,16,8,3]). CPU tests replay actual ActionGRPOMixin, not guessed Philox offsets."
+  },
+  "artifacts": {
+    "CLI": "python -m tools.d46_world16.qualify --config <exact saved YAML> --checkpoint <sealed world8 native> --output <new CPU plan JSON>",
+    "prototype_CPU_plan": "/mnt/project/VLA-Drive-d46-world16-20261103/reports/d46_world16_20261103/CPU_PLAN.json",
+    "prototype_status": "not a runnable training or dispatch module"
+  },
+  "audited_commit": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "audited_frozen_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+  "branch": "perf/d46-world16-qualification-20261103",
+  "conclusion": {
+    "bitwise_limit": "World8->16 FP32 summation/DDP/NCCL order changes. Identical mathematical objective is supportable; bitwise equal future weights/Adam across worlds is not promised. A world16 interrupted/resumed run must itself be exact.",
+    "exact_state_resume": "Preserve all current adapters, complete Adam states/group order/steps, scheduler counter, permanent IL46 reference, adaptive KL dual, stream epoch/cursor, all global counters, pending scene chains/old means/std/A/teachers/MC tensors and original8 sampler RNG lanes. No weights-only fork or fresh Adam.",
+    "feasible": "The same B64/G16/M2 gradient objective can use16 GPUs with4 scene microbatches/rank rather than8. No LR/clock or candidate count increase is needed.",
+    "not_ready": "Current formal trainer/owner/checkpoint correctly reject world16; CPU helpers are NOT a complete runnable world16 trainer or a published migration checkpoint."
+  },
+  "created_UTC": "2026-11-03T09:55:18.587322+00:00",
+  "exact_state_treatment": [
+    {
+      "action": "Load same immutable IL46, install same closure, restore identical adapters; ref remains IL46 not RL theta. Verify optimizer param names/order and no aliasing. Current frozen/reference bytes preserved.",
+      "field": "current policy/ref/scope"
+    },
+    {
+      "action": "Existing unsharded shared adapters+Adam+scheduler payload can be copied byte-for-byte; do not split Adam or reset moments/step. Boundary clip happens only after globally averaged gradient.",
+      "field": "common optimizer.pt"
+    },
+    {
+      "action": "Recommended first migration: pending=None, next_inner0. Preserve updates, collections, cursor, valid/raw exposures, queries, padding, dual, evaluation gates; all unchanged.",
+      "field": "READY native boundary"
+    },
+    {
+      "action": "Possible: oldrank r scene local0..3 -> newrank r; local4..7 -> newrank r+8. Preserve every leaf bitwise and behavior run/version; rehash only local container digest. M2/next_inner1/update unchanged. Do not regenerate old probabilities/teacher/MC.",
+      "field": "pending inner1"
+    },
+    {
+      "action": "Use eight virtual source ranks: base.at(cursor,rank%8,local_scene+4*(rank//8),8). Global set/order remains all64 slots; default world16 at alone has same set but mismatches old per-rank RNG association.",
+      "field": "data stream"
+    },
+    {
+      "action": "Existing frozen vision/embedding LRU is execution cache, not saved graph. Re-materialize same token/processor/IL/source descriptor; keep G16 and source prefix rebuilding. Capacity8 can remain; only4 local scenes fit. Never cache trainable text C/P across updates.",
+      "field": "conditions"
+    },
+    {
+      "action": "Keep8 virtual CPU generator streams exactly. Fixed-draw arms can preview4 root/innovation randn calls per scene plus fixed MC tail; each actual scene must assert exact end RNG. Do not seed new ranks420008..15 or copy same state independently to both halves.",
+      "field": "sampler RNG"
+    },
+    {
+      "action": "Retain each original8 bundle as virtual lane; initial physical16 mapping duplicates source bundle only for unused global states, never substitutes it for sampler lane sequencing. Qualification must prove no newly consumed hidden global RNG; otherwise gate migration unsupported.",
+      "field": "global Python/NumPy/Torch/CUDA RNG"
+    },
+    {
+      "action": "Typed world-reshard receipt binds old files inventory/common payload/rank RNG/material map and new execution/source/world. Current generic execution migration forbids non-source identity changes; do not bypass. New execution journal must use explicit parent origin_updates to avoid copying/forging old rank8..15 history.",
+      "field": "identity/journal"
+    },
+    {
+      "action": "Publish16 rank files+common optimizer,16 summaries/new identity+receipt lineage; all-rank error fences and exact pending world16 recovery. Preserve old8 checkpoint read-only as parent.",
+      "field": "future16 native save/restore"
+    }
+  ],
+  "guardrails": {
+    "GPU_jobs": 0,
+    "RUNS_or_owner_edits": false,
+    "live_sources_modified": false,
+    "new_PDM_queries": 0,
+    "old_checkpoints_modified": false,
+    "resource_lock_edits": false
+  },
+  "independent_worktree": "/mnt/project/VLA-Drive-d46-world16-20261103",
+  "new_source_inventory": {
+    "/mnt/project/VLA-Drive-d46-world16-20261103/starVLA/rl/d46_world16/planning.py": "f477c8ba51b2fce248ac251db999a5271a89c816de417db4f2bda9e36a11bedf",
+    "/mnt/project/VLA-Drive-d46-world16-20261103/tests/test_d46_world16.py": "a9ab46e1ee22ad54f3075081f6a149a77c7b5cf8e4ce00455667d9182dc6298c",
+    "/mnt/project/VLA-Drive-d46-world16-20261103/tools/d46_world16/qualify.py": "0778957389a3e08a34b8893a59f7d0cf74e51061d4cc8eea12f40214d6d48eef"
+  },
+  "performance_risks": [
+    "16 GPUs doubles resident frozen model copies and needs two-host network/NCCL admission; speedup not guaranteed",
+    "Only4 vs8 sequential scene graphs/rank suggests backward speedup; sampling/scorer/serialization and cross-node reduction still cost",
+    "D2 old-RNG-compatible serial collection limits collection parallelism; do not sell2x overall speedup",
+    "same B/G/M means no added data-efficiency claim; do not compare world16 as a new advantage algorithm"
+  ],
+  "preserved_science": {
+    "B": 64,
+    "G": 16,
+    "M": 2,
+    "deployment": "same single B1 K10shift5 seed2101; no training-world dependency or best-of-G change",
+    "global_Safety_rawA_population": 1024,
+    "local_scene_microbatches_after": 4,
+    "local_scene_microbatches_before": 8,
+    "loss_formula": "local loss=sum(valid scene_loss * world/valid_scene_count), one clip1 after DDP mean, one Adam/scheduler per inner; DDP mean => global sum(scene_loss)/valid_scene_count",
+    "padding": "Final epoch has8 padding scenes at B64; they must contribute0 to PG, anchor/aux loss and rawA moments. All16 ranks still execute4 scene forwards/backwards, no_sync first3 and sync last.",
+    "per_scene_candidate_forward_batch": 16,
+    "schedule": "same scene exposures/n clock and original peaks; no automatic LR scaling, no reset or world-based schedule compression"
+  },
+  "qualification": {
+    "actual_GPU_required": [
+      "same64 TRAIN scenes and same original roots/innovations/old means/std with actual G16 source numerical layout",
+      "fresh saved-state joint ratio maxabs<=1e-4; unchanged B1 original-native vs world16-restored model before any new Adam",
+      "global validcount/1024-candidate moments and counters; no extra samples or groups",
+      "world8 vs world16 gradients/optimizer deltas reported with exact numerical errors; do NOT require or claim impossible topology-independent bitwise equality",
+      "within world16 continuous2 vs inner1 save/resume2: all adapters/Adam/scheduler/16 rank RNG/8 virtual RNG lanes/scene stream/pending leaves exact; query costs separately",
+      "benchmark steady >=20 optimizer steps and full collection timings including multi-host communication/scoring/cache; return to world8 if no wall speedup, not algorithm verdict"
+    ],
+    "current_CPU_evidence": {
+      "checks": [
+        "actual source W3 scalar toy velocity sampling plus fixed FM random draws per-scene replay exactly preserved; D2 rejected",
+        "actual Safety credit/global1024 moments/padding and native Gaussian/clipped loss weighting target; F32 max gradient diff2.384185791015625e-7",
+        "synthetic eight-rank pending material redistributed into16 four-scene plans; old behavior values/counters/RNG retained, torchsave/load and contamination rejection"
+      ],
+      "limits": "No full Qwen/GPU/NCCL/DDP/world16 training or published native checkpoint. Synthetic checkpoint plan is explicitly non-native and cannot pass current restore.",
+      "pytest_exit_code": 0,
+      "seconds": 5.27,
+      "status": "PASS",
+      "stdout": "/mnt/project/VLA-Drive-d46-world16-20261103/reports/d46_world16_20261103/analysis/CPU_STDOUT.log",
+      "stdout_sha256": "39500dc304fb3368c4664266e19c16c9049c919de373a1f2ceeb08a064f55558",
+      "tests": 3
+    },
+    "next": "First implement narrow fixed-draw D0 execution extension only; no need to move all6 routes at once.",
+    "required_before_GPU": [
+      "Root selects same sealed READY world8 native checkpoint and two authorized free hosts; no work here reserves resources",
+      "strict converter verifies all old bytes/seals/common optimizer/8 rank states and writes to new execution root",
+      "all16 receive same theta/Adam/scheduler/dual/cursor; old pending optional only after READY qualification"
+    ]
+  },
+  "schema": "D46_fixed_B64G16M2_world16_feasibility_v1",
+  "source_hooks_required": [
+    {
+      "change": "Strict opt-in world16/virtual8 sampler adapter+typed restore; retain actual candidate batch16, world/valid weighting and one optimizer clock. New entry must not copy/replace entire trainer.",
+      "locations": [
+        90,
+        132,
+        187,
+        262,
+        265
+      ],
+      "path": "tools/d44_native_rl/train.py"
+    },
+    {
+      "change": "New typed reshard validation/wrapper; existing boundary shape B/world already supports4 but old identity/digest and effective-journal origin need explicit lineage handling.",
+      "locations": [
+        23,
+        30,
+        54,
+        71
+      ],
+      "path": "starVLA/rl/d44_native_rl/recovery.py"
+    },
+    {
+      "change": "Do not loosen exact restore. Use separate typed conversion with verified old CP and produce genuine sealed16 state only after complete world16 engine integration.",
+      "locations": [
+        125,
+        192,
+        195,
+        211
+      ],
+      "path": "starVLA/rl/qwen_world_abcd_research/checkpoint.py"
+    },
+    {
+      "change": "Existing owner world8/one-host launch must stay unchanged. New explicitly registered two-host gang launch with rendezvous, one8-UUID lease per host, all16-process stop/error fence, no partial launch orphan; Root owns ops.",
+      "locations": [
+        62,
+        87,
+        108
+      ],
+      "path": "tools/d46_priority_rl/owner.py"
+    },
+    {
+      "change": "B1 model loader is world-independent. Add explicit full16 native rank/material validation to audit wrapper; do not pretend common-only export inspection proves all16 rank RNG valid.",
+      "locations": [
+        12,
+        25
+      ],
+      "path": "starVLA/rl/d44_native_rl/deployment.py"
+    }
+  ],
+  "source_inventory": {
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/batch_runtime.py": "15aa78766773156466db312e18f225c947b2a938f4abd21df1acf7b9071deea1",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/conditions.py": "b92427c9fc8403f0ccf989bceef1e373b34c46b3c459fde3136d2f333adef062",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/data.py": "5dda71565b7bc1c311717a8602e8ab962520594ec60022a52220770c000fb9a6",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/deployment.py": "fee6ae3c488906a45479a9e36ad55df24c86cd51d7648c930d8c1dd35ee8ab37",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/gaussian_objective.py": "f932a2f24612f61b951ffc41bde4d7a7abd5d393f2e380bd4811e48bd94bc051",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/recovery.py": "a93fe767fae06cce9f28d1acf078998dc317699bd9a8d16af309b77331aebc68",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/safety_credit.py": "a09c83ccb92ba36fa013386ce5641174ffdd48e38cf4beb38c1c7d2f898a3f3f",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/qwen_world_abcd_research/checkpoint.py": "1c7c5145342220f31cf4435adf2a73daa4d28aedd96af57c442708d79ae073f1",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/qwen_world_compare/policy_adapter.py": "a2e567db2b637cf358368d3ea71da85c6fe89d0618a3fa7c681f153d263a8c60",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/simwam_recipe/vendor/action_math.py": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d44_native_rl/export.py": "0e6b12e248c265c6b3f2abc5a05a5973d432493a188be92961c38f26678808ea",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d44_native_rl/train.py": "cff6a7d70d3ed2007ae5a9be087b4338dd144ed4bffb1d246a4be0be2c7be605",
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d46_priority_rl/owner.py": "b83ed36af0b95e7951493953a263344482ec64430ebd381235570d4509d5e8f0"
+  },
+  "status": "CPU_PROTOTYPE_READY_DISTRIBUTED_ENGINE_NOT_IMPLEMENTED"
+}
