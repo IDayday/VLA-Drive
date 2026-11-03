@@ -5,7 +5,7 @@ import torch
 from starVLA.model.modules.qwen_sourceflow.action_codec import ActionCodec
 from .safety_credit import FACTORS
 from .native_cleanx_aux import verified_index
-from .fpo import velocity_energy
+from .fpo import velocity_energy,mc_predictions_energy
 from starVLA.model.modules.qwen_world_postcot.flow import shift_sigma,clean_x_step
 from starVLA.rl.simwam_recipe.contracts import seed_for
 
@@ -96,8 +96,7 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
         targets=eps-clean[None];energies=[]
         with actor._context_call(descriptor)as condition:
             prefix=actor._prepare(condition,False)
-            for x,s,target in zip(states,sigmas,targets):
-                with torch.autocast(actor.device.type,dtype=torch.bfloat16):pred=actor.action_expert.denoise_x0(x,s,prefix)
-                energies.append(velocity_energy(x,pred,target,s))
-        r.update(fm_state=states.detach(),fm_sigma=sigmas.detach(),fm_target=targets.detach(),old_energy=torch.stack(energies).mean(0).detach())
+            energies,_=mc_predictions_energy(actor.action_expert,prefix,states,sigmas,targets,
+                fuse=cfg['arm']=='D3_FPO'and bool(getattr(actor,'execution_fuse_fm_mc',False)))
+        r.update(fm_state=states.detach(),fm_sigma=sigmas.detach(),fm_target=targets.detach(),old_energy=energies.mean(0).detach())
     return r

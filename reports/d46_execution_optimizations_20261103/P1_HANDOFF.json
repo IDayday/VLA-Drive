@@ -1,0 +1,77 @@
+{
+  "schema": "d46_execution_MC4_fusion_and_benchmark_handoff_v1",
+  "status": "CPU_PROTOTYPE_READY_GPU_MEASUREMENT_REQUIRED_NOT_FORMAL_ADMISSION",
+  "P0_commit": "ba689014aed7d0c06ffcab1fcec8afc0213ad392",
+  "flags": {
+    "execution_fast_prefix": "actor.execution_fast_prefix=False default; independent P0 opt-in",
+    "execution_fuse_fm_mc": "actor.execution_fuse_fm_mc=False default; FPO only in forward and collection"
+  },
+  "helper": "starVLA.rl.d44_native_rl.fpo.mc_predictions_energy(policy,prefix,states,sigmas,targets,*,fuse=False)->energies[4,G],predictions[4,G,8,3]",
+  "mechanism": "Same-scene zero-index narrow+expand prefix with stride0 longKV; 4xG state andsigma flatten, one cleanx denoiser, original mean24 thenmeanMC4; all W3 sampling/probability remains sequential",
+  "CPU": {
+    "real_modules": "6 tests passed in6.25s including P0; actual Tiny D44Actor/LoRA/source collector/BF16 and FP32 mathematical objective",
+    "benchmark_metadata": "2 tests passed in1.22s, CPU prepare input pinning and explicit comparison failure reporting",
+    "BF16": {
+      "energy_max_abs": 4.231929779052734e-06,
+      "loss_max_abs": 0.0,
+      "gradient_max_abs": 0.00012242794036865234,
+      "gradient_relative_L2": 0.0022110669177704276,
+      "gradient_cosine": 0.9999975556626659,
+      "status": "MEASURED_NOT_GPU_OR_FORMAL_ADMISSION",
+      "gradient_strict_elementwise_allclose": false,
+      "strict_tolerance": {
+        "atol": 1e-05,
+        "rtol": 0.001
+      }
+    },
+    "strict_initial_failure_preserved": {
+      "path": "reports/d46_execution_optimizations_20261103/P1_INITIAL_STRICT_ELEMENTWISE_FAILURE.log",
+      "raw_path_ignored_fromGit": "reports/d46_execution_optimizations_20261103/P1_INITIAL_STRICT_ELEMENTWISE_FAILURE.raw.log",
+      "original_raw_sha256": "0492af0624543f0daf4aa53671d429d1762194f68056ed272fa3dddb6bbd5314",
+      "committed_copy": "trailing whitespace stripped only; exact failed numerical values/assertion retained"
+    },
+    "FP32": "Real MC4 denoiser objective+all LoRA gradients pass rtol1e-4/atol1e-6; energy rtol1e-5/atol1e-6",
+    "source_sampling": "W3 chain/mean/std/ref mean andFM draws/private RNG bitexact with fusionoff/on; both newcollection/recompute coherent fresh energy ratio1",
+    "shared_KV": "actual helper performs one64row denoiser, prefixKV storagepointer unchanged/stride0; no arange repeat or64physicalKV copies"
+  },
+  "source_model_unchanged": {
+    "path": "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py",
+    "same_bytes_as_82": true,
+    "sha256": "e95e1fcccd1aa37f8b095a83e0b134adbecc7350739b6701cd6b007042db0367"
+  },
+  "benchmark": {
+    "tool": "tools/d46_world16/benchmark_execution.py",
+    "CPU_prepare": "modelpython TOOL prepare --checkpoint OWN_FPO_READY_U1500 --behavior OWN_NEXT_COLLECTION_RANK0_PT --baseline-source SCI82 --candidate-source FROZEN_NEW_SCI --result-dir NEW_BENCH_DIR --output PLAN.json --warmup 2 --iterations 5",
+    "Root_GPU_only": "modelpython TOOL run --plan PLAN.json --expected-plan-sha256 SHA --mode baseline|prefix|fusion|both ; each separate process/source, inherited workerPGID, no self-dispatch",
+    "CPU_compare": "modelpython TOOL compare --result-dir NEW_BENCH_DIR --output NEW_COMPARISON.json",
+    "outputs": [
+      "loss and4MC energy maxdiff, all LoRA gradient maxdiff/relative-L2/cosine/strict allclose flag",
+      "stable cached-input4scene forward-backward walltimes/median, peak allocatedGPUmemory",
+      "CPU/CUDA profiler scalar extraction andsynchronization eventcounts",
+      "exact native/behavior/source hashes, same-token descriptor identity rebindings explicitly recorded",
+      "gradients-only .pt diagnostic; no policy/Adam weights exported"
+    ],
+    "limits": [
+      "GPU run has not happened; no claimed speedup or fullIL46 equivalence",
+      "Existing same-theta sourceGaussian freshguard retained; MC numeric effect visible against saved baseline energies",
+      "No scoring/newtrajectory/Adam/optimizer reset/native/checkpoint updates",
+      "P0 must be bitexact; P1 BF16 pointwise strict tolerance is not passed byCPUfixture andis not silently relaxed"
+    ]
+  },
+  "new_training_diff": [
+    "actor current FPOenergy useshelper, AWM forward unchanged",
+    "collector MC oldenergy uses samehelper with actorflag; RNG draws/shapes/order unchanged",
+    "model/parent/conditions/registeredcfg/sampler/velocity/losscoefficients unchanged"
+  ],
+  "log_hashes": {
+    "P1_CPU_RELEASE.log": "0205031a138e5edb4ce24853bf057dcae408755cb160147dfcbf65643ba2f3d4",
+    "BENCHMARK_CPU_RELEASE.log": "fe909cd4ed6157ba6fce598e55a39705c7ee9bb45e433f399da1bb9946c5b07e",
+    "P1_INITIAL_STRICT_ELEMENTWISE_FAILURE.log": "b17fc512a5a37501ccdf3645c7a54f827ed00b6f8692cb6196c8fd14a7c3a4a2"
+  },
+  "scientific_files": {
+    "starVLA/rl/d44_native_rl/actor.py": "cf09477656d2b6fcab01fd61eaac30bbb3a2355679900afcaccfbce4d4761f0b",
+    "starVLA/rl/d44_native_rl/batch_runtime.py": "6a73028a4dbc6f31e114288bae77db02ce359f592db7be51203a2c2694c391d8",
+    "starVLA/rl/d44_native_rl/fpo.py": "50ece5cd910af6700712e2367b9e8b914bd24d839ae8a72939e71171d451330a",
+    "tools/d46_world16/benchmark_execution.py": "2518a1fa0afaea68e0c79749fc77f3665c0d3b5706c29a3e0c8b90a6b9513c71"
+  }
+}

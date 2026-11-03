@@ -8,7 +8,7 @@ from starVLA.rl.qwen_world_compare.policy_adapter import FourFrameworkRecipeActo
 from .expanded_scope import install, independent_trainable_module
 from .gaussian_objective import gaussian_terms, clipped_loss
 from .native_cleanx_aux import positive_loss
-from .fpo import velocity_energy, awm_loss
+from .fpo import velocity_energy, awm_loss, mc_predictions_energy
 
 
 class D44Actor(FourFrameworkRecipeActor):
@@ -110,17 +110,21 @@ class D44Actor(FourFrameworkRecipeActor):
                 if prefix is None:prefix=self._prepare(cond,False)
                 return prefix
             if c['arm']in('D3_FPO','D3_AWM'):
-                energies=[];references=[];predictions=[]
-                for state,sigma,target in zip(r['fm_state'],r['fm_sigma'],r['fm_target']):
-                    with torch.autocast(self.device.type,dtype=torch.bfloat16):
-                        pred=self.action_expert.denoise_x0(state,sigma,current_prefix())
-                    energies.append(velocity_energy(state,pred,target,sigma));predictions.append(pred)
-                    if c['arm']=='D3_AWM':
+                if c['arm']=='D3_FPO':
+                    energies,_=mc_predictions_energy(self.action_expert,current_prefix(),r['fm_state'],r['fm_sigma'],r['fm_target'],
+                        fuse=bool(getattr(self,'execution_fuse_fm_mc',False)))
+                    energy=energies.mean(0)
+                    pg,proxy=clipped_loss((r['old_energy']-energy)[:,None],r['advantages'],c['clip']);metrics.update({'fpo_'+k:v for k,v in proxy.items()})
+                else:
+                    energies=[];references=[];predictions=[]
+                    for state,sigma,target in zip(r['fm_state'],r['fm_sigma'],r['fm_target']):
+                        with torch.autocast(self.device.type,dtype=torch.bfloat16):
+                            pred=self.action_expert.denoise_x0(state,sigma,current_prefix())
+                        energies.append(velocity_energy(state,pred,target,sigma));predictions.append(pred)
                         with torch.no_grad(),torch.autocast(self.device.type,dtype=torch.bfloat16):
                             references.append(self.ref_action_expert.denoise_x0(state,sigma,self._prepare(cond,True)))
-                energy=torch.stack(energies).mean(0)
-                if c['arm']=='D3_FPO':pg,proxy=clipped_loss((r['old_energy']-energy)[:,None],r['advantages'],c['clip']);metrics.update({'fpo_'+k:v for k,v in proxy.items()})
-                else:pg=awm_loss(energy,r['advantages'],torch.stack(references),torch.stack(predictions),c['reference_coefficient'])
+                    energy=torch.stack(energies).mean(0)
+                    pg=awm_loss(energy,r['advantages'],torch.stack(references),torch.stack(predictions),c['reference_coefficient'])
                 total=pg+r['beta']*anchor
             aux=mean.sum()*0
             if 'teacher' in r:
