@@ -78,6 +78,11 @@ def test_early_batch_keeps_training_and_defers_duplicate_evaluation(monkeypatch)
     reads['STATE.json'] = dict(complete=True)
     owner.tick(value)
     assert evaluated == [True]
+    dispatched.clear()
+    control['execution_holds'] = {'D0': 'Registered same-run continuation'}
+    owner.tick(value)
+    assert dispatched == [arm for arm in owner.ORDER if arm != 'D0']
+    assert value['runs']['D0']['status'] == 'SAVED_AND_HELD_FOR_REGISTERED_STAGE'
 
 
 def test_native_evaluator_sharing_requires_exact_sealed_d46_parent(tmp_path, monkeypatch):

@@ -195,6 +195,14 @@ def tick(campaign):
     for arm in ORDER:
         run=campaign['runs'][arm]
         if run['status'] in ('FAILED_REQUIRES_REVIEW','COMPLETE'):continue
+        hold=control.get('execution_holds',{}).get(arm)
+        if hold:
+            # A staged same-run continuation must never race an automatic
+            # restart of its old world. STOP invokes the existing native save.
+            if run['jobs']and not(Path(run['jobs'][-1]['job'])/'RESULT.json').exists():
+                (Path(run['jobs'][-1]['job'])/'STOP_REQUESTED').touch()
+            run.update(status='SAVED_AND_HELD_FOR_REGISTERED_STAGE',execution_hold=hold)
+            continue
         try:
             if not qualification_pass(run):
                 run['status']=dispatch(run,True,startup_hosts(campaign))
