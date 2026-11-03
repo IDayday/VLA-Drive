@@ -261,7 +261,11 @@ def evaluation_tick(campaign):
             req=read(request);key=arm+'_'+request.stem
             cases.setdefault(key,dict(request=req,source=run['source'],status='PENDING',world=campaign.get('evaluation_world',8),jobs={},
                 output=str(ROOT/'evaluations'/key/'evaluation')))
-    pending=[v for v in cases.values()if v['status']not in('COMPLETE','FAILED_REQUIRES_REVIEW','FAILED_SUMMARY_REQUIRES_REVIEW')]
+    from tools.d46_priority_rl.evaluation_reference import prepare_references
+    priorities=prepare_references(campaign,ROOT)
+    pending=[v for v in cases.values()if not v.get('reference_only')and v['status']not in('COMPLETE','FAILED_REQUIRES_REVIEW','FAILED_SUMMARY_REQUIRES_REVIEW')]
+    keys={id(v):k for k,v in cases.items()}
+    pending.sort(key=lambda v:priorities.get(keys[id(v)],100))
     if not pending:return
     reserved=set()
     alljobs=[j for run in campaign['runs'].values()for j in run['jobs'][-1:]+run.get('qualification_jobs',[])[-1:]]
