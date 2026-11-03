@@ -7,6 +7,12 @@
 **D46 IL 起点的完整部署 PDMS 为 89.49552098，12146 场景、44 logs、invalid0。**
 本轮尚无 RL 完整部署成绩；既有全局最高 SafetyEP Control 91.45359756 保留为历史成绩。
 
+2026-11-03 01:10 UTC 后的实证：**六条均完成八卡10更新资格并开始独立正式训练**。
+六条正式 native0 均实读到空 Adam、scheduler0、八 rank 零曝光与完整 RNG，
+实际正式命令未使用 qualification/旧RL resume，首批更新梯度有限；
+FPO 单独核对真正的 energy-proxy ratio，AWM 明确优化 matching、没有 PPO clip。
+[六路线实证](results/ACTUAL_QUALIFICATION_AND_FRESH_FORMAL_PROOF.json)只证明正确启动，不代表部署提分。
+
 ## 正在推进的方法
 
 | 路线 | 实际优化机制 | 关键启用点 |
