@@ -1,0 +1,35 @@
+{
+  "schema": "d46_execution_prefix_hoist_handoff_v1",
+  "status": "CPU_READY_NOT_ENABLED",
+  "base": "82d5f784d02ad4bc182231a267edab8a2a69833e",
+  "API": {
+    "flag": "actor.execution_fast_prefix=True (False default directly calls original super._prepare)",
+    "helper": "starVLA.rl.d44_native_rl.fast_prefix.fast_index_select(ArchitecturePrefix_or_DPrefix,indices)"
+  },
+  "CPU": {
+    "result": "3 passed, 1 warning in 4.76s",
+    "actual_scalar_extractions_per_28layer_prefix": {
+      "baseline": 134,
+      "hoisted": 0
+    },
+    "values_strides_storage_gradient": "bitexact in directprefix cases and actual Tiny FPOActor loss/all LoRA gradients",
+    "boundary_errors": "same types/messages for tested empty/uniform/nonuniform/negative/out-of-range/invalid shapes andtypes",
+    "GPU": "not run; CPU profiler extraction count is not a CUDA latency claim"
+  },
+  "model_source_unchanged": {
+    "path": "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py",
+    "sha256": "e95e1fcccd1aa37f8b095a83e0b134adbecc7350739b6701cd6b007042db0367",
+    "same_bytes_as_82": true
+  },
+  "not_changed": [
+    "qwen_flow_adapter.py or any model/parent/conditions files",
+    "registered config/recipe",
+    "sampler/RNG/velocity/energy/optimizer",
+    "no cross-inner trainable C/P cache"
+  ],
+  "limitations": [
+    "New training source needs Root typed execution upgrade before formal use",
+    "Full-model GPU output/gradient/fresh ratio/throughput measurement pending"
+  ],
+  "log_sha256": "2528eeffa6b92b50183d127708eff8f0730c9f08476ba70dd8426139c676c3b2"
+}

@@ -1,5 +1,6 @@
 """D-only actor on the audited native sampler and functional prefix lifecycle."""
 import copy
+from dataclasses import replace
 from contextlib import nullcontext
 import torch
 from torch import nn
@@ -23,6 +24,8 @@ class D44Actor(FourFrameworkRecipeActor):
                 independent_trainable_module(self.action_expert,path)
         self.closure=self.scope_audit()
         self.record_sampling_terms=True
+        self.execution_fast_prefix=False
+        self.execution_fuse_fm_mc=False
 
     def _configure_action_grpo(self,cfg):
         self.eval().requires_grad_(False)
@@ -47,6 +50,22 @@ class D44Actor(FourFrameworkRecipeActor):
         return dict(trainable_names=['action_expert.'+n for n in current],trainable_numel=sum(p.numel()for p in current.values()),
             text_lora_numel=text,adapters=self.scope_manifest,reference_frozen=True,base_frozen=True,
             current_prefix_recomputed_each_update=True,architecture_id='D',no_independent_DiT=True)
+
+    def _prepare(self,condition,use_ref):
+        if not getattr(self,'execution_fast_prefix',False):return super()._prepare(condition,use_ref)
+        from .fast_prefix import fast_index_select
+        key='reference'if use_ref else'current'
+        if self._prepared_scope is not None and key in self._prepared_scope:return self._prepared_scope[key]
+        policy=self.ref_action_expert if use_ref else self.action_expert
+        current=condition.get('ref_current',condition['current'])if use_ref else condition['current']
+        current=replace(current,policy_version='permanent_IL_REFERENCE'if use_ref else self._policy_version)
+        with torch.autocast(self.device.type,dtype=torch.bfloat16):prefix=policy.prepare_prefix(current,auxiliary=False)
+        indices=condition.get('candidate_to_scene')
+        if indices is None:indices=torch.zeros(len(condition['context']),dtype=torch.long,device=self.device)
+        prefix=fast_index_select(prefix,indices)
+        self.prepared_context_builds[key]+=1
+        if self._prepared_scope is not None:self._prepared_scope[key]=prefix
+        return prefix
 
     def transition_terms(self,condition,chain,times,deltas,*,use_ref=False):
         # Reuses the exact source mean/std kernel, bypasses ALL source logprob clamps.
