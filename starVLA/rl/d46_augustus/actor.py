@@ -81,7 +81,9 @@ class AugustusActor(D44Actor):
         group=self.study_config['group'];spec=self.study_config['augustus']
         grid=torch.tensor(spec['training_sigma_grid'],device=self.device,dtype=torch.float32)
         if init_actions is None:
-            root=torch.randn((1,8,3),generator=generator,device='cpu').to(self.device)
+            root_generator=(torch.Generator(device='cpu').manual_seed(spec['initial_root_seed'])
+                            if 'initial_root_seed'in spec else generator)
+            root=torch.randn((1,8,3),generator=root_generator,device='cpu').to(self.device)
             state=root.expand(group,-1,-1).clone()
         else:
             state=init_actions.to(self.device).float().clone()
@@ -89,10 +91,22 @@ class AugustusActor(D44Actor):
         states=[state.clone()];predictions=[];means=[];stds=[]
         with self._context_call(condition)as material:
             prefix=self._prepare(material,velocity_use_ref)
+            if 'deterministic_prefix_grid'in spec:
+                from starVLA.model.modules.qwen_world_postcot.flow import clean_x_step
+                # Shared root permits one exact native prefix, independent of G.
+                shared=torch.equal(state,state[:1].expand_as(state))
+                p=prefix.index_select(torch.zeros(1,dtype=torch.long,device=self.device))if shared else prefix
+                z=state[:1]if shared else state
+                for sigma,nxt in zip(spec['deterministic_prefix_grid'][:-1],spec['deterministic_prefix_grid'][1:]):
+                    x0=self.predict_clean(z,z.new_full((len(z),),sigma),p,use_ref=velocity_use_ref)
+                    z=clean_x_step(z,x0,sigma,nxt,validate=False)
+                state=z.expand(group,-1,-1).clone()if shared else z
+                states=[state.clone()]
             for sigma,nxt in zip(grid[:-1],grid[1:]):
                 x0=self.predict_clean(state,sigma.expand(group),prefix,use_ref=velocity_use_ref)
                 if deterministic:
-                    mean=state+(nxt-sigma)*(state-x0)/sigma
+                    from starVLA.model.modules.qwen_world_postcot.flow import clean_x_step
+                    mean=clean_x_step(state,x0,sigma,nxt,validate=False)
                     std=state.new_zeros((group,1,3));following=mean
                 else:
                     innovation=torch.randn((group,8,3),generator=generator,device='cpu').to(self.device)

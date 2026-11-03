@@ -71,6 +71,16 @@ def consensus_stop(device):
     return bool(x)
 
 
+def publish_evaluation_requests(root, gates, checkpoint_path, run_sha, updates):
+    """Publish only after the native save; first gate needs a new directory."""
+    directory=Path(root)/'evaluation_requests'
+    directory.mkdir(parents=True,exist_ok=True)
+    for gate in gates:
+        atomic_json(directory/f'epoch{gate:g}.json',dict(epoch=gate,checkpoint=checkpoint_path,
+            source_run=run_sha,updates=updates,seed=2101,
+            protocol='single_B1_cleanx_ODE_K10_shift5_canonical_v1.1',test_selected_research=True))
+
+
 def main(*,extension=None):
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8')
     os.environ.setdefault('FLASH_ATTENTION_DETERMINISTIC','1')
@@ -133,6 +143,8 @@ def main(*,extension=None):
             if not torch.equal(original_prediction[key],wrapped_prediction[key]):raise FloatingPointError('Wrapped native clean-x deployment changed '+key)
         atomic_json(root/f'initial_native_parity_rank{rank}.json',dict(status='PASS',ODE_chain_max_abs=error,
             original_cleanx_deployment_max_abs=0.,trainable=actor.closure,reference_frozen=True,parent=info['model_sha256']))
+        if extension is not None and hasattr(extension,'initial_qualification'):
+            extension.initial_qualification(actor,conditions,token,original_noise,wrapped_prediction,root,rank)
     parameter_groups=groups if extension is None else getattr(extension,"optimizer_groups",groups)
     optimizer=torch.optim.AdamW(parameter_groups(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01)
     scheduler=SceneScheduler(optimizer);generator=torch.Generator(device='cpu').manual_seed(420000+rank)
@@ -328,8 +340,7 @@ def main(*,extension=None):
             stopping=consensus_stop(device)or(a.stop_after_update is not None and state['updates']>=a.stop_after_update)
             if stopping or gates or state['updates']%cfg['save_every']==0 or(a.qualification and state['updates']==1):last_saved=save()
             if gates and rank==0:
-                for gate in gates:atomic_json(root/'evaluation_requests'/f'epoch{gate:g}.json',dict(epoch=gate,checkpoint=last_saved,
-                    source_run=identity['sha256'],updates=state['updates'],seed=2101,protocol='single_B1_cleanx_ODE_K10_shift5_canonical_v1.1',test_selected_research=True))
+                publish_evaluation_requests(root,gates,last_saved,identity['sha256'],state['updates'])
             if stopping:break
         if last_saved is None or json.loads((Path(last_saved)/'COMPLETE').read_text())['updates']!=state['updates']:last_saved=save()
         result=dict(state,status='QUALIFICATION_STOPPED'if a.qualification else'COMPLETE'if state['valid_scene_exposures']>=cfg['target_epochs']*stream.n and batch is None else'STOPPED_AT_SAVED_BOUNDARY',

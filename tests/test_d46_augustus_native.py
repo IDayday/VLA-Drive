@@ -49,8 +49,9 @@ def worker(rank,port,root,experiment,m):
     for j in range(8):
         r=collect_scene(actor,condition,f'TRAIN_CPU_{rank}_{j}','SYNTHETIC_CPU_TRAIN',SyntheticService(),generator,cfg,0.,
             dict(run=identity['sha256'],update=0,collection=1))
-        r.update(padding=False,beta=.001,expect_fresh=True);scenes.append(r)
-    raw,_=credit(scenes,None,0.);a,std=advantages(raw,torch.ones(8,dtype=torch.bool),8,8)
+        r.update(padding=False,beta=cfg['beta'],expect_fresh=True);scenes.append(r)
+    from starVLA.rl.d46_augustus.runtime import recipe_credit
+    raw,_=recipe_credit(scenes,None,0.,cfg);a,std=advantages(raw,torch.ones(8,dtype=torch.bool),8,8)
     for r,value in zip(scenes,a):r['advantages']=value
     batch=dict(scenes=scenes,behavior_update=0,global_std=float(std),valid_scenes=64,epoch=0.)
     batch['digest']=material_digest(batch);dual=FixedKL(cfg)
@@ -91,7 +92,7 @@ def worker(rank,port,root,experiment,m):
     dist.destroy_process_group()
 
 
-@pytest.mark.parametrize('experiment,m',[('AUG1_FULL',1),('AUG2_LORA',2)])
+@pytest.mark.parametrize('experiment,m',[('AUG1_FULL',1),('AUG2_LORA',2),('AUG3_FULL_ALIGNED',2),('AUG4_LORA_ALIGNED',2)])
 def test_actual8CPU_native_save_restore_without_reset(tmp_path,experiment,m):
     if torch.cuda.is_available():pytest.skip('This bounded fixture is CPU-only')
     with socket.socket()as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]

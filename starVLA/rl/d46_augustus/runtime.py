@@ -10,7 +10,7 @@ from starVLA.rl.qwen_world_compare.recovery_state import tensor_digest
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.recovery import Boundary,Attempt,material_digest
 from starVLA.rl.qwen_world_abcd_research import checkpoint
-from .config import SCHEMA,validate,read,kernel_identity
+from .config import SCHEMA,validate,read,kernel_identity,aligned
 
 
 def source_inventory():
@@ -61,6 +61,12 @@ def credit(scenes,stream,epoch):
     return scores-scores.mean(1,keepdim=True),feasible
 
 
+def recipe_credit(scenes,stream,epoch,cfg):
+    if not aligned(cfg['experiment_id']):return credit(scenes,stream,epoch)
+    from starVLA.rl.d44_native_rl.safety_credit import raw_credit
+    return raw_credit(torch.stack([r['factors']for r in scenes]))
+
+
 class AugustusBoundary(Boundary):
     @staticmethod
     def validate_boundary(state,batch,identity,optimizer=None,scheduler=None,**kw):
@@ -88,7 +94,11 @@ class AugustusBoundary(Boundary):
                     or not torch.allclose(scene['deltas'],(expected[1:]-expected[:-1]),atol=1e-7,rtol=0)):
                     raise ValueError('Changed AUGUSTUS linear training grid')
                 reward=torch.tensor([q['metrics']['score']for q in scene['records']],device=scene['chain'].device,dtype=torch.float64)
-                raw=reward-reward.mean();a=(raw/(raw.std(unbiased=True)+1e-6)).float()
+                if aligned(cfg['experiment_id']):
+                    from starVLA.rl.d44_native_rl.safety_credit import raw_credit
+                    raw,_=raw_credit(scene['factors'][None]);raw=raw[0]
+                else:raw=reward-reward.mean()
+                a=(raw/(raw.std(unbiased=True)+1e-6)).float()
                 if scene['padding']:a.zero_()
                 if not torch.allclose(scene['advantages'],a,atol=1e-6,rtol=1e-5)or scene['beta']!=cfg['beta']:
                     raise ValueError('Changed AUGUSTUS group normalization/fixed reference beta')
@@ -101,7 +111,23 @@ class AugustusExtension:
     boundary=AugustusBoundary();make_attempt=staticmethod(Attempt)
     actor_factory=staticmethod(lambda model,backend,cfg:__import__('starVLA.rl.d46_augustus.actor',fromlist=['AugustusActor']).AugustusActor(model,backend,cfg))
     collect_scene=staticmethod(lambda *args,**kw:__import__('starVLA.rl.d46_augustus.collector',fromlist=['collect_scene']).collect_scene(*args,**kw))
-    credit=staticmethod(credit);advantages=staticmethod(advantages);make_dual=staticmethod(FixedKL)
+    advantages=staticmethod(advantages);make_dual=staticmethod(FixedKL)
+    def credit(self,scenes,stream,epoch):return recipe_credit(scenes,stream,epoch,self.cfg)
+    def initial_qualification(self,actor,conditions,token,noise,expected,root,rank):
+        if not aligned(self.cfg['experiment_id']):return
+        from starVLA.model.modules.qwen_world_postcot.flow import clean_x_step
+        from starVLA.rl.flow_grpo.transactions import atomic_json
+        spec=self.cfg['augustus'];grid=spec['deterministic_prefix_grid'][:-1]+spec['training_sigma_grid']
+        with torch.no_grad(),actor._context_call(conditions.get(token))as material:
+            prefix=actor._prepare(material,False).index_select(torch.zeros(1,device=actor.device,dtype=torch.long))
+            z=noise.float()
+            for t,nxt in zip(grid[:-1],grid[1:]):
+                x0=actor.predict_clean(z,z.new_full((1,),t),prefix)
+                z=clean_x_step(z,x0,t,nxt,validate=False)
+        error=float((z-expected['normalized_action']).abs().max())
+        if error!=0:raise FloatingPointError('Aligned cached-condition B1 differs from native deployment: '+str(error))
+        atomic_json(Path(root)/f'aligned_B1_parity_rank{rank}.json',dict(status='PASS',normalized_action_max_abs=error,
+            exact_native_K10_shift5=True,seed=2101,reference_parent=self.cfg['parent_checkpoint']))
     @staticmethod
     def json_result(value):json.dumps(value,allow_nan=False);return value
     @staticmethod
