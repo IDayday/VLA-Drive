@@ -473,7 +473,7 @@ def D46_augustus_formal_fragment(plan,directory):
     if not launches.get('receipts'):return '',0,0
     entries=[];actual=starting=slots=0
     for route in plan.get('routes',[]):
-        exp=route['experiment'];output=D46_ROOT/'runs'/(exp+'_v1');identity=read(output/'identity.json',{})
+        exp=route['experiment'];output=Path(route.get('formal_output',str(D46_ROOT/'runs'/(exp+'_v1'))));identity=read(output/'identity.json',{})
         jobs=[r for r in launches['receipts']if str(output)in r.get('command',[])]
         live=failed=0;starts=[]
         for receipt in jobs:
@@ -502,6 +502,62 @@ def D46_augustus_formal_fragment(plan,directory):
     proof_path=directory/'GPU_NATIVE_RESUME_RNG_AUDIT.json';proof=read(proof_path,{})
     if proof.get('status')=='PASS':body+='<p>资格1→2的两路线全部EXIT0，48rank私有RNG原生接续审计PASS；这是恢复证据，不是GPU不中断参数对照或PDMS提升。<a href="'+esc(proof_path)+'">实际RNG恢复审计</a></p>'
     return body,actual,slots
+
+
+def D46_augustus_regression_fragment():
+    path=D46_ROOT/'analysis/AUGUSTUS_REGRESSION_20261103/DIAGNOSIS.json';v=read(path,{})
+    if v.get('schema')!='d46_augustus_regression_evidence_v1'or not sealed_JSON(v):return ''
+    body='<section style="background:#fff7ed;border:2px solid #d19042;border-radius:12px;padding:18px"><h3>最新：两组旧 AUG 退化，已修改代码，修正版验证中</h3>'
+    best=max(AUG_complete_points(),key=lambda p:p['PDMS'],default={})
+    highest=(best['experiment']+' '+format(best['PDMS'],'.4f'))if best.get('PDMS',0)>90.32032057511778 else'FPO 90.3203'
+    body+='<p><b>当前 D 系最高完整成绩：'+esc(highest)+'；同父 IL46 为 89.4955。历史 IL70/SafetyEP 91.4536 属于另一父模型。</b>修正收益仅以完整官方评测确认。</p>'
+    current_directory=D46_ROOT/'operations/AUGUSTUS_ALIGNED_20261103'
+    current_plan=read(current_directory/'PLAN.json',{})
+    current_formal,_,_=D46_augustus_formal_fragment(current_plan,current_directory)
+    body+=current_formal
+    rows=[]
+    for p in v['complete_points']:
+        rows.append((p['arm'],p['updates'],f'{p["exposure"]:.4f}E',f'{p["PDMS"]:.4f}',f'{p["delta_IL46"]:+.4f}',p['paired']['repaired_zero'],p['paired']['new_zero']))
+    body+=table(['旧版完整 NAVTEST','Adam','有效曝光','PDMS','相对同 IL46','零分修复','新增零分'],rows)
+    body+='<p>每点均为 12,146 场景 / 44 物理 log / invalid=0 / 真实 B1 K10 shift5。FULL 的碰撞、越界和 TTC 同时恶化。LoRA 400 次的下降 CI 也低于零，不能把所有下降都解释成随机波动。</p>'
+    body+=table(['相同IL46基线的收益/损失分解','全场景正收益 PDMS','全场景负损失 PDMS','固定原高分队列≥.9贡献','原零分队列贡献'],[
+        (p['arm']+'/'+str(p['updates']),f'{100*p["gain_loss"]["G_plus"]:+.4f}',f'{100*p["gain_loss"]["G_minus"]:+.4f}',
+         f'{100*p["gain_loss"]["fixed_reference_cohorts"]["IL46_high_ge_0.9"]["population_contribution"]:+.4f}',
+         f'{100*p["gain_loss"]["fixed_reference_cohorts"]["IL46_zero"]["population_contribution"]:+.4f}')for p in v['complete_points']])
+    body+='<p>固定原高分队列为同一 8,722 场景，原零分为479场景。FULL100 虽获得 +4.1083 的 gross 改善，却损失 -12.3307；其中原高分队列贡献 -7.7508，远大于原零分队列 +1.0072。修正不能只追求零分恢复，还必须控制原高分能力流失。表中贡献都按完整12,146人口折算，不能将子集均值直接相加。</p>'
+    body+='<p><b>已确认的工程错误：</b>FULL404、LoRA807 都已封存 0.5E native，随后首次写评测请求时缺少目录而退出。已修复目录创建；这个错误解释训练中断，不能解释更早的掉分。</p>'
+    body+='<p><b>优化问题：</b>旧训练三步线性网格与部署十步 shift5 不一致；M1 在求梯度时 ratio=1，clipping 不限制这次 Adam 位移；FULL 的 IL 参考 KL 已明显增大。TRAIN 还发现存在安全候选时，TTC0 轨迹仍得到正 canonical 优势。这些是已观察风险，尚未逐项隔离证明掉分原因。</p>'
+    body+='<p><b>修改内容：</b>沿用官方 JaT 核心，改为原生 K10/shift5 的七步确定性前缀＋末三步探索；共享实际部署 seed2101 初始噪声；安全分层优势；参考 KL 系数 0.001→0.1；M1→M2；FULL LR 1e-6→2e-7。两条修正版均重新从同 IL46 / 空 Adam 开始。12 项定向测试＋4 项八进程 CPU 原生恢复测试已通过，真实 GPU 和 B1 收益待验证。</p>'
+    diagnostic=read(path.parent/'TRAIN64_COMPARISON.json',{})
+    if diagnostic.get('count')==64 and diagnostic.get('NAVTEST')is False:
+        body+='<h4>补充的固定 TRAIN64 对照：不能只归因于网格</h4>'
+        body+=table(['同64个已训练场景，非NAVTEST','原生K10 PDMS','旧三步K3 PDMS'],[(k,f'{m["K10"]:.4f}',f'{m["K3"]:.4f}')for k,m in diagnostic['means'].items()])
+        body+='<p>FULL100 的两种网格都退化，且 TTC 98.44%→82.81%、EP 81.85%→88.23%，表明仅改网格不足以解释或解决问题。LoRA400 的 TRAIN K10 改善而完整 NAVTEST 下降；该64场景已参与训练，不能作为泛化或新提分证据。更强约束与安全信用是修正的重点，组合有效性仍待完整评测。</p>'
+    plan=read(D46_ROOT/'operations/AUGUSTUS_ALIGNED_20261103/PLAN.json',{});entries=[]
+    for r in plan.get('routes',[]):
+        q=Path(r['output']);jobs=list((D46_ROOT/'jobs/AUGUSTUS_ALIGNED_20261103'/r['experiment']).glob('*/node*/LAUNCH.json'))
+        newest={}
+        for j in jobs:
+            receipt=read(j,{})
+            host=receipt.get('host')
+            if host and receipt.get('at',0)>newest.get(host,(0,None))[0]:newest[host]=(receipt.get('at',0),j)
+        jobs=[item[1]for item in newest.values()]
+        live=fail=done=0
+        for j in jobs:
+            result=read(j.parent/'RESULT.json',{});running=read(j.parent/'RUNNING.json',{})
+            if result:done+=int(result.get('returncode')==0);fail+=int(result.get('returncode')!=0)
+            elif running.get('child_pid'):live+=1
+        native=read(q/'latest.json',{})
+        entries.append((r['experiment'],r['world'],'128/8/2'if 'FULL'in r['experiment']else'64/8/2',
+            f'{live} 活跃 worker / {done} EXIT0 / {fail} 异常',native.get('updates','尚无已封存更新'),
+            '异常待修复'if fail else'真实资格/正式派发，见收据'if live else'等待派发或阶段衔接'))
+    body+=table(['修正版','GPU计划','B/G/M','实际任务收据','资格 native Adam','当前状态'],entries)
+    body+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px">'
+    for name in ('deployment_regression.svg','trust_and_zero_regression.svg'):
+        image=path.parent/name
+        if image.is_file():body+='<figure style="margin:8px 0"><img style="width:100%;height:auto" src="'+esc(image)+'" alt="完整部署退化与训练漂移"></figure>'
+    body+='</div><p><a href="'+esc(path)+'">完整证据与统计</a> · <a href="'+esc(D46_ROOT/'operations/AUGUSTUS_ALIGNED_20261103/PLAN.json')+'">修正版科学配置与资源计划</a></p></section>'
+    return body
 
 
 def D46_augustus_qualification_fragment(historical_peak=91.45359756166451):
@@ -535,7 +591,12 @@ def D46_augustus_qualification_fragment(historical_peak=91.45359756166451):
             '/'.join(fields.get(k,'待核对')for k in('global_scenes','group','inner_updates')),method,
             ' + '.join(route['hosts']),progress,f'{running} 已启动未返回 / {done} EXIT0 / {failed}异常',status))
     formal,formal_actual,formal_slots=D46_augustus_formal_fragment(plan,directory)
-    body=formal+AUG_complete_results_fragment(historical_peak)+('<details><summary>原生资格与正式起点分开核对</summary>'if formal else'')
+    diagnosis=D46_augustus_regression_fragment()
+    if diagnosis:
+        current_directory=D46_ROOT/'operations/AUGUSTUS_ALIGNED_20261103'
+        _,aligned_actual,aligned_slots=D46_augustus_formal_fragment(read(current_directory/'PLAN.json',{}),current_directory)
+        formal_actual+=aligned_actual;formal_slots+=aligned_slots
+    body=diagnosis+('<details><summary>旧版AUG正式任务，已退出并保留</summary>'+formal+'</details>'if diagnosis else formal)+AUG_complete_results_fragment(historical_peak)+('<details><summary>旧版原生资格与正式起点分开核对</summary>'if formal else'')
     body+='<h3>AUGUstus 当前资格任务：'+esc(active_routes)+' 组，'+esc(active_workers)+' 个CUDA子进程worker已启动，覆盖 '+esc(len(uuids))+' 个物理GPU UUID</h3>'
     body+='<p><b>此表仅资格，不是正式训练。</b>两条均从同IL46/Adam0起步，先1次真实Adam再自身原生恢复核对；正式阶段另从原IL46和新空Adam开始，绝不继承资格权重。资格设备、模型加载、真实更新与正式计数分开；最大同时两路线。</p>'
     body+=table(['路线/资格world','实际配置B/G/M','训练范围','已派发主机','真实共同进度','逐node收据','当前阶段'],entries)
@@ -562,6 +623,7 @@ def D46_priority_fragment(other_active=None,historical_peak=91.45359756166451):
         qualification,aug_actual,aug_slots=D46_augustus_qualification_fragment(historical_peak)
         formal_receipts=read(D46_ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103/FORMAL_LAUNCHES.json',{})
         phase=('两条AUG均已正式派发；真实更新与初始化按全rank新日志区分，见最前表。'if formal_receipts.get('receipts')else'AUG1_FULL/world32 与 AUG2_LORA/world16已实际派发资格，尚非正式训练。')if qualification else'候选FULL/LORA尚待实际派发收据，不据计划称已训练。'
+        if (D46_ROOT/'analysis/AUGUSTUS_REGRESSION_20261103/DIAGNOSIS.json').is_file():phase='旧版AUG已退出保留；当前修正版、真实进度和退化分析见下方最前面板。'
         body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>'+esc(phase)+'旧D0/D2/D5按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p>'+qualification+D46_dedicated_execution_fragment()+'<p>旧D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方默认LoRA关闭、文本主干可训练、RL冻结视觉；本地旧D0仅attention-LoRA约642万参数，且sum24/W3与官方mean-coordinate/lambda_t/3步不同。</p>'
         scope_path=Path(__file__).resolve().parents[2]/'reports/d46_augustus_scope_audit_20261103/SCOPE_AUDIT.json'
         if scope_path.is_file():body+='<p><a href="'+esc(scope_path)+'">官方scope与本地精确路径只读审计</a>：FULL建议dense text layers/FFN/norm与动作/时间接口，LORA保同接口作范围对照；当前缓存embedding合同与永久参考参数别名必须处理，不能直接把旧共享base解冻。该建议未部署，不含性能提升声明。</p>'

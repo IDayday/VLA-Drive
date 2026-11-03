@@ -37,7 +37,8 @@ def validated_point(root,case):
     if case.get('status')!='COMPLETE' or case.get('world')!=32:
         raise ValueError('Only a COMPLETE world32 evaluation event may publish')
     b=case['binding'];exp=b['experiment'];cp=Path(b['checkpoint']).resolve()
-    if (exp not in('AUG1_FULL','AUG2_LORA') or cp.parent!=root/'runs'/(exp+'_v1')/'checkpoints'
+    version='_v2'if exp in('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')else'_v1'
+    if (exp not in('AUG1_FULL','AUG2_LORA','AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED') or cp.parent!=root/'runs'/(exp+version)/'checkpoints'
             or b.get('parent_model_sha256')!=PARENT or b.get('algorithm_schema')!=ALGORITHM):
         raise ValueError('Foreign AUG experiment/parent/checkpoint binding')
     native=read(cp/'identity.json');files=read(cp/'files.json');seal=read(cp/'COMPLETE')
