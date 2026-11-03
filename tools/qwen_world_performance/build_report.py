@@ -26,6 +26,30 @@ def atomic_text(path, value):
     tmp=path.with_name(path.name+'.writing-report-'+str(os.getpid()));tmp.write_text(value,encoding='utf-8');os.replace(tmp,path)
 
 
+def D46_qualification_status(registered):
+    """Separate real eight-rank qualification from the fresh formal run."""
+    directory=Path(registered['qualification']);jobs=registered.get('qualification_jobs',[])
+    current=jobs[-1]if jobs else {};job=Path(current['job'])if current.get('job')else None
+    result=read(job/'RESULT.json',{})if job else {}
+    running=read(job/'RUNNING.json',{})if job else {}
+    identity=read(directory/'identity.json',{})
+    ranks=[read(directory/f'result_rank{rank}.json',{})for rank in range(8)]
+    if (result.get('returncode')==0 and identity.get('world')==8 and identity.get('qualification')is True
+            and all(r.get('rank')==rank and r.get('status')=='QUALIFICATION_STOPPED'
+                and r.get('qualification')is True and r.get('updates',0)>=10
+                and r.get('frozen_before')and r.get('frozen_before')==r.get('frozen_after')
+                for rank,r in enumerate(ranks))):return 'PASS · 8rank × '+str(min(r['updates']for r in ranks))+'更新'
+    if result:
+        return '资源等待（prechild75）'if result.get('returncode')==75 and result.get('child_not_started')else '资格异常待复核（RESULT '+str(result.get('returncode'))+'）'
+    if running:
+        rows=[tail(directory/f'metrics_rank{rank}.jsonl')for rank in range(8)]
+        if all(r.get('at',0)>=running.get('start_unix',float('inf'))and r.get('updates',0)>0 for r in rows):
+            progress=str(min(r['updates']for r in rows))+'/10'
+            return '资格 '+progress+' · 8rank实测'+('（日志过期）'if max(time.time()-r['at']for r in rows)>600 else '')
+        return '资格加载中，等待八rank更新'
+    return '资格尚未派发'
+
+
 def D46_priority_fragment():
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
@@ -61,14 +85,28 @@ def D46_priority_fragment():
     campaign=read(D46_ROOT/'CAMPAIGN.json',{}).get('runs',{})
     if rows:
         entries=[]
-        states={'RUNNING_QUALIFICATION':'八卡资格进行中，非正式训练','WAITING_RESOURCE':'等待资源','RUNNING':'运行中（以实际日志核对）'}
+        states={'RUNNING_QUALIFICATION':'资格阶段，非正式训练','WAITING_RESOURCE':'等待资源',
+            'WAITING_FOR_AUTHORIZED_CAPACITY':'等待有权限资源','RUNNING_OR_ADMITTING':'正式已派发/初始化，待八rank更新',
+            'TRAINING':'正式实际训练','RUNNING':'运行中（以实际日志核对）'}
         for r in rows:
             arm=r.get('id','').removeprefix('D46_');registered=campaign.get(arm,{})
             history=registered.get('qualification_jobs',[])if r.get('status')=='RUNNING_QUALIFICATION'else registered.get('jobs',[])
             host=r.get('host')or(history[-1].get('host')if history else None)or'待分配'
             method,gate=methods.get(arm,('以登记配方为准',''))
-            entries.append((r.get('id',''),method,gate,host,r.get('updates')if r.get('updates')is not None else'尚无实际日志',states.get(r.get('status'),r.get('status','待确认'))))
-        body+=table(['D46 路线','方法','阶段启用与边界','服务器','正式更新（收据）','状态'],entries)
+            qualification=D46_qualification_status(registered)if registered.get('qualification')else'等待登记'
+            entries.append((r.get('id',''),method,gate,qualification,host,r.get('updates')if r.get('updates')is not None else'尚无实际日志',states.get(r.get('status'),r.get('status','待确认'))))
+        body+=table(['D46 路线','方法','阶段启用与边界','独立资格','服务器','正式更新（收据）','正式阶段状态'],entries)
+    reviewed=[]
+    for arm,registered in campaign.items():
+        review=registered.get('qualification_resource_retry_review',{});review_path=Path(review.get('receipt',''))
+        if not review_path.is_file():continue
+        if hashlib.sha256(review_path.read_bytes()).hexdigest()!=review.get('receipt_sha256'):continue
+        evidence=read(review_path,{})
+        reviewed.append((arm,evidence.get('original_returncode'),evidence.get('reason',''),str(review_path)))
+    if reviewed:
+        body+='<details><summary>已复核的资格启动资源故障（保留原失败，不作为算法负结果）</summary><p>FPO/AWM 首次共用 WM4 时未预留冷加载显存，竞争触发 OOM；原 RESULT1 保留。仅调度准入升级：启动预留至当前八rank均有更新、冷加载需48GiB；科学源仍 formal_v1。各自从原资格 native0、保留其 Adam0/RNG 作一次显式资源重试，资格权重不进入正式训练。</p>'
+        for arm,code,reason,path in reviewed:body+='<p>'+esc(arm)+' / 原RESULT '+esc(code)+'：'+esc(reason)+' <a href="'+esc(path)+'">精确复核收据</a></p>'
+        body+='</details>'
     body+='<p>六条专用路线优先顺序为 D3_FPO / D3_AWM / D5 / D1 / D2 / D0。共同 B64 / G16 / inner2；各自先完成真实八卡10更新资格，再从相同完整 IL46 部署策略与新空 Adam 独立正式起步，绝不继承资格权重或 D44 RL 状态。它们适配 D 原生 Qwen 架构，不能写成把原 IL70 Safety 配方换父权重。<a href="'+esc(D46_ROOT/'CAMPAIGN.json')+'">六路线登记与当前阶段</a> · <a href="'+esc(D46_ROOT/'PARENT_CONTRACT_v2.json')+'">父策略合同v2</a></p>'
     saved_path=D46_ROOT/'operations/USER_PRIORITY_20261103/D44_ACTUAL_NATIVE_SAVED.json'
     saved=read(saved_path,{})
