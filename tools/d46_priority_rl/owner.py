@@ -117,6 +117,30 @@ def startup_hosts(campaign):
     return blocked
 
 
+
+def startup_control(run,config,resume,qualification=False):
+    """Explicit administrative startup only; original scientific run unchanged."""
+    binding=run.get('startup_control')or read(ROOT/'operations/EXECUTION_POLICY.json',{}).get('startup_controls',{}).get(run['arm'])
+    if not binding or qualification:return None
+    if not resume:raise ValueError('Startup control requires exact original native resume')
+    source=Path(binding['science_source']).resolve();profile=Path(binding['profile']).resolve()
+    if file_sha(profile)!=binding['profile_sha256']:raise ValueError('Startup control profile changed')
+    value=read(profile);body=dict(value);digest=body.pop('sha256',None)
+    identity=read(Path(resume)/'identity.json',{})
+    if (value.get('schema')!='d46_world8_control_startup_execution_profile_v1'or fingerprint(body)!=digest
+        or value.get('protocol',{}).get('world')!=8 or value['protocol'].get('timeout_seconds')!=600
+        or value.get('output')!=run['output']or value.get('arm')!=run['arm']or value.get('config')!=str(Path(config).resolve())
+        or value.get('config_sha256')!=file_sha(config)or value.get('science_source')!=str(source)
+        or value.get('identity_sha256')!=identity.get('sha256')or identity.get('world')!=8
+        or value.get('parent_model_sha256')!=MODEL_SHA or value.get('source_files_sha256')!=fingerprint(identity['source_files'])
+        or file_sha(source/'tools/d46_priority_rl/train_control.py')!=value.get('wrapper_sha256')):
+        raise ValueError('Startup wrapper is not this own unchanged world8 algorithm')
+    if subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip()!=binding['source_sha']:
+        raise ValueError('Startup control source changed')
+    for name,digest in identity['source_files'].items():
+        if file_sha(source/name)!=digest:raise ValueError('Startup science differs: '+name)
+    return dict(source=str(source),entry='tools.d46_priority_rl.train_control',args=['--control-profile',str(profile),'--control-profile-sha256',binding['profile_sha256']])
+
 def dispatch(run,qualification=False,blocked_hosts=()):
     # The native trainer commits its checkpoint before emitting milestone
     # requests. Provision this administrative directory before any GPU child.
@@ -146,7 +170,11 @@ def dispatch(run,qualification=False,blocked_hosts=()):
         latest=read(Path(output)/'latest.json')
         if latest:resume=latest['checkpoint']
     else:resume,_=inspect_latest(run)
-    command=[PYTHON,'-m','torch.distributed.run','--standalone','--nproc_per_node=8','-m','tools.d44_native_rl.train','--config',cfg,'--output',output]
+    adapter=startup_control(run,cfg,resume,qualification)
+    source=adapter['source']if adapter else run['source']
+    entry=adapter['entry']if adapter else'tools.d44_native_rl.train'
+    command=[PYTHON,'-m','torch.distributed.run','--standalone','--nproc_per_node=8','-m',entry,'--config',cfg,'--output',output]
+    if adapter:command+=adapter['args']
     if qualification:command+=['--qualification','--stop-after-update','10']
     if resume:command+=['--resume',resume]
     # One own full-world task per host initially; worker still independently
@@ -157,7 +185,7 @@ def dispatch(run,qualification=False,blocked_hosts=()):
         try:
             if len(capacity(host,49152))!=8:continue
             job=ROOT/'jobs'/run['arm']/('qualification' if qualification else 'formal')/f'attempt{len(jobs)+1:03}'
-            receipt=launch(host,run['source'],job,command,list(range(8)),share_min_free_mib=49152,worker_source=SOURCE,task_root=ROOT,task=TASK)
+            receipt=launch(host,source,job,command,list(range(8)),share_min_free_mib=49152,worker_source=SOURCE,task_root=ROOT,task=TASK)
             jobs.append(receipt);return 'RUNNING_QUALIFICATION' if qualification else 'RUNNING_OR_ADMITTING'
         except DispatchPreflightFailed as error:
             run.setdefault('prechild_failures',[]).append(dict(host=host,at=time.time(),error=str(error),child_started=False))

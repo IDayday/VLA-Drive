@@ -46,7 +46,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_priority_rl.train_control'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -190,8 +190,30 @@ def known_D46_world16_output(output):
     except(OSError,KeyError,TypeError,ValueError):return False
 
 
+
+def known_D46_control_args(args):
+    """Only fixed-profile600s wrapper around the same sealed formal8 policy."""
+    try:
+        output=Path(args[args.index('--output')+1]).resolve();profile=Path(args[args.index('--control-profile')+1]);sha=args[args.index('--control-profile-sha256')+1]
+        resume=Path(args[args.index('--resume')+1]).resolve();cfg=Path(args[args.index('--config')+1])
+        if file_sha(profile)!=sha or not known_D46_output(output)or not resume.is_relative_to(output/'checkpoints'):return False
+        value=json.loads(profile.read_text());body=dict(value);digest=body.pop('sha256')
+        identity=json.loads((output/'identity.json').read_text());native=json.loads((resume/'identity.json').read_text());seal=json.loads((resume/'COMPLETE').read_text())
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        protocol=dict(schema='d46_world8_CPU_control_timeout600_v1',world=8,backend='gloo',timeout_seconds=600,original_timeout_seconds=90,changes='CPU startup/control wait only',policy_optimizer_RNG_identity_unchanged=True)
+        source=Path(value['science_source'])
+        return(fingerprint(body)==digest and value['schema']=='d46_world8_control_startup_execution_profile_v1'and value['protocol']==protocol
+            and value['parent_model_sha256']==D46_PARENT_SHA and value['output']==str(output)and value['identity_sha256']==identity['sha256']==native['sha256']
+            and identity['world']==seal['world']==8 and identity['qualification']is False and value['arm']==identity['recipe']['arm']
+            and value['config']==str(cfg.resolve())and value['config_sha256']==file_sha(cfg)
+            and seal['files_sha256']==file_sha(resume/'files.json')and seal['updates']>=value['anchor_updates']
+            and value['source_files_sha256']==fingerprint(identity['source_files'])
+            and value['wrapper_file']=='tools/d46_priority_rl/train_control.py'and value['wrapper_sha256']==file_sha(source/value['wrapper_file']))
+    except(OSError,KeyError,TypeError,ValueError,IndexError):return False
+
 def known_owner_args(args):
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry=='tools.d46_priority_rl.train_control':return known_D46_control_args(args)
     if entry=='tools.d46_world16.train':
         try:return known_D46_world16_output(Path(args[args.index('--output')+1]).resolve())
         except(ValueError,IndexError):return False
