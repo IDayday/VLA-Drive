@@ -507,7 +507,7 @@ def D46_augustus_formal_fragment(plan,directory):
 def D46_augustus_regression_fragment():
     path=D46_ROOT/'analysis/AUGUSTUS_REGRESSION_20261103/DIAGNOSIS.json';v=read(path,{})
     if v.get('schema')!='d46_augustus_regression_evidence_v1'or not sealed_JSON(v):return ''
-    body='<section style="background:#fff7ed;border:2px solid #d19042;border-radius:12px;padding:18px"><h3>最新：两组旧 AUG 退化，已修改代码，修正版验证中</h3>'
+    body='<section style="background:#fff7ed;border:2px solid #d19042;border-radius:12px;padding:18px"><h3>最新：D46适配代码已修改 · 正式重训与退化原因分析</h3>'
     best=max(AUG_complete_points(),key=lambda p:p['PDMS'],default={})
     highest=(best['experiment']+' '+format(best['PDMS'],'.4f'))if best.get('PDMS',0)>90.32032057511778 else'FPO 90.3203'
     body+='<p><b>当前 D 系最高完整成绩：'+esc(highest)+'；同父 IL46 为 89.4955。历史 IL70/SafetyEP 91.4536 属于另一父模型。</b>修正收益仅以完整官方评测确认。</p>'
@@ -527,7 +527,16 @@ def D46_augustus_regression_fragment():
     body+='<p>固定原高分队列为同一 8,722 场景，原零分为479场景。FULL100 虽获得 +4.1083 的 gross 改善，却损失 -12.3307；其中原高分队列贡献 -7.7508，远大于原零分队列 +1.0072。修正不能只追求零分恢复，还必须控制原高分能力流失。表中贡献都按完整12,146人口折算，不能将子集均值直接相加。</p>'
     body+='<p><b>已确认的工程错误：</b>FULL404、LoRA807 都已封存 0.5E native，随后首次写评测请求时缺少目录而退出。已修复目录创建；这个错误解释训练中断，不能解释更早的掉分。</p>'
     body+='<p><b>优化问题：</b>旧训练三步线性网格与部署十步 shift5 不一致；M1 在求梯度时 ratio=1，clipping 不限制这次 Adam 位移；FULL 的 IL 参考 KL 已明显增大。TRAIN 还发现存在安全候选时，TTC0 轨迹仍得到正 canonical 优势。这些是已观察风险，尚未逐项隔离证明掉分原因。</p>'
-    body+='<p><b>修改内容：</b>沿用官方 JaT 核心，改为原生 K10/shift5 的七步确定性前缀＋末三步探索；共享实际部署 seed2101 初始噪声；安全分层优势；参考 KL 系数 0.001→0.1；M1→M2；FULL LR 1e-6→2e-7。两条修正版均重新从同 IL46 / 空 Adam 开始。12 项定向测试＋4 项八进程 CPU 原生恢复测试已通过，真实 GPU 和 B1 收益待验证。</p>'
+    body+='<p><b>已用于正式重训的修改：</b>沿用官方 JaT 核心，改为原生 K10/shift5 的七步确定性前缀＋末三步探索；共享实际部署 seed2101 初始噪声；安全分层优势；参考 KL 系数 0.001→0.1；M1→M2；FULL LR 1e-6→2e-7。两条均从同 IL46 / 空 Adam 开始。相关CPU与真实多卡原生恢复检查已通过；是否提分仍待完整B1评测。</p>'
+    proof=read(D46_ROOT/'operations/AUGUSTUS_ALIGNED_20261103/QUALIFICATION_PROOFS.json',{})
+    if proof.get('status')=='PASS':body+='<p><b>真实资格已完成：</b>FULL32卡、LoRA16卡均通过第1次更新中途保存→同rollout第2次更新；48rank初始原生B1逐值一致，Adam/RNG/冻结参考检查通过。正式两组从原IL46与空Adam另行重训，资格权重未带入。资格通过不代表PDMS已提升。</p>'
+    native=read(path.parent/'NONZERO_NATIVE_DEPLOYMENT_AUDIT.json',{})
+    if native.get('status')=='PASS'and sealed_JSON(native):body+='<p><b>训练/部署实现排查：</b>非零FULL100和LoRA400的原生恢复actor与部署加载model，全部参数及buffer逐值一致（CPU状态检查，不冒充GPU前向或新分数）；缓存仅冻结视觉/输入embedding，文本/P/KV在更新时重建。尚未发现漏载权重或优势符号硬错误。</p>'
+    calibration=read(path.parent/'TRAIN103K_NOISE_CALIBRATION.json',{})
+    if calibration.get('status')=='CPU_CALIBRATED_NOT_IN_RUNNING_RECIPES'and sealed_JSON(calibration):
+        body+='<h4>新适配发现：相同噪声系数不等于相同物理探索</h4><p>作者使用每时刻动作q01/q99，D46使用固定全局坐标范围。沿用同样系数，在原生末次转移会给各航点约0.596m纵向、0.375m横向创新噪声。基于全部103,288合法TRAIN GT的标定候选，0.5s首点约0.056m/0.007m，4s末点约0.430m/0.238m；IL坐标协议不改，采样与概率使用同一8×3协方差。模块和独立Gaussian检查已完成，但<b>尚未接入当前两组</b>，需要验证覆盖/优势信号/B1，不能直接认定已解决退化。</p>'
+        body+='<p><b>还需同时处理输出精度：</b>当前BF16 action projection之后转float，仍保留量化。在代表性归一化x≈−0.8处，一档约0.13m，可能大于标定候选的近期扰动。真正FP32动作投影模块已开发并通过参数/Adam/RNG测试，<b>未启用</b>；须训练、reference、部署一致，并重新测u0数值基线。不能只把噪声调小就认定实现更好。</p>'
+    body+='<p><a href="/mnt/project/VLA-Drive-d46-augustus-native-20261103/reports/d46_augustus_regression_20261103/ALGORITHM_IMPLEMENTATION_AUDIT.md">算法实现审查：已改代码、排除范围、B1目标与全零组尚存缺口</a></p>'
     diagnostic=read(path.parent/'TRAIN64_COMPARISON.json',{})
     if diagnostic.get('count')==64 and diagnostic.get('NAVTEST')is False:
         body+='<h4>补充的固定 TRAIN64 对照：不能只归因于网格</h4>'
