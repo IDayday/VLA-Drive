@@ -22,6 +22,99 @@ def prechild_refusal(result):
             and result.get('child_not_started') is True and result.get('returncode') == 75)
 
 
+def _sealed(path):
+    value = json.loads(Path(path).read_text())
+    body = dict(value); saved = body.pop('sha256', None)
+    actual = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+    if not saved or saved != actual:
+        raise ValueError('Changed sealed evaluation metadata: '+str(path))
+    return value
+
+
+def rank_completion(request, name):
+    """EXIT0 alone is not a completed fixed-population evaluator shard."""
+    if not name.startswith('rank') or not name[4:].isdigit():
+        raise ValueError('Full rank completion is only defined for rankN jobs')
+    rank = int(name[4:]); path = request.output/(name+'.json')
+    if not path.exists():return False
+    identity = _sealed(request.output/'identity.json')
+    row = json.loads(path.read_text())
+    expected = len(identity['tokens'][rank::request.world])
+    return (0 <= rank < request.world and row.get('status') == 'COMPLETE'
+            and row.get('rank') == rank and row.get('world') == request.world
+            and row.get('identity') == identity['sha256']
+            and row.get('new', 0)+row.get('reused', 0) == expected)
+
+
+def review_resource_boundary(request, name):
+    """Requeue a proven native deadline return, retaining its exact scene cache.
+
+    Arbitrary user stops, forced exits, failed inference and malformed identities
+    remain explicit review cases. The new worker still validates every reused
+    scene and resumes the SAME rank/world/source/export/seed.
+    """
+    if not name.startswith('rank') or not name[4:].isdigit():return False
+    spec = request.jobs[name]; receipt = Path(spec['receipt_dir'])
+    result_path = receipt/'RESULT.json'
+    if not result_path.exists():return False
+    result = json.loads(result_path.read_text())
+    if (result.get('status') != 'EXITED' or result.get('returncode') != 0
+            or result.get('forced_expiry') or result.get('expiry_guard_requested') is not True
+            or result.get('migration_required') is not True or result.get('temporary') is not True
+            or not (receipt/'STOP_REQUESTED').exists()):return False
+    row_path = request.output/(name+'.json')
+    if not row_path.exists():return False
+    row = json.loads(row_path.read_text());rank = int(name[4:])
+    identity = _sealed(request.output/'identity.json')
+    registration = _sealed(request.reg)
+    if (identity.get('cohort') != 'NAVTEST' or identity.get('qualification') is not False
+            or identity.get('seed') != 2101 or identity.get('count') != 12146
+            or len(identity.get('tokens', [])) != 12146
+            or identity.get('inference') != 'single_candidate_cleanx_K10_shift5'
+            or registration.get('model_sha256') != identity.get('model_sha256')
+            or registration.get('protocol_sha256') != identity.get('protocol', {}).get('sha256')
+            or row.get('status') != 'STOPPED_AT_SCENE_BOUNDARY'
+            or row.get('rank') != rank or row.get('world') != request.world
+            or row.get('identity') != identity['sha256'] or row.get('host') != result.get('host')
+            or spec.get('source') != str(request.source) or result.get('cwd') != str(request.source)
+            or result.get('command') != spec.get('command')):return False
+    command = spec['command']
+    def argument(flag):
+        return command[command.index(flag)+1] if command.count(flag) == 1 and command.index(flag)+1 < len(command) else None
+    expected = {'-m':'tools.qwen_world_compare.evaluate', '--output':str(request.output),
+                '--export':str(request.export), '--rank':str(rank), '--world':str(request.world),
+                '--seed':'2101', '--cohort':'NAVTEST'}
+    if any(argument(k) != v for k,v in expected.items()):return False
+    total = len(identity['tokens'][rank::request.world]);done = row.get('new',0)+row.get('reused',0)
+    if (not 0 <= rank < request.world or not 0 <= done < total
+            or result.get('end_unix',0) < row.get('end_unix',float('inf'))
+            or result.get('stop_requested_unix',float('inf')) > row.get('end_unix',0)):
+        return False
+    write(receipt/'OPERATOR_REQUEUE.json', dict(status='REVIEWED_TERMINAL_REQUEUE',
+        at=time.time(), spec_sha256=hashlib.sha256((receipt/'spec.json').read_bytes()).hexdigest(),
+        result_sha256=hashlib.sha256(result_path.read_bytes()).hexdigest(),
+        rank_receipt_sha256=hashlib.sha256(row_path.read_bytes()).hexdigest(),
+        identity_sha256=identity['sha256'], reason='NATIVE_DEADLINE_SCENE_BOUNDARY_RETURN',
+        rank=rank, world=request.world, completed_scenes_to_reuse=done, remaining_scenes=total-done,
+        source_export_world_rank_seed_unchanged=True, old_attempt_preserved=True,
+        cached_scores_not_modified=True, no_fake_COMPLETE_or_RESULT=True))
+    return True
+
+
+def summary_log(directory):
+    """A failed summary log is evidence, not an obstacle to a legal resume."""
+    path = directory/'summary.log'
+    if path.exists():path = directory/f'summary_resume_{time.time_ns()}_{os.getpid()}.log'
+    return path.open('x')
+
+
+def notify_completed_report(label, root, summary):
+    report = Path('/mnt/project/qwen-world-il-research-20261030/reporting')
+    write(report/'refresh_request.json', dict(id='complete:'+label+':'+summary['sha256'],
+        reason='full_IL_Navtest_completed', scientific_result=True, administrative=False,
+        root=str(root), label=label, scenes=12146, at=time.time()))
+
+
 def resource_worker_overrides(source):
     # Text I/O must stay UTF-8 even if a native scorer changes LC_CTYPE to C.
     # No numerical/backend/precision variables are changed.
@@ -260,7 +353,11 @@ def main():
 
         class Burst(Qualified):
             def done(self, name):
-                if args.family == 'four': return super().done(name)
+                if args.family == 'four':
+                    terminal = super().done(name)
+                    if terminal is True and name.startswith('rank'):
+                        return rank_completion(self, name)
+                    return terminal
                 if name not in self.jobs: return None
                 path = Path(self.jobs[name]['receipt_dir'])/'result.json'
                 if not path.exists(): return None
@@ -434,7 +531,7 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
                             request.submit(name, 'tools.qwen_world_postcot.evaluate', argv, route)
                         write(root/'burst_progress.json', dict(at=time.time(), submitted=list(request.jobs), workers=args.workers))
                     time.sleep(15)
-                with (directory/'summary.log').open('x') as out:
+                with summary_log(directory) as out:
                     subprocess.run([request.resources.MODEL_PYTHON, '-m', 'tools.qwen_world_postcot.summarize',
                         '--evaluation', str(request.output), '--output', str(directory/'SUMMARY.json')],
                         cwd=request.source, stdout=out, stderr=subprocess.STDOUT, check=True)
@@ -462,6 +559,9 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
                                     child_not_started=True,model_forward_calls=0,scorer_calls=0,
                                     retry_after_seconds=delay,reason=result.get('reason'),failed_attempt_preserved=True))
                                 request.jobs.pop(name); continue
+                            if review_resource_boundary(request, name):
+                                retry_after[name] = time.monotonic()+30
+                                request.jobs.pop(name); continue
                             raise RuntimeError('Qualified worker failed; evidence retained: '+str(request.jobs[name]['receipt_dir']))
                     if request.done('export') is True:
                         if not request.reg.exists(): request.register()
@@ -484,7 +584,7 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
                             request.submit(name, '', argv, route)
                         write(root/'burst_progress.json', dict(at=time.time(), submitted=list(request.jobs), workers=args.workers))
                     time.sleep(15)
-                with (directory/'summary.log').open('x') as out:
+                with summary_log(directory) as out:
                     subprocess.run([request.resources.MODEL_PYTHON, '-m', 'tools.qwen_world_compare.evaluate', '--summarize',
                         '--evaluation', str(request.output), '--output', str(directory/'SUMMARY.json')], cwd=request.source,
                         stdout=out, stderr=subprocess.STDOUT, check=True)
@@ -495,6 +595,7 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
                     all_owned_workers_exited=True))
             owner.update(status='COMPLETE', ended_unix=time.time())
             write(root/'COMPLETE.json', dict(status='COMPLETE', models=[label], all_owned_workers_exited=True))
+            notify_completed_report(label, root, summary)
         except BaseException:
             owner.update(status='FAILED', error=traceback.format_exc(), ended_unix=time.time())
             write(root/'failure.json', owner)
