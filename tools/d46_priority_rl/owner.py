@@ -6,6 +6,7 @@ scoring, source-chain conventions and atomic recovery are reused unchanged.
 """
 import argparse
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -118,6 +119,46 @@ def startup_hosts(campaign):
 
 
 
+def capacity_resume(campaign,control,run,hold,cache):
+    """Explicit resource hold release, never a failure or world16 override.
+
+    Cache at most the two authorized host probes for this tick. A reservation
+    is taken before dispatch, including ambiguous/prechild launch outcomes.
+    Matching receipts preserve already-running releases; changed hold text
+    restores the ordinary cooperative hold on the next tick.
+    """
+    cfg=control.get('capacity_resume',{})
+    arms=('D3_AWM','D5','D1');hosts=('training-vlawm-zt','training-vlawm-tsinghua-zt2')
+    if (cfg.get('enabled')is not True or run['arm']not in arms or run['arm']not in cfg.get('arms',[])
+        or not isinstance(hold,str)or not hold or cfg.get('minimum_free_MiB')!=79000
+        or not set(cfg.get('arms',[]))<=set(arms)or not set(cfg.get('hosts',[]))<=set(hosts)
+        or run.get('world16_stage')):return None
+    hold_sha=hashlib.sha256(hold.encode()).hexdigest()
+    previous=run.get('capacity_resume_release',{})
+    # A new operator hold is a new decision, not permission to auto-release it.
+    if previous and previous.get('hold_sha256')!=hold_sha:return None
+    live=any(not(Path(j['job'])/'RESULT.json').is_file()for key in('jobs','qualification_jobs')for j in run[key])
+    if live:
+        if (previous.get('schema')=='d46_explicit_capacity_hold_release_v1'and previous.get('hold_sha256')==hold_sha
+            and previous.get('host')in cfg.get('hosts',[])and previous.get('arm')==run['arm']):return previous['host']
+        return None
+    blocked=startup_hosts(campaign)|cache.setdefault('reserved',set())
+    if 'allowed'not in cache:cache['allowed']=set(allowed_hosts(admit_long_job=True))
+    for host in dict.fromkeys(cfg.get('hosts',[])):
+        if host not in cache['allowed']or host in blocked:continue
+        if host not in cache:
+            try:cache[host]=capacity(host,79000)
+            except(DispatchPreflightFailed,subprocess.SubprocessError,OSError,ValueError):cache[host]=[]
+        if sorted(cache[host])!=list(range(8)):continue
+        value=dict(schema='d46_explicit_capacity_hold_release_v1',arm=run['arm'],hold_sha256=hold_sha,
+            hold_text=hold,host=host,at=time.time(),minimum_free_MiB=79000,GPUs=list(range(8)),
+            authority='explicit EXECUTION_POLICY.capacity_resume; independent worker lease/UUID/owner checks unchanged')
+        run.setdefault('capacity_resume_receipts',[]).append(value);run['capacity_resume_release']=value
+        cache['reserved'].add(host)
+        return host
+    return None
+
+
 def startup_control(run,config,resume,qualification=False):
     """Explicit administrative startup only; original scientific run unchanged."""
     binding=run.get('startup_control')or read(ROOT/'operations/EXECUTION_POLICY.json',{}).get('startup_controls',{}).get(run['arm'])
@@ -141,7 +182,7 @@ def startup_control(run,config,resume,qualification=False):
         if file_sha(source/name)!=digest:raise ValueError('Startup science differs: '+name)
     return dict(source=str(source),entry='tools.d46_priority_rl.train_control',args=['--control-profile',str(profile),'--control-profile-sha256',binding['profile_sha256']])
 
-def dispatch(run,qualification=False,blocked_hosts=()):
+def dispatch(run,qualification=False,blocked_hosts=(),capacity_host=None):
     # The native trainer commits its checkpoint before emitting milestone
     # requests. Provision this administrative directory before any GPU child.
     (Path(run['qualification']if qualification else run['output'])/'evaluation_requests').mkdir(parents=True,exist_ok=True)
@@ -180,12 +221,14 @@ def dispatch(run,qualification=False,blocked_hosts=()):
     # One own full-world task per host initially; worker still independently
     # checks current owner identities, physical UUIDs, both leases and memory.
     preferred=read(ROOT/'operations/EXECUTION_POLICY.json',{}).get('preferred_hosts',{}).get(run['arm'],[])
-    for host in dict.fromkeys(tuple(preferred)+(PREFERRED[run['arm']],)+HOSTS):
+    routes=(capacity_host,)if capacity_host else tuple(preferred)+(PREFERRED[run['arm']],)+HOSTS
+    for host in dict.fromkeys(routes):
         if host in blocked_hosts or host not in allowed_hosts(admit_long_job=True):continue
         try:
-            if len(capacity(host,49152))!=8:continue
+            minimum=79000 if capacity_host else 49152
+            if not capacity_host and len(capacity(host,49152))!=8:continue
             job=ROOT/'jobs'/run['arm']/('qualification' if qualification else 'formal')/f'attempt{len(jobs)+1:03}'
-            receipt=launch(host,source,job,command,list(range(8)),share_min_free_mib=49152,worker_source=SOURCE,task_root=ROOT,task=TASK)
+            receipt=launch(host,source,job,command,list(range(8)),share_min_free_mib=minimum,worker_source=SOURCE,task_root=ROOT,task=TASK)
             jobs.append(receipt);return 'RUNNING_QUALIFICATION' if qualification else 'RUNNING_OR_ADMITTING'
         except DispatchPreflightFailed as error:
             run.setdefault('prechild_failures',[]).append(dict(host=host,at=time.time(),error=str(error),child_started=False))
@@ -255,6 +298,7 @@ def tick(campaign):
             if file_sha(review['receipt'])!=review['receipt_sha256']:raise ValueError('Native recovery review changed')
             run.setdefault('reviewed_errors',[]).append(dict(error=run.pop('error',''),review=review,at=time.time()))
             run.update(formal_boundary_recovery_review=review,status='REVIEWED_NATIVE_BOUNDARY_READY_TO_RESUME')
+    capacity_cache={}
     for arm in ORDER:
         run=campaign['runs'][arm]
         if run.get('world16_stage'):
@@ -263,7 +307,8 @@ def tick(campaign):
             run['status']=run['world16_stage']['status'];continue
         if run['status'] in ('FAILED_REQUIRES_REVIEW','COMPLETE'):continue
         hold=control.get('execution_holds',{}).get(arm)
-        if hold:
+        capacity_host=capacity_resume(campaign,control,run,hold,capacity_cache)if hold else None
+        if hold and not capacity_host:
             # A staged same-run continuation must never race an automatic
             # restart of its old world. STOP invokes the existing native save.
             if run['jobs']and not(Path(run['jobs'][-1]['job'])/'RESULT.json').exists():
@@ -272,7 +317,7 @@ def tick(campaign):
             continue
         try:
             if not qualification_pass(run):
-                run['status']=dispatch(run,True,startup_hosts(campaign))
+                run['status']=dispatch(run,True,startup_hosts(campaign),capacity_host=capacity_host)
                 if qualification_pass(run):run['status']='QUALIFIED_FROM_TRUE_IL46'
                 continue
             resume,seal=inspect_latest(run)
@@ -287,7 +332,7 @@ def tick(campaign):
                 if run['jobs'] and not(Path(run['jobs'][-1]['job'])/'RESULT.json').exists():
                     (Path(run['jobs'][-1]['job'])/'STOP_REQUESTED').touch()
                 run['status']='SAVED_AND_PAUSED_FOR_REGISTERED_FULL_NAVTEST';continue
-            run['status']=dispatch(run,False,startup_hosts(campaign))
+            run['status']=dispatch(run,False,startup_hosts(campaign),capacity_host=capacity_host)
         except Exception:
             run.update(status='FAILED_REQUIRES_REVIEW',error=traceback.format_exc())
     if not defer_evaluation:evaluation_tick(campaign)

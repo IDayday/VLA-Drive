@@ -1,0 +1,51 @@
+{
+  "schema": "d46_explicit_capacity_resume_ops_handoff_v1",
+  "status": "CPU_READY_NOT_DEPLOYED",
+  "base": "79f0eb7f36e2c91b47dc5a1109dde66ac7c9dbb7",
+  "production_files": [
+    "tools/d46_priority_rl/owner.py"
+  ],
+  "config": {
+    "capacity_resume": {
+      "enabled": true,
+      "arms": [
+        "D3_AWM",
+        "D5",
+        "D1"
+      ],
+      "hosts": [
+        "training-vlawm-zt",
+        "training-vlawm-tsinghua-zt2"
+      ],
+      "minimum_free_MiB": 79000
+    }
+  },
+  "CPU": {
+    "result": "6 passed, 1 warning in 3.69s",
+    "exit_code": 0,
+    "log_sha256": "a5c514a9dcb385bc0b6704be376c0fa32ac2a6b159aed60ea92ce53a79126372",
+    "type": "metadata mocks only; no SSH/GPU/owner start"
+  },
+  "semantics": {
+    "default_disabled": "old hold and dispatch behavior",
+    "release": "same actual hold text SHA, explicit arm/host scope, allowed current host, no active own job, no startup/world16 reservation, exact full 0..7 capacity at 79000MiB",
+    "probes": "at most two capacity probes per tick; cached successes/failures plus immediate per-tick host reservation",
+    "launch": "only selected newly free host; unchanged worker separately checks UUID/leases/known owner with 79000MiB floor",
+    "running_release": "matching hold receipt prevents repeated STOP, no repeat capacity probe",
+    "changed_hold": "old release invalid; operator new hold stays held even after previous process exit",
+    "failure": "existing real failure review required; no retry or optimizer reset authority",
+    "receipt": "run.capacity_resume_release and append-only run.capacity_resume_receipts, persisted by sole main owner CAMPAIGN write"
+  },
+  "not_modified": [
+    "EXECUTION_POLICY",
+    "CAMPAIGN",
+    "resource grants",
+    "job_worker",
+    "scientific sources",
+    "optimizer/RNG/native checkpoints"
+  ],
+  "source_files": {
+    "tools/d46_priority_rl/owner.py": "db1be52c6d336e19b2a1f11c745b4d5d1f39872a3f9cf05267555589442e945b",
+    "tests/d46_priority_rl/test_capacity_resume.py": "2290a91f97d5cb75cf4e40e81a670ddf7eae98a0c7988c004ecae85c8106f36f"
+  }
+}
