@@ -5,7 +5,7 @@ never launches a new GPU job, signals processes, or touches old CAMPAIGN. Ambigu
 are retained for review; a durable launch intent is never blindly repeated.
 """
 import argparse
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor,wait
 import fcntl
 import json
 import os
@@ -278,13 +278,19 @@ class Owner:
             row['status']='COMPLETE_6E';self.event(row,'formal_finished_no_auto_restart')
     def route_loop(self,row,interval):
         while not self.stop.is_set()and not(self.directory/'STOP_OWNER').exists()and row['status']not in TERMINAL:
+            previous_phase=row['phase']
             try:self.tick(row)
             except BaseException:self.fail(row,traceback.format_exc());break
-            self.stop.wait(interval)
+            if row['phase']!=previous_phase:continue
+            from .event_wait import wait_for_events
+            output=Path(row['formal_output'])if row['phase']=='formal'else Path(row['route']['output'])
+            paths=[self.directory,output,output/'checkpoints',output/'evaluation_requests']
+            paths += [Path(n['job'])for n in row['stages'][row['phase']]['nodes']]
+            wait_for_events(paths,interval,ignore=('STATE.json','EVAL_STATE.json','OWNER.json'))
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('action',choices=('prepare','run','once'));p.add_argument('--root',default=str(ROOT));p.add_argument('--directory');p.add_argument('--interval',type=float,default=20.);a=p.parse_args()
+    p=argparse.ArgumentParser(__doc__);p.add_argument('action',choices=('prepare','run','once'));p.add_argument('--root',default=str(ROOT));p.add_argument('--directory');p.add_argument('--interval',type=float,default=1800.);a=p.parse_args()
     root=Path(a.root).resolve();directory=Path(a.directory).resolve()if a.directory else root/'operations/AUGUSTUS_CAMPAIGN_20261103'
     directory.mkdir(parents=True,exist_ok=True)
     with(directory/'owner.lock').open('a')as lock:
@@ -304,7 +310,7 @@ def main():
         with ThreadPoolExecutor(max_workers=2)as pool:
             futures=[pool.submit(owner.route_loop,row,max(2.,a.interval))for row in state['routes'].values()]
             try:
-                while not all(f.done()for f in futures):time.sleep(1)
+                wait(futures)
             finally:owner.stop.set();owner.persist()
 
 

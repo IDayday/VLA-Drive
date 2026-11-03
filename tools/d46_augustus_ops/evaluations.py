@@ -287,6 +287,20 @@ def tick(root, eval_state, routes, *, ops_source=SOURCE, execute=True):
     for case in state['cases'].values():reconcile(case)
     state.update(at=time.time(), complete=bool(state['cases']) and all(c['status'] == 'COMPLETE' for c in state['cases'].values()))
     atomic_json(state_path(root), state)
+    from .complete_events import notify
+    changed=False
+    for case in state['cases'].values():
+        if case['status']!='COMPLETE':continue
+        summary=read(case['summary']);sha=summary.get('sha256')
+        if case.get('report_notified_sha256')==sha:continue
+        try:
+            receipt=notify(state_path(root),case['id'],sha,root=root)
+            case['report_notified_sha256']=receipt['notified_sha']
+            case['report_notification']=receipt
+        except Exception as error:
+            case['report_notification_error']=repr(error)
+        changed=True
+    if changed:atomic_json(state_path(root),state)
     return state
 
 
@@ -294,7 +308,7 @@ def main():
     p = argparse.ArgumentParser(__doc__)
     p.add_argument('--root', type=Path, default=ROOT);p.add_argument('--routes-state', type=Path, required=True)
     p.add_argument('--once', action='store_true');p.add_argument('--run', action='store_true')
-    p.add_argument('--execute', action='store_true');p.add_argument('--interval', type=int, default=60)
+    p.add_argument('--execute', action='store_true');p.add_argument('--interval', type=int, default=1800)
     a = p.parse_args()
     if a.run and not a.execute:p.error('--run requires explicit --execute')
     if not a.run and not a.once:p.error('Select --once (inspection) or --run --execute')
@@ -302,11 +316,26 @@ def main():
     with path.with_suffix('.owner.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         while True:
+            from .event_wait import wait_for_events
+            if not a.routes_state.is_file():
+                wait_for_events([a.routes_state.parent],a.interval)
+                continue
             state = read(path, initial_state());routes = read(a.routes_state)['routes']
             state = tick(a.root, state, routes, ops_source=SOURCE, execute=a.execute)
             print(json.dumps(dict(cases=len(state['cases']), execute=a.execute, at=state['at'])), flush=True)
             if a.once:break
-            time.sleep(max(10, min(a.interval, 60)))
+            paths=[a.routes_state.parent]
+            for row in routes.values():
+                output=Path(row['formal_output'])
+                paths += [output,output/'checkpoints',output/'evaluation_requests']
+            for case in state['cases'].values():
+                paths.append(Path(case['output']))
+                paths += [Path(jobs[-1]['job'])for jobs in case['jobs'].values()if jobs]
+            pending=any(case['status']not in TERMINAL for case in state['cases'].values())
+            # Only a queued resource admission gets a bounded five-minute
+            # retry; idle/active jobs are driven by native/result events.
+            timeout=min(a.interval,300)if pending and not any(c.get('active_shards')for c in state['cases'].values())else a.interval
+            wait_for_events(paths,timeout,ignore=('EVAL_STATE.json','EVAL_OWNER.json'))
 
 
 if __name__ == '__main__':main()
