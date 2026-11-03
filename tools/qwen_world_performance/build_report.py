@@ -203,6 +203,25 @@ def D46_early_evaluation_fragment():
     return body
 
 
+def D46_optimization_health_fragment():
+    path=D46_ROOT/'analysis/EARLY_OPTIMIZATION_HEALTH_20261103.json';value=read(path,{})
+    if value.get('status')!='COMPLETE_BOUNDED_CPU_AUDIT'or not sealed_JSON(value):return ''
+    compared=value['cross_arm_scale_comparison'];arms=value['arms'];window=value['matched_window']
+    ratios=[]
+    for arm in ('D3_FPO','D3_AWM'):
+        c=compared[arm]
+        ratios.append(arm+'：grad为D0的'+f'{100*c["gradient_mean_first800_relative_D0"]:.3f}'+'%，但相同LoRA_B实际位移仍为'+f'{100*c["text_LoRA_B_delta_L2_relative_D0"]:.1f}'+'%')
+    first={a:r['equal_exposure_first800']for a,r in arms.items()}
+    zeros=' / '.join(a+':'+str(int(first[a]['exploration_global_once_per_collection']['canonical_allzero_groups']))for a in ('D0','D5','D3_FPO','D3_AWM'))
+    fpo_clip=first['D3_FPO']['local_losses_equal_rank_weight']['fpo_clip_fraction']['mean']
+    body='<details><summary>为何等待完整评测择优：有界训练健康审计，不是部署收益</summary>'
+    body+='<p>审计 '+esc(value['generated_utc'])+'：四路线全八rank前 '+esc(window['optimizer_updates'])+' 次 Adam、同 '+esc(window['valid_scene_exposures'])+' 个 TRAIN 场景曝光 / '+esc(window['physical_candidates'])+' 候选，均 loss/gradient finite、首inner fresh-ratio误差0；不把各自不同曝光的recent窗口当匹配对照。</p>'
+    body+='<p>'+esc('；'.join(ratios))+'。小梯度不等于没有学习，Adam/epsilon尺度统计也不能直接证明PDMS损失。FPO真正energy-ratio clip为 '+esc(f'{100*fpo_clip:.1f}%')+'；第二inner普通Gaussian诊断约75%不是FPO更新被clip的比例，AWM也没有ratio-clipped目标。</p>'
+    body+='<p>原始A有效组约96%；同25600组的canonical全零仅 '+esc(zeros)+'。这说明本窗口多数有训练信用，不代表信用方向已改善部署。D5每步触发norm1裁剪、action I/O主导且近期参考beta升高，仍需完整B1和高分保持证据；不能据单一loss、小grad或clip诊断淘汰，更不能据其推断clip/epsilon/anchor的提分因果。<a href="'+esc(path)+'">完整健康审计与边界</a></p>'
+    body+='<p>多机world16目前仅Tiny-native CPU跨world恢复通过，尚无真实GPU/NCCL资格；网络元数据不是多节点训练速度，也未承诺2倍加速。</p></details>'
+    return body
+
+
 def D46_priority_fragment():
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
@@ -261,7 +280,7 @@ def D46_priority_fragment():
             if isinstance(exposure,(int,float)):progress+=' / '+format(exposure,',')+'场景 / '+f'{exposure/103288:.5f}E'
             entries.append((r.get('id',''),method,gate,qualification,host,progress,states.get(r.get('status'),r.get('status','待确认'))))
         body+=table(['D46 路线','方法','阶段启用与边界','独立资格','服务器','实时 Adam / 有效曝光 / epoch','正式阶段状态'],entries)
-    body+=D46_early_evaluation_fragment()+D46_throughput_fragment()
+    body+=D46_early_evaluation_fragment()+D46_optimization_health_fragment()+D46_throughput_fragment()
     reviewed=[]
     for arm,registered in campaign.items():
         review=registered.get('qualification_resource_retry_review',{});review_path=Path(review.get('receipt',''))
