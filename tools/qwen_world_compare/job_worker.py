@@ -149,7 +149,7 @@ def known_D46_output(output):
 
 
 def known_D46_world16_output(output):
-    """Only a typed continuation of its own sealed formal D0/D5 world8 run."""
+    """Only a typed continuation of its own sealed formal D0/D5/FPO world8 run."""
     if not known_D46_output(output):return False
     try:
         from starVLA.rl.qwen_world_compare.contracts import fingerprint
@@ -161,7 +161,7 @@ def known_D46_world16_output(output):
         old=json.loads((source/'identity.json').read_text())
         oldseal=json.loads((source/'COMPLETE').read_text())
         oldbody=dict(old);oldsha=oldbody.pop('sha256')
-        return (value['world']==16 and value['fresh_Adam']is False and arm in('D0','D5')
+        return (value['world']==16 and value['fresh_Adam']is False and arm in('D0','D5','D3_FPO')
             and tx['schema']=='d46_exact_native_READY_world8_to16_v1'
             and tx['source_world']==8 and tx['target_world']==16 and tx['same_algorithm']is True
             and tx['old_owner_may_adopt']is False and tx['virtual_sampler_lanes']==8

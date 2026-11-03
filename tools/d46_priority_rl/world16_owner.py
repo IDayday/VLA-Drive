@@ -36,7 +36,7 @@ def owner_root(plan):return Path(plan.get('owner_root',ROOT/'operations/WORLD16_
 
 def load_plan(path,*,check_hold=True):
     path=Path(path).resolve();p=read(path);digest=file_sha(path)
-    if p.get('schema')!=PLAN or p.get('arm')not in('D0','D5')or not p.get('stage_id'):raise ValueError('Exact D0/D5 stage plan required')
+    if p.get('schema')!=PLAN or p.get('arm')not in('D0','D5','D3_FPO')or not p.get('stage_id'):raise ValueError('Exact D0/D5/D3_FPO stage plan required')
     if p.get('target_epochs')!=6. or len(p.get('hosts',[]))!=2 or len(set(p['hosts']))!=2:raise ValueError('Two fixed hosts, original6E only')
     if not 1024<=p['master_port']<=65535 or not p.get('master_addr'):raise ValueError('Explicit rendezvous endpoint')
     if p.get('minimum_free_MiB',65000)<49152 or p.get('resource75_retry_limit',3)not in(1,2,3):raise ValueError('Unprofiled shared memory/retry budget')
@@ -230,7 +230,7 @@ def ingest(campaign,control):
     """Called ONLY by main campaign owner while it holds CAMPAIGN.owner.lock."""
     stagejobs=[];reserved_hosts=set()
     for arm,reference in control.get('world16_stages',{}).items():
-        if arm not in campaign['runs']or arm not in('D0','D5'):raise ValueError('Unknown world16 logical arm')
+        if arm not in campaign['runs']or arm not in('D0','D5','D3_FPO'):raise ValueError('Unknown world16 logical arm')
         if not control.get('execution_holds',{}).get(arm):raise ValueError('World16 stage cannot coexist with automatic old8 restart')
         if file_sha(reference['plan'])!=reference['plan_sha256']:raise ValueError('Stage pointer changed')
         p=read(reference['plan']);s=read(owner_root(p)/'STATE.json',{})
