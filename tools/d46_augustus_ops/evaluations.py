@@ -26,6 +26,9 @@ SPARE_GPUS = {'training-vlawm-zt2': (0, 1, 2, 3, 4, 5, 7),
               'training-vlawm-tsinghua-zt4': (4, 7),
               'training-rl-zt2': (1, 7)}
 EARLY = {'AUG1_FULL': (100, 200), 'AUG2_LORA': (200, 400)}
+EARLY.update(AUG3_FULL_ALIGNED=(100,200,400),AUG4_LORA_ALIGNED=(200,400,800))
+VERSIONS={name:('_v2'if 'ALIGNED'in name else'_v1')for name in EARLY}
+SCIENCES={name:('augustus_aligned_science_v2'if 'ALIGNED'in name else'augustus_science_v1')for name in EARLY}
 TERMINAL = ('COMPLETE', 'FAILED_REQUIRES_REVIEW', 'FAILED_SUMMARY_REQUIRES_REVIEW',
             'DISPATCH_REQUIRES_RECONCILIATION')
 
@@ -50,7 +53,7 @@ def inspect_checkpoint(root, route, checkpoint):
     exp = route['experiment']
     output = Path(route['formal_output']).resolve()
     cp = Path(checkpoint).resolve()
-    if exp not in EARLY or output != root / 'runs' / (exp + '_v1') or cp.parent != output / 'checkpoints':
+    if exp not in EARLY or output != root / 'runs' / (exp + VERSIONS[exp]) or cp.parent != output / 'checkpoints':
         raise ValueError('Not this registered formal AUG checkpoint')
     identity, seal, files = (read(cp / name, {}) for name in ('identity.json', 'COMPLETE', 'files.json'))
     body = dict(identity); digest = body.pop('sha256', None)
@@ -69,7 +72,7 @@ def inspect_checkpoint(root, route, checkpoint):
             or type(seal.get('updates')) is not int or seal['updates'] <= 0):
         raise ValueError('Formal AUG algorithm/parent/protocol/native seal mismatch')
     source = Path(route['route']['source']).resolve()
-    if source != root / 'runtime/augustus_science_v1' or not identity.get('source_files'):
+    if source != root / 'runtime'/SCIENCES[exp] or not identity.get('source_files'):
         raise ValueError('Only the frozen AUG scientific source may evaluate this checkpoint')
     for name, expected in identity['source_files'].items():
         p = (source / name).resolve()

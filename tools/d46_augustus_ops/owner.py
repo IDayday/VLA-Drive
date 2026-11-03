@@ -100,7 +100,8 @@ assert fingerprint(body)==digest and identity['algorithm_schema']==SCHEMA and id
 assert identity['world']==world and identity['qualification']is qualification and identity['fresh_Adam']is True
 assert identity['parent_model_sha256']=='386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d'
 assert seal['schema']==2 and seal['contract']=='qwen_world_abcd_research_checkpoint_v1'and seal['world']==world
-assert seal['phase']=='READY'and seal['next_inner']==0 and seal['updates']==updates and seal['files_sha256']==file_sha(cp/'files.json')
+inner=updates%cfg['inner_updates'];phase='INNER_COMMITTED'if inner else'READY'
+assert seal['phase']==phase and seal['next_inner']==inner and seal['updates']==updates and seal['files_sha256']==file_sha(cp/'files.json')
 assert {'identity.json','optimizer.pt','transaction.json'}|{f'rank{r}.pt'for r in range(world)}<=files.keys()
 for name,sha in files.items():
  assert Path(name).name==name and(cp/name).resolve().is_relative_to(cp)and file_sha(cp/name)==sha
@@ -113,8 +114,8 @@ tx=json.loads((cp/'transaction.json').read_text());assert len(tx['ranks'])==worl
 rows=[];rng=[];states=[]
 for rank in range(world):
  own=torch.load(cp/f'rank{rank}.pt',map_location='cpu',weights_only=False,mmap=True)
- assert own['identity_sha256']==digest and own['rollout']is None
- row=AugustusBoundary.validate_boundary(own['state'],None,identity,common['optimizer'],common['scheduler'])
+ assert own['identity_sha256']==digest and (own['rollout']is None)is(not bool(inner))
+ row=AugustusBoundary.validate_boundary(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'])
  assert row==tx['ranks'][rank]and row['updates']==updates
  assert set(own['rng'])=={'python','numpy','torch','cuda','rollout_generator'}
  torch.Generator().set_state(own['rng']['rollout_generator']);rng.append(tensor_digest(own['rng']))
@@ -124,14 +125,15 @@ for rank in range(world):
  rows.append(row);states.append(row['valid_scene_exposures'])
 AugustusBoundary.validate_ranks(rows)
 print(json.dumps(dict(status='PASS',checkpoint=str(cp),files_sha256=seal['files_sha256'],identity_sha256=digest,
- world=world,updates=updates,phase='READY',next_inner=0,scope=identity['scope'],source_files=identity['source_files'],
+ world=world,updates=updates,phase=phase,next_inner=inner,scope=identity['scope'],source_files=identity['source_files'],
  optimizer_empty=not bool(common['optimizer']['state']),scheduler_updates=common['scheduler']['last_epoch'],
  allrank_RNG_sha256=rng,valid_scene_exposures=states[0],qualification=qualification)))
 '''
 
 
 def review_native(route,output,updates,qualification):
-    cp=Path(output)/'checkpoints'/f'update{updates:06}_inner0'
+    cfg=yaml.safe_load(Path(route['config']).read_text());inner=updates%cfg['inner_updates']
+    cp=Path(output)/'checkpoints'/f'update{updates:06}_inner{inner}'
     value=subprocess.run([PYTHON,'-c',_NATIVE,route['source'],str(cp),route['config'],str(route['world']),str(updates),str(qualification)],
         cwd=route['source'],env=dict(os.environ,CUDA_VISIBLE_DEVICES='',PYTHONPATH=route['source']),text=True,capture_output=True,timeout=1800)
     if value.returncode:raise RuntimeError('Native CPU validation failed: '+value.stderr[-5000:])

@@ -196,14 +196,17 @@ def known_D46_augustus_output(output):
     try:
         from starVLA.rl.qwen_world_compare.contracts import fingerprint
         value=json.loads((output/'identity.json').read_text());cfg=value['recipe'];aug=cfg['augustus']
+        exp=cfg['experiment_id'];aligned=exp in('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')
         return(value.get('algorithm_schema')=='d46_augustus_native_v1'
-            and value.get('experiment_id')==cfg['experiment_id']in('AUG1_FULL','AUG2_LORA')
+            and value.get('experiment_id')==exp in('AUG1_FULL','AUG2_LORA','AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')
             and value.get('augustus_protocol_sha256')==fingerprint(aug)
             and value.get('world')in(8,16,32)and cfg['global_scenes']in(64,128)and cfg['global_scenes']%value['world']==0
             and cfg['group']==8 and cfg['inner_updates']in(1,2)and cfg['training_uses_navtest']is False
             and aug['training_steps']==3 and aug['noise_scale']==[.05,.05,.02]
-            and aug['coordinate_reduction']=='mean24'and aug['fixed_reference_beta']==.001
-            and aug['scope']==('full_text_action'if cfg['experiment_id']=='AUG1_FULL'else'lora_text_action'))
+            and aug['coordinate_reduction']=='mean24'and aug['fixed_reference_beta']==(.1 if aligned else .001)
+            and (not aligned or(cfg['inner_updates']==2 and aug['schema']=='d46_augustus_deployment_suffix_v2'
+                and aug['initial_root_seed']==2101 and aug['deployment']['training_deployment_grid_mismatch']is False))
+            and aug['scope']==('full_text_action'if exp in('AUG1_FULL','AUG3_FULL_ALIGNED')else'lora_text_action'))
     except(OSError,KeyError,TypeError,ValueError):return False
 
 
