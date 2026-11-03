@@ -1,38 +1,26 @@
-# 提前完整评测与资源倾斜，2026-11-03
+# D46 提前完整评测：已完成结果
 
-用户要求先判断路线潜力，再把更多算力投入表现较好的路线。已在原定0.5场景epoch首评之前，启动一批有限的完整NAVTEST评测，训练继续运行。
+归档于2026-11-03 12:46:38 UTC。原有限计划的四个不同策略均已完成32分片、12,146场景、44物理log、invalid0；没有用部分场景均值发布成绩。
 
-## 已实际部署
-
-| 独立评测策略 | checkpoint更新数 | 已曝光场景 | 曝光epoch | 逻辑分片 |
+| 策略 | 完整PDMS | 相对同IL46 | checkpoint更新 | TRAIN曝光 |
 |---|---:|---:|---:|---:|
-| D0 | 1,400 | 44,800 | 0.43374 | 32 |
-| D5 | 1,400 | 44,800 | 0.43374 | 32 |
-| D3_FPO | 900 | 28,800 | 0.27883 | 32 |
-| D3_AWM | 800 | 25,600 | 0.24785 | 32 |
+| D0 | 90.17112884 | +0.67560786 | 1400 | 44,800 |
+| FPO | 90.12278094 | +0.62725996 | 900 | 28,800 |
+| D5 | 89.97889876 | +0.48337778 | 1400 | 44,800 |
+| AWM | 89.95115511 | +0.45563413 | 800 | 25,600 |
 
-使用用户指出的18张空卡：`vlawm-tsinghua-zt` 0–7、`rl-zt2` 0/1/7、`vlawm-zt2` 0–5/7。四策略交错派发，各32片分波完成；首波18个CUDA子进程已进入真实评分。无法归属的GPU占用保持排除，不影响D IL八卡。
+固定IL46基线89.49552098，统一单B1 clean-x ODE K10/shift5/seed2101。D0/FPO双优先继续；曝光与每更新算量不同，当前不是同预算算法因果排名或上限结论。
 
-固定协议：每场景真实单轨迹B1、clean-x ODE K10/shift5/seed2101，无oracle或重排，全部12,146场景、44个物理log、invalid=0后发布分数。IL46对照为89.4955209758546。尚未齐全时只展示进度，不展示部分均分。
+D0修复248、新增87零分；安全指标提高但EP−1.552pp，固定IL46高分≥.9队列净抵消1.369PDMS。FPO修复164、新增65，高分损失较小。D5修复288但新增143及较大回退抵消修复。AWM EP+.487pp、高分保留99.29%，但仅修复72，且NC略降。
 
-## 为何六条训练只评四个不同策略
+[零分与抵消图](plots/D46_zero_repair_and_gain_loss.svg)、[安全与进度图](plots/D46_safety_and_progress_delta.svg)、[事实和精确来源](plots/D46_EARLY_FULL_FACTS.json)、[中文readout](plots/D46_EARLY_FULL_READOUT_zh.txt)。完整摘要已小体积保存于 `results/early_full/`，不复制逐scene或权重。
 
-D0、D1、D2在各自独立运行的u1400 checkpoint中，IL46父权重、完整训练参数scope和`optimizer.pt`文件SHA完全一致，部署签名均为`528878188947d72d88713013d75c192342db9b3a9a1af841e7125aa152042fef`。D1的第二阶段在2epoch启用，D2的rescue在0.5epoch启用，目前尚未分化。
+D0/D1/D2的u1400完整训练参数payload及部署签名相等，故D1/D2只引用D0的等参数参考，不构成独立评测。D1的2epoch机制、D2的.5epoch机制尚未在此早评点启用，不能宣判无效。
 
-因此只计算一次相同策略的早期表现。D1/D2标作“等参数参考”，不伪造独立评测结果。三条训练仍有各自独立的actor、Adam、RNG、buffer和目录，未互相继承RL权重或optimizer。原生独立初始化证据保持不变。
+后续0.5epoch目录IO故障已和数值问题分开，原生1614保存及恢复验证PASS，丢失请求由Root回填；D2启动90s Gloo超时0新Adam、同CP重试证据保留。D1/D5目前是保留完整CP的资源hold。world16实际pending恢复资格已PASS，但不等于正式长训已开始。详见[README](README.md)与[固定运行快照](analysis/COMPLETED_RESULTS_RUN_STATE_SNAPSHOT.json)。
 
-## 训练与评测同时进行
+NAVTEST只用于已披露的研究选点与完整诊断，任何场景ID/标签不回流训练。此归档未操作任何训练、锁、CAMPAIGN或GPU。
 
-评测有限控制器代码冻结为`d50f9e4`，原生GPU训练/评测算法源码仍为`ff3013c`。CPU任务owner以精确PID替换至`operations_v3@79160fd`，六条GPU训练的原job记录和invocation均未更换。
+运维补充至12:50:25 UTC：`operations_v6@46cdd79` owner217718仅CPU接管、未停止GPU；D0/D1/D2各自0.5E的精确等模型引用另有[绑定表](results/operations_v6/EVALUATION_EQUIVALENCE.json)，不扩展到未来分化。旧I已4877_inner1八rank合作保存EXIT0、资源hold让D0独占Tsh5，原10000预算仍保留，不能称旧I算法终止。见[回执](results/old_I_resource_hold/NATIVE_SAVE_EXIT0.json)。
 
-操作配置允许训练在评测期间继续；提前评测批次运行时暂缓自动评测的重复派发，保留全部原定评测请求，批次结束后继续处理。没有重置Adam，没有给训练系统返回NAVTEST场景标签或priority。
-
-6项CPU检查通过，覆盖精确策略去重、分片交错派发、子进程退出与完整分片的一致性、失败保留，以及训练继续/重复评测延后和恢复派发。
-
-## 分配下一批资源的依据
-
-完整PDMS之外，逐场景对照IL46统计旧零分修复、新增零分、高分场景退化、安全性变化和正负收益。各路线曝光量不同，早期排名仅用于追加资源，不能据此判断尚未启用机制的上限。
-
-优先先为较有潜力的路线减少GPU共享，继承该路线自身完整原生训练状态继续；多节点扩容须另行通过真实吞吐和恢复资格。world16 CPU原型已经证明B64/G16/M2数学目标可保留，但当前八卡engine不能直接把`torchrun`改成十六卡，尚未宣称有多节点实测提速。
-
-实时账本：`/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/{PLAN,STATE}.json`。持续HTML：`/mnt/project/qwen-world-performance-rl-20261103/report.html`。不可变计划、资源审计及CPU owner替换证据见同目录`analysis/`。
+12:52:56 UTC补充：[D2真实rescue激活](results/recovery/D2_RESUMED_RESCUE_ACTIVE.json)已证八rank从原1614恢复到1628、Adam未重置、辅助项非零；累计448 TRAIN B1查询与800额外adaptive candidates仅为训练实耗/机制激活证据，不是scene激活率或新部署分。
