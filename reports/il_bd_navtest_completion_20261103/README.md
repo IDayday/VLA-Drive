@@ -47,3 +47,25 @@ env PYTHONPATH=. /mnt/project/flow-safe-improvement-20261013/venv/bin/python -m 
 最新表持续更新在 [独立 B/D 结果分支](https://github.com/IDayday/VLA-Drive/blob/reports/il-bd-navtest-live-20261103/reports/il_bd_navtest_updates_20261103/README.md)，包含逐点分项与 hash。固定科学观察协议，不把 Navtest 标签回流训练。
 
 发布入口实际为 `python -m tools.il_report.publish_bd_periodic --checkout <独立报告checkout> --state-root <单一发布owner目录> --watch --interval 60`。发布器从固定运行源码执行；报告 checkout 的 HEAD 更新不触碰训练或评测 runtime。
+
+## 恢复完成与发布验收
+
+D50k 七个 `attempt002` 实际完成，官方全量汇总通过，原有 25 个完整分片未重执行。D52k 也由原 owner 完成；两点均完整 12,146 场景、44 个物理 log、invalid=0。
+
+| 架构 | checkpoint | PDMS |
+|---|---:|---:|
+| B | 60k | 88.1991 |
+| B | 62k | 87.7696 |
+| B | 64k | 88.1494 |
+| D | 46k | 89.4955 |
+| D | 48k | 89.2318 |
+| D | 50k | 89.2877 |
+| D | 52k | 89.2018 |
+
+B 当前已完成最高点仍是 60k，D 为 46k；后续点有波动，不据此调整已登记训练预算。
+
+实际检查时 B 八个 rank 同为 65,651 次更新、D 八个 rank 同为 52,474，日志最大年龄约 1.2 秒；最新封存 checkpoint 分别 65k/52k。下一固定评测点 66k/54k，保持每 2K，不为补报而插入新评价 seed 或改变人口。
+
+原单一 HTML owner 3244218 保持，本地 HTML 于 UTC 02:40 已含两点。新发布 owner 4146505，固定源码 `publisher_runtime_v1@3e33b42164e05dea0b6a6001bf3f22f443fa079b`，独立报告 checkout `/mnt/project/VLA-Drive-il-bd-navtest-live-20261103`。首发 49 个完整 B/D 点、待评测点 0，远端与本地 SHA 同为 `84c7aa5966d7a8e7d1e68f6c5531e43c24a65aac`；该报告分支后续由同一 owner 持续更新。
+
+实际部署与全量汇总证据见 [evidence](evidence/)。不提交 checkpoint、轨迹缓存、图片或密钥。
