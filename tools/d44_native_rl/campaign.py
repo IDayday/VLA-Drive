@@ -261,10 +261,16 @@ def evaluation_tick(campaign):
             req=read(request);key=arm+'_'+request.stem
             cases.setdefault(key,dict(request=req,source=run['source'],status='PENDING',world=campaign.get('evaluation_world',8),jobs={},
                 output=str(ROOT/'evaluations'/key/'evaluation')))
-    pending=[v for v in cases.values()if v['status']not in('COMPLETE','FAILED_REQUIRES_REVIEW','FAILED_SUMMARY_REQUIRES_REVIEW')]
+    from tools.d46_priority_rl.evaluation_reference import prepare_references
+    priorities=prepare_references(campaign,ROOT)
+    pending=[v for v in cases.values()if not v.get('reference_only')and v['status']not in('COMPLETE','FAILED_REQUIRES_REVIEW','FAILED_SUMMARY_REQUIRES_REVIEW')]
+    keys={id(v):k for k,v in cases.items()}
+    pending.sort(key=lambda v:priorities.get(keys[id(v)],100))
     if not pending:return
     reserved=set()
     alljobs=[j for run in campaign['runs'].values()for j in run['jobs'][-1:]+run.get('qualification_jobs',[])[-1:]]
+    alljobs += campaign.get('world16_stage_jobs',[])
+    for host in campaign.get('world16_reserved_hosts',[]):reserved.update((host,g)for g in range(8))
     alljobs += [j for case in cases.values()for jobs in case['jobs'].values()for j in jobs[-1:]]
     for j in alljobs:
         if not(Path(j['job'])/'RESULT.json').exists():reserved.update((j['host'],gpu)for gpu in j.get('gpus',range(8)))
@@ -273,10 +279,10 @@ def evaluation_tick(campaign):
     for run in campaign['runs'].values():
         if run['status']=='SAVED_AND_PAUSED_FOR_REGISTERED_FULL_NAVTEST'and run['jobs']:
             released.add(run['jobs'][-1]['host'])
-    for host in dict.fromkeys(list(sorted(released))+['training-vlawm-zt2','training-vlawm-zt5','training-vlawm-tsinghua-zt5','training-vla-zt','training-vlawm-tsinghua-zt']):
+    for host in dict.fromkeys(list(sorted(released))+['training-rl-zt2','training-vlawm-zt2','training-vlawm-zt5','training-vlawm-tsinghua-zt5','training-vla-zt','training-vlawm-tsinghua-zt']):
         if host not in allowed:continue
         shared=host not in PROTECTED
-        try:pool += [(host,gpu,shared)for gpu in free_evaluation_gpus(host,shared=shared)if(host,gpu)not in reserved]
+        try:pool += [(host,gpu,shared)for gpu in free_evaluation_gpus(host,shared=shared)if(host,gpu)not in reserved and(host!='training-rl-zt2'or gpu in(0,1,7))]
         except (subprocess.SubprocessError,OSError,ValueError):continue
     for case in pending:
         output=Path(case['output']);completed=[]
@@ -345,7 +351,9 @@ def selection_index(campaign):
         for case in campaign.get('evaluations',{}).values():
             if case.get('status')!='COMPLETE':continue
             cp=Path(case['request']['checkpoint']).resolve()
-            if not cp.is_relative_to(Path(run['output']).resolve()):continue
+            roots=[Path(run['output']).resolve()]
+            if run.get('world16_stage'):roots.append(Path(run['world16_stage']['output']).resolve())
+            if not any(cp.is_relative_to(root)for root in roots):continue
             summary=read(case['summary'])
             if summary['qualification']or summary['scenes']!=12146 or summary['invalid_scenes']!=0:raise ValueError('Selection requires complete B1 Navtest')
             complete.append(dict(checkpoint=str(cp),PDMS=summary['PDMS'],new_zero=summary['paired']['new_zero'],
@@ -356,6 +364,7 @@ def selection_index(campaign):
             best=max(complete,key=lambda row:(row['PDMS'],-row['epoch']))
             stable=min((row for row in complete if row['PDMS']>=best['PDMS']-.2),key=lambda row:(row['new_zero'],-row['PDMS'],row['epoch']))
             item.update(best_score_checkpoint=best,best_stable_proxy_checkpoint=stable)
+        if run.get('world16_stage',{}).get('latest_native'):item['last_checkpoint']=run['world16_stage']['latest_native']['checkpoint']
         rows[arm]=item
     return dict(schema='D44_test_selected_checkpoint_index_v1',runs=rows,
         stable_proxy_rule='Lowest new-zero count among checkpoints within0.2 PDMS points of the run maximum; then higher PDMS, then earlier epoch',

@@ -1,0 +1,678 @@
+{
+  "baselines": [
+    {
+      "cohost_context": {
+        "actual_8_GPU_UUIDs": [
+          "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+          "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+          "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+          "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+          "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+          "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+          "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+          "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+        ],
+        "continuous_cohost_timeline_available": false,
+        "exclusive_compute_claim": false,
+        "note": "Shared-headroom/slot records prove admission mode, not absence or exact number of cohosts for all updates; no host probe performed. Historical capacity snapshots below are timestamped context only.",
+        "recorded_slot": "primary"
+      },
+      "configuration": {
+        "action_shape": [
+          8,
+          3
+        ],
+        "amortized_new_PG_candidates_per_Adam": 16.0,
+        "amortized_new_scenes_per_Adam": 2.0,
+        "checkpoint_execution_policy": "parent native adapter source activation checkpointing default True; no all_off override in original runner",
+        "clip": 0.2,
+        "credit": "canonical centered / global64 centered std",
+        "current_scene_candidate_microbatch": 8,
+        "different_scenes_accumulated_sequentially": true,
+        "global_scenes_per_collection": 8,
+        "group": 8,
+        "inner_Adam_updates_per_collection": 4,
+        "learning_rate_peak": 1e-06,
+        "local_scenes_per_rank": 1,
+        "manifest": "{'schema': 'qwen_world_abcd_full_TRAIN_tokens_v1', 'manifest_sha256': 'd0a54ff7279d247660a08098524be92f455a2ea1eb9c34491ae8b906ab8071f8', 'scene_count': 90890, 'world': 8, 'train_manifest_sha256': 'c7d51691f16dd7caf373d6ddc688d93661a5a22ce2c91b8def60ee723dc1a39f', 'role_partition_sha256': '586b8cbb0b2594d184ac843f685b27bfea313c3ff2b2be3c022b2fc840e4d457', 'physical_log_count': 147, 'physical_log_disjoint': True, 'original_source_epoch_padding': True, 'ordering': 'existing sealed TRAIN order; source ResumableEpochSampler seed42+epoch and exact world padding', 'DEV_and_embargoed_and_NAVTEST_excluded': True, 'old103288_NAVTRAIN_not_used': True}",
+        "new_PG_candidates_per_collection": 64,
+        "sampler": "K10 shift5 rigorous eta.1 W3[7,8,9], untruncated innovations",
+        "text_LoRA_rank": 16,
+        "trainable_numel": 6422528,
+        "trainable_tensor_count": 224,
+        "world": 8
+      },
+      "id": "ABCD_D_JAT_ACTION_IL12K",
+      "identity_sha256": "091ce22a49505066ab09e88d86fac535e2044aab7d5ff5dfcf4f9d2f1584b103",
+      "invocations": [
+        {
+          "end_to_end_seconds_per_Adam": 3.507391669715714,
+          "end_update": 4829,
+          "generation_accounting_note": "legacy invocation seconds_generation versus native invocation generation_worker_seconds have different timer boundaries; do not compare them as isolated GPU kernels",
+          "global_new_PG_candidates": 61312,
+          "global_new_scene_exposures": 7664,
+          "invocation": "6df3fa5648244809af9f3f013498ab95",
+          "job": {
+            "end_unix": 1793500105.283449,
+            "host": "training-vlawm-zt4",
+            "job": "/mnt/project/qwen-world-abcd-rl-best-20261031/jobs/ARCH_D_JAT_ACTION/formal_to005000_attempt002",
+            "lease_slot": "primary",
+            "physical_gpu_uuids": [
+              "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+              "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+              "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+              "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+              "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+              "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+              "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+              "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+            ],
+            "returncode": 0,
+            "shared_headroom_MiB": 37000,
+            "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/runtime/abcd_resume_recovery_v1",
+            "start_unix": 1793486582.214566
+          },
+          "new_PG_candidates_per_second": 4.565368632313933,
+          "optimizer_updates": 3829,
+          "rank0_generation_worker_seconds": 1464.959350567311,
+          "rank0_scoring_wait_worker_seconds": 133.7163990791887,
+          "recorded_preparation_seconds": 75.12071768008173,
+          "scene_exposures_per_second": 0.5706710790392416,
+          "start_update": 1000,
+          "wall_definition": "one actual uninterrupted invocation; excludes time between invocations and model preparation; includes collection, scorer waits, behavior persistence, optimizer updates and native saves",
+          "worker_wall_seconds": 13429.80270334147
+        },
+        {
+          "end_to_end_seconds_per_Adam": 3.4058733293004333,
+          "end_update": 1000,
+          "generation_accounting_note": "legacy invocation seconds_generation versus native invocation generation_worker_seconds have different timer boundaries; do not compare them as isolated GPU kernels",
+          "global_new_PG_candidates": 16000,
+          "global_new_scene_exposures": 2000,
+          "invocation": "e6d0fe0533674c43a32b5406c9bcd7f1",
+          "job": {
+            "end_unix": 1793467403.1919997,
+            "host": "training-vlawm-zt4",
+            "job": "/mnt/project/qwen-world-abcd-rl-best-20261031/jobs/ARCH_D_JAT_ACTION/formal_to001000_attempt002",
+            "lease_slot": "primary",
+            "physical_gpu_uuids": [
+              "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+              "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+              "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+              "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+              "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+              "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+              "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+              "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+            ],
+            "returncode": 0,
+            "shared_headroom_MiB": 37000,
+            "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/runtime/abcd_parentfix",
+            "start_unix": 1793463812.473046
+          },
+          "new_PG_candidates_per_second": 4.6977671959650955,
+          "optimizer_updates": 1000,
+          "rank0_generation_worker_seconds": 377.8659841865301,
+          "rank0_scoring_wait_worker_seconds": 40.09367509931326,
+          "recorded_preparation_seconds": 167.23401115462184,
+          "scene_exposures_per_second": 0.5872208994956369,
+          "start_update": 0,
+          "wall_definition": "one actual uninterrupted invocation; excludes time between invocations and model preparation; includes collection, scorer waits, behavior persistence, optimizer updates and native saves",
+          "worker_wall_seconds": 3405.8733293004334
+        }
+      ],
+      "last_retained_metrics_update": 4829,
+      "parent_IL_updates": 12000,
+      "parent_model_sha256": "129d9ee933c7f98a59d7e6b77beee5d5745b6d4cb3dfa070739071088835f787",
+      "root": "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION",
+      "stable_100_Adam_window": {
+        "Adam_updates": 100,
+        "all8_ranks_same_invocation": true,
+        "end_to_end_definition": "No per-row at was recorded; do not synthesize this window wall by adding rank timers. Use separately documented full invocation wall only.",
+        "end_to_end_seconds": null,
+        "end_to_end_seconds_per_Adam": null,
+        "global_PG_query_counter_delta": 1600,
+        "global_scene_counter_delta": 200,
+        "invocation": "e6d0fe0533674c43a32b5406c9bcd7f1",
+        "mean_of_max_rank_update_seconds": 2.7165376102924346,
+        "per_inner_rank0": {
+          "1": {
+            "maximum": 2.7176280934363604,
+            "mean": 2.659339031651616,
+            "median": 2.6617142725735903,
+            "minimum": 2.5583771113306284,
+            "n": 25
+          },
+          "2": {
+            "maximum": 6.759088767692447,
+            "mean": 2.790828828290105,
+            "median": 2.630162287503481,
+            "minimum": 2.5347904805094004,
+            "n": 25
+          },
+          "3": {
+            "maximum": 6.717204462736845,
+            "mean": 2.7863468001037837,
+            "median": 2.62829627469182,
+            "minimum": 2.539395187050104,
+            "n": 25
+          },
+          "4": {
+            "maximum": 2.732668586075306,
+            "mean": 2.6239888356626033,
+            "median": 2.6153980288654566,
+            "minimum": 2.546532331034541,
+            "n": 25
+          }
+        },
+        "per_rank_mean_update_seconds": [
+          2.715125873927027,
+          2.7149695253744723,
+          2.7150193990767004,
+          2.7154327680915595,
+          2.714938376005739,
+          2.7149072249419985,
+          2.715179256107658,
+          2.7147313807345927
+        ],
+        "pure_update_seconds_all_rank_rows": {
+          "maximum": 6.760151758790016,
+          "mean": 2.7150379755324683,
+          "median": 2.6322098365053535,
+          "minimum": 2.5346794966608286,
+          "n": 800
+        },
+        "pure_update_seconds_rank0": {
+          "maximum": 6.759088767692447,
+          "mean": 2.715125873927027,
+          "median": 2.6319534881040454,
+          "minimum": 2.5347904805094004,
+          "n": 100
+        },
+        "timing_scope": "forward/current prefix, backward/DDP, grad check/clip, Adam and scheduler, then cuda.synchronize; excludes fresh collection/scorer and checkpoint saves",
+        "update_first": 102,
+        "update_last": 201
+      },
+      "status": "ACTUAL_FORMAL_HISTORY_NOT_QUALIFICATION",
+      "window_actual_job": {
+        "end_unix": 1793467403.1919997,
+        "host": "training-vlawm-zt4",
+        "job": "/mnt/project/qwen-world-abcd-rl-best-20261031/jobs/ARCH_D_JAT_ACTION/formal_to001000_attempt002",
+        "lease_slot": "primary",
+        "physical_gpu_uuids": [
+          "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+          "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+          "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+          "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+          "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+          "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+          "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+          "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+        ],
+        "returncode": 0,
+        "shared_headroom_MiB": 37000,
+        "source": "/mnt/project/qwen-world-abcd-rl-best-20261031/runtime/abcd_parentfix",
+        "start_unix": 1793463812.473046
+      }
+    },
+    {
+      "cohost_context": {
+        "actual_8_GPU_UUIDs": [
+          "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+          "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+          "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+          "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+          "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+          "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+          "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+          "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+        ],
+        "continuous_cohost_timeline_available": false,
+        "exclusive_compute_claim": false,
+        "note": "Shared-headroom/slot records prove admission mode, not absence or exact number of cohosts for all updates; no host probe performed. Historical capacity snapshots below are timestamped context only.",
+        "recorded_slot": "shared"
+      },
+      "configuration": {
+        "action_shape": [
+          8,
+          3
+        ],
+        "amortized_new_PG_candidates_per_Adam": 512.0,
+        "amortized_new_scenes_per_Adam": 32.0,
+        "checkpoint_execution_policy": "all_off",
+        "clip": 0.1,
+        "credit": "SafetyEP credit / global1024 raw-credit population std",
+        "current_scene_candidate_microbatch": 16,
+        "different_scenes_accumulated_sequentially": true,
+        "global_scenes_per_collection": 64,
+        "group": 16,
+        "inner_Adam_updates_per_collection": 2,
+        "learning_rate_peak": 2e-06,
+        "local_scenes_per_rank": 8,
+        "manifest": "{'count': 103288, 'manifest_sha256': 'f35dcb5b1aca4b85ddb0e5fcd9691dd0411bbb3b44f31990ba84f002eedc535d', 'full_population_sha256': '37c9a0b1dd9105e632b2f447056ab987e5cf0d17a671f25e07fdec88ea6d2a3b', 'TRAIN_physical_logs': 162, 'NAVTEST_physical_logs': 44, 'NAVTEST_overlap': 0, 'former_DEV_is_TRAIN': True, 'padding_per_epoch': 8}",
+        "new_PG_candidates_per_collection": 1024,
+        "sampler": "K10 shift5 rigorous eta.1 W3[7,8,9], untruncated innovations",
+        "text_LoRA_rank": 16,
+        "trainable_numel": 6422528,
+        "trainable_tensor_count": 224,
+        "world": 8
+      },
+      "id": "D44_FIRST_NATIVE_D0_IL44K",
+      "identity_sha256": "8cc0dff7f91b94a8b59649fe44eb3dc4b293aa687bc7bf3775e3b99b28c3387d",
+      "invocations": [
+        {
+          "end_to_end_seconds_per_Adam": 21.9113825583025,
+          "end_update": 544,
+          "generation_accounting_note": "legacy invocation seconds_generation versus native invocation generation_worker_seconds have different timer boundaries; do not compare them as isolated GPU kernels",
+          "global_new_PG_candidates": 227328,
+          "global_new_scene_exposures": 14208,
+          "invocation": "2e4c625d59e04b169036ed08dd09d25b",
+          "job": {
+            "end_unix": 1793661314.8878372,
+            "host": "training-vlawm-zt4",
+            "job": "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt008",
+            "lease_slot": "shared",
+            "physical_gpu_uuids": [
+              "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+              "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+              "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+              "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+              "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+              "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+              "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+              "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+            ],
+            "returncode": 0,
+            "shared_headroom_MiB": 45056,
+            "source": "/mnt/project/d44-native-rl-20261103/runtime/formal_v1",
+            "start_unix": 1793651394.4155993
+          },
+          "new_PG_candidates_per_second": 23.366850477721073,
+          "optimizer_updates": 444,
+          "rank0_generation_worker_seconds": 2750.744000092149,
+          "rank0_scoring_wait_worker_seconds": 319.46611693128943,
+          "recorded_preparation_seconds": null,
+          "scene_exposures_per_second": 1.460428154857567,
+          "start_update": 100,
+          "wall_definition": "one actual uninterrupted invocation; excludes time between invocations and model preparation; includes collection, scorer waits, behavior persistence, optimizer updates and native saves",
+          "worker_wall_seconds": 9728.65385588631
+        },
+        {
+          "end_to_end_seconds_per_Adam": 22.629091870320373,
+          "end_update": 763,
+          "generation_accounting_note": "legacy invocation seconds_generation versus native invocation generation_worker_seconds have different timer boundaries; do not compare them as isolated GPU kernels",
+          "global_new_PG_candidates": 112640,
+          "global_new_scene_exposures": 7040,
+          "invocation": "733d6473966c4a848d932b15453cef24",
+          "job": {
+            "end_unix": 1793666476.621815,
+            "host": "training-vlawm-tsinghua-zt5",
+            "job": "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt009",
+            "lease_slot": "primary",
+            "physical_gpu_uuids": [
+              "GPU-ba6629ed-35db-198b-d353-d6048cbdf36b",
+              "GPU-c976d64e-44ea-d8bd-a026-d1c1f14d4db6",
+              "GPU-e2a93cb8-47e2-0b2f-952e-bcfa5403ad24",
+              "GPU-28ad5baf-48e8-8ea7-2e0b-514cc7f2d690",
+              "GPU-a7b3b440-0f0e-d35e-508a-98b368e9a753",
+              "GPU-07454d91-a706-9214-2999-0ec63e16c489",
+              "GPU-69f7a391-b4e5-fefd-2b4e-721834060a20",
+              "GPU-a4a674df-d68f-fa69-13be-0f089a4cd6af"
+            ],
+            "returncode": 0,
+            "shared_headroom_MiB": 40960,
+            "source": "/mnt/project/d44-native-rl-20261103/runtime/formal_v1",
+            "start_unix": 1793661376.8771052
+          },
+          "new_PG_candidates_per_second": 22.72905614113348,
+          "optimizer_updates": 219,
+          "rank0_generation_worker_seconds": 1390.2455040644854,
+          "rank0_scoring_wait_worker_seconds": 165.0667952587828,
+          "recorded_preparation_seconds": null,
+          "scene_exposures_per_second": 1.4205660088208425,
+          "start_update": 544,
+          "wall_definition": "one actual uninterrupted invocation; excludes time between invocations and model preparation; includes collection, scorer waits, behavior persistence, optimizer updates and native saves",
+          "worker_wall_seconds": 4955.771119600162
+        },
+        {
+          "end_to_end_seconds_per_Adam": 21.085324434246868,
+          "end_update": 100,
+          "generation_accounting_note": "legacy invocation seconds_generation versus native invocation generation_worker_seconds have different timer boundaries; do not compare them as isolated GPU kernels",
+          "global_new_PG_candidates": 51200,
+          "global_new_scene_exposures": 3200,
+          "invocation": "e87a92fe8d0445598ea0fa143541cba0",
+          "job": {
+            "end_unix": 1793646044.821981,
+            "host": "training-vlawm-zt4",
+            "job": "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt001",
+            "lease_slot": "shared",
+            "physical_gpu_uuids": [
+              "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+              "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+              "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+              "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+              "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+              "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+              "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+              "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+            ],
+            "returncode": 0,
+            "shared_headroom_MiB": 41000,
+            "source": "/mnt/project/d44-native-rl-20261103/runtime/formal_v1",
+            "start_unix": 1793643766.1681767
+          },
+          "new_PG_candidates_per_second": 24.28229177106744,
+          "optimizer_updates": 100,
+          "rank0_generation_worker_seconds": 592.1347013004124,
+          "rank0_scoring_wait_worker_seconds": 71.9671149533242,
+          "recorded_preparation_seconds": null,
+          "scene_exposures_per_second": 1.517643235691715,
+          "start_update": 0,
+          "wall_definition": "one actual uninterrupted invocation; excludes time between invocations and model preparation; includes collection, scorer waits, behavior persistence, optimizer updates and native saves",
+          "worker_wall_seconds": 2108.532443424687
+        }
+      ],
+      "last_retained_metrics_update": 763,
+      "parent_IL_updates": 44000,
+      "parent_model_sha256": "9715b9c0cfbef7a7d3d94fb83e7b0e2f0838d21cf06d3277deef6733cccbc50e",
+      "root": "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1",
+      "stable_100_Adam_window": {
+        "Adam_updates": 100,
+        "all8_ranks_same_invocation": true,
+        "at_anchor_update": 101,
+        "at_first": 1793651619.2353218,
+        "at_last": 1793653818.9682972,
+        "end_to_end_definition": "same-invocation rank0 at[201]-at[101], exactly 100 committed optimizer intervals; includes collections/score waits/native behavior and checkpoint I/O within interval, no pause",
+        "end_to_end_seconds": 2199.7329754829407,
+        "end_to_end_seconds_per_Adam": 21.99732975482941,
+        "global_PG_query_counter_delta": 51200,
+        "global_new_PG_candidates_per_second": 23.27555233778286,
+        "global_scene_counter_delta": 3200,
+        "global_scene_exposures_per_second": 1.4547220211114287,
+        "invocation": "2e4c625d59e04b169036ed08dd09d25b",
+        "mean_of_max_rank_update_seconds": 10.748455525841564,
+        "per_inner_rank0": {
+          "1": {
+            "maximum": 11.203301727771759,
+            "mean": 10.76408502459526,
+            "median": 10.733356680721045,
+            "minimum": 10.273516045883298,
+            "n": 50
+          },
+          "2": {
+            "maximum": 11.429751424118876,
+            "mean": 10.723021804913879,
+            "median": 10.699431669898331,
+            "minimum": 10.33877121284604,
+            "n": 50
+          }
+        },
+        "per_rank_mean_update_seconds": [
+          10.743553414754569,
+          10.742949546054005,
+          10.743374233730137,
+          10.743417180925608,
+          10.742647594995796,
+          10.74283753465861,
+          10.742370416000485,
+          10.743628457598389
+        ],
+        "pure_update_seconds_all_rank_rows": {
+          "maximum": 11.429751424118876,
+          "mean": 10.7430972973397,
+          "median": 10.721133012324572,
+          "minimum": 10.257913574576378,
+          "n": 800
+        },
+        "pure_update_seconds_rank0": {
+          "maximum": 11.429751424118876,
+          "mean": 10.743553414754569,
+          "median": 10.72039516363293,
+          "minimum": 10.273516045883298,
+          "n": 100
+        },
+        "timing_scope": "forward/current prefix, backward/DDP, grad check/clip, Adam and scheduler, then cuda.synchronize; excludes fresh collection/scorer and checkpoint saves",
+        "update_first": 102,
+        "update_last": 201
+      },
+      "status": "ACTUAL_FORMAL_HISTORY_NOT_QUALIFICATION",
+      "window_actual_job": {
+        "end_unix": 1793661314.8878372,
+        "host": "training-vlawm-zt4",
+        "job": "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt008",
+        "lease_slot": "shared",
+        "physical_gpu_uuids": [
+          "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+          "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+          "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+          "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+          "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+          "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+          "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+          "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+        ],
+        "returncode": 0,
+        "shared_headroom_MiB": 45056,
+        "source": "/mnt/project/d44-native-rl-20261103/runtime/formal_v1",
+        "start_unix": 1793651394.4155993
+      }
+    }
+  ],
+  "builder": {
+    "path": "/mnt/project/d46-priority-rl-20261103/analysis/build_D_THROUGHPUT_ORIGINAL_BASELINES_20261103.py",
+    "sha256": "b3b1251bf151bfdc6da2e8e9af6c43fe614fd8db3886d57af7b349be602b189b"
+  },
+  "comparison": {
+    "D44_amortized_fresh_query_rate": 23.275552337782855,
+    "D44_amortized_fresh_scene_rate": 1.4547220211114285,
+    "D44_end_to_end_seconds_per_Adam_stable_same_invocation_window": 21.99732975482941,
+    "D44_pure_update_seconds": 10.743553414754569,
+    "D44_vs_original_new_PG_query_throughput_ratio": 4.954598933249436,
+    "D44_vs_original_new_scene_throughput_ratio": 2.477299466624718,
+    "common": "same D native Qwen backbone family, same r16 text LoRA 6422528 parameters/224 tensors, world8, FP32 states/params/probability and BF16 neural forward, K10shift5W3; same physical WM4 eight A800 UUIDs",
+    "different": "IL12k vs IL44k parent; B/G/M, credit, clip, LR/schedule, checkpoint recomputation and reference/conditioning implementations, time and cohost load differ. This is observed throughput, not a matched execution speedup ablation.",
+    "earliest_amortized_fresh_query_rate": 4.6977671959650955,
+    "earliest_amortized_fresh_scene_rate": 0.5872208994956369,
+    "earliest_end_to_end_seconds_per_Adam_first_actual_invocation": 3.4058733293004333,
+    "earliest_pure_update_seconds": 2.715125873927027,
+    "rate_limit": "Rates amortize fresh collection over M optimizer updates; not policy forwards/sec, unique token coverage/sec, or exclusive GPU FLOPs. Original rate uses full actual 1000-update invocation because it has no per-row at; native rate uses its continuous 100-update window."
+  },
+  "created_UTC": "2026-11-03T08:20:15.355153+00:00",
+  "guardrails": [
+    "No qualification timings used as formal throughput",
+    "No timestamps across pause/resume combined",
+    "No new GPU/scoring/host probe/worker signal/controller edit",
+    "Original ABCD run terminated; retained logs do not authorize checkpoint recovery",
+    "Current D46 live route speeds/evaluation status are outside this baseline-only artifact"
+  ],
+  "historical_capacity_context": [
+    {
+      "GPU_name": "NVIDIA A800-SXM4-80GB",
+      "at_unix": 1793463367.0453117,
+      "free_MiB_range": [
+        81153,
+        81153
+      ],
+      "note": "Snapshot before original D initial launch; cannot certify whole training window exclusive.",
+      "path": "/mnt/project/qwen-world-abcd-rl-best-20261031/resources/ABCD_LAUNCH_CAPACITY.json",
+      "visible_owner_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual_output_paths": [
+        "/mnt/project/qwen-world-performance-rl-20261103/qualification/S6_VERIFIED_QUALITY_NATIVE/split",
+        "/mnt/project/qwen-world-safety-exploration-20261031/performance_training_20261103/runs/S0_FAST_PACK4"
+      ],
+      "actual_visible_entries": [
+        "tools.qwen_world_multiscene.train",
+        "tools.qwen_world_verified_quality.train"
+      ],
+      "at_unix": 1793650080.7046475,
+      "note": "Snapshot before native D0 attempt008; records S0_FAST_PACK4 plus S6 qualification processes. It is not an uninterrupted cohost record for u102..201.",
+      "path": "/mnt/project/d44-native-rl-20261103/operations/CAPACITY_CURRENT.json"
+    }
+  ],
+  "input_files": {
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt001/RESULT.json": {
+      "bytes": 3364,
+      "sha256": "d2335f1d2c5491a278ced3568a116c9082ce2657519b1c138b76c31c5c00567d"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt002/RESULT.json": {
+      "bytes": 1697,
+      "sha256": "afa8e081be363c4c01de41912b676ca1ac7c9659b83da46208d8c680ffe39422"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt003/RESULT.json": {
+      "bytes": 1688,
+      "sha256": "771f7ac33f44cf18527df5be81446f6a51f918075e0e9493ef5f32e462a1bd2f"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt004/RESULT.json": {
+      "bytes": 1702,
+      "sha256": "5fe874cfaa0b79e8e9c7789207c8555d6ae2747a6fd7c2e8b16807cd0e088996"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt005/RESULT.json": {
+      "bytes": 1695,
+      "sha256": "3132a5cf25b080cbe8d08ab9d657b56bc21cd66863168d92ad13ab47046d0dd5"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt006/RESULT.json": {
+      "bytes": 1694,
+      "sha256": "be700e8a291d98cd0e880e15e4011eaf204732928b001553fd738280034e3e2b"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt007/RESULT.json": {
+      "bytes": 1691,
+      "sha256": "9ce0be705b23150ae61cedafcb3d175fc02b715d9bae21dbc36fa4963d71ed1c"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt008/RESULT.json": {
+      "bytes": 6214,
+      "sha256": "cbb1deb8f3797e6ba470cc8977dbce921bc363ba9968a7c779bd71cbe5b1a5fd"
+    },
+    "/mnt/project/d44-native-rl-20261103/jobs/D0/attempt009/RESULT.json": {
+      "bytes": 2834,
+      "sha256": "b1aac01a90071db0febdc4485c801e01dd26b657c878472612de0eafb978e157"
+    },
+    "/mnt/project/d44-native-rl-20261103/operations/CAPACITY_CURRENT.json": {
+      "bytes": 59759,
+      "sha256": "3c11e5ef8c7e4fd921afcfa7b5d7d412f99943c27139629de06fd1c398f753ab"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/identity.json": {
+      "bytes": 397737,
+      "sha256": "7ad09f8cfac79c680fe2bd0695fd4a653005845e6b8eeab39ed53e452f32b2d3"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/invocations/2e4c625d59e04b169036ed08dd09d25b/rank0.json": {
+      "bytes": 840,
+      "sha256": "c24bd0163b33c8283f4fc7332ecd889061150ba902aa52c98d7cb60293d51c3c"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/invocations/733d6473966c4a848d932b15453cef24/rank0.json": {
+      "bytes": 840,
+      "sha256": "8b2df3d25d08cbd3be855ed30d058e417aaa823c8785547696b22759134832d8"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/invocations/e87a92fe8d0445598ea0fa143541cba0/rank0.json": {
+      "bytes": 748,
+      "sha256": "665d47820e0a1f3ea101ecfde93f3240b5bc429d773642a4bbf3e8e0108fd7dc"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank0.jsonl": {
+      "bytes": 1388420,
+      "sha256": "c23008c1be9fd463e1e30ef70b9587c92670dfe1dc6fbd6dbc383e56c9982cd6"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank1.jsonl": {
+      "bytes": 1388487,
+      "sha256": "4c73b16491d66e26e8156f3463a168f56d58c13f9f78178be2001794ceb00284"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank2.jsonl": {
+      "bytes": 1388509,
+      "sha256": "681d5bba0ffba5d9ac792d4fba1d5999a98edb429ebd9a1120b75f38c59461c4"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank3.jsonl": {
+      "bytes": 1388402,
+      "sha256": "7f63b11f9ec3fac24ef5afa56f03e02af772d7ec6e7eaac530cb2070f3c9dbf5"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank4.jsonl": {
+      "bytes": 1388439,
+      "sha256": "6515c4923cc26d4f287219d5bf8f3b89944aeeea53780fd606c9790b421d854f"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank5.jsonl": {
+      "bytes": 1388521,
+      "sha256": "65dff02d1354127b40e621248006c21431abdfdb5e2bcf6aae8198ec1d749a09"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank6.jsonl": {
+      "bytes": 1388564,
+      "sha256": "e7527de54ec2e36b5e5440ec4f62f1011f89592db2a2b384682fb0b576e41e5d"
+    },
+    "/mnt/project/d44-native-rl-20261103/runs/D0_B64G16_M2_v1/metrics_rank7.jsonl": {
+      "bytes": 1388460,
+      "sha256": "81d2a415fb52b7f9057549dd343e92f8f9825917437a64d9379882d849297ced"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/jobs/ARCH_D_JAT_ACTION/formal_to001000_attempt001/RESULT.json": {
+      "bytes": 3936,
+      "sha256": "44be7e40218b3db55b42a5ba5c444788d79b692169f03eb90ef23eef331f2435"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/jobs/ARCH_D_JAT_ACTION/formal_to001000_attempt002/RESULT.json": {
+      "bytes": 3939,
+      "sha256": "4601051c10390002daa9aa13b506b8368fd2587bbf99ac5753a2538f632b9a35"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/jobs/ARCH_D_JAT_ACTION/formal_to005000_attempt001/RESULT.json": {
+      "bytes": 4064,
+      "sha256": "8148562da721d378bbc1066e9f298621b312ed0a468e42c925bb8613656f71e4"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/jobs/ARCH_D_JAT_ACTION/formal_to005000_attempt002/RESULT.json": {
+      "bytes": 4218,
+      "sha256": "1fb5f861cdc431810d6f4bde64a880361b90c859dfd78249fc77b48b8cc945d8"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/resources/ABCD_LAUNCH_CAPACITY.json": {
+      "bytes": 26672,
+      "sha256": "f28dfb4b0fb993f6d9f15ab7875d11c1dabcf0fa89fa80d45d67f415d4fd94fc"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/identity.json": {
+      "bytes": 596357,
+      "sha256": "88ba6c4b6ad1af967f767a350be3db39a2d512113948bf4c4d9aa9466e62d2fc"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/invocations/6df3fa5648244809af9f3f013498ab95/rank0.json": {
+      "bytes": 1478,
+      "sha256": "c078b3af14f2e263f83846ef8f49bc4a8d4fa571eb27d563fb899c8ec99772db"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/invocations/e6d0fe0533674c43a32b5406c9bcd7f1/rank0.json": {
+      "bytes": 1303,
+      "sha256": "05f43a785736909ba18531757c4542718b7ca6f6429425eec622fa5af942a0f0"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank0.jsonl": {
+      "bytes": 12426926,
+      "sha256": "baa5197d44dfbff871830b9c3e954345e818ce7cb6a0ec7dd0c481333523f82e"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank1.jsonl": {
+      "bytes": 12422899,
+      "sha256": "4bb5d9974ce5b1a2dc1bbf595010364f035d1334de12493dd9b365502cad222d"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank2.jsonl": {
+      "bytes": 12423958,
+      "sha256": "bc6517206050840d6a8ffa9b71ffd1a29b8dadbaf9db5f516c5deb9606f5097d"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank3.jsonl": {
+      "bytes": 12425113,
+      "sha256": "4d64a131a7b95d4630647db4521c6374b6fa95c957b37b9dfe3d9a6dfe8490b9"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank4.jsonl": {
+      "bytes": 12423488,
+      "sha256": "c401d8ba205171ec348ec3b62b58c3824b04c2c863b8fbf6d06452cb283d5d71"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank5.jsonl": {
+      "bytes": 12423920,
+      "sha256": "21fbcab84f5891256d6f62a0175d4bfa8b8870b4fcb0b4b32783cb705dcbe640"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank6.jsonl": {
+      "bytes": 12424209,
+      "sha256": "3e62fc6d220f22b52092f87ec6969c9d0c4a9ff2006a4f26c1ecf4a68002a78c"
+    },
+    "/mnt/project/qwen-world-abcd-rl-best-20261031/runs/ARCH_D_JAT_ACTION/metrics_rank7.jsonl": {
+      "bytes": 12424014,
+      "sha256": "ce1d700628d3b7396e1e0b2bd18a44088dd736ab659629ae2da94021f73e0293"
+    }
+  },
+  "schema": "D_throughput_actual_formal_original_baselines_v1",
+  "status": "COMPLETE_READ_ONLY_ACTUAL_HISTORY"
+}

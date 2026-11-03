@@ -1,0 +1,49 @@
+{
+  "schema": "d46_parent_policy_adapter_CPU_readiness_v2",
+  "status": "PASS_CPU_METADATA_ONLY_NOT_GPU_QUALIFIED",
+  "at": "2026-11-03T00:37:40.793799+00:00",
+  "worktree": "/mnt/project/VLA-Drive-d46-priority-rl-20261103",
+  "parent_registration": "/mnt/project/d46-priority-rl-20261103/PARENT_REGISTRATION_v2.json",
+  "parent_registration_file_sha256": "584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632",
+  "allowed_arms": [
+    "D0",
+    "D1",
+    "D2",
+    "D3_FPO",
+    "D3_AWM",
+    "D5"
+  ],
+  "rejected_unavailable_readout_arms": [
+    "D4",
+    "D6"
+  ],
+  "files_sha256": {
+    "starVLA/rl/d44_native_rl/parent.py": "81b9e2a634b774ad384017eed32d5330145a0af07eb9fd4391743d4a0c61040a",
+    "starVLA/rl/d44_native_rl/config.py": "72ce67284607101a534135d93812642dbf869bce7631a4c144ceca171b1f65e7",
+    "starVLA/rl/d44_native_rl/deployment.py": "fee6ae3c488906a45479a9e36ad55df24c86cd51d7648c930d8c1dd35ee8ab37",
+    "tests/test_d46_export_policy_parent.py": "5b6005553d6f3d4e83bb8cf211d3723803381b3c56c7ec7e80a416e6d576c111"
+  },
+  "actual_tests": {
+    "exit_code": 0,
+    "passed": 3,
+    "seconds": 4.93,
+    "command": "WORLD_COMPARE_ROOT=/mnt/project/d46-priority-rl-20261103 CUDA_VISIBLE_DEVICES= python -m pytest -q tests/test_d46_export_policy_parent.py"
+  },
+  "checks": [
+    "All6 real version2 policy-only config/defaults metadata/source/library checks pass.",
+    "Version1 explicit immutable registration remains original3 routes; newly admitted D1 cannot silently bind version1. Saved registration passed explicitly into actual native/deployment parent.load.",
+    "Formal D1 StageII condition remains epoch>=2 in unchanged trainer algorithm; no lower qualification gate has been inserted.",
+    "Existing D44 registered configs unchanged; TinyD strict parameter-load/forward and foreign D46 parent pollution tests remainPASS."
+  ],
+  "unchanged_math": [
+    "D0/D1/D2/D5 conditionalGaussian/W3 logratio, SafetyEP credit and adaptiveKL unchanged.",
+    "D3_FPO MC-energy objective and D3_AWM positiveweight matching unchanged.",
+    "No action/backbone scope, LR, sampler, teacher threshold, group count or stage gate changed by this contract amendment."
+  ],
+  "limitations": [
+    "No new GPU/model-forward/scorer training qualification; Root will run real six-route qualification from fullIL46 policy/freshAdam.",
+    "D1 StageII needs separate actual-engine directed qualification before treating StageII as exercised; 10earlyupdates do not activate2epoch gate.",
+    "Only versioned policy export can be loaded; R16 query/readouts/fullnative remain unavailable.",
+    "No old D44 source/owner/IL/CPU/GPU job touched."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "d46_world16_FPO_ops_support_handoff_v1",
+  "status": "CPU_READY_NOT_DEPLOYED",
+  "base": "b574d524d15a0896b7b27e7b01fa73254a056de6",
+  "changed_production": [
+    "tools/d46_priority_rl/world16_owner.py",
+    "tools/qwen_world_compare/job_worker.py"
+  ],
+  "change": "Only extend typed world16 arm whitelist with D3_FPO; original D0/D5 checks preserved",
+  "CPU": {
+    "result": "12 passed, 1 warning in 4.21s",
+    "exit_code": 0,
+    "log_sha256": "68f5d14b22ad995e9533accd81a986b02c30e6b362cda79ec1ffe38bb100961c"
+  },
+  "checks": [
+    "FPO exact own READY8 ancestry/recipe/scope/Adam, no qualification-to-formal",
+    "two-node own native resume and same logical-arm ingest",
+    "existing 10 world16 owner metadata regressions"
+  ],
+  "not_done": [
+    "No live control changes, SSH, GPU or owner start",
+    "Full IL46 FPO16 qualification is mandatory before formal stage"
+  ],
+  "source_files": {
+    "tools/d46_priority_rl/world16_owner.py": "4b5426ce3b1b5faef23ce62860c9e99102906696b987de834c0f784f496d3d31",
+    "tools/qwen_world_compare/job_worker.py": "449e2aea796e3de7230aeaafa7247563688894262dbc6bd85e2391e682660c7a",
+    "tests/d46_priority_rl/test_world16_fpo_ops.py": "6c4687aaf43fbd5318525d18fc54b5451a6305edd9b92aa83cc4c62403395a74"
+  }
+}

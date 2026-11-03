@@ -1,0 +1,834 @@
+{
+  "schema": "d46_readonly_multinode_network_inventory_v1",
+  "status": "COMPLETE_READ_ONLY_SNAPSHOT",
+  "started_utc": "2026-11-03T10:11:08.256173+00:00",
+  "completed_utc": "2026-11-03T10:11:09.114825+00:00",
+  "ssh_effective_config": {
+    "training-vlawm-tsinghua-zt": {
+      "hostname": "training-vlawm-tsinghua-zt-ssh.vla-tsinghua.svc.cluster.local",
+      "port": "22",
+      "user": "root"
+    },
+    "training-vlawm-zt": {
+      "hostname": "training-vlawm-zt-ssh.vla.svc.cluster.local",
+      "port": "22",
+      "user": "root"
+    },
+    "training-vlawm-tsinghua-zt2": {
+      "hostname": "training-vlawm-tsinghua-zt2-ssh.vla-tsinghua.svc.cluster.local",
+      "port": "22",
+      "user": "root"
+    },
+    "training-vlawm-zt4": {
+      "hostname": "training-vlawm-zt4-ssh.vla.svc.cluster.local",
+      "port": "22",
+      "user": "root"
+    },
+    "training-vlawm-tsinghua-zt3": {
+      "hostname": "training-vlawm-tsinghua-zt3-ssh.vla-tsinghua.svc.cluster.local",
+      "port": "22",
+      "user": "root"
+    }
+  },
+  "hosts": {
+    "training-vlawm-tsinghua-zt3": {
+      "at_unix": 1793700668.2561731,
+      "hostname": "training-vlawm-tsinghua-zt3-worker-0",
+      "fqdn": "training-vlawm-tsinghua-zt3-worker-0",
+      "hostname_I": {
+        "command": [
+          "hostname",
+          "-I"
+        ],
+        "returncode": 0,
+        "stdout": "172.16.136.117",
+        "stderr": ""
+      },
+      "ip_addr": {
+        "command": [
+          "ip",
+          "-j",
+          "addr"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"link_index\":41,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1450,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"76:37:5e:9e:d6:e6\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.16.136.117\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::7437:5eff:fe9e:d6e6\",\"prefixlen\":64,\"scope\":\"link\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]",
+        "stderr": ""
+      },
+      "ip_route": {
+        "command": [
+          "ip",
+          "-j",
+          "route"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"default\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"flags\":[]},{\"dst\":\"169.254.1.1\",\"dev\":\"eth0\",\"scope\":\"link\",\"flags\":[]}]",
+        "stderr": ""
+      },
+      "proc_net_route": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t0101FEA9\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth0\t0101FEA9\t00000000\t0005\t0\t0\t0\tFFFFFFFF\t0\t0\t0                                                                               \n",
+      "interfaces": {
+        "lo": {
+          "operstate": "unknown",
+          "mtu": "65536",
+          "address": "00:00:00:00:00:00"
+        },
+        "bonding_masters": {},
+        "eth0": {
+          "operstate": "up",
+          "mtu": "1450",
+          "address": "76:37:5e:9e:d6:e6"
+        }
+      },
+      "dns": {
+        "training-vlawm-tsinghua-zt": {
+          "training-vlawm-tsinghua-zt-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.233.220"
+            ]
+          },
+          "training-vlawm-tsinghua-zt-worker-0": {
+            "addresses": [
+              "172.16.144.229"
+            ]
+          }
+        },
+        "training-vlawm-zt": {
+          "training-vlawm-zt-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.200.127"
+            ]
+          },
+          "training-vlawm-zt-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-tsinghua-zt2": {
+          "training-vlawm-tsinghua-zt2-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.242.77"
+            ]
+          },
+          "training-vlawm-tsinghua-zt2-worker-0": {
+            "addresses": [
+              "172.16.0.34"
+            ]
+          }
+        },
+        "training-vlawm-zt4": {
+          "training-vlawm-zt4-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.167.125"
+            ]
+          },
+          "training-vlawm-zt4-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-tsinghua-zt3": {
+          "training-vlawm-tsinghua-zt3-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.162.182"
+            ]
+          },
+          "training-vlawm-tsinghua-zt3-worker-0": {
+            "addresses": [
+              "172.16.136.117"
+            ]
+          }
+        }
+      },
+      "resolv_conf": "search vla-tsinghua.svc.cluster.local svc.cluster.local cluster.local\nnameserver 192.168.0.10\noptions ndots:5\n",
+      "hosts_file": "# Kubernetes-managed hosts file.\n127.0.0.1\tlocalhost\n::1\tlocalhost ip6-localhost ip6-loopback\nfe00::0\tip6-localnet\nfe00::0\tip6-mcastprefix\nfe00::1\tip6-allnodes\nfe00::2\tip6-allrouters\n172.16.136.117\ttraining-vlawm-tsinghua-zt3-worker-0\n",
+      "infiniband_devices": [
+        "mlx5_ib2",
+        "mlx5_ib0",
+        "mlx5_bond_1",
+        "mlx5_ib3",
+        "mlx5_ib1",
+        "mlx5_bond_0"
+      ],
+      "status": "READ_COMPLETE",
+      "kernel_routes_to_peer_pod_IPs": {
+        "training-vlawm-tsinghua-zt3": [
+          {
+            "ip": "172.16.136.117",
+            "returncode": 0,
+            "stdout": "[{\"type\":\"local\",\"dst\":\"172.16.136.117\",\"dev\":\"lo\",\"prefsrc\":\"172.16.136.117\",\"flags\":[],\"uid\":0,\"cache\":[\"local\"]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt2": [
+          {
+            "ip": "172.16.0.34",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.0.34\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.136.117\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt": [
+          {
+            "ip": "172.16.144.229",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.144.229\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.136.117\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt": [
+          {
+            "ip": "172.16.59.233",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.59.233\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.136.117\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt4": [
+          {
+            "ip": "172.16.212.202",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.212.202\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.136.117\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "training-vlawm-tsinghua-zt2": {
+      "at_unix": 1793700668.2563827,
+      "hostname": "training-vlawm-tsinghua-zt2-worker-0",
+      "fqdn": "training-vlawm-tsinghua-zt2-worker-0",
+      "hostname_I": {
+        "command": [
+          "hostname",
+          "-I"
+        ],
+        "returncode": 0,
+        "stdout": "172.16.0.34",
+        "stderr": ""
+      },
+      "ip_addr": {
+        "command": [
+          "ip",
+          "-j",
+          "addr"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"link_index\":39,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1450,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"0e:02:00:f3:56:93\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.16.0.34\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::c02:ff:fef3:5693\",\"prefixlen\":64,\"scope\":\"link\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]",
+        "stderr": ""
+      },
+      "ip_route": {
+        "command": [
+          "ip",
+          "-j",
+          "route"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"default\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"flags\":[]},{\"dst\":\"169.254.1.1\",\"dev\":\"eth0\",\"scope\":\"link\",\"flags\":[]}]",
+        "stderr": ""
+      },
+      "proc_net_route": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t0101FEA9\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth0\t0101FEA9\t00000000\t0005\t0\t0\t0\tFFFFFFFF\t0\t0\t0                                                                               \n",
+      "interfaces": {
+        "lo": {
+          "operstate": "unknown",
+          "mtu": "65536",
+          "address": "00:00:00:00:00:00"
+        },
+        "bonding_masters": {},
+        "eth0": {
+          "operstate": "up",
+          "mtu": "1450",
+          "address": "0e:02:00:f3:56:93"
+        }
+      },
+      "dns": {
+        "training-vlawm-tsinghua-zt": {
+          "training-vlawm-tsinghua-zt-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.233.220"
+            ]
+          },
+          "training-vlawm-tsinghua-zt-worker-0": {
+            "addresses": [
+              "172.16.144.229"
+            ]
+          }
+        },
+        "training-vlawm-zt": {
+          "training-vlawm-zt-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.200.127"
+            ]
+          },
+          "training-vlawm-zt-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-tsinghua-zt2": {
+          "training-vlawm-tsinghua-zt2-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.242.77"
+            ]
+          },
+          "training-vlawm-tsinghua-zt2-worker-0": {
+            "addresses": [
+              "172.16.0.34"
+            ]
+          }
+        },
+        "training-vlawm-zt4": {
+          "training-vlawm-zt4-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.167.125"
+            ]
+          },
+          "training-vlawm-zt4-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-tsinghua-zt3": {
+          "training-vlawm-tsinghua-zt3-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.162.182"
+            ]
+          },
+          "training-vlawm-tsinghua-zt3-worker-0": {
+            "addresses": [
+              "172.16.136.117"
+            ]
+          }
+        }
+      },
+      "resolv_conf": "search vla-tsinghua.svc.cluster.local svc.cluster.local cluster.local\nnameserver 192.168.0.10\noptions ndots:5\n",
+      "hosts_file": "# Kubernetes-managed hosts file.\n127.0.0.1\tlocalhost\n::1\tlocalhost ip6-localhost ip6-loopback\nfe00::0\tip6-localnet\nfe00::0\tip6-mcastprefix\nfe00::1\tip6-allnodes\nfe00::2\tip6-allrouters\n172.16.0.34\ttraining-vlawm-tsinghua-zt2-worker-0\n",
+      "infiniband_devices": [
+        "mlx5_bond_0",
+        "mlx5_ib3",
+        "mlx5_ib1",
+        "mlx5_bond_1",
+        "mlx5_ib2",
+        "mlx5_ib0"
+      ],
+      "status": "READ_COMPLETE",
+      "kernel_routes_to_peer_pod_IPs": {
+        "training-vlawm-tsinghua-zt3": [
+          {
+            "ip": "172.16.136.117",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.136.117\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.0.34\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt2": [
+          {
+            "ip": "172.16.0.34",
+            "returncode": 0,
+            "stdout": "[{\"type\":\"local\",\"dst\":\"172.16.0.34\",\"dev\":\"lo\",\"prefsrc\":\"172.16.0.34\",\"flags\":[],\"uid\":0,\"cache\":[\"local\"]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt": [
+          {
+            "ip": "172.16.144.229",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.144.229\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.0.34\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt": [
+          {
+            "ip": "172.16.59.233",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.59.233\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.0.34\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt4": [
+          {
+            "ip": "172.16.212.202",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.212.202\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.0.34\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "training-vlawm-tsinghua-zt": {
+      "at_unix": 1793700668.2588933,
+      "hostname": "training-vlawm-tsinghua-zt-worker-0",
+      "fqdn": "training-vlawm-tsinghua-zt-worker-0",
+      "hostname_I": {
+        "command": [
+          "hostname",
+          "-I"
+        ],
+        "returncode": 0,
+        "stdout": "172.16.144.229",
+        "stderr": ""
+      },
+      "ip_addr": {
+        "command": [
+          "ip",
+          "-j",
+          "addr"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"link_index\":42,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1450,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"26:8a:4b:75:db:9a\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.16.144.229\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::248a:4bff:fe75:db9a\",\"prefixlen\":64,\"scope\":\"link\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]",
+        "stderr": ""
+      },
+      "ip_route": {
+        "command": [
+          "ip",
+          "-j",
+          "route"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"default\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"flags\":[]},{\"dst\":\"169.254.1.1\",\"dev\":\"eth0\",\"scope\":\"link\",\"flags\":[]}]",
+        "stderr": ""
+      },
+      "proc_net_route": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t0101FEA9\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth0\t0101FEA9\t00000000\t0005\t0\t0\t0\tFFFFFFFF\t0\t0\t0                                                                               \n",
+      "interfaces": {
+        "bonding_masters": {},
+        "eth0": {
+          "operstate": "up",
+          "mtu": "1450",
+          "address": "26:8a:4b:75:db:9a"
+        },
+        "lo": {
+          "operstate": "unknown",
+          "mtu": "65536",
+          "address": "00:00:00:00:00:00"
+        }
+      },
+      "dns": {
+        "training-vlawm-tsinghua-zt": {
+          "training-vlawm-tsinghua-zt-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.233.220"
+            ]
+          },
+          "training-vlawm-tsinghua-zt-worker-0": {
+            "addresses": [
+              "172.16.144.229"
+            ]
+          }
+        },
+        "training-vlawm-zt": {
+          "training-vlawm-zt-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.200.127"
+            ]
+          },
+          "training-vlawm-zt-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-tsinghua-zt2": {
+          "training-vlawm-tsinghua-zt2-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.242.77"
+            ]
+          },
+          "training-vlawm-tsinghua-zt2-worker-0": {
+            "addresses": [
+              "172.16.0.34"
+            ]
+          }
+        },
+        "training-vlawm-zt4": {
+          "training-vlawm-zt4-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.167.125"
+            ]
+          },
+          "training-vlawm-zt4-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-tsinghua-zt3": {
+          "training-vlawm-tsinghua-zt3-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.162.182"
+            ]
+          },
+          "training-vlawm-tsinghua-zt3-worker-0": {
+            "addresses": [
+              "172.16.136.117"
+            ]
+          }
+        }
+      },
+      "resolv_conf": "search vla-tsinghua.svc.cluster.local svc.cluster.local cluster.local\nnameserver 192.168.0.10\noptions ndots:5\n",
+      "hosts_file": "# Kubernetes-managed hosts file.\n127.0.0.1\tlocalhost\n::1\tlocalhost ip6-localhost ip6-loopback\nfe00::0\tip6-localnet\nfe00::0\tip6-mcastprefix\nfe00::1\tip6-allnodes\nfe00::2\tip6-allrouters\n172.16.144.229\ttraining-vlawm-tsinghua-zt-worker-0\n",
+      "infiniband_devices": [
+        "mlx5_ib2",
+        "mlx5_ib0",
+        "mlx5_bond_1",
+        "mlx5_ib3",
+        "mlx5_ib1",
+        "mlx5_bond_0"
+      ],
+      "status": "READ_COMPLETE",
+      "kernel_routes_to_peer_pod_IPs": {
+        "training-vlawm-tsinghua-zt3": [
+          {
+            "ip": "172.16.136.117",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.136.117\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.144.229\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt2": [
+          {
+            "ip": "172.16.0.34",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.0.34\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.144.229\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt": [
+          {
+            "ip": "172.16.144.229",
+            "returncode": 0,
+            "stdout": "[{\"type\":\"local\",\"dst\":\"172.16.144.229\",\"dev\":\"lo\",\"prefsrc\":\"172.16.144.229\",\"flags\":[],\"uid\":0,\"cache\":[\"local\"]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt": [
+          {
+            "ip": "172.16.59.233",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.59.233\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.144.229\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt4": [
+          {
+            "ip": "172.16.212.202",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.212.202\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.144.229\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "training-vlawm-zt": {
+      "at_unix": 1793700668.280093,
+      "hostname": "training-vlawm-zt-worker-0",
+      "fqdn": "training-vlawm-zt-worker-0",
+      "hostname_I": {
+        "command": [
+          "hostname",
+          "-I"
+        ],
+        "returncode": 0,
+        "stdout": "172.16.59.233",
+        "stderr": ""
+      },
+      "ip_addr": {
+        "command": [
+          "ip",
+          "-j",
+          "addr"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"link_index\":39,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1450,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"a6:61:0d:d7:52:8b\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.16.59.233\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::a461:dff:fed7:528b\",\"prefixlen\":64,\"scope\":\"link\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]",
+        "stderr": ""
+      },
+      "ip_route": {
+        "command": [
+          "ip",
+          "-j",
+          "route"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"default\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"flags\":[]},{\"dst\":\"169.254.1.1\",\"dev\":\"eth0\",\"scope\":\"link\",\"flags\":[]}]",
+        "stderr": ""
+      },
+      "proc_net_route": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t0101FEA9\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth0\t0101FEA9\t00000000\t0005\t0\t0\t0\tFFFFFFFF\t0\t0\t0                                                                               \n",
+      "interfaces": {
+        "lo": {
+          "operstate": "unknown",
+          "mtu": "65536",
+          "address": "00:00:00:00:00:00"
+        },
+        "bonding_masters": {},
+        "eth0": {
+          "operstate": "up",
+          "mtu": "1450",
+          "address": "a6:61:0d:d7:52:8b"
+        }
+      },
+      "dns": {
+        "training-vlawm-tsinghua-zt": {
+          "training-vlawm-tsinghua-zt-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.233.220"
+            ]
+          },
+          "training-vlawm-tsinghua-zt-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-zt": {
+          "training-vlawm-zt-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.200.127"
+            ]
+          },
+          "training-vlawm-zt-worker-0": {
+            "addresses": [
+              "172.16.59.233"
+            ]
+          }
+        },
+        "training-vlawm-tsinghua-zt2": {
+          "training-vlawm-tsinghua-zt2-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.242.77"
+            ]
+          },
+          "training-vlawm-tsinghua-zt2-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-zt4": {
+          "training-vlawm-zt4-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.167.125"
+            ]
+          },
+          "training-vlawm-zt4-worker-0": {
+            "addresses": [
+              "172.16.212.202"
+            ]
+          }
+        },
+        "training-vlawm-tsinghua-zt3": {
+          "training-vlawm-tsinghua-zt3-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.162.182"
+            ]
+          },
+          "training-vlawm-tsinghua-zt3-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        }
+      },
+      "resolv_conf": "search vla.svc.cluster.local svc.cluster.local cluster.local\nnameserver 192.168.0.10\noptions ndots:5\n",
+      "hosts_file": "# Kubernetes-managed hosts file.\n127.0.0.1\tlocalhost\n::1\tlocalhost ip6-localhost ip6-loopback\nfe00::0\tip6-localnet\nfe00::0\tip6-mcastprefix\nfe00::1\tip6-allnodes\nfe00::2\tip6-allrouters\n172.16.59.233\ttraining-vlawm-zt-worker-0\n",
+      "infiniband_devices": [
+        "mlx5_ib3",
+        "mlx5_ib1",
+        "mlx5_bond_0",
+        "mlx5_ib2",
+        "mlx5_ib0",
+        "mlx5_bond_1"
+      ],
+      "status": "READ_COMPLETE",
+      "kernel_routes_to_peer_pod_IPs": {
+        "training-vlawm-tsinghua-zt3": [
+          {
+            "ip": "172.16.136.117",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.136.117\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.59.233\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt2": [
+          {
+            "ip": "172.16.0.34",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.0.34\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.59.233\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt": [
+          {
+            "ip": "172.16.144.229",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.144.229\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.59.233\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt": [
+          {
+            "ip": "172.16.59.233",
+            "returncode": 0,
+            "stdout": "[{\"type\":\"local\",\"dst\":\"172.16.59.233\",\"dev\":\"lo\",\"prefsrc\":\"172.16.59.233\",\"flags\":[],\"uid\":0,\"cache\":[\"local\"]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt4": [
+          {
+            "ip": "172.16.212.202",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.212.202\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.59.233\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "training-vlawm-zt4": {
+      "at_unix": 1793700668.3026824,
+      "hostname": "training-vlawm-zt4-worker-0",
+      "fqdn": "training-vlawm-zt4-worker-0",
+      "hostname_I": {
+        "command": [
+          "hostname",
+          "-I"
+        ],
+        "returncode": 0,
+        "stdout": "172.16.212.202",
+        "stderr": ""
+      },
+      "ip_addr": {
+        "command": [
+          "ip",
+          "-j",
+          "addr"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"link_index\":9320,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1450,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"d2:15:74:6e:a8:16\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.16.212.202\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::d015:74ff:fe6e:a816\",\"prefixlen\":64,\"scope\":\"link\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]",
+        "stderr": ""
+      },
+      "ip_route": {
+        "command": [
+          "ip",
+          "-j",
+          "route"
+        ],
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"default\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"flags\":[]},{\"dst\":\"169.254.1.1\",\"dev\":\"eth0\",\"scope\":\"link\",\"flags\":[]}]",
+        "stderr": ""
+      },
+      "proc_net_route": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t0101FEA9\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth0\t0101FEA9\t00000000\t0005\t0\t0\t0\tFFFFFFFF\t0\t0\t0                                                                               \n",
+      "interfaces": {
+        "eth0": {
+          "operstate": "up",
+          "mtu": "1450",
+          "address": "d2:15:74:6e:a8:16"
+        },
+        "lo": {
+          "operstate": "unknown",
+          "mtu": "65536",
+          "address": "00:00:00:00:00:00"
+        },
+        "bonding_masters": {}
+      },
+      "dns": {
+        "training-vlawm-tsinghua-zt": {
+          "training-vlawm-tsinghua-zt-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.233.220"
+            ]
+          },
+          "training-vlawm-tsinghua-zt-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-zt": {
+          "training-vlawm-zt-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.200.127"
+            ]
+          },
+          "training-vlawm-zt-worker-0": {
+            "addresses": [
+              "172.16.59.233"
+            ]
+          }
+        },
+        "training-vlawm-tsinghua-zt2": {
+          "training-vlawm-tsinghua-zt2-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.242.77"
+            ]
+          },
+          "training-vlawm-tsinghua-zt2-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        },
+        "training-vlawm-zt4": {
+          "training-vlawm-zt4-ssh.vla.svc.cluster.local": {
+            "addresses": [
+              "192.168.167.125"
+            ]
+          },
+          "training-vlawm-zt4-worker-0": {
+            "addresses": [
+              "172.16.212.202"
+            ]
+          }
+        },
+        "training-vlawm-tsinghua-zt3": {
+          "training-vlawm-tsinghua-zt3-ssh.vla-tsinghua.svc.cluster.local": {
+            "addresses": [
+              "192.168.162.182"
+            ]
+          },
+          "training-vlawm-tsinghua-zt3-worker-0": {
+            "error": "[Errno -2] Name or service not known"
+          }
+        }
+      },
+      "resolv_conf": "search vla.svc.cluster.local svc.cluster.local cluster.local\nnameserver 192.168.0.10\noptions ndots:5\n",
+      "hosts_file": "# Kubernetes-managed hosts file.\n127.0.0.1\tlocalhost\n::1\tlocalhost ip6-localhost ip6-loopback\nfe00::0\tip6-localnet\nfe00::0\tip6-mcastprefix\nfe00::1\tip6-allnodes\nfe00::2\tip6-allrouters\n172.16.212.202\ttraining-vlawm-zt4-worker-0\n",
+      "infiniband_devices": [
+        "mlx5_bond_1",
+        "mlx5_ib2",
+        "mlx5_ib0",
+        "mlx5_bond_0",
+        "mlx5_ib3",
+        "mlx5_ib1"
+      ],
+      "status": "READ_COMPLETE",
+      "kernel_routes_to_peer_pod_IPs": {
+        "training-vlawm-tsinghua-zt3": [
+          {
+            "ip": "172.16.136.117",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.136.117\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.212.202\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt2": [
+          {
+            "ip": "172.16.0.34",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.0.34\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.212.202\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-tsinghua-zt": [
+          {
+            "ip": "172.16.144.229",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.144.229\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.212.202\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt": [
+          {
+            "ip": "172.16.59.233",
+            "returncode": 0,
+            "stdout": "[{\"dst\":\"172.16.59.233\",\"gateway\":\"169.254.1.1\",\"dev\":\"eth0\",\"prefsrc\":\"172.16.212.202\",\"flags\":[],\"uid\":0,\"cache\":[]}]",
+            "stderr": ""
+          }
+        ],
+        "training-vlawm-zt4": [
+          {
+            "ip": "172.16.212.202",
+            "returncode": 0,
+            "stdout": "[{\"type\":\"local\",\"dst\":\"172.16.212.202\",\"dev\":\"lo\",\"prefsrc\":\"172.16.212.202\",\"flags\":[],\"uid\":0,\"cache\":[\"local\"]}]",
+            "stderr": ""
+          }
+        ]
+      }
+    }
+  },
+  "source_script_sha256": "90fb341c4347fcff022110228f41cbc0a6e736d2ef8b35bc3fd19473c82b7bf6",
+  "boundaries_zh": [
+    "SSH别名实际连接的是*-ssh命名Service FQDN；该Service通常仅暴露SSH，不能直接等同于rendezvous端口地址。",
+    "hostname -I和ip addr给出实际pod接口IP，ip route get只查询本机内核路由，不发送连通性探测包。",
+    "DNS可解析和有路由不证明NetworkPolicy/防火墙允许NCCL或rendezvous端口；本任务未绑定端口、未跑带宽/NCCL/GPU。",
+    "原训练/评测/IL进程均未修改；不对任一网络配置作变更。"
+  ],
+  "sha256": "19f37a5a27b984f2fa4e0fae6315ac66104aa760fef0dc904a5be7c9302915f8"
+}

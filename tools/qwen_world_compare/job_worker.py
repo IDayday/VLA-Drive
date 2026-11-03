@@ -46,7 +46,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_world16.train_fast','tools.d46_augustus.train','tools.d46_priority_rl.train_control'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -148,8 +148,150 @@ def known_D46_output(output):
     except (OSError,KeyError,TypeError,ValueError):return False
 
 
+def known_D46_world16_output(output):
+    """Only a typed continuation of its own sealed formal D0/D5/FPO world8 run."""
+    if not known_D46_output(output):return False
+    try:
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        value=json.loads((output/'identity.json').read_text())
+        tx=value['native_world_transition'];arm=value['recipe']['arm']
+        receipt=json.loads((output/'WORLD_TRANSITION.json').read_text())
+        body=dict(receipt);digest=body.pop('sha256')
+        source=Path(tx['source_checkpoint']).resolve()
+        old=json.loads((source/'identity.json').read_text())
+        oldseal=json.loads((source/'COMPLETE').read_text())
+        oldbody=dict(old);oldsha=oldbody.pop('sha256')
+        return (value['world']==16 and value['fresh_Adam']is False and arm in('D0','D5','D3_FPO')
+            and tx['schema']=='d46_exact_native_READY_world8_to16_v1'
+            and tx['source_world']==8 and tx['target_world']==16 and tx['same_algorithm']is True
+            and tx['old_owner_may_adopt']is False and tx['virtual_sampler_lanes']==8
+            and (tx['global_scenes'],tx['group'],tx['inner_updates'])==(64,16,2)
+            and tx['parent_policy_unchanged']is True
+            and source.is_relative_to(D46_ROOT/'runs'/('D46_'+arm)/'checkpoints')
+            and known_D46_output(source) and fingerprint(oldbody)==oldsha
+            and old['world']==8 and old['qualification']is False
+            and old['recipe']==value['recipe'] and old['scope']==value['scope']
+            and oldseal['world']==8 and oldseal['phase']=='READY' and oldseal['next_inner']==0
+            and oldseal['updates']==tx['origin_updates']
+            and oldseal['files_sha256']==file_sha(source/'files.json')==tx['source_files_sha256']
+            and tx['common_optimizer_sha256']==json.loads((source/'files.json').read_text())['optimizer.pt']
+            and tx['source_run_identity_sha256']==oldsha
+            and fingerprint(body)==digest
+            and receipt['schema']==tx['schema']
+            and receipt['source_identity_sha256']==oldsha
+            and Path(receipt['source_checkpoint']).resolve()==source
+            and receipt['source_files_sha256']==oldseal['files_sha256']
+            and receipt['origin_updates']==tx['origin_updates']
+            and receipt['target_identity_sha256']==value['sha256']
+            and receipt['common_optimizer_sha256']==tx['common_optimizer_sha256']
+            and receipt['native_weights_and_Adam_inherited']is True
+            and receipt['qualification']==value['qualification']==tx['target_qualification']
+            and receipt['source_qualification']==tx['source_qualification']==old['qualification'])
+    except(OSError,KeyError,TypeError,ValueError):return False
+
+
+
+def known_D46_augustus_output(output):
+    if not known_D46_output(output):return False
+    try:
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        value=json.loads((output/'identity.json').read_text());cfg=value['recipe'];aug=cfg['augustus']
+        exp=cfg['experiment_id'];aligned=exp in('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')
+        return(value.get('algorithm_schema')=='d46_augustus_native_v1'
+            and value.get('experiment_id')==exp in('AUG1_FULL','AUG2_LORA','AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')
+            and value.get('augustus_protocol_sha256')==fingerprint(aug)
+            and value.get('world')in(8,16,32)and cfg['global_scenes']in(64,128)and cfg['global_scenes']%value['world']==0
+            and cfg['group']==8 and cfg['inner_updates']in(1,2)and cfg['training_uses_navtest']is False
+            and aug['training_steps']==3 and aug['noise_scale']==[.05,.05,.02]
+            and aug['coordinate_reduction']=='mean24'and aug['fixed_reference_beta']==(.1 if aligned else .001)
+            and (not aligned or(cfg['inner_updates']==2 and aug['schema']=='d46_augustus_deployment_suffix_v2'
+                and aug['initial_root_seed']==2101 and aug['deployment']['training_deployment_grid_mismatch']is False))
+            and aug['scope']==('full_text_action'if exp in('AUG1_FULL','AUG3_FULL_ALIGNED')else'lora_text_action'))
+    except(OSError,KeyError,TypeError,ValueError):return False
+
+
+def known_D46_fast16_output(output):
+    """Same own IL46 native ancestry, plus a sealed execution-only upgrade."""
+    if not known_D46_world16_output(output):return False
+    try:
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        value=json.loads((output/'identity.json').read_text());meta=value['execution_upgrade']
+        receipt=json.loads((output/'EXECUTION_UPGRADE.json').read_text());body=dict(receipt);digest=body.pop('sha256')
+        transition=json.loads((output/'WORLD_TRANSITION.json').read_text())
+        flags=meta['flags'];keys={'fast_prefix','fuse_fm_mc','async_scoring','rotary_cache','no_grad_prefix_cache'}
+        if (meta.get('schema')!='d46_world16_execution_upgrade_v1' or set(flags)!=keys
+            or any(type(v)is not bool for v in flags.values())or flags['async_scoring']or flags['no_grad_prefix_cache']
+            or fingerprint(body)!=digest or receipt.get('execution_upgrade')!=meta
+            or receipt.get('target_identity_sha256')!=value['sha256']or transition.get('execution_upgrade_sha256')!=digest
+            or meta['new_inventory_sha256']!=fingerprint(value['source_files'])):return False
+        cp=Path(meta['source_world16_checkpoint']).resolve();oldroot=cp.parent.parent
+        if not cp.is_relative_to(D46_ROOT)or not known_D46_world16_output(oldroot):return False
+        old=json.loads((cp/'identity.json').read_text());seal=json.loads((cp/'COMPLETE').read_text());files=json.loads((cp/'files.json').read_text())
+        oldbody=dict(old);oldsha=oldbody.pop('sha256')
+        if (fingerprint(oldbody)!=oldsha or oldsha!=meta['source_identity_sha256']
+            or file_sha(cp/'identity.json')!=meta['source_checkpoint_identity_file_sha256']
+            or files.get('identity.json')!=meta['source_checkpoint_identity_file_sha256']
+            or file_sha(cp/'files.json')!=seal['files_sha256']or seal['files_sha256']!=meta['source_checkpoint_files_sha256']
+            or files.get('optimizer.pt')!=meta['common_optimizer_sha256']or seal['world']!=16 or old['world']!=16
+            or seal['phase']!='READY'or seal['next_inner']!=0 or seal['updates']!=meta['origin_updates']
+            or meta['origin_updates']%value['recipe']['inner_updates']or old['qualification']is not meta['source_qualification']
+            or value['qualification']is not meta['target_qualification']or(meta['source_qualification']and not meta['target_qualification'])
+            or fingerprint(old['source_files'])!=meta['old_inventory_sha256']):return False
+        src=json.loads((oldroot/'WORLD_TRANSITION.json').read_text());srcbody=dict(src);srcsha=srcbody.pop('sha256')
+        if fingerprint(srcbody)!=srcsha or srcsha!=meta['source_world_transition_sha256']:return False
+        import copy
+        expected=copy.deepcopy(oldbody);expected.update(source_files=value['source_files'],qualification=value['qualification'],fresh_Adam=False,execution_upgrade=meta)
+        expected['native_world_transition']['target_qualification']=value['qualification']
+        srcbody.update(target_identity_sha256=value['sha256'],source_inventory=value['source_files'],qualification=value['qualification'],execution_upgrade_sha256=digest)
+        return fingerprint(expected)==value['sha256']and fingerprint(srcbody)==transition['sha256']
+    except(OSError,KeyError,TypeError,ValueError):return False
+
+
+def known_D46_control_args(args):
+    """Only fixed-profile600s wrapper around the same sealed formal8 policy."""
+    try:
+        output=Path(args[args.index('--output')+1]).resolve();profile=Path(args[args.index('--control-profile')+1]);sha=args[args.index('--control-profile-sha256')+1]
+        resume=Path(args[args.index('--resume')+1]).resolve();cfg=Path(args[args.index('--config')+1])
+        if file_sha(profile)!=sha or not known_D46_output(output)or not resume.is_relative_to(output/'checkpoints'):return False
+        value=json.loads(profile.read_text());body=dict(value);digest=body.pop('sha256')
+        identity=json.loads((output/'identity.json').read_text());native=json.loads((resume/'identity.json').read_text());seal=json.loads((resume/'COMPLETE').read_text())
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        protocol=dict(schema='d46_world8_CPU_control_timeout600_v1',world=8,backend='gloo',timeout_seconds=600,original_timeout_seconds=90,changes='CPU startup/control wait only',policy_optimizer_RNG_identity_unchanged=True)
+        source=Path(value['science_source'])
+        return(fingerprint(body)==digest and value['schema']=='d46_world8_control_startup_execution_profile_v1'and value['protocol']==protocol
+            and value['parent_model_sha256']==D46_PARENT_SHA and value['output']==str(output)and value['identity_sha256']==identity['sha256']==native['sha256']
+            and identity['world']==seal['world']==8 and identity['qualification']is False and value['arm']==identity['recipe']['arm']
+            and value['config']==str(cfg.resolve())and value['config_sha256']==file_sha(cfg)
+            and seal['files_sha256']==file_sha(resume/'files.json')and seal['updates']>=value['anchor_updates']
+            and value['source_files_sha256']==fingerprint(identity['source_files'])
+            and value['wrapper_file']=='tools/d46_priority_rl/train_control.py'and value['wrapper_sha256']==file_sha(source/value['wrapper_file']))
+    except(OSError,KeyError,TypeError,ValueError,IndexError):return False
+
 def known_owner_args(args):
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry in('tools.d46_augustus.train','tools.d46_augustus.evaluate'):
+        try:
+            key='--output'if entry.endswith('.train')else'--checkpoint'
+            return known_D46_augustus_output(Path(args[args.index(key)+1]).resolve())
+        except(ValueError,IndexError):return False
+    if entry=='tools.d46_priority_rl.train_control':return known_D46_control_args(args)
+    if entry=='tools.d46_world16.train_fast':
+        try:return known_D46_fast16_output(Path(args[args.index('--output')+1]).resolve())
+        except(ValueError,IndexError):return False
+    if entry=='tools.d46_world16.train':
+        try:return known_D46_world16_output(Path(args[args.index('--output')+1]).resolve())
+        except(ValueError,IndexError):return False
+    if entry=='tools.d44_native_rl.evaluate':
+        # A frozen D46 B1 evaluator may share its measured spare capacity.
+        # Bind the exact loaded checkpoint, not an arbitrary output prefix.
+        try:
+            checkpoint=Path(args[args.index('--checkpoint')+1]).resolve()
+            output=Path(args[args.index('--output')+1]).resolve()
+            seal=json.loads((checkpoint/'COMPLETE').read_text())
+            return (output.is_relative_to(D46_ROOT/'evaluations')
+                and known_D46_output(checkpoint)
+                and seal['files_sha256']==file_sha(checkpoint/'files.json'))
+        except(OSError,ValueError,IndexError,KeyError,TypeError):return False
     if entry=='tools.d44_native_rl.train':
         # Native D44 has no --il-checkpoint flag: bind the actual process
         # output to its already sealed scientific identity instead.

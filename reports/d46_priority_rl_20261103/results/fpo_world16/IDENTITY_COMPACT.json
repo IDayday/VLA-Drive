@@ -1,0 +1,71 @@
+{
+  "schema": "D46_FPO_formal_world16_identity_compact_v1",
+  "full_identity": {
+    "path": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO_WORLD16_v1/identity.json",
+    "file_sha256": "9849075783c16b8331b8a62863825edf500ef40fb110740e886c892a6fc26e3b",
+    "bytes": 403738
+  },
+  "identity_body_sha256": "95ab42687fdf419234c1990edafb7e17a7868866028a6e71ef9e3104c43b82d4",
+  "identity_self_seal_checked": true,
+  "world": 16,
+  "qualification": false,
+  "fresh_Adam": false,
+  "parent_model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+  "recipe_arm": "D3_FPO",
+  "recipe_fingerprint": "af8169bbcf28eaf71bfc9734b23ed189bcee5c30a86654803da794639a317e42",
+  "target_epochs": 6.0,
+  "scope": {
+    "trainable_numel": 6422528,
+    "text_lora_numel": 6422528,
+    "reference_frozen": true,
+    "base_frozen": true,
+    "current_prefix_recomputed_each_update": true,
+    "architecture_id": "D",
+    "no_independent_DiT": true
+  },
+  "native_world_transition": {
+    "schema": "d46_exact_native_READY_world8_to16_v1",
+    "source_world": 8,
+    "target_world": 16,
+    "same_algorithm": true,
+    "origin_updates": 1440,
+    "source_qualification": false,
+    "target_qualification": false,
+    "source_run_identity_sha256": "a2e98492ce6b322ef62623961762b53d2765f4f0c1c557e346d773001d18addb",
+    "source_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO/checkpoints/update001440_inner0",
+    "source_files_sha256": "c86a2e14e1bcad328f36dca2ef624bd2e1cb3a033764f4f8e5d8d7cac5720fbd",
+    "common_optimizer_sha256": "3a7be172c3294d4fb1bb065e28cdaddeb1ca849730e65fa23843c40a0fb84843",
+    "virtual_sampler_lanes": 8,
+    "global_scenes": 64,
+    "group": 16,
+    "inner_updates": 2,
+    "control_plane": {
+      "schema": "d46_world16_CPU_control_plane_v1",
+      "backend": "gloo",
+      "timeout_seconds": 600,
+      "purpose": "allow full model load and true B1 startup skew; no policy/optimizer change"
+    },
+    "compatibility": "same real-valued update target; FP32 DDP summation topology may differ, not cross-world bitexact",
+    "parent_policy_unchanged": true,
+    "optimizer": "inherited_AdamW_no_reset",
+    "old_owner_may_adopt": false,
+    "flow_energy_protocol": {
+      "schema": "d46_world16_original_FPO_MC4_material_v1",
+      "mc_samples": 4,
+      "sigma_interval": [
+        0.2,
+        0.8
+      ],
+      "state": "(1-sigma)*saved_SDE_clean+sigma*epsilon",
+      "velocity": "(state-current_cleanx)/sigma",
+      "energy": "mean_xyz_horizon24_then_mean_MC4",
+      "policy_ratio": "exp(saved_old_energy-current_energy)",
+      "policy_clip": 0.01,
+      "Gaussian_W3": "diagnostic fresh ratio and unchanged permanent IL reference joint KL; not FPO PG",
+      "draws": "randn_G8x3 root, three randn_G8x3 W3 innovations, rand_MC4xG sigma, randn_MC4xG8x3 epsilon"
+    }
+  },
+  "source_files_fingerprint": "58871908db743080e4a8feda46e973cca6d8f582476d9b41a2c5618c0188ccd8",
+  "source_file_count": 259,
+  "note": "Full403KB identity referenced, not copied; no weights/tensors loaded."
+}

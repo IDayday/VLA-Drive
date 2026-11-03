@@ -1,0 +1,62 @@
+{
+  "schema": "D46_formal_world16_identity_compact_archive_v1",
+  "original": {
+    "path": "/mnt/project/d46-priority-rl-20261103/runs/D46_D0_WORLD16_v2/identity.json",
+    "file_sha256": "0e9cfb5283958b7520adb997dc0e179c7989db7c00e68d6045785bfb1452ecd8",
+    "bytes": 403087
+  },
+  "actual_identity_body_seal": "337315a7a909afaa784838f0569ca6374df0c5fa27ed8c1c4f084a391782daa7",
+  "identity_self_seal_checked": true,
+  "architecture_id": "D",
+  "world": 16,
+  "parent_model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+  "qualification": false,
+  "fresh_Adam": false,
+  "recipe_fingerprint": "7f39cf9163d2276df3f9bc45c5bdb800bb3bd03d4c0fe1e22d7dd7e17c75668a",
+  "recipe_arm": "D0",
+  "target_epochs": 6.0,
+  "recipe_parent_registration": {
+    "path": "/mnt/project/d46-priority-rl-20261103/PARENT_REGISTRATION_v2.json",
+    "file_sha256": "584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632"
+  },
+  "source_files_fingerprint": "78a8c34d7f671e16c6dc05c41f7fd98afbeb2448a144d3e68171975ae2288293",
+  "source_file_count": 259,
+  "native_world_transition": {
+    "schema": "d46_exact_native_READY_world8_to16_v1",
+    "source_world": 8,
+    "target_world": 16,
+    "same_algorithm": true,
+    "origin_updates": 1714,
+    "source_qualification": false,
+    "target_qualification": false,
+    "source_run_identity_sha256": "d6dedf78a6d9fa3244ac68ad15ca598888917565f9ac154ec8dc70bf710ff738",
+    "source_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D0/checkpoints/update001714_inner0",
+    "source_files_sha256": "4d4f659e70d2cb3ac74825ae7252f23d9c441636d7593b7dc7cc80743f63637e",
+    "common_optimizer_sha256": "8f47e7670025f2d10f3c8af3de1f347ec3591a1ad4b324c8f1d7498308a4a6dc",
+    "virtual_sampler_lanes": 8,
+    "global_scenes": 64,
+    "group": 16,
+    "inner_updates": 2,
+    "control_plane": {
+      "schema": "d46_world16_CPU_control_plane_v1",
+      "backend": "gloo",
+      "timeout_seconds": 600,
+      "purpose": "allow full model load and true B1 startup skew; no policy/optimizer change"
+    },
+    "compatibility": "same real-valued update target; FP32 DDP summation topology may differ, not cross-world bitexact",
+    "parent_policy_unchanged": true,
+    "optimizer": "inherited_AdamW_no_reset",
+    "old_owner_may_adopt": false
+  },
+  "full_identity_payload_copied": false,
+  "scope": {
+    "trainable_numel": 6422528,
+    "text_lora_numel": 6422528,
+    "reference_frozen": true,
+    "base_frozen": true,
+    "current_prefix_recomputed_each_update": true,
+    "architecture_id": "D",
+    "no_independent_DiT": true
+  },
+  "note": "Full identity is referenced with actual fileSHA, not duplicated. No actor/weight load or model forward."
+}

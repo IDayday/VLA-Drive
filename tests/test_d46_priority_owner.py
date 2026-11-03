@@ -41,3 +41,18 @@ def test_formal_resume_rejects_qualification_and_foreign_checkpoint(monkeypatch,
     with pytest.raises(ValueError,match='formal IL46'):owner.inspect_latest(dict(output=str(runroot),config=str(cfg)))
     (runroot/'latest.json').write_text(json.dumps(dict(checkpoint=str(tmp_path/'qualification/update000010'))))
     with pytest.raises(ValueError,match='Foreign native'):owner.inspect_latest(dict(output=str(runroot),config=str(cfg)))
+
+
+def test_startup_memory_is_not_reused_until_all8_current_invocation_updates(tmp_path):
+    from tools.d46_priority_rl.owner import startup_hosts
+    import time
+    now=time.time();job=tmp_path/'job';job.mkdir();output=tmp_path/'output';output.mkdir()
+    campaign=dict(runs={'D1':dict(output=str(output),qualification=str(tmp_path/'qual'),qualification_jobs=[],
+        jobs=[dict(host='host',job=str(job),at=now-1)])})
+    assert startup_hosts(campaign)=={'host'}
+    for i in range(8):(output/f'metrics_rank{i}.jsonl').write_text(json.dumps(dict(at=now))+'\n')
+    assert startup_hosts(campaign)==set()
+    (output/'metrics_rank7.jsonl').write_text(json.dumps(dict(at=now-10))+'\n')
+    assert startup_hosts(campaign)=={'host'}
+    (job/'RESULT.json').write_text('{"returncode":0}')
+    assert startup_hosts(campaign)==set()

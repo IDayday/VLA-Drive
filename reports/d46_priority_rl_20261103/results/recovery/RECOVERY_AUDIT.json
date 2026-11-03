@@ -1,0 +1,1520 @@
+{
+  "schema": "d46_eval_request_directory_failure_native_recovery_audit_v1",
+  "status": "PASS",
+  "generated_utc": "2026-11-03T11:50:52.959385+00:00",
+  "started_unix": 1793706650.6043215,
+  "finished_unix": 1793706652.9594014,
+  "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+  "source_git_commit": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "validator": {
+    "path": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/starVLA/rl/d44_native_rl/recovery.py",
+    "file_sha256": "a93fe767fae06cce9f28d1acf078998dc317699bd9a8d16af309b77331aebc68"
+  },
+  "failing_request_code": {
+    "path": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d44_native_rl/train.py",
+    "file_sha256": "cff6a7d70d3ed2007ae5a9be087b4338dd144ed4bffb1d246a4be0be2c7be605"
+  },
+  "arms": {
+    "D0": {
+      "status": "PASS",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D0/checkpoints/update001614_inner0",
+      "complete": {
+        "schema": 2,
+        "contract": "qwen_world_abcd_research_checkpoint_v1",
+        "phase": "READY",
+        "world": 8,
+        "updates": 1614,
+        "next_inner": 0,
+        "files_sha256": "81c9b6737bb9e0b034294d472710dc0bc779ca1cfa4e3a3f5791f11cc1bd142a"
+      },
+      "inventory": {
+        "path": "/mnt/project/d46-priority-rl-20261103/runs/D46_D0/checkpoints/update001614_inner0/files.json",
+        "file_sha256": "81c9b6737bb9e0b034294d472710dc0bc779ca1cfa4e3a3f5791f11cc1bd142a"
+      },
+      "full_actual_payload_file_hashes_checked": 11,
+      "identity_sha256": "d6dedf78a6d9fa3244ac68ad15ca598888917565f9ac154ec8dc70bf710ff738",
+      "parent_model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+      "registration_file_sha256": "584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632",
+      "source_files_checked": 248,
+      "source_changes": [],
+      "actual_native_Boundary_all8_PASS": true,
+      "actual_native_crossrank_PASS": true,
+      "all8_rank_proof": [
+        {
+          "rank": 0,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "5df1c1eb571f8c7619ef2b524cfc50247fd0d472ac7764d05bb4bbd367ba10c7"
+        },
+        {
+          "rank": 1,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "d337e2797c8a8cc26663c02bf8a49c680dcf27ccf50c212f370649e97c07005e"
+        },
+        {
+          "rank": 2,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "52a61d77cb4f0c797f2c0b23c20e03b5afda905e4b3cee2e13925ab487607474"
+        },
+        {
+          "rank": 3,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "798b2fa0f32cd438f2b5bd2d03d241a1cc1b3033e5768a0ca3a546f0b327b6cb"
+        },
+        {
+          "rank": 4,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "eb7b0f78dfa38bf007d256476dcc1f3a980fc967615435ef5d845c8e99d46e42"
+        },
+        {
+          "rank": 5,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b64cdf79fca84be0641da19e43e7cfa8345e74b976183961e0bcd27e86fe404a"
+        },
+        {
+          "rank": 6,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "a37aff7d44e5cd0420c2d9e456d0a9b7f5fc36f7df45e3550f0c93e5136ca9c7"
+        },
+        {
+          "rank": 7,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b470ea00f31314b89390e2d05a2c0bd3e6b12a9d31fd5d6187bd14d3186f5b53"
+        }
+      ],
+      "optimizer_state_entries": 224,
+      "Adam_step_values": [
+        1614
+      ],
+      "scheduler": {
+        "last_epoch": 1614
+      },
+      "current_latest": {
+        "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D0/checkpoints/update001614_inner0",
+        "updates": 1614,
+        "files_sha256": "81c9b6737bb9e0b034294d472710dc0bc779ca1cfa4e3a3f5791f11cc1bd142a"
+      },
+      "failed_jobs": [
+        {
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D0/formal/attempt001",
+          "actual_result": {
+            "path": "/mnt/project/d46-priority-rl-20261103/jobs/D0/formal/attempt001/RESULT.json",
+            "file_sha256": "dec055e043e9618760335f5f581360f065211c4672c31f8a2a53e51d1536021b"
+          },
+          "returncode": 1,
+          "status": "FAILED",
+          "error_excerpts": [
+            "[rank0]:   File \"/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d44_native_rl/train.py\", line 305, in main",
+            "[rank0]:     for gate in gates:atomic_json(root/'evaluation_requests'/f'epoch{gate:g}.json',dict(epoch=gate,checkpoint=last_saved,",
+            "[rank0]: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/project/d46-priority-rl-20261103/runs/D46_D0/evaluation_requests/epoch0.5.json.writing-a1d9f929f3fb4a82b0f935273b55b862'"
+          ],
+          "original_failure_retained": true
+        }
+      ],
+      "evaluation_gate_in_saved_state": true,
+      "current_evaluation_request_exists": true,
+      "resume_semantics": "Own original native1614 READY restores same trainables+all Adam moments+scheduler+all8 Python/NumPy/Torch/CUDA/private sampling RNG, scene_cursor51648. No IL reset or q-state substitution.",
+      "problems": []
+    },
+    "D1": {
+      "status": "PASS",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D1/checkpoints/update001614_inner0",
+      "complete": {
+        "schema": 2,
+        "contract": "qwen_world_abcd_research_checkpoint_v1",
+        "phase": "READY",
+        "world": 8,
+        "updates": 1614,
+        "next_inner": 0,
+        "files_sha256": "89c3e7673287ac38c63510c4e8e808258892566cc86eec324fd49abd397c3a44"
+      },
+      "inventory": {
+        "path": "/mnt/project/d46-priority-rl-20261103/runs/D46_D1/checkpoints/update001614_inner0/files.json",
+        "file_sha256": "89c3e7673287ac38c63510c4e8e808258892566cc86eec324fd49abd397c3a44"
+      },
+      "full_actual_payload_file_hashes_checked": 11,
+      "identity_sha256": "df05694aeee825656e0343d18b76b4fa1363016642a201f13a164e233551febc",
+      "parent_model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+      "registration_file_sha256": "584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632",
+      "source_files_checked": 248,
+      "source_changes": [],
+      "actual_native_Boundary_all8_PASS": true,
+      "actual_native_crossrank_PASS": true,
+      "all8_rank_proof": [
+        {
+          "rank": 0,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "5df1c1eb571f8c7619ef2b524cfc50247fd0d472ac7764d05bb4bbd367ba10c7"
+        },
+        {
+          "rank": 1,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "d337e2797c8a8cc26663c02bf8a49c680dcf27ccf50c212f370649e97c07005e"
+        },
+        {
+          "rank": 2,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "52a61d77cb4f0c797f2c0b23c20e03b5afda905e4b3cee2e13925ab487607474"
+        },
+        {
+          "rank": 3,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "798b2fa0f32cd438f2b5bd2d03d241a1cc1b3033e5768a0ca3a546f0b327b6cb"
+        },
+        {
+          "rank": 4,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "eb7b0f78dfa38bf007d256476dcc1f3a980fc967615435ef5d845c8e99d46e42"
+        },
+        {
+          "rank": 5,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b64cdf79fca84be0641da19e43e7cfa8345e74b976183961e0bcd27e86fe404a"
+        },
+        {
+          "rank": 6,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "a37aff7d44e5cd0420c2d9e456d0a9b7f5fc36f7df45e3550f0c93e5136ca9c7"
+        },
+        {
+          "rank": 7,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b470ea00f31314b89390e2d05a2c0bd3e6b12a9d31fd5d6187bd14d3186f5b53"
+        }
+      ],
+      "optimizer_state_entries": 224,
+      "Adam_step_values": [
+        1614
+      ],
+      "scheduler": {
+        "last_epoch": 1614
+      },
+      "current_latest": {
+        "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D1/checkpoints/update001614_inner0",
+        "updates": 1614,
+        "files_sha256": "89c3e7673287ac38c63510c4e8e808258892566cc86eec324fd49abd397c3a44"
+      },
+      "failed_jobs": [
+        {
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D1/formal/attempt001",
+          "actual_result": {
+            "path": "/mnt/project/d46-priority-rl-20261103/jobs/D1/formal/attempt001/RESULT.json",
+            "file_sha256": "53388c7eac89a16596c28217cb2a45de5464beff2ae52322956d81411a71661e"
+          },
+          "returncode": 1,
+          "status": "FAILED",
+          "error_excerpts": [
+            "[rank0]:   File \"/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d44_native_rl/train.py\", line 305, in main",
+            "[rank0]:     for gate in gates:atomic_json(root/'evaluation_requests'/f'epoch{gate:g}.json',dict(epoch=gate,checkpoint=last_saved,",
+            "[rank0]: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/project/d46-priority-rl-20261103/runs/D46_D1/evaluation_requests/epoch0.5.json.writing-1a87beeddb5e4691bf609a15f9cf4302'"
+          ],
+          "original_failure_retained": true
+        }
+      ],
+      "evaluation_gate_in_saved_state": true,
+      "current_evaluation_request_exists": true,
+      "resume_semantics": "Own original native1614 READY restores same trainables+all Adam moments+scheduler+all8 Python/NumPy/Torch/CUDA/private sampling RNG, scene_cursor51648. No IL reset or q-state substitution.",
+      "problems": []
+    },
+    "D2": {
+      "status": "PASS",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D2/checkpoints/update001614_inner0",
+      "complete": {
+        "schema": 2,
+        "contract": "qwen_world_abcd_research_checkpoint_v1",
+        "phase": "READY",
+        "world": 8,
+        "updates": 1614,
+        "next_inner": 0,
+        "files_sha256": "10781a56839fc614d5c505998c93a6f6f3175a637d80aced5eb76840d45a832e"
+      },
+      "inventory": {
+        "path": "/mnt/project/d46-priority-rl-20261103/runs/D46_D2/checkpoints/update001614_inner0/files.json",
+        "file_sha256": "10781a56839fc614d5c505998c93a6f6f3175a637d80aced5eb76840d45a832e"
+      },
+      "full_actual_payload_file_hashes_checked": 11,
+      "identity_sha256": "e1bf35bdadf5037b72c69075c8d86db8285b18224c5ed01e67f7b9800f0b4eb6",
+      "parent_model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+      "registration_file_sha256": "584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632",
+      "source_files_checked": 248,
+      "source_changes": [],
+      "actual_native_Boundary_all8_PASS": true,
+      "actual_native_crossrank_PASS": true,
+      "all8_rank_proof": [
+        {
+          "rank": 0,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "5df1c1eb571f8c7619ef2b524cfc50247fd0d472ac7764d05bb4bbd367ba10c7"
+        },
+        {
+          "rank": 1,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "d337e2797c8a8cc26663c02bf8a49c680dcf27ccf50c212f370649e97c07005e"
+        },
+        {
+          "rank": 2,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "52a61d77cb4f0c797f2c0b23c20e03b5afda905e4b3cee2e13925ab487607474"
+        },
+        {
+          "rank": 3,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "798b2fa0f32cd438f2b5bd2d03d241a1cc1b3033e5768a0ca3a546f0b327b6cb"
+        },
+        {
+          "rank": 4,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "eb7b0f78dfa38bf007d256476dcc1f3a980fc967615435ef5d845c8e99d46e42"
+        },
+        {
+          "rank": 5,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b64cdf79fca84be0641da19e43e7cfa8345e74b976183961e0bcd27e86fe404a"
+        },
+        {
+          "rank": 6,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "a37aff7d44e5cd0420c2d9e456d0a9b7f5fc36f7df45e3550f0c93e5136ca9c7"
+        },
+        {
+          "rank": 7,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.0001,
+              "ema": 0.011280536831140048,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b470ea00f31314b89390e2d05a2c0bd3e6b12a9d31fd5d6187bd14d3186f5b53"
+        }
+      ],
+      "optimizer_state_entries": 224,
+      "Adam_step_values": [
+        1614
+      ],
+      "scheduler": {
+        "last_epoch": 1614
+      },
+      "current_latest": {
+        "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D2/checkpoints/update001614_inner0",
+        "updates": 1614,
+        "files_sha256": "10781a56839fc614d5c505998c93a6f6f3175a637d80aced5eb76840d45a832e"
+      },
+      "failed_jobs": [
+        {
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D2/formal/attempt001",
+          "actual_result": {
+            "path": "/mnt/project/d46-priority-rl-20261103/jobs/D2/formal/attempt001/RESULT.json",
+            "file_sha256": "7081e1819ba2b2aefa1aef2752a9f98eee5442d5328e91005aa823882a5baefa"
+          },
+          "returncode": 1,
+          "status": "FAILED",
+          "error_excerpts": [
+            "[rank0]:   File \"/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d44_native_rl/train.py\", line 305, in main",
+            "[rank0]:     for gate in gates:atomic_json(root/'evaluation_requests'/f'epoch{gate:g}.json',dict(epoch=gate,checkpoint=last_saved,",
+            "[rank0]: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/project/d46-priority-rl-20261103/runs/D46_D2/evaluation_requests/epoch0.5.json.writing-e0a9388093624f039e977e6a99a60d41'"
+          ],
+          "original_failure_retained": true
+        }
+      ],
+      "evaluation_gate_in_saved_state": true,
+      "current_evaluation_request_exists": true,
+      "resume_semantics": "Own original native1614 READY restores same trainables+all Adam moments+scheduler+all8 Python/NumPy/Torch/CUDA/private sampling RNG, scene_cursor51648. No IL reset or q-state substitution.",
+      "problems": []
+    },
+    "D5": {
+      "status": "PASS",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D5/checkpoints/update001614_inner0",
+      "complete": {
+        "schema": 2,
+        "contract": "qwen_world_abcd_research_checkpoint_v1",
+        "phase": "READY",
+        "world": 8,
+        "updates": 1614,
+        "next_inner": 0,
+        "files_sha256": "82df638da23aa00a2f7ddd84924133419bcd8db7b8f0d0f05f2f5624227022d3"
+      },
+      "inventory": {
+        "path": "/mnt/project/d46-priority-rl-20261103/runs/D46_D5/checkpoints/update001614_inner0/files.json",
+        "file_sha256": "82df638da23aa00a2f7ddd84924133419bcd8db7b8f0d0f05f2f5624227022d3"
+      },
+      "full_actual_payload_file_hashes_checked": 11,
+      "identity_sha256": "15990a6ed56a52f94771865f8b63eb4e0c3e3eb068d20b4efbd588f1dca33db8",
+      "parent_model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+      "registration_file_sha256": "584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632",
+      "source_files_checked": 248,
+      "source_changes": [],
+      "actual_native_Boundary_all8_PASS": true,
+      "actual_native_crossrank_PASS": true,
+      "all8_rank_proof": [
+        {
+          "rank": 0,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "5df1c1eb571f8c7619ef2b524cfc50247fd0d472ac7764d05bb4bbd367ba10c7"
+        },
+        {
+          "rank": 1,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "d337e2797c8a8cc26663c02bf8a49c680dcf27ccf50c212f370649e97c07005e"
+        },
+        {
+          "rank": 2,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "52a61d77cb4f0c797f2c0b23c20e03b5afda905e4b3cee2e13925ab487607474"
+        },
+        {
+          "rank": 3,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "798b2fa0f32cd438f2b5bd2d03d241a1cc1b3033e5768a0ca3a546f0b327b6cb"
+        },
+        {
+          "rank": 4,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "eb7b0f78dfa38bf007d256476dcc1f3a980fc967615435ef5d845c8e99d46e42"
+        },
+        {
+          "rank": 5,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b64cdf79fca84be0641da19e43e7cfa8345e74b976183961e0bcd27e86fe404a"
+        },
+        {
+          "rank": 6,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "a37aff7d44e5cd0420c2d9e456d0a9b7f5fc36f7df45e3550f0c93e5136ca9c7"
+        },
+        {
+          "rank": 7,
+          "status": "PASS",
+          "state": {
+            "updates": 1614,
+            "collections": 807,
+            "scene_cursor": 51648,
+            "next_inner": 0,
+            "phase": "READY",
+            "valid_scene_exposures": 51648,
+            "raw_scene_exposures": 51648,
+            "new_candidates": 826368,
+            "valid_PG_candidates": 826368,
+            "extra_B1_queries": 0,
+            "adaptive_G32_queries": 0,
+            "padding_scene_exposures": 0,
+            "adaptive_kl": {
+              "beta": 0.01,
+              "ema": 0.025528952512656317,
+              "collections": 807,
+              "target": 0.015
+            },
+            "evaluation_gates": [
+              0.5
+            ]
+          },
+          "rollout_is_none": true,
+          "actual_native_boundary_equals_transaction": true,
+          "RNG_keys": [
+            "python",
+            "numpy",
+            "torch",
+            "cuda",
+            "rollout_generator"
+          ],
+          "torch_RNG_sha256": "637a0fe2f3b446876ef1978b0e46ff361bb0d7e399b54cbf353577778d553443",
+          "cuda_RNG_sha256": "2e3b38c12352e09df1d471b154bbc0f1bf030671a43272c9ccdd4ebe098455a8",
+          "private_rollout_RNG_sha256": "b470ea00f31314b89390e2d05a2c0bd3e6b12a9d31fd5d6187bd14d3186f5b53"
+        }
+      ],
+      "optimizer_state_entries": 261,
+      "Adam_step_values": [
+        1614
+      ],
+      "scheduler": {
+        "last_epoch": 1614
+      },
+      "current_latest": {
+        "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D5/checkpoints/update001614_inner0",
+        "updates": 1614,
+        "files_sha256": "82df638da23aa00a2f7ddd84924133419bcd8db7b8f0d0f05f2f5624227022d3"
+      },
+      "failed_jobs": [
+        {
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D5/formal/attempt001",
+          "actual_result": {
+            "path": "/mnt/project/d46-priority-rl-20261103/jobs/D5/formal/attempt001/RESULT.json",
+            "file_sha256": "7204b802c22882c24ccd6adaffd883873755596c1fb8e28aa3e78f3e2aeb5611"
+          },
+          "returncode": 1,
+          "status": "FAILED",
+          "error_excerpts": [
+            "[rank0]:   File \"/mnt/project/d46-priority-rl-20261103/runtime/formal_v1/tools/d44_native_rl/train.py\", line 305, in main",
+            "[rank0]:     for gate in gates:atomic_json(root/'evaluation_requests'/f'epoch{gate:g}.json',dict(epoch=gate,checkpoint=last_saved,",
+            "[rank0]: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/project/d46-priority-rl-20261103/runs/D46_D5/evaluation_requests/epoch0.5.json.writing-143aface3c9f43edafe5f1be1b8cb789'"
+          ],
+          "original_failure_retained": true
+        }
+      ],
+      "evaluation_gate_in_saved_state": true,
+      "current_evaluation_request_exists": true,
+      "resume_semantics": "Own original native1614 READY restores same trainables+all Adam moments+scheduler+all8 Python/NumPy/Torch/CUDA/private sampling RNG, scene_cursor51648. No IL reset or q-state substitution.",
+      "problems": []
+    }
+  },
+  "finding_zh": "四run在原生1614 READY成功atomic保存后，rank0写epoch0.5评测请求因父目录缺失退出1；这是评测请求IO执行故障，当前未发现数值/原生状态损坏。真实code1及日志保留，不能改造成EXIT0。",
+  "repair_boundary_zh": [
+    "Root可创建缺失的evaluation_requests目录并从实际CP backfill.5请求；保存state已包含.5，直接resume不会重新触发同一gate，不能遗漏回填。",
+    "本审计不修改请求或目录，不改CAMPAIGN、源码、owner、STOP；只证明自己的1614原生状态可恢复。",
+    "D0转world16需额外已审查typed migration/资格绑定，本证明仅原world8封存的完整性；其他同run重放按原身份从1614恢复。",
+    "不得用旧OWNER checkpoint字段/原IL/q10替代自己的最新严格封存CP；未来恢复仍执行标准native restore检查。"
+  ],
+  "no_GPU_forward_scoring_or_context": true,
+  "builder": {
+    "path": "/mnt/project/d46-priority-rl-20261103/operations/EVAL_DIRECTORY_RECOVERY_20261103/audit_recovery.py",
+    "file_sha256": "0ee0ef2a8a771548ab75fc73aba3c90287349a952153e918154f58c3424c3a9d"
+  },
+  "sha256": "d94d1bf598307fed8f09c68fedf5bdbe6fb48e6b1566e7bac823d6738ff17499"
+}

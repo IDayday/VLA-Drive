@@ -1,0 +1,553 @@
+{
+  "schema": "d46_exact_failed_job_orphan_CUDA_IPC_readonly_audit_v1",
+  "status": "COMPLETE_READ_ONLY_SNAPSHOT",
+  "generated_utc": "2026-11-03T12:11:57.070000+00:00",
+  "root": "/mnt/project/d46-priority-rl-20261103",
+  "hosts": {
+    "training-vlawm-tsinghua-zt2": {
+      "at_unix": 1793707916.350664,
+      "hostname": "training-vlawm-tsinghua-zt2-worker-0",
+      "proc_environ_read_count": 5,
+      "proc_environ_unreadable_count": 0,
+      "exact_environment_matched_processes": [],
+      "old_worker_torchrun_identity_checks": {
+        "D2": [
+          {
+            "label": "worker",
+            "pid": 789987,
+            "expected_start_ticks": 1510610367,
+            "actual": null,
+            "same_process_alive": false
+          },
+          {
+            "label": "torchrun",
+            "pid": 789996,
+            "expected_start_ticks": 1510610422,
+            "actual": null,
+            "same_process_alive": false
+          }
+        ],
+        "D5": [
+          {
+            "label": "worker",
+            "pid": 788409,
+            "expected_start_ticks": 1510590282,
+            "actual": null,
+            "same_process_alive": false
+          },
+          {
+            "label": "torchrun",
+            "pid": 788418,
+            "expected_start_ticks": 1510590325,
+            "actual": null,
+            "same_process_alive": false
+          }
+        ]
+      },
+      "nvidia_gpu": {
+        "command": [
+          "nvidia-smi",
+          "--query-gpu=index,uuid,memory.total,memory.free,utilization.gpu",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "0, GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00, 81920, 41750, 100\n1, GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897, 81920, 41750, 100\n2, GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6, 81920, 41750, 100\n3, GPU-220170c8-e900-2090-9c71-5eb562f2d0c0, 81920, 41750, 100\n4, GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915, 81920, 41750, 100\n5, GPU-88994300-43aa-ec6a-973e-a92276b2a045, 81920, 41750, 100\n6, GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3, 81920, 41750, 100\n7, GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3, 81920, 41750, 100",
+        "stderr": ""
+      },
+      "nvidia_compute_owners": {
+        "command": [
+          "nvidia-smi",
+          "--query-compute-apps=pid,gpu_uuid,used_memory",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "nvidia_pmon": {
+        "command": [
+          "nvidia-smi",
+          "pmon",
+          "-c",
+          "1"
+        ],
+        "returncode": 0,
+        "stdout": "# gpu         pid   type     sm    mem    enc    dec    jpg    ofa    command \n# Idx           #    C/G      %      %      %      %      %      %    name \n    0          -     -      -      -      -      -      -      -    -              \n    1          -     -      -      -      -      -      -      -    -              \n    2          -     -      -      -      -      -      -      -    -              \n    3          -     -      -      -      -      -      -      -    -              \n    4          -     -      -      -      -      -      -      -    -              \n    5          -     -      -      -      -      -      -      -    -              \n    6          -     -      -      -      -      -      -      -    -              \n    7          -     -      -      -      -      -      -      -    -",
+        "stderr": ""
+      },
+      "fuser_readonly": {
+        "command": [
+          "fuser",
+          "-v",
+          "/dev/nvidia-uvm",
+          "/dev/nvidia-uvm-tools",
+          "/dev/nvidia0",
+          "/dev/nvidia1",
+          "/dev/nvidia2",
+          "/dev/nvidia3",
+          "/dev/nvidia4",
+          "/dev/nvidia5",
+          "/dev/nvidia6",
+          "/dev/nvidia7",
+          "/dev/nvidiactl"
+        ],
+        "returncode": 0,
+        "stdout": "kernelkernelkernelkernelkernelkernelkernelkernelkernelkernelkernel",
+        "stderr": "USER        PID ACCESS COMMAND\n/dev/nvidia-uvm:     root      mount /dev/nvidia-uvm\n/dev/nvidia-uvm-tools:\n                     root      mount /dev/nvidia-uvm-tools\n/dev/nvidia0:        root      mount /dev/nvidia0\n/dev/nvidia1:        root      mount /dev/nvidia1\n/dev/nvidia2:        root      mount /dev/nvidia2\n/dev/nvidia3:        root      mount /dev/nvidia3\n/dev/nvidia4:        root      mount /dev/nvidia4\n/dev/nvidia5:        root      mount /dev/nvidia5\n/dev/nvidia6:        root      mount /dev/nvidia6\n/dev/nvidia7:        root      mount /dev/nvidia7\n/dev/nvidiactl:      root      mount /dev/nvidiactl"
+      },
+      "no_signal": true,
+      "no_lock_operation": true,
+      "status": "READ_COMPLETE"
+    },
+    "training-vlawm-zt": {
+      "at_unix": 1793707916.3548021,
+      "hostname": "training-vlawm-zt-worker-0",
+      "proc_environ_read_count": 30,
+      "proc_environ_unreadable_count": 0,
+      "exact_environment_matched_processes": [],
+      "old_worker_torchrun_identity_checks": {
+        "D0": [
+          {
+            "label": "worker",
+            "pid": 3776112,
+            "expected_start_ticks": 1510636672,
+            "actual": null,
+            "same_process_alive": false
+          },
+          {
+            "label": "torchrun",
+            "pid": 3776135,
+            "expected_start_ticks": 1510636730,
+            "actual": null,
+            "same_process_alive": false
+          }
+        ],
+        "D1": [
+          {
+            "label": "worker",
+            "pid": 3773993,
+            "expected_start_ticks": 1510610588,
+            "actual": null,
+            "same_process_alive": false
+          },
+          {
+            "label": "torchrun",
+            "pid": 3774012,
+            "expected_start_ticks": 1510610637,
+            "actual": null,
+            "same_process_alive": false
+          }
+        ]
+      },
+      "nvidia_gpu": {
+        "command": [
+          "nvidia-smi",
+          "--query-gpu=index,uuid,memory.total,memory.free,utilization.gpu",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "0, GPU-28bb7746-6cd9-30e1-eaf3-023b3dcb9e55, 81920, 68932, 68\n1, GPU-015ebf78-d8cb-fc84-ac4c-1032e44185ec, 81920, 68932, 0\n2, GPU-5ea67974-566a-d324-591a-dfb1e2fd9880, 81920, 68932, 55\n3, GPU-d35db37e-09ab-e67e-eb25-fb83477bd237, 81920, 68932, 74\n4, GPU-b959b7cd-fb04-755f-716d-433c0c9027f4, 81920, 68932, 1\n5, GPU-3a230600-9d91-7bbb-fc01-7189538907fb, 81920, 68932, 28\n6, GPU-0dc01ece-190e-63ad-04f4-4da2dcf0c1d6, 81920, 68932, 45\n7, GPU-6ad54b12-1c34-1d8b-2b31-0a4ec20f287a, 81920, 68932, 74",
+        "stderr": ""
+      },
+      "nvidia_compute_owners": {
+        "command": [
+          "nvidia-smi",
+          "--query-compute-apps=pid,gpu_uuid,used_memory",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "nvidia_pmon": {
+        "command": [
+          "nvidia-smi",
+          "pmon",
+          "-c",
+          "1"
+        ],
+        "returncode": 0,
+        "stdout": "# gpu         pid   type     sm    mem    enc    dec    jpg    ofa    command \n# Idx           #    C/G      %      %      %      %      %      %    name \n    0          -     -      -      -      -      -      -      -    -              \n    1          -     -      -      -      -      -      -      -    -              \n    2          -     -      -      -      -      -      -      -    -              \n    3          -     -      -      -      -      -      -      -    -              \n    4          -     -      -      -      -      -      -      -    -              \n    5          -     -      -      -      -      -      -      -    -              \n    6          -     -      -      -      -      -      -      -    -              \n    7          -     -      -      -      -      -      -      -    -",
+        "stderr": ""
+      },
+      "fuser_readonly": {
+        "command": [
+          "fuser",
+          "-v",
+          "/dev/nvidia-uvm",
+          "/dev/nvidia-uvm-tools",
+          "/dev/nvidia0",
+          "/dev/nvidia1",
+          "/dev/nvidia2",
+          "/dev/nvidia3",
+          "/dev/nvidia4",
+          "/dev/nvidia5",
+          "/dev/nvidia6",
+          "/dev/nvidia7",
+          "/dev/nvidiactl"
+        ],
+        "returncode": 0,
+        "stdout": "kernel 1569047 1569054 1569060 1569063 1569066 1569069 1569072 1569076 2645487kernelkernel 1569066 2645487kernel 1569063 2645487kernel 1569060 2645487kernel 1569069 2645487kernel 1569054 2645487kernel 1569047 2645487kernel 1569072 2645487kernel 1569076 2645487kernel 1569047 1569054 1569060 1569063 1569066 1569069 1569072 1569076 2645487",
+        "stderr": "Cannot stat file /proc/3964199/fd/0: Permission denied\nCannot stat file /proc/3964199/fd/1: Permission denied\nCannot stat file /proc/3964199/fd/2: Permission denied\nCannot stat file /proc/3964199/fd/3: Permission denied\nCannot stat file /proc/3964199/fd/4: Permission denied\nCannot stat file /proc/3964199/fd/5: Permission denied\nCannot stat file /proc/3964199/fd/8: Permission denied\n                     USER        PID ACCESS COMMAND\n/dev/nvidia-uvm:     root      mount /dev/nvidia-uvm\n                     root      F.... python\n                     root      F.... python\n                     root      F.... python\n                     root      F.... python\n                     root      F.... python\n                     root      F.... python\n                     root      F.... python\n                     root      F.... python\n                     root      F.... nvitop\n/dev/nvidia-uvm-tools:\n                     root      mount /dev/nvidia-uvm-tools\n/dev/nvidia0:        root      mount /dev/nvidia0\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidia1:        root      mount /dev/nvidia1\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidia2:        root      mount /dev/nvidia2\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidia3:        root      mount /dev/nvidia3\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidia4:        root      mount /dev/nvidia4\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidia5:        root      mount /dev/nvidia5\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidia6:        root      mount /dev/nvidia6\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidia7:        root      mount /dev/nvidia7\n                     root      F...m python\n                     root      F.... nvitop\n/dev/nvidiactl:      root      mount /dev/nvidiactl\n                     root      F...m python\n                     root      F...m python\n                     root      F...m python\n                     root      F...m python\n                     root      F...m python\n                     root      F...m python\n                     root      F...m python\n                     root      F...m python\n                     root      F...m nvitop"
+      },
+      "no_signal": true,
+      "no_lock_operation": true,
+      "status": "READ_COMPLETE"
+    }
+  },
+  "original_failed_jobs": {
+    "training-vlawm-zt": {
+      "D0": {
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/D0/formal/attempt001",
+        "STOP_marker": "/mnt/project/d46-priority-rl-20261103/jobs/D0/formal/attempt001/STOP_REQUESTED",
+        "original_exit_code": 1,
+        "RUNNING_sha256": "71ab29c98ec77bc74df063020a4b845b30f1cceac093055119615997420c8bdb",
+        "RESULT_sha256": "dec055e043e9618760335f5f581360f065211c4672c31f8a2a53e51d1536021b",
+        "result_known_rank_processes": [
+          {
+            "pid": 3776147,
+            "start_ticks": 1510636856,
+            "pgid": 3776147,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 3776148,
+            "start_ticks": 1510636856,
+            "pgid": 3776148,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          }
+        ],
+        "prior_actual_rank_observations": [
+          {
+            "pid": 3776141,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          },
+          {
+            "pid": 3776142,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          },
+          {
+            "pid": 3776143,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          },
+          {
+            "pid": 3776144,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          },
+          {
+            "pid": 3776145,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          },
+          {
+            "pid": 3776146,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          },
+          {
+            "pid": 3776147,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          },
+          {
+            "pid": 3776148,
+            "start_ticks": 1510636856,
+            "args_sha256": "e2daaef8e57f20aab9b07ede3baa85f869994a957db7d678b63d0d6126bbea8b"
+          }
+        ],
+        "prior_inventory": "/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/training-vlawm-zt.json",
+        "prior_inventory_sha256": "769eb78acbb31bda228c6f501660b2126b7e78d31d8c036921a01c5548526b3e"
+      },
+      "D1": {
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/D1/formal/attempt001",
+        "STOP_marker": "/mnt/project/d46-priority-rl-20261103/jobs/D1/formal/attempt001/STOP_REQUESTED",
+        "original_exit_code": 1,
+        "RUNNING_sha256": "a894400988c989239aa65dcdddbe310a1e6bb4b3832d4dca766f4ab6f838d6e0",
+        "RESULT_sha256": "53388c7eac89a16596c28217cb2a45de5464beff2ae52322956d81411a71661e",
+        "result_known_rank_processes": [
+          {
+            "pid": 3774016,
+            "start_ticks": 1510610777,
+            "pgid": 3774016,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 3774017,
+            "start_ticks": 1510610777,
+            "pgid": 3774017,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 3774018,
+            "start_ticks": 1510610777,
+            "pgid": 3774018,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 3774019,
+            "start_ticks": 1510610777,
+            "pgid": 3774019,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 3774020,
+            "start_ticks": 1510610777,
+            "pgid": 3774020,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 3774021,
+            "start_ticks": 1510610777,
+            "pgid": 3774021,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 3774022,
+            "start_ticks": 1510610777,
+            "pgid": 3774022,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          }
+        ],
+        "prior_actual_rank_observations": [
+          {
+            "pid": 3774015,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          },
+          {
+            "pid": 3774016,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          },
+          {
+            "pid": 3774017,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          },
+          {
+            "pid": 3774018,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          },
+          {
+            "pid": 3774019,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          },
+          {
+            "pid": 3774020,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          },
+          {
+            "pid": 3774021,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          },
+          {
+            "pid": 3774022,
+            "start_ticks": 1510610777,
+            "args_sha256": "9aa0935038fa35642565955bfbe0a154c61f7ddb16c48959ec41cb54ab1d2123"
+          }
+        ],
+        "prior_inventory": "/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/training-vlawm-zt.json",
+        "prior_inventory_sha256": "769eb78acbb31bda228c6f501660b2126b7e78d31d8c036921a01c5548526b3e"
+      }
+    },
+    "training-vlawm-tsinghua-zt2": {
+      "D2": {
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/D2/formal/attempt001",
+        "STOP_marker": "/mnt/project/d46-priority-rl-20261103/jobs/D2/formal/attempt001/STOP_REQUESTED",
+        "original_exit_code": 1,
+        "RUNNING_sha256": "4bc1eca1be3ad6fb9d982e8263c6e8019f1ce22250e9041638da6dee5c1d7080",
+        "RESULT_sha256": "7081e1819ba2b2aefa1aef2752a9f98eee5442d5328e91005aa823882a5baefa",
+        "result_known_rank_processes": [
+          {
+            "pid": 790042,
+            "start_ticks": 1510610556,
+            "pgid": 790042,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 790043,
+            "start_ticks": 1510610556,
+            "pgid": 790043,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 790044,
+            "start_ticks": 1510610556,
+            "pgid": 790044,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 790045,
+            "start_ticks": 1510610556,
+            "pgid": 790045,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 790046,
+            "start_ticks": 1510610556,
+            "pgid": 790046,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 790047,
+            "start_ticks": 1510610556,
+            "pgid": 790047,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          },
+          {
+            "pid": 790048,
+            "start_ticks": 1510610556,
+            "pgid": 790048,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          }
+        ],
+        "prior_actual_rank_observations": [
+          {
+            "pid": 790041,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          },
+          {
+            "pid": 790042,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          },
+          {
+            "pid": 790043,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          },
+          {
+            "pid": 790044,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          },
+          {
+            "pid": 790045,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          },
+          {
+            "pid": 790046,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          },
+          {
+            "pid": 790047,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          },
+          {
+            "pid": 790048,
+            "start_ticks": 1510610556,
+            "args_sha256": "b123c79fb41c31b016a0407c13d1219067cb1255ee3c67a3cfe5a81860d3c71f"
+          }
+        ],
+        "prior_inventory": "/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/training-vlawm-tsinghua-zt2.json",
+        "prior_inventory_sha256": "5436953688ca7213d02cf209342edb73998e70775783dfa2686e61cd33b4bc76"
+      },
+      "D5": {
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/D5/formal/attempt001",
+        "STOP_marker": "/mnt/project/d46-priority-rl-20261103/jobs/D5/formal/attempt001/STOP_REQUESTED",
+        "original_exit_code": 1,
+        "RUNNING_sha256": "10c85b3430b86ec3b4772b83505016be3ce037c40d9d3e4cd04bcc4eae315774",
+        "RESULT_sha256": "7204b802c22882c24ccd6adaffd883873755596c1fb8e28aa3e78f3e2aeb5611",
+        "result_known_rank_processes": [
+          {
+            "pid": 788428,
+            "start_ticks": 1510590459,
+            "pgid": 788428,
+            "entry": "tools.d44_native_rl.train",
+            "usr1_handler": true
+          }
+        ],
+        "prior_actual_rank_observations": [
+          {
+            "pid": 788421,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          },
+          {
+            "pid": 788422,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          },
+          {
+            "pid": 788423,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          },
+          {
+            "pid": 788424,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          },
+          {
+            "pid": 788425,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          },
+          {
+            "pid": 788426,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          },
+          {
+            "pid": 788427,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          },
+          {
+            "pid": 788428,
+            "start_ticks": 1510590459,
+            "args_sha256": "3594b48b36e250c0ff5a8fa9c17d305247a3f8ac1eaffab5ae8ee030d2aa311f"
+          }
+        ],
+        "prior_inventory": "/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/training-vlawm-tsinghua-zt2.json",
+        "prior_inventory_sha256": "5436953688ca7213d02cf209342edb73998e70775783dfa2686e61cd33b4bc76"
+      }
+    }
+  },
+  "boundaries_zh": [
+    "只输出同时满足WORLD_COMPARE_ROOT=P46且WORLD_POSTCOT_STOP_FILE=四个旧失败job之一的进程环境两字段，未输出其它environ/凭据。",
+    "narrow_owned_orphan_candidate须旧job实际code1、当前ppid1、PGID匹配先前真实原rank PID证据，且cmdline仅multiprocessing.spawn/resource_tracker。该标签为Root逐PID复核后清理建议，未发任何信号。",
+    "NVIDIA设备FD证明该进程持有驱动设备句柄；NVML owner缺失不证明其无CUDA IPC/上下文。仅凭本快照不能分摊具体显存字节的因果。",
+    "回收前Root必须重读每PID start_ticks、相同两env、PGID与FD；只对精确匹配的旧失败job孤儿逐PID操作，不kill整个PGID、不碰其他进程、不reset GPU、不绕过unexplained-memory规则。",
+    "清理后重新只读NVML/device FD和显存、lease实际状态；只有恢复可解释后再重新正常worker准入。"
+  ],
+  "source_builder_sha256": "6a44b64664597b42f530dd4681d99cb71ff6a4d08bfb9c45df20c5c6ef4957f7",
+  "no_cleanup_performed": true,
+  "owned_cleanup_supported_by_this_audit": false,
+  "exact_owned_orphan_candidates_count": 0,
+  "conclusions_zh": [
+    "两机均未找到同时匹配P46和四个旧失败job精确STOP标记的进程；不支持按自有PDM孤儿假说实施清理。",
+    "TSH2当前/proc环境可读进程仅5个，fuser只列kernel mount；无法据此归属每卡约40GiB占用/100%利用率。不能把NVML和fuser空列表当物理GPU空闲。",
+    "WMzt fuser的8个Python PID和nvitop不具备精确旧D46标记，不纳入任何cleanup候选；它们可能属于其他任务，禁止推断为可回收。",
+    "当前两机仍须按不可解释占用拒用；可由具备节点/容器管理权限的运营者进一步只读识别实际namespace/任务，不能reset GPU或放宽准入。"
+  ],
+  "sha256": "020f6f73f19527802809e97218719a58f68fa4694e3ec53fb61d5743a26baa01"
+}

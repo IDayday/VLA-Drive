@@ -1,0 +1,108 @@
+{
+  "schema": "d46_actual_idle_capacity_native_continuation_v1",
+  "at": 1793712526.359864,
+  "main_CPU_owner": {
+    "pid": 228528,
+    "start_ticks": 1515053589,
+    "source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v7",
+    "started": 1793711927.0900521
+  },
+  "actual_D46_training": 5,
+  "records": [
+    {
+      "arm": "D3_AWM",
+      "release": {
+        "schema": "d46_explicit_capacity_hold_release_v1",
+        "arm": "D3_AWM",
+        "hold_sha256": "62d202dfa0de4cf3ecce74ae3b568de5833efa42e3e2b0527dae67bd59189b48",
+        "hold_text": "Temporary WM4 capacity reserve for D0 formal16; retain AWM own latest full native, original6E budget; not ineffective.",
+        "host": "training-vlawm-zt",
+        "at": 1793712063.5613704,
+        "minimum_free_MiB": 79000,
+        "GPUs": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "authority": "explicit EXECUTION_POLICY.capacity_resume; independent worker lease/UUID/owner checks unchanged"
+      },
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D3_AWM/formal/attempt002",
+      "RUNNING_sha256": "e067579eab535725782f0bd7defd5274000108160078d1981d8ae3b71a392420",
+      "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nproc_per_node=8",
+        "-m",
+        "tools.d44_native_rl.train",
+        "--config",
+        "/mnt/project/d46-priority-rl-20261103/registered_configs/D3_AWM.yaml",
+        "--output",
+        "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_AWM",
+        "--resume",
+        "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_AWM/checkpoints/update001194_inner0"
+      ],
+      "actual_updates": 1202,
+      "world": 8,
+      "original_target_epochs": 6.0,
+      "original_parent": "D_IL46K",
+      "optimizer_reset": false
+    },
+    {
+      "arm": "D5",
+      "release": {
+        "schema": "d46_explicit_capacity_hold_release_v1",
+        "arm": "D5",
+        "hold_sha256": "9a998271036edc163695310803921c8df1024e5d0c7048b6eeb3568805c36b39",
+        "hold_text": "Resource priority hold with full native state; allocate known available slot to D2 nominal rescue",
+        "host": "training-vlawm-tsinghua-zt2",
+        "at": 1793712066.006837,
+        "minimum_free_MiB": 79000,
+        "GPUs": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "authority": "explicit EXECUTION_POLICY.capacity_resume; independent worker lease/UUID/owner checks unchanged"
+      },
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D5/formal/attempt003",
+      "RUNNING_sha256": "e5e5c376e0c5bbaf52ce039b65bc778d5362179ac539969cae2ff7f22c7fb6a3",
+      "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nproc_per_node=8",
+        "-m",
+        "tools.d44_native_rl.train",
+        "--config",
+        "/mnt/project/d46-priority-rl-20261103/registered_configs/D5.yaml",
+        "--output",
+        "/mnt/project/d46-priority-rl-20261103/runs/D46_D5",
+        "--resume",
+        "/mnt/project/d46-priority-rl-20261103/runs/D46_D5/checkpoints/update001647_inner1"
+      ],
+      "actual_updates": 1658,
+      "world": 8,
+      "original_target_epochs": 6.0,
+      "original_parent": "D_IL46K",
+      "optimizer_reset": false
+    }
+  ],
+  "unknown_GPU_processes_signalled": false,
+  "GPU_reset": false,
+  "comment": "Both hosts independently passed full79000MiB eight-GPU admission; genuine native continuation updates observed. This is not removal or interference with unknown occupancy."
+}

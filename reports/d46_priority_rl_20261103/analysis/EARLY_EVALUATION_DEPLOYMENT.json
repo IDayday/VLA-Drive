@@ -1,0 +1,30 @@
+{
+  "schema": "D46_early_evaluation_deployment_receipt_v1",
+  "at_UTC": "2026-11-03T09:58:39.879922+00:00",
+  "source_commits": {
+    "finite_evaluation": "d50f9e44183529ea81a36ab40510295049e79f94",
+    "operations": "79160fd"
+  },
+  "CPU_tests": {
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m pytest -q tests/d46_priority_rl/test_early_evaluate.py",
+    "passed": 6,
+    "seconds": 4.17
+  },
+  "evidence": [
+    {
+      "path": "/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/PLAN.json",
+      "file_sha256": "528bf165fb4ad0532c714a837ee4786c83f79a50dc118a8c999fc948b7cef2ed"
+    },
+    {
+      "path": "/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/RESOURCE_AUDIT.json",
+      "file_sha256": "421d198e24a4af26989a74897824af6c5e39cb1d3f02c46fd6133f45d3c923b8"
+    },
+    {
+      "path": "/mnt/project/d46-priority-rl-20261103/operations/CONTINUOUS_EVAL_20261103/OWNER_TRANSITION.json",
+      "file_sha256": "3371cd8884fbd9224605901f6e00c84f2d138ef3e3bf53ce960485e1152b8792"
+    }
+  ],
+  "GPU_science_source": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "no_GPU_processes_signalled": true,
+  "complete_results_available": false
+}

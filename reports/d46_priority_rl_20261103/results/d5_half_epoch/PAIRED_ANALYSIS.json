@@ -1,0 +1,109 @@
+{
+  "status": "COMPLETE",
+  "architecture_id": "D",
+  "cohort": "NAVTEST",
+  "scenes": 12146,
+  "scene_denominator": 12146,
+  "invalid_scenes": 0,
+  "physical_logs": 44,
+  "qualification": false,
+  "seed": 2101,
+  "evaluation_identity_sha256": "7778e18cc0cf46f0d262c6d0278433a9dcd48cf0b60aca69fa97e33bcbb89da0",
+  "model_sha256": "daf9987d35fcff37f687ab5929998fc629dcaf14c2e026bdfbaee34117e2a43f",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "means": {
+    "score": 0.8970890336426243,
+    "no_at_fault_collisions": 0.9914786761073604,
+    "drivable_area_compliance": 0.9782644492013832,
+    "time_to_collision_within_bound": 0.9773588012514408,
+    "ego_progress": 0.8106897875376811,
+    "comfort": 0.9963774082002306,
+    "driving_direction_compliance": 0.9851391404577639
+  },
+  "evaluation": "/mnt/project/d46-priority-rl-20261103/evaluations/D5_epoch0.5/evaluation",
+  "PDMS": 89.70890336426243,
+  "paired": {
+    "mean_delta": 0.0021338238840782624,
+    "CI95": [
+      -0.003974266393901189,
+      0.00932692197081642
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 291,
+    "new_zero": 169,
+    "high_to_zero": 158,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 479,
+    "baseline_nonzero_denominator": 11667,
+    "baseline_high_denominator": 11199,
+    "repaired_zero_rate": 0.6075156576200418,
+    "new_zero_rate": 0.014485300419988,
+    "high_to_zero_rate": 0.01410840253594071,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 40,
+        "repaired_failure": 86,
+        "baseline_pass": 11987,
+        "baseline_failure": 159
+      },
+      "drivable_area_compliance": {
+        "new_failure": 137,
+        "repaired_failure": 215,
+        "baseline_pass": 11804,
+        "baseline_failure": 342
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 88,
+        "repaired_failure": 325,
+        "baseline_pass": 11634,
+        "baseline_failure": 512
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "source_summary_sha256": "14e5c8ae207efb011e7b9e4de9b5c2a82cc348479a6a4c99c2fc61747f169b0c",
+  "analysis_schema": "D44_complete_B1_paired_gain_loss_v1",
+  "gain_loss": {
+    "G_plus": 0.031824747172393766,
+    "G_minus": -0.029690923288315504,
+    "net": 0.002133823884078261,
+    "fixed_reference_cohorts": {
+      "IL44_high_ge_0.9": {
+        "scenes": 8722,
+        "mean_delta": -0.029343009687602943,
+        "population_contribution": -0.021071112341122418,
+        "new_zero": 131
+      },
+      "IL44_zero": {
+        "scenes": 479,
+        "mean_delta": 0.5476443567526732,
+        "population_contribution": 0.021597369247861885,
+        "new_zero": 0
+      },
+      "IL44_other": {
+        "scenes": 2945,
+        "mean_delta": 0.006630053822328341,
+        "population_contribution": 0.0016075669773387917,
+        "new_zero": 38
+      },
+      "IL44_joint_safe": {
+        "scenes": 11320,
+        "mean_delta": -0.02946089316124373,
+        "population_contribution": -0.027457377785713735,
+        "new_zero": 159
+      }
+    },
+    "high_to_low": 184,
+    "low_to_high": 444,
+    "initial_high_retained_ge_0_9": 7402,
+    "initial_high_denominator": 8722,
+    "new_joint_unsafe": 218,
+    "repaired_joint_unsafe": 511,
+    "score_units": "raw [0,1]; multiply by100 for PDMS points",
+    "limits": "Reference cohorts fixed by IL44. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+  },
+  "sha256": "6bd86ad2bb6382555c75b57ddfd36901a06f0a8eded4e08cc56f5af75f59da13"
+}

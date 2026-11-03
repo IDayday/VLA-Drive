@@ -1,0 +1,352 @@
+{
+  "schema": "d46_verified_deployment_parent_v1",
+  "parent_id": "D_IL46K",
+  "parent_kind": "verified_deployment_export",
+  "architecture_id": "D",
+  "IL_updates": 46000,
+  "uses_rl": false,
+  "export": {
+    "path": "/mnt/project/d46-priority-rl-20261103/IL46_PARENT",
+    "source_path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/export",
+    "model_file": "model.pt",
+    "model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+    "model_bytes": 8764018274,
+    "export_json_sha256": "6ffe4b20e47f52b2fae1266a5c525c7abf714d43a26b8d38372b946263d7decf",
+    "COMPLETE_file_sha256": "a3cd6a7304435ff79653332d1b9934f6c4097d575e4c1cc7fd7e64d0036c5de2",
+    "processor": {
+      "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+      "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+      "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+      "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+      "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+      "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+      "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+      "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "complete_deployment_policy": true
+  },
+  "ancestry": {
+    "native_model_sha256": "815ff2ca72293ca6b81fe873141c3a175a747dc067eddb1971944a6d80ed752b",
+    "native_files_sha256": "a4bcb74d20b055dd185de7f5860db661b40f904f8c364f37104c45f2eee35a55",
+    "IL_training_identity_sha256": "c48f61ae2efd3292d4e719dd03f8ddc24f27f65e7ca40590f27c9aeec94d4d34",
+    "full_native_available": false,
+    "original_checkpoint": "/mnt/project/qwen-world-four-frameworks-20261029/runs/ARCH_D/IL_seed42/checkpoints/update046000",
+    "staging_checkpoint": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/checkpoints/D_IL_046000",
+    "full_native_payload_hash_scope": "historical scored native ancestry retained in original export/parity; native payload not currently present",
+    "retirement_receipt": {
+      "path": "/mnt/project/d46-priority-rl-20261103/parent_audit/evidence/NATIVE_STAGING_RETIREMENT.json",
+      "file_sha256": "a3ec1384cc05408e74ee40e670d1e61c885d1a2afd7efb3d8ea6916f6f7c3185"
+    }
+  },
+  "runtime": {
+    "source_files": {
+      "starVLA/model/modules/qwen_sourceflow/action_codec.py": "f0aa3de23d6a6bc85e5421db257478b6089a0c78f3bd0cdbeca96167b76a093c",
+      "starVLA/model/modules/qwen_sourceflow/qwen_encoder.py": "d6a9d4bc36df70500ba47a7723ab9e665dbc3082aac71a72c95d4b30a6c6f0ea",
+      "starVLA/model/modules/qwen_world_compare/__init__.py": "d943809eec66bc7815766ced3adfa04fb1f06de15f95cdf1bca019b41c040239",
+      "starVLA/model/modules/qwen_world_compare/contracts.py": "1783e7e0a2f3ef8da6999e9a9af93f8bc6f650b5d13c017d97c71e5b08da4142",
+      "starVLA/model/modules/qwen_world_compare/factory.py": "80003a3248c7d4f330473b94bba8604705cb1b56d6e555feefd748306bea8eb2",
+      "starVLA/model/modules/qwen_world_compare/heads.py": "6b273e23bf980842f598addb3bb5cd4adce4dfbe500d3a979a865fcce982119b",
+      "starVLA/model/modules/qwen_world_compare/independent_actor.py": "15cddb527d827070896aab4b8ebd2b5b8e3bc0ff73612b1c586b89ee90bc8f77",
+      "starVLA/model/modules/qwen_world_compare/masks.py": "63aeee53a0a8fa620dbdf1a30b4855fb712adee72811fa78ad8ce5df74d5e7b6",
+      "starVLA/model/modules/qwen_world_compare/model.py": "c8e992b102108da5808338a4fdb79cf6ade71b0dbdaf6682824f9343931cd9d1",
+      "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "3f6e0abf84b5f0afed34f710ea07040516342c2e67597b6fcf0f1278ebc15043",
+      "starVLA/model/modules/qwen_world_compare/shared_actor.py": "518e54b7d9b41d898c722b743c156dd949d70b20262de2c437a6c356ac2751c8",
+      "starVLA/model/modules/qwen_world_compare/world_stream.py": "5c0572f9579ec7c7449cb227b0a236cc10ccd39d32d13c9859322b6e8d43b9b7",
+      "starVLA/model/modules/qwen_world_postcot/actor.py": "bdfde1b48b89185fba8560797a57e22cdc9f2f4c54639c4ab33569623a1843ec",
+      "starVLA/model/modules/qwen_world_postcot/flow.py": "4488c085019f1a886fde743838399a2e357c86aa83423f0121d62d53d9619a4f",
+      "starVLA/model/modules/qwen_world_postcot/memory.py": "12319f57e6cc4a16edbcd8f77ae8c3ad863b82ad7666ebbe604e5543c96c4781",
+      "starVLA/model/modules/qwen_world_postcot/qwen_encoder.py": "e16933f2f957609fe04d9cdad76fc2fa82d67a853d215b95847fae0c9cbec06b",
+      "starVLA/rl/qwen_world_compare/rl_scope.py": "48f4369023cb18d9191e61deacc9a0a70c7c7de30cb95f0fa9b1b435bcfeb0a1"
+    },
+    "libraries": {
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0",
+      "native_qwen_modeling_sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da",
+      "parameters": "float32",
+      "model_forward": "bfloat16",
+      "action_state_ODE": "float32"
+    },
+    "model_config": {
+      "d": {
+        "activation_checkpointing": true,
+        "ego_dim": 8,
+        "p_tokens": 32,
+        "r_tokens": 16,
+        "time_dim": 256
+      }
+    },
+    "prediction_type": "x0",
+    "action_shape": [
+      8,
+      3
+    ],
+    "deployment_inference": "single_candidate_cleanx_K10_shift5",
+    "native_deployment_config": {
+      "action_shape": [
+        8,
+        3
+      ],
+      "prediction_type": "x0",
+      "sampling": "single_candidate_cleanx_ODE",
+      "scorer": "NAVSIM_v1.1_canonical_independent_reference_pair",
+      "seed": 2101,
+      "shift": 5.0,
+      "steps": 10
+    }
+  },
+  "complete_navtest": {
+    "summary": "/mnt/project/d46-priority-rl-20261103/parent_audit/evidence/SUMMARY.json",
+    "summary_file_sha256": "6d7befd4d4c4ad96d7a5b9e25e51bdf5ade554a974c267c8dec44d7690a458d8",
+    "summary_sha256": "c463f5c3b599435ac20d58ae6acdabb86039023824511e7a87467d6fb1615f79",
+    "PDMS": 89.4955209758546,
+    "scenes": 12146,
+    "physical_logs": 44,
+    "invalid_scenes": 0,
+    "qualification": false,
+    "seed": 2101,
+    "evaluation_identity_sha256": "3f1426a10b8789a5dec8fb064710b9c1f723892d2033535698f288206690c2ab",
+    "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+    "data_sha256": "ab525a0f0ad77fdab269ff637b0d83aa642f46e802dfcc8018b2cdb445009219",
+    "population_sha256": "925f996346ee986657f4058f6e6e64b9da842abfa554e2ac70bd82268190f9e9",
+    "original_evaluation": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation",
+    "raw_scene_inventory_matches_tokens": true,
+    "complete_rank_receipts": [
+      {
+        "rank": 0,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank0.json",
+        "file_sha256": "82a41ce4d67651d5f67c41c4aef1c17bf99f9cd42ee24a1bd3972281490fd824"
+      },
+      {
+        "rank": 1,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank1.json",
+        "file_sha256": "886d7bc618ef3990492ab2de0f29d79216ecb05024dfbc0e802c8432ece72ea6"
+      },
+      {
+        "rank": 2,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank2.json",
+        "file_sha256": "b5c22781e73ba223ac09af6dfcc53e6d14a32fd80dda81c3a941efc3ffb7ed57"
+      },
+      {
+        "rank": 3,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank3.json",
+        "file_sha256": "4df43d5621e72ce58f5affad377c6e6716a1f8e956397a4a630e2ff690e92063"
+      },
+      {
+        "rank": 4,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank4.json",
+        "file_sha256": "4d5bc8da8c90c90e888f5910b5d2dce41a93536ef2c2380338c9eeb1fa05068b"
+      },
+      {
+        "rank": 5,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank5.json",
+        "file_sha256": "40231228164e0259ccafcc48520a857dde621f03273e160d654309d138502189"
+      },
+      {
+        "rank": 6,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank6.json",
+        "file_sha256": "b97991c5d0d449a3e3b76b1ed8cd04c16acaad110f0e67af41a5001ba31879db"
+      },
+      {
+        "rank": 7,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank7.json",
+        "file_sha256": "d44f477a17d185b631f1f84d59585ea6ce23c26158622d241587587bb502ede0"
+      },
+      {
+        "rank": 8,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank8.json",
+        "file_sha256": "d438775f60a46494f277e4a9a9111b7d0cb3b9cab4106ef0cc01f1ee4408dd8c"
+      },
+      {
+        "rank": 9,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank9.json",
+        "file_sha256": "416b5d94c06720588ab3dfe832034e04400a01dc00b6b50da61ea6639fafd09e"
+      },
+      {
+        "rank": 10,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank10.json",
+        "file_sha256": "d6c0a5abf99a85d99ce276480bc9d0811b89e77deed2210fd05208646f6c38b7"
+      },
+      {
+        "rank": 11,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank11.json",
+        "file_sha256": "ca041229fc18ab6aa27db07fdfac5d83a890b6331b0b9a1955b20d403ac36ae6"
+      },
+      {
+        "rank": 12,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank12.json",
+        "file_sha256": "ea5ac93e8c88305895ea083a1b679a95b00415826b0d23ea7dafac122fd022f6"
+      },
+      {
+        "rank": 13,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank13.json",
+        "file_sha256": "db012f2ede117aa2fabf8239b9f307945a0251db943cebcfd304dda93730d267"
+      },
+      {
+        "rank": 14,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank14.json",
+        "file_sha256": "03751d39eebebdb05b024843db9a966a90b4d479bad03dfb72988618872e2150"
+      },
+      {
+        "rank": 15,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank15.json",
+        "file_sha256": "50f5115a71f26880c63514e3dc953fee01a130acd1a772900a1fc7a4e7d006a7"
+      },
+      {
+        "rank": 16,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank16.json",
+        "file_sha256": "91a4442b3952c4ccccd5162c2a7189a1c552c845a018a4beb510f0ee04c27305"
+      },
+      {
+        "rank": 17,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank17.json",
+        "file_sha256": "848a5fd082e160ee5ba34d29ef4fc33ca5909359ef1bc4c54f237f47c0bd2f30"
+      },
+      {
+        "rank": 18,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank18.json",
+        "file_sha256": "2abf0ec29c64b3b45af850c75db0dc301828de442f45ca1cea8dc822debf0602"
+      },
+      {
+        "rank": 19,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank19.json",
+        "file_sha256": "7c4281f62c91341969a2dc8a4319b36eb5c8e5abe04784205e9b38d2cf6eb115"
+      },
+      {
+        "rank": 20,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank20.json",
+        "file_sha256": "07e3e3a6129d40e9933607ad701d0a7af6928f0df871b213b49e4ac1ee4ea19b"
+      },
+      {
+        "rank": 21,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank21.json",
+        "file_sha256": "96d5708f2ec91b1d114b845054fd3c1eeb2c1cd6a8d35eca8e97b39556937342"
+      },
+      {
+        "rank": 22,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank22.json",
+        "file_sha256": "e7d871c0ee9345d755ecaab1e5321a4acb8e60039733e5e149de8995f570cc40"
+      },
+      {
+        "rank": 23,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank23.json",
+        "file_sha256": "4aebfc14e2aeeec475bc38439c2a63db3f7f2649b6a4d5c769e2bef3d803b37c"
+      },
+      {
+        "rank": 24,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank24.json",
+        "file_sha256": "529000caf84246b6b25c9f1ec1173c669bb300333e64c7dd0cb8995e789cb805"
+      },
+      {
+        "rank": 25,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank25.json",
+        "file_sha256": "d0ed2498ef229a1c03be1e4513f74ec3ff13deb3356a1ea3a21b9e21f2e73e39"
+      },
+      {
+        "rank": 26,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank26.json",
+        "file_sha256": "40318ce1cf56bad5e3d572b54e0a91517ec9a520ce624992fb0d7d7d5b9405cc"
+      },
+      {
+        "rank": 27,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank27.json",
+        "file_sha256": "19a4c1d36d77cf82beaca45ea9866cf7a04c94f4d3ecafdd78cd9ea753bfadb6"
+      },
+      {
+        "rank": 28,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank28.json",
+        "file_sha256": "bdd53cb6b04c2dab430f5d4cb7d7bf99d4714773cf3a3ab3a9210b6556c66ef6"
+      },
+      {
+        "rank": 29,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank29.json",
+        "file_sha256": "c83577ab03fc43391a4afae3d64206d9d0d64e355262221a7741510ac8c066ef"
+      },
+      {
+        "rank": 30,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank30.json",
+        "file_sha256": "be73a445c097e02ccd8b95e51adffe93e97e9a5a2df7a971d9a64d5347b092db"
+      },
+      {
+        "rank": 31,
+        "path": "/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_046000_20261102T172155Z/D_IL_046000/evaluation/rank31.json",
+        "file_sha256": "ae18ce35fdf5f374d01ea1c929a68cb3fa1070dba4d4c790c5d157964f6a8022"
+      }
+    ],
+    "metrics_recomputed": false
+  },
+  "parity": {
+    "path": "/mnt/project/d46-priority-rl-20261103/parent_audit/evidence/native_export_parity.json",
+    "file_sha256": "92f2396c2538320dfbbeae1e53053e52a82bbef1951eb7a26376a9fdb21e6bf9",
+    "status": "PASS",
+    "model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+    "native_model_sha256": "815ff2ca72293ca6b81fe873141c3a175a747dc067eddb1971944a6d80ed752b",
+    "normalized_max_abs": 0.0,
+    "requested_max_abs": 0.0,
+    "scope": "existing actual original native-to-export one-scene prediction qualification, not new model forward"
+  },
+  "source_compatibility": {
+    "exact_override": {
+      "path": "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py",
+      "scored_sha256": "3f6e0abf84b5f0afed34f710ea07040516342c2e67597b6fcf0f1278ebc15043",
+      "allowed_execution_sha256": "e95e1fcccd1aa37f8b095a83e0b134adbecc7350739b6701cd6b007042db0367"
+    },
+    "all_other_source_files_must_equal": true,
+    "reason": "Native IL46 identity already records the reviewed e95 checkpoint_short_suffix=True implementation; scored export source3f6 differs only optional checkpoint flag/defaultTrue/grad-only branch. No parameter/buffer/shape changes; noGrad B1 unaffected and native-export parity is0.",
+    "source_bytes_not_modified": true
+  },
+  "policy_closure": {
+    "kept": [
+      "native Qwen3-VL vision/merger/text blocks",
+      "current camera/navigation+ego encoding",
+      "C+ego+P32 immutable prefix",
+      "action_input/action_output/action_position",
+      "role_embedding/time_embedding/time_FiLM"
+    ],
+    "independent_DiT": false,
+    "pruned_training_only": [
+      "decision.r_embeddings (R16 query storage)",
+      "all CommonReadouts including bridge/evaluation/dino/wa/objects"
+    ],
+    "R16_storage_available": false,
+    "IL_trained_readouts_available": false,
+    "post_reasoning": false,
+    "train_heads": false
+  },
+  "allowed_arms": [
+    "D0",
+    "D1",
+    "D2",
+    "D3_FPO",
+    "D3_AWM",
+    "D5"
+  ],
+  "readouts_true_allowed": false,
+  "rejected_arms": [
+    "D4",
+    "D6"
+  ],
+  "initialization": "User-selected D_IL46K deployment policy; independent fresh RL Adam0/RNG42. Never inherit D44 RL adapters/Adam, never silently substitute IL44 or reinitialize missing R16/readouts as restored weights.",
+  "test_usage": {
+    "selection": "explicit user D46 IL choice",
+    "historical_periodic_used_for_parent_selection": false,
+    "current_user_selection_uses_observed_NAVTEST": true,
+    "train_GT_or_NAVTEST_ID_sampling": false
+  },
+  "created_unix": 1793665607.3811886,
+  "contract_revision": 2,
+  "amended_unix": 1793666162.4535623,
+  "amendment": {
+    "schema": "d46_policy_only_route_contract_amendment_v2",
+    "reason": "User clarified priority applies to the developed D-family policy-only RL routes D0/D1/D2/D3_FPO/D3_AWM/D5; same user-selected IL46 deployment weights and fresh RL initialization. These routes do not require the unavailable R16/readout tensors. D4/D6 remain rejected.",
+    "previous_contract_file_sha256": "640748970839d16b12dba0c8411ef7111f29144a057ef1748bc2053e273c0ea6",
+    "previous_contract_seal_sha256": "f251d0e893fb40ca80b4cb620d016d9ffcc63b0fabd96fb74afce94f257c96e5",
+    "previous_versioned_contract": "/mnt/project/d46-priority-rl-20261103/PARENT_CONTRACT_v1.json",
+    "previous_versioned_registration": "/mnt/project/d46-priority-rl-20261103/PARENT_REGISTRATION_v1.json",
+    "new_versioned_registration": "/mnt/project/d46-priority-rl-20261103/PARENT_REGISTRATION_v2.json",
+    "actor_weights_runtime_parity_unchanged": true,
+    "readout_scope_not_expanded": true,
+    "no_formal_or_qualification_or_GPU_registration_existed_at_amendment": true
+  },
+  "sha256": "cae27101583b26bf043aa99e433ac11dfe5315ffb7428ea578408a6783d15e7e"
+}

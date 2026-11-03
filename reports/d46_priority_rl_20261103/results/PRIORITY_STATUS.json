@@ -1,0 +1,72 @@
+{
+  "schema": "D46_priority_status_v1",
+  "status": "D46_FRESH_IL46_PRIORITY_CAMPAIGN",
+  "updated_at": 1793668574.1490974,
+  "parent": {
+    "IL_updates": 46000,
+    "PDMS": 89.4955209758546,
+    "export_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+    "native_available": false,
+    "source": "scored IL46 deployment export; original native checkpoint retired; full auxiliary readouts not claimed"
+  },
+  "runs": [
+    {
+      "id": "D46_D3_FPO",
+      "status": "TRAINING",
+      "host": "training-vlawm-tsinghua-zt3",
+      "updates": 22,
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D3_FPO/formal/attempt001",
+      "scene_exposures": 704
+    },
+    {
+      "id": "D46_D3_AWM",
+      "status": "TRAINING",
+      "host": "training-vlawm-zt4",
+      "updates": 16,
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D3_AWM/formal/attempt001",
+      "scene_exposures": 512
+    },
+    {
+      "id": "D46_D5",
+      "status": "TRAINING",
+      "host": "training-vlawm-tsinghua-zt2",
+      "updates": 60,
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D5/formal/attempt001",
+      "scene_exposures": 1920
+    },
+    {
+      "id": "D46_D1",
+      "status": "TRAINING",
+      "host": "training-vlawm-zt",
+      "updates": 49,
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D1/formal/attempt001",
+      "scene_exposures": 1600
+    },
+    {
+      "id": "D46_D2",
+      "status": "TRAINING",
+      "host": "training-vlawm-tsinghua-zt2",
+      "updates": 52,
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D2/formal/attempt001",
+      "scene_exposures": 1664
+    },
+    {
+      "id": "D46_D0",
+      "status": "TRAINING",
+      "host": "training-vlawm-zt",
+      "updates": 38,
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/D0/formal/attempt001",
+      "scene_exposures": 1216
+    }
+  ],
+  "actual_training": 6,
+  "initialization": "each independent algorithm from same IL46 policy and Adam0",
+  "resource_priority": "D46 first; save and reserve own lower-priority IL70 RL; never interrupt B/D IL or expired resources",
+  "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+  "scientific_sources_frozen": true,
+  "qualification_weights_never_formal_initialization": true,
+  "operations_source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v2",
+  "scientific_sources": [
+    "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "d46_explicit_equivalent_evaluation_v1",
+  "reason": "Original D0/D1/D2 deployment policies at own0.5E are byte-identical. Evaluate D0 once; D1/D2 are explicit references, never extra independent results or score copies.",
+  "pairs": [
+    {
+      "alias": "D1_epoch0.5",
+      "reference": "D0_epoch0.5",
+      "alias_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D1/checkpoints/update001614_inner0",
+      "reference_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D0/checkpoints/update001614_inner0",
+      "deployment_proof_sha256": "d231a13cb7f9e5819b22374060d2c75ac72ccf08b146cba185babeedb9566caf"
+    },
+    {
+      "alias": "D2_epoch0.5",
+      "reference": "D0_epoch0.5",
+      "alias_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D2/checkpoints/update001614_inner0",
+      "reference_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D0/checkpoints/update001614_inner0",
+      "deployment_proof_sha256": "d231a13cb7f9e5819b22374060d2c75ac72ccf08b146cba185babeedb9566caf"
+    }
+  ],
+  "priorities": {
+    "D0_epoch0.5": 0,
+    "D5_epoch0.5": 1,
+    "D3_FPO_epoch0.5": 0,
+    "D3_AWM_epoch0.5": 2
+  }
+}
