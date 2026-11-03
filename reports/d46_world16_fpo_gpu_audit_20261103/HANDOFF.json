@@ -1,0 +1,34 @@
+{
+  "schema": "d46_world16_FPO_GPU_auditor_handoff_v1",
+  "status": "CPU_TOOL_READY_NOT_RUN_ON_GPU_RESULTS",
+  "training_science_unchanged": "82d5f784d02ad4bc182231a267edab8a2a69833e",
+  "tool": "tools/d46_world16/audit_fpo_gpu.py",
+  "CPU": {
+    "result": "2 passed, 1 warning in 1.20s",
+    "log_sha256": "bc3c0efbe0791f15383ef1a5a42e737bbd7fa71b28c360fa8cff0b6f66797ac9",
+    "scope": "complete RNG-tree differences and exact node launch/result/source/resume binding; metadata only"
+  },
+  "execution": "Tool reexecutes itself with frozen scientific cwd/sys.path and CUDA disabled. Frozen native_review checks all inventories/16Boundary/transactions. No new audit module inserted in frozen inventory.",
+  "CLI": "modelpython /mnt/project/VLA-Drive-d46-world16-fpo-20261103/tools/d46_world16/audit_fpo_gpu.py --qroot QROOT --first-job-root FIRST_LEG_NODE_PARENT --resume-job-root RESUME_LEG_NODE_PARENT --origin-update U --expected-source-commit 82d5f784d02ad4bc182231a267edab8a2a69833e --output NEW_AUDIT.json",
+  "input_layout": "Each leg root contains node0 and node1 LAUNCH.json/RESULT.json. science_source derives from actual first/node0/LAUNCH; optional --science-source is exact crosschecked.",
+  "checks": [
+    "origin READY + U+3 inner1 + U+4 READY full inventories/16rank native transactions",
+    "actual four node exits0 on matching source,commands,hosts,16physicalUUIDs",
+    "complete Python/NumPy/Torch CPU/CUDA/rollout_generator RNG and8virtual lanes exact pending->ready",
+    "collection/cursor/exposure/PG/B1/G32/padding/evalgates unchanged during pending resume",
+    "two fresh B64G16 collections=2048PG, actual first128candidate/rank, resumed invocation physical/query counters0",
+    "MC4 material shapes/dtypes/ranges/detachment, sealed original energy and chain",
+    "all16 true B1 restored0 at initial and pending resumes",
+    "all Adam states andscheduler U+4; complete finite adapters closure; same source files; frozen-parameter hard guards and final perrank equalbeforeafter hash",
+    "fresh aggregate FPO energy logratio0/ratio1 separately from Gaussian diagnostic"
+  ],
+  "limitations": [
+    "Existing fresh FPO journal extrema andratios average4leaf metrics, not saved per-leaf maximum. Accepted as explicitly limited evidence, not relabeled.",
+    "No uninterrupted full-model weights-bitexact comparator, no crossworld-bitexact orlongrun speed/PDMS claim.",
+    "This newtool has not inspected the forthcoming actual FPOGPUresults yet."
+  ],
+  "output_schema": "d46_actual_FPO_world16_GPU_qualification_audit_v1",
+  "output_status": "PASS onlyafter all requiredinputs andchecks; missinginputs PENDING/exit1, inconsistency FAIL/exit1; optional output exclusive creation, never overwrites",
+  "no_live_GPU_SSH_or_state_changes": true,
+  "source_sha256": "2bcf68e47a0ec911b9b7de9d20170fced4036f8f995e1cffe0a1c60bd1ffce4d"
+}
