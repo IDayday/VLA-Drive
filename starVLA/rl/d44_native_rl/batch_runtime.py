@@ -24,8 +24,30 @@ def deployment_chain(actor,condition,generator):
     return torch.stack(states,1).detach(),grid
 
 
+def finalize_scene_score(scene,records,*,seconds_scoring):
+    """Attach the same official response/factors after all GPU draws are done.
+
+    No model call or RNG draw belongs here. Async collection keeps its Future
+    outside checkpoint material and only publishes a complete scene list.
+    """
+    g=scene['chain'].shape[0]
+    if len(records)!=g or any(r['status']!='OK'for r in records):
+        raise ValueError('Incomplete real scorer response')
+    factors=torch.tensor([[r['metrics'][k]for k in FACTORS]for r in records],
+        device=scene['chain'].device,dtype=torch.float64)
+    scene.update(records=records,factors=factors,seconds_scoring=seconds_scoring)
+    return scene
+
+
 @torch.no_grad()
-def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None,history=None):
+def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None,history=None,score_submit=None):
+    """Original synchronous collector unless an explicit fixed-draw submit hook is supplied.
+
+    The hook receives the original score request. Its Future is managed outside
+    this material; the caller must finalize every score before credit/update.
+    """
+    if score_submit is not None and cfg['arm']not in('D0','D5','D3_FPO','D3_AWM'):
+        raise ValueError('Async scoring requires a fixed-draw D0/D5/FPO/AWM arm')
     def add(**value):
         if cost is not None:cost(**value)
     def generate(count,forward):
@@ -50,14 +72,17 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
     if not torch.equal(std,refstd):raise ValueError('Reference kernel variance changed')
     torch.cuda.synchronize();generation=time.monotonic()-start
     requested=ActionCodec.denorm_odo(chain[:,-1]).cpu().numpy();begin=time.monotonic()
-    records=score((token,log,requested));score_seconds=time.monotonic()-begin
-    if len(records)!=g or any(r['status']!='OK'for r in records):raise ValueError('Incomplete real scorer response')
-    factors=torch.tensor([[r['metrics'][k]for k in FACTORS]for r in records],device=actor.device,dtype=torch.float64)
+    if score_submit is None:
+        records=score((token,log,requested));score_seconds=time.monotonic()-begin
+    else:
+        add(scorer_candidate_attempts=len(requested))
+        score_submit((token,log,requested))
     r=dict(token=token,log=log,condition=descriptor,chain=chain,timesteps=times,deltas=deltas,
-        old_mean=torch.stack([m for m,s in sampled],1).detach(),ref_mean=ref.detach(),std=std.detach(),records=records,factors=factors,
+        old_mean=torch.stack([m for m,s in sampled],1).detach(),ref_mean=ref.detach(),std=std.detach(),
         behavior_version=version,epoch=epoch,sampler_mean_max_error=error,
-        seconds_generation=generation,seconds_scoring=score_seconds,
+        seconds_generation=generation,
         physical_candidates=g,PG_candidates=g,extra_B1=0,extra_G32=0)
+    if score_submit is None:finalize_scene_score(r,records,seconds_scoring=score_seconds)
     if cfg['arm']in('D2','D6')and epoch>=cfg['rescue_start_epoch']:
         material=actor.materialize(descriptor);one=dict(material,context=material['context'][:1])
         nominal_generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',cfg.get('nominal_seed',2101),token))

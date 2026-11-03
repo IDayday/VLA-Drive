@@ -1,0 +1,31 @@
+{
+  "schema": "d46_fixed_draw_async_scoring_handoff_v1",
+  "status": "CPU_IMPLEMENTATION_READY_GPU_QUALIFICATION_PENDING",
+  "created_at": 1793718273.9989893,
+  "base_commit": "82d5f784d02ad4bc182231a267edab8a2a69833e",
+  "execution_protocol": "d46_fixed_draw_async_scoring_collection_v1",
+  "default": "synchronous",
+  "supported_arms": [
+    "D0",
+    "D5",
+    "D3_FPO",
+    "D3_AWM"
+  ],
+  "max_pending": 4,
+  "tests": {
+    "passed": 4,
+    "seconds": 2.89,
+    "command": "PYTHONPATH=. /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/d44_native_rl/test_async_collection.py",
+    "warning": "existing pynvml deprecation"
+  },
+  "GPU_qualification": false,
+  "live_deployed": false,
+  "speedup_measured": false,
+  "scientific_identity_changed": false,
+  "files_sha256": {
+    "starVLA/rl/d44_native_rl/async_collection.py": "5bbafc04a9daf4ecb4a0449b9bc5b2e6ee472b205c3d50a31ff9e4d666158eba",
+    "starVLA/rl/d44_native_rl/batch_runtime.py": "0cfe4f3d420d21825389e2d150c282222429c2be854c3e04e61d1935e888070c",
+    "tests/d44_native_rl/test_async_collection.py": "28d6223e00c6c5675ea94410aa382790167e2642df2a9f383a8bdfa7e1c77518",
+    "reports/d46_async_scoring_20261103/HANDOFF.md": "7f164d619eaa1a23054844930e2e77691c73f4f711b055eddee54167516402e4"
+  }
+}
