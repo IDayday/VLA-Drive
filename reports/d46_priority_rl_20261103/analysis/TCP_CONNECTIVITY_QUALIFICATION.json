@@ -1,0 +1,33 @@
+{
+  "schema": "D46_actual_bidirectional_TCP_connectivity_v1",
+  "at_UTC": "2026-11-03T10:13:14.203971+00:00",
+  "results": [
+    {
+      "server": "training-vlawm-tsinghua-zt",
+      "server_pod_ip": "172.16.144.229",
+      "client": "training-vlawm-tsinghua-zt3",
+      "port": 29783,
+      "server_exit": 0,
+      "client_exit": 0,
+      "client_output": "{\"reply\": \"D46_PONG\", \"connect_roundtrip_seconds\": 0.0012774467468261719}",
+      "server_output": "{\"peer\": [\"172.16.136.117\", 45342], \"request\": \"D46_WORLD16_NET_PROBE\"}",
+      "error": "",
+      "status": "PASS"
+    },
+    {
+      "server": "training-vlawm-tsinghua-zt3",
+      "server_pod_ip": "172.16.136.117",
+      "client": "training-vlawm-tsinghua-zt",
+      "port": 29784,
+      "server_exit": 0,
+      "client_exit": 0,
+      "client_output": "{\"reply\": \"D46_PONG\", \"connect_roundtrip_seconds\": 0.001330232247710228}",
+      "server_output": "{\"peer\": [\"172.16.144.229\", 60276], \"request\": \"D46_WORLD16_NET_PROBE\"}",
+      "error": "",
+      "status": "PASS"
+    }
+  ],
+  "GPU_used": false,
+  "bandwidth_benchmark": false,
+  "network_configuration_changed": false
+}
