@@ -1,0 +1,86 @@
+{
+  "CLI": {
+    "environment": "WORLD_COMPARE_ROOT=/mnt/project/d46-priority-rl-20261103 WORLD_COMPARE_TASK=d46_priority_rl_20261103 D_NATIVE_CAMPAIGN_ROOT=/mnt/project/d46-priority-rl-20261103",
+    "failure_authority": "Existing actual failed-job review policy remains required; choosing a wrapper does NOT authorize retry or convert a result.",
+    "freeze": "new detached science worktree from this branch commit; oldff/live sources remain unchanged; operations use separate ops_source",
+    "policy_activation": "Only Root if needed: execution_policy.startup_controls.D2={science_source:SCI,source_sha:SCICOMMIT,profile:PROFILE,profile_sha256:SHA}; or equivalent explicit run.startup_control",
+    "prepare": "cd SCI; modelpython -m tools.d46_priority_rl.train_control prepare --config ROOT/registered_configs/D2.yaml --output ROOT/runs/D46_D2 --resume ROOT/runs/D46_D2/checkpoints/<latestOwnNative> --profile ROOT/operations/CONTROL600/D2_profile.json",
+    "run": "torchrun --standalone --nproc_per_node=8 -m tools.d46_priority_rl.train_control --control-profile PROFILE --control-profile-sha256 SHA --config ORIGINAL_CFG --output ORIGINAL_RUN --resume ORIGINAL_CP"
+  },
+  "CPU": {
+    "checks": [
+      "actual original code_inventory unchanged",
+      "mock world8control600 vs oldalias",
+      "profile/source tampering rejected",
+      "argv restored and alias restored after original exception",
+      "explicit-only owner selection,default+qualification unchanged",
+      "known exact wrapper entry and real owned CPUchild proc ancestry/startticks",
+      "actual D2u1614 saved source248 entries compared current ff+wrapper: missing0/extra0/mismatch0"
+    ],
+    "no_GPU_model_or_SSH": true,
+    "ops": "6passed,1warning in3.66s",
+    "ops_exit": 0,
+    "ops_stdout_sha256": "454537d7fadb3aa8a6bb72788e572013895e3d05f4e8332d0821f1756ebc1822",
+    "science": "3passed,1warning in5.47s",
+    "science_exit": 0,
+    "science_stdout_sha256": "14a458a2ee91be60bd99e123d451e8935debf2d6144751cafd01488f276ea540"
+  },
+  "actual_inventory_check": {
+    "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D2/checkpoints/update001614_inner0",
+    "extra": [],
+    "identity_sha256": "e1bf35bdadf5037b72c69075c8d86db8285b18224c5ed01e67f7b9800f0b4eb6",
+    "mismatched": [],
+    "missing": [],
+    "old_CP_modified": false,
+    "schema": "d46_original_science_inventory_exact_v1",
+    "source_count": 248,
+    "source_inventory_sha256": "e363f3b7def9a21698d84ad7aa23728dd116e3775de11c5df3c73ea005752322",
+    "status": "PASS",
+    "weights_loaded": false
+  },
+  "created_UTC": "2026-11-03T12:54:44.016945+00:00",
+  "old_failures_CP_CAMPAIGN_RNG_untouched": true,
+  "old_tracked_science_files_modified": [],
+  "ops_commit": "a313e6ffd621849566a8cb33ffa2c46d0aac3d9f",
+  "ops_patch": {
+    "default_command_unchanged": true,
+    "files": [
+      "tools/d46_priority_rl/owner.py",
+      "tools/qwen_world_compare/job_worker.py",
+      "tests/d46_priority_rl/test_train_control_admission.py"
+    ],
+    "known_owner": "only exact sealed ownworld8 parent386/profile/protocol/source wrapper",
+    "own_rank_usr1": "explicit tools.d46_priority_rl.train_control entry; existing process ancestry/starttick/output safeguards retained",
+    "science_changed_by_ops": false
+  },
+  "ops_worktree": "/mnt/project/VLA-Drive-d46-world16-ops-20261103",
+  "owners_started": false,
+  "production_additions": [
+    "tools/d46_priority_rl/train_control.py"
+  ],
+  "schema": "d46_world8_control_startup_backup_handoff_v1",
+  "science_base": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "science_branch": "fix/d46-world8-control-startup-20261103",
+  "science_worktree": "/mnt/project/VLA-Drive-d46-control-startup-20261103",
+  "source_files": {
+    "tests/d46_priority_rl/test_train_control.py": "6ab14705beeeeee13b89a295178cecef03f1518918e34afb05d64b364c307b8e",
+    "tools/d46_priority_rl/train_control.py": "93093035d9793dc5f55f39a144a7d1d5489532bce5bc7e81ba8af9b59e31aefb"
+  },
+  "status": "CPU_READY_INACTIVE_BACKUP",
+  "user_runtime_status": "Root reports D2 unchanged-source warm-cache attempt003 already advanced1616+, so this backup has not been activated.",
+  "wrapper": {
+    "RNG_cursor_Adam_not_rewritten": true,
+    "actor_loss_optimizer_checkpoint_math_unchanged": true,
+    "backend": "gloo",
+    "evidence": "perrank executions/control600_PROFILESHA/elastic_invocation/rankN.json; full native data stays original checkpoint",
+    "guard": "exact all248 code_identity entries vs original sealed ownworld8 identity; ownD46 runs/arm, Parent386, same recipe/config/nativeidentity; pinned wrapperSHA/protocol/profile; allow same-identity descendant CP updates>=anchor",
+    "identity_unchanged": true,
+    "mechanism": "temporarily assign old train.checkpoint.init_control_group alias to a function that only creates source.CONTROL_GROUP(timeout600); restore alias in finally. Original source function/code files remain90.",
+    "original_argv": "remove only --control-profile and --control-profile-sha256, preserve remaining argv exactly for original main",
+    "profile_schema": "d46_world8_CPU_control_timeout600_v1",
+    "schema": "d46_world8_control_startup_execution_profile_v1",
+    "startup_only": true,
+    "timeout_seconds": 600,
+    "world": 8
+  }
+}
