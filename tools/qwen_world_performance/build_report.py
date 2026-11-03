@@ -35,10 +35,15 @@ def D46_priority_fragment():
     stamp=value.get('updated_at',value.get('at',value.get('generated_UTC','未记录')))
     if isinstance(stamp,(int,float)):stamp=datetime.fromtimestamp(stamp,timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
     status=value.get('status','状态待核对')
-    label={'PREPARING_EXACT_IL46_POLICY_PARENT_AND_FRESH_RUNS':'准备固定 IL46k 策略与独立 fresh RL，尚未启动'}.get(status,status)
+    label={'PREPARING_EXACT_IL46_POLICY_PARENT_AND_FRESH_RUNS':'准备固定 IL46k 策略与独立 fresh RL，尚未启动',
+        'D46_FRESH_IL46_PRIORITY_CAMPAIGN':'D46 六路线已登记，资格与正式训练按各行实际状态区分'}.get(status,status)
     body+='<p><b>最新状态：'+esc(label)+'</b>；收据时间 '+esc(stamp)+'。<a href="'+esc(path)+'">实际优先级与执行状态</a></p>'
     count=value.get('actual_training')
-    if isinstance(count,int)and count>=0:body+='<p><b>D46 实际训练数量：'+esc(count)+' 条</b>（按该时间的实际核对收据，不按注册数量计）。</p>'
+    if isinstance(count,int)and count>=0:body+='<p><b>D46 实际正式训练数量：'+esc(count)+' 条</b>（按该时间的实际核对收据，资格训练与注册数量不计入）。</p>'
+    restored_path=D46_ROOT/'operations/RESTORE_SIX_UNBOUNDED_20261103/APPLIED.json'
+    restored=read(restored_path,{})
+    if restored.get('finite_deadline_applies') is False:
+        body+='<p><b>当前资源：六机已对 D46 重新开放，无到期截止。</b>'+esc(' / '.join(restored.get('hosts',[])))+'。<a href="'+esc(restored_path)+'">新授权实际应用</a>。下方原 IL70 的00:00到期和保存退出记录保留为历史，不代表本 D46 新授权已到期；其它任务权限不扩张。</p>'
     parent=value.get('parent',{})
     if parent.get('PDMS') is not None:
         body+='<p>固定 IL46k 父策略完整 NAVTEST：'+esc(f'{parent["PDMS"]:.8f}')+'。这是 IL 起点，不是新 RL 收益。'
@@ -46,9 +51,30 @@ def D46_priority_fragment():
         body+='</p>'
     rows=value.get('runs',[])
     if isinstance(rows,dict):rows=[dict(v,id=k)for k,v in rows.items()]
+    methods={
+        'D3_FPO':('MC4 CFM-energy ratio PPO代理','非精确轨迹似然；clip .01，保留原生KL约束'),
+        'D3_AWM':('正优势加权 matching + 参考保持','保守本地适配；非完整 signed AWM，matching不使用PPO clip'),
+        'D5':('扩大 D 原生语义/动作适配范围','text LoRA r32 + last8 FiLM低秩 + action I/O/position'),
+        'D1':('两阶段语义/终点质量信用','2 exposure epochs后引入Comfort与TRAIN GT endpoint质量；标签不进当前观测'),
+        'D2':('真实 B1 对照的 verified teacher 吸收','0.5 exposure epoch后启用；严格安全且较B1高≥.02，clean-x +真实ODE-last'),
+        'D0':('D 原生 joint24 Gaussian PPO 基线','clip .1 +自适应 native KL；保存状态条件转移密度，非最终轨迹边缘密度')}
+    campaign=read(D46_ROOT/'CAMPAIGN.json',{}).get('runs',{})
     if rows:
-        body+=table(['D46 路线','服务器','实际更新（收据）','状态'],[(r.get('id',''),r.get('host')or'待分配',r.get('updates')if r.get('updates')is not None else'尚无实际日志',r.get('status','待确认'))for r in rows])
-    body+='<p>D0 / D2 / D5 优先；D4 / D6 所需的原生 readout 缺失，暂缓。保留的部署策略和零差导出核对不等于原完整 IL native 仍存在，不伪造恢复材料。模型初始化、已派发与实际八 rank 更新分开记录；未完整评测不发布新 RL 分数。既有 IL70 代码、结果与保存状态保留，资源让位不判方法无效。</p></section>'
+        entries=[]
+        states={'RUNNING_QUALIFICATION':'八卡资格进行中，非正式训练','WAITING_RESOURCE':'等待资源','RUNNING':'运行中（以实际日志核对）'}
+        for r in rows:
+            arm=r.get('id','').removeprefix('D46_');registered=campaign.get(arm,{})
+            history=registered.get('qualification_jobs',[])if r.get('status')=='RUNNING_QUALIFICATION'else registered.get('jobs',[])
+            host=r.get('host')or(history[-1].get('host')if history else None)or'待分配'
+            method,gate=methods.get(arm,('以登记配方为准',''))
+            entries.append((r.get('id',''),method,gate,host,r.get('updates')if r.get('updates')is not None else'尚无实际日志',states.get(r.get('status'),r.get('status','待确认'))))
+        body+=table(['D46 路线','方法','阶段启用与边界','服务器','正式更新（收据）','状态'],entries)
+    body+='<p>六条专用路线优先顺序为 D3_FPO / D3_AWM / D5 / D1 / D2 / D0。共同 B64 / G16 / inner2；各自先完成真实八卡10更新资格，再从相同完整 IL46 部署策略与新空 Adam 独立正式起步，绝不继承资格权重或 D44 RL 状态。它们适配 D 原生 Qwen 架构，不能写成把原 IL70 Safety 配方换父权重。<a href="'+esc(D46_ROOT/'CAMPAIGN.json')+'">六路线登记与当前阶段</a> · <a href="'+esc(D46_ROOT/'PARENT_CONTRACT_v2.json')+'">父策略合同v2</a></p>'
+    saved_path=D46_ROOT/'operations/USER_PRIORITY_20261103/D44_ACTUAL_NATIVE_SAVED.json'
+    saved=read(saved_path,{})
+    if saved.get('old_campaign_closed') is True:
+        body+='<p>旧 D44 已正常保存并退出：'+esc('；'.join(str(r['arm'])+' / '+str(r['updates'])+' / inner'+str(r['next_inner'])for r in saved.get('saved_runs',[])if r.get('returncode')==0))+'。<a href="'+esc(saved_path)+'">实际原生保存收据</a>；状态未转入 D46，不判算法无效。</p>'
+    body+='<p>D4 / D6 依赖的原生 readout 缺失，仍暂缓。保留的部署策略和零差导出核对不等于原完整 IL native 仍存在。模型初始化、资格、已派发与实际正式八 rank 更新分开记录；未完整评测不发布新 RL 分数。既有 IL70 代码、结果与保存状态保留，资源让位不判方法无效。</p></section>'
     return body
 
 
@@ -800,9 +826,10 @@ def render_fragment(root=ROOT):
     if rows:body+=table(['吞吐优化','验证范围','实际结果','当前处置'],rows)
     window=s['resource_window'];restore=s['resource_restore'];deadline=window.get('deadline_unix',1793664000.)
     guard=restore.get('new_guard_seconds',900);phase='尚未进入保存窗口' if time.time()<deadline-guard else '已进入保存退出窗口' if time.time()<deadline else '临时授权已到期，退出情况以实际收据为准'
-    body+='<p><b>资源期限：</b>六台 wm4 / rl2 / tsh2 / wmzt / tsh3 / wm2 于 UTC11月3日00:00（北京时间08:00）硬截止；本任务原900秒余量已恢复，UTC23:45（北京时间07:45）开始保存，当前：'+esc(phase)+'。UTC23:40对应北京时间07:40。<a href="'+esc(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/WINDOW_CORRECTION.json')+'">窗口纠正</a> · <a href="'+esc(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/CLOSE_WINDOW_LAUNCH.json')+'">close_window实际启动</a>。其它任务授权不变，未知任务不回收。</p>'
+    body+='<details><summary>旧 IL70 资源窗口与归还记录（历史；D46新授权见最前卡片）</summary><p><b>原资源期限：</b>六台 wm4 / rl2 / tsh2 / wmzt / tsh3 / wm2 于 UTC11月3日00:00（北京时间08:00）硬截止；本任务原900秒余量已恢复，UTC23:45（北京时间07:45）开始保存，原窗口：'+esc(phase)+'。UTC23:40对应北京时间07:40。<a href="'+esc(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/WINDOW_CORRECTION.json')+'">窗口纠正</a> · <a href="'+esc(root/'operations/RESTORE_REQUESTED_15MIN_GUARD/CLOSE_WINDOW_LAUNCH.json')+'">close_window实际启动</a>。其它任务授权不变，未知任务不回收。</p>'
     release=root/'operations/RESOURCES_UNTIL_20261103T000000Z/ACTUAL_PRE_EXPIRY_RELEASE.json'
     if release.exists():body+='<p><a href="'+esc(release)+'">23:51实际归还核对：六机自有任务进程为0</a>；永久资源上的训练与foreign任务分开，不把它们误报已退出。</p>'
+    body+='</details>'
     body+='<p>S7 长期槽位等待器当前只观察旧 I 自然完成10k；之后仍须满足实际显存、可见 owner 与最多2个已知 native 的准入限制。当前 '+esc(s['S7_permanent_wait'].get('status','尚无收据'))+'；不停止旧 I、第三方 D44 或 B/D，也不降低门槛硬塞。评测未齐不发均分，资源等待不判算法无效。<a href="'+esc(root/'operations/S7_PERMANENT_CAPACITY_WAIT/STATE.json')+'">等待器状态</a></p>'
     body+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px"><article><h3>已完成：全量数据审计</h3><p>'+esc(checks.get('unique_tokens','待查'))+' 唯一 TRAIN；NAVTEST token/log 交集 0。309864 图像文件、103288 cache 文件逐个筛查无缺失；cache 格式筛查不等同完整语义评分。</p></article><article><h3>尚待回答：是否真正提分</h3><p>重点看固定 TRAIN 中 sampled-good/B1-bad 的后续修复，以及全 NAVTEST 的零分修复和高分退化。不会以扩大采样覆盖率代替单轨迹部署成绩。</p></article></div>'
     body+='<h3>实测工程成本与评分预算</h3><p><a href="'+esc(root/'performance_qualification.json')+'">资格计时与预算原始汇总</a></p>'+engineering_figure(root,s)

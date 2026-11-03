@@ -2,6 +2,25 @@
 
 本轮从 `987bc614aec5a042f2df8e8590d6f2479b3e1010` 开发。研究进行中，工程资格通过不等于算法提分。
 
+## 当前优先：D46 六条专用 RL 路线
+
+新研究根 `/mnt/project/d46-priority-rl-20261103`；固定完整 IL46 部署策略 NAVTEST **89.49552098**（model SHA `386a0a27…`），各路线 fresh Adam0/RNG42，不接续 D44 RL 或资格权重。父合同 v2 允许六条 policy-only 路线，优先顺序如下；它们适配 D 原生 Qwen，不是把旧 IL70 Safety 配方替换父权重。
+
+| 路线 | 方法与实际阶段门 |
+|---|---|
+| D3_FPO | MC4 CFM-energy ratio PPO代理；非精确轨迹似然 |
+| D3_AWM | 正优势 matching 与参考保持；保守适配，非完整 signed AWM |
+| D5 | text LoRA r32、last8 FiLM低秩及action I/O/position适配 |
+| D1 | 2 exposure epochs后加入Comfort和TRAIN GT endpoint语义质量信用 |
+| D2 | 0.5 exposure epoch后，真实B1对照的严格安全高分教师吸收 |
+| D0 | joint24条件Gaussian PPO、clip .1与自适应native KL基线 |
+
+共同 B64/G16/inner2；每条先完成真实八卡10更新资格，再从同一 IL46 策略和新空 Adam 正式开始。资格/模型初始化不算实际正式在训，当前数量、进度与分数只读 [`PRIORITY_STATUS.json`](/mnt/project/d46-priority-rl-20261103/PRIORITY_STATUS.json) 和 [`CAMPAIGN.json`](/mnt/project/d46-priority-rl-20261103/CAMPAIGN.json)。科学源冻结在 `runtime/formal_v1@ff3013c`。原完整 IL native 已清理，保留的部署策略经原生导出零差核对；缺失 readout 的 D4/D6 仍暂缓，不伪造恢复材料。[父合同v2](/mnt/project/d46-priority-rl-20261103/PARENT_CONTRACT_v2.json)
+
+六台 wm4/rl2/tsh2/wmzt/tsh3/wm2 已针对 D46 **重新开放、无到期截止**；下文00:00截止与23:51归还属于原 IL70 任务历史，不是 D46 当前权限。其它任务授权不扩张。[实际新授权](/mnt/project/d46-priority-rl-20261103/operations/RESTORE_SIX_UNBOUNDED_20261103/APPLIED.json)。旧D44 D0/D2/D5/D1分别保存于763/637/495/9、inner1并正常退出，完整状态保留且未转入新研究；IL70保存让位同样不判方法无效。[D44保存收据](/mnt/project/d46-priority-rl-20261103/operations/USER_PRIORITY_20261103/D44_ACTUAL_NATIVE_SAVED.json)
+
+## 既有 IL70 研究的完整结果
+
 **最高已确认完整部署成绩仍为 SafetyEP Control10k：91.45359756，尚未达到92。** 相同完整 IL70 为88.79290991。以下本轮结果均为真实单轨 B1、12146场景/44 physical logs/invalid0；不是候选 best-of 或 TRAIN 分数。
 
 | 本轮完整检查点 | 完整 PDMS | 已启用机制与解释 |
