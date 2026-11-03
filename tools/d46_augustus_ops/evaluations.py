@@ -338,7 +338,7 @@ def main():
             # Only a queued resource admission gets a bounded five-minute
             # retry; idle/active jobs are driven by native/result events.
             timeout=min(a.interval,300)if pending and not any(c.get('active_shards')for c in state['cases'].values())else a.interval
-            wait_for_events(paths,timeout,ignore=('EVAL_STATE.json','EVAL_OWNER.json'))
+            wait_for_events(paths,timeout,ignore=('EVAL_STATE.json','EVAL_OWNER.json','STATE.json','OWNER.json'))
 
 
 if __name__ == '__main__':main()

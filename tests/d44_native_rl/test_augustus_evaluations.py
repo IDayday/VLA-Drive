@@ -15,16 +15,16 @@ def write(path, value):
 
 
 def route(root, exp):
-    source=root/'runtime/augustus_science_v1';source.mkdir(parents=True,exist_ok=True)
+    source=root/'runtime'/q.SCIENCES[exp];source.mkdir(parents=True,exist_ok=True)
     (source/'science.py').write_text('same frozen science\n')
     return dict(experiment=exp,phase='formal',status='FORMAL_RUNNING',stages={'formal':{}},
-        formal_output=str(root/'runs'/(exp+'_v1')),route=dict(world=32 if exp=='AUG1_FULL'else 16,source=str(source)))
+        formal_output=str(root/'runs'/(exp+q.VERSIONS[exp])),route=dict(world=32 if 'FULL'in exp else 16,source=str(source)))
 
 
 def checkpoint(root, r, updates, *, qualification=False, parent=q.PARENT_SHA):
     cp=Path(r['formal_output'])/'checkpoints'/f'update{updates:06d}_inner0';cp.mkdir(parents=True,exist_ok=True)
     recipe=dict(parent='D_IL46K',experiment_id=r['experiment'],training_uses_navtest=False,
-                augustus={'protocol':'fixed'},global_scenes=128 if r['experiment']=='AUG1_FULL'else 64,inner_updates=1)
+                augustus={'protocol':'fixed'},global_scenes=128 if 'FULL'in r['experiment']else 64,inner_updates=2 if 'ALIGNED'in r['experiment']else 1)
     identity=dict(schema='d44_native_rl_v1',algorithm_schema=q.SCHEMA,architecture_id='D',
         experiment_id=r['experiment'],parent_model_sha256=parent,qualification=qualification,
         recipe=recipe,world=r['route']['world'],augustus_protocol_sha256=fingerprint(recipe['augustus']),
@@ -58,7 +58,7 @@ def test_exact_early_and_native_gates_reject_qualification_and_foreign_parent(tm
 
 
 def test_spare_only_two_cases_two_known_workers_and_unchanged_official_command(tmp_path,monkeypatch):
-    root=tmp_path;routes={e:route(root,e)for e in q.EARLY}
+    root=tmp_path;routes={e:route(root,e)for e in q.EARLY if 'ALIGNED'not in e}
     for exp,r in routes.items():
         for u in q.EARLY[exp]:checkpoint(root,r,u)
     monkeypatch.setattr(q,'allowed_hosts',lambda **kw:list(q.SPARE_GPUS)+['training-vlawm-tsinghua-zt5'])
