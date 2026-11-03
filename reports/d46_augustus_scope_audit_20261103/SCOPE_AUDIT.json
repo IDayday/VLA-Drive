@@ -1,0 +1,110 @@
+{
+  "schema": "d46_augustus_official_scope_and_local_action_adaptation_audit_v1",
+  "status": "COMPLETE_READ_ONLY_SOURCE_AUDIT_PROPOSALS_NOT_LAUNCHED",
+  "at": 1793722485.8483884,
+  "upstream_commit": "edf3422304e4b2987e839a9212cf1176782e7380",
+  "paper_url": "https://arxiv.org/html/2610.16985v1",
+  "official_default_scope": {
+    "lora_rank": 0,
+    "lora_rank_evidence": "verl/trainer/config/model/hf_model.yaml:43; workers/config/model.py:124; no stage1/2 override",
+    "freeze_llm": false,
+    "freeze_llm_evidence": "SFT configs/navsim_qwen3p5.yaml:35; train_qwen3p5.py:124-125 passes cfg through",
+    "RL_freeze_visual_default": true,
+    "visual_evidence": "stage1/2 env TRANSFUSION_FREEZE_VIT default true; transfusion_policy.py:276-279 freezes model._visual",
+    "optimizer": "model_engine.py builds complete Transfusion model; fsdp/transformer_impl.py:451-454 build_optimizer(module.parameters(), config)",
+    "interpretation": "Pinned default is dense text/action optimization with frozen visual tower, not attention-only LoRA. Runtime env/custom original model config can override; no claim to unseen author launch state."
+  },
+  "official_module_paths": {
+    "text_trunk": "qwen_model.model.language_model.layers.*",
+    "final_norm": "qwen_model.model.language_model.norm.*",
+    "token_embeddings": "qwen_model.model.language_model.embed_tokens.*",
+    "action_modules": [
+      "action_encoder.*",
+      "action_decoder.*",
+      "time_embed.*",
+      "traj_pos_embed.*"
+    ],
+    "time_modulation": "native Qwen3.5 AdaRMSNorm modules inside shared layers; exact names require qwen3p5_ada implementation, not assumed identical to local time_films",
+    "visual_frozen": "qwen_model.model.visual.*",
+    "CoT_LM_head": "qwen_model.lm_head.* is part of full model; action-only local adaptation has no restored CoT branch"
+  },
+  "existing_local": {
+    "source_commit": "82d5f784d02ad4bc182231a267edab8a2a69833e",
+    "D0_trainable_paths": "action_expert.decision.qwen_model.language_model.layers.{0..27}.self_attn.{q,k,v,o}_proj.{lora_A,lora_B}",
+    "D0_trainable_numel": 6422528,
+    "D0_text_rank": 16,
+    "D0_base_frozen": true,
+    "D5": "r32 attention LoRA + last8 time FiLM low rank + action input/output/position, still not dense entire trunk",
+    "D3_FPO": "MC4 CFM-energy ratio objective replacing PG; retains local native Gaussian reference KL. Not official JaT objective."
+  },
+  "objective_and_sampling_differences": [
+    {
+      "factor": "coordinate reduction",
+      "official": "closed-form logratio and KL mean over all action coordinates",
+      "local": "sum over 8x3 action coordinates (joint24); local diagnostic /24 does not change actual loss"
+    },
+    {
+      "factor": "sampler",
+      "official": "lambda_t: g(t)=a*sqrt(t), configured a=[.05,.05,.02], 3 RL denoising steps, 1 validation step",
+      "local": "K10 shift5, stochastic steps7/8/9, original source SDE; deployment B1 K10 shift5"
+    },
+    {
+      "factor": "group initialization",
+      "official": "Paper Algorithm7 lines658-662: same initial x1 across G, independent transition innovations",
+      "local": "vendor/action_math.py:503-507 independent [G,8,3] initial draws unless explicit init_actions supplied; collect_scene does not supply shared init"
+    },
+    {
+      "factor": "LR/clip/KL",
+      "official": "stage1/2 actor lr1e-6, action clip .2, action KL .001 with mean-coordinate scale",
+      "local": "D0 text lr2e-6, clip .1, adaptive beta initial .001 on joint24 scale; coefficient numbers not directly portable"
+    },
+    {
+      "factor": "architecture/task",
+      "official": "Qwen3.5 unified action/CoT two-stage system; action-only ablation differs from full joint result",
+      "local": "Qwen3-VL D28x2048 action-only; P32/ego + A8 time FiLM, no restored CoT decoder/readout. New action-only route remains adaptation."
+    }
+  ],
+  "recommendation": {
+    "status": "PROPOSED_NOT_REGISTERED_NOT_DISPATCHED",
+    "arms": [
+      "AUG_ACTION_FULL",
+      "AUG_ACTION_LORA"
+    ],
+    "initialization": "Two independent runs from same verified IL46 deployment policy, fresh Adam0/seed42; no old RL or qualification weights",
+    "max_concurrent_formal": 2,
+    "FULL_core_trainable_patterns": [
+      "action_expert.decision.qwen_model.language_model.layers.*",
+      "action_expert.decision.qwen_model.language_model.norm.*"
+    ],
+    "shared_action_interface_patterns": [
+      "action_expert.decision.action_input.*",
+      "action_expert.decision.action_output.*",
+      "action_expert.decision.action_position",
+      "action_expert.decision.time_embedding.*",
+      "action_expert.decision.time_films.*",
+      "action_expert.decision.p_embeddings",
+      "action_expert.decision.role_embedding.weight",
+      "action_expert.decision.ego_input.*"
+    ],
+    "LORA_replacement_for_core": "Only q/k/v/o attention LoRA r16/alpha32 across all28 text blocks; keep the exact same action-interface policy as FULL for a scope contrast",
+    "frozen_patterns": [
+      "action_expert.decision.qwen_model.visual.*",
+      "action_expert.decision.qwen_model.language_model.embed_tokens.* (initial minimal adaptation only)",
+      "action_expert.decision.r_embeddings / unused readouts",
+      "ref_action_expert.*"
+    ],
+    "full_parameter_count": null,
+    "parameter_count_reason": "No full IL46 actor instantiated in this read-only audit; actual unique named closure/numel and active gradients must be measured during qualification. Do not relabel 6.4M as full trunk.",
+    "embedding_boundary": "The current provider caches frozen encoded.inputs_embeds. If embedding weights become trainable, rebuild current text embeddings from raw IDs each inner (with frozen visual features); no stale/detached embedding graph. Otherwise label FULL as full-transformer-trunk/action-interface adaptation, not entire VLM training.",
+    "reference_alias_boundary": "Old D44 actor deepcopy memo shares all original base Parameter objects with reference. Never unfreeze that shared base in-place. New FULL current trainables must be cloned/independent before freeze/copy; assert disjoint parameter identities versus immutable reference.",
+    "matching_boundary": "32+16 GPU is planned only after real qualification. Keep registered global scene/group/Adam/query semantics explicit across world sizes; no speed or PDMS guarantee."
+  },
+  "local_source_sha256": {
+    "starVLA/rl/d44_native_rl/actor.py": "3779eb45ff8cb6789ab60c03bc0c00146998df05aaa659b7a2bf29d8a11ab6ae",
+    "starVLA/rl/d44_native_rl/gaussian_objective.py": "f932a2f24612f61b951ffc41bde4d7a7abd5d393f2e380bd4811e48bd94bc051",
+    "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "e95e1fcccd1aa37f8b095a83e0b134adbecc7350739b6701cd6b007042db0367",
+    "starVLA/rl/simwam_recipe/vendor/action_math.py": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99"
+  },
+  "no_new_model_or_GPU_work": true,
+  "sha256": "4d8333d45647e4e5b3e21939baf1ae6c14b8a5cc30f433d49c00cac884c9bbfc"
+}

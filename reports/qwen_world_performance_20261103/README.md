@@ -1,5 +1,10 @@
 # Qwen-World：以真实单轨迹 PDMS 为目标的规模化 RL
 
+最新完整D系列分数：**FPO Adam1614 / 0.5E：90.32032058**，12146/44log/invalid0；相固定IL46 **+0.82479960**，零分修复235/新增73，成为当前D46最高完整点。历史IL70 SafetyEP Control10k的91.45359756属于另一父模型研究，仍单列。当前旧六条D46已协作保存/资源hold，未将新AUG候选计为已训练；各路线精确保存步数均以实时状态为准（精确保存步数见下表/PRIORITY_STATUS）。[FPO完整分数](/mnt/project/d46-priority-rl-20261103/evaluations/D3_FPO_epoch0.5/SUMMARY.json)
+
+官方scope只读审计已完成：[精确路径、默认scope和推荐边界](../d46_augustus_scope_audit_20261103/README.md)。EDF默认lora_rank0、freeze_llm=false，RL视觉冻结；新FULL核心应是dense text blocks/FFN/norm加既有action/time接口，LORA保同接口作对照。旧D44参考共享base不能直接解冻，训练embedding也不能复用已detach缓存；实际新参数closure/资格与分数须另证。
+
+
 2026-11-03 16:06 UTC用户新优先级：集中所有当前已授权且可用的RL资源到 **AUGUstus 主线，最多两条正式训练**。候选 **AUG_ACTION_FULL / AUG_ACTION_LORA** 均为同IL46策略、fresh Adam0；32+16卡仅资格后的计划，尚未注册或开训。旧D0/D2/D5亦请求原生边界协作保存，旧结果/状态/预算保留，不判方法无效。当前实际退出进度只读PRIORITY_STATUS，不将旧任务计为新主线已启动。[优先级调整请求](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_PRIORITY_ALL_RESOURCES_20261103/PRIORITY_CHANGE_REQUEST.json)
 
 当前D0/FPO是本地D条件Gaussian/CFM-energy代理适配，并非官方AUGUstus/JaT的完整复现。新的官方配置、full-text/action scope及LoRA对照正在只读核对；原微基准不是生产all_off耗时。以下资源/训练数量均为各自时间的历史记录，最新动态表优先。

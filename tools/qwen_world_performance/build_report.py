@@ -453,7 +453,9 @@ def D46_priority_fragment(other_active=None):
     augustus_priority=augustus.get('maximum_concurrent_training')==2 and augustus.get('old_results_and_native_state_retained')is True
     body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>'+('AUGUstus 主线 · IL46k 独立 fresh RL 准备'if augustus_priority else'D 框架 · IL46k 父策略优先 RL')+'</h2>'
     if augustus_priority:
-        body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>候选 AUG_ACTION_FULL 与 AUG_ACTION_LORA 均拟从同一IL46策略、fresh Adam0独立开始；32+16卡属于资格通过后的部署计划，尚未注册/启动。旧D0/D2/D5亦按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效；保存是否完成及仍在退出中的任务见下面实时表。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p><p>当前D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方训练scope、噪声日程、坐标归约与本地LoRA差异正在只读核对；新路线资格与正式启动须另有实际收据，不能把旧训练数当新主线已开训。</p>'
+        body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>候选 AUG_ACTION_FULL 与 AUG_ACTION_LORA 均拟从同一IL46策略、fresh Adam0独立开始；32+16卡属于资格通过后的部署计划，尚未注册/启动。旧D0/D2/D5亦按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效；保存是否完成及仍在退出中的任务见下面实时表。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p><p>当前D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方默认LoRA关闭、文本主干可训练、RL冻结视觉；本地旧D0仅attention-LoRA约642万参数，且sum24/W3与官方mean-coordinate/lambda_t/3步不同。新路线资格与正式启动须另有实际收据，不能把旧训练数当新主线已开训。</p>'
+        scope_path=Path(__file__).resolve().parents[2]/'reports/d46_augustus_scope_audit_20261103/SCOPE_AUDIT.json'
+        if scope_path.is_file():body+='<p><a href="'+esc(scope_path)+'">官方scope与本地精确路径只读审计</a>：FULL建议dense text layers/FFN/norm与动作/时间接口，LORA保同接口作范围对照；当前缓存embedding合同与永久参考参数别名必须处理，不能直接把旧共享base解冻。该建议未部署，不含性能提升声明。</p>'
     if not value:
         return body+'<p>等待 D46 正式状态收据；尚未确认启动。既有 IL70 路线保存让位属于研究优先级调整，不判算法无效。</p></section>'
     stamp=value.get('updated_at',value.get('at',value.get('generated_UTC','未记录')))
