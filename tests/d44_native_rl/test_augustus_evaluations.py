@@ -32,6 +32,7 @@ def checkpoint(root, r, updates, *, qualification=False, parent=q.PARENT_SHA):
     identity['sha256']=fingerprint(identity);write(cp/'identity.json',identity)
     for name in ('optimizer.pt','transaction.json')+tuple(f'rank{i}.pt'for i in range(identity['world'])):
         (cp/name).write_bytes(b'CPU fixture, never a model')
+    write(cp/'transaction.json',dict(ranks=[dict(valid_scene_exposures=updates*recipe['global_scenes']//recipe['inner_updates'])for _ in range(identity['world'])]))
     files={p.name:file_sha(p)for p in cp.iterdir()};write(cp/'files.json',files)
     write(cp/'COMPLETE',dict(world=identity['world'],phase='READY',next_inner=0,updates=updates,
                              files_sha256=file_sha(cp/'files.json')))

@@ -81,11 +81,15 @@ def inspect_checkpoint(root, route, checkpoint):
     for name in ('optimizer.pt', 'transaction.json') + tuple(f'rank{i}.pt' for i in range(seal['world'])):
         if name not in files or not (cp / name).is_file():
             raise ValueError('Incomplete native file inventory: ' + name)
+    if file_sha(cp/'transaction.json')!=files['transaction.json']:raise ValueError('Native exposure transaction changed')
+    clocks=[r.get('valid_scene_exposures')for r in read(cp/'transaction.json',{}).get('ranks',[])]
+    if len(clocks)!=seal['world']or any(type(x)is not int or x<=0 for x in clocks)or len(set(clocks))!=1:
+        raise ValueError('Native allrank valid scene exposure clock required')
     return dict(checkpoint=str(cp), updates=seal['updates'], identity_sha256=digest,
                 inventory_sha256=seal['files_sha256'], payload_sha256=files['optimizer.pt'],
                 parent_model_sha256=PARENT_SHA, algorithm_schema=SCHEMA, experiment=exp,
                 policy_signature=fingerprint(dict(parent=PARENT_SHA, trainable_payload=files['optimizer.pt'], scope=identity['scope'])),
-                scene_budget_clock=seal['updates']*recipe['global_scenes']/recipe['inner_updates'],
+                scene_budget_clock=clocks[0],
                 source=str(source), protocol_sha256=identity['augustus_protocol_sha256'])
 
 
