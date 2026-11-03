@@ -1,0 +1,28 @@
+{
+  "schema": "d46_invariant_cache_execution_handoff_v1",
+  "status": "CPU_READY_GPU_QUALIFICATION_PENDING",
+  "created_at": 1793719522.9599426,
+  "base_commit": "82d5f784d02ad4bc182231a267edab8a2a69833e",
+  "protocol": "d46_per_run_rotary_additive_execution_cache_v1",
+  "default_flags": {
+    "rotary": false,
+    "additive": false
+  },
+  "scientific_identity_changed": false,
+  "model_source_changed": false,
+  "live_deployed": false,
+  "GPU_qualified": false,
+  "throughput_measured": false,
+  "no_grad_prefix_cache_implemented": false,
+  "tests": {
+    "passed": 3,
+    "seconds": 6.59,
+    "command": "PYTHONPATH=. /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/d44_native_rl/test_execution_cache.py",
+    "warning": "existing pynvml deprecation"
+  },
+  "files_sha256": {
+    "starVLA/rl/d44_native_rl/execution_cache.py": "9b200ff97d16be248d6f59da413ac48122a95bc1a5da80b35079351a1c828143",
+    "tests/d44_native_rl/test_execution_cache.py": "e22c176b8460c02d16745e298b90d0f249c99ac42e4b2f6ac39c8ac66a7baf7a",
+    "reports/d46_invariant_cache_20261103/HANDOFF.md": "757ab325cf47760b5c42e42061a2fba9125cf218902c8b9ad8f7dd7e340f1bf9"
+  }
+}
