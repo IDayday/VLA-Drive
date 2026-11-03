@@ -318,7 +318,21 @@ def D46_execution_recovery_fragment():
     return body+'<p>资源hold保留代码、结果与原生状态，不是无效结论。服务器列来自实际当前/最近job，不由首选路由推断独占；授权不等于空闲，未知owner不回收。</p></details>'
 
 
-def D46_priority_fragment():
+def legacy_I_resource_hold():
+    directory=D46_ROOT/'operations/OLD_I_RESOURCE_HOLD_20261103'
+    request=read(directory/'RESOURCE_PRIORITY_PAUSE.json',{});path=directory/'NATIVE_SAVE_EXIT0.json';saved=read(path,{})
+    job=Path(saved.get('job',''));result_path=job/'RESULT.json';result=read(result_path,{})
+    fence=Path(request.get('resume_fence',''));cp=Path(saved.get('checkpoint',''))
+    if (request.get('parent_and_budget_unchanged')is not True or not fence.is_file()
+            or saved.get('status')!='NATIVE_COOPERATIVE_SAVE_EXIT0'or saved.get('resource_hold_not_algorithm_termination')is not True
+            or saved.get('rank_result_agreement')!=8 or saved.get('job_returncode')!=0 or result.get('returncode')!=0
+            or not result_path.is_file()or hashlib.sha256(result_path.read_bytes()).hexdigest()!=saved.get('job_result_sha256')
+            or read(cp/'COMPLETE',{})!=saved.get('seal')):return {}
+    return dict(path=str(path),request=str(directory/'RESOURCE_PRIORITY_PAUSE.json'),job=str(job),
+        updates=saved['seal']['updates'],inner=saved['seal']['next_inner'],budget=saved['original_minimum_updates_preserved'])
+
+
+def D46_priority_fragment(other_active=None):
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
     body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>D 框架 · IL46k 父策略优先 RL</h2>'
@@ -332,6 +346,9 @@ def D46_priority_fragment():
     body+='<p><b>最新状态：'+esc(label)+'</b>；收据时间 '+esc(stamp)+'。<a href="'+esc(path)+'">实际优先级与执行状态</a></p>'
     count=value.get('actual_training')
     if isinstance(count,int)and count>=0:body+='<p><b>D46 实际正式训练数量：'+esc(count)+' 条</b>（按该时间的实际核对收据，资格训练与注册数量不计入）。</p>'
+    if isinstance(count,int)and isinstance(other_active,int):body+='<p><b>当前实际 RL 训练合计 '+esc(count+other_active)+' 条：D46 '+esc(count)+'，既有 IL70 系 '+esc(other_active)+'。</b>不同研究分别读取实际任务与八rank日志，不按注册数计。</p>'
+    hold=legacy_I_resource_hold()
+    if hold:body+='<p>旧 IL70 综合 I 已协作完整保存于 '+esc(hold['updates'])+' / inner'+esc(hold['inner'])+'，原job EXIT0，现临时资源保留，为D0让位；原 '+esc(hold['budget'])+' 次实际更新承诺保留，未终止算法、未改父模型/Adam/RNG。<a href="'+esc(hold['path'])+'">实际保存退出收据</a> · <a href="'+esc(hold['request'])+'">资源保留与原预算</a></p>'
     transition_path=D46_ROOT/'operations/CONTINUOUS_EVAL_20261103/OWNER_TRANSITION.json'
     policy_path=D46_ROOT/'operations/EXECUTION_POLICY.json'
     transition=read(transition_path,{});policy=read(policy_path,{})
@@ -681,7 +698,7 @@ def TRAIN2048_pair_fragment(s):
 
 
 def current_runs(root, registry, owner):
-    now=time.time();runs=[]
+    now=time.time();runs=[];legacy_hold=legacy_I_resource_hold()if Path(root)==LEGACY_ROOT else{}
     for registered in registry.get('runs',[]):
         arm=registered['id'];node=owner.get('runs',{}).get(arm,{})
         target=node.get('stage_target_updates')
@@ -716,6 +733,7 @@ def current_runs(root, registry, owner):
         reserved=registered.get('disposition')=='RESERVED_NATIVE_CHECKPOINT_FOR_HIGHER_PRIORITY_QUALITY_STUDY'
         if reserved and status!='实际训练':
             status='保留原生检查点，资源让位高优先级研究；未判无效'
+        if legacy_hold and job==legacy_hold['job']and status!='实际训练':status='临时资源保留，原'+str(legacy_hold['budget'])+'更新预算未变（未终止）'
         epochs=[r.get('metrics',{}).get('exposure_epoch') for r in latest]
         epochs=[v for v in epochs if isinstance(v,(int,float))]
         runs.append(dict(id=arm,status=status,resource_note='已登记资源让位，仍以真实退出回执为准' if reserved and status=='实际训练' else None,
@@ -1072,7 +1090,8 @@ def render_fragment(root=ROOT):
     previous=s['previous_peak'];prior_pdms=max(91.45359756166451,previous.get('PDMS',0))
     prior_label=('%.8f · '%previous['PDMS']+previous['arm']+' / Adam '+str(previous['updates'])) if previous.get('PDMS',0)>91.45359756166451 else '91.45359756 · SafetyEP Control 10k'
     best_label=('%.8f · '%best['PDMS']+best['arm']+' / Adam '+str(best['updates'])) if best and best['PDMS']>prior_pdms else prior_label
-    body=D46_priority_fragment()+'<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>既有 IL70 系 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
+    legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
+    body=D46_priority_fragment(s['active_formal']+legacy_active)+'<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>既有 IL70 系 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
     evidence=Path(best['summary']) if best and best['PDMS']>prior_pdms else Path(previous['evidence']) if previous.get('PDMS',0)>91.45359756166451 else Path('/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json')
     if evidence.exists():body+='<p><a href="'+esc(evidence)+'">最高分完整评测证据</a></p>'
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
@@ -1095,7 +1114,7 @@ def render_fragment(root=ROOT):
     body+=TRAIN2048_pair_fragment(s)
     body+=S7_fragment(s)
     if s['legacy_current_runs']:
-        body+=table(['独立继续的旧实验','服务器','实际 Adam（8rank最小）','状态'],[(j['id'],j['host'],j['updates'],j['status']) for j in s['legacy_current_runs']])
+        body+=table(['旧综合 I：实际执行/资源保留','服务器','实际 Adam（8rank最小）','状态'],[(j['id'],j['host'],j['updates'],j['status']) for j in s['legacy_current_runs']])
     if s['legacy_complete_results']:
         body+='<p>旧综合 I 已完成的真实单轨迹 NAVTEST（与新 S5 分开）：'+esc('；'.join('Adam '+str(r['updates'])+' / PDMS '+f'{r["PDMS"]:.8f}' for r in s['legacy_complete_results']))+'。未完成的后续评测不发布均分。</p>'
     body+=verified_quality_fragment(s)+first_window_progress_fragment(s)+train_GT_fragment(s)

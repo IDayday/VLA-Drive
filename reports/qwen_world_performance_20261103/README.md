@@ -44,6 +44,10 @@
 
 2026-11-03 12:40 UTC资源快照为3条实际训练：D0在TSH5与已知旧I共享，FPO在TSH3，AWM在WM4；D1保留自身1614，D5保留1647/inner1，均为资源hold，不判方法无效。D2原attempt002在恢复前Gloo90秒超时、0新更新，已复核一次同source/同1614暖缓存重试；是否已推进按实时PRIORITY_STATUS，不把初始化算在训。此前D0/D1/D2/D5在1614_READY完整保存后因缺evaluation_requests目录退出1，完整原生/Adam/scheduler/RNG审计PASS，目录与.5门已补回；旧code1保留，不改造成成功。[恢复审计](/mnt/project/d46-priority-rl-20261103/operations/EVAL_DIRECTORY_RECOVERY_20261103/RECOVERY_AUDIT.json)、[回填](/mnt/project/d46-priority-rl-20261103/operations/EVAL_DIRECTORY_RECOVERY_20261103/DIRECTORIES_AND_GATE_BACKFILL.json)、[D2超时审查](/mnt/project/d46-priority-rl-20261103/operations/EVAL_DIRECTORY_RECOVERY_20261103/D2_STARTUP_TIMEOUT_REVIEW.json)。
 
+后续D2同source暖重试已真实越过1614；实时在训数由PRIORITY_STATUS持续更新。旧IL70综合I已协作保存于 **4877/inner1，job EXIT0**，临时资源保留以优先D0；原 **10000次实际更新** 承诺保留，父模型、Adam/RNG与待更新材料不重置，未作算法终止。STOP_REQUESTED保留为资源恢复栅栏，后续须从自身最新完整原生状态恢复。D0实际主机仍以当前表为准，不从独占意向推断GPU pid核验结果。[实际保存退出](/mnt/project/d46-priority-rl-20261103/operations/OLD_I_RESOURCE_HOLD_20261103/NATIVE_SAVE_EXIT0.json)、[资源优先级与预算保留](/mnt/project/d46-priority-rl-20261103/operations/OLD_I_RESOURCE_HOLD_20261103/RESOURCE_PRIORITY_PAUSE.json)。
+
+常规0.5E评测已在可用RL2/WM2派发；D1/D2自身1614与D0自身1614的完整payload/scope/parent/loader配置等价证明已准备。别名只在实际新控制器应用后按EQUIVALENT_REFERENCE展示，不新增独立分数或复制D0结果；当前实际引用状态仍以评测controller收据为准。
+
 world16仅D0的真实GPU pending恢复工程资格已通过，短4次更新约5–6秒不等于长期吞吐验证、稳定2倍加速或正式16卡启动；D5只属引擎支持。正式world16仍未启动，实际主机/资源以收据为准，不把D0首选独占TSHzt当实际。12:40资源核查中WMzt/TSH2仍有待归因占用，未停止未知进程或假设空闲。[动态资格边界](/mnt/project/d46-priority-rl-20261103/operations/MULTINODE_NETWORK_20261103/GPU16_QUALIFICATION_STATUS.json)
 
 128个GPU评测worker已正常EXIT0；随后只替换有限CPU聚合器，用四CPU并行、官方validator每个不可变数据只读一次并复用。canonical公式未改，该次聚合接管未向GPU发信号；后续执行恢复、资源hold和在训状态见实时表。HTML完整分数不依赖STATE是否已结束paired汇总：32片与identity/摘要封印通过即可发布分数，paired未齐明确“分析中”，不编修复/退化统计。[聚合接管证据](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/AGGREGATION_OWNER_TRANSITION.json)。
