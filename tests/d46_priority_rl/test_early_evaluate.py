@@ -106,3 +106,46 @@ def test_native_evaluator_sharing_requires_exact_sealed_d46_parent(tmp_path, mon
     (cp / 'files.json').write_text('{}')
     registration.write_text('{"changed":true}')
     assert not worker.known_owner_args(command)
+
+
+def test_world16_sharing_requires_own_formal_world8_ready_ancestry(tmp_path, monkeypatch):
+    import copy
+    from tools.qwen_world_compare import job_worker as worker
+    from starVLA.rl.qwen_world_compare.contracts import file_sha, fingerprint
+    monkeypatch.setattr(worker, 'D46_ROOT', tmp_path)
+    registration = tmp_path / 'PARENT_REGISTRATION_v2.json'; registration.write_text('{}')
+    digest = file_sha(registration); monkeypatch.setattr(worker, 'D46_CONTRACT_SHA', digest)
+    source = tmp_path / 'runs/D46_D0/checkpoints/update001400_inner0'; source.mkdir(parents=True)
+    old = dict(schema='d44_native_rl_v1', architecture_id='D', world=8, qualification=False,
+               parent_model_sha256=worker.D46_PARENT_SHA, scope=dict(trainable_names=['a']),
+               data=dict(NAVTEST_overlap=0), recipe=dict(parent='D_IL46K', arm='D0',
+               parent_checkpoint=str(tmp_path / 'IL46_PARENT'), training_uses_navtest=False,
+               parent_registration=dict(path=str(registration), file_sha256=digest)))
+    old['sha256'] = fingerprint(old)
+    (source / 'identity.json').write_text(json.dumps(old))
+    (source / 'files.json').write_text('{"optimizer.pt":"original-Adam"}')
+    source_files = file_sha(source / 'files.json')
+    (source / 'COMPLETE').write_text(json.dumps(dict(world=8, phase='READY', next_inner=0,
+                                                  updates=1400, files_sha256=source_files)))
+    tx = dict(schema='d46_exact_native_READY_world8_to16_v1', source_world=8, target_world=16,
+              same_algorithm=True, old_owner_may_adopt=False, virtual_sampler_lanes=8,
+              global_scenes=64, group=16, inner_updates=2, parent_policy_unchanged=True,
+              source_checkpoint=str(source), origin_updates=1400, source_files_sha256=source_files,
+              source_run_identity_sha256=old['sha256'], common_optimizer_sha256='original-Adam',
+              source_qualification=False, target_qualification=True)
+    target = tmp_path / 'qualification/WORLD16_D0'; target.mkdir(parents=True)
+    current = copy.deepcopy(old); current.pop('sha256'); current.update(world=16, fresh_Adam=False,
+                     qualification=True, native_world_transition=tx); current['sha256'] = fingerprint(current)
+    (target / 'identity.json').write_text(json.dumps(current))
+    receipt = dict(schema=tx['schema'], source_identity_sha256=old['sha256'],
+                   source_checkpoint=str(source), source_files_sha256=source_files, origin_updates=1400,
+                   target_identity_sha256=current['sha256'], common_optimizer_sha256='original-Adam',
+                   native_weights_and_Adam_inherited=True, qualification=True, source_qualification=False)
+    receipt['sha256'] = fingerprint(receipt)
+    (target / 'WORLD_TRANSITION.json').write_text(json.dumps(receipt))
+    command = ['python', '-m', 'tools.d46_world16.train', '--output', str(target)]
+    assert worker.known_owner_args(command)
+    receipt['common_optimizer_sha256'] = 'reset-Adam'
+    receipt.pop('sha256'); receipt['sha256'] = fingerprint(receipt)
+    (target / 'WORLD_TRANSITION.json').write_text(json.dumps(receipt))
+    assert not worker.known_owner_args(command)

@@ -46,7 +46,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -148,8 +148,53 @@ def known_D46_output(output):
     except (OSError,KeyError,TypeError,ValueError):return False
 
 
+def known_D46_world16_output(output):
+    """Only a typed continuation of its own sealed formal D0/D5 world8 run."""
+    if not known_D46_output(output):return False
+    try:
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        value=json.loads((output/'identity.json').read_text())
+        tx=value['native_world_transition'];arm=value['recipe']['arm']
+        receipt=json.loads((output/'WORLD_TRANSITION.json').read_text())
+        body=dict(receipt);digest=body.pop('sha256')
+        source=Path(tx['source_checkpoint']).resolve()
+        old=json.loads((source/'identity.json').read_text())
+        oldseal=json.loads((source/'COMPLETE').read_text())
+        oldbody=dict(old);oldsha=oldbody.pop('sha256')
+        return (value['world']==16 and value['fresh_Adam']is False and arm in('D0','D5')
+            and tx['schema']=='d46_exact_native_READY_world8_to16_v1'
+            and tx['source_world']==8 and tx['target_world']==16 and tx['same_algorithm']is True
+            and tx['old_owner_may_adopt']is False and tx['virtual_sampler_lanes']==8
+            and (tx['global_scenes'],tx['group'],tx['inner_updates'])==(64,16,2)
+            and tx['parent_policy_unchanged']is True
+            and source.is_relative_to(D46_ROOT/'runs'/('D46_'+arm)/'checkpoints')
+            and known_D46_output(source) and fingerprint(oldbody)==oldsha
+            and old['world']==8 and old['qualification']is False
+            and old['recipe']==value['recipe'] and old['scope']==value['scope']
+            and oldseal['world']==8 and oldseal['phase']=='READY' and oldseal['next_inner']==0
+            and oldseal['updates']==tx['origin_updates']
+            and oldseal['files_sha256']==file_sha(source/'files.json')==tx['source_files_sha256']
+            and tx['common_optimizer_sha256']==json.loads((source/'files.json').read_text())['optimizer.pt']
+            and tx['source_run_identity_sha256']==oldsha
+            and fingerprint(body)==digest
+            and receipt['schema']==tx['schema']
+            and receipt['source_identity_sha256']==oldsha
+            and Path(receipt['source_checkpoint']).resolve()==source
+            and receipt['source_files_sha256']==oldseal['files_sha256']
+            and receipt['origin_updates']==tx['origin_updates']
+            and receipt['target_identity_sha256']==value['sha256']
+            and receipt['common_optimizer_sha256']==tx['common_optimizer_sha256']
+            and receipt['native_weights_and_Adam_inherited']is True
+            and receipt['qualification']==value['qualification']==tx['target_qualification']
+            and receipt['source_qualification']==tx['source_qualification']==old['qualification'])
+    except(OSError,KeyError,TypeError,ValueError):return False
+
+
 def known_owner_args(args):
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry=='tools.d46_world16.train':
+        try:return known_D46_world16_output(Path(args[args.index('--output')+1]).resolve())
+        except(ValueError,IndexError):return False
     if entry=='tools.d44_native_rl.evaluate':
         # A frozen D46 B1 evaluator may share its measured spare capacity.
         # Bind the exact loaded checkpoint, not an arbitrary output prefix.
