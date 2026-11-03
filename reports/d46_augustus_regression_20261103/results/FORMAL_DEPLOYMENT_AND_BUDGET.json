@@ -1,0 +1,79 @@
+{
+  "at": 1793748602.881241,
+  "formal_maximum_concurrent": 2,
+  "independent_IL46_Adam0": true,
+  "rows": [
+    {
+      "experiment": "AUG3_FULL_ALIGNED",
+      "formal_output": "/mnt/project/d46-priority-rl-20261103/runs/AUG3_FULL_ALIGNED_v2",
+      "source_sha": "09514510afa29e7fdbce834caffd93f3825eea24",
+      "B": 128,
+      "G": 8,
+      "M": 2,
+      "world": 32,
+      "target_scene_epochs": 6,
+      "valid_scene_exposures": 619728,
+      "collections": 4842,
+      "Adam_updates": 9684,
+      "fresh_valid_PDM_queries": 4957824,
+      "fresh_including_padding_PDM_queries": 4958208,
+      "nominal_full_evaluation_gates_epochs": [
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "early_Adam_gates": [
+        100,
+        200,
+        400
+      ],
+      "actual_qualification_pure_update_seconds": [
+        13.461258399300277,
+        14.793825360015035
+      ],
+      "optimizer_only_projection_GPU_hours": 1216.098805000931,
+      "projection_limits": "Qualification optimizer time only; excludes collection, scoring, checkpoint, cold start and evaluation. Not actual formal GPU cost.",
+      "optimizer_reuse": "M2 fresh collection reused; qualification Adam state never initializes formal",
+      "severe_forgetting_review": "Complete B1 PDMS <88.4955209758546; aggregate model selection only, no TEST scene labels to training"
+    },
+    {
+      "experiment": "AUG4_LORA_ALIGNED",
+      "formal_output": "/mnt/project/d46-priority-rl-20261103/runs/AUG4_LORA_ALIGNED_v2",
+      "source_sha": "09514510afa29e7fdbce834caffd93f3825eea24",
+      "B": 64,
+      "G": 8,
+      "M": 2,
+      "world": 16,
+      "target_scene_epochs": 6,
+      "valid_scene_exposures": 619728,
+      "collections": 9684,
+      "Adam_updates": 19368,
+      "fresh_valid_PDM_queries": 4957824,
+      "fresh_including_padding_PDM_queries": 4958208,
+      "nominal_full_evaluation_gates_epochs": [
+        0.5,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "early_Adam_gates": [
+        200,
+        400,
+        800
+      ],
+      "actual_qualification_pure_update_seconds": [
+        5.69155472330749,
+        5.885668320581317
+      ],
+      "optimizer_only_projection_GPU_hours": 498.2836798089743,
+      "projection_limits": "Qualification optimizer time only; excludes collection, scoring, checkpoint, cold start and evaluation. Not actual formal GPU cost.",
+      "optimizer_reuse": "M2 fresh collection reused; qualification Adam state never initializes formal",
+      "severe_forgetting_review": "Complete B1 PDMS <88.4955209758546; aggregate model selection only, no TEST scene labels to training"
+    }
+  ]
+}

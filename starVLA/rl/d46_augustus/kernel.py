@@ -29,7 +29,7 @@ def _inputs(x0,state,sigma,sigma_next,noise_scale):
     if nxt.ndim==0:nxt=nxt.expand(len(state))
     if t.shape!=(len(state),)or nxt.shape!=t.shape:raise ValueError('Time must be scalar or [G]')
     scale=torch.as_tensor(noise_scale,device=state.device,dtype=torch.float32)
-    if scale.shape!=(3,)or not torch.isfinite(scale).all()or not(scale>0).all():raise ValueError('Three positive finite anisotropic noise scales required')
+    if scale.shape not in((3,),(8,3))or not torch.isfinite(scale).all()or not(scale>0).all():raise ValueError('Positive finite [3] or per-pose [8,3] anisotropic noise scales required')
     if (not torch.isfinite(t).all()or not torch.isfinite(nxt).all()or(t<=0).any()or(t>1).any()
         or(nxt<0).any()or(nxt>=t).any()):raise ValueError('Strict denoising time 0<=next<t<=1 required')
     return x0,state,t,nxt,scale

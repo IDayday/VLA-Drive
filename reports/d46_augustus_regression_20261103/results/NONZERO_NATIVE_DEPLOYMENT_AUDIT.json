@@ -1,0 +1,64 @@
+{
+  "schema": "d46_actual_nonzero_native_deployment_tensor_audit_v1",
+  "status": "PASS",
+  "records": [
+    {
+      "experiment": "AUG1_FULL",
+      "updates": 100,
+      "status": "PASS",
+      "device": "CPU",
+      "nonzero_trained_weight_delta": true,
+      "all_native_vs_deployed_tensors_exact": true,
+      "checked_numel": 2190932483,
+      "trainable_numel": 1472810499,
+      "roles": {
+        "action_time_interfaces": {
+          "n": 63400451,
+          "squared_delta": 0.02187980842144842,
+          "max_abs": 5.666911602020264e-05,
+          "RMS_delta": 1.8577000119089734e-05
+        },
+        "text": {
+          "n": 1409410048,
+          "squared_delta": 0.25710107142560545,
+          "max_abs": 5.739741027355194e-05,
+          "RMS_delta": 1.3506202646539042e-05
+        }
+      },
+      "full_native_deployment_state_sha256": "96460cd7493ca19bd5851cb6c26a558e6b2096969a24f537f5a5f9e6471f058e",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/AUG1_FULL_v1/checkpoints/update000100_inner0",
+      "inventory_sha256": "7a1f6fff0239e1a30372b04a27023a1239d4eb86f21914a2efc5b72554a235ff",
+      "limits": "Exact complete parameter/buffer equality and identical deployment model class; no new GPU forward or PDMS score"
+    },
+    {
+      "experiment": "AUG2_LORA",
+      "updates": 400,
+      "status": "PASS",
+      "device": "CPU",
+      "nonzero_trained_weight_delta": true,
+      "all_native_vs_deployed_tensors_exact": true,
+      "checked_numel": 2197912067,
+      "trainable_numel": 7010307,
+      "roles": {
+        "action_time_interfaces": {
+          "n": 587779,
+          "squared_delta": 85.14288628822464,
+          "max_abs": 0.12421132624149323,
+          "RMS_delta": 0.012035583530665946
+        },
+        "text": {
+          "n": 6422528,
+          "squared_delta": 1194.9028099236675,
+          "max_abs": 0.044427160173654556,
+          "RMS_delta": 0.013639966008850224
+        }
+      },
+      "full_native_deployment_state_sha256": "0b01faa4fe51f9c11553fcd71da5a29ba32424e9d0079779f07304ada9f6cced",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/AUG2_LORA_v1/checkpoints/update000400_inner0",
+      "inventory_sha256": "c4b844b1af22a8740916fa5fc0064f97a385adbd2b063c91321565321b3707fb",
+      "limits": "Exact complete parameter/buffer equality and identical deployment model class; no new GPU forward or PDMS score"
+    }
+  ],
+  "seconds": 352.6806638929993,
+  "sha256": "6e806eafdc84ca0bbcff2d40d7a989c06a3197c1f181b6097b600db0c5776b4e"
+}
