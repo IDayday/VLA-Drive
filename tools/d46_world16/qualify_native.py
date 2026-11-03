@@ -83,13 +83,13 @@ def _initial_identity(actor,cfg):
     value['sha256']=fingerprint(value);return value
 
 
-def _worker(rank,world,port,root,stop_update,resume):
+def _worker(rank,world,port,root,stop_update,resume,arm):
     root=Path(root);torch.set_num_threads(1);random.seed(42);np.random.seed(42);torch.manual_seed(42)
     torch.cuda.synchronize=lambda *_,**__:None
     dist.init_process_group('gloo',init_method=f'tcp://127.0.0.1:{port}',rank=rank,world_size=world,timeout=timedelta(seconds=120))
     if world==8:checkpoint.init_control_group()
     else:World16Extension.init_control_group()
-    cfg=defaults46('D0');cfg['checkpoint_policy']='all_off'
+    cfg=defaults46(arm);cfg['checkpoint_policy']='all_off'
     actor=make_actor(cfg);opt=torch.optim.AdamW(groups(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01);sched=SceneScheduler(opt);generator=torch.Generator().manual_seed(420000+rank)
     boundary=Boundary();extension=None
     if world==8:
@@ -133,7 +133,11 @@ def _worker(rank,world,port,root,stop_update,resume):
             import contextlib
             r['expect_fresh']=state['next_inner']==0
             with ddp.no_sync()if j<len(batch['scenes'])-1 else contextlib.nullcontext():
-                loss,metrics=ddp(r);(loss*(world/64)).backward()
+                loss,metrics=ddp(r)
+                if arm=='D3_FPO'and r['expect_fresh']:
+                    error=max(abs(float(metrics['fpo_joint_logratio_min'])),abs(float(metrics['fpo_joint_logratio_max'])))
+                    if error>1e-4:raise FloatingPointError('Actual fresh FPO energy logratio exceeds1e-4: '+str(error))
+                (loss*(world/64)).backward()
             kval+=float(metrics['reference_KL_joint'])
         norm=torch.nn.utils.clip_grad_norm_([p for p in actor.parameters()if p.requires_grad],1.)
         if not torch.isfinite(norm):raise FloatingPointError('Tiny nonfinite')
@@ -151,9 +155,9 @@ def _worker(rank,world,port,root,stop_update,resume):
     dist.destroy_process_group()
 
 
-def run(world,root,stop,resume=None):
+def run(world,root,stop,resume=None,arm='D0'):
     with socket.socket()as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
-    context=mp.start_processes(_worker,args=(world,port,str(root),stop,str(resume)if resume else None),nprocs=world,join=False,start_method='fork')
+    context=mp.start_processes(_worker,args=(world,port,str(root),stop,str(resume)if resume else None,arm),nprocs=world,join=False,start_method='fork')
     deadline=time.monotonic()+240
     try:
         while not context.join(timeout=1):
@@ -180,22 +184,23 @@ def exact(a,b,path='root'):
     elif a!=b:raise ValueError('Value '+path)
 
 
-def qualify(output):
+def qualify(output,arm='D0'):
+    if arm not in('D0','D3_FPO'):raise ValueError('Bounded CPU fixture supports D0 or FPO only')
     if torch.cuda.is_available():raise ValueError('CPU engineering qualification requires CUDA_VISIBLE_DEVICES empty')
     output=Path(output)
     if output.exists():raise FileExistsError('Keep qualification immutable')
-    output.mkdir(parents=True);tick=time.monotonic();run(8,output/'old8',2)
+    output.mkdir(parents=True);tick=time.monotonic();run(8,output/'old8',2,arm=arm)
     old=output/'old8/checkpoints/update000002_inner0'
     a=prepare(old,output/'continuous16',qualification=True);b=prepare(old,output/'split16',qualification=True)
-    run(16,output/'continuous16',4,a['checkpoint']);run(16,output/'split16',3,b['checkpoint'])
-    run(16,output/'split16',4,output/'split16/checkpoints/update000003_inner1')
+    run(16,output/'continuous16',4,a['checkpoint'],arm=arm);run(16,output/'split16',3,b['checkpoint'],arm=arm)
+    run(16,output/'split16',4,output/'split16/checkpoints/update000003_inner1',arm=arm)
     cp='checkpoints/update000004_inner0'
     # Distinct target identities are actually identical because root path is not part of identity.
     for name in ['optimizer.pt']+[f'rank{r}.pt'for r in range(16)]:
         exact(torch.load(output/'continuous16'/cp/name,map_location='cpu',weights_only=False),torch.load(output/'split16'/cp/name,map_location='cpu',weights_only=False),name)
     original=torch.load(old/'optimizer.pt',map_location='cpu',weights_only=False)
     ready=torch.load(output/'continuous16/checkpoints/READY_world16_roundtrip/optimizer.pt',map_location='cpu',weights_only=False);exact(original,ready,'READY_common')
-    result=dict(schema='d46_world16_Tiny_native_CPU_engine_qualification_v1',status='PASS',source_world=8,target_world=16,B=64,G=16,M=2,
+    result=dict(schema='d46_world16_Tiny_native_CPU_engine_qualification_v1',status='PASS',source_world=8,target_world=16,B=64,G=16,M=2,arm=arm,mc_samples=4 if arm=='D3_FPO'else None,actual_fresh_FPO_energy_ratio_checked=arm=='D3_FPO',
         actual_distributed_backend='gloo',world8_control_timeout_seconds=90,world16_control_timeout_seconds=600,GPU_used=False,canonical_PDM_queries=0,actual_model='native TinyQwen32x3, NOT full IL46 weights',
         optimizer_origin_updates=2,READY16_parameters_Adam_scheduler_exact=True,continuous_final_update=4,restored_inner_update=3,restored_next_inner=1,
         all16_adapters_Adam_scheduler_RNG_scene_stream_virtual8_and_material_bitexact=True,terminal_JSON_all16=True,post_native_B1_parity_all16=True,seconds=time.monotonic()-tick,
@@ -204,7 +209,7 @@ def qualify(output):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);a=p.parse_args();print(json.dumps(qualify(a.output),indent=2))
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);p.add_argument('--arm',choices=('D0','D3_FPO'),default='D0');a=p.parse_args();print(json.dumps(qualify(a.output,a.arm),indent=2))
 
 
 if __name__=='__main__':main()

@@ -23,6 +23,37 @@ BASE='ff3013c4045e9505ae9cd39b9418247cc03a596d'
 CONTROL_PROTOCOL=dict(schema='d46_world16_CPU_control_plane_v1',backend='gloo',timeout_seconds=600,
     purpose='allow full model load and true B1 startup skew; no policy/optimizer change')
 
+SUPPORTED_ARMS=('D0','D5','D3_FPO')
+FPO_PROTOCOL=dict(schema='d46_world16_original_FPO_MC4_material_v1',mc_samples=4,
+    sigma_interval=[.2,.8],state='(1-sigma)*saved_SDE_clean+sigma*epsilon',
+    velocity='(state-current_cleanx)/sigma',energy='mean_xyz_horizon24_then_mean_MC4',
+    policy_ratio='exp(saved_old_energy-current_energy)',policy_clip=.01,
+    Gaussian_W3='diagnostic fresh ratio and unchanged permanent IL reference joint KL; not FPO PG',
+    draws='randn_G8x3 root, three randn_G8x3 W3 innovations, rand_MC4xG sigma, randn_MC4xG8x3 epsilon')
+
+
+def validate_supported_recipe(cfg):
+    validate_recipe(cfg)
+    if cfg['arm']not in SUPPORTED_ARMS:raise ValueError('Only fixed-draw D0/D5/D3_FPO world16; D2/AWM not admitted')
+    if cfg['arm']=='D3_FPO'and(cfg.get('mc_samples')!=4 or cfg.get('clip')!=.01):
+        raise ValueError('Only unchanged FPO MC4 and energy-ratio clip.01 are qualified')
+    return cfg
+
+
+def validate_fpo_material(batch,cfg):
+    """Detached original MC material, not a new sampler or energy definition."""
+    if cfg['arm']!='D3_FPO'or batch is None:return
+    g=cfg['group'];shapes={'fm_state':(4,g,8,3),'fm_sigma':(4,g),'fm_target':(4,g,8,3),'old_energy':(g,)}
+    for scene in batch['scenes']:
+        for key,shape in shapes.items():
+            value=scene.get(key)
+            if (not torch.is_tensor(value)or tuple(value.shape)!=shape or value.requires_grad
+                or value.dtype!=torch.float32 or not torch.isfinite(value).all()):
+                raise ValueError('Invalid/detached FPO MC4 material: '+key)
+        if (scene['fm_sigma']<.2).any()or(scene['fm_sigma']>.8).any()or(scene['old_energy']<0).any():
+            raise ValueError('Changed original FPO sigma/energy range')
+
+
 
 def source_inventory():
     from tools.d44_native_rl.train import code_identity
@@ -53,8 +84,11 @@ class World16Boundary(Boundary):
     def validate_boundary(state,batch,identity,optimizer=None,scheduler=None,**kw):
         if identity.get('world')!=16 or identity.get('native_world_transition',{}).get('schema')!=SCHEMA:
             raise ValueError('World16 requires typed native transition identity')
-        if identity['recipe']['arm']not in('D0','D5'):raise ValueError('Variable-draw/other arms not admitted')
+        validate_supported_recipe(identity['recipe'])
+        validate_fpo_material(batch,identity['recipe'])
         if identity['native_world_transition'].get('control_plane')!=CONTROL_PROTOCOL:raise ValueError('World16 control protocol changed')
+        if identity['recipe']['arm']=='D3_FPO'and identity['native_world_transition'].get('flow_energy_protocol')!=FPO_PROTOCOL:
+            raise ValueError('World16 FPO energy protocol changed')
         out=Boundary.validate_boundary(state,batch,identity,optimizer,scheduler,**kw)
         out['virtual8_rng_sha256']=validate_virtual(state)
         if state.get('journal_origin_updates')!=identity['native_world_transition']['origin_updates']:
@@ -76,6 +110,7 @@ def transition_identity(old,checkpoint,files,new_sources,qualification):
         virtual_sampler_lanes=8,global_scenes=64,group=16,inner_updates=2,control_plane=copy.deepcopy(CONTROL_PROTOCOL),
         compatibility='same real-valued update target; FP32 DDP summation topology may differ, not cross-world bitexact',
         parent_policy_unchanged=True,optimizer='inherited_AdamW_no_reset',old_owner_may_adopt=False)
+    if old['recipe']['arm']=='D3_FPO':body['native_world_transition']['flow_energy_protocol']=copy.deepcopy(FPO_PROTOCOL)
     body['sha256']=fingerprint(body);return body
 
 
@@ -90,10 +125,10 @@ def prepare(old_checkpoint,new_root,*,qualification=False):
     if (seal.get('world')!=8 or old.get('world')!=8 or seal.get('contract')!=CHECKPOINT_CONTRACT or seal.get('schema')!=2
             or fingerprint(body)!=sha or seal.get('files_sha256')!=file_sha(old_checkpoint/'files.json')
             or seal.get('phase')!='READY' or seal.get('next_inner')!=0):raise ValueError('Only complete original world8 READY checkpoint')
-    cfg=validate_recipe(old['recipe'])
+    cfg=validate_supported_recipe(old['recipe'])
     from starVLA.rl.d44_native_rl.config import validate
     validate(cfg)
-    if cfg['arm']not in('D0','D5')or(old.get('qualification')and not qualification):raise ValueError('Only D0/D5; qualification weights may never enter formal execution')
+    if old.get('qualification')and not qualification:raise ValueError('qualification weights may never enter formal execution')
     from starVLA.rl.d44_native_rl.parent import D46_MODEL_SHA
     tiny=(qualification and old.get('qualification_fixture')=='d46_tiny_native_world_transition_CPU_v1'
           and old.get('parent_model_sha256','').startswith('tiny_native_qualification:')
@@ -140,6 +175,7 @@ def prepare(old_checkpoint,new_root,*,qualification=False):
             source_checkpoint=str(old_checkpoint),source_files_sha256=seal['files_sha256'],source_rank_files_sha256={str(r):files[f'rank{r}.pt']for r in range(8)},
             common_optimizer_sha256=files['optimizer.pt'],origin_updates=seal['updates'],phase='READY',
             native_weights_and_Adam_inherited=True,source_inventory=current,qualification=qualification,source_qualification=old['qualification'],control_plane=copy.deepcopy(CONTROL_PROTOCOL),qualification_weights_never_return_to_formal=True,source_world=8,target_world=16)
+        if cfg['arm']=='D3_FPO':receipt['flow_energy_protocol']=copy.deepcopy(FPO_PROTOCOL)
         receipt['sha256']=fingerprint(receipt)
         atomic_json(cp/'world_transition.json',receipt);atomic_json(attempt/'WORLD_TRANSITION.json',receipt)
         atomic_json(cp/'transaction.json',dict(schema=CHECKPOINT_CONTRACT,attempt=uuid.uuid4().hex,ranks=summaries,

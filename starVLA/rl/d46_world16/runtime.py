@@ -11,7 +11,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.d44_native_rl.config import read
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.recovery import Attempt,checkpoint
-from .native import SCHEMA,STATE_SCHEMA,CONTROL_PROTOCOL,World16Boundary,source_inventory,validate_virtual,tensor_sha
+from .native import SCHEMA,STATE_SCHEMA,CONTROL_PROTOCOL,World16Boundary,source_inventory,validate_virtual,tensor_sha,validate_supported_recipe,FPO_PROTOCOL
 from .planning import fixed_scene_rng_plan,assert_scene_rng_end
 
 
@@ -33,6 +33,8 @@ def receipt(root,identity):
         or value.get('source_inventory')!=identity.get('source_files') or value.get('source_inventory')!=source_inventory()
         or value.get('control_plane')!=CONTROL_PROTOCOL or transition.get('control_plane')!=CONTROL_PROTOCOL):
         raise ValueError('World16 native transition receipt/source changed')
+    if identity['recipe']['arm']=='D3_FPO'and(value.get('flow_energy_protocol')!=FPO_PROTOCOL or transition.get('flow_energy_protocol')!=FPO_PROTOCOL):
+        raise ValueError('World16 FPO transition protocol changed')
     return value
 
 
@@ -89,7 +91,7 @@ class World16Extension:
         self.args=args
         if not args.resume:raise ValueError('World16 starts only from explicit typed native transition/resume')
         cfg=read(args.config)
-        if cfg['arm']not in('D0','D5'):raise ValueError('Only fixed-draw D0/D5 world16')
+        validate_supported_recipe(cfg)
         self.saved_identity=json.loads((Path(args.resume)/'identity.json').read_text())
         if self.saved_identity['recipe']!=cfg or self.saved_identity.get('world')!=16 or self.saved_identity.get('qualification')is not args.qualification:
             raise ValueError('Saved world16 recipe/mode mismatch')
@@ -107,8 +109,8 @@ class World16Extension:
         return copy.deepcopy(saved)
     def before_collection(self,state,generator,rank,world):
         self.validate_world(world);validate_virtual(state)
-        if self.saved_identity['recipe']['arm']not in('D0','D5'):raise ValueError('Data-dependent draws unsupported')
-        self.rank=rank;self.plan=fixed_scene_rng_plan(state['world16_virtual_sampler']['lanes'][rank%8],self.saved_identity['recipe']['arm'])
+        cfg=validate_supported_recipe(self.saved_identity['recipe'])
+        self.rank=rank;self.plan=fixed_scene_rng_plan(state['world16_virtual_sampler']['lanes'][rank%8],cfg['arm'],mc=cfg['mc_samples'])
         self.seen=[];self.cpu_rng=torch.get_rng_state().clone()
         self.cuda_rng=torch.cuda.get_rng_state().clone()if torch.cuda.is_available()else None
     def before_scene(self,generator,j):

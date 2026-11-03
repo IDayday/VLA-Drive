@@ -1,0 +1,88 @@
+{
+  "schema": "d46_world16_FPO_science_handoff_v1",
+  "status": "CPU_ENGINE_READY_FULL_IL46_FPO_GPU_QUALIFICATION_PENDING",
+  "base": "87bfecc87d5dda6397c195122b21c4eadc3a90a0",
+  "branch": "perf/d46-world16-fpo-20261103",
+  "worktree": "/mnt/project/VLA-Drive-d46-world16-fpo-20261103",
+  "ops_commit": "83cf3363e43e20aa2aa1bd1cd5789dfe16f48788",
+  "supported": {
+    "added_arm": "D3_FPO",
+    "old_arms_unchanged": [
+      "D0",
+      "D5"
+    ],
+    "world": 16,
+    "B": 64,
+    "G": 16,
+    "M": 2,
+    "MC": 4,
+    "local_scenes": 4,
+    "explicitly_rejected": [
+      "D2 conditional draws",
+      "D3_AWM not yet qualified",
+      "MC2",
+      "changed FPO clip",
+      "old8 pending conversion",
+      "qualification weights into formal"
+    ]
+  },
+  "actual_source": {
+    "collector": "starVLA/rl/d44_native_rl/batch_runtime.py:collect_scene",
+    "objective": "starVLA/rl/d44_native_rl/actor.py:D44Actor.forward",
+    "draws": [
+      "torch.randn([16,8,3]) root",
+      "three torch.randn([16,8,3]) W3 innovations",
+      "torch.rand([4,16]) then sigma=.2+.6*u",
+      "torch.randn([4,16,8,3]) epsilon"
+    ],
+    "state": "(1-sigma)*SDE_final_clean+sigma*epsilon",
+    "target": "epsilon-SDE_final_clean",
+    "energy": "mean over 8x3 squared velocity error, then mean over 4 MC",
+    "FPO_logratio": "old_energy-current_energy",
+    "clip": 0.01,
+    "Gaussian_W3": "diagnostic fresh ratio and unchanged reference KL only, NOT FPO policy objective",
+    "sampler": "unclipped W3 steps7,8,9 rigorous eta.1 K10shift5; unchanged",
+    "scope": "same original complete current closure, permanent original IL46 reference",
+    "optimizer_scheduler": "byte-identical old optimizer.pt inherited at READY, original scene-clock schedule, no LR reset/scaling"
+  },
+  "CPU": {
+    "FPO": "3 passed, 1 warning in 24.41s",
+    "D0_regression": "4 passed, 1 warning in 16.02s",
+    "FPO_log_sha256": "f426730a88b97e5afb1eea15c66cdf791308ef30aed9f7ea050b892c559ac27f",
+    "D0_log_sha256": "ae785e566942e89c8122de17c4102014b61444b9b7f223cfaaf2c3eb14be59ac",
+    "actual_complete_sha256": "a3d6c92f54b910c26d9197e6f29d2a1321ec377f8250be26a035649d00452e6b",
+    "limitations": "TinyQwen32x3 CPU/Gloo real sampler/energy/DDP/Adam/native; not full IL46/CUDA/official-scoring/throughput evidence"
+  },
+  "native": {
+    "protocol": "native_world_transition.flow_energy_protocol, sealed in WORLD_TRANSITION.json",
+    "original_sampler_lanes": 8,
+    "source": "own original world8 formal READY only",
+    "FM_material": "All detached fm_state[4,16,8,3],fm_sigma[4,16],fm_target[4,16,8,3],old_energy[16] retained in each leaf; strict dtype/finite/shape/range and material digest",
+    "recovery": "16 rank pending reuse preserves old energy/MC/RNG/cursor and full Adam; CPU continuous-vs-resumed tensors exact",
+    "crossworld": "same real-valued update target, not crossworld bitexact due changed FP32 reduction topology",
+    "deployment": "unchanged true single-B1 official D44 loader; tools.d46_world16.native_review validates16rank native before compact export"
+  },
+  "GPU_qualification": {
+    "required": true,
+    "start": "Root stops own FPO at exact READY U (even), retains old owner hold; new qualification-only output; never initialize formal from qweights",
+    "environment": "WORLD_COMPARE_ROOT=/mnt/project/d46-priority-rl-20261103 WORLD_COMPARE_TASK=d46_priority_rl_20261103 D_NATIVE_CAMPAIGN_ROOT=/mnt/project/d46-priority-rl-20261103",
+    "convert": "cd SCI; modelpython -m tools.d46_world16.convert --checkpoint ORIGINAL_OWN_FPO_READY_U --output NEW_QROOT --qualification",
+    "first": "modelpython -m tools.d46_world16.gang prepare --root NEW_QROOT --config ORIGINAL_FPO_CFG --source SCI --hosts HOST0 HOST1 --master-address MASTER_IP --port PORT --stop-after-update U_PLUS_3 --output FIRST_PLAN.json",
+    "dispatch": "Root admits both exact8UUID workers using NEW OPS worker source; pass pinned plan participants commands with NCCL_IB_DISABLE=1/NCCL_SOCKET_IFNAME=eth0. No SSH from helper.",
+    "resume": "After both actual exits0/sealed U+3 INNER_COMMITTED next_inner1, prepare NEW gang plan same QROOT with stop U+4, resume own latest automatically; no new collection/queries during that pending inner.",
+    "inspect": "Require all16 B1 parity zero, finite identical DDP grads, actual fresh FPO energy logratio min/max abs<=1e-4 separate from Gaussian fresh check, MC4 shapes/old_energy, Adam/sched U+4,16 RNG+virtual lane tensors unchanged across pending resume; both-node RESULT0.",
+    "budget": "3 first-leg optimizer updates plus1 pending resume; two fresh B64G16 collections=2048 new PG candidates before padding; pending resume adds0 PG queries; record real scorer work/cache separately.",
+    "formal": "Only after actual full-model FPO16 PASS, re-convert original intended own world8 READY into a distinct formal root WITHOUT qualification; world16 owner uses original6E, no finite +10 cap."
+  },
+  "not_done": [
+    "No SSH/GPU/owner run/live policy or CP edits",
+    "No long-run speed or score claim",
+    "No Gaussian proxy substitution, no SGDE/energy/clip/std/scope/optimizer change"
+  ],
+  "source_files": {
+    "starVLA/rl/d46_world16/native.py": "0dd8355e21979ca2e5a819edd8a1d9a02212df76cda6eb37c51db4234da9d548",
+    "starVLA/rl/d46_world16/runtime.py": "4987cc75f44b5eed48d637bfdc3f9a4d393c63b017f02b07f7b35da0bb26ba5b",
+    "tools/d46_world16/qualify_native.py": "ca87ec858b28944c568feddb2eeda4544a2ef2f05a20dffd9d1659f33c38c04d",
+    "tests/test_d46_world16_fpo.py": "83d78eef2eddbbf76ea984a43bd808db0c784c5d621e09c277462e841d1bb90c"
+  }
+}
