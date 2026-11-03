@@ -210,11 +210,20 @@ def D46_world16_qualification_fragment():
     stamp=value.get('updated_at')
     if isinstance(stamp,(int,float)):stamp=datetime.fromtimestamp(stamp,timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
     flag=lambda key:'是'if value.get(key)is True else'否'if value.get(key)is False else'未记录'
-    body='<p><b>world16 动态资格状态：'+esc(value.get('status','待核对'))+'</b>（'+esc(stamp)+'）。性能资格通过：'+flag('performance_qualified')+'；正式world16启动标记：'+flag('formal_world16_started')+'。<a href="'+esc(path)+'">真实资格收据</a></p>'
+    proof_path=Path(value.get('qualification_receipt',''));proof=read(proof_path,{})
+    engineering=(value.get('engineering_qualified')is True and value.get('native_midinner_resume_passed')is True
+        and proof_path.is_file()and hashlib.sha256(proof_path.read_bytes()).hexdigest()==value.get('qualification_receipt_file_sha256')
+        and sealed_JSON(proof)and proof.get('schema')=='D46_actual_full_model_world16_pending_resume_qualification_v1'
+        and proof.get('status')=='PASS'and proof.get('world')==16 and proof.get('native_midinner_restored')is True
+        and proof.get('full_RNG_fields_preserved')is True and len(proof.get('ranks',[]))==16)
+    body='<p><b>world16 动态资格状态：'+esc(value.get('status','待核对'))+'</b>（'+esc(stamp)+'）。工程恢复资格通过：'+('是'if engineering else'尚未核实通过')+'；长期性能资格通过：'+flag('performance_qualified')+'；正式world16启动标记：'+flag('formal_world16_started')+'。<a href="'+esc(path)+'">真实资格状态</a></p>'
+    if engineering:
+        body+='<p>真实D0全模型16rank从1403_inner1跨host恢复至1404_READY，两node正常EXIT0；Adam/scheduler均1404，16份RNG与原8虚拟采样流保留，pending复用未新增曝光或评分，16rank原生B1恢复零差。<a href="'+esc(proof_path)+'">封印的中途原生恢复证明</a>。实际GPU资格路线：'+esc(' / '.join(value.get('actually_GPU_qualified_arms',[])))+'；仅引擎支持、尚无该路线16卡GPU资格：'+esc(' / '.join(a for a in value.get('supported_engine_arms',[])if a not in value.get('actually_GPU_qualified_arms',[]))or'无')+'。</p>'
     body+='<details><summary>有界GPU资格过程（原失败保留）</summary>'
     for key,attempt in value.items():
         if not isinstance(attempt,dict)or not(key.endswith('_attempt')or key.startswith('resume_')):continue
         facts=[]
+        if attempt.get('status'):facts.append(str(attempt['status']))
         if 'new_Adam_updates'in attempt:facts.append('新增Adam '+str(attempt['new_Adam_updates']))
         if attempt.get('all16_native_B1_restore_parity_zero')is True:facts.append('全部16rank真实B1恢复零差')
         if attempt.get('all16_gradient_norm_finite')is True:facts.append('16rank梯度有限')
@@ -225,7 +234,7 @@ def D46_world16_qualification_fragment():
         error=attempt.get('error',attempt.get('first_error'))
         if error:facts.append('保留错误：'+str(error))
         body+='<p>'+esc(key)+'：'+esc('；'.join(facts))+'</p>'
-    followup='当前仍须完成收尾修复与中途原生恢复核对。'if value.get('performance_qualified')is not True else'资格已通过仍不代替长期性能评估。'
+    followup='工程恢复已通过，下一步据完整分数选择并登记正式资源；长期吞吐仍需实测。'if engineering else'当前工程资格仍待完整收尾与中途恢复核对。'
     body+='</details><p>资格短窗本身不能证明长期稳定或稳定2倍加速；正式启动标记见上。'+followup+'现有六路线和早评资源是否改变，只以实际运行/资源收据为准。</p>'
     return body
 
