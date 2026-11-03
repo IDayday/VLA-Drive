@@ -24,17 +24,19 @@ class VirtualSceneStream:
         return self.base.at(cursor,rank%8,local_scene+4*(rank//8),8)
 
 
-def receipt(root,identity):
+def receipt(root,identity,*,expected_sources=None):
     value=json.loads((Path(root)/'WORLD_TRANSITION.json').read_text());body=dict(value);sha=body.pop('sha256',None)
     transition=identity.get('native_world_transition',{})
     if (fingerprint(body)!=sha or value.get('schema')!=SCHEMA or value.get('target_identity_sha256')!=identity['sha256']
         or value.get('source_identity_sha256')!=transition.get('source_run_identity_sha256')
         or value.get('common_optimizer_sha256')!=transition.get('common_optimizer_sha256')
-        or value.get('source_inventory')!=identity.get('source_files') or value.get('source_inventory')!=source_inventory()
+        or value.get('source_inventory')!=identity.get('source_files') or value.get('source_inventory')!=(source_inventory()if expected_sources is None else expected_sources)
         or value.get('control_plane')!=CONTROL_PROTOCOL or transition.get('control_plane')!=CONTROL_PROTOCOL):
         raise ValueError('World16 native transition receipt/source changed')
     if identity['recipe']['arm']=='D3_FPO'and(value.get('flow_energy_protocol')!=FPO_PROTOCOL or transition.get('flow_energy_protocol')!=FPO_PROTOCOL):
         raise ValueError('World16 FPO transition protocol changed')
+    from .execution_upgrade import validate_receipt
+    validate_receipt(root,identity,value)
     return value
 
 
@@ -44,7 +46,8 @@ class World16Attempt(Attempt):
         receipt(root,identity)
         self.root=Path(root);self.rank=rank;self.started=time.monotonic();self.id=checkpoint.gather(uuid.uuid4().hex if rank==0 else None)[0]
         self.path=self.root/'invocations'/self.id/f'rank{rank}.json';self.path.parent.mkdir(parents=True,exist_ok=True)
-        origin=identity['native_world_transition']['origin_updates']
+        from .execution_upgrade import journal_origin
+        origin=journal_origin(identity)
         self.record=dict(schema='d46_world16_invocation_v1',id=self.id,rank=rank,run=identity['sha256'],status='RUNNING',started=time.time(),
             start_update=state['updates'],resume=str(resume),physical_candidates=0,seconds_save=0.,GPU_time_is_shared_worker_wall=True,
             verified_native_origin_updates=origin,original_world8_run=identity['native_world_transition']['source_run_identity_sha256'])

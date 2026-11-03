@@ -91,7 +91,8 @@ class World16Boundary(Boundary):
             raise ValueError('World16 FPO energy protocol changed')
         out=Boundary.validate_boundary(state,batch,identity,optimizer,scheduler,**kw)
         out['virtual8_rng_sha256']=validate_virtual(state)
-        if state.get('journal_origin_updates')!=identity['native_world_transition']['origin_updates']:
+        from .execution_upgrade import journal_origin
+        if state.get('journal_origin_updates')!=journal_origin(identity):
             raise ValueError('Native journal origin changed')
         return out
     @staticmethod
