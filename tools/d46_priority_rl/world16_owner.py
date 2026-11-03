@@ -137,6 +137,8 @@ def reconcile(node):
 
 
 def launch_remaining(plan,state,attempt):
+    minimum=plan.get('minimum_free_MiB',65000)
+    (Path(plan['output'])/'evaluation_requests').mkdir(parents=True,exist_ok=True)
     for i,node in enumerate(attempt['nodes']):
         if node.get('phase')!='NOT_LAUNCHED':continue
         node['phase']='LAUNCH_INTENT';persist(plan,state)

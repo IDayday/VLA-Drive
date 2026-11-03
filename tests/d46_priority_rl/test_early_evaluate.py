@@ -154,3 +154,25 @@ def test_world16_sharing_requires_own_formal_world8_ready_ancestry(tmp_path, mon
     receipt.pop('sha256'); receipt['sha256'] = fingerprint(receipt)
     (target / 'WORLD_TRANSITION.json').write_text(json.dumps(receipt))
     assert not worker.known_owner_args(command)
+
+
+def test_reviewed_metadata_failure_resumes_native_and_precreates_request_directory(tmp_path, monkeypatch):
+    import pytest
+    from tools.d46_priority_rl import owner
+    from starVLA.rl.qwen_world_compare.contracts import file_sha
+    monkeypatch.setattr(owner, 'ROOT', tmp_path)
+    failed=tmp_path/'oldjob';failed.mkdir();(failed/'RESULT.json').write_text('{"returncode":1}')
+    config=tmp_path/'config.yaml';config.write_text('{}')
+    proof=tmp_path/'recovery.json';proof.write_text('{"status":"PASS"}')
+    run=dict(arm='D1',jobs=[dict(job=str(failed))],output=str(tmp_path/'formal'),qualification=str(tmp_path/'qual'),
+             config=str(config),config_sha256=file_sha(config),source='immutable-science')
+    with pytest.raises(RuntimeError,match='Actual child failure retained'):owner.dispatch(run)
+    assert (tmp_path/'formal/evaluation_requests').is_dir()
+    run['formal_boundary_recovery_review']=dict(job=str(failed),returncode=1,receipt=str(proof),receipt_sha256=file_sha(proof))
+    monkeypatch.setattr(owner,'inspect_latest',lambda run:('own-native-READY',None))
+    monkeypatch.setattr(owner,'allowed_hosts',lambda **kwargs:['training-vlawm-tsinghua-zt5'])
+    monkeypatch.setattr(owner,'capacity',lambda *args:list(range(8)))
+    commands=[]
+    monkeypatch.setattr(owner,'launch',lambda host,source,job,command,*args,**kwargs:commands.append(command)or dict(job=str(job)))
+    assert owner.dispatch(run)=='RUNNING_OR_ADMITTING'
+    assert commands[0][-2:]==['--resume','own-native-READY']

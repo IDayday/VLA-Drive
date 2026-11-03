@@ -118,6 +118,9 @@ def startup_hosts(campaign):
 
 
 def dispatch(run,qualification=False,blocked_hosts=()):
+    # The native trainer commits its checkpoint before emitting milestone
+    # requests. Provision this administrative directory before any GPU child.
+    (Path(run['qualification']if qualification else run['output'])/'evaluation_requests').mkdir(parents=True,exist_ok=True)
     jobs=run['qualification_jobs'] if qualification else run['jobs']
     if jobs:
         result=read(Path(jobs[-1]['job'])/'RESULT.json')
@@ -128,6 +131,11 @@ def dispatch(run,qualification=False,blocked_hosts=()):
                 and review.get('returncode')==result.get('returncode')
                 and Path(review.get('receipt','/nonexistent')).is_file()
                 and file_sha(review['receipt'])==review.get('receipt_sha256'))
+            native_review=run.get('formal_boundary_recovery_review',{})
+            permitted=permitted or(not qualification and native_review.get('job')==jobs[-1]['job']
+                and native_review.get('returncode')==result.get('returncode')
+                and Path(native_review.get('receipt','/nonexistent')).is_file()
+                and file_sha(native_review['receipt'])==native_review.get('receipt_sha256'))
             if not permitted:raise RuntimeError('Actual child failure retained: '+jobs[-1]['job'])
         if result.get('returncode')==75 and time.time()<result['end_unix']+60:return 'WAITING_FOR_AUTHORIZED_CAPACITY'
     output=run['qualification'] if qualification else run['output']
@@ -213,6 +221,12 @@ def tick(campaign):
             and early_live and not early.get('complete',False)))
     from tools.d46_priority_rl.world16_owner import ingest
     ingest(campaign,control)
+    for arm,review in control.get('formal_native_recovery_reviews',{}).items():
+        run=campaign['runs'][arm]
+        if run['status']=='FAILED_REQUIRES_REVIEW'and run['jobs']and review.get('job')==run['jobs'][-1]['job']:
+            if file_sha(review['receipt'])!=review['receipt_sha256']:raise ValueError('Native recovery review changed')
+            run.setdefault('reviewed_errors',[]).append(dict(error=run.pop('error',''),review=review,at=time.time()))
+            run.update(formal_boundary_recovery_review=review,status='REVIEWED_NATIVE_BOUNDARY_READY_TO_RESUME')
     for arm in ORDER:
         run=campaign['runs'][arm]
         if run.get('world16_stage'):
