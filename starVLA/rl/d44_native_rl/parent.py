@@ -25,7 +25,12 @@ def _d46_root():
 
 def registration(binding=None):
     """A new D46 parent is opt-in; no native44 default or seal is rewritten."""
-    root=_d46_root();path=root/'PARENT_REGISTRATION.json';contract=root/'PARENT_CONTRACT.json'
+    root=_d46_root();name='PARENT_REGISTRATION.json'if binding is None else Path(binding.get('path','')).name
+    versions={'PARENT_REGISTRATION.json':'PARENT_CONTRACT.json',
+        'PARENT_REGISTRATION_v1.json':'PARENT_CONTRACT_v1.json',
+        'PARENT_REGISTRATION_v2.json':'PARENT_CONTRACT_v2.json'}
+    if name not in versions:raise ValueError('Unregistered D46 parent-contract version')
+    path=root/name;contract=root/versions[name]
     raw=path.read_bytes()
     if raw!=contract.read_bytes():raise ValueError('D46 contract/registration differ')
     if binding is not None and binding!={'path':str(path),'file_sha256':file_sha(path)}:
@@ -34,8 +39,13 @@ def registration(binding=None):
     if (seal!=fingerprint(body)or value.get('schema')!=D46_SCHEMA
             or value.get('parent_id')!='D_IL46K'or value.get('parent_kind')!='verified_deployment_export'
             or value.get('architecture_id')!='D'or value.get('IL_updates')!=46000
-            or value.get('uses_rl')is not False or value.get('allowed_arms')!=['D0','D2','D5']
+            or value.get('uses_rl')is not False
             or value.get('readouts_true_allowed')is not False):raise ValueError('Wrong D46 policy-parent contract')
+    revision=value.get('contract_revision',1)
+    allowed={'D0','D2','D5'}if revision==1 else {'D0','D1','D2','D3_FPO','D3_AWM','D5'}if revision==2 else None
+    if (allowed is None or len(value.get('allowed_arms',[]))!=len(allowed)or set(value['allowed_arms'])!=allowed
+            or(name.endswith('_v1.json')and revision!=1)or(name.endswith('_v2.json')and revision!=2)):
+        raise ValueError('D46 parent contract has an unregistered policy-only route set')
     export=value['export'];ancestry=value['ancestry']
     if (Path(export['path']).resolve()!=root/'IL46_PARENT'or export['model_file']!='model.pt'
             or export['model_sha256']!=D46_MODEL_SHA or export['export_json_sha256']!=D46_EXPORT_SHA
@@ -116,7 +126,8 @@ def audit_export(path,*,verify=True,binding=None):
         export_parent=dict(path=str(path),model_sha256=D46_MODEL_SHA,export_sha256=D46_EXPORT_SHA,source_migration=migration),
         native_ancestry=copy.deepcopy(value['ancestry']),native_recovery_available=False,
         training_readouts_available=False,R16_query_available=False,
-        parent_registration=dict(path=str(_d46_root()/'PARENT_REGISTRATION.json'),file_sha256=file_sha(_d46_root()/'PARENT_REGISTRATION.json'),seal=value['sha256']))
+        parent_registration=dict(path=str(_d46_root()/'PARENT_REGISTRATION.json')if binding is None else binding['path'],
+            file_sha256=file_sha(_d46_root()/'PARENT_REGISTRATION.json')if binding is None else binding['file_sha256'],seal=value['sha256']))
     return json.loads(json.dumps(info))
 
 
@@ -144,10 +155,10 @@ def pin():
     return audit(dest,verify=False)
 
 
-def load(path,device,*,readouts=False):
+def load(path,device,*,readouts=False,binding=None):
     if (Path(path)/'export.json').is_file():
         if readouts:raise ValueError('D46 deployment parent has no IL R16/readout weights; D4/D6 are not admitted')
-        info=audit_export(path,verify=True)
+        info=audit_export(path,verify=True,binding=binding)
         # Same canonical load_export topology and strict tensor load, with the
         # exact reviewed source migration above; no randomly recreated heads.
         from starVLA.rl.qwen_world_compare.deployment import prune_deployment
@@ -158,6 +169,7 @@ def load(path,device,*,readouts=False):
         if model.train_heads or hasattr(model,'readouts')or model.decision.r_embeddings is not None:
             raise ValueError('D46 deployed policy must not reconstruct unavailable training-only modules')
         return model.eval().requires_grad_(False).to(device),info
+    if binding is not None:raise ValueError('A versioned D46 binding cannot initialize from another native parent')
     info=audit(path,verify=False)
     from starVLA.rl.qwen_world_compare.deployment import _library_runtime
     original=ROOT/'IL44_PARENT/scored_export_identity.json'

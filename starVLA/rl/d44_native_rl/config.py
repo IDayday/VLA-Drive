@@ -47,9 +47,9 @@ def read(path):
 def defaults46(arm,registration_path=None):
     """Reuse the same mathematical engine, with a distinct verified IL46 root."""
     from .parent import registration,D46_ROOT
-    if arm not in ('D0','D2','D5'):raise ValueError('D46 policy-only first wave admits D0/D2/D5, not unavailable post heads')
+    if arm not in ('D0','D1','D2','D3_FPO','D3_AWM','D5'):raise ValueError('D46 admits only explicitly registered policy-only routes, not unavailable post heads')
     from starVLA.rl.qwen_world_compare.contracts import file_sha
-    path=Path(registration_path)if registration_path is not None else D46_ROOT/'PARENT_REGISTRATION.json'
+    path=Path(registration_path)if registration_path is not None else D46_ROOT/'PARENT_REGISTRATION_v2.json'
     binding={'path':str(path.resolve()),'file_sha256':file_sha(path)};value=registration(binding)
     cfg=defaults(arm)
     cfg.update(parent='D_IL46K',parent_checkpoint=value['export']['path'],parent_registration=binding,
@@ -62,12 +62,13 @@ def defaults46(arm,registration_path=None):
 def validate(cfg):
     if cfg.get('parent')=='D_IL46K':
         from .parent import registration,audit_export,D46_MODEL_SHA
-        if (cfg.get('arm')not in ('D0','D2','D5')or cfg.get('post_feedback')is not False
+        if (cfg.get('arm')not in ('D0','D1','D2','D3_FPO','D3_AWM','D5')or cfg.get('post_feedback')is not False
                 or cfg.get('initialization')!='complete_verified_IL46_deployment_policy_plus_zero_RL_delta_fresh_Adam_seed42'
                 or cfg.get('permanent_reference')!='same_verified_IL46_deployment_policy'
                 or cfg.get('unavailable_IL_auxiliary_readouts')is not True):
             raise ValueError('D46 export-only initialization/scope must be explicit and fresh')
         registered=registration(cfg.get('parent_registration'))
+        if cfg['arm']not in registered['allowed_arms']:raise ValueError('Policy route is not admitted by its saved parent-contract version')
         if cfg['parent_checkpoint']!=registered['export']['path']:raise ValueError('D46 recipe uses another policy parent')
         if audit_export(cfg['parent_checkpoint'],verify=False,binding=cfg['parent_registration'])['model_sha256']!=D46_MODEL_SHA:
             raise ValueError('D46 registered policy changed')

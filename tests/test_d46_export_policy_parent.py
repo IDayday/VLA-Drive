@@ -27,13 +27,22 @@ def test_actual_registration_three_policy_arms_and_legacy_configs():
     assert value['native_ancestry']['native_model_sha256']==parent.D46_NATIVE_SHA
     assert value['native_recovery_available']is False and value['training_readouts_available']is False
     assert value['seal']['kind']=='deployment_export_COMPLETE'
-    for arm in ('D0','D2','D5'):
+    for arm in ('D0','D1','D2','D3_FPO','D3_AWM','D5'):
         c=config.defaults46(arm);assert config.validate(c)==c
         assert c['schema']=='d44_native_rl_v1'and c['parent']=='D_IL46K'
         bad=copy.deepcopy(c);bad['parent_registration']['file_sha256']='0'*64
         with pytest.raises(ValueError,match='registration'):config.validate(bad)
-    for arm in ('D1','D4','D6'):
+    for arm in ('D4','D6'):
         with pytest.raises(ValueError):config.defaults46(arm)
+    old=config.defaults46('D0',ROOT/'PARENT_REGISTRATION_v1.json')
+    assert parent.registration(old['parent_registration'])['allowed_arms']==['D0','D2','D5']
+    old['arm']='D1'
+    with pytest.raises(ValueError,match='saved parent-contract version'):config.validate(old)
+    assert config.defaults46('D1')['parent_registration']['path']==str(ROOT/'PARENT_REGISTRATION_v2.json')
+    # Formal StageII remains at2epochs; route admission never lowers its gate.
+    import ast
+    train=Path(__file__).resolve().parents[1]/'tools/d44_native_rl/train.py'
+    assert any(isinstance(n,ast.If)and "cfg['arm'] == 'D1' and epoch >= 2"in ast.unparse(n.test)for n in ast.walk(ast.parse(train.read_text())))
     with pytest.raises(ValueError,match='no IL R16'):parent.load(ROOT/'IL46_PARENT','cpu',readouts=True)
     legacy=Path('/mnt/project/d44-native-rl-20261103/registered_configs')
     import yaml
@@ -61,9 +70,10 @@ class TinyPolicy(nn.Module):
 def test_canonical_pruned_topology_strict_parameter_restore_and_no_aux_recreation():
     torch.manual_seed(19);original=prune_deployment(TinyPolicy(),copy_model=False)
     state={k:v.detach().clone()for k,v in original.state_dict().items()};x=torch.randn(1,8,3);expected=original(x)
-    info=parent.audit_export(ROOT/'IL46_PARENT',verify=False)
-    with patch.object(parent,'audit_export',return_value=info),patch.object(parent,'model_from_identity',side_effect=lambda *_args,**_kw:TinyPolicy()),patch.object(parent.torch,'load',return_value=state)as loader:
-        model,loaded=parent.load(ROOT/'IL46_PARENT','cpu')
+    binding=config.defaults46('D0')['parent_registration'];info=parent.audit_export(ROOT/'IL46_PARENT',verify=False,binding=binding)
+    with patch.object(parent,'audit_export',return_value=info)as audit,patch.object(parent,'model_from_identity',side_effect=lambda *_args,**_kw:TinyPolicy()),patch.object(parent.torch,'load',return_value=state)as loader:
+        model,loaded=parent.load(ROOT/'IL46_PARENT','cpu',binding=binding)
+    assert audit.call_args.kwargs['binding']==binding
     assert loaded==info and not model.train_heads and not hasattr(model,'readouts')
     assert model.decision.r_embeddings is None and not any(p.requires_grad for p in model.parameters())
     assert torch.equal(model(x),expected)
@@ -75,7 +85,7 @@ def test_canonical_pruned_topology_strict_parameter_restore_and_no_aux_recreatio
 
 def test_native_export_loader_rejects_changed_parent_ancestry(tmp_path):
     # Tiny native inventory tests metadata admission only, never a formal seal.
-    cfg=config.defaults46('D0');info=parent.audit_export(ROOT/'IL46_PARENT',verify=False)
+    cfg=config.defaults46('D0');info=parent.audit_export(ROOT/'IL46_PARENT',verify=False,binding=cfg['parent_registration'])
     def save(identity):
         identity=dict(identity);identity['sha256']=fingerprint(identity)
         (tmp_path/'identity.json').write_text(json.dumps(identity))

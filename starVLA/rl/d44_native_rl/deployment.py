@@ -29,7 +29,7 @@ def inspect(path):
 
 def load_policy(path,device='cpu'):
     identity,seal,files=inspect(path);cfg=identity['recipe']
-    model,info=load(cfg['parent_checkpoint'],'cpu',readouts=cfg['post_feedback'])
+    model,info=load(cfg['parent_checkpoint'],'cpu',readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
     if info['model_sha256']!=identity['parent_model_sha256']:raise ValueError('IL44 parent identity changed')
     install(model,scope_targets(model),cfg['text_rank'],cfg['text_rank']*2)
     if cfg['film_last_layers']:
