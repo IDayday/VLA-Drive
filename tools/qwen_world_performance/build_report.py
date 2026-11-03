@@ -12,6 +12,7 @@ import time
 
 ROOT=Path('/mnt/project/qwen-world-performance-rl-20261103')
 LEGACY_ROOT=Path('/mnt/project/qwen-world-safety-exploration-20261031/integrated_training_20261102')
+D46_ROOT=Path('/mnt/project/d46-priority-rl-20261103')
 esc=lambda x:html.escape(str(x),quote=True)
 
 
@@ -23,6 +24,32 @@ def read(path, default=None):
 def atomic_text(path, value):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     tmp=path.with_name(path.name+'.writing-report-'+str(os.getpid()));tmp.write_text(value,encoding='utf-8');os.replace(tmp,path)
+
+
+def D46_priority_fragment():
+    """A status receipt is required; a new directory or config proves no training."""
+    path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
+    body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>D 框架 · IL46k 父策略优先 RL</h2>'
+    if not value:
+        return body+'<p>等待 D46 正式状态收据；尚未确认启动。既有 IL70 路线保存让位属于研究优先级调整，不判算法无效。</p></section>'
+    stamp=value.get('updated_at',value.get('at',value.get('generated_UTC','未记录')))
+    if isinstance(stamp,(int,float)):stamp=datetime.fromtimestamp(stamp,timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+    status=value.get('status','状态待核对')
+    label={'PREPARING_EXACT_IL46_POLICY_PARENT_AND_FRESH_RUNS':'准备固定 IL46k 策略与独立 fresh RL，尚未启动'}.get(status,status)
+    body+='<p><b>最新状态：'+esc(label)+'</b>；收据时间 '+esc(stamp)+'。<a href="'+esc(path)+'">实际优先级与执行状态</a></p>'
+    count=value.get('actual_training')
+    if isinstance(count,int)and count>=0:body+='<p><b>D46 实际训练数量：'+esc(count)+' 条</b>（按该时间的实际核对收据，不按注册数量计）。</p>'
+    parent=value.get('parent',{})
+    if parent.get('PDMS') is not None:
+        body+='<p>固定 IL46k 父策略完整 NAVTEST：'+esc(f'{parent["PDMS"]:.8f}')+'。这是 IL 起点，不是新 RL 收益。'
+        if parent.get('export_sha256'):body+='部署策略 SHA '+esc(parent['export_sha256'])+'。'
+        body+='</p>'
+    rows=value.get('runs',[])
+    if isinstance(rows,dict):rows=[dict(v,id=k)for k,v in rows.items()]
+    if rows:
+        body+=table(['D46 路线','服务器','实际更新（收据）','状态'],[(r.get('id',''),r.get('host')or'待分配',r.get('updates')if r.get('updates')is not None else'尚无实际日志',r.get('status','待确认'))for r in rows])
+    body+='<p>D0 / D2 / D5 优先；D4 / D6 所需的原生 readout 缺失，暂缓。保留的部署策略和零差导出核对不等于原完整 IL native 仍存在，不伪造恢复材料。模型初始化、已派发与实际八 rank 更新分开记录；未完整评测不发布新 RL 分数。既有 IL70 代码、结果与保存状态保留，资源让位不判方法无效。</p></section>'
+    return body
 
 
 def reviewed_I_fragment(root):
@@ -699,12 +726,12 @@ def render_fragment(root=ROOT):
     previous=s['previous_peak'];prior_pdms=max(91.45359756166451,previous.get('PDMS',0))
     prior_label=('%.8f · '%previous['PDMS']+previous['arm']+' / Adam '+str(previous['updates'])) if previous.get('PDMS',0)>91.45359756166451 else '91.45359756 · SafetyEP Control 10k'
     best_label=('%.8f · '%best['PDMS']+best['arm']+' / Adam '+str(best['updates'])) if best and best['PDMS']>prior_pdms else prior_label
-    body='<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>新一轮 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
+    body=D46_priority_fragment()+'<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>既有 IL70 系 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
     evidence=Path(best['summary']) if best and best['PDMS']>prior_pdms else Path(previous['evidence']) if previous.get('PDMS',0)>91.45359756166451 else Path('/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json')
     if evidence.exists():body+='<p><a href="'+esc(evidence)+'">最高分完整评测证据</a></p>'
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
-    body+='<p><b>当前实际在训 RL 共 '+str(s['active_formal']+legacy_active)+' 条：本轮 '+str(s['active_formal'])+' 条，旧综合 I '+str(legacy_active)+' 条；本轮已登记 '+str(len(s['current_runs']))+' 条；资格测试 '+str(s['active_qualification'])+' 个。</b>实际在训要求当前 stage job 有 RUNNING、无 RESULT，且八 rank 均有近10分钟日志；统计时间见上。本轮完整 NAVTEST 结果 '+str(len(s['complete_results']))+' 个；native0、partial、资格测试与候选 oracle 不计为 RL 提分。</p>'
-    body+='<p><b>当前任务：</b>S1/S6 将已验证好候选吸收到真实 B1；S7 补充结构化进度教师，再经 CFM+真实 ODE-last 吸收；S5 分阶段覆盖、吸收与持续保持。各路线均从相同 IL70k（88.79290991、SHA 7dda5b14…）和 Adam0 独立开始。</p>'
+    body+='<p><b>既有 IL70 系当前实际在训 RL 共 '+str(s['active_formal']+legacy_active)+' 条：本轮 '+str(s['active_formal'])+' 条，旧综合 I '+str(legacy_active)+' 条；本轮已登记 '+str(len(s['current_runs']))+' 条；资格测试 '+str(s['active_qualification'])+' 个。</b>此计数不包含上方独立 D46 研究。实际在训要求当前 stage job 有 RUNNING、无 RESULT，且八 rank 均有近10分钟日志；统计时间见上。本轮完整 NAVTEST 结果 '+str(len(s['complete_results']))+' 个；native0、partial、资格测试与候选 oracle 不计为 RL 提分。</p>'
+    body+='<p><b>既有研究任务：</b>S1/S6 将已验证好候选吸收到真实 B1；S7 补充结构化进度教师，再经 CFM+真实 ODE-last 吸收；S5 分阶段覆盖、吸收与持续保持。各路线均从相同 IL70k（88.79290991、SHA 7dda5b14…）和 Adam0 独立开始；当前执行状态以任务表为准。</p>'
     body+='<p>实际训练范围为 Action LoRA、Scene Memory 与 Predictive Memory，共 52,707,840 个可训练参数。Qwen 主干与永久 IL 参考冻结；当前可训练 memory/KV 每次 inner 都重新构图。吞吐缓存只复用冻结分支，不把场景表征整体固定成仅训练动作头。</p>'
     body+=table(['正式路线','服务器','实际 Adam（8rank最小）','有效曝光 epoch','当前状态'],[(j['id'],j['host'] or '待分配',j['updates'],f'{j["exposure_epoch"]:.6f}' if j['exposure_epoch'] is not None else '等待首条更新',j['status']+('；'+j['resource_note'] if j.get('resource_note') else '')) for j in s['current_runs']])
     if s['complete_results']:
