@@ -46,7 +46,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_priority_rl.train_control'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_world16.train_fast','tools.d46_priority_rl.train_control'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -191,6 +191,43 @@ def known_D46_world16_output(output):
 
 
 
+def known_D46_fast16_output(output):
+    """Same own IL46 native ancestry, plus a sealed execution-only upgrade."""
+    if not known_D46_world16_output(output):return False
+    try:
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        value=json.loads((output/'identity.json').read_text());meta=value['execution_upgrade']
+        receipt=json.loads((output/'EXECUTION_UPGRADE.json').read_text());body=dict(receipt);digest=body.pop('sha256')
+        transition=json.loads((output/'WORLD_TRANSITION.json').read_text())
+        flags=meta['flags'];keys={'fast_prefix','fuse_fm_mc','async_scoring','rotary_cache','no_grad_prefix_cache'}
+        if (meta.get('schema')!='d46_world16_execution_upgrade_v1' or set(flags)!=keys
+            or any(type(v)is not bool for v in flags.values())or flags['async_scoring']or flags['no_grad_prefix_cache']
+            or fingerprint(body)!=digest or receipt.get('execution_upgrade')!=meta
+            or receipt.get('target_identity_sha256')!=value['sha256']or transition.get('execution_upgrade_sha256')!=digest
+            or meta['new_inventory_sha256']!=fingerprint(value['source_files'])):return False
+        cp=Path(meta['source_world16_checkpoint']).resolve();oldroot=cp.parent.parent
+        if not cp.is_relative_to(D46_ROOT)or not known_D46_world16_output(oldroot):return False
+        old=json.loads((cp/'identity.json').read_text());seal=json.loads((cp/'COMPLETE').read_text());files=json.loads((cp/'files.json').read_text())
+        oldbody=dict(old);oldsha=oldbody.pop('sha256')
+        if (fingerprint(oldbody)!=oldsha or oldsha!=meta['source_identity_sha256']
+            or file_sha(cp/'identity.json')!=meta['source_checkpoint_identity_file_sha256']
+            or files.get('identity.json')!=meta['source_checkpoint_identity_file_sha256']
+            or file_sha(cp/'files.json')!=seal['files_sha256']or seal['files_sha256']!=meta['source_checkpoint_files_sha256']
+            or files.get('optimizer.pt')!=meta['common_optimizer_sha256']or seal['world']!=16 or old['world']!=16
+            or seal['phase']!='READY'or seal['next_inner']!=0 or seal['updates']!=meta['origin_updates']
+            or meta['origin_updates']%value['recipe']['inner_updates']or old['qualification']is not meta['source_qualification']
+            or value['qualification']is not meta['target_qualification']or(meta['source_qualification']and not meta['target_qualification'])
+            or fingerprint(old['source_files'])!=meta['old_inventory_sha256']):return False
+        src=json.loads((oldroot/'WORLD_TRANSITION.json').read_text());srcbody=dict(src);srcsha=srcbody.pop('sha256')
+        if fingerprint(srcbody)!=srcsha or srcsha!=meta['source_world_transition_sha256']:return False
+        import copy
+        expected=copy.deepcopy(oldbody);expected.update(source_files=value['source_files'],qualification=value['qualification'],fresh_Adam=False,execution_upgrade=meta)
+        expected['native_world_transition']['target_qualification']=value['qualification']
+        srcbody.update(target_identity_sha256=value['sha256'],source_inventory=value['source_files'],qualification=value['qualification'],execution_upgrade_sha256=digest)
+        return fingerprint(expected)==value['sha256']and fingerprint(srcbody)==transition['sha256']
+    except(OSError,KeyError,TypeError,ValueError):return False
+
+
 def known_D46_control_args(args):
     """Only fixed-profile600s wrapper around the same sealed formal8 policy."""
     try:
@@ -214,6 +251,9 @@ def known_D46_control_args(args):
 def known_owner_args(args):
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
     if entry=='tools.d46_priority_rl.train_control':return known_D46_control_args(args)
+    if entry=='tools.d46_world16.train_fast':
+        try:return known_D46_fast16_output(Path(args[args.index('--output')+1]).resolve())
+        except(ValueError,IndexError):return False
     if entry=='tools.d46_world16.train':
         try:return known_D46_world16_output(Path(args[args.index('--output')+1]).resolve())
         except(ValueError,IndexError):return False

@@ -53,6 +53,12 @@ def load_plan(path,*,check_hold=True):
         or transition.get('schema')!='d46_exact_native_READY_world8_to16_v1'or transition.get('old_owner_may_adopt')is not False
         or transition.get('source_qualification')is not False or transition.get('target_qualification')is not False):raise ValueError('Typed formal transition mismatch')
     if file_sha(p['config'])!=p['config_sha256']:raise ValueError('Sealed recipe changed')
+    entry=p.get('entry','tools.d46_world16.train')
+    if entry not in ('tools.d46_world16.train','tools.d46_world16.train_fast'):raise ValueError('Unknown native16 execution entry')
+    if entry=='tools.d46_world16.train_fast':
+        from tools.qwen_world_compare.job_worker import known_D46_fast16_output
+        if not known_D46_fast16_output(output):raise ValueError('Unsealed native16 execution upgrade')
+    elif identity.get('execution_upgrade')is not None:raise ValueError('Execution upgrade requires its bound entry')
     source=Path(p['science_source']).resolve()
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip()!=p['source_sha']:raise ValueError('Scientific commit changed')
     if subprocess.check_output(['git','status','--porcelain'],cwd=source,text=True).strip():raise ValueError('Freeze scientific source')
@@ -112,7 +118,7 @@ def requests(plan):
 
 def command(plan,node,resume):
     return ['/usr/bin/env','NCCL_IB_DISABLE=1','NCCL_SOCKET_IFNAME=eth0',PYTHON,'-m','torch.distributed.run','--nnodes=2','--nproc_per_node=8',f'--node_rank={node}',f"--master_addr={plan['master_addr']}",f"--master_port={plan['master_port']}",
-        '--rdzv_conf=timeout=120','--max_restarts=0','-m','tools.d46_world16.train','--config',plan['config'],'--output',plan['output'],'--resume',resume]
+        '--rdzv_conf=timeout=120','--max_restarts=0','-m',plan.get('entry','tools.d46_world16.train'),'--config',plan['config'],'--output',plan['output'],'--resume',resume]
 
 
 def stop_owned(state,reason):
