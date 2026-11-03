@@ -160,7 +160,10 @@ def main(*,extension=None):
     if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=runtime)
     if extension is not None:
         error=None
-        try:extension.after_restore(actor,conditions,stream,state,identity)
+        try:
+            extension.after_restore(actor,conditions,stream,state,identity)
+            configure_actor=getattr(extension,'configure_actor',None)
+            if configure_actor is not None:configure_actor(actor)
         except Exception:
             error=traceback.format_exc()
             if checkpoint.fatal_device_error(error):raise
