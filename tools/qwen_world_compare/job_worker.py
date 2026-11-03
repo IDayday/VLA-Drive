@@ -46,7 +46,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_world16.train_fast','tools.d46_priority_rl.train_control'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_world16.train_fast','tools.d46_augustus.train','tools.d46_priority_rl.train_control'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -191,6 +191,22 @@ def known_D46_world16_output(output):
 
 
 
+def known_D46_augustus_output(output):
+    if not known_D46_output(output):return False
+    try:
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        value=json.loads((output/'identity.json').read_text());cfg=value['recipe'];aug=cfg['augustus']
+        return(value.get('algorithm_schema')=='d46_augustus_native_v1'
+            and value.get('experiment_id')==cfg['experiment_id']in('AUG1_FULL','AUG2_LORA')
+            and value.get('augustus_protocol_sha256')==fingerprint(aug)
+            and value.get('world')in(8,16,32)and cfg['global_scenes']in(64,128)and cfg['global_scenes']%value['world']==0
+            and cfg['group']==8 and cfg['inner_updates']in(1,2)and cfg['training_uses_navtest']is False
+            and aug['training_steps']==3 and aug['noise_scale']==[.05,.05,.02]
+            and aug['coordinate_reduction']=='mean24'and aug['fixed_reference_beta']==.001
+            and aug['scope']==('full_text_action'if cfg['experiment_id']=='AUG1_FULL'else'lora_text_action'))
+    except(OSError,KeyError,TypeError,ValueError):return False
+
+
 def known_D46_fast16_output(output):
     """Same own IL46 native ancestry, plus a sealed execution-only upgrade."""
     if not known_D46_world16_output(output):return False
@@ -250,6 +266,11 @@ def known_D46_control_args(args):
 
 def known_owner_args(args):
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry in('tools.d46_augustus.train','tools.d46_augustus.evaluate'):
+        try:
+            key='--output'if entry.endswith('.train')else'--checkpoint'
+            return known_D46_augustus_output(Path(args[args.index(key)+1]).resolve())
+        except(ValueError,IndexError):return False
     if entry=='tools.d46_priority_rl.train_control':return known_D46_control_args(args)
     if entry=='tools.d46_world16.train_fast':
         try:return known_D46_fast16_output(Path(args[args.index('--output')+1]).resolve())
