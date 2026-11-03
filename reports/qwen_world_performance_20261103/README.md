@@ -36,6 +36,10 @@
 
 最早IL12k父策略的D为B8/G8/M4，纯更新2.715秒；因没有逐行时间戳，端到端3.406秒取首完整1000次Adam invocation，不能冒充当前同200步窗口。D44首D0的B64/G16/M2为10.744/21.997秒。当前每Adam新场景/候选为32/512，最早为2/16；当前D0端到端每步约6.58×，但场景/候选吞吐约2.43×/4.86×。父模型、训练配方、窗口和共享GPU负载不同，这是实际工作负载比较，非严格同算力或纯执行加速消融。[历史原始证据](/mnt/project/d46-priority-rl-20261103/analysis/D_THROUGHPUT_ORIGINAL_BASELINES_20261103.json)
 
+用户随后要求提前完整评测，再决定额外资源倾斜。独立有限批次已登记四个唯一参数策略：D0/D5各Adam1400、44800有效场景（.43374E），FPO Adam900、28800场景（.27883E），AWM Adam800、25600场景（.24785E）。每策略32逻辑分片，在TSHzt/RL2/WM2按策略轮转分波，逻辑分片数不等于同时物理GPU数；不修改训练owner或科学源。D1/D2的同Adam1400父策略、完整scope与封存optimizer payload签名均与D0一致，仅列“参数一致的早期参考”，不重复伪造独立结果；各自2E/.5E机制尚未启用。[封印计划](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/PLAN.json)、[实际分片状态](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/STATE.json)
+
+HTML从每片最新job的RESULT/RUNNING读取完成、已启动待返回、准入、资源等待与异常，避免整轮派发尚未刷新的STATE计数掩盖已发任务。仅完整12146/44log/invalid0、seed2101的封印identity与指定检查点绑定后才发布分数；完整配对分析封印后再报告IL46相对修复/新增零分和固定IL46≥.9队列变化。四策略曝光预算不同，提前结果用于资源分配观察，不作同预算算法排名；不将NAV标签加入训练bank。
+
 ## 既有 IL70 研究的完整结果
 
 **最高已确认完整部署成绩仍为 SafetyEP Control10k：91.45359756，尚未达到92。** 相同完整 IL70 为88.79290991。以下本轮结果均为真实单轨 B1、12146场景/44 physical logs/invalid0；不是候选 best-of 或 TRAIN 分数。

@@ -89,6 +89,117 @@ def D46_throughput_fragment():
     return body
 
 
+def sealed_JSON(value):
+    body=dict(value);seal=body.pop('sha256',None)
+    return bool(seal)and hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest()==seal
+
+
+def D46_early_checkpoint_matches(case):
+    """Rebind small sealed inventories/identity; never load optimizer tensors."""
+    cp=Path(case['checkpoint']);inventory=cp/'files.json';identity_path=cp/'identity.json'
+    seal=read(cp/'COMPLETE',{});files=read(inventory,{});identity=read(identity_path,{})
+    if not inventory.is_file()or not identity_path.is_file():return False
+    signature=dict(parent=identity.get('parent_model_sha256'),trainable_payload=files.get('optimizer.pt'),scope=identity.get('scope'))
+    return (seal.get('files_sha256')==hashlib.sha256(inventory.read_bytes()).hexdigest()
+        and files.get('identity.json')==hashlib.sha256(identity_path.read_bytes()).hexdigest()
+        and sealed_JSON(identity)and identity.get('sha256')==case.get('identity_sha256')
+        and identity.get('architecture_id')=='D'and identity.get('qualification')is False
+        and identity.get('recipe',{}).get('parent')=='D_IL46K'
+        and seal.get('world')==8 and seal.get('phase')=='READY'and seal.get('next_inner')==0
+        and seal.get('updates')==case.get('updates')and files.get('optimizer.pt')==case.get('payload_sha256')
+        and hashlib.sha256(json.dumps(signature,sort_keys=True,separators=(',',':')).encode()).hexdigest()==case.get('policy_signature'))
+
+
+def D46_early_complete(case,node,baseline):
+    output=Path(case['output']);summary_path=output.parent/'SUMMARY.json'
+    summary=read(summary_path,{});identity=read(output/'identity.json',{})
+    if (node.get('status')!='COMPLETE'or node.get('summary')!=str(summary_path)
+            or not sealed_JSON(summary)or not sealed_JSON(identity)
+            or identity.get('schema')!='qwen_world_compare_evaluation_v1'
+            or identity.get('checkpoint')!=case['checkpoint']or identity.get('updates')!=case['updates']
+            or identity.get('D44_training_identity')!=case['identity_sha256']
+            or identity.get('inference')!='single_candidate_cleanx_K10_shift5'
+            or identity.get('count')!=12146 or len(identity.get('tokens',[]))!=12146
+            or len(set(identity['tokens']))!=12146
+            or hashlib.sha256(json.dumps(identity['tokens'],sort_keys=True,separators=(',',':')).encode()).hexdigest()!=identity.get('token_sha256')):return None,None
+    expected=dict(status='COMPLETE',architecture_id='D',cohort='NAVTEST',scenes=12146,scene_denominator=12146,
+        invalid_scenes=0,physical_logs=44,qualification=False,seed=2101,evaluation=str(output),
+        evaluation_identity_sha256=identity['sha256'],model_sha256=identity.get('model_sha256'),
+        protocol_sha256=identity.get('protocol',{}).get('sha256'),token_sha256=identity.get('token_sha256'))
+    if (any(summary.get(k)!=v for k,v in expected.items())or summary.get('qualification')is not False or identity.get('qualification')is not False
+            or identity.get('cohort')!='NAVTEST'or identity.get('architecture_id')!='D'or identity.get('seed')!=2101
+            or not sealed_JSON(baseline)or baseline.get('scenes')!=12146
+            or baseline.get('token_sha256')!=summary['token_sha256']or baseline.get('protocol_sha256')!=summary['protocol_sha256']
+            or not isinstance(summary.get('PDMS'),(int,float))or not 0<=summary['PDMS']<=100
+            or abs(summary['PDMS']-100*summary.get('means',{}).get('score',-1))>1e-8):return None,None
+    paired_path=output.parent/'PAIRED_ANALYSIS.json';paired=read(paired_path,{})
+    if (node.get('paired_analysis')!=str(paired_path)or not sealed_JSON(paired)
+            or paired.get('analysis_schema')!='D46_complete_B1_paired_gain_loss_v1'
+            or paired.get('source_summary_sha256')!=summary['sha256']
+            or any(paired.get(k)!=v for k,v in expected.items())
+            or paired.get('paired',{}).get('scene_denominator')!=12146
+            or paired.get('paired',{}).get('physical_groups')!=44
+            or len(paired.get('paired',{}).get('CI95',[]))!=2
+            or paired.get('paired',{}).get('all_scores_units')!='0..1; PDMS_display_explicitly_times100'):paired=None
+    return summary,paired
+
+
+def D46_early_evaluation_fragment():
+    directory=D46_ROOT/'operations/EARLY_EVAL_20261103';plan_path=directory/'PLAN.json'
+    plan=read(plan_path,{})
+    if not plan:return ''
+    body='<h3>提前完整 NAVTEST：四个独立策略，分波评测</h3>'
+    if plan.get('schema')!='D46_finite_early_full_NAVTEST_plan_v1'or not sealed_JSON(plan):
+        return body+'<p>计划封印校验未通过，暂不发布进度或成绩。</p>'
+    state_path=directory/'STATE.json';state=read(state_path,{})
+    state_ok=state.get('schema')=='D46_finite_early_full_NAVTEST_state_v1'and state.get('plan_sha256')==plan['sha256']
+    nodes=state.get('cases',{})if state_ok else {};world=plan['world'];entries=[];scores=[];paired_rows=[];valid={}
+    baseline=read(Path(plan['baseline']).parent/'SUMMARY.json',{})
+    for case in plan['cases']:
+        matched=D46_early_checkpoint_matches(case);valid[case['id']]=matched
+        node=nodes.get(case['id'],{});output=Path(case['output']);counts=dict(complete=0,started=0,admitting=0,waiting=0,failed=0)
+        if node.get('output')!=case['output']:node={}
+        for rank in range(world):
+            jobs=node.get('jobs',{}).get(str(rank),[])
+            if not jobs:counts['waiting']+=1;continue
+            job=Path(jobs[-1]['job']);result=read(job/'RESULT.json',{});running=read(job/'RUNNING.json',{})
+            shard=read(output/f'rank{rank}.json',{})
+            if result:
+                if result.get('returncode')==0 and shard.get('status')=='COMPLETE'and shard.get('rank')==rank and shard.get('world')==world:counts['complete']+=1
+                elif result.get('returncode')==75 and result.get('child_not_started'):counts['waiting']+=1
+                else:counts['failed']+=1
+            elif running.get('child_pid'):counts['started']+=1
+            elif running or jobs[-1].get('pid'):counts['admitting']+=1
+        progress='完成 {complete}/'+str(world)+'；已启动待返回 {started}；准入 {admitting}；资源待派 {waiting}；异常 {failed}'
+        label=node.get('status','等待状态收据')if matched else'检查点封印/身份不匹配'
+        entries.append((case['arm'],case['updates'],case['scene_exposures'],f'{case["exposure_epoch"]:.5f}',progress.format(**counts),label))
+        summary,paired=D46_early_complete(case,node,baseline)if matched and counts['complete']==world else(None,None)
+        if summary:
+            scores.append((case['arm'],case['updates'],f'{summary["PDMS"]:.8f}',f'{summary["PDMS"]-baseline["PDMS"]:+.6f}',str(output.parent/'SUMMARY.json')))
+        if paired:
+            p=paired['paired'];high=paired.get('gain_loss',{}).get('fixed_reference_cohorts',{}).get('IL46_high_ge_0.9',{})
+            paired_rows.append((case['arm'],f'{100*p["mean_delta"]:+.6f}',
+                '['+', '.join(f'{100*x:+.6f}'for x in p['CI95'])+']',p['repaired_zero'],p['new_zero'],
+                f'{100*high["population_contribution"]:+.6f}'if high.get('population_contribution')is not None else'未提供',
+                high.get('new_zero','未提供')))
+    body+='<p>'+esc(len(plan['cases']))+' 个独立参数策略、每个 '+esc(world)+' 个逻辑分片，按策略轮转在 '+esc(' / '.join(plan['hosts']))+' 分波。逻辑分片数不是同时占用GPU数；“已启动待返回”依据最新worker收据，不能等同正在评分。进度与分数不读部分均值；训练继续，评测不导出训练标签。<a href="'+esc(plan_path)+'">封印计划</a>'
+    if state_path.exists():body+=' · <a href="'+esc(state_path)+'">实际分片状态</a>'
+    body+='</p>'+table(['独立策略','Adam','有效场景曝光','exposure epoch','最新分片收据','阶段状态'],entries)
+    references=[];cases={c['id']:c for c in plan['cases']}
+    for r in plan.get('equivalent_references',[]):
+        reference=cases.get(r.get('reference_case'),{})
+        if (D46_early_checkpoint_matches(r)and valid.get(r.get('reference_case'))
+                and r.get('policy_signature')==reference.get('policy_signature')and r.get('payload_sha256')==reference.get('payload_sha256')):
+            references.append(r['arm']+' / Adam '+str(r['updates'])+' → '+reference['arm'])
+    body+='<p><b>参数一致的早期参考：</b>'+esc('；'.join(references)or'等待等参数身份校验')+'。完整父策略、scope与封存payload签名相同，D1阶段II@2E和D2 rescue@.5E尚未在这些检查点启用；不复制D0分数冒充独立评测，不据此淘汰尚未启用的机制。不同曝光预算的四策略也不是同预算方法排名。</p>'
+    if scores:
+        body+=table(['已完成的独立策略','Adam','完整PDMS','相IL46'],[(a,u,p,d)for a,u,p,d,path in scores])
+        body+='<p>'+ ' · '.join('<a href="'+esc(path)+'">'+esc(a)+'完整结果</a>'for a,u,p,d,path in scores)+'</p>'
+    else:body+='<p><b>该提前批次尚无通过全量封印校验的完整 D46 RL 分数。</b>需 sealed identity、12146场景/44log/invalid0、seed2101及精确检查点绑定。</p>'
+    if paired_rows:body+=table(['完整配对 vs IL46','ΔPDMS','44log CI95','修复零分','新增零分','固定IL46≥.9全局贡献','该高分群体新增零分'],paired_rows)
+    return body
+
+
 def D46_priority_fragment():
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
@@ -135,7 +246,7 @@ def D46_priority_fragment():
             qualification=D46_qualification_status(registered)if registered.get('qualification')else'等待登记'
             entries.append((r.get('id',''),method,gate,qualification,host,r.get('updates')if r.get('updates')is not None else'尚无实际日志',states.get(r.get('status'),r.get('status','待确认'))))
         body+=table(['D46 路线','方法','阶段启用与边界','独立资格','服务器','正式更新（收据）','正式阶段状态'],entries)
-    body+=D46_throughput_fragment()
+    body+=D46_early_evaluation_fragment()+D46_throughput_fragment()
     reviewed=[]
     for arm,registered in campaign.items():
         review=registered.get('qualification_resource_retry_review',{});review_path=Path(review.get('receipt',''))
