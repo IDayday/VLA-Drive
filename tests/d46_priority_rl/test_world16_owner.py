@@ -69,6 +69,33 @@ def test_actual_failure_preserved_stops_only_own_peer_never_restarts(setup):
     w.tick(p,state);assert len(calls)==2 and len(state['attempts'])==1
 
 
+def test_operator_stop_before_first_attempt_never_launches(setup):
+    p,_,calls,_,_=setup;state=w.initial(p)
+    put(w.owner_root(p)/'STOP_REQUESTED',{})
+    w.tick(p,state)
+    assert state['status']=='STOPPED_AT_NATIVE_BOUNDARY'and not calls
+    assert not state['attempts']and not state['reserved_hosts']
+
+
+def test_operator_stop_does_not_start_missing_peer(setup):
+    p,point,calls,_,_=setup;state=w.initial(p)
+    nodes=[]
+    for i,host in enumerate(p['hosts']):
+        job=w.ROOT/'jobs/partial'/f'node{i}'
+        nodes.append(dict(host=host,job=str(job),source=p['science_source'],
+                          command=w.command(p,i,point['checkpoint']),phase='NOT_LAUNCHED'))
+    node=nodes[0]
+    node.update(receipt=w.launch(node['host'],node['source'],node['job'],node['command'],list(range(8))),phase='DISPATCHED')
+    state['attempts']=[dict(nodes=nodes,number=1,created=time.time(),resume=point['checkpoint'])]
+    put(w.owner_root(p)/'STOP_REQUESTED',{})
+    w.tick(p,state)
+    assert len(calls)==1 and state['status']=='STOP_REQUESTED_OPERATOR'
+    assert (Path(node['job'])/'STOP_REQUESTED').exists()
+    put(Path(node['job'])/'RESULT.json',dict(returncode=0))
+    w.tick(p,state)
+    assert len(calls)==1 and state['status']=='STOPPED_AT_NATIVE_BOUNDARY'
+
+
 def test_resource75_is_prechild_bounded_and_preserves_resume(setup,monkeypatch):
     p,point,calls,_,_=setup;original=w.launch
     def refusal(*args,**kw):

@@ -171,17 +171,21 @@ def tick(plan,state):
         state['status']='COMPLETE_AT_REGISTERED_6E';persist(plan,state);return state
     if (owner_root(plan)/'STOP_REQUESTED').exists()or(plan.get('owner_deadline_unix')is not None and time.time()>=plan['owner_deadline_unix']):
         stop_owned(state,'operator_or_explicit_deadline');state['status']='STOP_REQUESTED_OPERATOR'
+        if not state['attempts']:
+            state['status']='STOPPED_AT_NATIVE_BOUNDARY';persist(plan,state);return state
     if state['attempts']:
         a=state['attempts'][-1]
         for node in a['nodes']:
             try:reconcile(node)
             except Exception:
                 state.update(status='AMBIGUOUS_LAUNCH_REQUIRES_REVIEW',error=traceback.format_exc());stop_owned(state,'ambiguous_gang');persist(plan,state);return state
+        if state['status']=='STOP_REQUESTED_OPERATOR':
+            stop_owned(state,'operator_or_explicit_deadline')
         outputs=[read(Path(n['receipt']['job'])/'RESULT.json')if n.get('receipt')else None for n in a['nodes']]
         real_failure=[r for r in outputs if r and r.get('returncode')not in(0,75)]
         if real_failure:
             state.update(status='FAILED_REQUIRES_REVIEW',failure_results=real_failure);stop_owned(state,'peer_actual_failure');persist(plan,state);return state
-        if any(n.get('phase')=='NOT_LAUNCHED'for n in a['nodes'])and not any(r and r.get('returncode')==75 for r in outputs):
+        if state['status']!='STOP_REQUESTED_OPERATOR'and any(n.get('phase')=='NOT_LAUNCHED'for n in a['nodes'])and not any(r and r.get('returncode')==75 for r in outputs):
             launch_remaining(plan,state,a)
             if state['status']=='AMBIGUOUS_LAUNCH_REQUIRES_REVIEW':return state
             outputs=[read(Path(n['receipt']['job'])/'RESULT.json')if n.get('receipt')else None for n in a['nodes']]
