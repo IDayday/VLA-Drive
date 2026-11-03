@@ -1,4 +1,4 @@
-"""Compare fixed same-D0 journal windows; CPU only, no model/score work."""
+"""Compare fixed same-run D0/FPO journal windows; CPU only, no model work."""
 import argparse
 import hashlib
 import json
@@ -44,24 +44,34 @@ def summarize(rows):
 
 def main():
     p=argparse.ArgumentParser(__doc__)
-    p.add_argument('--old-start',type=int,default=1677);p.add_argument('--old-end',type=int,default=1714)
-    p.add_argument('--new-start',type=int,default=1719);p.add_argument('--new-end',type=int,default=1796)
+    p.add_argument('--arm',choices=('D0','D3_FPO'),default='D0')
+    p.add_argument('--old-start',type=int);p.add_argument('--old-end',type=int)
+    p.add_argument('--new-start',type=int);p.add_argument('--new-end',type=int)
     p.add_argument('--output',required=True);a=p.parse_args()
-    old=ROOT/'runs/D46_D0';new=ROOT/'runs/D46_D0_WORLD16_v2'
+    keys=('old_start','old_end','new_start','new_end')
+    if a.arm=='D0':
+        for key,default in zip(keys,(1677,1714,1719,1796)):
+            if getattr(a,key)is None:setattr(a,key,default)
+    elif any(getattr(a,key)is None for key in keys):
+        p.error('FPO requires all four explicit fixed window boundaries')
+    old=ROOT/'runs'/('D46_'+a.arm)
+    new=ROOT/'runs'/('D46_'+a.arm+'_WORLD16_'+('v2'if a.arm=='D0'else'v1'))
     oi=json.loads((old/'identity.json').read_text());ni=json.loads((new/'identity.json').read_text())
     if (oi['world'],ni['world'])!=(8,16)or oi['recipe']!=ni['recipe']or oi['scope']!=ni['scope']:
         raise ValueError('Need the same D0 recipe and parameter scope')
-    if oi['qualification']or ni['qualification']or oi['recipe']['arm']!='D0' or oi['recipe']['inner_updates']!=2:
-        raise ValueError('Only actual formal D0 B64/G16/M2')
+    if (oi['qualification']or ni['qualification']or oi['recipe']['arm']!=a.arm
+        or oi['recipe']['inner_updates']!=2 or oi['parent_model_sha256']!=ni['parent_model_sha256']):
+        raise ValueError('Only same-parent formal D0/FPO B64/G16/M2')
     left=summarize(window(old/'metrics_rank0.jsonl',a.old_start,a.old_end,oi))
     right=summarize(window(new/'metrics_rank0.jsonl',a.new_start,a.new_end,ni))
-    value=dict(schema='d46_fixed_window_actual_journal_throughput_v1',at=time.time(),
+    origin=ni['native_world_transition']['origin_updates']
+    value=dict(schema='d46_fixed_window_actual_journal_throughput_v1',at=time.time(),arm=a.arm,
         world8=left,world16=right,optimizer_speedup=left['optimizer_seconds_median']/right['optimizer_seconds_median'],
         full_cycle_speedup=right['steady_scenes_per_second']/left['steady_scenes_per_second'],
         protocol=dict(B=64,G=16,M=2,population=103288,rank=0,
-            clock_host='training-vlawm-tsinghua-zt5',
-            old_window='After old I EXIT0 plus15s; exclusive8 GPUs',
-            new_window='Skip first4 actual optimizer updates after native1714 transition',
+            clock_host='training-vlawm-tsinghua-zt5'if a.arm=='D0'else'training-vlawm-tsinghua-zt3',
+            old_window='After old I EXIT0 plus15s; exclusive8 GPUs'if a.arm=='D0'else'Exclusive old FPO world8 before own1440 native stop',
+            new_window=f'Explicit window after native{origin} transition; skip first4 actual optimizer updates',
             timing='Even-update timestamps include fresh rollout, scoring, two Adam updates and synchronization',
             exclusions='Startup, full NAVTEST, checkpoint-crossing intervals for steady statistics',
             limits='Different sequential TRAIN scenes; short steady-state windows, not a matched hardware ablation or long-run ETA guarantee'))

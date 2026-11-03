@@ -1,0 +1,2853 @@
+{
+  "schema": "d46_actual_FPO_world16_GPU_qualification_audit_v1",
+  "status": "PASS",
+  "qualification": true,
+  "qweights_may_initialize_formal": false,
+  "origin_updates": 1440,
+  "final_updates": 1444,
+  "world": 16,
+  "B": 64,
+  "G": 16,
+  "M": 2,
+  "MC": 4,
+  "scientific_source": "/mnt/project/d46-priority-rl-20261103/runtime/world16_fpo_science_v1",
+  "scientific_commit": "82d5f784d02ad4bc182231a267edab8a2a69833e",
+  "auditor_path": "/mnt/project/VLA-Drive-d46-world16-fpo-20261103/tools/d46_world16/audit_fpo_gpu.py",
+  "auditor_sha256": "2bcf68e47a0ec911b9b7de9d20170fced4036f8f995e1cffe0a1c60bd1ffce4d",
+  "checkpoints": {
+    "origin": {
+      "schema": "d46_world16_native_export_validation_v1",
+      "status": "PASS",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/checkpoints/update001440_inner0",
+      "files_sha256": "1474955dc30cb5b0953492f1a4bce667de16aab9293448dbba62b252373d0d6c",
+      "identity_sha256": "b73a72e717cc46a9e306fd50dcea7fc381a86b95c3bf272c7d63d1bbafef5f64",
+      "world": 16,
+      "updates": 1440,
+      "next_inner": 0,
+      "all16rank_material_RNG_checked": true,
+      "model_math": "unchanged official tools.d44_native_rl.evaluate.load_policy / native compact exporter",
+      "native_world_transition": {
+        "schema": "d46_exact_native_READY_world8_to16_v1",
+        "source_world": 8,
+        "target_world": 16,
+        "same_algorithm": true,
+        "origin_updates": 1440,
+        "source_qualification": false,
+        "target_qualification": true,
+        "source_run_identity_sha256": "a2e98492ce6b322ef62623961762b53d2765f4f0c1c557e346d773001d18addb",
+        "source_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO/checkpoints/update001440_inner0",
+        "source_files_sha256": "c86a2e14e1bcad328f36dca2ef624bd2e1cb3a033764f4f8e5d8d7cac5720fbd",
+        "common_optimizer_sha256": "3a7be172c3294d4fb1bb065e28cdaddeb1ca849730e65fa23843c40a0fb84843",
+        "virtual_sampler_lanes": 8,
+        "global_scenes": 64,
+        "group": 16,
+        "inner_updates": 2,
+        "control_plane": {
+          "schema": "d46_world16_CPU_control_plane_v1",
+          "backend": "gloo",
+          "timeout_seconds": 600,
+          "purpose": "allow full model load and true B1 startup skew; no policy/optimizer change"
+        },
+        "compatibility": "same real-valued update target; FP32 DDP summation topology may differ, not cross-world bitexact",
+        "parent_policy_unchanged": true,
+        "optimizer": "inherited_AdamW_no_reset",
+        "old_owner_may_adopt": false,
+        "flow_energy_protocol": {
+          "schema": "d46_world16_original_FPO_MC4_material_v1",
+          "mc_samples": 4,
+          "sigma_interval": [
+            0.2,
+            0.8
+          ],
+          "state": "(1-sigma)*saved_SDE_clean+sigma*epsilon",
+          "velocity": "(state-current_cleanx)/sigma",
+          "energy": "mean_xyz_horizon24_then_mean_MC4",
+          "policy_ratio": "exp(saved_old_energy-current_energy)",
+          "policy_clip": 0.01,
+          "Gaussian_W3": "diagnostic fresh ratio and unchanged permanent IL reference joint KL; not FPO PG",
+          "draws": "randn_G8x3 root, three randn_G8x3 W3 innovations, rand_MC4xG sigma, randn_MC4xG8x3 epsilon"
+        }
+      }
+    },
+    "pending": {
+      "schema": "d46_world16_native_export_validation_v1",
+      "status": "PASS",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/checkpoints/update001443_inner1",
+      "files_sha256": "f65335e3fe5db735d9ab1f682a0a9e82414008e6df46ff2701fd88538679401f",
+      "identity_sha256": "b73a72e717cc46a9e306fd50dcea7fc381a86b95c3bf272c7d63d1bbafef5f64",
+      "world": 16,
+      "updates": 1443,
+      "next_inner": 1,
+      "all16rank_material_RNG_checked": true,
+      "model_math": "unchanged official tools.d44_native_rl.evaluate.load_policy / native compact exporter",
+      "native_world_transition": {
+        "schema": "d46_exact_native_READY_world8_to16_v1",
+        "source_world": 8,
+        "target_world": 16,
+        "same_algorithm": true,
+        "origin_updates": 1440,
+        "source_qualification": false,
+        "target_qualification": true,
+        "source_run_identity_sha256": "a2e98492ce6b322ef62623961762b53d2765f4f0c1c557e346d773001d18addb",
+        "source_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO/checkpoints/update001440_inner0",
+        "source_files_sha256": "c86a2e14e1bcad328f36dca2ef624bd2e1cb3a033764f4f8e5d8d7cac5720fbd",
+        "common_optimizer_sha256": "3a7be172c3294d4fb1bb065e28cdaddeb1ca849730e65fa23843c40a0fb84843",
+        "virtual_sampler_lanes": 8,
+        "global_scenes": 64,
+        "group": 16,
+        "inner_updates": 2,
+        "control_plane": {
+          "schema": "d46_world16_CPU_control_plane_v1",
+          "backend": "gloo",
+          "timeout_seconds": 600,
+          "purpose": "allow full model load and true B1 startup skew; no policy/optimizer change"
+        },
+        "compatibility": "same real-valued update target; FP32 DDP summation topology may differ, not cross-world bitexact",
+        "parent_policy_unchanged": true,
+        "optimizer": "inherited_AdamW_no_reset",
+        "old_owner_may_adopt": false,
+        "flow_energy_protocol": {
+          "schema": "d46_world16_original_FPO_MC4_material_v1",
+          "mc_samples": 4,
+          "sigma_interval": [
+            0.2,
+            0.8
+          ],
+          "state": "(1-sigma)*saved_SDE_clean+sigma*epsilon",
+          "velocity": "(state-current_cleanx)/sigma",
+          "energy": "mean_xyz_horizon24_then_mean_MC4",
+          "policy_ratio": "exp(saved_old_energy-current_energy)",
+          "policy_clip": 0.01,
+          "Gaussian_W3": "diagnostic fresh ratio and unchanged permanent IL reference joint KL; not FPO PG",
+          "draws": "randn_G8x3 root, three randn_G8x3 W3 innovations, rand_MC4xG sigma, randn_MC4xG8x3 epsilon"
+        }
+      }
+    },
+    "ready": {
+      "schema": "d46_world16_native_export_validation_v1",
+      "status": "PASS",
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/checkpoints/update001444_inner0",
+      "files_sha256": "030955f10630c581ff29d8e219b2f927abfc761cbf8c9e6e1d8e191ff9486414",
+      "identity_sha256": "b73a72e717cc46a9e306fd50dcea7fc381a86b95c3bf272c7d63d1bbafef5f64",
+      "world": 16,
+      "updates": 1444,
+      "next_inner": 0,
+      "all16rank_material_RNG_checked": true,
+      "model_math": "unchanged official tools.d44_native_rl.evaluate.load_policy / native compact exporter",
+      "native_world_transition": {
+        "schema": "d46_exact_native_READY_world8_to16_v1",
+        "source_world": 8,
+        "target_world": 16,
+        "same_algorithm": true,
+        "origin_updates": 1440,
+        "source_qualification": false,
+        "target_qualification": true,
+        "source_run_identity_sha256": "a2e98492ce6b322ef62623961762b53d2765f4f0c1c557e346d773001d18addb",
+        "source_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO/checkpoints/update001440_inner0",
+        "source_files_sha256": "c86a2e14e1bcad328f36dca2ef624bd2e1cb3a033764f4f8e5d8d7cac5720fbd",
+        "common_optimizer_sha256": "3a7be172c3294d4fb1bb065e28cdaddeb1ca849730e65fa23843c40a0fb84843",
+        "virtual_sampler_lanes": 8,
+        "global_scenes": 64,
+        "group": 16,
+        "inner_updates": 2,
+        "control_plane": {
+          "schema": "d46_world16_CPU_control_plane_v1",
+          "backend": "gloo",
+          "timeout_seconds": 600,
+          "purpose": "allow full model load and true B1 startup skew; no policy/optimizer change"
+        },
+        "compatibility": "same real-valued update target; FP32 DDP summation topology may differ, not cross-world bitexact",
+        "parent_policy_unchanged": true,
+        "optimizer": "inherited_AdamW_no_reset",
+        "old_owner_may_adopt": false,
+        "flow_energy_protocol": {
+          "schema": "d46_world16_original_FPO_MC4_material_v1",
+          "mc_samples": 4,
+          "sigma_interval": [
+            0.2,
+            0.8
+          ],
+          "state": "(1-sigma)*saved_SDE_clean+sigma*epsilon",
+          "velocity": "(state-current_cleanx)/sigma",
+          "energy": "mean_xyz_horizon24_then_mean_MC4",
+          "policy_ratio": "exp(saved_old_energy-current_energy)",
+          "policy_clip": 0.01,
+          "Gaussian_W3": "diagnostic fresh ratio and unchanged permanent IL reference joint KL; not FPO PG",
+          "draws": "randn_G8x3 root, three randn_G8x3 W3 innovations, rand_MC4xG sigma, randn_MC4xG8x3 epsilon"
+        }
+      }
+    }
+  },
+  "node_results": {
+    "first": [
+      {
+        "node": 0,
+        "host": "training-vlawm-tsinghua-zt3",
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/FPO_WORLD16_QUALIFICATION/first/node0",
+        "returncode": 0,
+        "child_pid": 2449111,
+        "gpu_uuids": [
+          "GPU-ceb0d9a7-7b64-2fb1-cb83-962861ec73b9",
+          "GPU-9e303222-565f-9aee-caa7-625ee7f12096",
+          "GPU-37f16ed7-3b1b-4cb7-2462-70ef5abbd287",
+          "GPU-cab4a3fa-dc7f-0762-9b23-8e0e8959e57a",
+          "GPU-5d1dca72-ef65-13ce-ef85-2fde0bb2e62c",
+          "GPU-4604e9db-bf91-9dd3-1b79-deb94646aa63",
+          "GPU-3bad9a14-f891-5982-524b-b4a13a3cb734",
+          "GPU-e9cb846f-5ccf-504c-5537-e2da39e661fd"
+        ],
+        "launch_sha256": "b232e22f42a0aa27bf02bf8c417c2abe19c1153cd81f3d65d43022ed8bff78d7",
+        "result_sha256": "25059b88c9a8d49b91a3e129ed7b32bf82d8c741bac473a2e39addcb8f4d810a",
+        "start_unix": 1793714321.8526306,
+        "end_unix": 1793714577.5801737
+      },
+      {
+        "node": 1,
+        "host": "training-vlawm-tsinghua-zt4",
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/FPO_WORLD16_QUALIFICATION/first/node1",
+        "returncode": 0,
+        "child_pid": 1202566,
+        "gpu_uuids": [
+          "GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42",
+          "GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f",
+          "GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59",
+          "GPU-4fe15b93-9f87-08ea-699d-40375083da94",
+          "GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f",
+          "GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f",
+          "GPU-af5442fd-0c84-7903-61fa-9e9c49eca2ce",
+          "GPU-568199b4-3db3-da75-7c8c-c9b94d0c28b7"
+        ],
+        "launch_sha256": "652ed6fbd1e02a234a6e41f1ae482f15703b9135bd10dd87fb7631a8448a589e",
+        "result_sha256": "41ba0ee7096d44754200cd403c3cfc4e8ca949b1467b35c2525da65ad47821b1",
+        "start_unix": 1793714321.8324668,
+        "end_unix": 1793714577.5604339
+      }
+    ],
+    "resume": [
+      {
+        "node": 0,
+        "host": "training-vlawm-tsinghua-zt3",
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/FPO_WORLD16_QUALIFICATION/resume3/node0",
+        "returncode": 0,
+        "child_pid": 2459061,
+        "gpu_uuids": [
+          "GPU-ceb0d9a7-7b64-2fb1-cb83-962861ec73b9",
+          "GPU-9e303222-565f-9aee-caa7-625ee7f12096",
+          "GPU-37f16ed7-3b1b-4cb7-2462-70ef5abbd287",
+          "GPU-cab4a3fa-dc7f-0762-9b23-8e0e8959e57a",
+          "GPU-5d1dca72-ef65-13ce-ef85-2fde0bb2e62c",
+          "GPU-4604e9db-bf91-9dd3-1b79-deb94646aa63",
+          "GPU-3bad9a14-f891-5982-524b-b4a13a3cb734",
+          "GPU-e9cb846f-5ccf-504c-5537-e2da39e661fd"
+        ],
+        "launch_sha256": "756b84c4bdd46328c724c3ff88aefe6416ccac9bfecaa50ca0b29fcf42be2235",
+        "result_sha256": "f532333a0fabd5f3491b260ed2161c97cccf17bcb5ea49ac3ddb5f5c6cfb60db",
+        "start_unix": 1793715539.3775835,
+        "end_unix": 1793715709.9712775
+      },
+      {
+        "node": 1,
+        "host": "training-vlawm-tsinghua-zt4",
+        "job": "/mnt/project/d46-priority-rl-20261103/jobs/FPO_WORLD16_QUALIFICATION/resume3/node1",
+        "returncode": 0,
+        "child_pid": 1206120,
+        "gpu_uuids": [
+          "GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42",
+          "GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f",
+          "GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59",
+          "GPU-4fe15b93-9f87-08ea-699d-40375083da94",
+          "GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f",
+          "GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f",
+          "GPU-af5442fd-0c84-7903-61fa-9e9c49eca2ce",
+          "GPU-568199b4-3db3-da75-7c8c-c9b94d0c28b7"
+        ],
+        "launch_sha256": "cf853da0b9095abf6edcaba70469ab0ba541b8e3647f7b7fd381523a7dcfbc31",
+        "result_sha256": "5e2ac9537a37db1bd9685a44a95a22c8da2bbdda66f5933baeb6b1d4ed8daf2c",
+        "start_unix": 1793715539.376227,
+        "end_unix": 1793715709.9700127
+      }
+    ]
+  },
+  "Adam_steps": 1444,
+  "scheduler_steps": 1444,
+  "first_leg_new_PG_candidates": 2048,
+  "resume_new_queries": 0,
+  "gradient_norms_by_update": {
+    "1441": [
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526,
+      0.0004910488496534526
+    ],
+    "1442": [
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329,
+      0.0004924061358906329
+    ],
+    "1443": [
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213,
+      0.0005519214319065213
+    ],
+    "1444": [
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537,
+      0.0005535726086236537
+    ]
+  },
+  "ranks": [
+    {
+      "rank": 0,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank0_u001440.json",
+          "sha256": "92133ec8fbb0a423df6299c3581b56bc7bc2011cf94e7814d79e56e4e6b6973b",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank0_u001443.json",
+          "sha256": "f6d1ff1141d8a163b3a905460a4af22b3983a1c906d3904e4c3da4a3c49949a5",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank0.json",
+          "sha256": "842ef71e1b4ca1d2d7b4889f7130c207527bca237e8006ef3b370736d93b78dc"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank0.json",
+          "sha256": "12753050f927b9abf9a9f02e858f7846a375ac1870021b5852d84c01c4dc94f1"
+        }
+      ]
+    },
+    {
+      "rank": 1,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank1_u001440.json",
+          "sha256": "f5b1df4170958e16545a53abe610fb41fe3ffbf83c8bb67350cbcfa5bc4851ab",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank1_u001443.json",
+          "sha256": "1ceb3fd9bcc2f84b6858c9db8fa244a09e539e5229219e3c16622828e4b1e040",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank1.json",
+          "sha256": "fe710959dcb9cbcc695ba62a49830340243ef4c2c423e63d2e0ce93fceecc210"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank1.json",
+          "sha256": "cea0517452eefee2d7cb02479e5a7bc5149d2e7c7a8e4680c8b9c80fc29573fa"
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank2_u001440.json",
+          "sha256": "abb1484ddcb46b10c16ed39441364f43b151f76eae31b04bc41a98516c6d0e07",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank2_u001443.json",
+          "sha256": "40076cfc899da4ee3c3b1709e7121e2f84257ac0fa5c326725857fe0cd26b939",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank2.json",
+          "sha256": "19b4aec1babaebdc513ebed6d88f4e16fb9517c948a53626a45631e0f245d51b"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank2.json",
+          "sha256": "917b189e33f9f7e952c3014dc43c6923eee9eb3aff8f2c8e2d78bf484be545d2"
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank3_u001440.json",
+          "sha256": "74c137ec71825e1a95aaea73777fbc7a51bbb0b8a872cae75f2ce0b8955f62de",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank3_u001443.json",
+          "sha256": "9e1afc174a5ba4665237dee37bf81bd5b587191094d12c886cc06e6fa3da562a",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank3.json",
+          "sha256": "9bc5706c48c4812ea52d69392ede86a0d93516165c6a072f7c4cdef42daca9d4"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank3.json",
+          "sha256": "783874c24535b602ca370e4496b59d6b22790ec04f8034e8049783b72c89c114"
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank4_u001440.json",
+          "sha256": "bc9579802d562b153b5989f31d9910c8d22f7832e9d78a67d24feaddd77a9b57",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank4_u001443.json",
+          "sha256": "107b47eeea06d3d93e62e7aeedb709b0300ddd799f9851ad460b9783348ec074",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank4.json",
+          "sha256": "7d1c6b40b960e6de677fbd33d96da4a154625b864a852d43d71793a48a0e497a"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank4.json",
+          "sha256": "cd614ff45bceba32b3667440573e73c756cf5477e5d88efd44217d3723387b54"
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank5_u001440.json",
+          "sha256": "f69fdb2a668bf28c90087e0a59735d9888124273a76daf77b077cebb2915989a",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank5_u001443.json",
+          "sha256": "7b6983bb6deb2764a7f5053b8de2b373caf95c33fe7761f2eb01a296724c4d7c",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank5.json",
+          "sha256": "f468132ee184811f5043f060fef533405b6b3f7990b2f94018bff72951ce7d7b"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank5.json",
+          "sha256": "723a3d08e40604dbc1d08c455d7abd2ce63a9660239a0673bd96b299da55cb09"
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank6_u001440.json",
+          "sha256": "dfbe174dfb941c007248c16d1f6e4e807f62cfa9abeb52175367513e460135ca",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank6_u001443.json",
+          "sha256": "effad9678319eaead09bd8a6275280380b78c5f3cc35b5eda44535db672dfe05",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank6.json",
+          "sha256": "66b21d5badc6918af46a1e68027dc16ea563e24479ce484a9e2e6fb7db44e9bb"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank6.json",
+          "sha256": "4b8be15d02628bec74fe61929c3eee55904b20a900c37af9c9fafb0d162bedf6"
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank7_u001440.json",
+          "sha256": "a2d29cc4e3c959d41189bfaba32d9a64b81a3a547da7fd44ac6c645f046e32cc",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank7_u001443.json",
+          "sha256": "8cab830e464a8dd7eb05c7de6ca397e1de5f9629909267191a5ecad22c3a7389",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank7.json",
+          "sha256": "5ab83e1e164a99f236b902c712e166294f42c97a5c4a2203f98346c974f4c928"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank7.json",
+          "sha256": "0a2c4efa9d913e8ed0f5492b641bc937770a440f591ce8e6e67d14561697c0ff"
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank8_u001440.json",
+          "sha256": "6130219922fbe5008c19eca8be9cc317bfb9488adff773991b3f869e156f1b6b",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank8_u001443.json",
+          "sha256": "3032224253ce2412caa229f33d9cefdbb67921695e71357f941baf72aa5eab2f",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank8.json",
+          "sha256": "9801f81b272d9c27c191e25000221a30ce2f111b2e1fab40fb087cbc3b54f8d3"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank8.json",
+          "sha256": "a0636d2a946ea4d14422b5fbdbd48df8d49fa65a3160bd83977a0932d5bf2663"
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank9_u001440.json",
+          "sha256": "b24aa074b59b62e6ae8b69e5248f6ddca10e95692140a357bdd6eb4bf1cb078e",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank9_u001443.json",
+          "sha256": "a959773750ccf0692e6295f339d8ff25778b3809d50519162ac7740ab6d6e218",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank9.json",
+          "sha256": "47424cd2f15e5003dcd4598c29a794379fc91a76a9b530c06b974afdd3604775"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank9.json",
+          "sha256": "8a9c8400feaf57dd285966d44124855ce9f53449884d8ad0de2ff6a8facfc8d9"
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank10_u001440.json",
+          "sha256": "489efc0a5e67147c8df6e9a45b520c3a29e7faab7177b04f9dd918d5b16cc8fc",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank10_u001443.json",
+          "sha256": "9e40d0112ab25acbe6a37f28787b5c9050fbc336fd9f7d7330764254c10a1def",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank10.json",
+          "sha256": "c16183a6d6c7766db4806b0d327a9ed5fb8baa2fbabf78602e09c2e83c1d4c71"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank10.json",
+          "sha256": "34dce1a50ebf790bd6046b1481d0e7d4846f07cee30ced935efce3b669cc2efd"
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank11_u001440.json",
+          "sha256": "6a2160b56055657da6f4697111b5bbb76c980591b91f35886e84504c082af313",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank11_u001443.json",
+          "sha256": "7d22bd704086e7a5b779a0cc94ae2fe15a0c07bb76c91274aba40fa2760430bb",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank11.json",
+          "sha256": "22cb0381d5ae6badb4b26ee1347d6c2e1550c251b38a0e6079f5bd331d90266e"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank11.json",
+          "sha256": "95892f565c9d98193b2471fcc40c5259f44833b13f640a0d8240a3f9e7c1b735"
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank12_u001440.json",
+          "sha256": "57eb68c32b0429380ff5112d85aecf70a9d205a55178f2d398d26818a236ea94",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank12_u001443.json",
+          "sha256": "21cdec2faed62f0b9dbf0f91d661e9fd64d909c233b38989cd4a12cd53e6a680",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank12.json",
+          "sha256": "09bb5bd37e96d1f845fb149d709f366f678804e167ae44ad8d1050a7039f319a"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank12.json",
+          "sha256": "719ccb585c88c6ed321cad67ebb19a9b9e52f8c3dfd58098f9592690268293cc"
+        }
+      ]
+    },
+    {
+      "rank": 13,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank13_u001440.json",
+          "sha256": "cc9ee853143aa6eb1c8e34a0dc4ed55551be715e626d03dc87fd37705a02a5d3",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank13_u001443.json",
+          "sha256": "e7380a94dc93d1b9fa2af74fe541c0c606644a4c85b49631334e665b24cce5d3",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank13.json",
+          "sha256": "7ffde90a8c5cee1c4a416db8b1fe2e27b91220a17ae13d26e471784f4c1bad9f"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank13.json",
+          "sha256": "8958df8ec796159896e893aa47ca700b311d645984c3d068ce732e6da0eab12b"
+        }
+      ]
+    },
+    {
+      "rank": 14,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank14_u001440.json",
+          "sha256": "538ddfab39dd9b0043e741e47919bbc413f9b30bd2d7d3a8f0c74f2b87be0bb1",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank14_u001443.json",
+          "sha256": "49b47b60a5330cb66fafea6b6eb70f6fbe5785b4fe0e7bd82e76d70a0ebd205b",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank14.json",
+          "sha256": "e0c75457645f684338b92fa222c5d6dba1dad15a58516cee5294ff4fa44f7970"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank14.json",
+          "sha256": "e7d193b57443abe4a95ee4da8ec16fcb7658cbfc49cf1c3e4a07660540fbd4d7"
+        }
+      ]
+    },
+    {
+      "rank": 15,
+      "full_RNG_exact": true,
+      "virtual8_exact": true,
+      "unchanged_counters": {
+        "collections": 722,
+        "scene_cursor": 46208,
+        "valid_scene_exposures": 46208,
+        "raw_scene_exposures": 46208,
+        "new_candidates": 739328,
+        "valid_PG_candidates": 739328,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0,
+        "padding_scene_exposures": 0,
+        "evaluation_gates": []
+      },
+      "FM_shapes": [
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        },
+        {
+          "fm_state": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "fm_sigma": [
+            4,
+            16
+          ],
+          "fm_target": [
+            4,
+            16,
+            8,
+            3
+          ],
+          "old_energy": [
+            16
+          ]
+        }
+      ],
+      "B1_restore": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank15_u001440.json",
+          "sha256": "f2f23b08c9801a12fbe5b4e6591d4c21cc53e6cbfd03f2ee7bb2748ad354f263",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/native_B1_restore_parity_rank15_u001443.json",
+          "sha256": "122cfffc0c16bcc5e3e0877775a46f634a308f46833dc1af7d129111d229327d",
+          "max_abs": {
+            "normalized_action": 0.0,
+            "requested_trajectory": 0.0
+          }
+        }
+      ],
+      "frozen_parameters_unchanged": true,
+      "fresh_aggregated_FPO_and_Gaussian": [
+        {
+          "updates": 1441,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        },
+        {
+          "updates": 1443,
+          "metrics": {
+            "fpo_joint_logratio_min": 0.0,
+            "fpo_joint_logratio_max": 0.0,
+            "fpo_ratio_mean": 1.0,
+            "fpo_ratio_max": 1.0,
+            "fresh_ratio_error": 0.0
+          }
+        }
+      ],
+      "resume_physical_queries": 0,
+      "actual_first_leg_candidates": 128,
+      "invocations": [
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/212819871bb54f63872366622abda2cc/rank15.json",
+          "sha256": "056ca330a2f654088340c6fea417f6eaeb3fe5f89df401ea0e64634ed4648a40"
+        },
+        {
+          "path": "/mnt/project/d46-priority-rl-20261103/qualification/WORLD16_FPO_u1440_v1/invocations/79cdf30160624e61b2f77f287ab4f51a/rank15.json",
+          "sha256": "119ace6a2bb03f3fd2d86b04bcea60291f91817796a66344740eadb555cc15e7"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Actual full-model CUDA execution is evidenced by the bound node receipts/checkpoints; this audit itself is CPU only.",
+    "FPO fresh ratios/energy extrema are per-rank averages of4 leaf metrics in existing logs, not a saved per-leaf maximum. Gaussian fresh ratio has its separate actor hard guard.",
+    "No uninterrupted full-model parameter-bitexact comparator was run; pending RNG/material/Adam continuity is checked, not crossworld bitexactness.",
+    "No long-run speed, score gain or algorithm superiority claim."
+  ]
+}

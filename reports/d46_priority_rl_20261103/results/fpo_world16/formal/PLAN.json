@@ -1,0 +1,28 @@
+{
+  "schema": "d46_formal_world16_stage_plan_v1",
+  "stage_id": "FPO_WORLD16_PRIORITY_v1",
+  "arm": "D3_FPO",
+  "output": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO_WORLD16_v1",
+  "science_source": "/mnt/project/d46-priority-rl-20261103/runtime/world16_fpo_science_v1",
+  "source_sha": "82d5f784d02ad4bc182231a267edab8a2a69833e",
+  "config": "/mnt/project/d46-priority-rl-20261103/registered_configs/D3_FPO.yaml",
+  "config_sha256": "ae9fa50198a46239df625396f786c257d6c729f018700537c25ccc46209b0567",
+  "identity_sha256": "95ab42687fdf419234c1990edafb7e17a7868866028a6e71ef9e3104c43b82d4",
+  "transition_receipt_sha256": "61f1c044f93354b4fae727256f7c9a280770af7e0cf1f26bb01aef962d575675",
+  "hosts": [
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt4"
+  ],
+  "master_addr": "172.16.136.117",
+  "master_port": 29846,
+  "target_epochs": 6.0,
+  "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v8",
+  "minimum_free_MiB": 65000,
+  "shared_admission": true,
+  "resource75_retry_limit": 3,
+  "owner_deadline_unix": null,
+  "owner_root": "/mnt/project/d46-priority-rl-20261103/operations/WORLD16_STAGES/FPO_WORLD16_PRIORITY_v1",
+  "reason": "Prioritize promising FPO90.12278 at0.279E alongside D0; preserve same original IL46->own1440 Adam/RNG/MC4/FPO math. Existing protected D IL60k evaluators may share only under65000MiB standard known-owner admission.",
+  "engineering_qualification": "/mnt/project/d46-priority-rl-20261103/operations/FPO_WORLD16_TSH4_20261103/GPU_QUALIFICATION_AUDIT.json",
+  "engineering_qualification_sha256": "812a7ea60a90fde2e838ea12b467ad18e3adf128ba5f370c498c6de561ace9aa"
+}

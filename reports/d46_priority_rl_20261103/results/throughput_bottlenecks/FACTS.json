@@ -1,0 +1,989 @@
+{
+  "schema": "d46_actual_throughput_bottlenecks_v1",
+  "status": "COMPLETE",
+  "generated_utc": "2026-11-03T15:04:47.998852+00:00",
+  "analysis_scope": "All ranks, last40 complete same-invocation M2 collections each of D0 world16/FPO world16/D2 world8; finite60s live resource sampling only. No model forward, score, profiler, signals, locks or live mutations.",
+  "one_minute_resource_summary": {
+    "D0@training-vlawm-zt4": {
+      "host": "training-vlawm-zt4",
+      "sample_seconds": 60.00490093231201,
+      "n_samples": 13,
+      "exact_rank_process_count": 8,
+      "utilization_pct": {
+        "n": 104,
+        "mean": 34.06730769230769,
+        "median": 35.0,
+        "min": 0.0,
+        "max": 60.0,
+        "p10": 26.900000000000002,
+        "p90": 45.0
+      },
+      "power_W": {
+        "n": 104,
+        "mean": 147.8925,
+        "median": 148.39999999999998,
+        "min": 94.03,
+        "max": 247.48,
+        "p10": 116.472,
+        "p90": 172.453
+      },
+      "free_MiB": {
+        "n": 104,
+        "mean": 51722.5,
+        "median": 51724.0,
+        "min": 51712.0,
+        "max": 51732.0,
+        "p10": 51712.0,
+        "p90": 51732.0
+      },
+      "used_MiB": {
+        "n": 104,
+        "mean": 29431.5,
+        "median": 29430.0,
+        "min": 29422.0,
+        "max": 29442.0,
+        "p10": 29422.0,
+        "p90": 29442.0
+      },
+      "known_rank_cpu_cores": {
+        "n": 8,
+        "mean": 0.9435687605562131,
+        "median": 0.9440895513502059,
+        "min": 0.9260910215098136,
+        "max": 0.9624213872987536,
+        "p10": 0.9304073356104262,
+        "p90": 0.954255387648946
+      },
+      "cpu_by_exact_rank": [
+        {
+          "pid": 3052381,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9624213872987536
+        },
+        {
+          "pid": 3052382,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9392566127819524
+        },
+        {
+          "pid": 3052383,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9322571845106887
+        },
+        {
+          "pid": 3052384,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9399232249982632
+        },
+        {
+          "pid": 3052385,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9507556735133141
+        },
+        {
+          "pid": 3052386,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9495891021347702
+        },
+        {
+          "pid": 3052387,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9482558777021486
+        },
+        {
+          "pid": 3052388,
+          "start_ticks": 1514964819,
+          "cpu_cores": 0.9260910215098136
+        }
+      ],
+      "caveat": "GPU device-wide instantaneous NVML samples, not per-process compute time. CPU excludes PDM scoring subprocesses. TSH3/4 may contain known protected IL evaluation; no foreign command/environment emitted."
+    },
+    "D0@training-vlawm-tsinghua-zt5": {
+      "host": "training-vlawm-tsinghua-zt5",
+      "sample_seconds": 60.004451751708984,
+      "n_samples": 13,
+      "exact_rank_process_count": 8,
+      "utilization_pct": {
+        "n": 104,
+        "mean": 34.66346153846154,
+        "median": 35.0,
+        "min": 0.0,
+        "max": 83.0,
+        "p10": 30.3,
+        "p90": 45.7
+      },
+      "power_W": {
+        "n": 104,
+        "mean": 152.82134615384615,
+        "median": 152.70499999999998,
+        "min": 93.68,
+        "max": 243.16,
+        "p10": 118.583,
+        "p90": 184.435
+      },
+      "free_MiB": {
+        "n": 104,
+        "mean": 51715.0,
+        "median": 51712.0,
+        "min": 51712.0,
+        "max": 51724.0,
+        "p10": 51712.0,
+        "p90": 51724.0
+      },
+      "used_MiB": {
+        "n": 104,
+        "mean": 29439.0,
+        "median": 29442.0,
+        "min": 29430.0,
+        "max": 29442.0,
+        "p10": 29430.0,
+        "p90": 29442.0
+      },
+      "known_rank_cpu_cores": {
+        "n": 8,
+        "mean": 0.9361388757026707,
+        "median": 0.936847156484501,
+        "min": 0.9237647938083411,
+        "max": 0.9535959137960179,
+        "p10": 0.9269145601087159,
+        "p90": 0.9434466668281435
+      },
+      "cpu_by_exact_rank": [
+        {
+          "pid": 2148792,
+          "start_ticks": 220629325,
+          "cpu_cores": 0.9535959137960179
+        },
+        {
+          "pid": 2148793,
+          "start_ticks": 220629325,
+          "cpu_cores": 0.9237647938083411
+        },
+        {
+          "pid": 2148794,
+          "start_ticks": 220629326,
+          "cpu_cores": 0.9375971008417331
+        },
+        {
+          "pid": 2148795,
+          "start_ticks": 220629326,
+          "cpu_cores": 0.9360972121272689
+        },
+        {
+          "pid": 2148796,
+          "start_ticks": 220629326,
+          "cpu_cores": 0.938763680952983
+        },
+        {
+          "pid": 2148797,
+          "start_ticks": 220629326,
+          "cpu_cores": 0.9282644599517337
+        },
+        {
+          "pid": 2148798,
+          "start_ticks": 220629326,
+          "cpu_cores": 0.9319308545870907
+        },
+        {
+          "pid": 2148799,
+          "start_ticks": 220629326,
+          "cpu_cores": 0.9390969895561974
+        }
+      ],
+      "caveat": "GPU device-wide instantaneous NVML samples, not per-process compute time. CPU excludes PDM scoring subprocesses. TSH3/4 may contain known protected IL evaluation; no foreign command/environment emitted."
+    },
+    "D3_FPO@training-vlawm-tsinghua-zt3": {
+      "host": "training-vlawm-tsinghua-zt3",
+      "sample_seconds": 60.00479054450989,
+      "n_samples": 13,
+      "exact_rank_process_count": 8,
+      "utilization_pct": {
+        "n": 104,
+        "mean": 37.92307692307692,
+        "median": 35.0,
+        "min": 0.0,
+        "max": 100.0,
+        "p10": 30.0,
+        "p90": 46.10000000000001
+      },
+      "power_W": {
+        "n": 104,
+        "mean": 128.13509615384615,
+        "median": 124.855,
+        "min": 84.51,
+        "max": 206.81,
+        "p10": 100.08,
+        "p90": 157.48499999999999
+      },
+      "free_MiB": {
+        "n": 104,
+        "mean": 38546.0,
+        "median": 38544.0,
+        "min": 38542.0,
+        "max": 38556.0,
+        "p10": 38542.0,
+        "p90": 38556.0
+      },
+      "used_MiB": {
+        "n": 104,
+        "mean": 42608.0,
+        "median": 42610.0,
+        "min": 42598.0,
+        "max": 42612.0,
+        "p10": 42598.0,
+        "p90": 42612.0
+      },
+      "known_rank_cpu_cores": {
+        "n": 8,
+        "mean": 0.9574235569972565,
+        "median": 0.9558403500709773,
+        "min": 0.9444245948657011,
+        "max": 0.9785885338011993,
+        "p10": 0.9461744551526412,
+        "p90": 0.9706558338337372
+      },
+      "cpu_by_exact_rank": [
+        {
+          "pid": 2461098,
+          "start_ticks": 1515473599,
+          "cpu_cores": 0.9785885338011993
+        },
+        {
+          "pid": 2461099,
+          "start_ticks": 1515473599,
+          "cpu_cores": 0.9502574624888349
+        },
+        {
+          "pid": 2461100,
+          "start_ticks": 1515473600,
+          "cpu_cores": 0.9577568637185784
+        },
+        {
+          "pid": 2461101,
+          "start_ticks": 1515473600,
+          "cpu_cores": 0.9602566641284929
+        },
+        {
+          "pid": 2461102,
+          "start_ticks": 1515473600,
+          "cpu_cores": 0.9672561052762535
+        },
+        {
+          "pid": 2461103,
+          "start_ticks": 1515473600,
+          "cpu_cores": 0.9469243952756156
+        },
+        {
+          "pid": 2461104,
+          "start_ticks": 1515473600,
+          "cpu_cores": 0.9444245948657011
+        },
+        {
+          "pid": 2461105,
+          "start_ticks": 1515473600,
+          "cpu_cores": 0.9539238364233762
+        }
+      ],
+      "caveat": "GPU device-wide instantaneous NVML samples, not per-process compute time. CPU excludes PDM scoring subprocesses. TSH3/4 may contain known protected IL evaluation; no foreign command/environment emitted."
+    },
+    "D3_FPO@training-vlawm-tsinghua-zt4": {
+      "host": "training-vlawm-tsinghua-zt4",
+      "sample_seconds": 60.00484800338745,
+      "n_samples": 13,
+      "exact_rank_process_count": 8,
+      "utilization_pct": {
+        "n": 104,
+        "mean": 37.0,
+        "median": 34.0,
+        "min": 6.0,
+        "max": 100.0,
+        "p10": 25.3,
+        "p90": 42.400000000000006
+      },
+      "power_W": {
+        "n": 104,
+        "mean": 127.32884615384616,
+        "median": 125.485,
+        "min": 88.88,
+        "max": 209.34,
+        "p10": 98.6,
+        "p90": 147.863
+      },
+      "free_MiB": {
+        "n": 104,
+        "mean": 38547.0,
+        "median": 38544.0,
+        "min": 38544.0,
+        "max": 38556.0,
+        "p10": 38544.0,
+        "p90": 38556.0
+      },
+      "used_MiB": {
+        "n": 104,
+        "mean": 42607.0,
+        "median": 42610.0,
+        "min": 42598.0,
+        "max": 42610.0,
+        "p10": 42598.0,
+        "p90": 42610.0
+      },
+      "known_rank_cpu_cores": {
+        "n": 8,
+        "mean": 0.9539854179243721,
+        "median": 0.9542562293761248,
+        "min": 0.9384241752736568,
+        "max": 0.9680884450656495,
+        "p10": 0.9416905780147976,
+        "p90": 0.9673885016211193
+      },
+      "cpu_by_exact_rank": [
+        {
+          "pid": 1207610,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.9680884450656495
+        },
+        {
+          "pid": 1207611,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.9585892126041687
+        },
+        {
+          "pid": 1207612,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.9585892126041687
+        },
+        {
+          "pid": 1207613,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.9480900609362162
+        },
+        {
+          "pid": 1207614,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.943090464903858
+        },
+        {
+          "pid": 1207615,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.9499232461480809
+        },
+        {
+          "pid": 1207616,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.9670885258591778
+        },
+        {
+          "pid": 1207617,
+          "start_ticks": 1515473109,
+          "cpu_cores": 0.9384241752736568
+        }
+      ],
+      "caveat": "GPU device-wide instantaneous NVML samples, not per-process compute time. CPU excludes PDM scoring subprocesses. TSH3/4 may contain known protected IL evaluation; no foreign command/environment emitted."
+    }
+  },
+  "benchmark_candidate_GPUs": {
+    "training-rl-zt2": {
+      "status": "READ_COMPLETE",
+      "at_unix": 1793717909.4179032,
+      "hostname": "training-rl-zt2-worker-0",
+      "gpus": [
+        {
+          "index": 1,
+          "uuid": "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+          "total_MiB": 81920,
+          "free_MiB": 81218,
+          "utilization_pct": 0,
+          "owners": [],
+          "unexplained_MiB": 702,
+          "idle_candidate": true
+        },
+        {
+          "index": 7,
+          "uuid": "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e",
+          "total_MiB": 81920,
+          "free_MiB": 81218,
+          "utilization_pct": 0,
+          "owners": [],
+          "unexplained_MiB": 702,
+          "idle_candidate": true
+        }
+      ],
+      "unknown_cmdline_or_environ_emitted": false
+    },
+    "training-vlawm-zt2": {
+      "status": "READ_COMPLETE",
+      "at_unix": 1793717909.4376838,
+      "hostname": "training-vlawm-zt2-worker-0",
+      "gpus": [
+        {
+          "index": 0,
+          "uuid": "GPU-1386734b-c9fe-712b-ed5d-b72489f378c4",
+          "total_MiB": 81920,
+          "free_MiB": 81153,
+          "utilization_pct": 0,
+          "owners": [],
+          "unexplained_MiB": 767,
+          "idle_candidate": true
+        },
+        {
+          "index": 1,
+          "uuid": "GPU-e7922803-3af5-8539-041d-dc8bce5565ec",
+          "total_MiB": 81920,
+          "free_MiB": 81153,
+          "utilization_pct": 0,
+          "owners": [],
+          "unexplained_MiB": 767,
+          "idle_candidate": true
+        }
+      ],
+      "unknown_cmdline_or_environ_emitted": false
+    }
+  },
+  "source_hotspots": [
+    {
+      "priority": "P0",
+      "name": "Repeated CUDA-to-host prefix selection decisions",
+      "path": "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py",
+      "lines": [
+        28,
+        75
+      ],
+      "evidence": "28 Qwen layers: 56 K/V +valid,next_positions,reasoning =59 _select calls. Repeated indices cause59 bool(torch.all(...)) +59 int(indices[0]) +G16 names int =134 host scalar conversions per ordinary index_select; not a timed measurement. For G1 names one =>119. _prepare constructs candidate_to_scene on CUDA.",
+      "optimization": "Carry a validated CPU scene-index/one-scene-broadcast descriptor, reuse its integer/boolean once across all K/V; do not repeatedly inspect CUDA metadata. Preserve expand view and candidate ordering, and strict invalid-index validation.",
+      "risk": "Must preserve autograd, repeated-scene stride0 packing eligibility, exact prefix names and bounds; no proposal/loss change."
+    },
+    {
+      "priority": "P1",
+      "name": "Redundant current W3 collection recomputation and frozen reference prefix",
+      "path": "starVLA/rl/d44_native_rl/actor.py",
+      "lines": [
+        51,
+        77
+      ],
+      "evidence": "Sequential policy: per scene10 sampled denoise +3 current W3 verification +3 frozen-reference W3 +2x3 current update calls. Four current and one reference prefix builds per scene. Existing sampler already saves actual W3 means; current verify3 and its prefix consume compute solely to recheck fresh sampler identity.",
+      "optimization": "Share the no-grad current prefix between collection sampling and its W3 verification while the policy is unchanged. The frozen reference prefix is already built only once per fresh scene, so there is no demonstrated repeated-reference-prefix saving in this window. Consider moving sampler-vs-recompute check to bounded qualification while retaining actual old means and fresh ratio validation; this removes a check, so requires explicit execution-equivalence review rather than silent hotfix.",
+      "static_forward_call_bounds": "Removing all3 current verification calls is3/22=13.6% of D0 denoise forward invocation count, not13.6% wall: prefixes, batch sizes, backward recompute and sync differ."
+    },
+    {
+      "priority": "P1",
+      "name": "FPO MC4 old-energy and MC4 backward are real extra transformer work",
+      "path": "starVLA/rl/d44_native_rl/batch_runtime.py",
+      "lines": [
+        90,
+        102
+      ],
+      "evidence": "Per scene4 no-grad old-energy denoise after timed generation/scoring; each of2 optimizer updates adds4 current MC denoise +backprop beyond3 W3 anchor denoise. Extra12 forward invocations per scene (34 vs22 including reference), absent from velocity-call counters.",
+      "optimization": "Evaluate exact MC batching using shared prefix/scene packing, and prefix reuse within scope. Reducing MC or dropping W3 anchor changes the method and must be a separate scientific experiment; cannot claim free speedup."
+    },
+    {
+      "priority": "P2",
+      "name": "Serial scene scoring and D2 uninstrumented rescue queries",
+      "path": "starVLA/rl/simwam_recipe/reward_readouts.py",
+      "lines": [
+        27,
+        36
+      ],
+      "evidence": "RewardService.score is submit(...).result(); trainer processes scene generation then synchronous score sequentially. D2after.5E adds B1 and conditional G16 expansion after base generation/scoring timers.",
+      "optimization": "Use existing async submit to overlap bounded candidate CPU scoring with next scene GPU generation while preserving query IDs/order, RNG and exact frozen policy version. Keep pending query ledger/native save consistent.",
+      "caveat": "Base score timer is small forD0/FPO; eliminating it entirely gives only the reported impossible Amdahl ceiling. D2 true total scoring includes uninstrumented extra queries, so base timer cannot bound all scoring cost."
+    },
+    {
+      "priority": "P2",
+      "name": "Frozen visual preparation is already bounded-LRU cached",
+      "path": "starVLA/rl/d44_native_rl/conditions.py",
+      "lines": [
+        8,
+        22
+      ],
+      "evidence": "Per-scene frozen prefill counter and seconds include observation decode/processor/encode_current; current/referential text C/P prefix is recomputed intentionally for trainable current text. No evidence image preprocessing dominates this window.",
+      "optimization": "Retain correct frozen vision cache; do not cache trainable current C/P across Adam updates. Add separate condition/old-energy/extra-score timers before deciding larger pipeline rewrite."
+    }
+  ],
+  "conclusions_zh": [
+    "D0: 最近40个完整collection，稳态整轮中位21.138s；基准G16生成9.095s、已计基础评分0.832s、两次Adam合计10.391s，残余0.793s。分项不可当独立因果归因。",
+    "D3_FPO: 最近40个完整collection，稳态整轮中位33.095s；基准G16生成9.461s、已计基础评分0.836s、两次Adam合计19.423s，残余3.375s。分项不可当独立因果归因。",
+    "D2: 最近40个完整collection，稳态整轮中位75.091s；基准G16生成23.963s、已计基础评分1.915s、两次Adam合计31.254s，残余18.079s。分项不可当独立因果归因。",
+    "优先做不改数学的CUDA索引主机同步消除与prefix/候选打包小基准；FPO额外MC4前反向不能靠把计时字段改名消除。",
+    "D0/FPO基础评分等待占比有限；D2额外B1/自适应评分没有纳入旧评分字段，须先拆计时再决定异步化收益。",
+    "WM2GPU0/1和RL2GPU1/7采样时均无compute owner、util0、约79GiB（81kMiB）空闲，只有只读候选证据，实际任务仍须UUID/lease/授权/headroom重新准入。"
+  ],
+  "observed_cpu_sync_interpretation": "Near-one busy CPU core per exact rank together with modest device-wide GPU utilization is consistent with Python launches/synchronization and small kernels, not proof of percentage attributable to DPrefix. No CUDA profiler was attached; GPU hardware peak/headroom is not a measured attainable training speedup.",
+  "conditional_speedup_warning": "Amdahl figures remove/halve only explicitly timed rank0 sections and assume all else fixed. They are scenario bounds, not measured/guaranteed gains. They exclude startup/full evaluation and are not algorithm score improvements.",
+  "source_script": {
+    "path": "/mnt/project/d46-priority-rl-20261103/analysis/build_throughput_bottlenecks.py",
+    "file_sha256": "5a9958de575fe6c7b99879999307de70a009088b858bd389d5df11ea27eadc9e"
+  },
+  "full_evidence": {
+    "path": "/mnt/project/d46-priority-rl-20261103/analysis/THROUGHPUT_BOTTLENECKS_20261103.json",
+    "file_sha256": "eaeb62a26165b49a6e525d6155ab8054e853c5fbae40470acc8f82ae3a18bdde",
+    "raw_resource_path": {
+      "path": "/mnt/project/d46-priority-rl-20261103/analysis/THROUGHPUT_RESOURCE_SAMPLING_20261103.json",
+      "file_sha256": "18ce50c2bd98c36a2dba150b53554e67e88215a77bcfb9d40961db241c807127"
+    }
+  },
+  "windows": {
+    "D0": {
+      "world": 16,
+      "source": "/mnt/project/d46-priority-rl-20261103/runtime/world16_science_v3",
+      "identity_sha256": "337315a7a909afaa784838f0569ca6374df0c5fa27ed8c1c4f084a391782daa7",
+      "window": {
+        "start_completed_update": 2310,
+        "end_completed_update": 2390,
+        "complete_collections": 40,
+        "optimizer_updates": 80,
+        "first_collection": 1156,
+        "last_collection": 1195,
+        "end_scene_exposures": 76480,
+        "start_wall_unix": 1793717439.1371236,
+        "end_wall_unix": 1793718285.303834,
+        "common_prefix_end": 2390,
+        "invocation_by_rank": [
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877",
+          "8a7ef47a313a476a9e585cf4a5033877"
+        ]
+      },
+      "steady_complete_collections": 40,
+      "steady_intervals_rank0": {
+        "wall_seconds": {
+          "n": 40,
+          "mean": 21.15416775941849,
+          "median": 21.137778997421265,
+          "min": 20.877652645111084,
+          "max": 21.4618079662323,
+          "p10": 20.957054448127746,
+          "p90": 21.34823591709137
+        },
+        "generation_seconds": {
+          "n": 40,
+          "mean": 9.120576702954713,
+          "median": 9.095198595430702,
+          "min": 8.922764467541128,
+          "max": 9.44475135859102,
+          "p10": 9.00259694014676,
+          "p90": 9.232396421721205
+        },
+        "base_scoring_seconds": {
+          "n": 40,
+          "mean": 0.8385157801909372,
+          "median": 0.8316091781016439,
+          "min": 0.6427090605720878,
+          "max": 1.0418894235044718,
+          "p10": 0.6573524506296963,
+          "p90": 0.984637456573546
+        },
+        "optimizer_updates_seconds": {
+          "n": 40,
+          "mean": 10.40110857769614,
+          "median": 10.390730028506368,
+          "min": 10.300785608123988,
+          "max": 10.612343297339976,
+          "p10": 10.317818279843777,
+          "p90": 10.491760961618274
+        },
+        "unexplained_residual_seconds": {
+          "n": 40,
+          "mean": 0.7939666985766962,
+          "median": 0.7927056381013244,
+          "min": 0.4835862750187516,
+          "max": 1.1491954242810607,
+          "p10": 0.5791607342194766,
+          "p90": 1.0314227737486363
+        }
+      },
+      "steady_rank0_time_fractions": {
+        "generation_seconds": 0.4311479802316473,
+        "base_scoring_seconds": 0.03963832516254884,
+        "optimizer_updates_seconds": 0.49168129401192096,
+        "unexplained_residual_seconds": 0.03753240059388287
+      },
+      "global_scenes_per_second": 3.025408549646451,
+      "base_scoring_zero_cost_impossible_upper_speedup": 1.041274372146575,
+      "optimizer_section_half_cost_conditional_speedup": 1.3259797097655346,
+      "current_generation_section_half_cost_conditional_speedup": 1.274817493810097,
+      "per_rank_per_collection_model_work_delta": {
+        "velocity_calls": {
+          "n": 16,
+          "mean": 76.0,
+          "median": 76.0,
+          "min": 76.0,
+          "max": 76.0,
+          "p10": 76.0,
+          "p90": 76.0
+        },
+        "reference_velocity_calls": {
+          "n": 16,
+          "mean": 12.0,
+          "median": 12.0,
+          "min": 12.0,
+          "max": 12.0,
+          "p10": 12.0,
+          "p90": 12.0
+        },
+        "current_prefix_builds": {
+          "n": 16,
+          "mean": 16.0,
+          "median": 16.0,
+          "min": 16.0,
+          "max": 16.0,
+          "p10": 16.0,
+          "p90": 16.0
+        },
+        "reference_prefix_builds": {
+          "n": 16,
+          "mean": 4.0,
+          "median": 4.0,
+          "min": 4.0,
+          "max": 4.0,
+          "p10": 4.0,
+          "p90": 4.0
+        },
+        "frozen_vision_prefills": {
+          "n": 16,
+          "mean": 4.0,
+          "median": 4.0,
+          "min": 4.0,
+          "max": 4.0,
+          "p10": 4.0,
+          "p90": 4.0
+        },
+        "frozen_vision_prefill_seconds": {
+          "n": 16,
+          "mean": 0.5518002345750574,
+          "median": 0.553314708522521,
+          "min": 0.5326048093964346,
+          "max": 0.5685143267270177,
+          "p10": 0.5393541583791375,
+          "p90": 0.5611823786224704
+        }
+      },
+      "global_query_deltas": {
+        "raw_scene_exposures": 2560,
+        "scene_exposures": 2560,
+        "PG_candidates": 40960,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0
+      },
+      "caveat": "Rank0 wall end-to-end includes control/I/O/DDP waiting. Per-rank clocks are not subtracted across hosts. Generation is base G16+W3 current/reference only; excludes FPO old MC energy, D2 nominal/rescue, finalization and behavior serialization. Residual is not a causal CPU-only timer. Counters omit direct denoise_x0 MC/aux calls; activation-checkpoint backward replay is not counted."
+    },
+    "D3_FPO": {
+      "world": 16,
+      "source": "/mnt/project/d46-priority-rl-20261103/runtime/world16_fpo_science_v1",
+      "identity_sha256": "95ab42687fdf419234c1990edafb7e17a7868866028a6e71ef9e3104c43b82d4",
+      "window": {
+        "start_completed_update": 1492,
+        "end_completed_update": 1572,
+        "complete_collections": 40,
+        "optimizer_updates": 80,
+        "first_collection": 747,
+        "last_collection": 786,
+        "end_scene_exposures": 50304,
+        "start_wall_unix": 1793716949.3536165,
+        "end_wall_unix": 1793718275.1471658,
+        "common_prefix_end": 1572,
+        "invocation_by_rank": [
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99",
+          "0d5337e083cd45e3b054a199dc533e99"
+        ]
+      },
+      "steady_complete_collections": 39,
+      "steady_intervals_rank0": {
+        "wall_seconds": {
+          "n": 39,
+          "mean": 33.14092747370402,
+          "median": 33.095242738723755,
+          "min": 32.764209508895874,
+          "max": 33.96743655204773,
+          "p10": 32.88392300605774,
+          "p90": 33.47234983444214
+        },
+        "generation_seconds": {
+          "n": 39,
+          "mean": 9.475447973427482,
+          "median": 9.460546776652336,
+          "min": 9.309652218595147,
+          "max": 9.698265798389912,
+          "p10": 9.384293585643173,
+          "p90": 9.586815803870559
+        },
+        "base_scoring_seconds": {
+          "n": 39,
+          "mean": 0.8148750070578012,
+          "median": 0.8355402257293463,
+          "min": 0.5629466101527214,
+          "max": 1.0530092604458332,
+          "p10": 0.6626639727503061,
+          "p90": 0.9498268604278567
+        },
+        "optimizer_updates_seconds": {
+          "n": 39,
+          "mean": 19.48474908195054,
+          "median": 19.422923766076565,
+          "min": 19.262343790382147,
+          "max": 20.187658546492457,
+          "p10": 19.315767381712796,
+          "p90": 19.655527897179127
+        },
+        "unexplained_residual_seconds": {
+          "n": 39,
+          "mean": 3.3658554112681975,
+          "median": 3.375245936214924,
+          "min": 3.0207622796297073,
+          "max": 3.7879135347902775,
+          "p10": 3.1317251000553368,
+          "p90": 3.5812632862478497
+        }
+      },
+      "steady_rank0_time_fractions": {
+        "generation_seconds": 0.28591378382351745,
+        "base_scoring_seconds": 0.02458817749456081,
+        "optimizer_updates_seconds": 0.5879361432298748,
+        "unexplained_residual_seconds": 0.10156189545204693
+      },
+      "global_scenes_per_second": 1.9311469194934692,
+      "base_scoring_zero_cost_impossible_upper_speedup": 1.0252079961788896,
+      "optimizer_section_half_cost_conditional_speedup": 1.416366540656799,
+      "current_generation_section_half_cost_conditional_speedup": 1.1668024520150972,
+      "per_rank_per_collection_model_work_delta": {
+        "velocity_calls": {
+          "n": 16,
+          "mean": 76.0,
+          "median": 76.0,
+          "min": 76.0,
+          "max": 76.0,
+          "p10": 76.0,
+          "p90": 76.0
+        },
+        "reference_velocity_calls": {
+          "n": 16,
+          "mean": 12.0,
+          "median": 12.0,
+          "min": 12.0,
+          "max": 12.0,
+          "p10": 12.0,
+          "p90": 12.0
+        },
+        "current_prefix_builds": {
+          "n": 16,
+          "mean": 20.0,
+          "median": 20.0,
+          "min": 20.0,
+          "max": 20.0,
+          "p10": 20.0,
+          "p90": 20.0
+        },
+        "reference_prefix_builds": {
+          "n": 16,
+          "mean": 4.0,
+          "median": 4.0,
+          "min": 4.0,
+          "max": 4.0,
+          "p10": 4.0,
+          "p90": 4.0
+        },
+        "frozen_vision_prefills": {
+          "n": 16,
+          "mean": 4.0,
+          "median": 4.0,
+          "min": 4.0,
+          "max": 4.0,
+          "p10": 4.0,
+          "p90": 4.0
+        },
+        "frozen_vision_prefill_seconds": {
+          "n": 16,
+          "mean": 0.5479426758451155,
+          "median": 0.546848056325689,
+          "min": 0.5315919012762607,
+          "max": 0.5684317188337445,
+          "p10": 0.5348584837745876,
+          "p90": 0.5621939016040414
+        }
+      },
+      "global_query_deltas": {
+        "raw_scene_exposures": 2560,
+        "scene_exposures": 2560,
+        "PG_candidates": 40960,
+        "extra_B1_queries": 0,
+        "adaptive_G32_queries": 0
+      },
+      "caveat": "Rank0 wall end-to-end includes control/I/O/DDP waiting. Per-rank clocks are not subtracted across hosts. Generation is base G16+W3 current/reference only; excludes FPO old MC energy, D2 nominal/rescue, finalization and behavior serialization. Residual is not a causal CPU-only timer. Counters omit direct denoise_x0 MC/aux calls; activation-checkpoint backward replay is not counted."
+    },
+    "D2": {
+      "world": 8,
+      "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+      "identity_sha256": "e1bf35bdadf5037b72c69075c8d86db8285b18224c5ed01e67f7b9800f0b4eb6",
+      "window": {
+        "start_completed_update": 1758,
+        "end_completed_update": 1838,
+        "complete_collections": 40,
+        "optimizer_updates": 80,
+        "first_collection": 880,
+        "last_collection": 919,
+        "end_scene_exposures": 58816,
+        "start_wall_unix": 1793715253.211,
+        "end_wall_unix": 1793718267.8812726,
+        "common_prefix_end": 1838,
+        "invocation_by_rank": [
+          "6f911882a7404cd7873323b538b37034",
+          "6f911882a7404cd7873323b538b37034",
+          "6f911882a7404cd7873323b538b37034",
+          "6f911882a7404cd7873323b538b37034",
+          "6f911882a7404cd7873323b538b37034",
+          "6f911882a7404cd7873323b538b37034",
+          "6f911882a7404cd7873323b538b37034",
+          "6f911882a7404cd7873323b538b37034"
+        ]
+      },
+      "steady_complete_collections": 39,
+      "steady_intervals_rank0": {
+        "wall_seconds": {
+          "n": 39,
+          "mean": 75.38139165976109,
+          "median": 75.09144449234009,
+          "min": 72.34156680107117,
+          "max": 80.05244040489197,
+          "p10": 73.24863324165344,
+          "p90": 77.6912335395813
+        },
+        "generation_seconds": {
+          "n": 39,
+          "mean": 23.95176841839193,
+          "median": 23.963066650554538,
+          "min": 22.509785369038582,
+          "max": 25.427360702306032,
+          "p10": 22.94700220040977,
+          "p90": 24.829911551252007
+        },
+        "base_scoring_seconds": {
+          "n": 39,
+          "mean": 1.9239677419551673,
+          "median": 1.9145124293863773,
+          "min": 1.3901966474950314,
+          "max": 2.337581392377615,
+          "p10": 1.6689042519778012,
+          "p90": 2.231469053775072
+        },
+        "optimizer_updates_seconds": {
+          "n": 39,
+          "mean": 31.297523837297774,
+          "median": 31.253863643854856,
+          "min": 28.517496198415756,
+          "max": 34.58855978772044,
+          "p10": 29.897913228347896,
+          "p90": 32.9429393466562
+        },
+        "unexplained_residual_seconds": {
+          "n": 39,
+          "mean": 18.20813166211622,
+          "median": 18.079105608165264,
+          "min": 15.062936833128333,
+          "max": 22.37245667167008,
+          "p10": 16.217167948186397,
+          "p90": 20.87491129934788
+        }
+      },
+      "steady_rank0_time_fractions": {
+        "generation_seconds": 0.3177411280293129,
+        "base_scoring_seconds": 0.02552311252940412,
+        "optimizer_updates_seconds": 0.4151889895925671,
+        "unexplained_residual_seconds": 0.24154676984871584
+      },
+      "global_scenes_per_second": 0.849015898895423,
+      "base_scoring_zero_cost_impossible_upper_speedup": 1.0261916037800067,
+      "optimizer_section_half_cost_conditional_speedup": 1.2619801268832855,
+      "current_generation_section_half_cost_conditional_speedup": 1.1888776652175383,
+      "per_rank_per_collection_model_work_delta": {
+        "velocity_calls": {
+          "n": 8,
+          "mean": 162.375,
+          "median": 162.125,
+          "min": 160.25,
+          "max": 165.0,
+          "p10": 160.95,
+          "p90": 163.95
+        },
+        "reference_velocity_calls": {
+          "n": 8,
+          "mean": 24.0,
+          "median": 24.0,
+          "min": 24.0,
+          "max": 24.0,
+          "p10": 24.0,
+          "p90": 24.0
+        },
+        "current_prefix_builds": {
+          "n": 8,
+          "mean": 41.0375,
+          "median": 41.0125,
+          "min": 40.825,
+          "max": 41.3,
+          "p10": 40.894999999999996,
+          "p90": 41.195
+        },
+        "reference_prefix_builds": {
+          "n": 8,
+          "mean": 8.0,
+          "median": 8.0,
+          "min": 8.0,
+          "max": 8.0,
+          "p10": 8.0,
+          "p90": 8.0
+        },
+        "frozen_vision_prefills": {
+          "n": 8,
+          "mean": 8.0,
+          "median": 8.0,
+          "min": 8.0,
+          "max": 8.0,
+          "p10": 8.0,
+          "p90": 8.0
+        },
+        "frozen_vision_prefill_seconds": {
+          "n": 8,
+          "mean": 1.3566260942199733,
+          "median": 1.350961484038271,
+          "min": 1.3143608204554766,
+          "max": 1.4070331811439245,
+          "p10": 1.316272242264822,
+          "p90": 1.395355090824887
+        }
+      },
+      "global_query_deltas": {
+        "raw_scene_exposures": 2560,
+        "scene_exposures": 2560,
+        "PG_candidates": 40960,
+        "extra_B1_queries": 2560,
+        "adaptive_G32_queries": 5312
+      },
+      "caveat": "Rank0 wall end-to-end includes control/I/O/DDP waiting. Per-rank clocks are not subtracted across hosts. Generation is base G16+W3 current/reference only; excludes FPO old MC energy, D2 nominal/rescue, finalization and behavior serialization. Residual is not a causal CPU-only timer. Counters omit direct denoise_x0 MC/aux calls; activation-checkpoint backward replay is not counted."
+    }
+  }
+}

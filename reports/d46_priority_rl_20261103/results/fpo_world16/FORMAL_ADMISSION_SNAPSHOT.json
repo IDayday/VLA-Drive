@@ -1,0 +1,89 @@
+{
+  "schema": "D46_FPO_formal_world16_initial_admission_snapshot_v1",
+  "snapshot_utc": "2026-11-03T14:36:08.141868+00:00",
+  "stage_id": "FPO_WORLD16_PRIORITY_v1",
+  "latest_initial_native": {
+    "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO_WORLD16_v1/checkpoints/update001440_inner0",
+    "updates": 1440,
+    "files_sha256": "a68fb1dfdbf718772b380a4a9d97f8da2d80dd7fb32001cc73196a7a01a53627"
+  },
+  "children": [
+    {
+      "host": "training-vlawm-tsinghua-zt3",
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/WORLD16_FORMAL/FPO_WORLD16_PRIORITY_v1/attempt001/node0",
+      "RUNNING": {
+        "path": "/mnt/project/d46-priority-rl-20261103/jobs/WORLD16_FORMAL/FPO_WORLD16_PRIORITY_v1/attempt001/node0/RUNNING.json",
+        "file_sha256": "3b2d599df3cd78bb36ea49e74050c6a31719afd93b150fff7935ed872966776f",
+        "bytes": 2284
+      },
+      "worker_pid": 2461031,
+      "worker_start_ticks": 1515473312,
+      "child_pid": 2461040,
+      "child_start_ticks": 1515473353,
+      "status": "RUNNING",
+      "lease_slot": "shared",
+      "gpu_uuids": [
+        "GPU-ceb0d9a7-7b64-2fb1-cb83-962861ec73b9",
+        "GPU-9e303222-565f-9aee-caa7-625ee7f12096",
+        "GPU-37f16ed7-3b1b-4cb7-2462-70ef5abbd287",
+        "GPU-cab4a3fa-dc7f-0762-9b23-8e0e8959e57a",
+        "GPU-5d1dca72-ef65-13ce-ef85-2fde0bb2e62c",
+        "GPU-4604e9db-bf91-9dd3-1b79-deb94646aa63",
+        "GPU-3bad9a14-f891-5982-524b-b4a13a3cb734",
+        "GPU-e9cb846f-5ccf-504c-5537-e2da39e661fd"
+      ],
+      "RESULT": null,
+      "returncode": null,
+      "no_remote_liveness_probe": true
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt4",
+      "job": "/mnt/project/d46-priority-rl-20261103/jobs/WORLD16_FORMAL/FPO_WORLD16_PRIORITY_v1/attempt001/node1",
+      "RUNNING": {
+        "path": "/mnt/project/d46-priority-rl-20261103/jobs/WORLD16_FORMAL/FPO_WORLD16_PRIORITY_v1/attempt001/node1/RUNNING.json",
+        "file_sha256": "b17690bac1e67f30a85cdec677dbd0586adfd364c0b3aae2d7d7dbf586cf8f29",
+        "bytes": 2283
+      },
+      "worker_pid": 1207600,
+      "worker_start_ticks": 1515472954,
+      "child_pid": 1207609,
+      "child_start_ticks": 1515472997,
+      "status": "RUNNING",
+      "lease_slot": "shared",
+      "gpu_uuids": [
+        "GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42",
+        "GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f",
+        "GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59",
+        "GPU-4fe15b93-9f87-08ea-699d-40375083da94",
+        "GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f",
+        "GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f",
+        "GPU-af5442fd-0c84-7903-61fa-9e9c49eca2ce",
+        "GPU-568199b4-3db3-da75-7c8c-c9b94d0c28b7"
+      ],
+      "RESULT": null,
+      "returncode": null,
+      "no_remote_liveness_probe": true
+    }
+  ],
+  "actual_formal16_updates_verified": true,
+  "new_full_NAVTEST_result": false,
+  "speedup_measured": true,
+  "note": "Initial worker admission is historical; later actual16rank1464+/own1440+24 and B1 parity0 confirm formal learning. Current short-window throughput is separately bound; no new complete NAVTEST score.",
+  "initial_admission_snapshot_utc": "2026-11-03T14:31:14.583760+00:00",
+  "actual_formal_training_proof": {
+    "source": "/mnt/project/d46-priority-rl-20261103/operations/WORLD16_STAGES/FPO_WORLD16_PRIORITY_v1/ACTUAL_FORMAL_TRAINING.json",
+    "archive": "results/fpo_world16/ACTUAL_FORMAL_TRAINING.json",
+    "file_sha256": "ec389d32d40df00f4d1c117d881984689b34233837bf6ee101abf46ef9bd0587",
+    "at_utc": "2026-11-03T14:34:59.730588+00:00"
+  },
+  "actual_all16_update_min": 1464,
+  "actual_new_updates_min": 24,
+  "all16_B1_restore_max_abs": 0.0,
+  "speedup_scope": "Short-window complete-cycle1.90052272x only, no long-run speed or score guarantee.",
+  "throughput_source": {
+    "source": "/mnt/project/d46-priority-rl-20261103/analysis/FPO_WORLD16_THROUGHPUT_20261103.json",
+    "archive": "results/fpo_world16/THROUGHPUT_WORKING.json",
+    "file_sha256": "2b08d4316b3f2cf12a9018b56007a2362a96222c272990258020d07fe3bced7e",
+    "at_utc": "2026-11-03T14:36:08.141868+00:00"
+  }
+}
