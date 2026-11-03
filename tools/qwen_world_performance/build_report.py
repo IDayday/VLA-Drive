@@ -203,6 +203,33 @@ def D46_early_evaluation_fragment():
     return body
 
 
+def D46_world16_qualification_fragment():
+    path=D46_ROOT/'operations/MULTINODE_NETWORK_20261103/GPU16_QUALIFICATION_STATUS.json';value=read(path,{})
+    if value.get('schema')!='D46_actual_world16_qualification_status_v1':
+        return '<p>world16 的Tiny-native CPU跨world恢复通过；完整GPU/NCCL资格以实际收据为准，网络元数据不是多节点训练速度。</p>'
+    stamp=value.get('updated_at')
+    if isinstance(stamp,(int,float)):stamp=datetime.fromtimestamp(stamp,timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+    flag=lambda key:'是'if value.get(key)is True else'否'if value.get(key)is False else'未记录'
+    body='<p><b>world16 动态资格状态：'+esc(value.get('status','待核对'))+'</b>（'+esc(stamp)+'）。性能资格通过：'+flag('performance_qualified')+'；正式world16启动标记：'+flag('formal_world16_started')+'。<a href="'+esc(path)+'">真实资格收据</a></p>'
+    body+='<details><summary>有界GPU资格过程（原失败保留）</summary>'
+    for key,attempt in value.items():
+        if not isinstance(attempt,dict)or not(key.endswith('_attempt')or key.startswith('resume_')):continue
+        facts=[]
+        if 'new_Adam_updates'in attempt:facts.append('新增Adam '+str(attempt['new_Adam_updates']))
+        if attempt.get('all16_native_B1_restore_parity_zero')is True:facts.append('全部16rank真实B1恢复零差')
+        if attempt.get('all16_gradient_norm_finite')is True:facts.append('16rank梯度有限')
+        times=[x for x in attempt.get('update_seconds_critical_rank',[])if isinstance(x,(int,float))and math.isfinite(x)]
+        if times:facts.append('纯更新max-rank '+f'{min(times):.2f}–{max(times):.2f}'+'秒（'+str(len(times))+'步短窗）')
+        if attempt.get('checkpoint_sealed')is True:facts.append('原生检查点已封存，pending inner '+str(attempt.get('pending_inner','未记录')))
+        if 'exit_code'in attempt:facts.append('退出码 '+str(attempt['exit_code']))
+        error=attempt.get('error',attempt.get('first_error'))
+        if error:facts.append('保留错误：'+str(error))
+        body+='<p>'+esc(key)+'：'+esc('；'.join(facts))+'</p>'
+    followup='当前仍须完成收尾修复与中途原生恢复核对。'if value.get('performance_qualified')is not True else'资格已通过仍不代替长期性能评估。'
+    body+='</details><p>资格短窗本身不能证明长期稳定或稳定2倍加速；正式启动标记见上。'+followup+'现有六路线和早评资源是否改变，只以实际运行/资源收据为准。</p>'
+    return body
+
+
 def D46_optimization_health_fragment():
     path=D46_ROOT/'analysis/EARLY_OPTIMIZATION_HEALTH_20261103.json';value=read(path,{})
     if value.get('status')!='COMPLETE_BOUNDED_CPU_AUDIT'or not sealed_JSON(value):return ''
@@ -218,7 +245,7 @@ def D46_optimization_health_fragment():
     body+='<p>审计 '+esc(value['generated_utc'])+'：四路线全八rank前 '+esc(window['optimizer_updates'])+' 次 Adam、同 '+esc(window['valid_scene_exposures'])+' 个 TRAIN 场景曝光 / '+esc(window['physical_candidates'])+' 候选，均 loss/gradient finite、首inner fresh-ratio误差0；不把各自不同曝光的recent窗口当匹配对照。</p>'
     body+='<p>'+esc('；'.join(ratios))+'。小梯度不等于没有学习，Adam/epsilon尺度统计也不能直接证明PDMS损失。FPO真正energy-ratio clip为 '+esc(f'{100*fpo_clip:.1f}%')+'；第二inner普通Gaussian诊断约75%不是FPO更新被clip的比例，AWM也没有ratio-clipped目标。</p>'
     body+='<p>原始A有效组约96%；同25600组的canonical全零仅 '+esc(zeros)+'。这说明本窗口多数有训练信用，不代表信用方向已改善部署。D5每步触发norm1裁剪、action I/O主导且近期参考beta升高，仍需完整B1和高分保持证据；不能据单一loss、小grad或clip诊断淘汰，更不能据其推断clip/epsilon/anchor的提分因果。<a href="'+esc(path)+'">完整健康审计与边界</a></p>'
-    body+='<p>多机world16目前仅Tiny-native CPU跨world恢复通过，尚无真实GPU/NCCL资格；网络元数据不是多节点训练速度，也未承诺2倍加速。</p></details>'
+    body+=D46_world16_qualification_fragment()+'</details>'
     return body
 
 
