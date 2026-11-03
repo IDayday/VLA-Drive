@@ -78,3 +78,31 @@ def test_early_batch_keeps_training_and_defers_duplicate_evaluation(monkeypatch)
     reads['STATE.json'] = dict(complete=True)
     owner.tick(value)
     assert evaluated == [True]
+
+
+def test_native_evaluator_sharing_requires_exact_sealed_d46_parent(tmp_path, monkeypatch):
+    from tools.qwen_world_compare import job_worker as worker
+    from starVLA.rl.qwen_world_compare.contracts import file_sha, fingerprint
+    monkeypatch.setattr(worker, 'D46_ROOT', tmp_path)
+    registration = tmp_path / 'PARENT_REGISTRATION_v2.json'; registration.write_text('{}')
+    digest = file_sha(registration)
+    monkeypatch.setattr(worker, 'D46_CONTRACT_SHA', digest)
+    cp = tmp_path / 'runs/D0/checkpoints/update001400_inner0'; cp.mkdir(parents=True)
+    identity = dict(schema='d44_native_rl_v1', architecture_id='D',
+                    parent_model_sha256=worker.D46_PARENT_SHA, data=dict(NAVTEST_overlap=0),
+                    recipe=dict(parent='D_IL46K', arm='D0', parent_checkpoint=str(tmp_path / 'IL46_PARENT'),
+                                parent_registration=dict(path=str(registration), file_sha256=digest),
+                                training_uses_navtest=False))
+    identity['sha256'] = fingerprint(identity)
+    (cp / 'identity.json').write_text(json.dumps(identity))
+    (cp / 'files.json').write_text('{}')
+    (cp / 'COMPLETE').write_text(json.dumps(dict(files_sha256=file_sha(cp / 'files.json'))))
+    command = ['python', '-m', 'tools.d44_native_rl.evaluate', '--checkpoint', str(cp),
+               '--output', str(tmp_path / 'evaluations/EARLY/evaluation')]
+    assert worker.known_owner_args(command)
+    assert not worker.known_owner_args(command[:-1] + [str(tmp_path / 'foreign')])
+    (cp / 'files.json').write_text('{"changed":true}')
+    assert not worker.known_owner_args(command)
+    (cp / 'files.json').write_text('{}')
+    registration.write_text('{"changed":true}')
+    assert not worker.known_owner_args(command)

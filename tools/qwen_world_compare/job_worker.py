@@ -150,6 +150,17 @@ def known_D46_output(output):
 
 def known_owner_args(args):
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry=='tools.d44_native_rl.evaluate':
+        # A frozen D46 B1 evaluator may share its measured spare capacity.
+        # Bind the exact loaded checkpoint, not an arbitrary output prefix.
+        try:
+            checkpoint=Path(args[args.index('--checkpoint')+1]).resolve()
+            output=Path(args[args.index('--output')+1]).resolve()
+            seal=json.loads((checkpoint/'COMPLETE').read_text())
+            return (output.is_relative_to(D46_ROOT/'evaluations')
+                and known_D46_output(checkpoint)
+                and seal['files_sha256']==file_sha(checkpoint/'files.json'))
+        except(OSError,ValueError,IndexError,KeyError,TypeError):return False
     if entry=='tools.d44_native_rl.train':
         # Native D44 has no --il-checkpoint flag: bind the actual process
         # output to its already sealed scientific identity instead.
