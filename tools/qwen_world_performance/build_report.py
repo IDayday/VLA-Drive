@@ -214,7 +214,7 @@ def D46_early_evaluation_fragment():
                 f'{100*high["population_contribution"]:+.6f}'if high.get('population_contribution')is not None else'未提供',high.get('new_zero','未提供')))
     if scores:
         best=max(scores,key=lambda r:float(r[2]))
-        body+='<p><b>当前 D46 最高完整 RL：'+esc(best[2])+' · '+esc(best[0])+' / Adam '+esc(best[1])+'；相固定 IL46 '+esc(best[3])+'。</b>已验证的独立完整策略点 '+esc(len(scores))+' 个（合并提前批次与常规评测，等参数reference不另计）。<b>NAVTEST_SELECTED</b>：用于当前资源择优，不是独立未选择测试；历史 IL70 最高91.45359756另列，不是D46父基线。</p>'
+        body+='<p><b>旧六路线最高完整 RL：'+esc(best[2])+' · '+esc(best[0])+' / Adam '+esc(best[1])+'；相固定 IL46 '+esc(best[3])+'。</b>已验证的独立完整策略点 '+esc(len(scores))+' 个（合并提前批次与常规评测，等参数reference不另计）。<b>NAVTEST_SELECTED</b>：用于当前资源择优，不是独立未选择测试；历史 IL70 最高91.45359756另列，不是D46父基线。</p>'
     body+='<p>'+esc(len(plan['cases']))+' 个独立参数策略、每个 '+esc(world)+' 个逻辑分片，按策略轮转在 '+esc(' / '.join(plan['hosts']))+' 分波。逻辑分片数不是同时占用GPU数；“已启动待返回”依据最新worker收据，不能等同正在评分。进度与分数不读部分均值；训练继续，评测不导出训练标签。<a href="'+esc(plan_path)+'">封印计划</a>'
     if state_path.exists():body+=' · <a href="'+esc(state_path)+'">实际分片状态</a>'
     body+='</p>'+table(['独立策略','Adam','有效场景曝光','exposure epoch','最新分片收据','阶段状态'],entries)
@@ -445,6 +445,29 @@ def legacy_I_resource_hold():
         updates=saved['seal']['updates'],inner=saved['seal']['next_inner'],budget=saved['original_minimum_updates_preserved'])
 
 
+def AUG_complete_points():
+    path=Path(__file__).with_name('complete_events.py')
+    if not path.is_file():return []
+    spec=importlib.util.spec_from_file_location('performance_complete_events_reader',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module.completed_points(D46_ROOT)
+
+
+def AUG_complete_results_fragment(historical_peak=91.45359756166451):
+    points=AUG_complete_points()
+    if not points:return '<p>新AUG尚无通过完整封印校验的NAVTEST分数；不发布partial均值或将资格记为提分。</p>'
+    best=max(points,key=lambda r:r['PDMS'])
+    label=best['experiment']+' / Adam '+str(best['updates'])
+    body='<h3>AUG最新完整单轨迹结果</h3><p><b>当前AUG最高完整 PDMS '+esc(f'{best["PDMS"]:.8f}')+' · '+esc(label)+'</b>；相固定IL46 '+esc(f'{best["PDMS"]-89.4955209758546:+.6f}')+'点。<a href="'+esc(best['summary'])+'">完整评测与SHA</a> · <a href="'+esc(Path(best['checkpoint'])/'COMPLETE')+'">最高点封印检查点</a></p>'
+    if best['PDMS']>historical_peak:
+        body+='<p><b>超过本项目既有最高完整分 '+esc(f'{historical_peak:.8f}')+'，属于新已观测项目高点。</b>不是公开SOTA声明；IL46与历史IL70父策略不同，不能把跨研究差值归因单一改动。</p>'
+    else:body+='<p>本项目既有最高完整分 '+esc(f'{historical_peak:.8f}')+'仍单列；与IL70不同父策略，AUG相同阶段的改善不等于超过该最高分。不称公开SOTA。</p>'
+    rows=sorted(points,key=lambda r:Path(r['summary']).stat().st_mtime,reverse=True)
+    body+=table(['最新完整点','实际Adam','PDMS','相固定IL46','场景 / invalid'],[
+        (r['experiment'],r['updates'],f'{r["PDMS"]:.8f}',f'{r["PDMS"]-89.4955209758546:+.6f}','12146 / 0')for r in rows])
+    return body
+
+
 def D46_augustus_formal_fragment(plan,directory):
     launch_path=directory/'FORMAL_LAUNCHES.json';launches=read(launch_path,{})
     if not launches.get('receipts'):return '',0,0
@@ -475,13 +498,13 @@ def D46_augustus_formal_fragment(plan,directory):
             format(exposure,',')+' / '+format(exposure/103288,'.5f')+'E',status))
     body='<h3>当前AUG正式实际训练 '+esc(actual)+' 条 / '+esc(slots)+' 逻辑卡位；正式初始化 '+esc(starting)+' 条</h3>'
     body+=table(['正式路线','实际trainable参数','B/G/M','实际派发主机','全rank共同Adam','有效场景 / epoch','实际状态'],entries)
-    body+='<p>真实训练必须同时有当前正式job未返回、全部rank新日志和相同run身份；初始化/资格不冒充Adam进展。正式两条均独立IL46/Adam0，目标6E，不能继承资格权重；目前尚无AUG完整NAVTEST分数。<a href="'+esc(launch_path)+'">六node正式派发收据</a></p>'
+    body+='<p>真实训练必须同时有当前正式job未返回、全部rank新日志和相同run身份；初始化/资格不冒充Adam进展。正式两条均独立IL46/Adam0，目标6E，不能继承资格权重。<a href="'+esc(launch_path)+'">六node正式派发收据</a></p>'
     proof_path=directory/'GPU_NATIVE_RESUME_RNG_AUDIT.json';proof=read(proof_path,{})
     if proof.get('status')=='PASS':body+='<p>资格1→2的两路线全部EXIT0，48rank私有RNG原生接续审计PASS；这是恢复证据，不是GPU不中断参数对照或PDMS提升。<a href="'+esc(proof_path)+'">实际RNG恢复审计</a></p>'
     return body,actual,slots
 
 
-def D46_augustus_qualification_fragment():
+def D46_augustus_qualification_fragment(historical_peak=91.45359756166451):
     directory=D46_ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103'
     plan=read(directory/'QUALIFICATION_PLAN.json',{});launches=read(directory/'QUALIFICATION_LAUNCHES.json',{})
     if plan.get('maximum_simultaneous_routes')!=2 or not plan.get('routes'):return '',0,0
@@ -512,7 +535,7 @@ def D46_augustus_qualification_fragment():
             '/'.join(fields.get(k,'待核对')for k in('global_scenes','group','inner_updates')),method,
             ' + '.join(route['hosts']),progress,f'{running} 已启动未返回 / {done} EXIT0 / {failed}异常',status))
     formal,formal_actual,formal_slots=D46_augustus_formal_fragment(plan,directory)
-    body=formal+('<details><summary>原生资格与正式起点分开核对</summary>'if formal else'')
+    body=formal+AUG_complete_results_fragment(historical_peak)+('<details><summary>原生资格与正式起点分开核对</summary>'if formal else'')
     body+='<h3>AUGUstus 当前资格任务：'+esc(active_routes)+' 组，'+esc(active_workers)+' 个CUDA子进程worker已启动，覆盖 '+esc(len(uuids))+' 个物理GPU UUID</h3>'
     body+='<p><b>此表仅资格，不是正式训练。</b>两条均从同IL46/Adam0起步，先1次真实Adam再自身原生恢复核对；正式阶段另从原IL46和新空Adam开始，绝不继承资格权重。资格设备、模型加载、真实更新与正式计数分开；最大同时两路线。</p>'
     body+=table(['路线/资格world','实际配置B/G/M','训练范围','已派发主机','真实共同进度','逐node收据','当前阶段'],entries)
@@ -527,7 +550,7 @@ def D46_dedicated_execution_fragment():
     return '<p><b>两节点真实完整cycle优化资格已完成：'+esc(f'{a["steady_seconds_per_collection"]:.3f}')+'→'+esc(f'{b["steady_seconds_per_collection"]:.3f}')+'秒，'+esc(f'{v["full_cycle_speedup"]:.5f}')+'×</b>（匹配cycle '+esc(f'{v["matched_full_cycle_speedup"]:.5f}')+'×）。同1500原生起点、实际采样/评分/2Adam/控制/I/O；fast的1511 pending→1512原生恢复通过。短资格不是长期吞吐承诺或PDMS提升；融合改变BF16运算分组，不宣称跨执行最终参数逐位一致。<a href="'+esc(path)+'">完整cycle与恢复收据</a>。旧15.75→10.49秒四模式均开启checkpoint，仅作历史微基准，不能当production all_off耗时。</p>'
 
 
-def D46_priority_fragment(other_active=None):
+def D46_priority_fragment(other_active=None,historical_peak=91.45359756166451):
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
     augustus_path=D46_ROOT/'operations/AUGUSTUS_PRIORITY_ALL_RESOURCES_20261103/PRIORITY_CHANGE_REQUEST.json'
@@ -536,7 +559,7 @@ def D46_priority_fragment(other_active=None):
     aug_actual=aug_slots=0
     body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>'+('AUGUstus 主线 · IL46k fresh RL 资格与正式状态'if augustus_priority else'D 框架 · IL46k 父策略优先 RL')+'</h2>'
     if augustus_priority:
-        qualification,aug_actual,aug_slots=D46_augustus_qualification_fragment()
+        qualification,aug_actual,aug_slots=D46_augustus_qualification_fragment(historical_peak)
         formal_receipts=read(D46_ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103/FORMAL_LAUNCHES.json',{})
         phase=('两条AUG均已正式派发；真实更新与初始化按全rank新日志区分，见最前表。'if formal_receipts.get('receipts')else'AUG1_FULL/world32 与 AUG2_LORA/world16已实际派发资格，尚非正式训练。')if qualification else'候选FULL/LORA尚待实际派发收据，不据计划称已训练。'
         body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>'+esc(phase)+'旧D0/D2/D5按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p>'+qualification+D46_dedicated_execution_fragment()+'<p>旧D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方默认LoRA关闭、文本主干可训练、RL冻结视觉；本地旧D0仅attention-LoRA约642万参数，且sum24/W3与官方mean-coordinate/lambda_t/3步不同。</p>'
@@ -1310,7 +1333,7 @@ def render_fragment(root=ROOT):
     prior_label=('%.8f · '%previous['PDMS']+previous['arm']+' / Adam '+str(previous['updates'])) if previous.get('PDMS',0)>91.45359756166451 else '91.45359756 · SafetyEP Control 10k'
     best_label=('%.8f · '%best['PDMS']+best['arm']+' / Adam '+str(best['updates'])) if best and best['PDMS']>prior_pdms else prior_label
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
-    body=D46_priority_fragment(s['active_formal']+legacy_active)+'<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>既有 IL70 系 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
+    body=D46_priority_fragment(s['active_formal']+legacy_active,max(prior_pdms,best['PDMS']if best else 0))+'<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>既有 IL70 系 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
     evidence=Path(best['summary']) if best and best['PDMS']>prior_pdms else Path(previous['evidence']) if previous.get('PDMS',0)>91.45359756166451 else Path('/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json')
     if evidence.exists():body+='<p><a href="'+esc(evidence)+'">最高分完整评测证据</a></p>'
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])

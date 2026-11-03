@@ -1,5 +1,8 @@
 # Qwen-World：以真实单轨迹 PDMS 为目标的规模化 RL
 
+新完整点采用 **Eval完成事件 → 一次封印验证通知 → 原watcher立即刷新**，并保留30分钟常规报告。没有新增daemon、没有手工/定时轮询训练状态，原1859713/PID/锁/inotify不替换。回调程序 `tools/qwen_world_performance/complete_events.py` 仅允许EVAL_STATE中COMPLETE的AUG点，验证12146/44log/invalid0/seed2101、非qualification、native算法/IL46父SHA/检查点/官方identity与摘要封印后，写原 `refresh_request.json`；通知本身不是科学证据。Eval owner成功后记summary的canonical `notified_sha`，避免重复或回调递归。HTML同validator读取新完整点，在最前新实验表后给最高点及检查点；不把private项目高点称公开SOTA。
+
+
 **AUG正式阶段已经派发，不能再把资格结束写成整体未训练。** 六node正式收据已落；当前真实Adam以全32/16rank各自最新日志为准，FULL初始化与LORA已更新分开计数。实际trainable closure从正式identity读取：FULL **1,472,810,499**，LORA **7,010,307**；两条均独立IL46/新Adam0，不继承资格权重，无新AUG完整NAV分数。[正式派发](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/FORMAL_LAUNCHES.json)。资格1→2 all48私有RNG接续审计PASS，不冒充GPU不中断参数对照。[恢复审计](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_CAMPAIGN_20261103/GPU_NATIVE_RESUME_RNG_AUDIT.json)
 
 
