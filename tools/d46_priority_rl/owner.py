@@ -26,7 +26,7 @@ MODEL_SHA='386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d'
 ORDER=('D3_FPO','D3_AWM','D5','D1','D2','D0')
 HOSTS=('training-vlawm-zt4','training-rl-zt2','training-vlawm-tsinghua-zt2',
        'training-vlawm-zt','training-vlawm-tsinghua-zt3','training-vlawm-zt2',
-       'training-vlawm-tsinghua-zt5')
+       'training-vlawm-tsinghua-zt5','training-vlawm-tsinghua-zt')
 PREFERRED=dict(zip(ORDER,HOSTS))
 SOURCE=Path(__file__).resolve().parents[2]
 
@@ -142,7 +142,8 @@ def dispatch(run,qualification=False,blocked_hosts=()):
     if resume:command+=['--resume',resume]
     # One own full-world task per host initially; worker still independently
     # checks current owner identities, physical UUIDs, both leases and memory.
-    for host in (PREFERRED[run['arm']],)+tuple(h for h in HOSTS if h!=PREFERRED[run['arm']]):
+    preferred=read(ROOT/'operations/EXECUTION_POLICY.json',{}).get('preferred_hosts',{}).get(run['arm'],[])
+    for host in dict.fromkeys(tuple(preferred)+(PREFERRED[run['arm']],)+HOSTS):
         if host in blocked_hosts or host not in allowed_hosts(admit_long_job=True):continue
         try:
             if len(capacity(host,49152))!=8:continue
@@ -190,8 +191,9 @@ def tick(campaign):
     try:
         early_live=(int(Path(f"/proc/{early_owner['pid']}/stat").read_text().split()[21])==early_owner['start_ticks'])
     except (OSError,KeyError,ValueError):pass
-    defer_evaluation=(control.get('defer_registered_evaluations_during_early_batch',False)
-        and early_live and not early.get('complete',False))
+    defer_evaluation=(control.get('defer_registered_evaluations',False)
+        or(control.get('defer_registered_evaluations_during_early_batch',False)
+            and early_live and not early.get('complete',False)))
     for arm in ORDER:
         run=campaign['runs'][arm]
         if run['status'] in ('FAILED_REQUIRES_REVIEW','COMPLETE'):continue
