@@ -182,6 +182,16 @@ def status(campaign):
 
 def tick(campaign):
     from tools.d44_native_rl.campaign import pending_evaluation,evaluation_tick,selection_index
+    # Operational scheduling only: no recipe, optimizer or training-clock edit.
+    control=read(ROOT/'operations/EXECUTION_POLICY.json',{})
+    early=read(ROOT/'operations/EARLY_EVAL_20261103/STATE.json',{})
+    early_owner=read(ROOT/'operations/EARLY_EVAL_20261103/CONTROLLER_LAUNCH.json',{})
+    early_live=False
+    try:
+        early_live=(int(Path(f"/proc/{early_owner['pid']}/stat").read_text().split()[21])==early_owner['start_ticks'])
+    except (OSError,KeyError,ValueError):pass
+    defer_evaluation=(control.get('defer_registered_evaluations_during_early_batch',False)
+        and early_live and not early.get('complete',False))
     for arm in ORDER:
         run=campaign['runs'][arm]
         if run['status'] in ('FAILED_REQUIRES_REVIEW','COMPLETE'):continue
@@ -196,7 +206,7 @@ def tick(campaign):
                 state=torch.load(Path(resume)/'rank0.pt',map_location='cpu',weights_only=False)['state']
                 if state['valid_scene_exposures']>=6*103288 and state['next_inner']==0:
                     run['status']='COMPLETE';continue
-            if pending_evaluation(campaign,run):
+            if pending_evaluation(campaign,run)and not control.get('continue_training_during_evaluation',False):
                 # Own learner continues only until a native stop is explicitly
                 # requested; no inference result feeds back as training labels.
                 if run['jobs'] and not(Path(run['jobs'][-1]['job'])/'RESULT.json').exists():
@@ -205,7 +215,9 @@ def tick(campaign):
             run['status']=dispatch(run,False,startup_hosts(campaign))
         except Exception:
             run.update(status='FAILED_REQUIRES_REVIEW',error=traceback.format_exc())
-    evaluation_tick(campaign)
+    if not defer_evaluation:evaluation_tick(campaign)
+    campaign['evaluation_operations']=dict(control=control,early_batch_live=early_live,
+        registered_dispatch_deferred=defer_evaluation,at=time.time())
     atomic_json(ROOT/'CHECKPOINT_SELECTION.json',selection_index(campaign))
     campaign.update(at=time.time(),completion_claim=False);atomic_json(ROOT/'CAMPAIGN.json',campaign);status(campaign)
     return campaign

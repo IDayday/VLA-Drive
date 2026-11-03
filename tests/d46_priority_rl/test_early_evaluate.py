@@ -48,3 +48,33 @@ def test_prechild_resource_refusal_can_wait_but_failure_is_retained(tmp_path):
     (Path(case['jobs']['0'][0]['job']) / 'RESULT.json').write_text('{"returncode":1}')
     assert not reconcile(case, 1)
     assert case['status'] == 'FAILED_REQUIRES_REVIEW'
+
+
+def test_early_batch_keeps_training_and_defers_duplicate_evaluation(monkeypatch):
+    import os
+    from tools.d46_priority_rl import owner
+    from tools.d44_native_rl import campaign as native
+    control = dict(continue_training_during_evaluation=True,
+                   defer_registered_evaluations_during_early_batch=True)
+    pid = os.getpid()
+    reads = {'EXECUTION_POLICY.json': control, 'STATE.json': dict(complete=False),
+             'CONTROLLER_LAUNCH.json': dict(pid=pid, start_ticks=int(Path('/proc/self/stat').read_text().split()[21]))}
+    monkeypatch.setattr(owner, 'read', lambda p, default=None: reads.get(Path(p).name, default))
+    monkeypatch.setattr(owner, 'qualification_pass', lambda run: True)
+    monkeypatch.setattr(owner, 'inspect_latest', lambda run: (None, None))
+    monkeypatch.setattr(owner, 'startup_hosts', lambda campaign: set())
+    dispatched = []; evaluated = []
+    monkeypatch.setattr(owner, 'dispatch', lambda run, *args: dispatched.append(run['arm']) or 'RUNNING')
+    monkeypatch.setattr(owner, 'status', lambda campaign: None)
+    monkeypatch.setattr(owner, 'atomic_json', lambda *args: None)
+    monkeypatch.setattr(native, 'pending_evaluation', lambda *args: True)
+    monkeypatch.setattr(native, 'evaluation_tick', lambda *args: evaluated.append(True))
+    monkeypatch.setattr(native, 'selection_index', lambda *args: {})
+    value = dict(runs={arm: dict(arm=arm, status='RUNNING', jobs=[]) for arm in owner.ORDER})
+    owner.tick(value)
+    assert dispatched == list(owner.ORDER)
+    assert not evaluated
+    assert value['evaluation_operations']['registered_dispatch_deferred']
+    reads['STATE.json'] = dict(complete=True)
+    owner.tick(value)
+    assert evaluated == [True]
