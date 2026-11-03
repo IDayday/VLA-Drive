@@ -59,7 +59,7 @@ def review_resource_boundary(request, name):
     if not result_path.exists():return False
     result = json.loads(result_path.read_text())
     if (result.get('status') != 'EXITED' or result.get('returncode') != 0
-            or result.get('forced_expiry') or result.get('expiry_guard_requested') is not True
+            or result.get('forced_expiry')
             or result.get('migration_required') is not True or result.get('temporary') is not True
             or not (receipt/'STOP_REQUESTED').exists()):return False
     row_path = request.output/(name+'.json')
@@ -88,10 +88,12 @@ def review_resource_boundary(request, name):
     total = len(identity['tokens'][rank::request.world]);done = row.get('new',0)+row.get('reused',0)
     # The evaluator polls the immutable guard itself. It may publish its
     # boundary exit BEFORE the worker's next timer writes STOP_REQUESTED.
-    guard = result.get('guard_unix')
-    if (not isinstance(guard, (int,float)) or not 0 <= rank < request.world or not 0 <= done < total
-            or not guard <= row.get('end_unix',0) <= result.get('end_unix',0)
-            or not guard <= result.get('stop_requested_unix',0) <= result.get('end_unix',0)):
+    guard = result.get('guard_unix'); deadline = result.get('deadline_unix')
+    stopped = result.get('stop_requested_unix')
+    if (not isinstance(guard, (int,float)) or not isinstance(deadline, (int,float))
+            or not guard < deadline or not 0 <= rank < request.world or not 0 <= done < total
+            or not guard <= row.get('end_unix',0) <= result.get('end_unix',0) <= deadline
+            or (stopped is not None and not guard <= stopped <= result.get('end_unix',0))):
         return False
     write(receipt/'OPERATOR_REQUEUE.json', dict(status='REVIEWED_TERMINAL_REQUEUE',
         at=time.time(), spec_sha256=hashlib.sha256((receipt/'spec.json').read_bytes()).hexdigest(),

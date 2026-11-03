@@ -28,7 +28,7 @@ class NativeBoundaryTest(unittest.TestCase):
         (receipt/'spec.json').write_text(json.dumps(spec));(receipt/'STOP_REQUESTED').touch()
         result=dict(status='EXITED',returncode=0,forced_expiry=False,expiry_guard_requested=True,
             migration_required=True,temporary=True,host='allowed',cwd='/sealed/scientist',
-            command=command,guard_unix=100,stop_requested_unix=100,end_unix=120)
+            command=command,guard_unix=100,deadline_unix=130,stop_requested_unix=100,end_unix=120)
         (receipt/'RESULT.json').write_text(json.dumps(result))
         row=dict(rank=0,world=32,status='STOPPED_AT_SCENE_BOUNDARY',identity=identity['sha256'],
                  host='allowed',new=214,reused=1,end_unix=119)
@@ -63,9 +63,15 @@ class NativeBoundaryTest(unittest.TestCase):
             self.assertLess(row['end_unix'],result['stop_requested_unix'])
             self.assertTrue(review_resource_boundary(request,'rank0'))
 
+    def test_self_guard_exit_can_finish_before_worker_polls_its_timer(self):
+        with tempfile.TemporaryDirectory()as d:
+            request,_,result=self.fixture(d);result.pop('expiry_guard_requested');result.pop('stop_requested_unix')
+            receipt=Path(request.jobs['rank0']['receipt_dir']);(receipt/'RESULT.json').write_text(json.dumps(result))
+            self.assertTrue(review_resource_boundary(request,'rank0'))
+
     def test_failed_forced_and_arbitrary_stops_never_automatically_retry(self):
         changes=[dict(returncode=1),dict(forced_expiry=True),dict(migration_required=False),
-                 dict(expiry_guard_requested=False),dict(temporary=False),dict(cwd='/other/source'),
+                 dict(guard_unix=125),dict(deadline_unix=110),dict(temporary=False),dict(cwd='/other/source'),
                  dict(host='other'),dict(stop_requested_unix=121)]
         for change in changes:
             with self.subTest(change=change),tempfile.TemporaryDirectory()as d:
