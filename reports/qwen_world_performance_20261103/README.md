@@ -1,5 +1,11 @@
 # Qwen-World：以真实单轨迹 PDMS 为目标的规模化 RL
 
+2026-11-03 15:44 UTC 状态更新：FPO world16 在1707/inner1后，节点1收到外部SIGTERM而中断，当前等待原生恢复，不能沿用“五条健康训练/56卡”快照；其它四路线仍推进，当前数量和Adam/曝光由实时 PRIORITY_STATUS 展示。FPO .5E全评测仍收尾，只发布完整封印分数；D46最高仍D0/1400的90.17112884，历史IL70最高91.45359756。[实时状态](/mnt/project/d46-priority-rl-20261103/PRIORITY_STATUS.json)、[当前FPO stage](/mnt/project/d46-priority-rl-20261103/operations/WORLD16_STAGES/FPO_WORLD16_PRIORITY_v1/STATE.json)
+
+执行微基准局部中位15.7466s（原执行）、15.3713s（prefix）、10.6735s（融合MC）、10.4852s（组合）；prefix梯度逐位一致，融合梯度相对L2差约.01754，非逐位一致。仅局部实测、未采用正式训练，不是PDMS提升或完整cycle承诺；原D0/FPO双节点2.07×/1.90×计时保留为历史独立结果。[比较收据](/mnt/project/d46-priority-rl-20261103/qualification/EXECUTION_BENCHMARK_20261103/COMPARISON_0ab.json)
+
+下列启动与资源数量为各自时间的历史记录，以前部实时表为准。
+
 本轮从 `987bc614aec5a042f2df8e8590d6f2479b3e1010` 开发。研究进行中，工程资格通过不等于算法提分。
 
 ## 当前优先：D46 六条专用 RL 路线
