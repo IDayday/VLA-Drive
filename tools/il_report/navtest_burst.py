@@ -86,9 +86,12 @@ def review_resource_boundary(request, name):
                 '--seed':'2101', '--cohort':'NAVTEST'}
     if any(argument(k) != v for k,v in expected.items()):return False
     total = len(identity['tokens'][rank::request.world]);done = row.get('new',0)+row.get('reused',0)
-    if (not 0 <= rank < request.world or not 0 <= done < total
-            or result.get('end_unix',0) < row.get('end_unix',float('inf'))
-            or result.get('stop_requested_unix',float('inf')) > row.get('end_unix',0)):
+    # The evaluator polls the immutable guard itself. It may publish its
+    # boundary exit BEFORE the worker's next timer writes STOP_REQUESTED.
+    guard = result.get('guard_unix')
+    if (not isinstance(guard, (int,float)) or not 0 <= rank < request.world or not 0 <= done < total
+            or not guard <= row.get('end_unix',0) <= result.get('end_unix',0)
+            or not guard <= result.get('stop_requested_unix',0) <= result.get('end_unix',0)):
         return False
     write(receipt/'OPERATOR_REQUEUE.json', dict(status='REVIEWED_TERMINAL_REQUEUE',
         at=time.time(), spec_sha256=hashlib.sha256((receipt/'spec.json').read_bytes()).hexdigest(),
