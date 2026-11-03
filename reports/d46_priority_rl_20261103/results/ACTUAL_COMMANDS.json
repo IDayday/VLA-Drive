@@ -1,0 +1,684 @@
+{
+  "at_unix": 1793667519.9184587,
+  "source_of_truth": "/mnt/project/d46-priority-rl-20261103/CAMPAIGN.json",
+  "runs": {
+    "D3_FPO": {
+      "status": "RUNNING_QUALIFICATION",
+      "qualification_jobs": [
+        {
+          "host": "training-vlawm-zt4",
+          "pid": 2906793,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+            "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+            "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+            "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+            "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+            "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+            "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+            "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D3_FPO_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D3_FPO",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D3_FPO/qualification/attempt001",
+          "at": 1793666733.397363
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "pid": 2248215,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-ceb0d9a7-7b64-2fb1-cb83-962861ec73b9",
+            "GPU-9e303222-565f-9aee-caa7-625ee7f12096",
+            "GPU-37f16ed7-3b1b-4cb7-2462-70ef5abbd287",
+            "GPU-cab4a3fa-dc7f-0762-9b23-8e0e8959e57a",
+            "GPU-5d1dca72-ef65-13ce-ef85-2fde0bb2e62c",
+            "GPU-4604e9db-bf91-9dd3-1b79-deb94646aa63",
+            "GPU-3bad9a14-f891-5982-524b-b4a13a3cb734",
+            "GPU-e9cb846f-5ccf-504c-5537-e2da39e661fd"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v2",
+          "worker_source_sha": "d7dd6d54093ea11bb5fc02ee71d4fbdd189187fa",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D3_FPO_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D3_FPO",
+            "--qualification",
+            "--stop-after-update",
+            "10",
+            "--resume",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D3_FPO/checkpoints/update000000_inner0"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D3_FPO/qualification/attempt002",
+          "at": 1793667166.2789521
+        }
+      ],
+      "formal_jobs": []
+    },
+    "D3_AWM": {
+      "status": "RUNNING_QUALIFICATION",
+      "qualification_jobs": [
+        {
+          "host": "training-vlawm-zt4",
+          "pid": 2906845,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+            "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+            "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+            "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+            "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+            "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+            "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+            "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D3_AWM_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D3_AWM",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D3_AWM/qualification/attempt001",
+          "at": 1793666734.7587893
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "pid": 2911075,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+            "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+            "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+            "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+            "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+            "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+            "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+            "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v2",
+          "worker_source_sha": "d7dd6d54093ea11bb5fc02ee71d4fbdd189187fa",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D3_AWM_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D3_AWM",
+            "--qualification",
+            "--stop-after-update",
+            "10",
+            "--resume",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D3_AWM/checkpoints/update000000_inner0"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D3_AWM/qualification/attempt002",
+          "at": 1793667303.345112
+        }
+      ],
+      "formal_jobs": []
+    },
+    "D5": {
+      "status": "RUNNING_OR_ADMITTING",
+      "qualification_jobs": [
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "pid": 785968,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+            "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+            "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6",
+            "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0",
+            "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915",
+            "GPU-88994300-43aa-ec6a-973e-a92276b2a045",
+            "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3",
+            "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D5_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D5",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D5/qualification/attempt001",
+          "at": 1793666735.5585926
+        }
+      ],
+      "formal_jobs": [
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "pid": 788409,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+            "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+            "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6",
+            "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0",
+            "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915",
+            "GPU-88994300-43aa-ec6a-973e-a92276b2a045",
+            "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3",
+            "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D5.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/runs/D46_D5"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D5/formal/attempt001",
+          "at": 1793667107.3078203
+        }
+      ]
+    },
+    "D1": {
+      "status": "RUNNING_OR_ADMITTING",
+      "qualification_jobs": [
+        {
+          "host": "training-vlawm-zt",
+          "pid": 3770511,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-28bb7746-6cd9-30e1-eaf3-023b3dcb9e55",
+            "GPU-015ebf78-d8cb-fc84-ac4c-1032e44185ec",
+            "GPU-5ea67974-566a-d324-591a-dfb1e2fd9880",
+            "GPU-d35db37e-09ab-e67e-eb25-fb83477bd237",
+            "GPU-b959b7cd-fb04-755f-716d-433c0c9027f4",
+            "GPU-3a230600-9d91-7bbb-fc01-7189538907fb",
+            "GPU-0dc01ece-190e-63ad-04f4-4da2dcf0c1d6",
+            "GPU-6ad54b12-1c34-1d8b-2b31-0a4ec20f287a"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D1_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D1",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D1/qualification/attempt001",
+          "at": 1793666736.3660622
+        },
+        {
+          "host": "training-vlawm-zt",
+          "pid": 3770871,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-28bb7746-6cd9-30e1-eaf3-023b3dcb9e55",
+            "GPU-015ebf78-d8cb-fc84-ac4c-1032e44185ec",
+            "GPU-5ea67974-566a-d324-591a-dfb1e2fd9880",
+            "GPU-d35db37e-09ab-e67e-eb25-fb83477bd237",
+            "GPU-b959b7cd-fb04-755f-716d-433c0c9027f4",
+            "GPU-3a230600-9d91-7bbb-fc01-7189538907fb",
+            "GPU-0dc01ece-190e-63ad-04f4-4da2dcf0c1d6",
+            "GPU-6ad54b12-1c34-1d8b-2b31-0a4ec20f287a"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D1_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D1",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D1/qualification/attempt002",
+          "at": 1793666799.6601484
+        }
+      ],
+      "formal_jobs": [
+        {
+          "host": "training-vlawm-zt",
+          "pid": 3773993,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-28bb7746-6cd9-30e1-eaf3-023b3dcb9e55",
+            "GPU-015ebf78-d8cb-fc84-ac4c-1032e44185ec",
+            "GPU-5ea67974-566a-d324-591a-dfb1e2fd9880",
+            "GPU-d35db37e-09ab-e67e-eb25-fb83477bd237",
+            "GPU-b959b7cd-fb04-755f-716d-433c0c9027f4",
+            "GPU-3a230600-9d91-7bbb-fc01-7189538907fb",
+            "GPU-0dc01ece-190e-63ad-04f4-4da2dcf0c1d6",
+            "GPU-6ad54b12-1c34-1d8b-2b31-0a4ec20f287a"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v2",
+          "worker_source_sha": "d7dd6d54093ea11bb5fc02ee71d4fbdd189187fa",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D1.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/runs/D46_D1"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D1/formal/attempt001",
+          "at": 1793667306.0941133
+        }
+      ]
+    },
+    "D2": {
+      "status": "RUNNING_OR_ADMITTING",
+      "qualification_jobs": [
+        {
+          "host": "training-vlawm-tsinghua-zt3",
+          "pid": 2245202,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-ceb0d9a7-7b64-2fb1-cb83-962861ec73b9",
+            "GPU-9e303222-565f-9aee-caa7-625ee7f12096",
+            "GPU-37f16ed7-3b1b-4cb7-2462-70ef5abbd287",
+            "GPU-cab4a3fa-dc7f-0762-9b23-8e0e8959e57a",
+            "GPU-5d1dca72-ef65-13ce-ef85-2fde0bb2e62c",
+            "GPU-4604e9db-bf91-9dd3-1b79-deb94646aa63",
+            "GPU-3bad9a14-f891-5982-524b-b4a13a3cb734",
+            "GPU-e9cb846f-5ccf-504c-5537-e2da39e661fd"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D2_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D2",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D2/qualification/attempt001",
+          "at": 1793666737.1135926
+        }
+      ],
+      "formal_jobs": [
+        {
+          "host": "training-vlawm-tsinghua-zt2",
+          "pid": 789987,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+            "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+            "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6",
+            "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0",
+            "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915",
+            "GPU-88994300-43aa-ec6a-973e-a92276b2a045",
+            "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3",
+            "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/operations_v2",
+          "worker_source_sha": "d7dd6d54093ea11bb5fc02ee71d4fbdd189187fa",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D2.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/runs/D46_D2"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D2/formal/attempt001",
+          "at": 1793667308.1616378
+        }
+      ]
+    },
+    "D0": {
+      "status": "WAITING_FOR_AUTHORIZED_CAPACITY",
+      "qualification_jobs": [
+        {
+          "host": "training-vlawm-zt4",
+          "pid": 2906917,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+            "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+            "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+            "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+            "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+            "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+            "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+            "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D0_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D0",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D0/qualification/attempt001",
+          "at": 1793666738.1587646
+        },
+        {
+          "host": "training-vlawm-zt",
+          "pid": 3770933,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-28bb7746-6cd9-30e1-eaf3-023b3dcb9e55",
+            "GPU-015ebf78-d8cb-fc84-ac4c-1032e44185ec",
+            "GPU-5ea67974-566a-d324-591a-dfb1e2fd9880",
+            "GPU-d35db37e-09ab-e67e-eb25-fb83477bd237",
+            "GPU-b959b7cd-fb04-755f-716d-433c0c9027f4",
+            "GPU-3a230600-9d91-7bbb-fc01-7189538907fb",
+            "GPU-0dc01ece-190e-63ad-04f4-4da2dcf0c1d6",
+            "GPU-6ad54b12-1c34-1d8b-2b31-0a4ec20f287a"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D0_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D0",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D0/qualification/attempt002",
+          "at": 1793666801.6569629
+        },
+        {
+          "host": "training-vlawm-zt4",
+          "pid": 2908919,
+          "gpus": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "expected_gpu_uuids": [
+            "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+            "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+            "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+            "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+            "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+            "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+            "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+            "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+          ],
+          "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "worker_source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+          "worker_source_sha": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=8",
+            "-m",
+            "tools.d44_native_rl.train",
+            "--config",
+            "/mnt/project/d46-priority-rl-20261103/registered_configs/D0_qualification.yaml",
+            "--output",
+            "/mnt/project/d46-priority-rl-20261103/qualification/D46_D0",
+            "--qualification",
+            "--stop-after-update",
+            "10"
+          ],
+          "job": "/mnt/project/d46-priority-rl-20261103/jobs/D0/qualification/attempt003",
+          "at": 1793666923.8936195
+        }
+      ],
+      "formal_jobs": []
+    }
+  }
+}

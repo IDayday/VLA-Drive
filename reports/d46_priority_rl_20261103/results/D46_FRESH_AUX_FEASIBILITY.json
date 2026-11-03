@@ -1,0 +1,221 @@
+{
+  "schema": "d46_fresh_auxiliary_policy_preserving_feasibility_review_v1",
+  "status": "SOURCE_FEASIBLE_NOT_IMPLEMENTED_NOT_REGISTERED",
+  "at": "2026-11-03T00:50:05.318025+00:00",
+  "source": "/mnt/project/d46-priority-rl-20261103/runtime/formal_v1",
+  "source_commit": "ff3013c4045e9505ae9cd39b9418247cc03a596d",
+  "parent": {
+    "kind": "verified_deployment_export",
+    "IL_updates": 46000,
+    "model_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+    "full_native_available": false,
+    "R16_query_recovered": false,
+    "IL_readouts_recovered": false
+  },
+  "conclusion_zh": "可合法继续D4/D6方向，但只能另立D4_FRESH_AUX/D6_FRESH_AUX：完整部署policy严格加载后追加明确fresh辅助模块，不能称原IL46训练头已恢复。",
+  "initial_B1_invariance": {
+    "status": "source-graph guarantee requires actual numeric qualification",
+    "facts": [
+      "FourFrameworkVLA.predict explicitly prepares auxiliary=False and only denoise_x0; D denoise always _candidate_suffix(include_r=False).",
+      "R exists only for replay_candidates(include_r=True); mask sets every A-query to every R-key False in both ordinary and packed candidate branches.",
+      "prepare_prefix runs only currentC, numeric ego andP32; R never enters existing CP cache.",
+      "discard_training_only removes only r_embeddings; prune removes readouts. All Qwen/C/P/action input/output/positions/time-FiLM and4role embedding rows remain in the actual IL46 export."
+    ],
+    "important_limit": "A masking proof does not justify expecting exact A results when appendingR in the SAME BF16 packed kernel: sequence shapes can alter roundoff. Deployment parity must use the unchanged A-only predict path; measure replay-A isolation separately, do not relax PPOfresh1e-4."
+  },
+  "minimal_new_modules": {
+    "R16": {
+      "shape": [
+        16,
+        2048
+      ],
+      "initialization": "fresh private CPU seed42, Normal(0,.02), new nn.Parameter; preserve existing role_embedding row3",
+      "trainable_parameters": 32768
+    },
+    "readouts": {
+      "bridge": "LayerNorm2048 + Linear2048→512",
+      "evaluation": "existing EvaluationReadout512 only: factors6, score, ranking, first-event3×9",
+      "trainable_parameters": 1335304
+    },
+    "total_new_parameters": 1368072,
+    "not_recreated": [
+      "DINO",
+      "WA/pre/post future decoder",
+      "object/track heads"
+    ],
+    "seed_caution": "CommonReadouts constructor overrides its own seeds342..346; wrapping it in manual_seed42 is not a seed42 implementation. Build onlybridge/evaluation within a dedicated RNGfork; do not consume mainSDE/globalRNG."
+  },
+  "implementation_design": [
+    {
+      "order": 1,
+      "operation": "strict load current pinned IL46 policy without any training heads",
+      "preserved": "Every existing tensor name/dtype/value; no strict=False restoration and no second random action backbone."
+    },
+    {
+      "order": 2,
+      "operation": "Create permanent reference from this exact pruned IL46 policy before attaching any fresh auxiliary modules",
+      "preserved": "Reference has noR/readouts and no trainable aliases; GaussianKL continues to compare only original policy transition means."
+    },
+    {
+      "order": 3,
+      "operation": "Install zero RL LoRA/FiLM as registered, then attach freshR+minimalheads onlyto current branch before DDP/optimizer construction",
+      "detail": "NewActor hook must append current-only modules AFTER reference copy but BEFORE existing post_feedback cloning/scope audit. Separate subclass/hook; no runtime monkeypatch."
+    },
+    {
+      "order": 4,
+      "operation": "Explicit fresh scope and optimizer role",
+      "detail": "Current D44Actor.scope_audit rejects r_embeddings; _configure_action_grpo freezes everything; groups() would misclassify unknownR as textLoRA. Add exact new-variant allowlist and fresh_R/post_readout role (no arbitrary prefix unfreeze). Keepnewparams registered from init; inactive post stages leavegrad=None and Adamstate absent."
+    },
+    {
+      "order": 5,
+      "operation": "Preserve actual deployment path",
+      "detail": "predict remains A-only; native/export loader restores alltrainableparameters then stripsR/readouts. Addnewvariant metadata/checkpointinventory; do not permitexistingD44/D46 policy-onlydefault to recreateheads."
+    },
+    {
+      "order": 6,
+      "operation": "Bind explicit initialization protocol",
+      "detail": "Newidentity experiment_id D4_FRESH_AUX/D6_FRESH_AUX + algorithm_base D4/D6, auxiliary_origin fresh_seed42_after_strict_IL46_policy_load, exact initializer/moduleSHA and parent_registrationSHA; parent says readouts unavailable forever. Contractversion3 may allow this explicitaddition, never change v1/v2 assertions."
+    }
+  ],
+  "algorithms": [
+    {
+      "id": "D4_FRESH_AUX",
+      "priority": 1,
+      "mechanism": "Supervised on-policy candidate factors/canonical score/order/native first-event labels train newR/readout and sharedQwen LoRA; no learnedcritic baseline or deployment scorer.",
+      "relative_to_original": "OriginalD44D4 reused trained IL R16+bridge/evaluation. Thisvariant learnsR/readouts from scratch; cannot transfer oldhead calibration/qualification/conclusions.",
+      "core_objective": "Original joint24 GaussianSafetyEP PPO + adaptive nativeKL + registered post_weight×(factorBCE +.5scoreSmoothL1+.5ranking+.5eventCE)",
+      "gradient_path": "Detached candidate→action_input/hiddenA→Rattention→newR/readout; sharedQwen/LoRA receivesauxgradient throughCP/A/R. Existingaction_output projection is not directly supervised by postloss.",
+      "cost": "Reuse4representative scored candidates/scene; no new PDM score for these labels, but extra28layer R-suffix replay andbackward. Measure actualwall/peakmemory.",
+      "risk": "Fresh randomreadout may inject noisy auxiliary gradients into a goodILpolicy; post accuracy dominatednone-events is uninformative. Logconditional event metrics and PG/aux gradientnorm/cosine on LoRA plus separatefreshmodule gradients.",
+      "recommendation": "Worth a distinct bounded branch after numericqualification. Do not assumeoldpost_weight/LR optimal. Head-only warmup before openingauxgradientto policy is a separately preregistered option, not silently included."
+    },
+    {
+      "id": "D6_FRESH_AUX",
+      "priority": 2,
+      "mechanism": "KeepD6 stagedpositivewitness/GTendpoint/temporalcost/historymixture, with the postR path explicitly fresh.",
+      "stage_semantics": "Keep originalformal stage I<1E,II1–4E,III4–8E,IV8–12E,V>=12E. Freshpost starts stageIII4E; prior positive/history scheduling asregistered; Adam/RNG neverreset.",
+      "relative_to_original": "No originalILpostknowledge; earlyI/II arepolicy/positive routes, do not validatefreshaux merelybecause those stagesrun.",
+      "risk": "Compound curriculum hasdata/G/LR/teacher changes; cannot attribute finalimprovementto freshheads alone, andlateactivationneeds a sufficiently longbudget.",
+      "recommendation": "Do not cancelD6 becauseoldheads aregone. Prepare onlyafterD4freshscope/gradient/plumbingisvalidated; requirestageIII/IV activefreshaux nativequalification beforeformaladmission."
+    }
+  ],
+  "qualification_required": {
+    "CPU": [
+      "Initializer addsONLY declarednewnamespace; all existing policytensorhashes unchanged; privateRNG leaves mainCPU/CUDA/traininggenerators unchanged.",
+      "Mask topology noR→CP/A and no crosscandidateedges; freshquery/readoutscope/optimizerroles exact, reference frozen/noalias.",
+      "Everymissing/scorer-eventlabel masked/rejected, neverzero-filledassafe; syntheticnative targetpollution rejected."
+    ],
+    "actual_GPU": [
+      "Actual fullIL46 B1 withsameinputs/seed2101/K10shift5 beforeaddition, afterfreshaux+zeroRLLoRA, and afterprunedexport: normalized/requestedmaxabs0.",
+      "Initial current/ref trueW3joint ratio error<=1e-4 without loosening threshold; action-onlypath unchanged; separately reportA replay BF16shapeeffects.",
+      "ActualTRAIN candidatepostloss finite withnonzero newR/bridge/evaluation/sharedtextLoRAgradients; reportPG/aux normandcosine, nativefirst-eventpositivecoverage, notonlyloss/accuracy.",
+      "World8 allrankDDP earlyinactive→activepost; no extramodule addition afterDDP; zeroLR/inactivehead Adamstate remainsabsent untilstageactivation.",
+      "Continuous vs mid-innerresume on an ACTIVE post batch: allweights inclfreshR/heads, Adam/scheduler/adaptiveKL/all8RNG/chain/adv/scorerlabels/exposure/hash exact; D6also stageIII/IV switch andselfhistory bankdigest.",
+      "Qualification-onlycompressedstages may exercise latebranch; formal1/4/8/12E gates remainunchanged, weights neverinitializeformal.",
+      "Loadnative + compactexportpredict afternonzeroR/head/LoRAupdates; deploymuststripR/readouts, retainactualtrainedpolicyclosure; oldD44proofnotrelabeledD46freshproof."
+    ]
+  },
+  "decision_zh": [
+    "优先把D4_FRESH_AUX作为清晰的表示/因素监督实验；D0等现有路线保持各自独立，不因proposal停止。",
+    "D6_FRESH_AUX合理但不是免费复用旧D6资格；缺旧头不是取消D方向的理由，fresh初始化与训练阶段差异必须明确。",
+    "若要归因辅助收益，matchedcontrol需同B/G/M、scope/LR/schedule/IL46，只关postloss；现有D0默认B64/LR2e-6与D4B32/LR1e-6不同，不能当单因素对照。"
+  ],
+  "scope": {
+    "source_or_contract_edited": false,
+    "new_GPU": false,
+    "new_model_forward": false,
+    "new_score": false,
+    "new_registration": false,
+    "old_D44_or_IL_or_running_owner_touched": false
+  },
+  "evidence": {
+    "source_files_sha256": {
+      "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": "e95e1fcccd1aa37f8b095a83e0b134adbecc7350739b6701cd6b007042db0367",
+      "starVLA/model/modules/qwen_world_compare/model.py": "c8e992b102108da5808338a4fdb79cf6ade71b0dbdaf6682824f9343931cd9d1",
+      "starVLA/model/modules/qwen_world_compare/heads.py": "6b273e23bf980842f598addb3bb5cd4adce4dfbe500d3a979a865fcce982119b",
+      "starVLA/rl/qwen_world_compare/deployment.py": "19eadcffcc05b35877a3bc62549332aa17a60617d354472428abb94041884adf",
+      "starVLA/rl/d44_native_rl/parent.py": "81b9e2a634b774ad384017eed32d5330145a0af07eb9fd4391743d4a0c61040a",
+      "starVLA/rl/d44_native_rl/actor.py": "3779eb45ff8cb6789ab60c03bc0c00146998df05aaa659b7a2bf29d8a11ab6ae",
+      "starVLA/rl/d44_native_rl/expanded_scope.py": "f3c3f2feff3acd2ec808a20e3da2ca22c5c9ea3c09f7310d400c3606af300953",
+      "starVLA/rl/d44_native_rl/post_feedback.py": "e47e179df2dc3bb501bca546b72bb23aaa0b33c4c2fdc9fef71330bb28e82edc",
+      "starVLA/rl/d44_native_rl/stages.py": "9bb8dc9f830252885903468f7a687aad5c64a1f0087751d550d2a9289c10067c",
+      "starVLA/rl/d44_native_rl/history.py": "9fa8ea96bb5e54519e1d04993159a532f6ee20bd3299db1f4263081427e8d499",
+      "starVLA/rl/d44_native_rl/recovery.py": "a93fe767fae06cce9f28d1acf078998dc317699bd9a8d16af309b77331aebc68",
+      "tools/d44_native_rl/train.py": "cff6a7d70d3ed2007ae5a9be087b4338dd144ed4bffb1d246a4be0be2c7be605",
+      "tools/d44_native_rl/validate_resume.py": "46534dad032e78f7e37281212df37a76f1923480ac26d9ae985a31df43a6854b"
+    },
+    "line_references": {
+      "starVLA/model/modules/qwen_world_compare/qwen_flow_adapter.py": {
+        "QwenFlowAdapter": {
+          "line": 110,
+          "end_line": 420
+        }
+      },
+      "starVLA/model/modules/qwen_world_compare/model.py": {
+        "FourFrameworkVLA": {
+          "line": 15,
+          "end_line": 160
+        }
+      },
+      "starVLA/model/modules/qwen_world_compare/heads.py": {
+        "EvaluationReadout": {
+          "line": 78,
+          "end_line": 95
+        },
+        "CommonReadouts": {
+          "line": 121,
+          "end_line": 131
+        }
+      },
+      "starVLA/rl/qwen_world_compare/deployment.py": {
+        "prune_deployment": {
+          "line": 20,
+          "end_line": 45
+        }
+      },
+      "starVLA/rl/d44_native_rl/parent.py": {
+        "load": {
+          "line": 158,
+          "end_line": 184
+        }
+      },
+      "starVLA/rl/d44_native_rl/actor.py": {
+        "D44Actor": {
+          "line": 13,
+          "end_line": 124
+        }
+      },
+      "starVLA/rl/d44_native_rl/expanded_scope.py": {
+        "groups": {
+          "line": 26,
+          "end_line": 36
+        }
+      },
+      "starVLA/rl/d44_native_rl/post_feedback.py": {
+        "loss": {
+          "line": 31,
+          "end_line": 39
+        }
+      },
+      "starVLA/rl/d44_native_rl/stages.py": {
+        "stage_at": {
+          "line": 20,
+          "end_line": 27
+        },
+        "stage_recipe": {
+          "line": 30,
+          "end_line": 34
+        }
+      },
+      "starVLA/rl/d44_native_rl/history.py": {},
+      "starVLA/rl/d44_native_rl/recovery.py": {},
+      "tools/d44_native_rl/train.py": {},
+      "tools/d44_native_rl/validate_resume.py": {
+        "validate": {
+          "line": 29,
+          "end_line": 52
+        }
+      }
+    }
+  }
+}
