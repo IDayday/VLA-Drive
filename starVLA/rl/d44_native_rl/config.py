@@ -41,6 +41,38 @@ def defaults(arm):
 
 def read(path):
     cfg=yaml.safe_load(Path(path).read_text())
+    return validate(cfg)
+
+
+def defaults46(arm,registration_path=None):
+    """Reuse the same mathematical engine, with a distinct verified IL46 root."""
+    from .parent import registration,D46_ROOT
+    if arm not in ('D0','D2','D5'):raise ValueError('D46 policy-only first wave admits D0/D2/D5, not unavailable post heads')
+    from starVLA.rl.qwen_world_compare.contracts import file_sha
+    path=Path(registration_path)if registration_path is not None else D46_ROOT/'PARENT_REGISTRATION.json'
+    binding={'path':str(path.resolve()),'file_sha256':file_sha(path)};value=registration(binding)
+    cfg=defaults(arm)
+    cfg.update(parent='D_IL46K',parent_checkpoint=value['export']['path'],parent_registration=binding,
+        initialization='complete_verified_IL46_deployment_policy_plus_zero_RL_delta_fresh_Adam_seed42',
+        permanent_reference='same_verified_IL46_deployment_policy',
+        unavailable_IL_auxiliary_readouts=True)
+    return validate(cfg)
+
+
+def validate(cfg):
+    if cfg.get('parent')=='D_IL46K':
+        from .parent import registration,audit_export,D46_MODEL_SHA
+        if (cfg.get('arm')not in ('D0','D2','D5')or cfg.get('post_feedback')is not False
+                or cfg.get('initialization')!='complete_verified_IL46_deployment_policy_plus_zero_RL_delta_fresh_Adam_seed42'
+                or cfg.get('permanent_reference')!='same_verified_IL46_deployment_policy'
+                or cfg.get('unavailable_IL_auxiliary_readouts')is not True):
+            raise ValueError('D46 export-only initialization/scope must be explicit and fresh')
+        registered=registration(cfg.get('parent_registration'))
+        if cfg['parent_checkpoint']!=registered['export']['path']:raise ValueError('D46 recipe uses another policy parent')
+        if audit_export(cfg['parent_checkpoint'],verify=False,binding=cfg['parent_registration'])['model_sha256']!=D46_MODEL_SHA:
+            raise ValueError('D46 registered policy changed')
+    elif any(k in cfg for k in ('parent_registration','initialization','permanent_reference','unavailable_IL_auxiliary_readouts')):
+        raise ValueError('D46 parent metadata cannot be attached to a different ancestry')
     if cfg.get('schema')!='d44_native_rl_v1' or cfg.get('arm')not in ARMS:
         raise ValueError('D44 recipe schema mismatch')
     if cfg['global_scenes'] not in (32,64,128)or cfg['group']not in(8,16,32)or cfg['inner_updates']not in(2,4):

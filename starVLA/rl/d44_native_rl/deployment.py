@@ -15,6 +15,12 @@ def inspect(path):
     body=dict(identity);sha=body.pop('sha256')
     if identity['schema']!='d44_native_rl_v1'or identity['architecture_id']!='D'or fingerprint(body)!=sha:
         raise ValueError('Foreign D44 run identity')
+    if identity['recipe'].get('parent')=='D_IL46K':
+        from .config import validate
+        from .parent import audit_export,D46_MODEL_SHA
+        cfg=validate(identity['recipe']);parent=audit_export(cfg['parent_checkpoint'],verify=False,binding=cfg['parent_registration'])
+        if identity['parent_model_sha256']!=D46_MODEL_SHA or identity['parent']!=parent:
+            raise ValueError('D46 checkpoint policy-parent provenance changed')
     if seal['files_sha256']!=file_sha(path/'files.json'):raise ValueError('Changed native checkpoint inventory')
     for name in ('identity.json','optimizer.pt','transaction.json'):
         if file_sha(path/name)!=files[name]:raise ValueError('Changed native payload '+name)
