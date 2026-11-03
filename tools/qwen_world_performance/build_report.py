@@ -284,6 +284,40 @@ def D46_optimization_health_fragment():
     return body
 
 
+def D46_full_result_figures_fragment():
+    path=D46_ROOT/'analysis/plots/D46_EARLY_FULL_FACTS.json';value=read(path,{})
+    if value.get('schema')!='D46_early_full_plot_facts_v1'or value.get('status')!='COMPLETE'or not sealed_JSON(value):return ''
+    evidence={v['path']:v['file_sha256']for v in value.get('evidence',[])}
+    for row in value.get('rows',[]):
+        for key in ('summary_file','paired_analysis_file'):
+            p=Path(row[key])
+            if not p.is_file()or hashlib.sha256(p.read_bytes()).hexdigest()!=evidence.get(str(p)):return ''
+    figures=[]
+    for name in ('D46_zero_repair_and_gain_loss.svg','D46_safety_and_progress_delta.svg'):
+        item=value.get('figures',{}).get(name,{});p=Path(item.get('path',''))
+        if not p.is_file()or hashlib.sha256(p.read_bytes()).hexdigest()!=item.get('file_sha256'):return ''
+        figures.append(p)
+    rows={r['arm']:r for r in value['rows']};d=rows['D0'];f=rows['D3_FPO'];a=rows['D3_AWM']
+    body='<details><summary>四个完整点的零分修复、增损与安全/进度两图</summary>'
+    body+='<p>固定 IL46≥.9 的同一 '+esc(value['baseline']['fixed_high_ge09_count'])+' 场景队列。D0修复 '+esc(d['zero_repaired'])+' 个原零分，但新增 '+esc(d['new_zero'])+'；该高分队列全局贡献 '+esc(f'{d["fixed_IL46_high_ge09"]["population_net_contribution_PDMS"]:+.6f}')+' PDMS，EP '+esc(f'{d["metric_delta_pp"]["ego_progress"]:+.3f}')+'pp，抵消部分收益。FPO曝光较少而分数接近，高分净损失 '+esc(f'{f["fixed_IL46_high_ge09"]["population_net_contribution_PDMS"]:+.6f}')+'；AWM保持较多原高分、EP '+esc(f'{a["metric_delta_pp"]["ego_progress"]:+.3f}')+'pp，但NC '+esc(f'{a["metric_delta_pp"]["no_at_fault_collisions"]:+.3f}')+'pp，不能概括所有安全均改善。</p>'
+    for p in figures:body+='<figure style="margin:14px 0"><img loading="lazy" style="display:block;width:100%;height:auto" src="'+esc(p)+'" alt="D46四个完整NAVTEST点的配对诊断"></figure>'
+    body+='<p>图只复用封存完整结果和既有44log CI；各点曝光不同，不能因果排序或据EP推断不可调和的物理权衡。高分贡献与gross损失口径不同，不把抵消量当成可实现收益；NAV标签不入训练。<a href="'+esc(path)+'">完整事实表与口径</a></p></details>'
+    return body
+
+
+def D46_execution_recovery_fragment():
+    directory=D46_ROOT/'operations/EVAL_DIRECTORY_RECOVERY_20261103';path=directory/'RECOVERY_AUDIT.json'
+    audit=read(path,{})
+    if audit.get('status')!='PASS'or not sealed_JSON(audit):return ''
+    body='<details><summary>执行故障与恢复边界：保存状态、资源等待不等于算法无效</summary><p>'+esc(audit.get('finding_zh',''))+' 原生审计确认Adam/scheduler1614和八rank RNG完整，原code1与日志保留；当前是否恢复只看实时任务表。<a href="'+esc(path)+'">原生恢复审计</a></p>'
+    backfill=directory/'DIRECTORIES_AND_GATE_BACKFILL.json'
+    if read(backfill,{}).get('scientific_source_unchanged')is True:body+='<p>缺失目录已补、.5E请求已按真实封存状态回填；不丢gate、不重置Adam/RNG。<a href="'+esc(backfill)+'">目录与门槛回填收据</a></p>'
+    retry=directory/'D2_STARTUP_TIMEOUT_REVIEW.json';review=read(retry,{})
+    if review.get('schema')=='d46_exact_failed_job_recovery_review_v1':
+        body+='<p>D2的旧attempt002在原生恢复前发生Gloo启动90秒超时，0新更新；经一次显式复核从同1614、同科学源作暖缓存资源重试。不是数值失败；实际重试进度以实时表为准。<a href="'+esc(retry)+'">精确失败与重试审查</a></p>'
+    return body+'<p>资源hold保留代码、结果与原生状态，不是无效结论。服务器列来自实际当前/最近job，不由首选路由推断独占；授权不等于空闲，未知owner不回收。</p></details>'
+
+
 def D46_priority_fragment():
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
@@ -307,7 +341,7 @@ def D46_priority_fragment():
         operations=read(D46_ROOT/'CAMPAIGN.json',{}).get('evaluation_operations',{})
         deferred=operations.get('registered_dispatch_deferred')
         state='当前常规 gate 派发暂缓，早评继续'if deferred is True else'当前未暂缓常规 gate 派发'if deferred is False else'当前派发状态以控制收据为准'
-        body+='<p><b>评测期间训练继续。</b>仅 CPU 运营接管，原 GPU job、科学源、Adam/RNG 保持；早评运行期间只暂缓重复的常规 gate 评测派发，不丢 gate、不暂停训练。'+esc(state)+'。<a href="'+esc(transition_path)+'">实际接管与原job保持收据</a> · <a href="'+esc(policy_path)+'">执行策略</a></p>'
+        body+='<p><b>执行策略允许评测与训练并行。</b>该次CPU运营接管未改变GPU job、科学源或Adam/RNG；早评运行期间只暂缓重复的常规gate派发，不丢gate。此后资源hold、执行恢复及实际在训数量以实时表为准。'+esc(state)+'。<a href="'+esc(transition_path)+'">当次接管收据</a> · <a href="'+esc(policy_path)+'">执行策略</a></p>'
     restored_path=D46_ROOT/'operations/RESTORE_SIX_UNBOUNDED_20261103/APPLIED.json'
     restored=read(restored_path,{})
     if restored.get('finite_deadline_applies') is False:
@@ -331,6 +365,7 @@ def D46_priority_fragment():
         entries=[]
         states={'RUNNING_QUALIFICATION':'资格阶段，非正式训练','WAITING_RESOURCE':'等待资源',
             'WAITING_FOR_AUTHORIZED_CAPACITY':'等待有权限资源','RUNNING_OR_ADMITTING':'正式已派发/初始化，待八rank更新',
+            'SAVED_AND_HELD_FOR_REGISTERED_STAGE':'已完整保存，资源保留/等待（非无效结论）',
             'TRAINING':'正式实际训练','RUNNING':'运行中（以实际日志核对）'}
         for r in rows:
             arm=r.get('id','').removeprefix('D46_');registered=campaign.get(arm,{})
@@ -341,8 +376,8 @@ def D46_priority_fragment():
             exposure=r.get('scene_exposures');progress=str(r['updates'])if r.get('updates')is not None else'尚无实际日志'
             if isinstance(exposure,(int,float)):progress+=' / '+format(exposure,',')+'场景 / '+f'{exposure/103288:.5f}E'
             entries.append((r.get('id',''),method,gate,qualification,host,progress,states.get(r.get('status'),r.get('status','待确认'))))
-        body+=table(['D46 路线','方法','阶段启用与边界','独立资格','服务器','实时 Adam / 有效曝光 / epoch','正式阶段状态'],entries)
-    body+=D46_early_evaluation_fragment()+D46_optimization_health_fragment()+D46_throughput_fragment()
+        body+=table(['D46 路线','方法','阶段启用与边界','独立资格','实际当前/最近服务器','实时 Adam / 有效曝光 / epoch','正式阶段状态'],entries)
+    body+=D46_execution_recovery_fragment()+D46_early_evaluation_fragment()+D46_full_result_figures_fragment()+D46_optimization_health_fragment()+D46_throughput_fragment()
     reviewed=[]
     for arm,registered in campaign.items():
         review=registered.get('qualification_resource_retry_review',{});review_path=Path(review.get('receipt',''))

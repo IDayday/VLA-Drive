@@ -40,7 +40,13 @@
 
 四份官方完整结果现已完成，均12146场景/44log/invalid0、B1/seed2101。当前D46最高为 **D0 Adam1400：90.17112884**，相固定IL46 **+0.67560786**；D5同1400为89.97889876，FPO900为90.12278094，AWM800为89.95115511。D0相IL46修复248个零分、新增87；其它方法与完整CI/高分保持见实时面板和各PAIRED_ANALYSIS。不同曝光预算不能作同预算方法排名，D1/D2早期等参数参考不另计独立点。这是 **NAVTEST_SELECTED** 的阶段资源选择证据，不是独立未选择测试。历史IL70最高91.45359756仍单列，不能作为D46父基线。
 
-128个GPU评测worker已正常EXIT0；随后只替换有限CPU聚合器，用四CPU并行、官方validator每个不可变数据只读一次并复用。canonical公式未改，六条训练未中断。HTML完整分数不依赖STATE是否已结束paired汇总：32片与identity/摘要封印通过即可发布分数，paired未齐明确“分析中”，不编修复/退化统计。[聚合接管证据](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/AGGREGATION_OWNER_TRANSITION.json)。
+已嵌入两张现成全量图，未重新推理/评分/画趋势。[零分修复与gain/loss](/mnt/project/d46-priority-rl-20261103/analysis/plots/D46_zero_repair_and_gain_loss.svg)、[安全与进度变化](/mnt/project/d46-priority-rl-20261103/analysis/plots/D46_safety_and_progress_delta.svg)。固定IL46≥.9为同8722场景：D0该队列全局贡献−1.368811 PDMS、EP−1.551854pp，抵消部分修复；FPO少曝光的高分净损失较小，AWM保持较多但NC小降，不能称安全全面改善或因果排序。[封印事实与图口径](/mnt/project/d46-priority-rl-20261103/analysis/plots/D46_EARLY_FULL_FACTS.json)
+
+2026-11-03 12:40 UTC资源快照为3条实际训练：D0在TSH5与已知旧I共享，FPO在TSH3，AWM在WM4；D1保留自身1614，D5保留1647/inner1，均为资源hold，不判方法无效。D2原attempt002在恢复前Gloo90秒超时、0新更新，已复核一次同source/同1614暖缓存重试；是否已推进按实时PRIORITY_STATUS，不把初始化算在训。此前D0/D1/D2/D5在1614_READY完整保存后因缺evaluation_requests目录退出1，完整原生/Adam/scheduler/RNG审计PASS，目录与.5门已补回；旧code1保留，不改造成成功。[恢复审计](/mnt/project/d46-priority-rl-20261103/operations/EVAL_DIRECTORY_RECOVERY_20261103/RECOVERY_AUDIT.json)、[回填](/mnt/project/d46-priority-rl-20261103/operations/EVAL_DIRECTORY_RECOVERY_20261103/DIRECTORIES_AND_GATE_BACKFILL.json)、[D2超时审查](/mnt/project/d46-priority-rl-20261103/operations/EVAL_DIRECTORY_RECOVERY_20261103/D2_STARTUP_TIMEOUT_REVIEW.json)。
+
+world16仅D0的真实GPU pending恢复工程资格已通过，短4次更新约5–6秒不等于长期吞吐验证、稳定2倍加速或正式16卡启动；D5只属引擎支持。正式world16仍未启动，实际主机/资源以收据为准，不把D0首选独占TSHzt当实际。12:40资源核查中WMzt/TSH2仍有待归因占用，未停止未知进程或假设空闲。[动态资格边界](/mnt/project/d46-priority-rl-20261103/operations/MULTINODE_NETWORK_20261103/GPU16_QUALIFICATION_STATUS.json)
+
+128个GPU评测worker已正常EXIT0；随后只替换有限CPU聚合器，用四CPU并行、官方validator每个不可变数据只读一次并复用。canonical公式未改，该次聚合接管未向GPU发信号；后续执行恢复、资源hold和在训状态见实时表。HTML完整分数不依赖STATE是否已结束paired汇总：32片与identity/摘要封印通过即可发布分数，paired未齐明确“分析中”，不编修复/退化统计。[聚合接管证据](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/AGGREGATION_OWNER_TRANSITION.json)。
 
 HTML从每片最新job的RESULT/RUNNING读取完成、已启动待返回、准入、资源等待与异常，避免整轮派发尚未刷新的STATE计数掩盖已发任务。仅完整12146/44log/invalid0、seed2101的封印identity与指定检查点绑定后才发布分数；完整配对分析封印后再报告IL46相对修复/新增零分和固定IL46≥.9队列变化。四策略曝光预算不同，提前结果用于资源分配观察，不作同预算算法排名；不将NAV标签加入训练bank。
 
