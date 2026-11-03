@@ -1,0 +1,117 @@
+{
+  "CLI": {
+    "environment": "WORLD_COMPARE_ROOT=/mnt/project/d46-priority-rl-20261103 WORLD_COMPARE_TASK=d46_priority_rl_20261103 D_NATIVE_CAMPAIGN_ROOT=/mnt/project/d46-priority-rl-20261103",
+    "once": "modelpython -m tools.d46_priority_rl.world16_owner once --plan PLAN.json",
+    "prepare": "modelpython -m tools.d46_priority_rl.world16_owner prepare --plan PLAN.json",
+    "prerequisites": "Root converts correct original D0/D5 READY parent to formal16 with source87, ends old8 native job, preserveshold, sealsplan, adopts new primaryops source, then starts stageowner",
+    "run": "modelpython -m tools.d46_priority_rl.world16_owner run --plan PLAN.json --interval 60"
+  },
+  "CPU": {
+    "checks": [
+      "hold and actual oldjob exit",
+      "same native resume and no10updatecap",
+      "two job reservation",
+      "actual rc1 retained, only ownpeer STOP",
+      "75 actualprechildproof and boundedretry",
+      "CPU crash adopts firstnode and launches only missingpeer",
+      "same logicalarm evalmailbox and selection acrossold/stage roots",
+      "original6Eexposures completion",
+      "RL2 pool only017 with stage reservation",
+      "legacyowner3regressions"
+    ],
+    "exit_code": 0,
+    "limitations": "Metadata mocks only; no GPU/Gloo/model/scorer/SSH/real scheduling",
+    "result": "11 passed,1 warning in4.09s",
+    "stdout": "/mnt/project/VLA-Drive-d46-world16-ops-20261103/reports/d46_world16_owner_20261103/CPU_RELEASE_ALL.log",
+    "stdout_sha256": "a78f639a2bc6b4adb63846249bfae401e7e2d376173e489d969339b1f90b01f5"
+  },
+  "base_commit": "7dd23b8",
+  "behavior": {
+    "B": 64,
+    "G": 16,
+    "M": 2,
+    "RL2": "training-rl-zt2 added to evalpool only indices0,1,7; actual UUID/visibility/unknownowner/lease worker checks unchanged",
+    "command": "env NCCL_IB_DISABLE=1 NCCL_SOCKET_IFNAME=eth0 modelpython -m torch.distributed.run --nnodes=2 --nproc_per_node=8 --node_rank=0|1 --master_addr=IP --master_port=PORT --rdzv_conf=timeout=120 --max_restarts=0 -m tools.d46_world16.train --config SAME --output FORMAL16 --resume LATEST",
+    "deadline": "missing/null means no artificial hour limit;6E/native failure/operator stop defines work boundary",
+    "eval": "native epoch request -> EVALUATION_MAILBOX -> main owner samearm fullB1/world32case; training never waits evaluation",
+    "failure": "only own live peer receives STOP_REQUESTED; no signals/resourcepolicy/other-task preemption",
+    "no_qualification_flag": true,
+    "no_stop_after_update_cap": true,
+    "optimizer": "exact typed latest --resume, full inherited Adam/RNG/native inner; no conversion or resets by owner",
+    "partial_launch": "durable intent pernode; exact LAUNCH/RUNNING/RESULT adoption; never duplicate existing peer",
+    "reserved": "both stagehosts plus real live nodejobs reserved for old-native and eval scheduling; terminal stage releases future reservations",
+    "retry": "only actual75+child_not_startedTrue; at most3 refusals,60sbackoff. Actualrc1/ambiguousPopen stops review with attempts retained; no fakeRESULT.",
+    "target_epochs": 6.0,
+    "target_valid_scene_exposures": 619728
+  },
+  "branch": "ops/d46-world16-owner-20261103",
+  "created_UTC": "2026-11-03T11:35:56.840141+00:00",
+  "entry": "tools.d46_priority_rl.world16_owner",
+  "live_CAMPAIGN_RUNS_modified": false,
+  "mailbox_schema": "d46_world16_evaluation_mailbox_v1",
+  "owners_or_GPU_launched": false,
+  "plan_schema": "d46_formal_world16_stage_plan_v1",
+  "plan_template": {
+    "arm": "D0",
+    "config": "<same original registered cfg>",
+    "config_sha256": "<actual SHA>",
+    "hosts": [
+      "<winner original host>",
+      "training-vlawm-tsinghua-zt"
+    ],
+    "identity_sha256": "<formal16 identity sha>",
+    "master_addr": "172.16.144.229",
+    "master_port": 29785,
+    "minimum_free_MiB": 65000,
+    "output": "<new converted formal16 execution root>",
+    "owner_deadline_unix": null,
+    "resource75_retry_limit": 3,
+    "schema": "d46_formal_world16_stage_plan_v1",
+    "science_source": "<frozen SCI87bfecc>",
+    "shared_admission": false,
+    "source_sha": "87bfecc87d5dda6397c195122b21c4eadc3a90a0",
+    "stage_id": "<unique_D0_or_D5_stage>",
+    "target_epochs": 6.0,
+    "transition_receipt_sha256": "<file SHA output/WORLD_TRANSITION.json>",
+    "worker_source": "<new frozen ops with native16 admission>"
+  },
+  "plan_template_is_DRAFT": true,
+  "policy_binding": {
+    "CAMPAIGN_writer": "original main owner only",
+    "execution_holds": {
+      "D0": "registered world16 stage"
+    },
+    "logical_arm_count": "unchanged6; D0/D5 has nested world16_stage, not a seventh method",
+    "old_fields_preserved": [
+      "run.output",
+      "run.source",
+      "run.jobs",
+      "old checkpoint/evaluation histories"
+    ],
+    "stage_owner_writes": [
+      "own OWNER.json",
+      "own STATE.json",
+      "own EVALUATION_MAILBOX.json",
+      "own node launch receipts/STOP_REQUESTED"
+    ],
+    "world16_stages": {
+      "D0": {
+        "plan": "<absolute sealed plan>",
+        "plan_sha256": "<actual file SHA>"
+      }
+    }
+  },
+  "resources_policy_locks_modified": false,
+  "schema": "d46_formal_world16_CPU_owner_handoff_v1",
+  "science_source_changed": false,
+  "source_commit": "d9c82de0da6c1a6fe88154c6a4f9b258809e9df8",
+  "source_files": {
+    "tests/d46_priority_rl/test_world16_owner.py": "8c48b568d59d4de774c5be428a63841458a5b4961dc77f96427fcf193f2b65fc",
+    "tools/d44_native_rl/campaign.py": "c711378bce762a891381f4ba7b42bac63fb4d9137c26982d25d4078c303a425c",
+    "tools/d46_priority_rl/owner.py": "5f80b10289ae2a006c7f9c59048eaad89320ba85f9635e98831ad40c78079d97",
+    "tools/d46_priority_rl/world16_owner.py": "76cefb424a41567849dc7ca37661f6b49c7d4137b18b0b86d38053983d44af63"
+  },
+  "state_schema": "d46_formal_world16_stage_state_v1",
+  "status": "CPU_READY_NOT_LAUNCHED",
+  "worktree": "/mnt/project/VLA-Drive-d46-world16-ops-20261103"
+}
