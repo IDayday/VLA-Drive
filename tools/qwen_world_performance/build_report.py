@@ -448,7 +448,12 @@ def legacy_I_resource_hold():
 def D46_priority_fragment(other_active=None):
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
-    body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>D 框架 · IL46k 父策略优先 RL</h2>'
+    augustus_path=D46_ROOT/'operations/AUGUSTUS_PRIORITY_ALL_RESOURCES_20261103/PRIORITY_CHANGE_REQUEST.json'
+    augustus=read(augustus_path,{})
+    augustus_priority=augustus.get('maximum_concurrent_training')==2 and augustus.get('old_results_and_native_state_retained')is True
+    body='<section id="d46-priority" style="background:#edf7f5;border:2px solid #428b7a;border-radius:14px;padding:24px;margin:20px 0"><small>当前研究优先级</small><h2>'+('AUGUstus 主线 · IL46k 独立 fresh RL 准备'if augustus_priority else'D 框架 · IL46k 父策略优先 RL')+'</h2>'
+    if augustus_priority:
+        body+='<p style="background:#e2eefc;padding:12px"><b>用户新优先级：所有当前已授权且可用的RL资源集中到AUGUstus主线，最多两条正式训练。</b>候选 AUG_ACTION_FULL 与 AUG_ACTION_LORA 均拟从同一IL46策略、fresh Adam0独立开始；32+16卡属于资格通过后的部署计划，尚未注册/启动。旧D0/D2/D5亦按原生边界协作保存，旧结果、完整状态和预算保留，不判方法无效；保存是否完成及仍在退出中的任务见下面实时表。<a href="'+esc(augustus_path)+'">实际优先级调整请求</a></p><p>当前D0/FPO是本地D原生条件Gaussian/energy代理适配，不能称官方AUGUstus/JaT完整复现。官方训练scope、噪声日程、坐标归约与本地LoRA差异正在只读核对；新路线资格与正式启动须另有实际收据，不能把旧训练数当新主线已开训。</p>'
     if not value:
         return body+'<p>等待 D46 正式状态收据；尚未确认启动。既有 IL70 路线保存让位属于研究优先级调整，不判算法无效。</p></section>'
     stamp=value.get('updated_at',value.get('at',value.get('generated_UTC','未记录')))
@@ -465,7 +470,7 @@ def D46_priority_fragment(other_active=None):
     body+=D46_current_interruption_fragment(value)
     dedicated_path=D46_ROOT/'operations/DEDICATED_TWO_NODE_OPTIMIZATION_20261103/REQUEST.json'
     dedicated=read(dedicated_path,{})
-    if dedicated.get('automatic_capacity_resume_disabled')is True and dedicated.get('all_original_training_budgets_preserved')is True:
+    if not augustus_priority and dedicated.get('automatic_capacity_resume_disabled')is True and dedicated.get('all_original_training_budgets_preserved')is True:
         body+='<p style="background:#e2eefc;padding:12px"><b>当前优先腾出两节点，专做真实执行优化资格后再部署。</b>'+esc(' + '.join(dedicated.get('hosts',[])))+'；FPO/D1协作保存，AWM保留自身状态，原训练预算均保留，不判算法无效；自动capacity恢复已关闭。D0/D2/D5继续，实际数量与保存进度见本表。计划比较同1500权重的baseline/fast真实12次Adam及fast中途恢复，尚无该完整资格结果。原15.75→10.49秒微基准开启checkpoint，不能代表正式all_off配置。<a href="'+esc(dedicated_path)+'">用户要求与两节点资格安排</a></p>'
     hold=legacy_I_resource_hold()
     if hold:body+='<p>旧 IL70 综合 I 已协作完整保存于 '+esc(hold['updates'])+' / inner'+esc(hold['inner'])+'，原job EXIT0，现临时资源保留，为D0让位；原 '+esc(hold['budget'])+' 次实际更新承诺保留，未终止算法、未改父模型/Adam/RNG。<a href="'+esc(hold['path'])+'">实际保存退出收据</a> · <a href="'+esc(hold['request'])+'">资源保留与原预算</a></p>'

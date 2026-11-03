@@ -1,5 +1,10 @@
 # Qwen-World：以真实单轨迹 PDMS 为目标的规模化 RL
 
+2026-11-03 16:06 UTC用户新优先级：集中所有当前已授权且可用的RL资源到 **AUGUstus 主线，最多两条正式训练**。候选 **AUG_ACTION_FULL / AUG_ACTION_LORA** 均为同IL46策略、fresh Adam0；32+16卡仅资格后的计划，尚未注册或开训。旧D0/D2/D5亦请求原生边界协作保存，旧结果/状态/预算保留，不判方法无效。当前实际退出进度只读PRIORITY_STATUS，不将旧任务计为新主线已启动。[优先级调整请求](/mnt/project/d46-priority-rl-20261103/operations/AUGUSTUS_PRIORITY_ALL_RESOURCES_20261103/PRIORITY_CHANGE_REQUEST.json)
+
+当前D0/FPO是本地D条件Gaussian/CFM-energy代理适配，并非官方AUGUstus/JaT的完整复现。新的官方配置、full-text/action scope及LoRA对照正在只读核对；原微基准不是生产all_off耗时。以下资源/训练数量均为各自时间的历史记录，最新动态表优先。
+
+
 2026-11-03 15:55 UTC最新优先级：两节点TSH3+WMzt专用于真实baseline/fast执行优化资格，暂停自动capacity恢复。FPO已在自身1711原生边界保存，D1在1621保存，AWM1442保留，原6E预算均保留；D0/world16、D2/world8、D5/world8继续，实际3路线/32逻辑卡位，以动态状态为准。计划同1500权重真实12Adam加fast中途恢复；本段不宣称该资格已完成。原15.75→10.49秒微基准全部checkpoint=True，正式生产all_off，不能套生产绝对耗时。[两节点优化安排](/mnt/project/d46-priority-rl-20261103/operations/DEDICATED_TWO_NODE_OPTIMIZATION_20261103/REQUEST.json)
 
 
