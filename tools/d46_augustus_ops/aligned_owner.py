@@ -50,15 +50,22 @@ def stop_own(row,reason):
 
 def loss_review(row,evaluation):
     """Only completed aggregate NAVTEST may select/stop a model, never data."""
+    points=[]
     for case in evaluation.get('cases',{}).values():
         if case.get('status')!='COMPLETE'or case['binding'].get('experiment')!=row['experiment']:continue
         summary=read(case['summary'],{})
         if summary.get('status')!='COMPLETE'or summary.get('scenes')!=12146 or summary.get('invalid_scenes')!=0:continue
-        score=summary['PDMS']
-        # Registered severe-forgetting exception; small early changes get time.
-        if score<89.4955209758546-1.0:
-            return dict(reason='Complete B1 PDMS more than1 point below own IL46; preserve native and review',
-                PDMS=score,checkpoint=case['binding']['checkpoint'],summary=case['summary'],NAVTEST_SELECTED=True)
+        points.append((case['binding'].get('scene_budget_clock',0),case,summary['PDMS']))
+    points.sort(key=lambda x:x[0])
+    if not points:return None
+    _,case,score=points[-1]
+    # Do not stop a recovered run because an old, completed point was poor.
+    severe=score<89.4955209758546-3.0
+    repeated=len(points)>=2 and all(x[2]<89.4955209758546-1.0 for x in points[-2:])
+    if severe or repeated:
+        return dict(reason='Latest complete B1 drop>3 points, or latest two complete points both drop>1; preserve native and review',
+            PDMS=score,checkpoint=case['binding']['checkpoint'],summary=case['summary'],NAVTEST_SELECTED=True,
+            latest_complete_scores=[x[2]for x in points[-2:]])
     return None
 
 
@@ -95,7 +102,8 @@ def main():
                     row.update(status='REVIEW_REQUIRED',error=traceback.format_exc())
                     # An actual child failure can release only its own peers.
                     if row.get('actual_child_failure'):stop_own(row,{'actual_child_failure':row['actual_child_failure']})
-            state['updated']=time.time();state['status']='REVIEW_REQUIRED'if any(r['status']=='REVIEW_REQUIRED'for r in state['routes'].values())else'RUNNING'
+            state['updated']=time.time();state['status']=('REVIEW_REQUIRED'if any(r['status']=='REVIEW_REQUIRED'for r in state['routes'].values())
+                else'FINISHED_OR_SAVED_FOR_REVIEW'if all(r['status']in TERMINAL for r in state['routes'].values())else'RUNNING')
             atomic_json(d/'STATE.json',state)
             original=read(ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103/STATE.json',{})
             combined=dict(original.get('routes',{}));combined.update(state['routes'])
