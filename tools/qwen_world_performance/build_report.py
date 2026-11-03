@@ -113,11 +113,12 @@ def D46_early_checkpoint_matches(case):
 def D46_early_complete(case,node,baseline):
     output=Path(case['output']);summary_path=output.parent/'SUMMARY.json'
     summary=read(summary_path,{});identity=read(output/'identity.json',{})
-    if (node.get('status')!='COMPLETE'or node.get('summary')!=str(summary_path)
+    if (node.get('summary')not in(None,str(summary_path))
             or not sealed_JSON(summary)or not sealed_JSON(identity)
             or identity.get('schema')!='qwen_world_compare_evaluation_v1'
             or identity.get('checkpoint')!=case['checkpoint']or identity.get('updates')!=case['updates']
             or identity.get('D44_training_identity')!=case['identity_sha256']
+            or identity.get('model_sha256')!=case['policy_signature']
             or identity.get('inference')!='single_candidate_cleanx_K10_shift5'
             or identity.get('count')!=12146 or len(identity.get('tokens',[]))!=12146
             or len(set(identity['tokens']))!=12146
@@ -133,7 +134,7 @@ def D46_early_complete(case,node,baseline):
             or not isinstance(summary.get('PDMS'),(int,float))or not 0<=summary['PDMS']<=100
             or abs(summary['PDMS']-100*summary.get('means',{}).get('score',-1))>1e-8):return None,None
     paired_path=output.parent/'PAIRED_ANALYSIS.json';paired=read(paired_path,{})
-    if (node.get('paired_analysis')!=str(paired_path)or not sealed_JSON(paired)
+    if (node.get('paired_analysis')not in(None,str(paired_path))or not sealed_JSON(paired)
             or paired.get('analysis_schema')!='D46_complete_B1_paired_gain_loss_v1'
             or paired.get('source_summary_sha256')!=summary['sha256']
             or any(paired.get(k)!=v for k,v in expected.items())
@@ -153,7 +154,7 @@ def D46_early_evaluation_fragment():
         return body+'<p>计划封印校验未通过，暂不发布进度或成绩。</p>'
     state_path=directory/'STATE.json';state=read(state_path,{})
     state_ok=state.get('schema')=='D46_finite_early_full_NAVTEST_state_v1'and state.get('plan_sha256')==plan['sha256']
-    nodes=state.get('cases',{})if state_ok else {};world=plan['world'];entries=[];scores=[];paired_rows=[];valid={}
+    nodes=state.get('cases',{})if state_ok else {};world=plan['world'];entries=[];scores=[];paired_rows=[];valid={};scored_signatures=set()
     baseline=read(Path(plan['baseline']).parent/'SUMMARY.json',{})
     for case in plan['cases']:
         matched=D46_early_checkpoint_matches(case);valid[case['id']]=matched
@@ -175,16 +176,40 @@ def D46_early_evaluation_fragment():
         except OSError:written=0
         progress='已写场景 '+str(written)+'/12146；分片完成 {complete}/'+str(world)+'；已启动待返回 {started}；准入 {admitting}；资源待派 {waiting}；异常 {failed}'
         label=node.get('status','等待状态收据')if matched else'检查点封印/身份不匹配'
-        entries.append((case['arm'],case['updates'],case['scene_exposures'],f'{case["exposure_epoch"]:.5f}',progress.format(**counts),label))
         summary,paired=D46_early_complete(case,node,baseline)if matched and counts['complete']==world else(None,None)
         if summary:
             scores.append((case['arm'],case['updates'],f'{summary["PDMS"]:.8f}',f'{summary["PDMS"]-baseline["PDMS"]:+.6f}',str(output.parent/'SUMMARY.json')))
+            scored_signatures.add(case['policy_signature']);label='完整分数与配对已验证'if paired else'完整分数已验证；配对分析中'
+        entries.append((case['arm'],case['updates'],case['scene_exposures'],f'{case["exposure_epoch"]:.5f}',progress.format(**counts),label))
         if paired:
             p=paired['paired'];high=paired.get('gain_loss',{}).get('fixed_reference_cohorts',{}).get('IL46_high_ge_0.9',{})
             paired_rows.append((case['arm'],f'{100*p["mean_delta"]:+.6f}',
                 '['+', '.join(f'{100*x:+.6f}'for x in p['CI95'])+']',p['repaired_zero'],p['new_zero'],
                 f'{100*high["population_contribution"]:+.6f}'if high.get('population_contribution')is not None else'未提供',
                 high.get('new_zero','未提供')))
+    # Registered points and this independent early batch share the same full-result gate.
+    for node in read(D46_ROOT/'CAMPAIGN.json',{}).get('evaluations',{}).values():
+        request=node.get('request',{});checkpoint=request.get('checkpoint');output_path=node.get('output')
+        if not checkpoint or not output_path or node.get('world',world)!=world or not(Path(output_path).parent/'SUMMARY.json').is_file():continue
+        cp=Path(checkpoint);identity=read(cp/'identity.json',{});inventory=read(cp/'files.json',{});seal=read(cp/'COMPLETE',{})
+        signature=dict(parent=identity.get('parent_model_sha256'),trainable_payload=inventory.get('optimizer.pt'),scope=identity.get('scope'))
+        signature=hashlib.sha256(json.dumps(signature,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        if signature in scored_signatures:continue
+        case=dict(arm=identity.get('recipe',{}).get('arm','未标注'),checkpoint=checkpoint,output=output_path,updates=seal.get('updates'),
+            identity_sha256=identity.get('sha256'),payload_sha256=inventory.get('optimizer.pt'),policy_signature=signature)
+        if not D46_early_checkpoint_matches(case):continue
+        complete=True
+        for rank in range(node.get('world',world)):
+            jobs=node.get('jobs',{}).get(str(rank),[]);shard=read(Path(output_path)/f'rank{rank}.json',{})
+            if (not jobs or read(Path(jobs[-1]['job'])/'RESULT.json',{}).get('returncode')!=0
+                    or shard.get('status')!='COMPLETE'or shard.get('rank')!=rank or shard.get('world')!=node.get('world',world)):complete=False;break
+        summary,_=D46_early_complete(case,node,baseline)if complete else(None,None)
+        if summary:
+            scored_signatures.add(signature)
+            scores.append((case['arm'],case['updates'],f'{summary["PDMS"]:.8f}',f'{summary["PDMS"]-baseline["PDMS"]:+.6f}',str(Path(output_path).parent/'SUMMARY.json')))
+    if scores:
+        best=max(scores,key=lambda r:float(r[2]))
+        body+='<p><b>当前 D46 最高完整 RL：'+esc(best[2])+' · '+esc(best[0])+' / Adam '+esc(best[1])+'；相固定 IL46 '+esc(best[3])+'。</b>已验证的独立完整策略点 '+esc(len(scores))+' 个（合并提前批次与常规评测，等参数reference不另计）。<b>NAVTEST_SELECTED</b>：用于当前资源择优，不是独立未选择测试；历史 IL70 最高91.45359756另列，不是D46父基线。</p>'
     body+='<p>'+esc(len(plan['cases']))+' 个独立参数策略、每个 '+esc(world)+' 个逻辑分片，按策略轮转在 '+esc(' / '.join(plan['hosts']))+' 分波。逻辑分片数不是同时占用GPU数；“已启动待返回”依据最新worker收据，不能等同正在评分。进度与分数不读部分均值；训练继续，评测不导出训练标签。<a href="'+esc(plan_path)+'">封印计划</a>'
     if state_path.exists():body+=' · <a href="'+esc(state_path)+'">实际分片状态</a>'
     body+='</p>'+table(['独立策略','Adam','有效场景曝光','exposure epoch','最新分片收据','阶段状态'],entries)
@@ -198,6 +223,7 @@ def D46_early_evaluation_fragment():
     if scores:
         body+=table(['已完成的独立策略','Adam','完整PDMS','相IL46'],[(a,u,p,d)for a,u,p,d,path in scores])
         body+='<p>'+ ' · '.join('<a href="'+esc(path)+'">'+esc(a)+'完整结果</a>'for a,u,p,d,path in scores)+'</p>'
+        if len(paired_rows)<len(scores):body+='<p>部分完整分数的配对分析仍在汇总；未通过配对封印校验的修复/退化统计暂不发布。</p>'
     else:body+='<p><b>该提前批次尚无通过全量封印校验的完整 D46 RL 分数。</b>需 sealed identity、12146场景/44log/invalid0、seed2101及精确检查点绑定。</p>'
     if paired_rows:body+=table(['完整配对 vs IL46','ΔPDMS','44log CI95','修复零分','新增零分','固定IL46≥.9全局贡献','该高分群体新增零分'],paired_rows)
     return body

@@ -36,7 +36,11 @@
 
 最早IL12k父策略的D为B8/G8/M4，纯更新2.715秒；因没有逐行时间戳，端到端3.406秒取首完整1000次Adam invocation，不能冒充当前同200步窗口。D44首D0的B64/G16/M2为10.744/21.997秒。当前每Adam新场景/候选为32/512，最早为2/16；当前D0端到端每步约6.58×，但场景/候选吞吐约2.43×/4.86×。父模型、训练配方、窗口和共享GPU负载不同，这是实际工作负载比较，非严格同算力或纯执行加速消融。[历史原始证据](/mnt/project/d46-priority-rl-20261103/analysis/D_THROUGHPUT_ORIGINAL_BASELINES_20261103.json)
 
-用户随后要求提前完整评测，再决定额外资源倾斜。独立有限批次已登记四个唯一参数策略：D0/D5各Adam1400、44800有效场景（.43374E），FPO Adam900、28800场景（.27883E），AWM Adam800、25600场景（.24785E）。每策略32逻辑分片，在TSHzt/RL2/WM2按策略轮转分波，逻辑分片数不等于同时物理GPU数；不修改训练owner或科学源。D1/D2的同Adam1400父策略、完整scope与封存optimizer payload签名均与D0一致，仅列“参数一致的早期参考”，不重复伪造独立结果；各自2E/.5E机制尚未启用。[封印计划](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/PLAN.json)、[实际分片状态](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/STATE.json)
+用户随后要求提前完整评测，再决定额外资源倾斜。独立有限批次已登记四个唯一参数策略：D0/D5各Adam1400、44800有效场景（.43374E），FPO Adam900、28800场景（.27883E），AWM Adam800、25600场景（.24785E）。每策略32逻辑分片，在TSHzt/RL2/WM2按策略轮转分波，逻辑分片数不等于同时物理GPU数；不修改训练owner或科学源。D1/D2的同Adam1400父策略、完整scope与封存optimizer payload签名均与D0一致，仅列“参数一致的早期参考”，不重复伪造独立结果；在该1400检查点各自2E/.5E机制尚未启用。[封印计划](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/PLAN.json)、[实际分片状态](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/STATE.json)
+
+四份官方完整结果现已完成，均12146场景/44log/invalid0、B1/seed2101。当前D46最高为 **D0 Adam1400：90.17112884**，相固定IL46 **+0.67560786**；D5同1400为89.97889876，FPO900为90.12278094，AWM800为89.95115511。D0相IL46修复248个零分、新增87；其它方法与完整CI/高分保持见实时面板和各PAIRED_ANALYSIS。不同曝光预算不能作同预算方法排名，D1/D2早期等参数参考不另计独立点。这是 **NAVTEST_SELECTED** 的阶段资源选择证据，不是独立未选择测试。历史IL70最高91.45359756仍单列，不能作为D46父基线。
+
+128个GPU评测worker已正常EXIT0；随后只替换有限CPU聚合器，用四CPU并行、官方validator每个不可变数据只读一次并复用。canonical公式未改，六条训练未中断。HTML完整分数不依赖STATE是否已结束paired汇总：32片与identity/摘要封印通过即可发布分数，paired未齐明确“分析中”，不编修复/退化统计。[聚合接管证据](/mnt/project/d46-priority-rl-20261103/operations/EARLY_EVAL_20261103/AGGREGATION_OWNER_TRANSITION.json)。
 
 HTML从每片最新job的RESULT/RUNNING读取完成、已启动待返回、准入、资源等待与异常，避免整轮派发尚未刷新的STATE计数掩盖已发任务。仅完整12146/44log/invalid0、seed2101的封印identity与指定检查点绑定后才发布分数；完整配对分析封印后再报告IL46相对修复/新增零分和固定IL46≥.9队列变化。四策略曝光预算不同，提前结果用于资源分配观察，不作同预算算法排名；不将NAV标签加入训练bank。
 
