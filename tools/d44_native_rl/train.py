@@ -110,7 +110,8 @@ def main(*,extension=None):
         original_ego=torch.tensor([observation['proprio']],device=device,dtype=torch.float32)
         original_noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(2101)).to(device)
         original_prediction=model.predict(original_inputs,original_ego,original_noise)
-    actor=D44Actor(model,source_config(cfg),cfg)
+    actor_factory=D44Actor if extension is None else getattr(extension,"actor_factory",D44Actor)
+    actor=actor_factory(model,source_config(cfg),cfg)
     checkpoint_policy=cfg.get('checkpoint_policy','source')
     if checkpoint_policy not in('source','short_off','all_off'):raise ValueError('Unqualified checkpoint execution policy')
     model.decision.activation_checkpointing=checkpoint_policy!='all_off'
@@ -132,7 +133,8 @@ def main(*,extension=None):
             if not torch.equal(original_prediction[key],wrapped_prediction[key]):raise FloatingPointError('Wrapped native clean-x deployment changed '+key)
         atomic_json(root/f'initial_native_parity_rank{rank}.json',dict(status='PASS',ODE_chain_max_abs=error,
             original_cleanx_deployment_max_abs=0.,trainable=actor.closure,reference_frozen=True,parent=info['model_sha256']))
-    optimizer=torch.optim.AdamW(groups(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01)
+    parameter_groups=groups if extension is None else getattr(extension,"optimizer_groups",groups)
+    optimizer=torch.optim.AdamW(parameter_groups(actor,cfg),betas=(.9,.95),eps=1e-8,weight_decay=.01)
     scheduler=SceneScheduler(optimizer);generator=torch.Generator(device='cpu').manual_seed(420000+rank)
     service=RewardService(Path.cwd(),workers=cfg['scoring_workers'],cache_roots=stream.data.manifest['canonical_metric_cache_roots'])
     identity=dict(schema='d44_native_rl_v1',architecture_id='D',world=world,recipe=cfg,parent=info,
@@ -151,7 +153,7 @@ def main(*,extension=None):
         except Exception:error=traceback.format_exc()
     checkpoint.check_errors(error)
     ddp=DDP(actor,device_ids=[local],broadcast_buffers=False,find_unused_parameters=True,static_graph=False,bucket_cap_mb=25)if world>1 else actor
-    ddp.eval();dual=AdaptiveKL(target=cfg['target_kl'])
+    ddp.eval();dual=AdaptiveKL(target=cfg['target_kl']) if extension is None or not hasattr(extension,"make_dual") else extension.make_dual(cfg)
     state=dict(updates=0,collections=0,scene_cursor=0,next_inner=0,phase='READY',
         valid_scene_exposures=0,raw_scene_exposures=0,new_candidates=0,valid_PG_candidates=0,extra_B1_queries=0,adaptive_G32_queries=0,
         padding_scene_exposures=0,adaptive_kl=dual.state_dict(),evaluation_gates=[])
@@ -207,7 +209,8 @@ def main(*,extension=None):
                         else:entry=plan[j*world+rank];token,padding,sampling_source=entry['token'],entry['padding'],entry['source']
                         descriptor=conditions.get_for_group(token,actual_group)if stage is not None else conditions.get(token)
                         if extension is not None:extension.before_scene(generator,j)
-                        r=collect_scene(actor,descriptor,token,stream.logs[token],service,generator,collection_cfg,epoch,version,
+                        collector=collect_scene if extension is None else getattr(extension,"collect_scene",collect_scene)
+                        r=collector(actor,descriptor,token,stream.logs[token],service,generator,collection_cfg,epoch,version,
                             cost=attempt.add_cost,history=state.get('d6_history'))
                         if extension is not None:extension.after_scene(generator,j)
                         r['sampling_source']=sampling_source
@@ -226,7 +229,7 @@ def main(*,extension=None):
                         quality,weight=endpoint_quality(gt,torch.as_tensor(np.stack([x['requested_trajectory']for x in r['records']]),device=device))
                         endpoints.append(quality);confidence.append(weight)
                     endpoint=torch.stack(endpoints);endpoint_confidence=torch.stack(confidence)[:,None]
-                raw,feasible=raw_credit(factors,endpoint=endpoint,endpoint_confidence=endpoint_confidence,stage2=endpoint is not None)
+                raw,feasible=raw_credit(factors,endpoint=endpoint,endpoint_confidence=endpoint_confidence,stage2=endpoint is not None) if extension is None or not hasattr(extension,"credit") else extension.credit(scenes,stream,epoch)
                 if stage is not None and stage.temporal:
                     # A bounded native full-window DAC tie-cost for ALL-failed
                     # groups. NC/TTC events additionally train R, not a made-up
@@ -242,6 +245,8 @@ def main(*,extension=None):
                 if world>1:dist.all_reduce(stats)
                 std=(stats[1]/stats[2]-(stats[0]/stats[2]).square()).clamp_min(0).sqrt()
                 advantages=(raw/(std+1e-8)).clamp(-5,5).float()
+                if extension is not None and hasattr(extension,"advantages"):
+                    advantages,std=extension.advantages(raw,valid,actual_group,world)
                 counts=torch.tensor([int(valid.sum()),sum(r['extra_B1']for r in scenes),sum(r['extra_G32']for r in scenes)],device=device,dtype=torch.long)
                 if world>1:dist.all_reduce(counts)
                 for r,adv in zip(scenes,advantages):r['advantages']=adv.detach()

@@ -1,0 +1,36 @@
+{
+  "schema": "d46_AUGUstus_pinned_action_math_CPU_receipt_v1",
+  "status": "PASS",
+  "result": "3 passed,1 warning in1.48s",
+  "method": "real upstream pure-Tensor modules, CPU only, no full IL46/GPU/scorer",
+  "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 modelpython -m pytest -q tests/d46_augustus/test_kernel.py",
+  "upstream": "https://github.com/haha-yuki-haha/AUGUstus",
+  "commit": "edf3422304e4b2987e839a9212cf1176782e7380",
+  "checks": [
+    "byte exact pinned original modules and Apache headers",
+    "three linear anisotropic lambda_t clean-x transition means/std exact vs official",
+    "coordinate-mean analytic logratio and referenceKL match diagonal Gaussian logprob/means",
+    "policy total andgradients exact vs original jit loss; no hidden advantageclip5",
+    "old/reference gradient isolation andpositive-advantage sign",
+    "explicit externalnoise draws no global RNG, implicit source sampling identical"
+  ],
+  "API": {
+    "step": "step(x0,state,sigma,sigma_next,noise_scale=(.05,.05,.02),noise=None)->next/mean/std all[G,8,3]",
+    "stats": "stats(new_x0,old_x0,ref_x0,state,next,sigma,sigma_next,noise_scale)->logratio[G],refKL[G]",
+    "policy_loss": "policy_loss(logratio[G,W],advantages[G],refKL[G,W],clip=.2,beta=.001)->loss,tensor_metrics",
+    "log_prob": "direct alias of original fm_sde_logprob_from_mean_std(next,mean,std)->coordinateMeanLogProb[G]"
+  },
+  "differences": {
+    "vs_D0": "lambda_t anisotropic sharedroot3step vs rigorouseta.1 independentroots lateW3 shift5; coordinate mean vs joint24; fixedKL vsadaptive; canonical groupStd vsSafetyEP/globalStd",
+    "not_full_system_reproduction": "project IL46 Qwen3-VL D topology andActionCodec, no original CoT generation, traininglinearK3 vsfixedprojectdeploymentK10shift5, scope explicitly FULL orLoRA in separateconfigs",
+    "smoothing": "actual vendored kernel draws independent Gaussian; no temporal smoothing applied here; do not silently add correlation"
+  },
+  "source_sha256": {
+    "starVLA/rl/d46_augustus/kernel.py": "0a898aa3a82aa3e035b1a6f0b673a4991f3f17152ea50911fbfa72c98ebcffca",
+    "starVLA/rl/d46_augustus/vendor/jit_grpo.py": "e951c54ad1bfa13cff12f0676eaefa6e89f2ca029b9ee3169306dfdc0120db47",
+    "starVLA/rl/d46_augustus/vendor/fm_sde_logprob.py": "6f20c279660a89f0545634fdd6c4ee174f298ed106b20045b219c62f82ce2585",
+    "starVLA/rl/d46_augustus/vendor/UPSTREAM.json": "4fb594c94a46110837ac2d63b12dbcc23178bf2108189046954690a0cc538e5e",
+    "starVLA/rl/d46_augustus/vendor/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "tests/d46_augustus/test_kernel.py": "601f3bed41989eb6d190036c09bed2d1c5337d79e8f5384346c5ef52a0c4ff94"
+  }
+}

@@ -13,6 +13,7 @@ def material_digest(batch):
     keys=('condition','chain','old_mean','ref_mean','std','advantages','behavior_version','teacher',
           'positive_state','positive_sigma','nominal_chain','nominal_sigma_last','fm_state','fm_sigma','fm_target','old_energy',
           'factors','beta','timesteps','deltas','padding','epoch','records','teacher_record')
+    keys+=('old_clean_x','ref_clean_x','augustus_kernel')
     keys+=('active_stage','enable_post_feedback','teacher_kind','teacher_ancestry','nominal_record','sampling_source')
     return tensor_digest([{k:r[k]for k in keys if k in r}for r in batch['scenes']])
 
