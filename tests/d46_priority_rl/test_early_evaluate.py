@@ -64,7 +64,11 @@ def test_early_batch_keeps_training_and_defers_duplicate_evaluation(monkeypatch)
     monkeypatch.setattr(owner, 'inspect_latest', lambda run: (None, None))
     monkeypatch.setattr(owner, 'startup_hosts', lambda campaign: set())
     dispatched = []; evaluated = []
-    monkeypatch.setattr(owner, 'dispatch', lambda run, *args: dispatched.append(run['arm']) or 'RUNNING')
+    def dispatch(run, *args, **kwargs):
+        assert kwargs.get('capacity_host') is None
+        dispatched.append(run['arm'])
+        return 'RUNNING'
+    monkeypatch.setattr(owner, 'dispatch', dispatch)
     monkeypatch.setattr(owner, 'status', lambda campaign: None)
     monkeypatch.setattr(owner, 'atomic_json', lambda *args: None)
     monkeypatch.setattr(native, 'pending_evaluation', lambda *args: True)
