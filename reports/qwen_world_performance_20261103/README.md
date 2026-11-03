@@ -19,6 +19,23 @@
 
 六台 wm4/rl2/tsh2/wmzt/tsh3/wm2 已针对 D46 **重新开放、无到期截止**；下文00:00截止与23:51归还属于原 IL70 任务历史，不是 D46 当前权限。其它任务授权不扩张。[实际新授权](/mnt/project/d46-priority-rl-20261103/operations/RESTORE_SIX_UNBOUNDED_20261103/APPLIED.json)。旧D44 D0/D2/D5/D1分别保存于763/637/495/9、inner1并正常退出，完整状态保留且未转入新研究；IL70保存让位同样不判方法无效。[D44保存收据](/mnt/project/d46-priority-rl-20261103/operations/USER_PRIORITY_20261103/D44_ACTUAL_NATIVE_SAVED.json)
 
+### D46 速度与首次评测
+
+2026-11-03 08:20:25 UTC 实测快照：每条全八rank最近100个完整collection/200次Adam、同一invocation，不跨暂停。
+
+| 路线 | 纯更新 秒/Adam | 含采样、评分等端到端 秒/Adam |
+|---|---:|---:|
+| D0 | 10.794 | 22.410 |
+| D1 | 11.010 | 22.891 |
+| D2 | 10.750 | 22.369 |
+| D5 | 11.234 | 23.165 |
+| D3_FPO | 18.712 | 32.113 |
+| D3_AWM | 22.430 | 36.023 |
+
+该快照尚无D46 RL完整NAVTEST或已写评测请求；首评0.5 exposure epoch=1614次实际Adam，最快1198次/.371epoch，按同负载约2.6–3小时到门，**不含评测耗时**。D1 2E信用和D2 .5E救援尚未启用，后续速度需重测。[完整速度与首评审计](/mnt/project/d46-priority-rl-20261103/analysis/D46_THROUGHPUT_REVIEW_20261103.json)
+
+最早IL12k父策略的D为B8/G8/M4，纯更新2.715秒；因没有逐行时间戳，端到端3.406秒取首完整1000次Adam invocation，不能冒充当前同200步窗口。D44首D0的B64/G16/M2为10.744/21.997秒。当前每Adam新场景/候选为32/512，最早为2/16；当前D0端到端每步约6.58×，但场景/候选吞吐约2.43×/4.86×。父模型、训练配方、窗口和共享GPU负载不同，这是实际工作负载比较，非严格同算力或纯执行加速消融。[历史原始证据](/mnt/project/d46-priority-rl-20261103/analysis/D_THROUGHPUT_ORIGINAL_BASELINES_20261103.json)
+
 ## 既有 IL70 研究的完整结果
 
 **最高已确认完整部署成绩仍为 SafetyEP Control10k：91.45359756，尚未达到92。** 相同完整 IL70 为88.79290991。以下本轮结果均为真实单轨 B1、12146场景/44 physical logs/invalid0；不是候选 best-of 或 TRAIN 分数。

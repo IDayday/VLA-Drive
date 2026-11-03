@@ -50,6 +50,45 @@ def D46_qualification_status(registered):
     return '资格尚未派发'
 
 
+def D46_throughput_fragment():
+    path=D46_ROOT/'analysis/D46_THROUGHPUT_REVIEW_20261103.json';value=read(path,{})
+    body=dict(value);seal=body.pop('sha256',None)
+    if (value.get('schema')!='D46_measured_eight_rank_throughput_review_v1'
+            or value.get('status')!='COMPLETE_CURRENT_SNAPSHOT'
+            or hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=seal):return ''
+    rows=value.get('runs',[])
+    if not rows:return ''
+    body='<h3>D46 当前速度与首评进度</h3><p>实测快照 '+esc(value['generated_UTC'])+'；每条全八rank、同一 invocation 最近100个完整 collection / 200次 Adam，不跨保存暂停。纯更新与端到端耗时分开；后者包括本窗口采样、评分等待、材料准备、更新和保存。</p>'
+    body+=table(['路线','纯更新 秒/Adam','端到端 秒/Adam','新场景/秒','新PG候选/秒','到首评触发约需小时'],[
+        (r['arm'],f'{r["optimizer_seconds_mean"]:.3f}',f'{r["end_to_end_seconds_per_Adam"]:.3f}',
+            f'{r["fresh_scenes_per_second"]:.3f}',f'{r["fresh_main_candidates_per_second"]:.2f}',
+            f'{r["first_NAVTEST"]["hours_to_trigger_if_recent_rate_persists"]:.2f}')for r in rows])
+    gates=sorted({(r['first_NAVTEST']['epoch'],r['first_NAVTEST']['trigger_updates'])for r in rows})
+    requested=sum(bool(r['first_NAVTEST'].get('requests_already_written'))for r in rows)
+    complete=value.get('complete_D46_NAVTEST_results',[])
+    body+='<p><b>本快照首评门：'+esc('；'.join(str(e)+' exposure epoch / '+str(u)+'次实际 Adam'for e,u in gates))+'；已写请求 '+esc(requested)+' 条，完整 D46 RL NAVTEST '+esc(len(complete))+' 个。</b>IL46 的89.49552098是父策略分数。上表估时只在当前负载不变时成立，尚未包括全12146评测耗时；D1两阶段信用、D2救援激活后需重测吞吐。<a href="'+esc(path)+'">全八rank速度与首评审计</a></p>'
+    historical_path=D46_ROOT/'analysis/D_THROUGHPUT_ORIGINAL_BASELINES_20261103.json'
+    historical=read(historical_path,{})
+    if historical.get('status')=='COMPLETE_READ_ONLY_ACTUAL_HISTORY':
+        comparison=historical.get('comparison',{});baseline_rows=[]
+        for r in historical.get('baselines',[]):
+            c=r['configuration'];w=r['stable_100_Adam_window']
+            if r['id']=='ABCD_D_JAT_ACTION_IL12K':
+                update=comparison['earliest_pure_update_seconds'];elapsed=comparison['earliest_end_to_end_seconds_per_Adam_first_actual_invocation']
+                scope='纯更新100步；端到端为首个完整1000步 invocation'
+            else:
+                update=comparison['D44_pure_update_seconds'];elapsed=w['end_to_end_seconds_per_Adam'];scope='连续100步同一 invocation'
+            baseline_rows.append((r['id'],str(c['global_scenes_per_collection'])+'/'+str(c['group'])+'/'+str(c['inner_Adam_updates_per_collection']),
+                f'{update:.3f}',f'{elapsed:.3f}',str(c['amortized_new_scenes_per_Adam'])+'/'+str(c['amortized_new_PG_candidates_per_Adam']),scope))
+        body+='<details><summary>相比最早 D：每步更慢，但每步处理的数据更多</summary>'
+        body+=table(['历史正式路线','B/G/M','纯更新 秒/Adam','端到端 秒/Adam','每Adam新场景/PG候选','实际计时窗口'],baseline_rows)
+        current=next((r for r in rows if r['arm']=='D0'),None)
+        if current:
+            body+='<p>当前 D0 每Adam新增 '+esc(current['fresh_scenes_per_Adam'])+' 场景 / '+esc(current['fresh_main_candidates_per_Adam'])+' 候选，最早 D 为2/16。此 D0 窗口的端到端每步时长为最早的 '+esc(f'{current["end_to_end_seconds_per_Adam"]/comparison["earliest_end_to_end_seconds_per_Adam_first_actual_invocation"]:.2f}')+'×，场景/候选吞吐分别为 '+esc(f'{current["fresh_scenes_per_second"]/comparison["earliest_amortized_fresh_scene_rate"]:.2f}')+'× / '+esc(f'{current["fresh_main_candidates_per_second"]/comparison["earliest_amortized_fresh_query_rate"]:.2f}')+'×。</p>'
+        body+='<p>这是不同实际工作负载的计时：B/G/M、父权重、信用、LR、checkpointing和共享GPU同住任务均不同，计时窗口也不同；不是严格同算力或纯执行加速消融。按新场景/候选摊销，不等于独占GPU算力或独立token覆盖率。<a href="'+esc(historical_path)+'">原始D与D44历史计时证据</a></p></details>'
+    return body
+
+
 def D46_priority_fragment():
     """A status receipt is required; a new directory or config proves no training."""
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
@@ -96,6 +135,7 @@ def D46_priority_fragment():
             qualification=D46_qualification_status(registered)if registered.get('qualification')else'等待登记'
             entries.append((r.get('id',''),method,gate,qualification,host,r.get('updates')if r.get('updates')is not None else'尚无实际日志',states.get(r.get('status'),r.get('status','待确认'))))
         body+=table(['D46 路线','方法','阶段启用与边界','独立资格','服务器','正式更新（收据）','正式阶段状态'],entries)
+    body+=D46_throughput_fragment()
     reviewed=[]
     for arm,registered in campaign.items():
         review=registered.get('qualification_resource_retry_review',{});review_path=Path(review.get('receipt',''))
