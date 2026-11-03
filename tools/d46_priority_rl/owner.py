@@ -74,7 +74,7 @@ def qualification_pass(run):
     if any(cfg[k]!=formal[k] for k in ('text_rank','film_last_layers','train_action_io','post_feedback')):
         raise ValueError('Qualification trainable scope differs')
     for name,digest in identity['source_files'].items():
-        if file_sha(SOURCE/name)!=digest:raise ValueError('Qualified source changed: '+name)
+        if file_sha(Path(run['source'])/name)!=digest:raise ValueError('Qualified source changed: '+name)
     return True
 
 
@@ -90,12 +90,44 @@ def inspect_latest(run):
     return str(cp),seal
 
 
-def dispatch(run,qualification=False):
+def startup_hosts(campaign):
+    """Reserve a launching world until all8 ranks prove a current update.
+
+    GPU allocation can lag Popen by minutes. Free memory observed during that
+    interval is not an invitation to start another world on the same devices.
+    Once ready, the worker's existing max2/UUID/identity/memory checks decide.
+    """
+    blocked=set()
+    for run in campaign['runs'].values():
+        for key,output in [('jobs',run['output']),('qualification_jobs',run['qualification'])]:
+            if not run[key]:continue
+            job=run[key][-1]
+            if (Path(job['job'])/'RESULT.json').exists():continue
+            ready=True
+            for i in range(8):
+                f=Path(output)/f'metrics_rank{i}.jsonl'
+                try:
+                    with f.open('rb') as stream:
+                        stream.seek(max(0,f.stat().st_size-65536));rows=stream.read().splitlines()
+                    row=json.loads(rows[-1])
+                    if not job['at']<=row['at']<=time.time() or time.time()-row['at']>300:ready=False
+                except (OSError,IndexError,ValueError,KeyError):ready=False
+            if not ready:blocked.add(job['host'])
+    return blocked
+
+
+def dispatch(run,qualification=False,blocked_hosts=()):
     jobs=run['qualification_jobs'] if qualification else run['jobs']
     if jobs:
         result=read(Path(jobs[-1]['job'])/'RESULT.json')
         if result is None:return 'RUNNING_QUALIFICATION' if qualification else 'RUNNING_OR_ADMITTING'
-        if result.get('returncode') not in (0,75):raise RuntimeError('Actual child failure retained: '+jobs[-1]['job'])
+        if result.get('returncode') not in (0,75):
+            review=run.get('qualification_resource_retry_review',{})
+            permitted=(qualification and review.get('job')==jobs[-1]['job']
+                and review.get('returncode')==result.get('returncode')
+                and Path(review.get('receipt','/nonexistent')).is_file()
+                and file_sha(review['receipt'])==review.get('receipt_sha256'))
+            if not permitted:raise RuntimeError('Actual child failure retained: '+jobs[-1]['job'])
         if result.get('returncode')==75 and time.time()<result['end_unix']+60:return 'WAITING_FOR_AUTHORIZED_CAPACITY'
     output=run['qualification'] if qualification else run['output']
     cfg=run['qualification_config'] if qualification else run['config']
@@ -111,11 +143,11 @@ def dispatch(run,qualification=False):
     # One own full-world task per host initially; worker still independently
     # checks current owner identities, physical UUIDs, both leases and memory.
     for host in (PREFERRED[run['arm']],)+tuple(h for h in HOSTS if h!=PREFERRED[run['arm']]):
-        if host not in allowed_hosts(admit_long_job=True):continue
+        if host in blocked_hosts or host not in allowed_hosts(admit_long_job=True):continue
         try:
-            if len(capacity(host,41000))!=8:continue
+            if len(capacity(host,49152))!=8:continue
             job=ROOT/'jobs'/run['arm']/('qualification' if qualification else 'formal')/f'attempt{len(jobs)+1:03}'
-            receipt=launch(host,SOURCE,job,command,list(range(8)),share_min_free_mib=41000,worker_source=SOURCE,task_root=ROOT,task=TASK)
+            receipt=launch(host,run['source'],job,command,list(range(8)),share_min_free_mib=49152,worker_source=SOURCE,task_root=ROOT,task=TASK)
             jobs.append(receipt);return 'RUNNING_QUALIFICATION' if qualification else 'RUNNING_OR_ADMITTING'
         except DispatchPreflightFailed as error:
             run.setdefault('prechild_failures',[]).append(dict(host=host,at=time.time(),error=str(error),child_started=False))
@@ -144,7 +176,7 @@ def status(campaign):
         rows.append(row)
     previous=read(ROOT/'PRIORITY_STATUS.json',{})
     previous.update(schema='D46_priority_status_v1',updated_at=time.time(),status='D46_FRESH_IL46_PRIORITY_CAMPAIGN',runs=rows,actual_training=active,
-        source=str(SOURCE),scientific_sources_frozen=True,qualification_weights_never_formal_initialization=True)
+        operations_source=str(SOURCE),scientific_sources=sorted({r['source']for r in campaign['runs'].values()}),scientific_sources_frozen=True,qualification_weights_never_formal_initialization=True)
     atomic_json(ROOT/'PRIORITY_STATUS.json',previous)
 
 
@@ -155,7 +187,7 @@ def tick(campaign):
         if run['status'] in ('FAILED_REQUIRES_REVIEW','COMPLETE'):continue
         try:
             if not qualification_pass(run):
-                run['status']=dispatch(run,True)
+                run['status']=dispatch(run,True,startup_hosts(campaign))
                 if qualification_pass(run):run['status']='QUALIFIED_FROM_TRUE_IL46'
                 continue
             resume,seal=inspect_latest(run)
@@ -170,7 +202,7 @@ def tick(campaign):
                 if run['jobs'] and not(Path(run['jobs'][-1]['job'])/'RESULT.json').exists():
                     (Path(run['jobs'][-1]['job'])/'STOP_REQUESTED').touch()
                 run['status']='SAVED_AND_PAUSED_FOR_REGISTERED_FULL_NAVTEST';continue
-            run['status']=dispatch(run,False)
+            run['status']=dispatch(run,False,startup_hosts(campaign))
         except Exception:
             run.update(status='FAILED_REQUIRES_REVIEW',error=traceback.format_exc())
     evaluation_tick(campaign)
