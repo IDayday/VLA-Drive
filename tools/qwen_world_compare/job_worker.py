@@ -125,6 +125,27 @@ SHARED_LEASE_ROOT=Path('/mnt/project/runtime_gpu_shared_workers')
 PROFILED_THIRD_LEASE_ROOT=Path('/mnt/project/runtime_gpu_profiled_third_workers')
 D44_ROOT=Path('/mnt/project/d44-native-rl-20261103')
 D44_PARENT_SHA='9715b9c0cfbef7a7d3d94fb83e7b0e2f0838d21cf06d3277deef6733cccbc50e'
+D46_ROOT=Path('/mnt/project/d46-priority-rl-20261103')
+D46_PARENT_SHA='386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d'
+D46_CONTRACT_SHA='584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632'
+
+
+def known_D46_output(output):
+    """One exact IL46 deployment lineage; never accepts a path prefix alone."""
+    if not output.is_relative_to(D46_ROOT):return False
+    try:
+        value=json.loads((output/'identity.json').read_text());body=dict(value);saved=body.pop('sha256')
+        from starVLA.rl.qwen_world_compare.contracts import fingerprint
+        contract=D46_ROOT/'PARENT_REGISTRATION_v2.json'
+        return (fingerprint(body)==saved and value['schema']=='d44_native_rl_v1'
+            and value['architecture_id']=='D'and value['recipe']['parent']=='D_IL46K'
+            and value['recipe']['arm']in('D0','D1','D2','D3_FPO','D3_AWM','D5')
+            and value['recipe']['parent_checkpoint']==str(D46_ROOT/'IL46_PARENT')
+            and value['parent_model_sha256']==D46_PARENT_SHA
+            and value['recipe']['parent_registration']==dict(path=str(contract),file_sha256=D46_CONTRACT_SHA)
+            and value['recipe']['training_uses_navtest']is False and value['data']['NAVTEST_overlap']==0
+            and file_sha(contract)==D46_CONTRACT_SHA)
+    except (OSError,KeyError,TypeError,ValueError):return False
 
 
 def known_owner_args(args):
@@ -134,6 +155,7 @@ def known_owner_args(args):
         # output to its already sealed scientific identity instead.
         if '--output'not in args or args.index('--output')+1>=len(args):return False
         output=Path(args[args.index('--output')+1]).resolve();base=D44_ROOT
+        if output.is_relative_to(D46_ROOT):return known_D46_output(output)
         if not output.is_relative_to(base):return False
         try:
             value=json.loads((output/'identity.json').read_text())

@@ -25,7 +25,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--output',required=True);a=p.parse_args()
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8');configure_numerics();torch.set_num_threads(2);require_dispatch()
-    identity,_,_=inspect(a.checkpoint);cfg=identity['recipe'];data=DataStream(cfg,64);model,info=load(cfg['parent_checkpoint'],'cuda',readouts=cfg['post_feedback'])
+    identity,_,_=inspect(a.checkpoint);cfg=identity['recipe'];data=DataStream(cfg,64);model,info=load(cfg['parent_checkpoint'],'cuda',readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
     actor=D44Actor(model,source_config(cfg),cfg);restore_adapters(actor,torch.load(Path(a.checkpoint)/'optimizer.pt',map_location='cpu',weights_only=False)['adapters'])
     conditions=DConditions(model,data.data,info);object.__setattr__(actor,'conditions',conditions)
     material=conditions.materialize(conditions.get(data.tokens[0]),actor.device);params=[p for p in actor.parameters()if p.requires_grad]

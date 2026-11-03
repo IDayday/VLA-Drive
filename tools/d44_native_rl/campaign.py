@@ -6,12 +6,13 @@ from pathlib import Path
 import subprocess
 import time
 import math
+import os
 from tools.d44_native_rl.launch import launch,DispatchPreflightFailed
 from starVLA.rl.d44_native_rl.config import defaults
-from starVLA.rl.qwen_world_compare.contracts import allowed_hosts,file_sha,authorization
+from starVLA.rl.qwen_world_compare.contracts import allowed_hosts,file_sha,authorization,TASK
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
-ROOT=Path('/mnt/project/d44-native-rl-20261103')
+ROOT=Path(os.environ.get('D_NATIVE_CAMPAIGN_ROOT','/mnt/project/d44-native-rl-20261103'))
 PYTHON='/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
 PROTECTED={'training-vla-zt','training-vlawm-tsinghua-zt'}
 PREFERRED={'D0':['training-vlawm-zt4'],'D2':['training-vlawm-tsinghua-zt2'],'D5':['training-vlawm-tsinghua-zt3'],
@@ -20,6 +21,12 @@ FALLBACK=['training-vlawm-tsinghua-zt5','training-vlawm-zt5','training-vla-zt','
 
 
 def read(path):return json.loads(Path(path).read_text())
+
+
+def il_baseline():
+    if ROOT==Path('/mnt/project/d46-priority-rl-20261103'):
+        return read(ROOT/'PARENT_CONTRACT.json')['complete_navtest']['original_evaluation']
+    return '/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_044000_20261102T142147Z/D_IL_044000/evaluation'
 
 
 def epoch_update(arm,epoch,batch):
@@ -252,12 +259,12 @@ def evaluation_tick(campaign):
     for arm,run in campaign['runs'].items():
         for request in Path(run['output']).glob('evaluation_requests/epoch*.json'):
             req=read(request);key=arm+'_'+request.stem
-            cases.setdefault(key,dict(request=req,source=run['source'],status='PENDING',world=8,jobs={},
+            cases.setdefault(key,dict(request=req,source=run['source'],status='PENDING',world=campaign.get('evaluation_world',8),jobs={},
                 output=str(ROOT/'evaluations'/key/'evaluation')))
     pending=[v for v in cases.values()if v['status']not in('COMPLETE','FAILED_REQUIRES_REVIEW','FAILED_SUMMARY_REQUIRES_REVIEW')]
     if not pending:return
     reserved=set()
-    alljobs=[j for run in campaign['runs'].values()for j in run['jobs'][-1:]]
+    alljobs=[j for run in campaign['runs'].values()for j in run['jobs'][-1:]+run.get('qualification_jobs',[])[-1:]]
     alljobs += [j for case in cases.values()for jobs in case['jobs'].values()for j in jobs[-1:]]
     for j in alljobs:
         if not(Path(j['job'])/'RESULT.json').exists():reserved.update((j['host'],gpu)for gpu in j.get('gpus',range(8)))
@@ -288,11 +295,11 @@ def evaluation_tick(campaign):
             host,gpu,shared=pool.pop(0);job=ROOT/'jobs/EVALUATE'/Path(case['output']).parent.name/f'rank{rank}_attempt{len(jobs)+1:03}'
             cmd=[PYTHON,'-m','tools.d44_native_rl.evaluate','--checkpoint',case['request']['checkpoint'],
                 '--output',case['output'],'--rank',str(rank),'--world',str(case['world'])]
-            try:jobs.append(launch(host,case['source'],job,cmd,[gpu],share_min_free_mib=24000 if shared else None,worker_source=Path(__file__).resolve().parents[2]));case['status']='RUNNING'
+            try:jobs.append(launch(host,case['source'],job,cmd,[gpu],share_min_free_mib=24000 if shared else None,worker_source=Path(__file__).resolve().parents[2],task_root=ROOT,task=TASK));case['status']='RUNNING'
             except (subprocess.SubprocessError,OSError,RuntimeError)as error:case['last_dispatch_error']=repr(error)
         if len(completed)==case['world']:
             from tools.qwen_world_compare.evaluate import summarize
-            baseline='/mnt/project/qwen-world-four-frameworks-20261029/periodic_NAVTEST_ARCH_D_044000_20261102T142147Z/D_IL_044000/evaluation'
+            baseline=il_baseline()
             try:
                 value=summarize(output,baseline);atomic_json(output.parent/'SUMMARY.json',value)
                 case['status']='COMPLETE';case['summary']=str(output.parent/'SUMMARY.json')

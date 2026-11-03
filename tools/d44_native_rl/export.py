@@ -51,7 +51,7 @@ def load_export(path,device='cpu'):
     meta=read(path/'export.json')
     if meta['schema']!='d44_native_compact_deployment_v1'or meta['adapters_file_sha256']!=file_sha(path/'adapters.pt'):
         raise ValueError('Foreign/changed deployment asset')
-    cfg=meta['recipe'];model,info=load(meta['IL_parent'],'cpu',readouts=False)
+    cfg=meta['recipe'];model,info=load(meta['IL_parent'],'cpu',readouts=False,binding=cfg.get('parent_registration'))
     if info['model_sha256']!=meta['IL_parent_model_sha256']:raise ValueError('Base IL44 changed')
     install(model,scope_targets(model),cfg['text_rank'],cfg['text_rank']*2)
     if cfg['film_last_layers']:

@@ -21,7 +21,7 @@ def main():
     configure_numerics();torch.set_num_threads(2)
     p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--behavior',required=True);p.add_argument('--output',required=True);a=p.parse_args()
     require_dispatch();identity,_,_=inspect(a.checkpoint);cfg=identity['recipe'];stream=DataStream(cfg,cfg['global_scenes'])
-    model,info=load(cfg['parent_checkpoint'],'cuda',readouts=cfg['post_feedback']);actor=D44Actor(model,source_config(cfg),cfg)
+    model,info=load(cfg['parent_checkpoint'],'cuda',readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'));actor=D44Actor(model,source_config(cfg),cfg)
     model.decision.activation_checkpointing=False;model.decision.checkpoint_short_suffix=False
     restore_adapters(actor,torch.load(Path(a.checkpoint)/'optimizer.pt',map_location='cpu',weights_only=False)['adapters'])
     object.__setattr__(actor,'conditions',DConditions(model,stream.data,info,group=cfg['group']))

@@ -23,7 +23,7 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--export',required=True);p.add_argument('--output',required=True);a=p.parse_args()
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8');configure_numerics();torch.set_num_threads(2);require_dispatch()
     identity,_,_=inspect(a.checkpoint);cfg=identity['recipe'];stream=DataStream(cfg,cfg['global_scenes'])
-    model,info=load(cfg['parent_checkpoint'],'cuda',readouts=cfg['post_feedback']);actor=D44Actor(model,source_config(cfg),cfg)
+    model,info=load(cfg['parent_checkpoint'],'cuda',readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'));actor=D44Actor(model,source_config(cfg),cfg)
     restore_adapters(actor,torch.load(Path(a.checkpoint)/'optimizer.pt',map_location='cpu',weights_only=False)['adapters'])
     token=stream.tokens[0];obs=stream.data.observation(token);inputs=QwenObservationProcessor(str(QWEN_PATH))([obs])
     ego=torch.tensor([obs['proprio']],device='cuda',dtype=torch.float32)

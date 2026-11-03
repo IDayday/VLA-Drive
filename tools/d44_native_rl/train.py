@@ -96,7 +96,7 @@ def main():
     if a.scenes_per_rank:cfg['global_scenes']=a.scenes_per_rank*world
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True);lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     print(json.dumps(dict(event='loading_native_D44',rank=rank,at=time.time())),flush=True)
-    stream=DataStream(cfg,cfg['global_scenes']);model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'])
+    stream=DataStream(cfg,cfg['global_scenes']);model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
     original_prediction=None
     if a.qualification:
         from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
