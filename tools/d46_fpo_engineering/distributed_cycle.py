@@ -56,7 +56,8 @@ def main():
     else:VerifiedExtension.init_control_group()
     cp=Path(a.checkpoint);identity=json.loads((cp/'identity.json').read_text());cfg=identity['recipe']
     assert identity['world']==world and(cfg['global_scenes'],cfg['group'],cfg['inner_updates'])==(64,16,2)
-    assert 1<=a.cycles<=4 and a.modes[0]=='baseline'and len(a.modes)<=3 and len(set(a.modes))==len(a.modes)
+    assert 1<=a.cycles<=12 and a.modes[0]=='baseline'and len(a.modes)<=3 and len(set(a.modes))==len(a.modes)
+    assert len(a.modes)*(1+2*a.cycles)<=100,'Disposable benchmark Adam budget exceeded'
     native=torch.load(cp/'optimizer.pt',map_location='cpu',weights_only=False)
     own=torch.load(cp/f'rank{rank}.pt',map_location='cpu',weights_only=False)
     verified='verified_improvement'in cfg
@@ -71,7 +72,7 @@ def main():
     service=RewardService(Path.cwd(),workers=cfg['scoring_workers'],cache_roots=stream.data.manifest['canonical_metric_cache_roots'])
     ddp=DDP(actor,device_ids=[local],broadcast_buffers=False,find_unused_parameters=True,static_graph=False,bucket_cap_mb=25)
     params=[v for v in actor.parameters()if v.requires_grad];output=Path(a.output);output.mkdir(parents=True,exist_ok=True)
-    reference=None;rows=[]
+    reference=None;origin_reference=None;nominal_reference=None;rows=[]
     def update(optimizer,scheduler,state,batch,bulk):
         for r in batch['scenes']:r['expect_fresh']=state['next_inner']==0
         value=optimizer_update(ddp,actor,optimizer,scheduler,batch,cfg,state['valid_scene_exposures']/103288,world,params,bulk_metrics=bulk)
@@ -100,6 +101,9 @@ def main():
                 for scene in pending['scenes']:scene['condition']=conditions.get(scene['token'])
                 for _ in range(2-state['next_inner']):value=update(optimizer,scheduler,state,pending,False)
                 end_collection(state,dual,value['valid_kl_sum'],pending['valid_scenes'])
+            origin={n:p.detach().cpu().clone()for n,p in actor.named_parameters()if p.requires_grad}
+            if origin_reference is None:origin_reference=origin
+            assert all(torch.equal(origin_reference[n],v)for n,v in origin.items()),'Mode READY origins changed'
             for cache in reversed(caches):cache.close()
             caches=[]
             actor.execution_fast_prefix=verified or mode!='baseline';actor.execution_fuse_fm_mc=mode=='fast';actor.execution_joint_flow_aux=mode=='fast'
@@ -153,6 +157,31 @@ def main():
             if reference is None:reference=current
             exact=all(torch.equal(reference[n],v)for n,v in current.items())
             maximum=max(float((reference[n]-v).abs().max())for n,v in current.items())
+            numerator=denominator=dot=new_norm=0.
+            for name,value in current.items():
+                first=(reference[name]-origin[name]).double();second=(value-origin[name]).double()
+                numerator+=float((first-second).square().sum());denominator+=float(first.square().sum())
+                dot+=float((first*second).sum());new_norm+=float(second.square().sum())
+            # Fixed TRAIN B1 probes are diagnostics only, outside throughput
+            # timing. They never select teachers or change the training stream.
+            from starVLA.rl.d44_native_rl.batch_runtime import deployment_chain
+            from starVLA.rl.simwam_recipe.contracts import seed_for
+            from starVLA.model.modules.qwen_sourceflow.action_codec import ActionCodec
+            nominal=[]
+            for scene in own['rollout']['scenes'][:2]:
+                token=scene['token'];material=actor.materialize(conditions.get(token))
+                one=dict(material,context=material['context'][:1])
+                probe=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',2101,token))
+                chain,_=deployment_chain(actor,one,probe)
+                requested=ActionCodec.denorm_odo(chain[:,-1]).cpu().numpy()
+                record=service.score((token,scene['log'],requested))[0]
+                assert record['status']=='OK','Invalid TRAIN B1 diagnostic'
+                nominal.append(dict(token=token,action=chain[:,-1].cpu(),score=record['metrics']['score']))
+            if nominal_reference is None:nominal_reference=nominal
+            nominal_checks=[dict(token=new['token'],baseline_score=old['score'],score=new['score'],
+                normalized_action_max_abs=float((old['action']-new['action']).abs().max()),
+                action_bitexact=torch.equal(old['action'],new['action']))for old,new in zip(nominal_reference,nominal)]
+            if mode=='exact':assert all(r['action_bitexact']and r['score']==r['baseline_score']for r in nominal_checks)
             # Exercise the actual native transaction and restore with an
             # explicitly disposable execution identity. Scientific teacher
             # versions keep their original own-run lineage.
@@ -184,6 +213,9 @@ def main():
             rows.append(dict(mode=mode,cycles=cycles,final_parameters_bitexact_to_baseline=exact,parameter_max_abs=maximum,
                 final_updates=state['updates'],scene_exposures=state['valid_scene_exposures'],peak_allocated_bytes=torch.cuda.max_memory_allocated(),
                 native_save_seconds=save_seconds,native_restore_seconds=restore_seconds,native_roundtrip_exact=resume_exact))
+            rows[-1].update(update_relative_L2=(numerator/max(denominator,1e-30))**.5,
+                update_cosine=dot/max((denominator*new_norm)**.5,1e-30),TRAIN_B1=nominal_checks,
+                diagnostic_B1_queries=len(nominal_checks))
             atomic_json(output/f'rank{rank}.json',dict(status='IN_PROGRESS',rank=rank,world=world,rows=rows,source_checkpoint=str(cp),formal_outputs_modified=False))
             for cache in reversed(caches):cache.close()
             dist.barrier()
@@ -209,6 +241,13 @@ def main():
                     native_roundtrip_exact=all(r['native_roundtrip_exact']for r in measurements),
                     final_parameters_bitexact_to_baseline=all(r['final_parameters_bitexact_to_baseline']for r in measurements),
                     parameter_max_abs=max(r['parameter_max_abs']for r in measurements),
+                    maximum_rank_update_relative_L2=max(r['update_relative_L2']for r in measurements),
+                    minimum_rank_update_cosine=min(r['update_cosine']for r in measurements),
+                    TRAIN_B1_scenes=sum(len(r['TRAIN_B1'])for r in measurements),
+                    TRAIN_B1_mean_score=sum(p['score']for r in measurements for p in r['TRAIN_B1'])/sum(len(r['TRAIN_B1'])for r in measurements),
+                    TRAIN_B1_baseline_mean_score=sum(p['baseline_score']for r in measurements for p in r['TRAIN_B1'])/sum(len(r['TRAIN_B1'])for r in measurements),
+                    TRAIN_B1_changed_trajectories=sum(not p['action_bitexact']for r in measurements for p in r['TRAIN_B1']),
+                    TRAIN_B1_max_action_delta=max(p['normalized_action_max_abs']for r in measurements for p in r['TRAIN_B1']),
                     peak_allocated_bytes=max(r['peak_allocated_bytes']for r in measurements)))
             atomic_json(output/'RESULT.json',dict(status='COMPLETE',world=world,route='verified'if verified else'mature',
                 rows=summary,cycles_per_mode=a.cycles,source_checkpoint=str(cp),formal_outputs_modified=False,

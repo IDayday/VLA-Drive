@@ -154,15 +154,28 @@ def build_fragment(plan, state, evaluation):
         body=body.replace('先看当前实验、进度与真实分数','当前：RL提速开发；正式训练已暂停')
         body+='<section class="panel"><h2>当前工程任务与实际速度</h2><p>两条正式路线已原生保存：成熟1921/inner1、改进47/inner1。当前只运行有界实现测试。每100步保存完整恢复状态；最近10个恢复点轮换，另保留最佳及正在评测的检查点。</p>'
         body+=table(['原实际训练配置','完整周期 秒/Adam','实际更新/小时','统计区间'],[(key,f'{v["end_to_end_seconds_per_update"]:.2f}',f'{v["updates_per_hour"]:.1f}',str(v['updates']))for key,v in engineering.get('baseline_throughput',{}).items()])
-        fb=[];collection=[]
-        for path in sorted((ROOT/'engineering').glob('FB_v*/*/RESULT.json')):
+        def latest_results(pattern):
+            latest={}
+            for path in sorted((ROOT/'engineering').glob(pattern),key=lambda p:p.stat().st_mtime):
+                data=read(path,{})
+                if data.get('status')=='COMPLETE':latest[path.parent.name]=path
+            return latest.values()
+        fb=[];collection=[];cycles=[]
+        for path in latest_results('FB_v*/*/RESULT.json'):
             data=read(path,{})
             for row in data.get('rows',[]):
                 comp=row.get('comparison',{})
                 fb.append((path.parent.name+' / '+path.parent.parent.name,row['mode'],f'{row["median_seconds"]:.3f}',f'{comp.get("gradient_relative_L2",0):.3%}',comp.get('bitexact'),data.get('status')))
-        for path in sorted((ROOT/'engineering').glob('COLLECTION_v*/*/RESULT.json')):
+        for path in latest_results('COLLECTION_v*/*/RESULT.json'):
             data=read(path,{})
             for row in data.get('rows',[]):collection.append((path.parent.name,row['mode'],f'{row["seconds_per_scene"]:.3f}',str(row.get('prefix_builds')),row.get('identical_main_sampler_RNG')))
+        for path in latest_results('CYCLE_v*/*/RESULT.json'):
+            data=read(path,{})
+            for row in data.get('rows',[]):
+                cycles.append((path.parent.name,str(data['world'])+'卡',row['mode'],f'{row["seconds_per_update"]:.2f}',
+                    f'{row["updates_per_hour"]:.1f}',f'{row["updates_per_hour_with_save100"]:.1f}',row['native_roundtrip_exact']))
+        body+='<p>下表仅展示各路线最新一轮完整测量。局部测试与完整周期分别统计；有限周期的小时速度是折算值，正式长时间吞吐仍待验证。</p>'
+        body+='<h3>完整多卡周期：优先判断实际收益</h3>'+table(['路线','规模','执行方式','秒 / Adam','折算更新 / 小时','计入100步保存','原生恢复一致'],cycles)
         body+='<h3>同材料前向反向：局部测量，不等于完整训练加速</h3>'+table(['路线 / 轮次','执行方式','秒 / 实际rank更新','梯度相对L2差异','梯度逐值一致','阶段'],fb)
         body+='<h3>真实采样与官方评分：单独测量</h3>'+table(['路线','执行方式','秒 / 场景','C/P构建次数','采样RNG一致'],collection)
         body+='<p>优先路线：同一策略收集期间复用无梯度C/P；删除重复采样均值验证前向；批量计算MC4/教师辅助项；减少逐标量GPU同步。当前可训练C/P仍须每次inner更新重新构图。MC合并可能改变BF16数值，需按实测梯度差异判断；完整分布式周期、恢复与单轨迹质量通过后再决定正式配置。</p></section>'
