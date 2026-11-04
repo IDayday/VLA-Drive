@@ -41,6 +41,6 @@ CPU算法14项与调度2项检查通过。真实两节点16卡资格已完成第
 旧FPO成熟/Verified最终停在3323/643更新，相关27个训练/评测job均EXIT0。按用户授权，删除D44/D46共21个旧run下225个checkpoint；删除前这些文件去重分配字节合计207,784,361,984（不是独立测量的文件系统释放量）。代码、配置、日志、逐场景评测与分析保留，D IL和IL46父权重保留。
 
 清理收据：`/mnt/project/d46-fpo-two-routes-20261104/operations/TERMINATE_OLD_RL_20261104/COMPLETE.json`。
-旧FPO 1E评测被取消，保留其部分结果，但不发布不完整平均分。
+旧FPO 1E评测被取消，保留其部分结果，但不发布不完整平均分。七个已完成点的最终归档见 [OLD_RL_FINAL_RESULTS.json](OLD_RL_FINAL_RESULTS.json)。
 
 资源只使用本任务五容器白名单；本机D IL不抢占，无法归属的Tsh2 GPU负载不处理。主训练Tsh5+Tshzt；WMzt用于并行完整评测。
