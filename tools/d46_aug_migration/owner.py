@@ -43,7 +43,7 @@ def launch_stage(route,stage):
     receipts=[];qual=stage!='formal'
     output=route['qualification_output']if qual else route['formal_output']
     for node,host in enumerate(route['hosts']):
-        job=ROOT/'jobs'/stage/f'node{node}'
+        job=ROOT/'jobs'/route.get('job_namespace','')/stage/f'node{node}'
         job.mkdir(parents=True,exist_ok=True)
         old=read(job/'LAUNCH.json')
         if old:
@@ -53,7 +53,9 @@ def launch_stage(route,stage):
             '--nnodes=2','--nproc_per_node=8',f'--node_rank={node}','--master_addr='+route['master_addr'],
             '--master_port='+str(29642 if qual else 29643),'--max_restarts=0',
             '-m','tools.d46_augustus.train','--config',route['config'],'--output',output]
-        if qual:command+=['--qualification','--stop-after-update','2','--resume',str(Path(output)/'checkpoints/update000001_inner1')]
+        if qual:
+            command+=['--qualification','--stop-after-update','1'if stage=='qualification_first'else'2']
+            if stage!='qualification_first':command+=['--resume',str(Path(output)/'checkpoints/update000001_inner1')]
         elif Path(output).exists()and any(Path(output).iterdir())and node==0:
             raise RuntimeError('Fresh formal output must be empty')
         atomic_json(job/'INTENT.json',dict(command=command,host=host,at=time.time()))
@@ -69,9 +71,10 @@ def check_qualification(route,updates):
     if any(r.get('updates')!=updates or r.get('qualification')is not True or r.get('frozen_before')!=r.get('frozen_after')for r in ranks):
         raise ValueError('Real allrank update/frozen-weight qualification failed')
     proof['allrank_frozen_weights_unchanged']=True
-    atomic_json(ROOT/'operations'/f'QUALIFICATION_{updates}.json',proof)
+    proof_root=Path(route.get('proof_directory',ROOT/'operations'))
+    atomic_json(proof_root/f'QUALIFICATION_{updates}.json',proof)
     if updates==2:
-        first=read(ROOT/'operations/QUALIFICATION_1.json')
+        first=read(proof_root/'QUALIFICATION_1.json')
         if proof['allrank_RNG_sha256']!=first['allrank_RNG_sha256']:
             raise ValueError('Pending inner resume consumed RNG')
     return proof
@@ -124,15 +127,34 @@ def notify(state_path,case_id,expected_summary_sha,**kwargs):
     return dict(notified_sha=sha,status='COMPLETE_VERIFIED')
 
 
+def compare_numeric_baselines(evaluations):
+    """Completed test banks only; output is analysis, never a trainer input."""
+    zero={c['binding']['experiment']:c for c in evaluations['cases'].values() if c['status']=='COMPLETE' and c['binding']['updates']==0}
+    for case in evaluations['cases'].values():
+        baseline=zero.get(case['binding']['experiment'])
+        if case['status']!='COMPLETE' or case['binding']['updates']==0 or baseline is None:continue
+        path=Path(case['summary']).parent/'VS_NUMERIC_U0.json'
+        if path.exists():continue
+        from tools.d44_native_rl.analyze import analyze
+        value=analyze(case['output'],baseline['output'])
+        value.pop('sha256',None)
+        value['baseline_description']='Same experiment numeric u0; identical original IL46 weights, no Adam update'
+        value['gain_loss']['fixed_reference_cohorts']={k.replace('IL44','numeric_u0'):v for k,v in value['gain_loss']['fixed_reference_cohorts'].items()}
+        value['gain_loss']['limits']=value['gain_loss']['limits'].replace('IL44','same numeric u0')
+        value['sha256']=fingerprint(value);atomic_json(path,value)
+
+
 def report(state,evaluations):
     route=read(ROOT/'operations/PLAN.json')['route'];out=Path(route['formal_output']);latest=read(out/'latest.json',{})
     rows=[];best=90.353633650597;best_name='历史D FPO1711（权重已按用户要求删除）'
-    for c in evaluations['cases'].values():
+    zero={c['binding']['experiment']:read(c['summary'])['PDMS'] for c in evaluations['cases'].values() if c['status']=='COMPLETE' and c['binding']['updates']==0}
+    for c in sorted(evaluations['cases'].values(),key=lambda c:(c['binding']['experiment']!=route['experiment'],-c['binding']['updates'])):
         s=read(c.get('summary','/missing'),{})
         if c['status']=='COMPLETE':
-            rows.append(f'<tr><td>{c["id"]}</td><td>{s["PDMS"]:.8f}</td><td>{s["PDMS"]-89.4955209758546:+.5f}</td><td>12146 / invalid0</td></tr>')
+            delta=s['PDMS']-zero.get(c['binding']['experiment'],s['PDMS'])
+            rows.append(f'<tr><td>{c["id"]}</td><td>{s["PDMS"]:.8f}</td><td>{s["PDMS"]-89.4955209758546:+.5f}</td><td>{delta:+.5f}</td><td>12146 / invalid0</td></tr>')
             if s['PDMS']>best:best=s['PDMS'];best_name=c['id']
-        else:rows.append(f'<tr><td>{c["id"]}</td><td>—</td><td>{c["status"]}</td><td>{c.get("completed_shards",0)}/32片</td></tr>')
+        else:rows.append(f'<tr><td>{c["id"]}</td><td>—</td><td>{c["status"]}</td><td>—</td><td>{c.get("completed_shards",0)}/32片</td></tr>')
     native=read(Path(latest.get('checkpoint','/missing'))/'COMPLETE',{})
     from tools.d46_fpo_campaign.reporting import bounded_rows
     tails=[bounded_rows(out/f'metrics_rank{rank}.jsonl')for rank in range(route['world'])]
@@ -140,19 +162,28 @@ def report(state,evaluations):
     active=int(common>0 and state['stage']=='formal'and any(not(Path(j['job'])/'RESULT.json').exists()for j in state.get('jobs',[])))
     state.update(actual_training=active,common_update=common)
     atomic_json(ROOT/'operations/STATE.json',state)
+    from tools.d46_aug_migration.tracking import snapshot
+    health=snapshot(out,route['world']);atomic_json(ROOT/'operations/TRAINING_HEALTH.json',health)
+    audit=read(ROOT/'analysis/MIGRATION_REVIEW.json',{})
+    findings='<ul>'+''.join('<li>'+html.escape(x)+'</li>'for x in audit.get('findings',[]))+'</ul>'
+    speed=health.get('end_to_end') or {}
+    health_html=f'<p>全rank共同更新 {health.get("common_update",0)}；场景曝光 {health.get("scene_exposures",0)}；{health.get("scene_epochs",0):.5f} E。最近窗口端到端 {speed.get("updates_per_hour",0):.1f} 更新/小时（包含采样、评分、同步）。</p>'
+    health_html+='<p>检查状态：'+html.escape(health['status'])+'；'+html.escape('；'.join(health['alerts']))+'</p>'
+    health_html+='<p>数值检查通过不等于PDMS提升；逐角色梯度记录位于全局裁剪之后，不能直接解释为Adam更新贡献。</p>'
     body=f'''<div class="aug-migration"><style>.aug-migration{{font:15px/1.8 system-ui;color:#203448}}.aug-migration section{{background:white;border:1px solid #d7e2ec;border-radius:14px;padding:22px;margin:16px 0}}.aug-migration table{{border-collapse:collapse;width:100%}}.aug-migration td,.aug-migration th{{padding:10px;text-align:left;border-bottom:1px solid #dbe3ec}}.aug-migration h1{{font-size:26px}}.aug-migration .cards{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}}.aug-migration .cards b{{display:block;font-size:23px;color:#125a83}}</style>
     <section><small>当前研究 · D46 AUG迁移修正 · {time.strftime('%Y-%m-%d %H:%M UTC',time.gmtime())}</small>
     <h1>先把 JaT 迁移做准确，再判断部署收益</h1><div class="cards"><div>D系最高完整PDMS<b>{best:.8f}</b>{best_name}</div><div>当前正式训练<b>{active}组 / {16*active}卡</b>阶段：{html.escape(state['stage'])}</div><div>最新完整保存<b>{native.get('updates','—')} Adam</b>每100次保存；最近10份＋评测/最佳固定</div></div>
     <p>正式训练全rank共同提交：{common}次Adam。旧FPO及D44/D46 RL已终止；225个旧checkpoint已删除，代码、日志、完整结果保留。IL46父权重与D IL训练保留。历史项目IL70/SafetyEP最高91.45359756，父模型不同。</p></section>
-    <section><h2>这次改了什么</h2><table><tr><th>环节</th><th>新主线 AUG6_NATIVE_CALIBRATED</th></tr>
+    <section><h2>当前实现审查与修复</h2>{findings}{health_html}</section>
+    <section><h2>这次改了什么</h2><table><tr><th>环节</th><th>新主线 {html.escape(route['experiment'])}</th></tr>
     <tr><td>初始化</td><td>相同完整D IL46，新Adam0；不继承资格或其它RL权重</td></tr>
     <tr><td>采样</td><td>真实scene-token根；原生K10/shift5前7步＋末3步官方JaT随机核；B64/G16/M2</td></tr>
-    <tr><td>探索与数值</td><td>全TRAIN逐航点范围换算到原IL坐标；采样/ratio/KL同一协方差；训练、reference与部署都使用FP32动作线性输出</td></tr>
+    <tr><td>探索与数值</td><td>全TRAIN逐航点范围换算到原IL坐标；采样/ratio/KL同一协方差；AUG7训练、reference、部署统一使用FP32文本C/P与动作计算，冻结视觉计算保留原设置。AUG6仅最终动作投影FP32，已保存停训。</td></tr>
     <tr><td>优势</td><td>SafetyEP组内减均值；全64×16候选population std，padding排除，cap5</td></tr>
     <tr><td>约束与优化</td><td>原IL JaT参考KL beta0.1；clip0.2；LR1e-6，曝光warmup.08/hold.60/cosine4E/floor.05</td></tr>
     <tr><td>预算</td><td>先3个场景曝光epoch，按完整分数决定延长；不是无限无条件续训</td></tr></table>
     <p>这是D适配的动作JaT主线，不宣称完整复现CoT-GRPO或论文Stage II。本轮暂不叠加教师/历史损失；部署路径保持作为后续独立改进。</p></section>
-    <section><h2>当前结果与判据</h2><table><tr><th>完整评测点</th><th>PDMS</th><th>相原IL46 / 状态</th><th>完整性</th></tr>{''.join(rows)}</table>
+    <section><h2>当前结果与判据</h2><table><tr><th>完整评测点</th><th>PDMS</th><th>相原IL46 / 状态</th><th>相同数值u0</th><th>完整性</th></tr>{''.join(rows)}</table>
     <p>FP32投影可能改变0步部署输出，因此额外全量评测u0；必须同时看相原IL46和相新数值u0的增益。预定u0/200/400/800及0.5/1/2/3E评测，固定单条ODE、无oracle、官方评分不变。未齐全时不发布均分。</p>
     <p>重点观察零分修复、新增零分、NC/TTC与EP变化；真实分数尚未出来时，不把CPU/GPU资格通过写成提分。</p></section>
     <section><h2>代码与归档</h2><p><a href="/mnt/project/d46-fpo-two-routes-20261104/analysis/AUG_MIGRATION_REVIEW.html">AUG迁移问题分析</a> · <a href="/mnt/project/d46-fpo-two-routes-20261104/report.html">已终止FPO历史</a> · <a href="{ROOT}/operations/STATE.json">新任务状态</a></p><p>常规30分钟更新，完整新结果立即更新；训练、评测均只派发到本任务五容器白名单。</p></section></div>'''
@@ -180,15 +211,17 @@ def main():
                 elif state['stage']=='qualification_resume'and finished(state['jobs']):
                     check_qualification(route,2);state.update(stage='formal',jobs=launch_stage(route,'formal'))
                 elif state['stage']=='formal':
-                    if not(op/'FRESH_IL46_ADAM0.json').exists()and (Path(route['formal_output'])/'checkpoints/update000000_inner0/COMPLETE').exists():
-                        atomic_json(op/'FRESH_IL46_ADAM0.json',review_native(route,route['formal_output'],0,False))
+                    proof_root=Path(route.get('proof_directory',op))
+                    if not(proof_root/'FRESH_IL46_ADAM0.json').exists()and (Path(route['formal_output'])/'checkpoints/update000000_inner0/COMPLETE').exists():
+                        atomic_json(proof_root/'FRESH_IL46_ADAM0.json',review_native(route,route['formal_output'],0,False))
                     if finished(state['jobs']):state['stage']='formal_finished'
                 state['at']=time.time();atomic_json(op/'STATE.json',state)
             except Exception:
                 state.update(stage='REVIEW_REQUIRED',error=traceback.format_exc(),at=time.time());atomic_json(op/'STATE.json',state)
             evaluations=read(op/'EVAL_STATE.json',E.initial_state())
             try:
-                if state['stage']in('formal','formal_finished'):evaluations=E.tick(ROOT,evaluations,plan,ops_source=SOURCE)
+                evaluations=E.tick(ROOT,evaluations,plan,ops_source=SOURCE)
+                compare_numeric_baselines(evaluations)
                 complete=[c for c in evaluations['cases'].values()if c['status']=='COMPLETE']
                 pending=[c['binding']['checkpoint']for c in evaluations['cases'].values()if c['status']not in E.TERMINAL]
                 if complete:pending.append(max(complete,key=lambda c:read(c['summary'])['PDMS'])['binding']['checkpoint'])

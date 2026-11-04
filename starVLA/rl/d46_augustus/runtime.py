@@ -10,7 +10,7 @@ from starVLA.rl.qwen_world_compare.recovery_state import tensor_digest
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.recovery import Boundary,Attempt,material_digest
 from starVLA.rl.qwen_world_abcd_research import checkpoint
-from .config import SCHEMA,validate,read,kernel_identity,aligned
+from .config import SCHEMA,validate,read,kernel_identity,aligned,calibrated
 
 
 def source_inventory():
@@ -37,7 +37,7 @@ class FixedKL:
 
 
 def advantages(raw,valid,G,world,*,global_normalization=False):
-    """GRPO sample-group std only; global raw std is diagnostic, never a divisor."""
+    """Legacy group std or explicitly registered global population normalization."""
     if(raw.ndim!=2 or raw.shape[1]!=G or G not in(8,16) or valid.shape!=raw.shape[:1]or valid.dtype!=torch.bool
         or raw.requires_grad or not torch.isfinite(raw).all()):raise ValueError('Invalid detached G8 credit/valid mask')
     if not torch.allclose(raw.mean(1),torch.zeros_like(raw.mean(1)),atol=1e-10,rtol=0):raise ValueError('Expected group-centered canonical credit')
@@ -99,7 +99,7 @@ class AugustusBoundary(Boundary):
                     from starVLA.rl.d44_native_rl.safety_credit import raw_credit
                     raw,_=raw_credit(scene['factors'][None]);raw=raw[0]
                 else:raw=reward-reward.mean()
-                if cfg['experiment_id']=='AUG6_NATIVE_CALIBRATED':
+                if calibrated(cfg['experiment_id']):
                     std=float(batch['global_std'])
                     if not math.isfinite(std) or std<0:raise ValueError('Invalid global advantage scale')
                     a=(raw/(std+1e-8)).clamp(-5,5).float()
@@ -118,11 +118,14 @@ class AugustusExtension:
     collect_scene=staticmethod(lambda *args,**kw:__import__('starVLA.rl.d46_augustus.collector',fromlist=['collect_scene']).collect_scene(*args,**kw))
     make_dual=staticmethod(FixedKL)
     def advantages(self,raw,valid,G,world):
-        return advantages(raw,valid,G,world,global_normalization=self.cfg['experiment_id']=='AUG6_NATIVE_CALIBRATED')
+        return advantages(raw,valid,G,world,global_normalization=calibrated(self.cfg['experiment_id']))
     def prepare_model(self,model):
         if self.cfg['augustus'].get('action_output_precision')=='float32_linear':
             from .output_precision import install_fp32_action_output
             install_fp32_action_output(model.decision)
+        if self.cfg['augustus'].get('text_action_precision'):
+            from .text_precision import install_text_action_precision
+            install_text_action_precision(model.decision,self.cfg['augustus']['text_action_precision'])
     def qualification_noise(self,token,device):
         from .collector import scene_initial_actions
         root=scene_initial_actions(self.cfg,token,device)

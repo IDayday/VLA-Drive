@@ -196,11 +196,11 @@ def known_D46_augustus_output(output):
     try:
         from starVLA.rl.qwen_world_compare.contracts import fingerprint
         value=json.loads((output/'identity.json').read_text());cfg=value['recipe'];aug=cfg['augustus']
-        if cfg.get('experiment_id')in('AUG5_LORA_TOKEN_ROOT','AUG6_NATIVE_CALIBRATED'):
+        if cfg.get('experiment_id')in('AUG5_LORA_TOKEN_ROOT','AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32'):
             # Admission runs under system Python, without torch/transformers.
             # The learner separately performs full scientific config validation.
             import math
-            calibrated=cfg['experiment_id']=='AUG6_NATIVE_CALIBRATED'
+            calibrated=cfg['experiment_id']in('AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32')
             scales=aug.get('noise_scale',[])
             covariance_ok=(len(scales)==8 and all(isinstance(row,list)and len(row)==3
                 and all(isinstance(x,(int,float))and math.isfinite(x)and x>0 for x in row)for row in scales))if calibrated else scales==[.05,.05,.02]
@@ -210,7 +210,8 @@ def known_D46_augustus_output(output):
                 and value.get('world')in(8,16,32)and cfg['global_scenes']%value['world']==0
                 and cfg['group']==(16 if calibrated else 8)and cfg['inner_updates']==2
                 and aug.get('initial_root_scheme')=='deployment_token_seed_v1'and covariance_ok
-                and (not calibrated or aug.get('action_output_precision')=='float32_linear'))
+                and (not calibrated or aug.get('action_output_precision')=='float32_linear')
+                and (cfg['experiment_id']!='AUG7_NATIVE_FP32' or aug.get('text_action_precision')=='float32'))
         exp=cfg['experiment_id'];aligned=exp in('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')
         return(value.get('algorithm_schema')=='d46_augustus_native_v1'
             and value.get('experiment_id')==exp in('AUG1_FULL','AUG2_LORA','AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')

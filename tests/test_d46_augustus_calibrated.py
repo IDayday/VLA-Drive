@@ -29,12 +29,13 @@ def test_global_normalization_keeps_safety_contrast_above_small_EP_and_ignores_p
     assert torch.isfinite(zeros).all()and zeros.count_nonzero()==0
 
 
-def test_calibrated_collector_fresh_ratio_and_two_inner_updates():
+@pytest.mark.parametrize('experiment',['AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32'])
+def test_calibrated_collector_fresh_ratio_and_two_inner_updates(experiment):
     spec=importlib.util.spec_from_file_location('calibrated_tiny',Path(__file__).with_name('test_d46_augustus_actor.py'))
     m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
     old=torch.get_num_threads();torch.set_num_threads(1)
     try:
-        actor,_,cfg,_,condition=m.tiny('AUG6_NATIVE_CALIBRATED');condition['context']=torch.zeros(16,1,1)
+        actor,_,cfg,_,condition=m.tiny(experiment);condition['context']=torch.zeros(16,1,1)
         assert isinstance(actor.action_expert.decision.action_output,FP32ActionOutput)
         assert isinstance(actor.ref_action_expert.decision.action_output,FP32ActionOutput)
         scene=m.collect_scene(actor,condition,'TRAIN_CPU_0','TRAIN_cpu',m.SyntheticService(),torch.Generator().manual_seed(42),cfg,0.,{'update':0})

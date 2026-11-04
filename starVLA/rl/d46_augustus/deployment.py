@@ -31,6 +31,9 @@ def load_policy(path,device='cpu'):
     if cfg['augustus'].get('action_output_precision')=='float32_linear':
         from .output_precision import install_fp32_action_output
         install_fp32_action_output(model.decision)
+    if cfg['augustus'].get('text_action_precision'):
+        from .text_precision import install_text_action_precision
+        install_text_action_precision(model.decision,cfg['augustus']['text_action_precision'])
     if info['model_sha256']!=D46_MODEL_SHA or info!=identity['parent']:raise ValueError('IL46 parent changed')
     if cfg['augustus']['scope']=='lora_text_action':
         install(model,scope_targets(model),cfg['text_rank'],2*cfg['text_rank'])

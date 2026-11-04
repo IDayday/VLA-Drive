@@ -27,6 +27,9 @@ class AugustusActor(D44Actor):
         if cfg['augustus'].get('action_output_precision')=='float32_linear':
             from .output_precision import install_fp32_action_output
             install_fp32_action_output(model.decision)
+        if cfg['augustus'].get('text_action_precision'):
+            from .text_precision import install_text_action_precision
+            install_text_action_precision(model.decision,cfg['augustus']['text_action_precision'])
         self._initializing_augustus=True
         super().__init__(model,backend,cfg)
         scope=cfg['augustus']['scope']
