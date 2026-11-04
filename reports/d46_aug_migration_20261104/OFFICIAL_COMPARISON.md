@@ -53,6 +53,12 @@ AUG8_NATIVE_KL001已注册：同IL46、新Adam0，beta由0.1降至官方动作�
 
 SFT和Stage I两个完整模型各6.315GB，固定HF revision与SHA；网络存在TLS中断和签名URL过期，下载恢复只接受逐range完成记录，最终整文件SHA正确才加载。**权重尚未完成验证，官方模型推理/实际Adam更新尚未执行。** official_probe直接调用官方模型、diffusion adapter、JaT核；不执行源码中清理Ray进程的launcher。它最多一个TRAIN动作更新，不冒充全CoT-GRPO复现；启动仍需资源准入。
 
+## 最新完整结果的含义
+
+u400相同FP32起点的44物理log配对95%区间为[−0.01999,+0.12406] PDMS，包含0；零分修复8个、新增7个，原高分转零4个。收益尚不可靠，零分问题也未实质解决。
+
+相同数值u0配对资料见 [u200](AUG7_U200_VS_NUMERIC_U0.json) 和 [u400](AUG7_U400_VS_NUMERIC_U0.json)。
+
 ## 训练长度也不能忽略
 
 u400只相当于12800/103288≈0.124个场景曝光epoch；公开Stage I配置为10 epochs。当前早期分数不足以判定D或JaT的最终上限。AUG7继续原先注册训练，AUG8检验约束机制；不能用资格测试或几百步代替充分训练结论。

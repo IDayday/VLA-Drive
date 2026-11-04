@@ -1,0 +1,110 @@
+{
+  "status": "COMPLETE",
+  "architecture_id": "D",
+  "cohort": "NAVTEST",
+  "scenes": 12146,
+  "scene_denominator": 12146,
+  "invalid_scenes": 0,
+  "physical_logs": 44,
+  "qualification": false,
+  "seed": 2101,
+  "evaluation_identity_sha256": "2e8695c895827ea5c4d059a40f643da1e5f7761129e08d54618ee110ecfb072f",
+  "model_sha256": "2f057e5ca29d0831748737787200d826ae65a91580bc884690f00549dc248621",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "means": {
+    "score": 0.8956281535577006,
+    "no_at_fault_collisions": 0.9873620945167133,
+    "drivable_area_compliance": 0.9722542400790384,
+    "time_to_collision_within_bound": 0.9575992096163346,
+    "ego_progress": 0.8337790225656013,
+    "comfort": 0.9997530051045612,
+    "driving_direction_compliance": 0.9846039848509798
+  },
+  "evaluation": "/mnt/project/d46-aug-migration-20261104/evaluations/AUG7_NATIVE_FP32_u000400/evaluation",
+  "PDMS": 89.56281535577007,
+  "paired": {
+    "mean_delta": 0.0005232765701861221,
+    "CI95": [
+      -0.00019990070102585147,
+      0.001240634536780479
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 8,
+    "new_zero": 7,
+    "high_to_zero": 4,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 476,
+    "baseline_nonzero_denominator": 11670,
+    "baseline_high_denominator": 11199,
+    "repaired_zero_rate": 0.01680672268907563,
+    "new_zero_rate": 0.000599828620394173,
+    "high_to_zero_rate": 0.0003571747477453344,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 4,
+        "repaired_failure": 2,
+        "baseline_pass": 11986,
+        "baseline_failure": 160
+      },
+      "drivable_area_compliance": {
+        "new_failure": 3,
+        "repaired_failure": 6,
+        "baseline_pass": 11806,
+        "baseline_failure": 340
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 12,
+        "repaired_failure": 6,
+        "baseline_pass": 11637,
+        "baseline_failure": 509
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "source_summary_sha256": "3a52370642a5496b2a3039c3bc82e2d07f97163bb61fa9a612116ad0ff2e6f4b",
+  "analysis_schema": "D44_complete_B1_paired_gain_loss_v1",
+  "gain_loss": {
+    "G_plus": 0.0013683296410243648,
+    "G_minus": -0.0008450530708382427,
+    "net": 0.0005232765701861223,
+    "fixed_reference_cohorts": {
+      "numeric_u0_high_ge_0.9": {
+        "scenes": 8725,
+        "mean_delta": -0.0004378207069268832,
+        "population_contribution": -0.000314505653543311,
+        "new_zero": 4
+      },
+      "numeric_u0_zero": {
+        "scenes": 476,
+        "mean_delta": 0.014342042489599516,
+        "population_contribution": 0.0005620625905688597,
+        "new_zero": 0
+      },
+      "numeric_u0_other": {
+        "scenes": 2945,
+        "mean_delta": 0.001137144537985849,
+        "population_contribution": 0.0002757196331605735,
+        "new_zero": 3
+      },
+      "numeric_u0_joint_safe": {
+        "scenes": 11323,
+        "mean_delta": -0.00011458594173492187,
+        "population_contribution": -0.00010682172058822002,
+        "new_zero": 4
+      }
+    },
+    "high_to_low": 15,
+    "low_to_high": 11,
+    "initial_high_retained_ge_0_9": 8710,
+    "initial_high_denominator": 8725,
+    "new_joint_unsafe": 15,
+    "repaired_joint_unsafe": 12,
+    "score_units": "raw [0,1]; multiply by100 for PDMS points",
+    "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+  },
+  "baseline_description": "Same experiment numeric u0; identical original IL46 weights, no Adam update",
+  "sha256": "44c5d2eaa1a868e8de8120ca0623d428ac476f0389b7bfda6ab3f0d00a65e051"
+}
