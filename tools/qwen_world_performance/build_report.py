@@ -515,6 +515,20 @@ def D46_augustus_regression_fragment():
     current_plan=read(current_directory/'PLAN.json',{})
     current_formal,_,_=D46_augustus_formal_fragment(current_plan,current_directory)
     body+=current_formal
+    evaluation=read(D46_ROOT/'operations/AUGUSTUS_CAMPAIGN_20261103/EVAL_STATE.json',{})
+    verified={(p['experiment'],p['updates']):p for p in AUG_complete_points()}
+    cases=[c for c in evaluation.get('cases',{}).values()if c.get('binding',{}).get('experiment')in('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')]
+    if cases:
+        body+='<h4>修正版完整 B1 评测队列</h4>'
+        entries=[]
+        for c in sorted(cases,key=lambda c:({'RUNNING':0,'PENDING':1,'COMPLETE':2}.get(c.get('status'),3),c['binding']['scene_budget_clock'],c['id'])):
+            b=c['binding'];point=verified.get((b['experiment'],b['updates']))
+            status={'RUNNING':'评测中','PENDING':'已排队','COMPLETE':'完整已发布'}.get(c.get('status'),c.get('status','待核对'))
+            entries.append((b['experiment']+'/'+str(b['updates']),f'{b["scene_budget_clock"]/103288:.4f}E',
+                str(c.get('completed_shards',0))+'/32',c.get('active_shards',0),status,
+                f'{point["PDMS"]:.6f}'if point else'等待完整结果'))
+        body+=table(['checkpoint','有效场景曝光','完成分片','运行分片','状态','完整PDMS'],entries)
+        body+='<p>分片与排队状态来自后台账本；PDMS仅在完整12,146场景、44物理log、invalid=0并通过封印后显示。后续checkpoint会自动登记，完整结果立即触发报告更新。</p>'
     rows=[]
     for p in v['complete_points']:
         rows.append((p['arm'],p['updates'],f'{p["exposure"]:.4f}E',f'{p["PDMS"]:.4f}',f'{p["delta_IL46"]:+.4f}',p['paired']['repaired_zero'],p['paired']['new_zero']))
