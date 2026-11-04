@@ -62,6 +62,8 @@ def main():
     if a.adam_updates:
         assert cp.name=='SFT','Only official SFT can initialize diagnostic Adam'
         model.float()  # Explicit FP32 optimizer masters, BF16 autocast below.
+        model.qwen_model.gradient_checkpointing_enable()
+        torch.cuda.set_per_process_memory_fraction(.8,device)
     model.to(device).eval()
     policy=upstream_policy.TransfusionPolicy(model,model.processor,traj_token=8,action_dim=3)
     dataset=TransfusionDataset(str(Path(a.data)/'samples.json'),model.processor,traj_token=8,action_dim=3,is_training=False)

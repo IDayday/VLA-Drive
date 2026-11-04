@@ -170,7 +170,7 @@ def summarize_case(root, case):
             or identity.get('qualification')is not False or identity.get('seed')!=2101
             or identity.get('count')!=POPULATION or identity.get('inference')!='single_candidate_cleanx_K10_shift5'):
         raise ValueError('Full evaluation does not bind this registered AUG checkpoint/seed/protocol')
-    changed_numerics=binding['experiment']=='AUG7_NATIVE_FP32'
+    changed_numerics=binding['experiment']in('AUG7_NATIVE_FP32','AUG8_NATIVE_KL001')
     summary = summarize(output, baseline,**({'allow_numeric_policy_change':True}if changed_numerics else{}))
     if (summary.get('status') != 'COMPLETE' or summary.get('scenes') != POPULATION
             or summary.get('physical_logs') != 44 or summary.get('invalid_scenes') != 0
