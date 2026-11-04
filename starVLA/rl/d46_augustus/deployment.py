@@ -28,6 +28,9 @@ def inspect(path):
 def load_policy(path,device='cpu'):
     identity,seal,files=inspect(path);cfg=identity['recipe']
     model,info=load(cfg['parent_checkpoint'],'cpu',readouts=False,binding=cfg['parent_registration'])
+    if cfg['augustus'].get('action_output_precision')=='float32_linear':
+        from .output_precision import install_fp32_action_output
+        install_fp32_action_output(model.decision)
     if info['model_sha256']!=D46_MODEL_SHA or info!=identity['parent']:raise ValueError('IL46 parent changed')
     if cfg['augustus']['scope']=='lora_text_action':
         install(model,scope_targets(model),cfg['text_rank'],2*cfg['text_rank'])

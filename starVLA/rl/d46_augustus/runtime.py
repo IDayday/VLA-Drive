@@ -36,9 +36,9 @@ class FixedKL:
         self.collections=value['collections'];self.ema=value['ema']
 
 
-def advantages(raw,valid,G,world):
+def advantages(raw,valid,G,world,*,global_normalization=False):
     """GRPO sample-group std only; global raw std is diagnostic, never a divisor."""
-    if(raw.ndim!=2 or raw.shape[1]!=G or G!=8 or valid.shape!=raw.shape[:1]or valid.dtype!=torch.bool
+    if(raw.ndim!=2 or raw.shape[1]!=G or G not in(8,16) or valid.shape!=raw.shape[:1]or valid.dtype!=torch.bool
         or raw.requires_grad or not torch.isfinite(raw).all()):raise ValueError('Invalid detached G8 credit/valid mask')
     if not torch.allclose(raw.mean(1),torch.zeros_like(raw.mean(1)),atol=1e-10,rtol=0):raise ValueError('Expected group-centered canonical credit')
     scale=raw.double().std(1,unbiased=True,keepdim=True)
@@ -49,6 +49,7 @@ def advantages(raw,valid,G,world):
         dist.all_reduce(moments)
     if moments[2]<=0:raise ValueError('No valid scenes in global collection')
     std=(moments[1]/moments[2]-(moments[0]/moments[2]).square()).clamp_min(0).sqrt()
+    if global_normalization:normalized=(raw.double()/(std+1e-8)).clamp(-5,5).float()*valid[:,None]
     return normalized.detach(),std.detach()
 
 
@@ -79,7 +80,7 @@ class AugustusBoundary(Boundary):
         if state['scene_cursor']!=state['collections']*cfg['global_scenes']or state['raw_scene_exposures']!=state['scene_cursor']:
             raise ValueError('AUGUSTUS scene cursor/collection clock changed')
         if(state['padding_scene_exposures']!=state['raw_scene_exposures']-state['valid_scene_exposures']
-            or state['new_candidates']!=state['raw_scene_exposures']*8 or state['valid_PG_candidates']!=state['valid_scene_exposures']*8
+            or state['new_candidates']!=state['raw_scene_exposures']*cfg['group'] or state['valid_PG_candidates']!=state['valid_scene_exposures']*cfg['group']
             or state['extra_B1_queries']!=0 or state['adaptive_G32_queries']!=0):raise ValueError('AUGUSTUS exposure/query accounting changed')
         if batch is not None:
             g=cfg['group'];shape=(g,3,8,3)
@@ -98,7 +99,11 @@ class AugustusBoundary(Boundary):
                     from starVLA.rl.d44_native_rl.safety_credit import raw_credit
                     raw,_=raw_credit(scene['factors'][None]);raw=raw[0]
                 else:raw=reward-reward.mean()
-                a=(raw/(raw.std(unbiased=True)+1e-6)).float()
+                if cfg['experiment_id']=='AUG6_NATIVE_CALIBRATED':
+                    std=float(batch['global_std'])
+                    if not math.isfinite(std) or std<0:raise ValueError('Invalid global advantage scale')
+                    a=(raw/(std+1e-8)).clamp(-5,5).float()
+                else:a=(raw/(raw.std(unbiased=True)+1e-6)).float()
                 if scene['padding']:a.zero_()
                 if not torch.allclose(scene['advantages'],a,atol=1e-6,rtol=1e-5)or scene['beta']!=cfg['beta']:
                     raise ValueError('Changed AUGUSTUS group normalization/fixed reference beta')
@@ -111,7 +116,17 @@ class AugustusExtension:
     boundary=AugustusBoundary();make_attempt=staticmethod(Attempt)
     actor_factory=staticmethod(lambda model,backend,cfg:__import__('starVLA.rl.d46_augustus.actor',fromlist=['AugustusActor']).AugustusActor(model,backend,cfg))
     collect_scene=staticmethod(lambda *args,**kw:__import__('starVLA.rl.d46_augustus.collector',fromlist=['collect_scene']).collect_scene(*args,**kw))
-    advantages=staticmethod(advantages);make_dual=staticmethod(FixedKL)
+    make_dual=staticmethod(FixedKL)
+    def advantages(self,raw,valid,G,world):
+        return advantages(raw,valid,G,world,global_normalization=self.cfg['experiment_id']=='AUG6_NATIVE_CALIBRATED')
+    def prepare_model(self,model):
+        if self.cfg['augustus'].get('action_output_precision')=='float32_linear':
+            from .output_precision import install_fp32_action_output
+            install_fp32_action_output(model.decision)
+    def qualification_noise(self,token,device):
+        from .collector import scene_initial_actions
+        root=scene_initial_actions(self.cfg,token,device)
+        return root[:1]if root is not None else torch.randn((1,8,3),generator=torch.Generator().manual_seed(2101)).to(device)
     def credit(self,scenes,stream,epoch):return recipe_credit(scenes,stream,epoch,self.cfg)
     def initial_qualification(self,actor,conditions,token,noise,expected,root,rank):
         if not aligned(self.cfg['experiment_id']):return

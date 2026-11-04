@@ -10,6 +10,7 @@ EXPERIMENTS={'AUG1_FULL':'full_text_action','AUG2_LORA':'lora_text_action'}
 EXPERIMENTS.update(AUG3_FULL_ALIGNED='full_text_action',AUG4_LORA_ALIGNED='lora_text_action')
 # A separate identity: never change the root distribution of an archived run.
 EXPERIMENTS['AUG5_LORA_TOKEN_ROOT']='lora_text_action'
+EXPERIMENTS['AUG6_NATIVE_CALIBRATED']='lora_text_action'
 PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
     training_sigma_grid=[1.,2/3,1/3,0.],noise_scale=[.05,.05,.02],
     noise='official_g_a_sqrt_t',coordinate_reduction='mean24',
@@ -20,7 +21,7 @@ PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
 GRPO_SOURCE='https://raw.githubusercontent.com/volcengine/verl/main/verl/trainer/ppo/core_algos.py'
 
 
-def aligned(experiment):return experiment in ('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED','AUG5_LORA_TOKEN_ROOT')
+def aligned(experiment):return experiment in ('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED','AUG5_LORA_TOKEN_ROOT','AUG6_NATIVE_CALIBRATED')
 
 
 def profile(experiment):
@@ -36,9 +37,23 @@ def profile(experiment):
             advantage='SafetyEP_group_center_sample_std',fixed_reference_beta=.1,
             deployment=dict(steps=10,shift=5.,seed=2101,training_deployment_grid_mismatch=False),
             correction='local D46 adaptation; official JaT kernel on native final3 transitions')
-    if experiment=='AUG5_LORA_TOKEN_ROOT':
+    if experiment in ('AUG5_LORA_TOKEN_ROOT','AUG6_NATIVE_CALIBRATED'):
         value.update(schema='d46_augustus_deployment_token_root_v3',
                      initial_root_scheme='deployment_token_seed_v1')
+    if experiment=='AUG6_NATIVE_CALIBRATED':
+        import json
+        from .physical_noise import calibrated_scale
+        from starVLA.rl.qwen_world_compare.contracts import file_sha
+        path=Path(__file__).resolve().parents[3]/'reports/d46_augustus_regression_20261103/results/TRAIN103K_NOISE_CALIBRATION.json'
+        calibration=json.loads(path.read_text())
+        if calibration['count']!=103288 or calibration['NAVTEST_used'] or calibration['data']['NAVTEST_overlap']:
+            raise ValueError('Noise calibration must use the full legal TRAIN only')
+        scale,_=calibrated_scale(calibration['q01'],calibration['q99'])
+        value.update(schema='d46_augustus_native_calibrated_v4',noise_scale=scale.tolist(),
+            noise_calibration_sha256=file_sha(path),action_output_precision='float32_linear',
+            advantage='SafetyEP_group_center_global_population_std_cap5',
+            group_std_unbiased=False,second_global_normalization=False,
+            correction='local JaT adaptation: deployment root, physical TRAIN covariance, FP32 output, global SafetyEP')
     return value
 
 
@@ -47,7 +62,7 @@ def defaults(experiment_id,*,global_scenes=None,inner_updates=None,registration_
     cfg=defaults46('D0',registration_path=registration_path)
     full=EXPERIMENTS[experiment_id]=='full_text_action';v2=aligned(experiment_id)
     cfg.update(experiment_id=experiment_id,global_scenes=global_scenes or(128 if full else 64),
-        group=8,inner_updates=inner_updates if inner_updates is not None else (2 if v2 else 1),
+        group=16 if experiment_id=='AUG6_NATIVE_CALIBRATED'else 8,inner_updates=inner_updates if inner_updates is not None else (2 if v2 else 1),
         learning_rate=2e-7 if v2 and full else 1e-6,clip=.2,beta=.1 if v2 else .001,
         target_epochs=6.,maximum_epochs=20.,checkpoint_policy='all_off',
         film_last_layers=0 if full else 8,train_action_io=True)
@@ -63,7 +78,7 @@ def validate(cfg,*,parent_checks=True):
     if cfg.get('augustus')!=expected or set(execution)!={'fast_prefix','rotary_cache'}or any(type(v)is not bool for v in execution.values()):
         raise ValueError('Changed AUGUSTUS three-step/normalization/execution protocol')
     if (cfg.get('schema')!='d44_native_rl_v1'or cfg.get('arm')!='D0'or cfg.get('parent')!='D_IL46K'
-        or type(cfg.get('global_scenes'))is not int or cfg.get('global_scenes')not in(64,128)or type(cfg.get('group'))is not int or cfg.get('group')!=8
+        or type(cfg.get('global_scenes'))is not int or cfg.get('global_scenes')not in(64,128)or type(cfg.get('group'))is not int or cfg.get('group')!=(16 if exp=='AUG6_NATIVE_CALIBRATED'else 8)
         or type(cfg.get('inner_updates'))is not int or cfg.get('inner_updates')not in(1,2)
         or cfg.get('learning_rate')!=(2e-7 if v2 and full else 1e-6) or cfg.get('beta')!=(.1 if v2 else .001) or cfg.get('clip')!=.2
         or (v2 and cfg.get('inner_updates')!=2)

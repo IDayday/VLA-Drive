@@ -24,6 +24,9 @@ class AugustusActor(D44Actor):
             self.scope_manifest+=install(self.action_expert,paths,8,16)
 
     def __init__(self,model,backend,cfg):
+        if cfg['augustus'].get('action_output_precision')=='float32_linear':
+            from .output_precision import install_fp32_action_output
+            install_fp32_action_output(model.decision)
         self._initializing_augustus=True
         super().__init__(model,backend,cfg)
         scope=cfg['augustus']['scope']

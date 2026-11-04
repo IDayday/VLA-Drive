@@ -196,6 +196,13 @@ def known_D46_augustus_output(output):
     try:
         from starVLA.rl.qwen_world_compare.contracts import fingerprint
         value=json.loads((output/'identity.json').read_text());cfg=value['recipe'];aug=cfg['augustus']
+        if cfg.get('experiment_id')in('AUG5_LORA_TOKEN_ROOT','AUG6_NATIVE_CALIBRATED'):
+            from starVLA.rl.d46_augustus.config import validate
+            validate(cfg)
+            return(value.get('algorithm_schema')=='d46_augustus_native_v1'
+                and value.get('experiment_id')==cfg['experiment_id']
+                and value.get('augustus_protocol_sha256')==fingerprint(aug)
+                and value.get('world')in(8,16,32)and cfg['global_scenes']%value['world']==0)
         exp=cfg['experiment_id'];aligned=exp in('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')
         return(value.get('algorithm_schema')=='d46_augustus_native_v1'
             and value.get('experiment_id')==exp in('AUG1_FULL','AUG2_LORA','AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')

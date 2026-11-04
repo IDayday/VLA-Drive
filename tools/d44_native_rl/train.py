@@ -111,6 +111,7 @@ def main(*,extension=None):
     print(json.dumps(dict(event='loading_native_D44',rank=rank,at=time.time())),flush=True)
     stream=DataStream(cfg,cfg['global_scenes'])if extension is None else extension.make_stream(cfg)
     model,info=parent.load(cfg['parent_checkpoint'],device,readouts=cfg['post_feedback'],binding=cfg.get('parent_registration'))
+    if extension is not None and hasattr(extension,'prepare_model'):extension.prepare_model(model)
     original_prediction=None
     if a.qualification:
         from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
@@ -119,6 +120,8 @@ def main(*,extension=None):
         original_inputs=QwenObservationProcessor(str(QWEN_PATH))([observation])
         original_ego=torch.tensor([observation['proprio']],device=device,dtype=torch.float32)
         original_noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(2101)).to(device)
+        if extension is not None and hasattr(extension,'qualification_noise'):
+            original_noise=extension.qualification_noise(token,device)
         original_prediction=model.predict(original_inputs,original_ego,original_noise)
     actor_factory=D44Actor if extension is None else getattr(extension,"actor_factory",D44Actor)
     actor=actor_factory(model,source_config(cfg),cfg)
