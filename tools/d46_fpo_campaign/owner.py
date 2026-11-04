@@ -167,6 +167,7 @@ def route_status(plan):
             if all(v.get('updates',0)>r.get('start_update',0)and v.get('run')==identity.get('sha256')
                     and v.get('at',0)>=min(x['at']for x in launches)for v in ranks):
                 proof=dict(at=time.time(),all_ranks_committed=True,updates=min(v['updates']for v in ranks),run=identity['sha256'])
+                proof_path.parent.mkdir(parents=True,exist_ok=True)
                 atomic_json(proof_path,proof)
         status='REVIEW_REQUIRED'if failures else'RUNNING'if len(live)==len(launches)and proof else'INITIALIZING'if live else'SAVED_OR_COMPLETE'
         if failures:
@@ -220,7 +221,11 @@ def main():
             plan=read(op/'PLAN.json');status=route_status(plan);atomic_json(op/'STATE.json',status)
             state=read(op/'EVAL_STATE.json',E.initial_state());recover_preempted(state)
             # Inventory failures exclude a host; they never stop healthy training.
-            try:state=E.tick(ROOT,state,plan['routes'],ops_source=SOURCE)
+            try:
+                discover(ROOT,state,plan['routes'])
+                if any(c['status']not in E.TERMINAL for c in state['cases'].values()):
+                    state=E.tick(ROOT,state,plan['routes'],ops_source=SOURCE)
+                else:atomic_json(op/'EVAL_STATE.json',state)
             except Exception as error:
                 atomic_json(op/'CONTROLLER_ERROR.json',dict(at=time.time(),error=repr(error)))
             results=[(c['id'],c['status'])for c in state.get('cases',{}).values()]
