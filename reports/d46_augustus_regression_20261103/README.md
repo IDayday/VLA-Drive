@@ -48,3 +48,16 @@ The actual32-GPU corrected FULL first update, native pending-inner audit and exa
 32 combined science/runtime/operations CPU tests passed after consolidation; optional physical-covariance tests2 and report notifier tests3 also passed. Both corrected real multi-node pending-native resumes completed at2 updates with all48ranks, frozen reference and RNG equality. The two independent formal runs have been dispatched using qualified source0951451; the single background owner validates formal native0/empty Adam and evaluates saved checkpoints automatically.
 
 Nonzero FULL100 and LoRA400 native-actor versus deployment-loader **all parameter/buffer tensors** match exactly on CPU, with genuinely nonzero learned deltas. This is not a new GPU-output parity or score. Detailed algorithm audit, remaining B1-objective gap and the newly found upstream per-time quantile versus D-global normalization mismatch are in [ALGORITHM_IMPLEMENTATION_AUDIT.md](ALGORITHM_IMPLEMENTATION_AUDIT.md). Full103k TRAIN exploration calibration is prepared but **not enabled** in the current two formal runs.
+
+## 2026-11-04：适配版首轮完整结果
+
+各自只曝光6,400个TRAIN场景（0.06196E），相同IL46=89.4955209759。两点均为完整NAVTEST12,146场景、44物理log、invalid0、真实B1/K10/shift5/seed2101。
+
+| 适配版 | Adam | PDMS | 相对IL46 | 44log差值CI95（PDMS点） | 修复零分 | 新增零分 |
+|---|---:|---:|---:|---|---:|---:|
+| FULL |100|89.11003825|-0.38548272|[-0.6999,-0.0816]|56|139|
+| LoRA |200|89.45854342|-0.03697756|[-0.1450,+0.0798]|16|24|
+
+尚无净提分。LoRA基本持平，FULL仍小幅退化；FULL的EP+0.9995pp而TTC-1.4243pp，NC/DAC也下降。原高分队列在全人口的贡献FULL为-0.6680、LoRA为-0.1459，仍抵消零分修复收益。只有早期0.062E，不作最终上限判决；下一点FULL200/LoRA400为0.12393E，才对应旧FULL100/LoRA200的曝光，不能把不同曝光点的差值解释为纯适配收益。
+
+另已CPU检查每组前6,400场景的全部1,600份rank rollout材料。组std下完全安全组优势L1系数占66.1%/67.3%；同材料改batch std反事实为16.4%/17.3%，安全混合组约83%。这提示跨场景安全/EP信用被组std重加权，值得作为下一适配重点；它不是实际参数梯度占比，也不是已经训练出的收益。`audit_training_normalization.py`可复算到独立文件，原始证据保留。当前两组并未改用batch std，仍按原配置继续训练与自动评测。

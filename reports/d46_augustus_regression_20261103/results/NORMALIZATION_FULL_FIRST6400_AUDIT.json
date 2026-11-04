@@ -1,0 +1,76 @@
+{
+  "schema": "d46_first6400_all_material_normalization_audit_v1",
+  "status": "COMPLETE_CPU_COUNTERFACTUAL",
+  "results": {
+    "AUG3_FULL_ALIGNED": {
+      "unique_TRAIN_scenes": 6400,
+      "collections": 50,
+      "rank_material_files": 1600,
+      "buckets": {
+        "all_feasible": {
+          "groups": 4711,
+          "current_mass": 19425.847310359764,
+          "batchstd_mass": 4083.7265039608787,
+          "effective": 3153,
+          "raw_std_median": 0.02148734871097089,
+          "current_advantage_mass_share": 0.6609469418580775,
+          "batchstd_counterfactual_mass_share": 0.1643009557030778
+        },
+        "mixed_safety": {
+          "groups": 1651,
+          "current_mass": 9873.530850755997,
+          "batchstd_mass": 20701.72468273448,
+          "effective": 1651,
+          "raw_std_median": 0.4629100498862757,
+          "current_advantage_mass_share": 0.3359379859671974,
+          "batchstd_counterfactual_mass_share": 0.8328944523528389
+        },
+        "all_infeasible": {
+          "groups": 38,
+          "current_mass": 91.55487769842148,
+          "batchstd_mass": 69.70858085297003,
+          "effective": 15,
+          "raw_std_median": 0.0,
+          "current_advantage_mass_share": 0.003115072174725195,
+          "batchstd_counterfactual_mass_share": 0.0028045919440833258
+        }
+      }
+    },
+    "AUG4_LORA_ALIGNED": {
+      "unique_TRAIN_scenes": 6400,
+      "collections": 100,
+      "rank_material_files": 1600,
+      "buckets": {
+        "all_feasible": {
+          "groups": 4758,
+          "current_mass": 20031.626656923847,
+          "batchstd_mass": 4292.561313974845,
+          "effective": 3258,
+          "raw_std_median": 0.02201563054927034,
+          "current_advantage_mass_share": 0.6728245878059378,
+          "batchstd_counterfactual_mass_share": 0.17278666598262513
+        },
+        "mixed_safety": {
+          "groups": 1604,
+          "current_mass": 9671.15263262717,
+          "batchstd_mass": 20492.30837737738,
+          "effective": 1604,
+          "raw_std_median": 0.4629100498862757,
+          "current_advantage_mass_share": 0.32483579067736734,
+          "batchstd_counterfactual_mass_share": 0.8248682741670923
+        },
+        "all_infeasible": {
+          "groups": 38,
+          "current_mass": 69.65623074769974,
+          "batchstd_mass": 58.2586227648525,
+          "effective": 12,
+          "raw_std_median": 0.0,
+          "current_advantage_mass_share": 0.0023396215166948107,
+          "batchstd_counterfactual_mass_share": 0.0023450598502825068
+        }
+      }
+    }
+  },
+  "seconds": 36.41884980350733,
+  "limits": "All first6400 TRAIN scene groups per run. Advantage L1 mass is a coefficient proxy, not actual parameter-gradient contribution or evidence of higher B1. Batch normalization is not enabled in current runs."
+}

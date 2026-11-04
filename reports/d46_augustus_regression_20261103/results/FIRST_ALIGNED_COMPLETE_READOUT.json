@@ -1,0 +1,79 @@
+{
+  "schema": "d46_aligned_first_complete_readout_v1",
+  "status": "COMPLETE",
+  "at": 1793753452.1460032,
+  "parent_PDMS": 89.4955209758546,
+  "scenes_per_point": 12146,
+  "physical_logs": 44,
+  "invalid": 0,
+  "points": [
+    {
+      "experiment": "AUG3_FULL_ALIGNED",
+      "updates": 100,
+      "valid_scene_exposures": 6400,
+      "scene_epoch": 0.06196266749283557,
+      "PDMS": 89.11003825141941,
+      "delta_IL46": -0.3854827244351924,
+      "CI95_delta_PDMS": [
+        -0.6998912056051058,
+        -0.08163109395527064
+      ],
+      "repaired_zero": 56,
+      "new_zero": 139,
+      "metric_delta_pp": {
+        "no_at_fault_collisions": -0.40342499588341685,
+        "drivable_area_compliance": -0.2963938745265904,
+        "time_to_collision_within_bound": -1.4243372303639035,
+        "ego_progress": 0.9995072374408109,
+        "comfort": 0.0,
+        "driving_direction_compliance": -0.07821505022229669
+      },
+      "fixed_high_contribution_PDMS": -0.6680065128204679,
+      "parent_zero_contribution_PDMS": 0.42494288847687606,
+      "summary": "/mnt/project/d46-priority-rl-20261103/evaluations/AUG3_FULL_ALIGNED_u000100/SUMMARY.json",
+      "paired": "/mnt/project/d46-priority-rl-20261103/evaluations/AUG3_FULL_ALIGNED_u000100/PAIRED_ANALYSIS.json",
+      "summary_sha256": "626b278403fd302c4980cebb1448eabd31fed2b40365031696b71364436670e7",
+      "paired_sha256": "b194579db688ded585889e1c1b273e136fda19ce9854dde73a562200b3dc8d7f"
+    },
+    {
+      "experiment": "AUG4_LORA_ALIGNED",
+      "updates": 200,
+      "valid_scene_exposures": 6400,
+      "scene_epoch": 0.06196266749283557,
+      "PDMS": 89.45854341884953,
+      "delta_IL46": -0.036977557005073436,
+      "CI95_delta_PDMS": [
+        -0.14501883840697702,
+        0.07981306953917683
+      ],
+      "repaired_zero": 16,
+      "new_zero": 24,
+      "metric_delta_pp": {
+        "no_at_fault_collisions": -0.028816071134529775,
+        "drivable_area_compliance": -0.05763214226905955,
+        "time_to_collision_within_bound": -0.09879795817552273,
+        "ego_progress": 0.098152886339542,
+        "comfort": 0.0,
+        "driving_direction_compliance": 0.0
+      },
+      "fixed_high_contribution_PDMS": -0.14586219853012108,
+      "parent_zero_contribution_PDMS": 0.10953972155688833,
+      "summary": "/mnt/project/d46-priority-rl-20261103/evaluations/AUG4_LORA_ALIGNED_u000200/SUMMARY.json",
+      "paired": "/mnt/project/d46-priority-rl-20261103/evaluations/AUG4_LORA_ALIGNED_u000200/PAIRED_ANALYSIS.json",
+      "summary_sha256": "46790dcff5d519f5d26ea9a44d1ef7e0945168e0cd75fb283cd3d848097efd7f",
+      "paired_sha256": "4b6fda96a44a3c82c51d9bdb7c24239178a880c11360d0cdc27c2664406eddf1"
+    }
+  ],
+  "NAVTEST_SELECTED": true,
+  "source_training": "09514510afa29e7fdbce834caffd93f3825eea24",
+  "optional_physical_noise_and_FP32_head_enabled": false,
+  "conclusions_zh": [
+    "两组首点均未超过原IL46；LoRA差值CI跨零，基本持平；FULL仍有小幅退化。",
+    "FULL的EP+约1pp，同时NC/DAC/TTC下降，新增零分139多于修复56。",
+    "只有6400场景曝光(.06196E)，不能据此判定方法最终上限。下一点FULL200/LoRA400是12800曝光(.12393E)，才与旧版FULL100/LoRA200曝光量对应。"
+  ],
+  "normalization_audit": "/mnt/project/d46-priority-rl-20261103/analysis/AUGUSTUS_REGRESSION_20261103/NORMALIZATION_FULL_FIRST6400_AUDIT.json",
+  "normalization_limits": "Advantage absolute coefficient mass, not actual parameter-gradient share. Counterfactual batch-std normalization not trained or enabled.",
+  "next_priority": "Investigate across-scene credit normalization: group std equalizes small EP differences and much larger safety contrast. Preserve current two training budgets pending next evaluations; no third formal task.",
+  "sha256": "421405663c8baf09dad278141f0633639b9f53850c700c66104d1fa2b066e506"
+}
