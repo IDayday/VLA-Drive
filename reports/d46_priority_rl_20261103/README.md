@@ -36,7 +36,7 @@
 
 ## 当前训练与工程状态
 
-[固定运行快照](analysis/COMPLETED_RESULTS_RUN_STATE_SNAPSHOT.json) 只读 NAS 的真实八rank journal与原生 seal，未做SSH/GPU动作：
+固定运行快照（临时验证附件已清理） 只读 NAS 的真实八rank journal与原生 seal，未做SSH/GPU动作：
 
 | 路线 | 12:46 UTC八rank共同最新更新 | 已封存更新 | 当时状态 |
 |---|---:|---:|---|
@@ -96,7 +96,7 @@ D0/D1/D2在u1400的实际参数payload及部署签名完全一致，因此四份
 
 部署C/P、Qwen、action与Time-FiLM参数严格恢复；被裁剪的R16 query/readout没有伪装成仍可用。六臂绑定[v2父合同](results/PARENT_CONTRACT_v2.json)；D4/D6原训练辅助头依赖路线未按旧版本启动。随机新辅助头可行性仅见[独立边界审查](results/D46_FRESH_AUX_FEASIBILITY.json)，不是当前六条之一。
 
-科学冻结源 `formal_v1@ff3013c`；原FPO/AWM资格同机加载OOM与原native0均保留，启动预留/48GiB修复是运维调整，不改变算法。六条fresh初始化见[真实资格与正式起点证明](results/ACTUAL_QUALIFICATION_AND_FRESH_FORMAL_PROOF.json)。旧D44代码、结果与完整原生状态[保存保留](results/D44_ACTUAL_NATIVE_SAVED.json)，未用作D46初始化。D IL继续，不据资源审计回收其它任务。
+科学冻结源 `formal_v1@ff3013c`；原FPO/AWM资格同机加载OOM与原native0均保留，启动预留/48GiB修复是运维调整，不改变算法。六条fresh初始化见真实资格与正式起点证明（临时验证附件已清理）。旧D44代码、结果与完整原生状态[保存保留](results/D44_ACTUAL_NATIVE_SAVED.json)，未用作D46初始化。D IL继续，不据资源审计回收其它任务。
 
 [本次来源清单](SOURCE_ARCHIVE_COMPLETED_20261103.json)绑定每份拷贝的NAS绝对路径、实际文件SHA和字节数。四份SUMMARY、PAIRED及IL46对照在 `results/early_full/`；图和简明中文结论在 `plots/`。本次新增证据拷贝共约0.75MB，不归档模型/optimizer、逐场景ledger或重复大型运行账本。
 

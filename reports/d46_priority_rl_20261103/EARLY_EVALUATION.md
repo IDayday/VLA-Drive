@@ -17,7 +17,7 @@ D0修复248、新增87零分；安全指标提高但EP−1.552pp，固定IL46高
 
 D0/D1/D2的u1400完整训练参数payload及部署签名相等，故D1/D2只引用D0的等参数参考，不构成独立评测。D1的2epoch机制、D2的.5epoch机制尚未在此早评点启用，不能宣判无效。
 
-后续0.5epoch目录IO故障已和数值问题分开，原生1614保存及恢复验证PASS，丢失请求由Root回填；D2启动90s Gloo超时0新Adam、同CP重试证据保留。D1/D5目前是保留完整CP的资源hold。world16实际pending恢复资格已PASS，但不等于正式长训已开始。详见[README](README.md)与[固定运行快照](analysis/COMPLETED_RESULTS_RUN_STATE_SNAPSHOT.json)。
+后续0.5epoch目录IO故障已和数值问题分开，原生1614保存及恢复验证PASS，丢失请求由Root回填；D2启动90s Gloo超时0新Adam、同CP重试证据保留。D1/D5目前是保留完整CP的资源hold。world16实际pending恢复资格已PASS，但不等于正式长训已开始。详见[README](README.md)与固定运行快照（临时验证附件已清理）。
 
 NAVTEST只用于已披露的研究选点与完整诊断，任何场景ID/标签不回流训练。此归档未操作任何训练、锁、CAMPAIGN或GPU。
 

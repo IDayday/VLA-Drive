@@ -149,7 +149,7 @@ isolate its causal mechanism. No default switch was made on these scores.
 - Save at update1, `next_inner_epoch=1`, version0, then resume through update4:
   **exact equality across26 model/Adam/scheduler/RNG/pending-state files** versus
   continuous update4. Saved normalization statistics and advantages survive the
-  inner-epoch boundary. [Exhaustive comparison](global_resume_comparison.json).
+  inner-epoch boundary. Exhaustive comparison（临时验证附件已清理）.
 - Actual dtype inventory observes FP32 accumulation, communication, master
   weights and Adam states with BF16 stored model weights and FP32 action kernel.
   The installed, source-locked DeepSpeed0.16.9 partition wrapper is retained.

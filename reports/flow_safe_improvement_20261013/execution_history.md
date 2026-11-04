@@ -28,7 +28,7 @@
 
 搜索−ODE安全提取为+0.21500分，CI [+0.03189,+0.36731]；NFT−普通FM为−0.04663分，CI [−0.10303,−0.01334]。[搜索配对](evidence/search_minus_ODE_safe_round2_seed2101.json)、[NFT配对](evidence/NFT_minus_reward_FM_round2_seed2101.json)。搜索继续表现为均分收益伴随TTC退化；NFT的固定安全集联合计数虽未增加，但全人口仍新增1个TTC违规，因此不能写成“没有安全退化”。v2保留单独协议与two-frame有效性，不能用这一列覆盖v1的安全结论。
 
-新增[24项合同验证映射](validation.md)、[NFT连续/断点恢复实证](evidence/NFT_exact_resume_qualification.json)和[实际成本快照](evidence/execution_cost_snapshot.json)。本快照有10,240次正式optimizer更新，全部rank记录的optimizer循环时间合计57.10 rank-hours，包含共享GPU上的重叠任务，**不是57.10个唯一物理GPU-hours，也不包含加载/保存成本**。进程区间并集另列，缺少结束时间的15项明确保留；不以不完整总量宣称方法加速。P0/P1共用候选库成本只计一次，缓存/参考筛查及历史多seed工作单列。NFT每轮的速度场forward噪声实例数为327,680，普通FM为262,144，即使更新数相同也不是等计算量。
+新增[24项合同验证映射](validation.md)、NFT连续/断点恢复实证（临时验证附件已清理）和[实际成本快照](evidence/execution_cost_snapshot.json)。本快照有10,240次正式optimizer更新，全部rank记录的optimizer循环时间合计57.10 rank-hours，包含共享GPU上的重叠任务，**不是57.10个唯一物理GPU-hours，也不包含加载/保存成本**。进程区间并集另列，缺少结束时间的15项明确保留；不以不完整总量宣称方法加速。P0/P1共用候选库成本只计一次，缓存/参考筛查及历史多seed工作单列。NFT每轮的速度场forward噪声实例数为327,680，普通FM为262,144，即使更新数相同也不是等计算量。
 
 ![完整动作头学习曲线与固定参考安全集合违规](evidence/policy_learning_curves.png)
 

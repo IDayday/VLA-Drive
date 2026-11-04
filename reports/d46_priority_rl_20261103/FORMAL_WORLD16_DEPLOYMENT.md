@@ -29,7 +29,7 @@
 
 [PLAN](results/world16_formal_v2/PLAN.json) 是实际执行计划；[CONTROLLER_LAUNCH](results/world16_formal_v2/CONTROLLER_LAUNCH.json) 与 [STATE快照](results/world16_formal_v2/STATE.json) 保留精确命令、source、UUID和job身份。
 
-两个实际worker均有RUNNING与child PID记录：Tsh5 worker2148765/child2148774；WM4 worker3052355/child3052364。初始准入本身不等价于optimizer commit，但随后[真实正式训练proof](results/world16_formal_v2/ACTUAL_FORMAL_TRAINING.json)已补齐实际更新证据：16rank全1736、新增至少22，累计55,552场景/888,832 fresh候选；这些是全局累计计数，不乘16。16份normalized action及requested trajectory的B1恢复误差都为0，两个node job尚未退出，真实命令目标6E、无`--stop-after-update`、无`--qualification`。见[合并时间线快照](results/world16_formal_v2/NODE_ADMISSION_SNAPSHOT.json)。本归档只读NAS proof，不作额外SSH/GPU或forward。起点latest快照1714保留为历史封存，1736为实际journal更新，不冒充已封存checkpoint。
+两个实际worker均有RUNNING与child PID记录：Tsh5 worker2148765/child2148774；WM4 worker3052355/child3052364。初始准入本身不等价于optimizer commit，但随后[真实正式训练proof](results/world16_formal_v2/ACTUAL_FORMAL_TRAINING.json)已补齐实际更新证据：16rank全1736、新增至少22，累计55,552场景/888,832 fresh候选；这些是全局累计计数，不乘16。16份normalized action及requested trajectory的B1恢复误差都为0，两个node job尚未退出，真实命令目标6E、无`--stop-after-update`、无`--qualification`。见合并时间线快照（临时验证附件已清理）。本归档只读NAS proof，不作额外SSH/GPU或forward。起点latest快照1714保留为历史封存，1736为实际journal更新，不冒充已封存checkpoint。
 
 此前[真实world16 pending-resume资格](analysis/ACTUAL_WORLD16_PENDING_RESUME_PASS.json)已PASS，资格权重没有用于正式初始化；资格证据也不能替代本阶段的实际更新与长期吞吐证据。
 
