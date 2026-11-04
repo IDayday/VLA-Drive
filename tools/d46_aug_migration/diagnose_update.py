@@ -35,6 +35,8 @@ def main():
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--before',required=True);p.add_argument('--after',required=True)
     p.add_argument('--material',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--precision',choices=('float16','float32'))
+    p.add_argument('--count',type=int,default=4)
     args=p.parse_args();host=require_dispatch();configure_numerics();torch.set_num_threads(2)
     device=torch.device('cuda',0);torch.cuda.set_device(device)
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True)
@@ -47,6 +49,9 @@ def main():
     torch.manual_seed(42);model,info=load(cfg['parent_checkpoint'],device,binding=cfg['parent_registration'])
     actor=AugustusActor(model,source_config(cfg),cfg)
     actor.action_expert.decision.activation_checkpointing=False
+    if args.precision:
+        from starVLA.rl.d46_augustus.text_precision import install_text_action_precision
+        for expert in (actor.action_expert,actor.ref_action_expert):install_text_action_precision(expert.decision,args.precision)
     conditions=DConditions(model,stream.data,info,group=cfg['group'],capacity=cfg['condition_cache_scenes'])
     object.__setattr__(actor,'conditions',conditions)
     ext=AugustusExtension();ext.cfg=cfg;ext.configure_actor(actor)
@@ -54,7 +59,8 @@ def main():
     new=torch.load(Path(args.after)/'optimizer.pt',map_location='cpu',weights_only=False,mmap=True)['adapters']
     named=dict(actor.named_parameters());rows=[];start=time.monotonic()
     modes=('before','repeat_before','after','action_io','action_position','text_lora','time_lora','text_tiny')
-    for index,saved in enumerate(batch['scenes']):
+    if not 1<=args.count<=len(batch['scenes']):raise ValueError('Count must fit saved rank batch')
+    for index,saved in enumerate(batch['scenes'][:args.count]):
         if saved['padding'] or saved['token'] not in stream.data.records:raise ValueError('Only valid TRAIN')
         r={k:v.to(device) if torch.is_tensor(v) else v for k,v in saved.items()}
         row=dict(token=saved['token'],modes={});baseline=None
@@ -76,14 +82,18 @@ def main():
                 for k,(t,nxt) in enumerate(zip(r['timesteps'][:-1],r['timesteps'][1:])):
                     lr,kval=stats(preds[:,k],r['old_clean_x'][:,k],r['old_clean_x'][:,k],r['chain'][:,k],r['chain'][:,k+1],t,nxt,noise_scale=cfg['augustus']['noise_scale'])
                     logr.append(lr);kl.append(kval)
+                local_kl=[]
+                for k,(t,nxt) in enumerate(zip(r['timesteps'][:-1],r['timesteps'][1:])):
+                    _,kval=stats(preds[:,k],baseline[:,k],baseline[:,k],r['chain'][:,k],r['chain'][:,k+1],t,nxt,noise_scale=cfg['augustus']['noise_scale'])
+                    local_kl.append(kval)
                 row['modes'][mode]=dict(clean_max_abs=float((preds-baseline).abs().max()),
                     clean_rms=float((preds-baseline).square().mean().sqrt()),
                     saved_clean_max_abs=float((preds-r['old_clean_x']).abs().max()),
-                    KL=float(torch.stack(kl).mean()),ratio_mean=float(torch.stack(logr).exp().mean()))
+                    KL=float(torch.stack(kl).mean()),local_KL=float(torch.stack(local_kl).mean()),ratio_mean=float(torch.stack(logr).exp().mean()))
             print(json.dumps(dict(scene=index,mode=mode,**row['modes'][mode])),flush=True)
         rows.append(row);atomic_json(out/f'scene{index:03}.json',row)
     summary=dict(status='COMPLETE_TRAIN_NUMERICAL_REPLAY',host=host,before=args.before,after=args.after,
-        before_update=seal['updates'],after_update=aseal['updates'],scenes=len(rows),rows=rows,
+        before_update=seal['updates'],after_update=aseal['updates'],precision=args.precision or 'bfloat16',scenes=len(rows),rows=rows,
         optimizer_steps=0,PDM_queries=0,NAVTEST_used=False,seconds=time.monotonic()-start,
         peak_GPU_bytes=torch.cuda.max_memory_allocated(),source_sha256=file_sha(__file__))
     atomic_json(out/'SUMMARY.json',summary)
