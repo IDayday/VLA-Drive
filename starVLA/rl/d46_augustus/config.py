@@ -12,6 +12,7 @@ EXPERIMENTS.update(AUG3_FULL_ALIGNED='full_text_action',AUG4_LORA_ALIGNED='lora_
 EXPERIMENTS['AUG5_LORA_TOKEN_ROOT']='lora_text_action'
 EXPERIMENTS['AUG6_NATIVE_CALIBRATED']='lora_text_action'
 EXPERIMENTS['AUG7_NATIVE_FP32']='lora_text_action'
+EXPERIMENTS['AUG8_NATIVE_KL001']='lora_text_action'
 PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
     training_sigma_grid=[1.,2/3,1/3,0.],noise_scale=[.05,.05,.02],
     noise='official_g_a_sqrt_t',coordinate_reduction='mean24',
@@ -22,7 +23,7 @@ PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
 GRPO_SOURCE='https://raw.githubusercontent.com/volcengine/verl/main/verl/trainer/ppo/core_algos.py'
 
 
-def calibrated(experiment):return experiment in ('AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32')
+def calibrated(experiment):return experiment in ('AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32','AUG8_NATIVE_KL001')
 
 
 def aligned(experiment):return experiment in ('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED','AUG5_LORA_TOKEN_ROOT') or calibrated(experiment)
@@ -58,9 +59,12 @@ def profile(experiment):
             advantage='SafetyEP_group_center_global_population_std_cap5',
             group_std_unbiased=False,second_global_normalization=False,
             correction='local JaT adaptation: deployment root, physical TRAIN covariance, FP32 output, global SafetyEP')
-    if experiment=='AUG7_NATIVE_FP32':
+    if experiment in ('AUG7_NATIVE_FP32','AUG8_NATIVE_KL001'):
         value.update(schema='d46_augustus_native_text_FP32_v5',text_action_precision='float32',
             correction='AUG6 numerical correction: native text C/P and action denoiser FP32; frozen visual encoding unchanged')
+    if experiment=='AUG8_NATIVE_KL001':
+        value.update(schema='d46_augustus_native_text_FP32_kl001_v6',fixed_reference_beta=.001,
+            correction='AUG7 independent same-IL46 run; only reference KL coefficient changed .1 to .001 after actual full-batch gradient replay')
     return value
 
 
@@ -70,18 +74,18 @@ def defaults(experiment_id,*,global_scenes=None,inner_updates=None,registration_
     full=EXPERIMENTS[experiment_id]=='full_text_action';v2=aligned(experiment_id)
     cfg.update(experiment_id=experiment_id,global_scenes=global_scenes or(128 if full else 64),
         group=16 if calibrated(experiment_id)else 8,inner_updates=inner_updates if inner_updates is not None else (2 if v2 else 1),
-        learning_rate=2e-7 if v2 and full else 1e-6,clip=.2,beta=.1 if v2 else .001,
+        learning_rate=2e-7 if v2 and full else 1e-6,clip=.2,beta=profile(experiment_id)['fixed_reference_beta'],
         target_epochs=6.,maximum_epochs=20.,checkpoint_policy='all_off',
         film_last_layers=0 if full else 8,train_action_io=True)
     cfg['augustus']=profile(experiment_id)|dict(scope=EXPERIMENTS[experiment_id],execution=dict(fast_prefix=True,rotary_cache=True))
-    if experiment_id=='AUG7_NATIVE_FP32':cfg['dtype']='FP32_parameters_text_action_states_probability_BF16_frozen_visual'
+    if cfg['augustus'].get('text_action_precision')=='float32':cfg['dtype']='FP32_parameters_text_action_states_probability_BF16_frozen_visual'
     return validate(cfg)
 
 
 def validate(cfg,*,parent_checks=True):
     if not isinstance(cfg,dict)or cfg.get('experiment_id')not in EXPERIMENTS:raise ValueError('Unknown AUGUSTUS experiment')
     exp=cfg['experiment_id'];execution=cfg.get('augustus',{}).get('execution',{})
-    if exp=='AUG7_NATIVE_FP32' and cfg.get('dtype')!='FP32_parameters_text_action_states_probability_BF16_frozen_visual':
+    if profile(exp).get('text_action_precision')=='float32' and cfg.get('dtype')!='FP32_parameters_text_action_states_probability_BF16_frozen_visual':
         raise ValueError('Text/action precision must match scientific dtype metadata')
     v2=aligned(exp);full=EXPERIMENTS[exp]=='full_text_action'
     expected=profile(exp)|dict(scope=EXPERIMENTS[exp],execution=execution)
@@ -90,7 +94,7 @@ def validate(cfg,*,parent_checks=True):
     if (cfg.get('schema')!='d44_native_rl_v1'or cfg.get('arm')!='D0'or cfg.get('parent')!='D_IL46K'
         or type(cfg.get('global_scenes'))is not int or cfg.get('global_scenes')not in(64,128)or type(cfg.get('group'))is not int or cfg.get('group')!=(16 if calibrated(exp)else 8)
         or type(cfg.get('inner_updates'))is not int or cfg.get('inner_updates')not in(1,2)
-        or cfg.get('learning_rate')!=(2e-7 if v2 and full else 1e-6) or cfg.get('beta')!=(.1 if v2 else .001) or cfg.get('clip')!=.2
+        or cfg.get('learning_rate')!=(2e-7 if v2 and full else 1e-6) or cfg.get('beta')!=expected['fixed_reference_beta'] or cfg.get('clip')!=.2
         or (v2 and cfg.get('inner_updates')!=2)
         or cfg.get('text_rank')!=16 or cfg.get('film_last_layers')!=(0 if full else 8)
         or cfg.get('train_action_io')is not True or cfg.get('post_feedback')is not False
