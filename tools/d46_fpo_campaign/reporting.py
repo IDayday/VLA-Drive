@@ -123,7 +123,7 @@ def build_fragment(plan, state, evaluation):
         epoch = min(row.get('scene_epochs', 0) for row in last) if valid else None
         lag = time.time()-min(row.get('at', 0) for row in last) if valid else math.inf
         native = s.get('native', {})
-        current.append((key, '16卡 / 2节点' if key == 'FPO_MATURE' else '8卡 / 1节点', s.get('status', '待状态收据'),
+        current.append((key, str(route['world'])+'卡 / '+str(len(route['hosts']))+'节点', s.get('status', '待状态收据'),
             str(common) if common is not None else '待共同提交', f'{epoch:.5f} E' if epoch is not None else '—',
             str(native.get('updates', '—')), '当前日志' if lag <= 600 else '日志超过10分钟，需复核'))
         route_scores = [(c, v) for c, v in scores if c['binding']['experiment'] == key]

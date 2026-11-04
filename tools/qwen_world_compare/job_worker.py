@@ -309,7 +309,7 @@ def known_owner_args(args):
             checkpoint=Path(args[args.index('--checkpoint')+1]).resolve()
             output=Path(args[args.index('--output')+1]).resolve()
             seal=json.loads((checkpoint/'COMPLETE').read_text())
-            return (output.is_relative_to(D46_ROOT/'evaluations')
+            return ((output.is_relative_to(D46_ROOT/'evaluations')or output.is_relative_to(Path('/mnt/project/d46-fpo-two-routes-20261104/evaluations')))
                 and known_D46_output(checkpoint)
                 and seal['files_sha256']==file_sha(checkpoint/'files.json'))
         except(OSError,ValueError,IndexError,KeyError,TypeError):return False

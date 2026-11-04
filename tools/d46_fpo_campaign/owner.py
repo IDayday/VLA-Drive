@@ -65,8 +65,12 @@ def discover(root,state,routes):
             if not(cp/'COMPLETE').is_file():continue
             b=binding(route,cp);key=route['id']+'_u'+format(b['updates'],'06d')
             if key in state['cases']:
-                if state['cases'][key]['binding']!=b:raise ValueError('Immutable checkpoint binding changed')
-                continue
+                previous=state['cases'][key]['binding']
+                if previous==b or previous['policy_signature']==b['policy_signature']:continue
+                key+='_'+b['policy_signature'][:8]
+                if key in state['cases']:
+                    if state['cases'][key]['binding']!=b:raise ValueError('Immutable checkpoint binding changed')
+                    continue
             state['cases'][key]=dict(id=key,binding=b,origins=['registered_FPO_exposure_gate'],status='PENDING',jobs={},
                 next_attempt={},created=time.time(),world=32,output=str(ROOT/'evaluations'/key/'evaluation'))
     return state
@@ -99,6 +103,8 @@ def launch(host,source,job,command,gpus,**kw):
 
 def inventory(host,ops_source):
     if host in read(ROOT/'operations/PREEMPTED_HOSTS.json',{}):return []
+    for route in read(ROOT/'operations/STATE.json',{}).get('routes',{}).values():
+        if host in route.get('hosts',[])and route.get('live_workers',0)>0 and route.get('status')!='RUNNING':return []
     code='''import pathlib,json,subprocess,sys,socket
 sys.path.insert(0,SOURCE)
 from tools.qwen_world_compare.job_worker import known_owner_args
@@ -260,7 +266,7 @@ def main():
             try:
                 discover(ROOT,state,plan['routes'])
                 if any(c['status']not in E.TERMINAL for c in state['cases'].values()):
-                    state=E.tick(ROOT,state,plan['routes'],ops_source=SOURCE)
+                    state=E.tick(ROOT,state,plan['routes'],ops_source=SOURCE,execute=not(op/'EVALUATION_DISPATCH_HOLD').exists())
                 else:atomic_json(op/'EVAL_STATE.json',state)
             except Exception as error:
                 atomic_json(op/'CONTROLLER_ERROR.json',dict(at=time.time(),error=repr(error)))

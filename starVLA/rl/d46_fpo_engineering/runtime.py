@@ -39,11 +39,13 @@ class PerformanceExtension:
             raise ValueError('Scientific training recipe changed')
         self.verified = 'verified_improvement' in self.cfg
         self.world = self.saved['world']
-        if self.world != (8 if self.verified else 16):
+        if (self.verified and self.world!=8)or(not self.verified and self.world not in(16,32)):
             raise ValueError('Unqualified route/world combination')
         self.actor_factory = JointVerifiedActor if self.verified else D44Actor
         self.boundary = migration.boundary(self.saved)
-        self.delegate = OptimizedVerifiedCollection() if self.verified else World16Extension()
+        self.elastic=bool(self.saved['performance_execution'].get('reshard'))
+        from .virtual_lanes import Sampler
+        self.delegate = OptimizedVerifiedCollection() if self.verified else Sampler()if self.elastic else World16Extension()
         self.delegate.cfg = self.cfg
         self.delegate.saved_identity = self.saved
         self.caches = []
@@ -55,10 +57,16 @@ class PerformanceExtension:
             raise ValueError('Native world size changed')
 
     def init_control_group(self):
-        (VerifiedExtension if self.verified else World16Extension).init_control_group()
+        if self.elastic:
+            from .virtual_lanes import Sampler
+            Sampler.init_control_group()
+        else:(VerifiedExtension if self.verified else World16Extension).init_control_group()
 
     def make_stream(self, cfg):
         stream = DataStream(cfg, cfg['global_scenes'])
+        if self.elastic:
+            from .virtual_lanes import SceneStream
+            return SceneStream(stream)
         return stream if self.verified else VirtualSceneStream(stream)
 
     def identity(self, actual):
@@ -98,7 +106,7 @@ class PerformanceExtension:
             self.caches = [install_invariant_cache(p.decision, rotary=True, additive=True)
                            for p in (actor.action_expert, actor.ref_action_expert)]
         # A legacy pending inner update must use its original MC4 layout.
-        if self.state['updates'] > origin:
+        if self.state['updates'] > origin or self.saved['performance_execution'].get('origin_layout')=='fast':
             self.activate()
 
     def activate(self):

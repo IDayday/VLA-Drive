@@ -23,6 +23,9 @@ def inventory():
 
 
 def boundary(identity):
+    if identity.get('performance_execution',{}).get('reshard'):
+        from .virtual_lanes import DistributedBoundary
+        return DistributedBoundary()
     if identity['world'] == 16:
         from starVLA.rl.d46_world16.native import World16Boundary
         return World16Boundary()
@@ -47,6 +50,13 @@ def validate(root, identity, *, actual_inventory=None):
     expected.pop('sha256')
     expected.update(source_files=identity['source_files'], performance_execution=meta,
                     training_run_id=old.get('training_run_id', old['sha256']))
+    redistribution=meta.get('reshard')
+    if redistribution:
+        if (redistribution.get('source_world')!=old['world'] or redistribution.get('target_world')!=identity['world']
+                or old['world']not in(16,32)or identity['world']not in(16,32)
+                or redistribution.get('global_scenes')!=64 or 'verified_improvement'in old['recipe']):
+            raise ValueError('Unsupported native scene redistribution')
+        expected['world']=identity['world']
     if (meta.get('schema') != SCHEMA or meta.get('profile') not in ('exact', 'fast')
             or meta.get('source_identity_sha256') != old['sha256']
             or meta.get('origin_updates') != receipt['source_seal']['updates']
