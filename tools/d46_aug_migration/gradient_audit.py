@@ -5,8 +5,10 @@ The replay must use the checkpoint's exact fresh behavior version.
 """
 import argparse
 import json
+import os
 from pathlib import Path
 import time
+os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
 import torch
 
 from starVLA.rl.d44_native_rl.parent import load
@@ -71,18 +73,18 @@ def main():
         for k,v in grads.items():totals[k]=totals.get(k,torch.zeros_like(v))+v
         pg,reference=grads['SafetyEP'],grads['reference_beta01']
         row=dict(token=s['token'],category=category(s),norms={k:float(v.norm())for k,v in grads.items()},
-                 reference_to_policy_norm=float(reference.norm()/pg.norm().clamp_min(1e-30)),
+                 reference_to_policy_norm=float(reference.norm()/pg.norm())if pg.norm()>0 else None,
                  cosine_policy_reference=cosine(pg,reference),cosine_SafetyEP_PDMS=cosine(pg,grads['PDMS_group']),
                  fresh_ratio_error=float(metrics['fresh_ratio_error']),reference_KL=float(metrics['reference_KL']))
         rows.append(row);atomic_json(out/f'scene{len(rows):03}.json',row);print(json.dumps(row),flush=True)
         del total,parts,grads,alternate
     result=dict(status='COMPLETE_REAL_TRAIN_GRADIENT_REPLAY',host=host,checkpoint=args.checkpoint,updates=seal['updates'],
-                scenes=len(rows),rows=rows,aggregate_norms={k:float(v.norm())for k,v in totals.items()},
+                scenes=len(rows),collection_scenes=len(saved),full_collection=len(rows)==len(saved),rows=rows,aggregate_norms={k:float(v.norm())for k,v in totals.items()},
                 aggregate_cosine_policy_reference=cosine(totals['SafetyEP'],totals['reference_beta01']),
                 aggregate_cosine_SafetyEP_PDMS=cosine(totals['SafetyEP'],totals['PDMS_group']),
                 reference_beta0001_gradient_is_beta01_div100=True,optimizer_updates=0,PDM_queries=0,NAVTEST_used=False,
                 seconds=time.monotonic()-started,peak_GPU_bytes=torch.cuda.max_memory_allocated(),
-                limits='Stratified subset of one fresh collection; un-clipped true parameter gradients, not Adam steps or deployment gains.')
+                limits=('Full single fresh collection'if len(rows)==len(saved)else'Stratified subset of one fresh collection')+'; un-clipped true parameter gradients, not Adam steps or deployment gains.')
     atomic_json(out/'SUMMARY.json',result)
 
 
