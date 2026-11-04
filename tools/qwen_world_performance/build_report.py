@@ -529,6 +529,15 @@ def D46_augustus_regression_fragment():
                 f'{point["PDMS"]:.6f}'if point else'等待完整结果'))
         body+=table(['checkpoint','有效场景曝光','完成分片','运行分片','状态','完整PDMS'],entries)
         body+='<p>分片与排队状态来自后台账本；PDMS仅在完整12,146场景、44物理log、invalid=0并通过封印后显示。后续checkpoint会自动登记，完整结果立即触发报告更新。</p>'
+    latest=read(path.parent/'FIRST_ALIGNED_COMPLETE_READOUT.json',{})
+    if latest.get('schema')=='d46_aligned_first_complete_readout_v1'and latest.get('status')=='COMPLETE'and sealed_JSON(latest):
+        body+='<h4>最新完整结论：尚无净提分，LoRA基本持平，全参数仍小幅退化</h4>'
+        body+=table(['修正版首点','PDMS','相同IL46变化','44log差值CI95','原零分修复','新增零分'],[
+            (p['experiment']+'/'+str(p['updates']),f'{p["PDMS"]:.6f}',f'{p["delta_IL46"]:+.6f}',
+             '['+', '.join(f'{x:+.4f}'for x in p['CI95_delta_PDMS'])+']',p['repaired_zero'],p['new_zero'])for p in latest['points']])
+        body+='<p>两点均为相同6,400场景曝光（0.06196E）、完整12,146场景/44log/invalid0。FULL：EP约+1.00pp，TTC约−1.42pp，NC/DAC也下降；旧高分场景损失仍大于零分修复收益。LoRA相对IL46仅−0.0370分、CI跨零，基本持平。当前不能宣称修正已提分，也不能据首个早期点判定最终上限；继续评测FULL200/LoRA400的0.12393E点。</p>'
+        body+='<p><b>新的训练过程诊断：</b>已检查各自前6,400个TRAIN场景的全部rollout材料。当前组std归一化下，完全安全组的优势绝对系数约占66%–67%；用原生batch std反事实重算约占16%–17%，安全混合组约占83%。这提示小EP差异可能被组std过度放大；这里只是系数占比，不是参数梯度或新算法收益。该归一化改动尚未启用，当前两组继续既定训练与评测。</p>'
+        body+='<p><a href="'+esc(path.parent/'FIRST_ALIGNED_COMPLETE_READOUT.json')+'">首轮完整证据与配对结论</a> · <a href="'+esc(path.parent/'NORMALIZATION_FULL_FIRST6400_AUDIT.json')+'">全部前6400组的归一化诊断</a></p>'
     rows=[]
     for p in v['complete_points']:
         rows.append((p['arm'],p['updates'],f'{p["exposure"]:.4f}E',f'{p["PDMS"]:.4f}',f'{p["delta_IL46"]:+.4f}',p['paired']['repaired_zero'],p['paired']['new_zero']))
