@@ -69,7 +69,8 @@ class VerifiedBoundary(Boundary):
     def validate_boundary(state,batch,identity,optimizer=None,scheduler=None,**kw):
         result=Boundary.validate_boundary(state,batch,identity,optimizer,scheduler,**kw)
         bank=state.get('verified_history',{})
-        if(bank.get('schema')!=history.SCHEMA or bank.get('run')!=identity['sha256']
+        owner=identity.get('training_run_id',identity['sha256'])
+        if(bank.get('schema')!=history.SCHEMA or bank.get('run')!=owner
                 or bank.get('commits')!=state['collections']):raise ValueError('History/run/collection commit mismatch')
         if batch:
             for r in batch['scenes']:
@@ -79,7 +80,7 @@ class VerifiedBoundary(Boundary):
                         raise ValueError('Rescue target not strictly verified/better than actual B1')
                 if 'retention_target'in r:
                     history.validate_teacher(dict(action=r['retention_target'][0].detach().cpu().tolist(),
-                        record=r['retention_record'],version=r['retention_version']),identity['sha256'],batch['behavior_update'])
+                        record=r['retention_record'],version=r['retention_version']),owner,batch['behavior_update'])
                 for key in('rescue_teacher','rescue_state','rescue_sigma','rescue_velocity_target','retention_target'):
                     if key in r and(r[key].requires_grad or not torch.isfinite(r[key]).all()):raise ValueError('Nonfinite or attached teacher material')
         result['history_digest']=bank['digest']

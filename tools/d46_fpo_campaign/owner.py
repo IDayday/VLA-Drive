@@ -242,8 +242,8 @@ def main():
     E.TASK=TASK;E.SOURCE=SOURCE;E.state_path=lambda root:op/'EVAL_STATE.json';E.discover=discover
     E.il_baseline=lambda root:read(PARENT/'PARENT_CONTRACT.json')['complete_navtest']['original_evaluation']
     E.launch=launch;E.inventory=inventory;complete_events.notify=notify
-    E.SPARE_GPUS={h:tuple(range(8))for h in ['training-vlawm-zt4','training-vlawm-zt2','training-vlawm-tsinghua-zt4',
-        'training-rl-zt2','training-vlawm-tsinghua-zt5','training-vlawm-zt','training-vlawm-tsinghua-zt','training-vlawm-tsinghua-zt2']}
+    E.SPARE_GPUS={h:tuple(range(8))for h in ['training-vlawm-tsinghua-zt5','training-vlawm-zt',
+        'training-vlawm-tsinghua-zt','training-vlawm-tsinghua-zt2']}
     with(op/'owner.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         atomic_json(op/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),source=str(SOURCE),at=time.time()))
@@ -268,7 +268,12 @@ def main():
             results += [(str(p),p.stat().st_mtime_ns)for p in sorted((ROOT/'engineering').glob('*_v*/*/RESULT.json'))]
             route_states=[(k,v['status'])for k,v in status['routes'].items()]
             if args.once or time.time()-last_render>=1800 or results!=previous_results or route_states!=previous_routes:
-                render(plan,status,state);last_render=time.time();previous_results=results;previous_routes=route_states
+                render(plan,status,state);last_render=time.time()
+                if results!=previous_results:
+                    atomic_json(Path('/mnt/project/qwen-world-rl-optimization-20261030/reporting/refresh_request.json'),
+                        dict(id='FPO-engineering-'+str(time.time_ns()),at=time.time(),scientific_result=False,
+                            event='engineering_progress',evidence=str(ROOT/'engineering/STATUS.json')))
+                previous_results=results;previous_routes=route_states
             if args.once:break
             paths=[op]
             paths += [ROOT/'engineering']+[p for p in(ROOT/'engineering').glob('*_v*/*')if p.is_dir()]
