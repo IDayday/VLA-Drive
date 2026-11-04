@@ -140,13 +140,15 @@ def build_fragment(plan, state, evaluation):
                 f'{diagnostics["retention_active"]*100:.1f}%' if 'retention_active' in diagnostics else '未启用',
                 row.get('extra_B1_queries', 0), row.get('adaptive_G32_queries', 0)))
     highest = max([HISTORICAL_D]+[v['PDMS'] for _, v in scores])
+    best_new = max(scores, key=lambda point: point[1]['PDMS'], default=None)
+    highest_label = (best_new[0]['binding']['experiment']+' / Adam '+str(best_new[0]['binding']['updates'])) if best_new and highest > HISTORICAL_D else 'FPO_MATURE 历史 Adam 1614'
     actual = state.get('actual_training', 0)
-    cards = [('D系最高完整 PDMS', f'{highest:.8f}', '成熟FPO历史点；新点完整后更新'),
+    cards = [('D系最高完整 PDMS', f'{highest:.8f}', highest_label),
         ('同父 IL46 基线', f'{IL_SCORE:.8f}', f'当前D系最佳增益 {highest-IL_SCORE:+.6f}'),
         ('实际在训 / 训练卡', f'{actual} 组 / '+str(sum(v['world'] for v in state.get('routes', {}).values() if v.get('status') == 'RUNNING'))+' 卡', '最多两条正式训练；不含评测卡'),
         ('本轮新完整评测', str(len(scores))+' 个', '只发布12,146场景全部完成的分数')]
     body = '<style>'+STYLE+'</style><div class="fpo-current" id="D46-FPO-current"><header class="hero"><div class="eyebrow">当前研究 · D框架 / IL46 · FPO 两条路线</div><h1>先看当前实验、进度与真实分数</h1><p>一条继续成熟 FPO，检验充分训练的收益；另一条让随机找到的好轨迹进入真实单轨迹策略，同时保持已有高分能力。</p><p class="muted">报告生成 '+datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')+'；状态账本 '+datetime.fromtimestamp(state.get('at', 0), timezone.utc).strftime('%H:%M:%S UTC')+'。常规30分钟更新，完整新评测立即更新。</p></header>'
-    body += '<div class="cards">'+''.join('<div class="card"><small>'+h(title)+'</small><strong>'+h(value)+'</strong><small>'+h(note)+'</small></div>' for title, value, note in cards)+'</div>'
+    body += '<div class="cards">'+''.join('<div class="card"><small>'+h(title)+'</small><strong>'+h(value)+'</strong><small>'+h(note)+'</small></div>' for title, value, note in cards)+'</div><p class="muted">历史全项目最高：IL70 / SafetyEP 91.45359756；它与当前 D IL46 的父模型不同，历史详情在页末折叠。</p>'
     body += '<section class="panel"><h2>1. 正在进行的训练</h2>'+table(['路线', '资源', '执行状态', '全rank共同 Adam', '实际有效曝光', '最近完整保存 Adam', '日志时效'], current)
     body += '<p class="muted">Adam与曝光取所有rank当前日志的最小值；保存点可能落后于训练，不将已保存0步理解为尚未开始。B64 / G16 / M2：每次收集64个场景、1,024条新候选，再做2次Adam；不是1,024个场景。</p>'+table(['路线', '当前完整PDMS', '相同父IL46增益', '分数归属'], progress)+'</section>'
     body += '<section class="panel"><h2>2. 评测进展与现阶段结论</h2>'+table(['评测点', '阶段', '完整分片', '运行分片'], [(c['id'], c['status'], str(c.get('completed_shards', 0))+'/32', c.get('active_shards', 0)) for c in evaluation.get('cases', {}).values()])
