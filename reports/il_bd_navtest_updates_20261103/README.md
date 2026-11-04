@@ -1,10 +1,10 @@
 # B / D IL：每 2K 检查点 Navtest 动态结果
 
-更新：2026-11-04 09:19:56 UTC
+更新：2026-11-04 10:49:51 UTC
 
 只发布完整 12,146 场景、44 个物理 log、invalid=0 的结果。统一 canonical NAVSIM v1.1，seed2101，B1 单候选 K10/shift5 ODE。
 
-最新保存的 IL 检查点：B 70139, D 72000。训练过程中的 journal 不被本发布器轮询。
+最新保存的 IL 检查点：B 70139, D 73000。训练过程中的 journal 不被本发布器轮询。
 
 | 架构 | checkpoint | PDMS | NC | DAC | TTC | EP | Comfort | DDC |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
