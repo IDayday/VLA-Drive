@@ -1,0 +1,35 @@
+{
+  "at": 1793804860.373512,
+  "status": "CORRECTION_16GPU_RESUME_PASSED_FRESH_FORMAL_LAUNCHED",
+  "BF16_first_two_scene_KL": 0.0394859341904521,
+  "FP32_same_two_scene_KL": 2.9922146893568424e-07,
+  "ratio": 131962.23630243374,
+  "findings": [
+    "同一权重重复前向误差为0；真实首步参数变化约1e-8，但BF16文本/动作路径输出跳变0.002–0.005。问题已在保存的4个TRAIN场景复现，不是根据NAVTEST选出的场景。",
+    "相同前两个TRAIN场景、相同首步参数差：KL均值 0.0394859 → 2.99221e-07（FP32文本/动作）；这证明数值连续性改善，不是PDMS提升证据。",
+    "FP16尝试出现非有限输出/JaT概率，拒绝用于训练。FP32动作投影本身不足以消除上游BF16的舍入跳变。",
+    "AUG6已在258次Adam/8256次场景曝光保存停训。200步完整NAVTEST=89.54346127，较自己的数值u0提高0.05970699，配对95%区间[-0.00220,+0.12689]仍跨0；相原IL46提高0.04794030。新AUG7从同一IL46及Adam0开始，训练/reference/部署统一FP32文本C/P与动作计算，视觉保持原设置。",
+    "原JaT概率与KL公式、同场景候选、SafetyEP全局标准差及计算图复用检查未发现本次证据所指向的错误。",
+    "完整检查全部129个collection、2064份rank反馈：8256个不同TRAIN场景，132096条候选。54个全零组中51个没有非零优势；80个全不安全组中仅10个有优势信号。尚无重复访问证据，不能据此认定这些场景永久零分。",
+    "相同数值u0→AUG6 u200：修复10个零分，新增5个零分；原PDMS≥0.9场景的净贡献为−0.03582分。小幅净收益仍伴随高分场景退化。下一步评估真实风险事件的组内反馈，但不混入本次精度修正。"
+  ],
+  "limits": "4-scene role isolation and 2-scene numeric precision replay; not a population-wide causal attribution of score regression.",
+  "new_route": "AUG7_NATIVE_FP32",
+  "qualification_summary": {
+    "at": 1793805017.015505,
+    "world": 16,
+    "updates": 2,
+    "reference_kl_mean": 2.9661716638429425e-07,
+    "ratio_mean": 0.9999992521479726,
+    "gradient_norm_range": [
+      12.064177513122559,
+      12.064177513122559
+    ],
+    "update_seconds_range": [
+      8.181567272171378,
+      8.21940977498889
+    ],
+    "gpu_peak_GiB": 17.578649520874023,
+    "scope": "real 16GPU pending-inner native resume; training pipeline qualification, not a score"
+  }
+}
