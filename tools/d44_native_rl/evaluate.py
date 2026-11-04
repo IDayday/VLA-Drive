@@ -22,6 +22,13 @@ from tools.qwen_world_postcot.evaluate import validate_scene_row,validate_feedba
 from tools.qwen_world_compare.evaluate import summarize,EVALUATION_SCHEMA,_numerics
 
 
+def policy_numerics(training):
+    value=_numerics()
+    if training.get('recipe',{}).get('augustus',{}).get('text_action_precision')=='float32':
+        value['model_forward']='float32_text_action_bfloat16_frozen_visual'
+    return value
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint');p.add_argument('--output',required=True)
     p.add_argument('--rank',type=int,default=0);p.add_argument('--world',type=int,default=1)
@@ -48,7 +55,7 @@ def main():
         processor=QwenObservationProcessor(str(QWEN_PATH));service=RewardService(Path.cwd(),workers=1,cache_roots=roots)
         identity=dict(schema=EVALUATION_SCHEMA,architecture_id='D',cohort='NAVTEST',tokens=tokens,count=len(tokens),token_sha256=fingerprint(tokens),
             data_sha256=data.sha,seed=2101,inference='single_candidate_cleanx_K10_shift5',qualification=bool(a.limit)or training['qualification'],
-            protocol=service.protocol,model_sha256=model_sha,numerics=_numerics(),D44_training_identity=training['sha256'],
+            protocol=service.protocol,model_sha256=model_sha,numerics=policy_numerics(training),D44_training_identity=training['sha256'],
             model_identity_scheme='SHA256(native_parent_digest,unmerged_trainable_payload_digest,scope)',
             checkpoint=str(Path(a.checkpoint).resolve()),updates=seal['updates'],test_selected_research=True,
             training_data_is_NAVTRAIN_only=True,no_R16_no_CoT_no_scorer_at_actor_input=True)

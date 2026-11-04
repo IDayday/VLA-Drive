@@ -29,6 +29,10 @@ def read(path,default=None):
     p=Path(path);return json.loads(p.read_text())if p.is_file()else default
 
 
+def formal_route(route):
+    return dict(route,source=route.get('formal_source',route['source']))
+
+
 def finished(jobs):
     results=[read(Path(j['job'])/'RESULT.json')for j in jobs]
     if any(r and r.get('returncode')!=0 for r in results):
@@ -59,7 +63,7 @@ def launch_stage(route,stage):
         elif Path(output).exists()and any(Path(output).iterdir())and node==0:
             raise RuntimeError('Fresh formal output must be empty')
         atomic_json(job/'INTENT.json',dict(command=command,host=host,at=time.time()))
-        receipts.append(native_launch(host,route['source'],job,command,list(range(8)),
+        receipts.append(native_launch(host,route['source']if qual else formal_route(route)['source'],job,command,list(range(8)),
             task_root=PARENT,task=TASK,worker_source=SOURCE,
             admission_wait_seconds=route.get('admission_wait_seconds',0),
             share_min_free_mib=route.get('share_min_free_mib_by_host',{}).get(host)))
@@ -83,6 +87,7 @@ def check_qualification(route,updates):
 
 
 def binding(route,cp):
+    route=formal_route(route)
     cp=Path(cp).resolve();identity=read(cp/'identity.json',{});seal=read(cp/'COMPLETE',{});files=read(cp/'files.json',{})
     body=dict(identity);digest=body.pop('sha256',None)
     if(cp.parent!=Path(route['formal_output']).resolve()/'checkpoints'or fingerprint(body)!=digest
@@ -216,7 +221,7 @@ def main():
                 elif state['stage']=='formal':
                     proof_root=Path(route.get('proof_directory',op))
                     if not(proof_root/'FRESH_IL46_ADAM0.json').exists()and (Path(route['formal_output'])/'checkpoints/update000000_inner0/COMPLETE').exists():
-                        atomic_json(proof_root/'FRESH_IL46_ADAM0.json',review_native(route,route['formal_output'],0,False))
+                        atomic_json(proof_root/'FRESH_IL46_ADAM0.json',review_native(formal_route(route),route['formal_output'],0,False))
                     if finished(state['jobs']):state['stage']='formal_finished'
                 state['at']=time.time();atomic_json(op/'STATE.json',state)
             except Exception:

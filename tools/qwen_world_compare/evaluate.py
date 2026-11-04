@@ -67,7 +67,7 @@ def load_evaluation(root, *, population=None):
     return identity, rows
 
 
-def summarize(evaluation, baseline=None, *, population=None):
+def summarize(evaluation, baseline=None, *, population=None,allow_numeric_policy_change=False):
     identity, rows = load_evaluation(evaluation, population=population)
     result = dict(status='COMPLETE', architecture_id=identity['architecture_id'],
         cohort=identity['cohort'], scenes=len(rows), scene_denominator=len(rows), invalid_scenes=0,
@@ -82,6 +82,11 @@ def summarize(evaluation, baseline=None, *, population=None):
         base_id, base = load_evaluation(baseline, population=population)
         for key in ('cohort', 'token_sha256', 'data_sha256', 'seed', 'inference', 'qualification', 'numerics'):
             if identity.get(key) != base_id.get(key):
+                if key=='numerics' and allow_numeric_policy_change:
+                    left=dict(identity[key]);right=dict(base_id[key]);current=left.pop('model_forward');previous=right.pop('model_forward')
+                    if left==right and current=='float32_text_action_bfloat16_frozen_visual' and previous=='bfloat16':
+                        result['comparison_numeric_policy_change']=dict(current=current,baseline=previous,isolated_RL_gain=False)
+                        continue
                 raise ValueError('Paired comparison changed its common contract: '+key)
         if identity['protocol']['sha256'] != base_id['protocol']['sha256']:
             raise ValueError('Paired comparison changed canonical scoring')

@@ -17,13 +17,14 @@ def test_formal_launch_never_adopts_qualification_weights(tmp_path,monkeypatch):
     monkeypatch.setattr(owner,'ROOT',tmp_path)
     captured=[]
     def launch(host,source,job,command,gpus,**kw):
-        captured.append(command);return {'host':host,'job':str(job),'command':command}
+        captured.append(command);return {'host':host,'job':str(job),'command':command,'source':source}
     monkeypatch.setattr(owner,'native_launch',launch)
     route=dict(hosts=['training-vlawm-tsinghua-zt5','training-vlawm-tsinghua-zt'],
-        source='/frozen/source',config='/frozen/config',master_addr='127.0.0.1',
+        source='/frozen/source',formal_source='/frozen/formal_metadata_fix',config='/frozen/config',master_addr='127.0.0.1',
         qualification_output=str(tmp_path/'qualification'),formal_output=str(tmp_path/'formal'))
     receipts=owner.launch_stage(route,'formal')
     assert len(receipts)==2
+    assert all(r['source']==route['formal_source']for r in receipts)
     assert all('--resume'not in cmd and '--qualification'not in cmd for cmd in captured)
     assert all(cmd[cmd.index('--output')+1]==route['formal_output']for cmd in captured)
 

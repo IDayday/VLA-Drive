@@ -26,8 +26,8 @@ def contributions(rows,base):
         limits='Reference cohorts fixed by IL44. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee.')
 
 
-def analyze(evaluation,baseline):
-    value=summarize(evaluation,baseline);identity,rows=load_evaluation(evaluation);_,base=load_evaluation(baseline)
+def analyze(evaluation,baseline,*,allow_numeric_policy_change=False):
+    value=summarize(evaluation,baseline,allow_numeric_policy_change=allow_numeric_policy_change);identity,rows=load_evaluation(evaluation);_,base=load_evaluation(baseline)
     if identity['qualification']or identity['cohort']!='NAVTEST'or len(rows)!=12146 or value['physical_logs']!=44:
         raise ValueError('Research performance analysis requires complete12146/44 full Navtest; qualification excluded')
     value['source_summary_sha256']=value.pop('sha256')

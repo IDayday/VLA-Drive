@@ -170,7 +170,8 @@ def summarize_case(root, case):
             or identity.get('qualification')is not False or identity.get('seed')!=2101
             or identity.get('count')!=POPULATION or identity.get('inference')!='single_candidate_cleanx_K10_shift5'):
         raise ValueError('Full evaluation does not bind this registered AUG checkpoint/seed/protocol')
-    summary = summarize(output, baseline)
+    changed_numerics=binding['experiment']=='AUG7_NATIVE_FP32'
+    summary = summarize(output, baseline,**({'allow_numeric_policy_change':True}if changed_numerics else{}))
     if (summary.get('status') != 'COMPLETE' or summary.get('scenes') != POPULATION
             or summary.get('physical_logs') != 44 or summary.get('invalid_scenes') != 0
             or summary.get('qualification') is not False or summary.get('seed') != 2101
@@ -181,7 +182,7 @@ def summarize_case(root, case):
         if path.exists() and read(path) != value:raise ValueError('Preserve previous official summary')
         atomic_json(path, value)
     case['summary'] = str(output.parent / 'SUMMARY.json')
-    paired = analyze(output, baseline)
+    paired = analyze(output, baseline,**({'allow_numeric_policy_change':True}if changed_numerics else{}))
     paired['analysis_schema'] = 'D46_complete_B1_paired_gain_loss_v1'
     gain = paired['gain_loss']
     gain['fixed_reference_cohorts'] = {k.replace('IL44', 'IL46'): v for k, v in gain['fixed_reference_cohorts'].items()}
