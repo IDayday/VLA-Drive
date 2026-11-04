@@ -77,6 +77,15 @@ def notify(state_path,case_id,expected_summary_sha,**_):
     request=Path('/mnt/project/qwen-world-rl-optimization-20261030/reporting/refresh_request.json')
     atomic_json(request,dict(id=case_id+'-'+sha,at=time.time(),scientific_result=False,event='evaluation_complete',
         reason='New independently attributable FPO full B1 score',evidence=case['summary']))
+    all_cases=read(state_path)['cases'];selection={}
+    for experiment in('FPO_MATURE','FPO_VERIFIED'):
+        completed=[(c,read(c['summary']))for c in all_cases.values()if c['status']=='COMPLETE'and c['binding']['experiment']==experiment]
+        if not completed:continue
+        best=max(completed,key=lambda x:x[1]['PDMS'])
+        stable=min((x for x in completed if x[1]['PDMS']>=best[1]['PDMS']-.2),key=lambda x:(x[1]['paired']['new_zero'],-x[1]['PDMS']))
+        selection[experiment]=dict(best_score=dict(checkpoint=best[0]['binding']['checkpoint'],PDMS=best[1]['PDMS']),
+            best_stable_proxy=dict(checkpoint=stable[0]['binding']['checkpoint'],PDMS=stable[1]['PDMS']),NAVTEST_SELECTED=True)
+    atomic_json(ROOT/'NEW_COMPLETE_CHECKPOINT_SELECTION.json',selection)
     return dict(status='NOTIFIED',notified_sha=sha)
 
 
@@ -123,7 +132,10 @@ def recover_preempted(state):
         for rank,jobs in case['jobs'].items():
             if not jobs:continue
             last=jobs[-1];job=Path(last['job'])
-            if last['host']not in gone or(job/'RESULT.json').exists():continue
+            result=read(job/'RESULT.json',{})
+            partial=read(Path(case['output'])/f'rank{rank}.json',{})
+            native_partial=(result.get('returncode')==0 and partial.get('status')=='STOPPED_AT_SCENE_BOUNDARY')
+            if last['host']not in gone or(result and not native_partial):continue
             if time.time()-last['at']<300:continue
             # A shared stop marker fences even a delayed pre-CUDA predecessor.
             (job/'STOP_REQUESTED').touch()
@@ -172,6 +184,20 @@ def route_status(plan):
         status='REVIEW_REQUIRED'if failures else'RUNNING'if len(live)==len(launches)and proof else'INITIALIZING'if live else'SAVED_OR_COMPLETE'
         if failures:
             for x in live:(Path(x['job'])/'STOP_REQUESTED').touch()
+        evaluation=read(ROOT/'operations/EVAL_STATE.json',{})
+        points=sorted((c for c in evaluation.get('cases',{}).values()if c['status']=='COMPLETE'and c['binding']['experiment']==key),
+            key=lambda c:c['binding']['scene_budget_clock'])
+        if points:
+            scores=[read(c['summary'])['PDMS']for c in points]
+            severe=scores[-1]<89.4955209758546-3
+            repeated=(points[-1]['binding']['scene_budget_clock']>=103288 and len(scores)>=2
+                and all(v<89.4955209758546-1 for v in scores[-2:]))
+            if severe or repeated:
+                for x in live:
+                    atomic_json(Path(x['job'])/'PERFORMANCE_REVIEW_REASON.json',dict(at=time.time(),scores=scores,
+                        reason='latest complete drop>3 points, or after1E latest two drop>1 point; aggregate only'))
+                    (Path(x['job'])/'STOP_REQUESTED').touch()
+                status='SAVING_FOR_PERFORMANCE_REVIEW'if live else'SAVED_FOR_PERFORMANCE_REVIEW'
         if native.get('epoch',0)>=3:
             for x in live:(Path(x['job'])/'STOP_REQUESTED').touch()
             status='SAVING_FOR_3E_REVIEW'if live else'SAVED_FOR_3E_REVIEW'
@@ -216,7 +242,7 @@ def main():
     with(op/'owner.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         atomic_json(op/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),source=str(SOURCE),at=time.time()))
-        last_render=0;previous_results=None
+        last_render=0;previous_results=None;previous_routes=None
         while not(op/'STOP_OWNER').exists():
             plan=read(op/'PLAN.json');status=route_status(plan);atomic_json(op/'STATE.json',status)
             state=read(op/'EVAL_STATE.json',E.initial_state());recover_preempted(state)
@@ -229,8 +255,9 @@ def main():
             except Exception as error:
                 atomic_json(op/'CONTROLLER_ERROR.json',dict(at=time.time(),error=repr(error)))
             results=[(c['id'],c['status'])for c in state.get('cases',{}).values()]
-            if args.once or time.time()-last_render>=1800 or results!=previous_results:
-                render(plan,status,state);last_render=time.time();previous_results=results
+            route_states=[(k,v['status'])for k,v in status['routes'].items()]
+            if args.once or time.time()-last_render>=1800 or results!=previous_results or route_states!=previous_routes:
+                render(plan,status,state);last_render=time.time();previous_results=results;previous_routes=route_states
             if args.once:break
             paths=[op]
             for r in plan['routes'].values():
