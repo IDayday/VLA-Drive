@@ -196,9 +196,11 @@ def summarize_case(root, case):
 def inventory(host, ops_source):
     """Only the three explicit spare hosts; no probes of six learner nodes."""
     if host not in SPARE_GPUS:raise ValueError('Host is not an authorized evaluation spare')
-    code = '''import json,pathlib,subprocess,sys
+    code = '''import json,pathlib,subprocess,sys,os
+os.environ['WORLD_COMPARE_TASK']=AUTH_TASK
 sys.path.insert(0, OPS_SOURCE)
 from tools.qwen_world_compare.job_worker import known_owner_args
+from tools.d46_aug_migration.cohosts import registered_readonly_owner
 apps={}
 for line in subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid,used_gpu_memory','--format=csv,noheader,nounits'],text=True).splitlines():
  p,u,m=line.split(',');apps.setdefault(u.strip(),[]).append((int(p),int(m)))
@@ -211,12 +213,13 @@ for line in subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory
    entry=args[args.index('-m')+1]if '-m'in args else None
    evaluation=entry in ('tools.d46_augustus.evaluate','tools.d44_native_rl.evaluate','tools.qwen_world_compare.evaluate','tools.qwen_world_safety_exploration.evaluate')
    training=ALLOW_TRAINING and entry=='tools.d46_augustus.train'
-   known=(evaluation or training) and known_owner_args(args)
+   screening=ALLOW_TRAINING and registered_readonly_owner(args,mem)
+   known=((evaluation or training) and known_owner_args(args))or screening
   except(OSError,ValueError,IndexError):known=False;start=None
-  owners.append(dict(pid=pid,start_ticks=start,used_MiB=mem,known=known,kind='training'if known and training else'evaluation'))
+  owners.append(dict(pid=pid,start_ticks=start,used_MiB=mem,known=known,kind='cohost'if known and(training or screening)else'evaluation'))
  rows.append(dict(index=int(i),uuid=u.strip(),free_MiB=int(free),used_MiB=int(used),owners=owners))
 print(json.dumps(rows))
-'''.replace('OPS_SOURCE', repr(str(Path(ops_source).resolve()))).replace('ALLOW_TRAINING',repr(ALLOW_NATIVE_TRAINING_SHARE))
+'''.replace('OPS_SOURCE', repr(str(Path(ops_source).resolve()))).replace('ALLOW_TRAINING',repr(ALLOW_NATIVE_TRAINING_SHARE)).replace('AUTH_TASK',repr(TASK))
     r = subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=8', host, '/usr/bin/python3', '-'],
                        input=code, text=True, capture_output=True, timeout=20)
     if r.returncode:raise DispatchPreflightFailed(r.stderr)
@@ -231,7 +234,7 @@ def available_slots(host, rows, reserved):
         if any(o.get('known') is not True for o in owners) or len(owners) >= 2:continue
         if not owners and row['free_MiB'] < 79000:continue  # Hidden/unattributed memory.
         if row['used_MiB'] - sum(o['used_MiB'] for o in owners) > 1024:continue
-        learners=sum(o.get('kind')=='training' for o in owners)
+        learners=sum(o.get('kind')in('training','cohost') for o in owners)
         existing = max(len(owners), learners+reserved.get((host, row['index']), 0))
         slots.extend((host, row['index']) for _ in range(max(0, 2 - existing)))
     return slots
