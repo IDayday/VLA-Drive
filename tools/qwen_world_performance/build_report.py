@@ -476,6 +476,7 @@ def D46_augustus_formal_fragment(plan,directory):
         exp=route['experiment'];output=Path(route.get('formal_output',str(D46_ROOT/'runs'/(exp+'_v1'))));identity=read(output/'identity.json',{})
         jobs=[r for r in launches['receipts']if str(output)in r.get('command',[])]
         live=failed=0;starts=[];resource_stop=False
+        terminated=read(output/'USER_TERMINATION.json',{}).get('status')=='TERMINATED_BY_USER'
         for receipt in jobs:
             job=Path(receipt['job']);result=read(job/'RESULT.json',{});running=read(job/'RUNNING.json',{})
             resource_stop |= (job/'RESOURCE_WITHDRAWAL_REASON.json').is_file()
@@ -489,10 +490,11 @@ def D46_augustus_formal_fragment(plan,directory):
                     and r.get('at',0)>=min(starts,default=float('inf'))for r in rows))
         common=min(r.get('updates',0)for r in rows)if all(r.get('updates',0)>0 for r in rows)else None
         exposure=min(r.get('scene_exposures',0)for r in rows)if common else 0
-        if fresh and not resource_stop:actual+=1;slots+=route['world']
-        elif live and not resource_stop:starting+=1
+        if fresh and not resource_stop and not terminated:actual+=1;slots+=route['world']
+        elif live and not resource_stop and not terminated:starting+=1
         status='正式全rank实际训练'if fresh else'执行异常待复核'if failed else'正式已派发/初始化，等待全rank更新'if live else'正式worker已结束/状态待核对'
         if resource_stop:status='节点撤回：正在原生保存退出'if live else'节点撤回：原生已保存暂停，等待替代资源'if not failed else'节点撤回：退出状态待复核'
+        if terminated:status='用户终止：正在原生保存退出'if live else'用户终止：原生已保存，禁止自动恢复'if not failed else'用户终止：退出状态待复核'
         cfg=identity.get('recipe',{})
         entries.append((exp+' / world'+str(route['world']),str(identity.get('scope',{}).get('trainable_numel','待核对')),
             '/'.join(str(cfg.get(k,'待核对'))for k in('global_scenes','group','inner_updates')),
@@ -515,7 +517,13 @@ def D46_augustus_regression_fragment():
     body+='<p><b>当前 D 系最高完整成绩：'+esc(highest)+'；同父 IL46 为 89.4955。历史 IL70/SafetyEP 91.4536 属于另一父模型。</b>修正收益仅以完整官方评测确认。</p>'
     withdrawal=D46_ROOT/'operations/WITHDRAW_TSH2_20261104'
     resource_request=read(withdrawal/'REQUEST.json',{})
-    if resource_request.get('host')=='training-vlawm-tsinghua-zt2'and resource_request.get('new_task_dispatch_allowed')is False:
+    termination=read(D46_ROOT/'USER_TERMINATION.json',{})
+    if termination.get('status')=='TERMINATED_BY_USER':
+        receipt=D46_ROOT/'operations/TERMINATE_ALL_RL_20261104/COMPLETE.json';closed=read(receipt,{})
+        detail=('当前 RL 训练 0 组。Full update441/inner1、LoRA update979/inner1 已原生保存，所有训练 worker 正常退出。'
+            if closed.get('status')=='ALL_RL_TRAINING_TERMINATED'else'全部 RL 训练及自动续训入口已请求关闭，正在确认原生保存与退出。')
+        body+='<p style="background:#fee2e2;padding:14px"><b>最新：用户已终止全部 RL 训练。</b>'+esc(detail)+' 保留代码、checkpoint、Adam/RNG 与实验结果；未经新的明确指令不重启。D 框架 IL 训练继续，已登记评测可完成。<a href="'+esc(receipt)+'">终止与保存收据</a></p>'
+    elif resource_request.get('host')=='training-vlawm-tsinghua-zt2'and resource_request.get('new_task_dispatch_allowed')is False:
         saved=read(withdrawal/'NATIVE_SAVE_EXIT0.json',{})
         detail=('全参数版已在 Adam '+str(saved['updates'])+' / inner '+str(saved['next_inner'])+' 原生保存，四节点均 EXIT0，Adam/RNG/待完成组内更新完整保留。'
             if saved.get('status')=='SAVED_AND_ALL_FOUR_NODES_EXIT0'else'全参数版已请求整组在可恢复边界保存并退出。')
