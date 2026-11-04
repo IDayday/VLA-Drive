@@ -43,7 +43,7 @@ FULL点的EP提高0.9995个百分点，但TTC下降1.4243个百分点，碰撞�
 
 新增测试覆盖真实collector→actor入口：不同token使用不同根，同token不随rollout创新RNG改变，同组共享根，fresh ratio及两次更新反向正常。旧AUG1–4身份与语义保持，不能将旧Adam接到新协议上冒充连续运行。
 
-实际检查：生产Python环境下4个相关测试文件共 **11 passed、4 skipped**；跳过的是需显式真实GPU资格环境的测试，本次没有执行GPU资格。两个错误Python环境的首次收集失败已纠正，不改依赖、不据此修改算法。
+实际检查：生产Python环境下4个相关测试文件共 **11 passed、4 skipped**；跳过的是检测到CUDA可用时主动跳过的8进程CPU/Gloo测试；该次未执行GPU资格。两个错误Python环境的首次收集失败已纠正，不改依赖、不据此修改算法。
 
 **这仅修复对齐声明中的实际遗漏，不是已确认的掉分主因。AUG5未启动GPU正式训练，没有新PDMS结果；已经终止的AUG任务没有恢复。** 当前FPO Verified的真实B1探针原本已使用token派生根，不受此处旧AUG入口问题影响。
 
