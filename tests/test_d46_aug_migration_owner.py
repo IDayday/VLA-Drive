@@ -50,3 +50,13 @@ def test_secondary_four_rank_fresh_formal_preserves_scene_configuration(tmp_path
     assert gpus==[0,1,2,3]and '--nnodes=1'in cmd and '--nproc_per_node=4'in cmd
     assert '--resume'not in cmd and '--qualification'not in cmd and '--master_port=29649'in cmd
     assert cmd[cmd.index('--config')+1]=='/B64_G16_M2.yaml'
+
+
+def test_resource_retry_requires_every_child_never_started(tmp_path):
+    jobs=[]
+    for name in ('a','b'):
+        p=tmp_path/name;p.mkdir();(p/'RESULT.json').write_text(json.dumps(dict(returncode=75,child_not_started=True)))
+        jobs.append(dict(job=str(p)))
+    assert owner.all_refused_before_start(jobs)
+    (tmp_path/'b/RESULT.json').write_text(json.dumps(dict(returncode=1,child_pid=123)))
+    assert not owner.all_refused_before_start(jobs)

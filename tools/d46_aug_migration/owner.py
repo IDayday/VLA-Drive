@@ -48,6 +48,12 @@ def finished(jobs):
     return all(results)
 
 
+def all_refused_before_start(jobs):
+    """Resource contention is retryable only if no member ever ran a child."""
+    results=[read(Path(j['job'])/'RESULT.json',{})for j in jobs]
+    return bool(results)and all(r.get('returncode')==75 and r.get('child_not_started')is True for r in results)
+
+
 def launch_stage(route,stage):
     (ROOT/'operations').mkdir(parents=True,exist_ok=True)
     receipts=[];qual=stage!='formal';gpus=route.get('gpus',list(range(8)))
@@ -246,6 +252,11 @@ def main():
             if secondary:
                 ss=state.setdefault('secondary',dict(stage='WAITING_EVALUATION',jobs=[]))
                 try:
+                    if ss['stage']in('qualification_first','qualification_resume','formal')and all_refused_before_start(ss['jobs']):
+                        attempt=ss.get('admission_retry',0)+1
+                        ss.setdefault('unstarted_attempts',[]).append(ss['jobs'])
+                        retry=dict(secondary,job_namespace=secondary['job_namespace']+f'/resource_retry{attempt:03d}')
+                        ss.update(jobs=launch_stage(retry,ss['stage']),admission_retry=attempt)
                     if ss['stage']=='WAITING_EVALUATION':
                         current=read(op/'EVAL_STATE.json',E.initial_state())
                         ready=all(current['cases'].get(route['experiment']+f'_u{u:06d}',{}).get('status')=='COMPLETE' for u in secondary.get('wait_for_primary_evaluations',[200,400]))
