@@ -41,7 +41,8 @@ def finalize_scene_score(scene,records,*,seconds_scoring):
 
 
 @torch.no_grad()
-def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None,history=None,score_submit=None):
+def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None,history=None,score_submit=None,
+                  defer_flow_energy=False,validate_sample_mean=True):
     """Original synchronous collector unless an explicit fixed-draw submit hook is supplied.
 
     The hook receives the original score request. Its Future is managed outside
@@ -65,10 +66,18 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
     chain,times,deltas,idx=generate(g,lambda:actor.sample_action_chain(descriptor,8,generator=generator))
     if chain.shape!=(g,11,8,3)or idx.tolist()!=[7,8,9]or not torch.isfinite(chain).all():raise ValueError('Native D chain contract changed')
     sampled=copy.deepcopy(actor.sampling_terms)
-    mean,std=actor.transition_terms(descriptor,chain,times,deltas)
-    error=max(float((m-mean[:,i]).abs().max())for i,(m,s)in enumerate(sampled))
-    if error>1e-6 or any(abs(float(s)-float(std[i]))>1e-8 for i,(_,s)in enumerate(sampled)):
-        raise FloatingPointError('Actual sampler/recompute mean or std mismatch: '+str(error))
+    if validate_sample_mean:
+        mean,std=actor.transition_terms(descriptor,chain,times,deltas)
+        error=max(float((m-mean[:,i]).abs().max())for i,(m,s)in enumerate(sampled))
+        if error>1e-6 or any(abs(float(s)-float(std[i]))>1e-8 for i,(_,s)in enumerate(sampled)):
+            raise FloatingPointError('Actual sampler/recompute mean or std mismatch: '+str(error))
+    else:
+        # Actual means/std were recorded by the unchanged source sampler.
+        # Replaying three model calls solely to validate them is optional.
+        std=torch.tensor([float(s)for _,s in sampled],device=actor.device,dtype=torch.float32)
+        if len(sampled)!=3 or any(m.shape!=(g,8,3)or not torch.isfinite(m).all()for m,_ in sampled):
+            raise ValueError('Incomplete actual source transition terms')
+        error=None
     ref,refstd=actor.transition_terms(descriptor,chain,times,deltas,use_ref=True)
     if not torch.equal(std,refstd):raise ValueError('Reference kernel variance changed')
     torch.cuda.synchronize();generation=time.monotonic()-start
@@ -120,9 +129,11 @@ def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version
         eps=torch.randn((mc,g,8,3),generator=generator).to(actor.device);clean=chain[:,-1]
         states=(1-sigmas[...,None,None])*clean[None]+sigmas[...,None,None]*eps
         targets=eps-clean[None];energies=[]
-        with actor._context_call(descriptor)as condition:
-            prefix=actor._prepare(condition,False)
-            energies,_=mc_predictions_energy(actor.action_expert,prefix,states,sigmas,targets,
-                fuse=cfg['arm']=='D3_FPO'and bool(getattr(actor,'execution_fuse_fm_mc',False)))
-        r.update(fm_state=states.detach(),fm_sigma=sigmas.detach(),fm_target=targets.detach(),old_energy=energies.mean(0).detach())
+        r.update(fm_state=states.detach(),fm_sigma=sigmas.detach(),fm_target=targets.detach())
+        if not defer_flow_energy:
+            with actor._context_call(descriptor)as condition:
+                prefix=actor._prepare(condition,False)
+                energies,_=mc_predictions_energy(actor.action_expert,prefix,states,sigmas,targets,
+                    fuse=cfg['arm']=='D3_FPO'and bool(getattr(actor,'execution_fuse_fm_mc',False)))
+            r['old_energy']=energies.mean(0).detach()
     return r

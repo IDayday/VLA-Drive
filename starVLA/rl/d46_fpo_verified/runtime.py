@@ -143,7 +143,8 @@ class VerifiedExtension:
     @torch.no_grad()
     def collect_scene(self,actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None,history=None):
         from . import history as bank_history
-        r=base_collect(actor,descriptor,token,log,service,generator,cfg,epoch,version,cost=cost)
+        collector=getattr(self,'main_collector',base_collect)
+        r=collector(actor,descriptor,token,log,service,generator,cfg,epoch,version,cost=cost)
         # Base G16 and its MC4 behavior energy are frozen before extra draws.
         c=cfg['verified_improvement'];material=actor.materialize(descriptor);one=dict(material,context=material['context'][:1])
         def nominal(ref=False):

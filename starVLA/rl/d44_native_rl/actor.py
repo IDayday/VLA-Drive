@@ -111,8 +111,11 @@ class D44Actor(FourFrameworkRecipeActor):
                 return prefix
             if c['arm']in('D3_FPO','D3_AWM'):
                 if c['arm']=='D3_FPO':
-                    energies,_=mc_predictions_energy(self.action_expert,current_prefix(),r['fm_state'],r['fm_sigma'],r['fm_target'],
-                        fuse=bool(getattr(self,'execution_fuse_fm_mc',False)))
+                    if hasattr(self,'flow_energies'):
+                        energies=self.flow_energies(r,current_prefix())
+                    else:
+                        energies,_=mc_predictions_energy(self.action_expert,current_prefix(),r['fm_state'],r['fm_sigma'],r['fm_target'],
+                            fuse=bool(getattr(self,'execution_fuse_fm_mc',False)))
                     energy=energies.mean(0)
                     pg,proxy=clipped_loss((r['old_energy']-energy)[:,None],r['advantages'],c['clip']);metrics.update({'fpo_'+k:v for k,v in proxy.items()})
                     if r['expect_fresh']and max(abs(float(proxy['joint_logratio_min'])),abs(float(proxy['joint_logratio_max'])))>1e-4:

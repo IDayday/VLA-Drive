@@ -10,6 +10,8 @@ import time
 
 
 def main():
+    import faulthandler
+    faulthandler.enable();faulthandler.dump_traceback_later(180,repeat=True)
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--checkpoint',required=True);p.add_argument('--output',required=True)
     p.add_argument('--modes',nargs='+',default=['baseline','invariant','fused'])
@@ -18,7 +20,7 @@ def main():
     import torch
     from starVLA.rl.d44_native_rl import parent
     from starVLA.rl.d44_native_rl.actor import D44Actor
-    from starVLA.rl.d46_fpo_verified.runtime import VerifiedActor
+    from starVLA.rl.d46_fpo_engineering.joint_flow import JointVerifiedActor
     from starVLA.rl.d44_native_rl.config import source_config
     from starVLA.rl.d44_native_rl.conditions import DConditions
     from starVLA.rl.d44_native_rl.data import DataStream
@@ -32,11 +34,13 @@ def main():
     cp=Path(a.checkpoint);identity=json.loads((cp/'identity.json').read_text());cfg=identity['recipe']
     assert cfg['arm']=='D3_FPO'and 1<=a.iterations<=8 and a.modes[0]=='baseline'
     own=torch.load(cp/f'rank{a.rank}.pt',map_location='cpu',weights_only=False)
+    print(json.dumps(dict(event='native_material_loaded',at=time.time())),flush=True)
     assert own['identity_sha256']==identity['sha256']and own['rollout']is not None
     batch=own['rollout'];assert batch['digest']==material_digest(batch)
     model,info=parent.load(cfg['parent_checkpoint'],device,readouts=False,binding=cfg.get('parent_registration'))
+    print(json.dumps(dict(event='parent_loaded',at=time.time())),flush=True)
     verified='verified_improvement'in cfg
-    actor=(VerifiedActor if verified else D44Actor)(model,source_config(cfg),cfg)
+    actor=(JointVerifiedActor if verified else D44Actor)(model,source_config(cfg),cfg)
     for policy in(actor.action_expert,actor.ref_action_expert):
         policy.decision.activation_checkpointing=cfg['checkpoint_policy']!='all_off'
         policy.decision.checkpoint_short_suffix=cfg['checkpoint_policy']=='source'
@@ -64,17 +68,19 @@ def main():
             values.append(float(loss.detach()))
         return values
     for mode in a.modes:
-        assert mode in('baseline','invariant','fused')
+        assert mode in('baseline','lean','invariant','fused','joint')
         actor.execution_fast_prefix=verified or mode!='baseline'
-        actor.execution_fuse_fm_mc=mode=='fused'
+        actor.execution_fuse_fm_mc=mode in('fused','joint')
+        actor.execution_joint_flow_aux=mode=='joint'
         caches=[]
-        if verified or mode!='baseline':
+        if(mode=='baseline'and verified)or mode=='invariant':
             for decision in(actor.action_expert.decision,actor.ref_action_expert.decision):
                 caches.append(install_invariant_cache(decision,rotary=True,additive=True))
         try:
             step();torch.cuda.synchronize();torch.cuda.reset_peak_memory_stats();times=[]
             for _ in range(a.iterations):
                 tick=time.perf_counter();losses=step();torch.cuda.synchronize();times.append(time.perf_counter()-tick)
+            print(json.dumps(dict(event='timed_steps_finished',mode=mode,seconds=times,at=time.time())),flush=True)
             gradients={n:x.grad.detach().cpu().clone()if x.grad is not None else None for n,x in params.items()}
             if baseline is None:baseline={'gradients':gradients,'losses':losses}
             error=refnorm=newnorm=dot=0.;maximum=0.;exact=True;missing=[]
@@ -89,9 +95,11 @@ def main():
                 peak_allocated_bytes=torch.cuda.max_memory_allocated(),losses=losses,
                 comparison=dict(gradient_relative_L2=(error/max(refnorm,1e-30))**.5,gradient_cosine=dot/max((refnorm*newnorm)**.5,1e-30),
                     gradient_max_abs=maximum,bitexact=exact,missing_gradients=missing,loss_max_abs=max(abs(x-y)for x,y in zip(losses,baseline['losses']))))
+            print(json.dumps(dict(event='timing_measured',mode=mode,seconds=times,at=time.time())),flush=True)
             if a.profile and mode=='baseline':
                 with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,torch.profiler.ProfilerActivity.CUDA])as prof:
-                    step();torch.cuda.synchronize()
+                    actor.zero_grad(set_to_none=True)
+                    loss,_=actor(batch['scenes'][0]);loss.backward();torch.cuda.synchronize()
                 entries=prof.key_averages()
                 row['profiler_top_GPU']=[dict(name=e.key,calls=e.count,cpu_us=e.cpu_time_total,GPU_us=e.device_time_total)for e in sorted(entries,key=lambda e:e.device_time_total,reverse=True)[:20]]
                 row['profiler_syncs']=[dict(name=e.key,calls=e.count,cpu_us=e.cpu_time_total)for e in entries if e.key in('aten::item','aten::_local_scalar_dense','cudaDeviceSynchronize','cudaStreamSynchronize')]
