@@ -35,3 +35,18 @@ def test_learner_plus_pending_eval_reserves_both_slots(monkeypatch):
     row=dict(index=0,free_MiB=50000,used_MiB=30000,owners=[dict(known=True,kind='training',used_MiB=30000)])
     assert e.available_slots(host,[row],{})==[(host,0)]
     assert e.available_slots(host,[row],{(host,0):1})==[]
+
+
+def test_secondary_four_rank_fresh_formal_preserves_scene_configuration(tmp_path,monkeypatch):
+    monkeypatch.setattr(owner,'ROOT',tmp_path);calls=[]
+    def launch(host,source,job,command,gpus,**kw):
+        calls.append((command,gpus));return dict(job=str(job),command=command)
+    monkeypatch.setattr(owner,'native_launch',launch)
+    route=dict(hosts=['training-vlawm-tsinghua-zt5'],gpus=[0,1,2,3],world=4,source='/science',
+        config='/B64_G16_M2.yaml',master_addr='127.0.0.1',master_port=29648,
+        qualification_output=str(tmp_path/'qualification'),formal_output=str(tmp_path/'formal'),
+        proof_directory=str(tmp_path/'proof'),job_namespace='secondary')
+    owner.launch_stage(route,'formal');cmd,gpus=calls[0]
+    assert gpus==[0,1,2,3]and '--nnodes=1'in cmd and '--nproc_per_node=4'in cmd
+    assert '--resume'not in cmd and '--qualification'not in cmd and '--master_port=29649'in cmd
+    assert cmd[cmd.index('--config')+1]=='/B64_G16_M2.yaml'

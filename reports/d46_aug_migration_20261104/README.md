@@ -1,3 +1,15 @@
+# 当前研究进展与核心发现
+
+更新：2026-11-04 17:54 UTC。AUG7正常训练，u200/u400全量评测进行中。新数值u0完整PDMS **89.51048770**（12146场景、44logs、invalid0），不是RL增益。
+
+完整64场景梯度两次回放表明参考KL影响很大：u100为策略梯度2.004倍且近反向，u200为0.978倍且同向。已开发独立 **AUG8_NATIVE_KL001**（同IL46，beta0.1→0.001）；资格/恢复/正式启动由后台排队，在现有u200/u400完整评测后执行，不能将配置就绪称作已训练。
+
+详见 [关键发现、官方源码对比与下一步](OFFICIAL_COMPARISON.md)、[全batch梯度汇总](FULL_BATCH_GRADIENTS.json)、[全TRAIN优势分析](CREDIT_COUNTERFACTUAL.json)。当前D最高完整成绩仍为历史FPO1711的90.35363365；项目IL70/SafetyEP91.45359756是不同父模型。
+
+![完整优势与梯度对照](credit_and_gradient.png)
+
+<details><summary>此前数值修正、AUG6结果与设计记录</summary>
+
 # D46 AUG迁移修正
 
 当前主线为 `AUG7_NATIVE_FP32`，修复在真实TRAIN回放中发现的BF16文本／动作数值跳变。AUG6在258次更新保存停训；不恢复已终止的历史AUG/FPO。
@@ -86,3 +98,5 @@ CPU测试覆盖真实tiny文本前缀／动作后缀dtype与LoRA梯度、两次i
 旧FPO 1E评测被取消，保留其部分结果，但不发布不完整平均分。七个已完成点的最终归档见 [OLD_RL_FINAL_RESULTS.json](OLD_RL_FINAL_RESULTS.json)。
 
 资源只使用本任务五容器白名单；本机D IL不抢占，无法归属的Tsh2 GPU负载不处理。AUG7训练WMzt+Tshzt；Tsh5用于并行完整评测。已有其它项目的冻结TRAIN筛查进程保留，仅在精确命令／源哈希核对、足够显存及每卡最多2个已知进程的条件下共用，不终止外部任务。
+
+</details>

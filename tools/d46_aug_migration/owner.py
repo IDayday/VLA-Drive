@@ -35,6 +35,10 @@ def formal_route(route):
     return result
 
 
+def registered_routes(plan):
+    return [plan['route']]+([plan['secondary_route']]if plan.get('secondary_route')else[])
+
+
 def finished(jobs):
     results=[read(Path(j['job'])/'RESULT.json')for j in jobs]
     if any(r and r.get('returncode')!=0 for r in results):
@@ -46,7 +50,7 @@ def finished(jobs):
 
 def launch_stage(route,stage):
     (ROOT/'operations').mkdir(parents=True,exist_ok=True)
-    receipts=[];qual=stage!='formal'
+    receipts=[];qual=stage!='formal';gpus=route.get('gpus',list(range(8)))
     output=route['qualification_output']if qual else route['formal_output']
     for node,host in enumerate(route['hosts']):
         job=ROOT/'jobs'/route.get('job_namespace','')/stage/f'node{node}'
@@ -56,8 +60,8 @@ def launch_stage(route,stage):
             receipts.append(old);continue
         if (job/'INTENT.json').exists():raise RuntimeError('Unresolved dispatch intent; do not duplicate')
         command=['env','NCCL_IB_DISABLE=1','NCCL_SOCKET_IFNAME=eth0',PYTHON,'-m','torch.distributed.run',
-            '--nnodes=2','--nproc_per_node=8',f'--node_rank={node}','--master_addr='+route['master_addr'],
-            '--master_port='+str(29642 if qual else 29643),'--max_restarts=0',
+            '--nnodes='+str(len(route['hosts'])),'--nproc_per_node='+str(len(gpus)),f'--node_rank={node}','--master_addr='+route['master_addr'],
+            '--master_port='+str(route.get('master_port',29642)+(0 if qual else 1)),'--max_restarts=0',
             '-m','tools.d46_augustus.train','--config',route['config'],'--output',output]
         if qual:
             command+=['--qualification','--stop-after-update','1'if stage=='qualification_first'else'2']
@@ -65,11 +69,12 @@ def launch_stage(route,stage):
         elif Path(output).exists()and any(Path(output).iterdir())and node==0:
             raise RuntimeError('Fresh formal output must be empty')
         atomic_json(job/'INTENT.json',dict(command=command,host=host,at=time.time()))
-        receipts.append(native_launch(host,route['source']if qual else formal_route(route)['source'],job,command,list(range(8)),
+        receipts.append(native_launch(host,route['source']if qual else formal_route(route)['source'],job,command,gpus,
             task_root=PARENT,task=TASK,worker_source=SOURCE,
             admission_wait_seconds=route.get('admission_wait_seconds',0),
             share_min_free_mib=route.get('share_min_free_mib_by_host',{}).get(host)))
-        atomic_json(ROOT/'operations'/(stage.upper()+'_LAUNCHES.json'),receipts)
+        receipts_root=Path(route.get('proof_directory',ROOT/'operations'));receipts_root.mkdir(parents=True,exist_ok=True)
+        atomic_json(receipts_root/(stage.upper()+'_LAUNCHES.json'),receipts)
     return receipts
 
 
@@ -95,7 +100,7 @@ def binding(route,cp):
     if(cp.parent!=Path(route['formal_output']).resolve()/'checkpoints'or fingerprint(body)!=digest
         or identity.get('experiment_id')!=route['experiment']or identity.get('qualification')is not False
         or identity.get('parent_model_sha256')!=E.PARENT_SHA or seal.get('phase')!='READY'or seal.get('next_inner')!=0
-        or seal.get('files_sha256')!=file_sha(cp/'files.json')or identity.get('world')!=16):
+        or seal.get('files_sha256')!=file_sha(cp/'files.json')or identity.get('world')!=route['world']):
         raise ValueError('New formal IL46 native identity mismatch')
     if identity['recipe']['augustus'].get('action_output_precision')!='float32_linear':raise ValueError('Precision mode lost')
     for name,sha in identity['source_files'].items():
@@ -109,17 +114,18 @@ def binding(route,cp):
 
 
 def discover(root,state,routes):
-    route=routes['route'];out=Path(route['formal_output'])
-    candidates=[out/'checkpoints'/f'update{u:06d}_inner0'for u in route['early_evaluation_updates']]
-    candidates += [Path(read(p)['checkpoint'])for p in sorted((out/'evaluation_requests').glob('*.json'))]
-    for cp in candidates:
-        if not(cp/'COMPLETE').exists():continue
-        b=binding(route,cp);key=route['experiment']+f'_u{b["updates"]:06d}'
-        if key in state['cases']:
-            if state['cases'][key]['binding']!=b:raise ValueError('Existing eval binding changed')
-            continue
-        state['cases'][key]=dict(id=key,binding=b,origins=['registered_migration_gate'],status='PENDING',jobs={},
-            next_attempt={},created=time.time(),world=32,output=str(ROOT/'evaluations'/key/'evaluation'))
+    for route in registered_routes(routes):
+        out=Path(route['formal_output'])
+        candidates=[out/'checkpoints'/f'update{u:06d}_inner0'for u in route['early_evaluation_updates']]
+        candidates += [Path(read(p)['checkpoint'])for p in sorted((out/'evaluation_requests').glob('*.json'))]
+        for cp in candidates:
+            if not(cp/'COMPLETE').exists():continue
+            b=binding(route,cp);key=route['experiment']+f'_u{b["updates"]:06d}'
+            if key in state['cases']:
+                if state['cases'][key]['binding']!=b:raise ValueError('Existing eval binding changed')
+                continue
+            state['cases'][key]=dict(id=key,binding=b,origins=['registered_migration_gate'],status='PENDING',jobs={},
+                next_attempt={},created=time.time(),world=32,output=str(ROOT/'evaluations'/key/'evaluation'))
     return state
 
 
@@ -169,6 +175,13 @@ def report(state,evaluations):
     tails=[bounded_rows(out/f'metrics_rank{rank}.jsonl')for rank in range(route['world'])]
     common=min((rows[-1]['updates']for rows in tails if rows),default=0)if all(tails)else 0
     active=int(common>0 and state['stage']=='formal'and any(not(Path(j['job'])/'RESULT.json').exists()for j in state.get('jobs',[])))
+    primary_active=active;cards=16*active;secondary_html='';secondary=read(ROOT/'operations/PLAN.json').get('secondary_route')
+    if secondary:
+        ss=state.get('secondary',{});tails2=[bounded_rows(Path(secondary['formal_output'])/f'metrics_rank{r}.jsonl')for r in range(secondary['world'])]
+        common2=min((v[-1]['updates']for v in tails2 if v),default=0)if all(tails2)else 0
+        live=int(common2>0 and ss.get('stage')=='formal'and any(not(Path(j['job'])/'RESULT.json').exists()for j in ss.get('jobs',[])))
+        active+=live;cards+=live*secondary['world']
+        secondary_html=f"<p><b>独立低KL对照 {secondary['experiment']}</b>：{html.escape(ss.get('stage','WAITING_EVALUATION'))}；正式共同更新 {common2}。同IL46、新Adam0；beta0.001，其余科学配方沿用AUG7。4卡执行B64/G16/M2，rank RNG及浮点归约与16卡不同；不称逐抽样配对对照。先完成主线200/400评测，再自动资格、原生恢复和独立正式训练。</p>"
     state.update(actual_training=active,common_update=common)
     atomic_json(ROOT/'operations/STATE.json',state)
     from tools.d46_aug_migration.tracking import snapshot
@@ -179,12 +192,13 @@ def report(state,evaluations):
     health_html=f'<p>全rank共同更新 {health.get("common_update",0)}；场景曝光 {health.get("scene_exposures",0)}；{health.get("scene_epochs",0):.5f} E。最近窗口端到端 {speed.get("updates_per_hour",0):.1f} 更新/小时（包含采样、评分、同步）。</p>'
     health_html+='<p>检查状态：'+html.escape(health['status'])+'；'+html.escape('；'.join(health['alerts']))+'</p>'
     health_html+='<p>数值检查通过不等于PDMS提升；逐角色梯度记录位于全局裁剪之后，不能直接解释为Adam更新贡献。</p>'
+    comparison=(ROOT/'analysis/OFFICIAL_COMPARISON_FRAGMENT.html').read_text()if(ROOT/'analysis/OFFICIAL_COMPARISON_FRAGMENT.html').exists()else''
     body=f'''<div class="aug-migration"><style>.aug-migration{{font:15px/1.8 system-ui;color:#203448}}.aug-migration section{{background:white;border:1px solid #d7e2ec;border-radius:14px;padding:22px;margin:16px 0}}.aug-migration table{{border-collapse:collapse;width:100%}}.aug-migration td,.aug-migration th{{padding:10px;text-align:left;border-bottom:1px solid #dbe3ec}}.aug-migration h1{{font-size:26px}}.aug-migration .cards{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}}.aug-migration .cards b{{display:block;font-size:23px;color:#125a83}}</style>
     <section><small>当前研究 · D46 AUG迁移修正 · {time.strftime('%Y-%m-%d %H:%M UTC',time.gmtime())}</small>
-    <h1>先把 JaT 迁移做准确，再判断部署收益</h1><div class="cards"><div>D系最高完整PDMS<b>{best:.8f}</b>{best_name}</div><div>当前正式训练<b>{active}组 / {16*active}卡</b>阶段：{html.escape(state['stage'])}</div><div>最新完整保存<b>{native.get('updates','—')} Adam</b>每100次保存；最近10份＋评测/最佳固定</div></div>
-    <p>正式训练全rank共同提交：{common}次Adam。旧FPO及D44/D46 RL已终止；225个旧checkpoint已删除，代码、日志、完整结果保留。IL46父权重与D IL训练保留。历史项目IL70/SafetyEP最高91.45359756，父模型不同。</p></section>
+    <h1>先把 JaT 迁移做准确，再判断部署收益</h1><div class="cards"><div>D系最高完整PDMS<b>{best:.8f}</b>{best_name}</div><div>当前正式训练<b>{active}组 / {cards}卡</b>阶段：{html.escape(state['stage'])}</div><div>最新完整保存<b>{native.get('updates','—')} Adam</b>每100次保存；最近10份＋评测/最佳固定</div></div>
+    <p>正式训练全rank共同提交：{common}次Adam。旧FPO及D44/D46 RL已终止；225个旧checkpoint已删除，代码、日志、完整结果保留。IL46父权重与D IL训练保留。历史项目IL70/SafetyEP最高91.45359756，父模型不同。</p>{secondary_html}</section>
     <section><h2>当前实现审查与修复</h2>{findings}{health_html}</section>
-    <section><h2>这次改了什么</h2><table><tr><th>环节</th><th>新主线 {html.escape(route['experiment'])}</th></tr>
+    {comparison}<section><h2>这次改了什么</h2><table><tr><th>环节</th><th>新主线 {html.escape(route['experiment'])}</th></tr>
     <tr><td>初始化</td><td>相同完整D IL46，新Adam0；不继承资格或其它RL权重</td></tr>
     <tr><td>采样</td><td>真实scene-token根；原生K10/shift5前7步＋末3步官方JaT随机核；B64/G16/M2</td></tr>
     <tr><td>探索与数值</td><td>全TRAIN逐航点范围换算到原IL坐标；采样/ratio/KL同一协方差；AUG7训练、reference、部署统一使用FP32文本C/P与动作计算，冻结视觉计算保留原设置。AUG6仅最终动作投影FP32，已保存停训。</td></tr>
@@ -228,6 +242,28 @@ def main():
                 state['at']=time.time();atomic_json(op/'STATE.json',state)
             except Exception:
                 state.update(stage='REVIEW_REQUIRED',error=traceback.format_exc(),at=time.time());atomic_json(op/'STATE.json',state)
+            secondary=plan.get('secondary_route')
+            if secondary:
+                ss=state.setdefault('secondary',dict(stage='WAITING_EVALUATION',jobs=[]))
+                try:
+                    if ss['stage']=='WAITING_EVALUATION':
+                        current=read(op/'EVAL_STATE.json',E.initial_state())
+                        ready=all(current['cases'].get(route['experiment']+f'_u{u:06d}',{}).get('status')=='COMPLETE' for u in secondary.get('wait_for_primary_evaluations',[200,400]))
+                        if ready:ss.update(stage='qualification_first',jobs=launch_stage(secondary,'qualification_first'))
+                    elif ss['stage']=='qualification_first'and finished(ss['jobs']):
+                        check_qualification(secondary,1);ss.update(stage='qualification_resume',jobs=launch_stage(secondary,'qualification_resume'))
+                    elif ss['stage']=='qualification_resume'and finished(ss['jobs']):
+                        check_qualification(secondary,2);ss.update(stage='formal',jobs=launch_stage(secondary,'formal'))
+                    elif ss['stage']=='formal':
+                        proof=Path(secondary['proof_directory'])/'FRESH_IL46_ADAM0.json'
+                        if not proof.exists()and(Path(secondary['formal_output'])/'checkpoints/update000000_inner0/COMPLETE').exists():
+                            atomic_json(proof,review_native(formal_route(secondary),secondary['formal_output'],0,False))
+                        if finished(ss['jobs']):ss['stage']='formal_finished'
+                except Exception:ss.update(stage='REVIEW_REQUIRED',error=traceback.format_exc())
+                atomic_json(op/'STATE.json',state)
+                if ss['stage']!='WAITING_EVALUATION':
+                    for host in secondary['hosts']:
+                        E.SPARE_GPUS[host]=tuple(g for g in range(8)if g not in secondary.get('gpus',range(8)))
             evaluations=read(op/'EVAL_STATE.json',E.initial_state())
             try:
                 evaluations=E.tick(ROOT,evaluations,plan,ops_source=SOURCE)
@@ -235,18 +271,21 @@ def main():
                 complete=[c for c in evaluations['cases'].values()if c['status']=='COMPLETE']
                 pending=[c['binding']['checkpoint']for c in evaluations['cases'].values()if c['status']not in E.TERMINAL]
                 if complete:pending.append(max(complete,key=lambda c:read(c['summary'])['PDMS'])['binding']['checkpoint'])
-                pending.append(str(Path(route['formal_output'])/'checkpoints/update000000_inner0'))
-                rotate(route['formal_output'],keep=10,pinned=pending)
+                for item in registered_routes(plan):
+                    pending.append(str(Path(item['formal_output'])/'checkpoints/update000000_inner0'))
+                    if Path(item['formal_output']).exists():rotate(item['formal_output'],keep=10,pinned=pending)
                 error=op/'EVALUATION_ERROR.json'
                 if error.exists():
                     history=op/'resolved_errors';history.mkdir(exist_ok=True)
                     os.replace(error,history/f'{time.time_ns()}.json')
             except Exception:atomic_json(op/'EVALUATION_ERROR.json',dict(at=time.time(),error=traceback.format_exc()))
-            signature=(state['stage'],tuple((c['id'],c['status'])for c in evaluations['cases'].values()))
+            signature=(state['stage'],state.get('secondary',{}).get('stage'),tuple((c['id'],c['status'])for c in evaluations['cases'].values()))
             if signature!=previous or time.time()-last_report>=1800:
                 report(state,evaluations);last_report=time.time();previous=signature
             paths=[op,Path(route['qualification_output']),Path(route['formal_output']),Path(route['formal_output'])/'checkpoints',Path(route['formal_output'])/'evaluation_requests']
             paths += [Path(j['job'])for j in state['jobs']]
+            if secondary:
+                paths += [Path(secondary['formal_output']),Path(secondary['formal_output'])/'checkpoints',Path(secondary['qualification_output'])]+[Path(j['job'])for j in state['secondary']['jobs']]
             paths += [Path(c['output'])for c in evaluations['cases'].values()]
             paths += [Path(j[-1]['job'])for c in evaluations['cases'].values()for j in c['jobs'].values()if j]
             wait_for_events(paths,60,ignore=('STATE.json','EVAL_STATE.json','OWNER.json','report.html'))
