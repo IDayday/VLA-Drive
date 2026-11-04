@@ -213,7 +213,7 @@ def main(*,extension=None):
                             uniform.append(dict(token=token,padding=padding))
                         plan=self_history.select(state['d6_history'],uniform,collection=state['collections']+1,enabled=stage.mixture)
                     plan=checkpoint.gather(plan)[0]
-                version=dict(run=identity['sha256'],update=state['updates'],collection=state['collections']+1)
+                version=dict(run=identity.get('training_run_id',identity['sha256']),update=state['updates'],collection=state['collections']+1)
                 actor.set_policy_version(str(version));scenes=[];error=None
                 if extension is not None:extension.before_collection(state,generator,rank,world)
                 batch=dict(scenes=scenes,uncommitted=True)
@@ -293,7 +293,7 @@ def main(*,extension=None):
                 world,trainables,bulk_metrics=extension is not None and getattr(extension,'bulk_metrics',False))
             totals=update['totals'];valid_kl_sum=update['valid_kl_sum'];norm=update['norm'];grad_roles=update['grad_roles']
             state['updates']+=1;state['next_inner']+=1;state['phase']='INNER_COMMITTED'
-            row=dict(updates=state['updates'],run=identity['sha256'],collection=state['collections'],inner_completed=state['next_inner'],
+            row=dict(updates=state['updates'],run=identity.get('training_run_id',identity['sha256']),execution_identity=identity['sha256'],collection=state['collections'],inner_completed=state['next_inner'],
                 behavior_update=batch['behavior_update'],invocation=attempt.id,scene_epochs=state['valid_scene_exposures']/stream.n,
                 raw_scene_exposures=state['raw_scene_exposures'],scene_exposures=state['valid_scene_exposures'],PG_candidates=state['valid_PG_candidates'],
                 generated_PG_candidates_including_padding=state['new_candidates'],

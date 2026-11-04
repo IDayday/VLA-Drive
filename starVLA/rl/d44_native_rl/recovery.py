@@ -72,19 +72,21 @@ class Attempt:
     def __init__(self,root,rank,state,identity,resume):
         self.root=Path(root);self.rank=rank;self.started=time.monotonic();self.id=checkpoint.gather(uuid.uuid4().hex if rank==0 else None)[0]
         self.path=self.root/'invocations'/self.id/f'rank{rank}.json';self.path.parent.mkdir(parents=True,exist_ok=True)
-        self.record=dict(schema='d44_invocation_v1',id=self.id,rank=rank,run=identity['sha256'],status='RUNNING',
+        run=identity.get('training_run_id',identity['sha256'])
+        origin=identity.get('performance_execution',{}).get('origin_updates',0)
+        self.record=dict(schema='d44_invocation_v1',id=self.id,rank=rank,run=run,execution_identity=identity['sha256'],status='RUNNING',
             started=time.time(),start_update=state['updates'],resume=str(resume)if resume else None,
-            physical_candidates=0,seconds_save=0.,GPU_time_is_shared_worker_wall=True)
+            physical_candidates=0,seconds_save=0.,GPU_time_is_shared_worker_wall=True,journal_origin_updates=origin)
         journal=self.root/f'metrics_rank{rank}.jsonl'
         if journal.exists():
             rows=[json.loads(x)for x in journal.read_text().splitlines()];prefix=[r for r in rows if r['updates']<=state['updates']]
-            if [r['updates']for r in prefix]!=list(range(1,state['updates']+1)):raise ValueError('Effective journal gap/duplicate')
-            if any(r['run']!=identity['sha256']for r in rows):raise ValueError('Foreign journal identity')
+            if [r['updates']for r in prefix]!=list(range(origin+1,state['updates']+1)):raise ValueError('Effective journal gap/duplicate')
+            if any(r['run']!=run for r in rows):raise ValueError('Foreign journal identity')
             suffix=[r for r in rows if r['updates']>state['updates']]
             if suffix:
                 archive=self.path.parent/f'aborted_metrics_rank{rank}.jsonl';archive.write_text(''.join(json.dumps(x)+'\n'for x in suffix))
                 tmp=journal.with_suffix('.reconciled');tmp.write_text(''.join(json.dumps(x)+'\n'for x in prefix));os.replace(tmp,journal)
-        elif state['updates']:raise ValueError('Missing effective learning journal')
+        elif state['updates']!=origin:raise ValueError('Missing effective learning journal')
         atomic_json(self.path,self.record)
 
     def add_cost(self,**values):

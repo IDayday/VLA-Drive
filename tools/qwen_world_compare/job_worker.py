@@ -46,7 +46,7 @@ def task_ranks(state):
             args=[v for v in (proc/'cmdline').read_bytes().decode().split('\0') if v]
             entry=args[args.index('-m')+1] if '-m' in args else None
             if entry not in ('tools.qwen_world_postcot.train_il','tools.qwen_world_postcot.train_rl',
-                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_world16.train_fast','tools.d46_augustus.train','tools.d46_fpo_verified.train','tools.d46_priority_rl.train_control'):continue
+                             'tools.qwen_world_postcot.train_scope_rl','tools.qwen_world_compare.train_il','tools.qwen_world_compare.train_rl','tools.d44_native_rl.train','tools.d46_world16.train','tools.d46_world16.train_fast','tools.d46_augustus.train','tools.d46_fpo_verified.train','tools.d46_fpo_engineering.train','tools.d46_priority_rl.train_control'):continue
             if output is None or '--output' not in args or args[args.index('--output')+1]!=output:continue
             status=dict(line.split(':',1) for line in (proc/'status').read_text().splitlines() if ':' in line)
             rows.append(dict(pid=pid,start_ticks=int((proc/'stat').read_text().split()[21]),
@@ -269,6 +269,18 @@ def known_D46_control_args(args):
 
 def known_owner_args(args):
     entry=args[args.index('-m')+1]if '-m'in args and args.index('-m')+1<len(args)else None
+    if entry=='tools.d46_fpo_engineering.train':
+        try:
+            output=Path(args[args.index('--output')+1]).resolve()
+            identity=json.loads((output/'identity.json').read_text())
+            meta=identity.get('performance_execution',{})
+            from starVLA.rl.qwen_world_compare.contracts import fingerprint
+            body=dict(identity);sha=body.pop('sha256')
+            return (output.is_relative_to(D46_ROOT/'runs')and known_D46_output(output)
+                and fingerprint(body)==sha and meta.get('schema')=='d46_fpo_performance_execution_v1'
+                and meta.get('profile')in('exact','fast')and identity['recipe']['arm']=='D3_FPO'
+                and identity['scope']['trainable_numel']==6422528 and identity.get('qualification')is False)
+        except(OSError,ValueError,IndexError,KeyError,TypeError):return False
     if entry=='tools.d46_fpo_verified.train':
         try:
             output=Path(args[args.index('--output')+1]).resolve()

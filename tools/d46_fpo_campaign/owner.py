@@ -56,6 +56,8 @@ def discover(root,state,routes):
         if route['id']=='FPO_MATURE':candidates.append(output/'checkpoints/update001711_inner1')
         else:
             for u in(400,800):candidates.append(output/'checkpoints'/f'update{u:06}_inner0')
+        for u in route.get('early_evaluation_updates',[]):
+            candidates.extend(sorted((output/'checkpoints').glob(f'update{u:06}_inner*')))
         for p in sorted((output/'evaluation_requests').glob('epoch*.json')):
             v=read(p)
             if v['epoch']>=route.get('minimum_new_evaluation_epoch',0):candidates.append(Path(v['checkpoint']))
@@ -176,9 +178,9 @@ def route_status(plan):
                         try:last=json.loads(line);break
                         except ValueError:continue
                 ranks.append(last)
-            if all(v.get('updates',0)>r.get('start_update',0)and v.get('run')==identity.get('sha256')
+            if all(v.get('updates',0)>r.get('start_update',0)and v.get('run')==identity.get('training_run_id',identity.get('sha256'))
                     and v.get('at',0)>=min(x['at']for x in launches)for v in ranks):
-                proof=dict(at=time.time(),all_ranks_committed=True,updates=min(v['updates']for v in ranks),run=identity['sha256'])
+                proof=dict(at=time.time(),all_ranks_committed=True,updates=min(v['updates']for v in ranks),run=identity.get('training_run_id',identity['sha256']),execution_identity=identity['sha256'])
                 proof_path.parent.mkdir(parents=True,exist_ok=True)
                 atomic_json(proof_path,proof)
         status='REVIEW_REQUIRED'if failures else'RUNNING'if len(live)==len(launches)and proof else'INITIALIZING'if live else'SAVED_OR_COMPLETE'
@@ -198,9 +200,9 @@ def route_status(plan):
                         reason='latest complete drop>3 points, or after1E latest two drop>1 point; aggregate only'))
                     (Path(x['job'])/'STOP_REQUESTED').touch()
                 status='SAVING_FOR_PERFORMANCE_REVIEW'if live else'SAVED_FOR_PERFORMANCE_REVIEW'
-        if native.get('epoch',0)>=3:
+        if native.get('epoch',0)>=plan.get('initial_review_epochs',3):
             for x in live:(Path(x['job'])/'STOP_REQUESTED').touch()
-            status='SAVING_FOR_3E_REVIEW'if live else'SAVED_FOR_3E_REVIEW'
+            status='SAVING_FOR_BUDGET_REVIEW'if live else'SAVED_FOR_BUDGET_REVIEW'
         active+=int(status=='RUNNING')
         result[key]=dict(status=status,world=r['world'],hosts=r['hosts'],native=native,live_workers=len(live),failures=[x['job']for x in failures])
     return dict(at=time.time(),actual_training=active,routes=result,maximum_formal_routes=2)
@@ -244,6 +246,9 @@ def main():
     E.launch=launch;E.inventory=inventory;complete_events.notify=notify
     E.SPARE_GPUS={h:tuple(range(8))for h in ['training-vlawm-tsinghua-zt5','training-vlawm-zt',
         'training-vlawm-tsinghua-zt','training-vlawm-tsinghua-zt2']}
+    configured=read(op/'PLAN.json',{}).get('evaluation_gpu_indices')
+    if configured is not None:
+        E.SPARE_GPUS={h:tuple(indices)for h,indices in configured.items()if h in E.SPARE_GPUS}
     with(op/'owner.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         atomic_json(op/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),source=str(SOURCE),at=time.time()))

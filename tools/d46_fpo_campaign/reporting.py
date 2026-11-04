@@ -118,7 +118,7 @@ def build_fragment(plan, state, evaluation):
         identity = read(Path(route['output'])/'identity.json', {})
         tails = [bounded_rows(Path(route['output'])/f'metrics_rank{rank}.jsonl') for rank in range(route['world'])]
         last = [rows[-1] if rows else {} for rows in tails]
-        valid = all(row.get('run') == identity.get('sha256') and isinstance(row.get('updates'), int) for row in last)
+        valid = all(row.get('run') == identity.get('training_run_id',identity.get('sha256')) and isinstance(row.get('updates'), int) for row in last)
         common = min(row['updates'] for row in last) if valid else None
         epoch = min(row.get('scene_epochs', 0) for row in last) if valid else None
         lag = time.time()-min(row.get('at', 0) for row in last) if valid else math.inf
