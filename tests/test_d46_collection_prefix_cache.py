@@ -2,7 +2,8 @@ from types import SimpleNamespace
 import pytest
 import torch
 from starVLA.model.modules.qwen_world_compare.qwen_flow_adapter import DPrefix
-from starVLA.rl.d46_fpo_engineering.prefix_cache import collection_prefix_cache
+from starVLA.rl.d46_fpo_engineering.prefix_cache import collection_prefix_cache,repeat_scene
+from starVLA.model.modules.qwen_world_compare.contracts import ArchitecturePrefix
 
 
 class Actor(torch.nn.Module):
@@ -47,3 +48,13 @@ def test_cache_rejects_policy_version_change():
     with pytest.raises(ValueError,match='Policy changed'):
         with collection_prefix_cache(actor),torch.no_grad():
             actor._policy_version='u2';actor._prepare(actor.condition(1),False)
+
+
+def test_actual_D_keeps_scene_identity_in_outer_architecture_prefix():
+    actor=Actor();value=actor._prepare(actor.condition(16),False)
+    from dataclasses import replace
+    value=replace(value,scene_identity=())
+    wrapped=ArchitecturePrefix('D',('scene',)*16,'u1','e','p',value)
+    selected=repeat_scene(wrapped,3)
+    assert selected.scene_identity==('scene',)*3 and selected.tensors.scene_identity==()
+    assert selected.tensors.valid.shape==(3,1)

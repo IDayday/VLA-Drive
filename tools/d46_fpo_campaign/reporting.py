@@ -149,7 +149,24 @@ def build_fragment(plan, state, evaluation):
         ('本轮新完整评测', str(len(scores))+' 个', '只发布12,146场景全部完成的分数')]
     body = '<style>'+STYLE+'</style><div class="fpo-current" id="D46-FPO-current"><header class="hero"><div class="eyebrow">当前研究 · D框架 / IL46 · FPO 两条路线</div><h1>先看当前实验、进度与真实分数</h1><p>一条继续成熟 FPO，检验充分训练的收益；另一条让随机找到的好轨迹进入真实单轨迹策略，同时保持已有高分能力。</p><p class="muted">报告生成 '+datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')+'；状态账本 '+datetime.fromtimestamp(state.get('at', 0), timezone.utc).strftime('%H:%M:%S UTC')+'。常规30分钟更新，完整新评测立即更新。</p></header>'
     body += '<div class="cards">'+''.join('<div class="card"><small>'+h(title)+'</small><strong>'+h(value)+'</strong><small>'+h(note)+'</small></div>' for title, value, note in cards)+'</div><p class="muted">历史全项目最高：IL70 / SafetyEP 91.45359756；它与当前 D IL46 的父模型不同，历史详情在页末折叠。</p>'
-    body += '<section class="panel"><h2>1. 正在进行的训练</h2>'+table(['路线', '资源', '执行状态', '全rank共同 Adam', '实际有效曝光', '最近完整保存 Adam', '日志时效'], current)
+    engineering=read(ROOT/'engineering/STATUS.json',{})
+    if engineering.get('formal_training')==0 and engineering.get('no_formal_resume')is True:
+        body=body.replace('先看当前实验、进度与真实分数','当前：RL提速开发；正式训练已暂停')
+        body+='<section class="panel"><h2>当前工程任务与实际速度</h2><p>两条正式路线已原生保存：成熟1921/inner1、改进47/inner1。当前只运行有界实现测试。每100步保存完整恢复状态；最近10个恢复点轮换，另保留最佳及正在评测的检查点。</p>'
+        body+=table(['原实际训练配置','完整周期 秒/Adam','实际更新/小时','统计区间'],[(key,f'{v["end_to_end_seconds_per_update"]:.2f}',f'{v["updates_per_hour"]:.1f}',str(v['updates']))for key,v in engineering.get('baseline_throughput',{}).items()])
+        fb=[];collection=[]
+        for path in sorted((ROOT/'engineering').glob('FB_v*/*/RESULT.json')):
+            data=read(path,{})
+            for row in data.get('rows',[]):
+                comp=row.get('comparison',{})
+                fb.append((path.parent.name+' / '+path.parent.parent.name,row['mode'],f'{row["median_seconds"]:.3f}',f'{comp.get("gradient_relative_L2",0):.3%}',comp.get('bitexact'),data.get('status')))
+        for path in sorted((ROOT/'engineering').glob('COLLECTION_v*/*/RESULT.json')):
+            data=read(path,{})
+            for row in data.get('rows',[]):collection.append((path.parent.name,row['mode'],f'{row["seconds_per_scene"]:.3f}',str(row.get('prefix_builds')),row.get('identical_main_sampler_RNG')))
+        body+='<h3>同材料前向反向：局部测量，不等于完整训练加速</h3>'+table(['路线 / 轮次','执行方式','秒 / 实际rank更新','梯度相对L2差异','梯度逐值一致','阶段'],fb)
+        body+='<h3>真实采样与官方评分：单独测量</h3>'+table(['路线','执行方式','秒 / 场景','C/P构建次数','采样RNG一致'],collection)
+        body+='<p>优先路线：同一策略收集期间复用无梯度C/P；删除重复采样均值验证前向；批量计算MC4/教师辅助项；减少逐标量GPU同步。当前可训练C/P仍须每次inner更新重新构图。MC合并可能改变BF16数值，需按实测梯度差异判断；完整分布式周期、恢复与单轨迹质量通过后再决定正式配置。</p></section>'
+    body += '<section class="panel"><h2>1. 已保存的两条训练路线</h2>'+table(['路线', '资源', '执行状态', '全rank共同 Adam', '实际有效曝光', '最近完整保存 Adam', '日志时效'], current)
     body += '<p class="muted">Adam与曝光取所有rank当前日志的最小值；保存点可能落后于训练，不将已保存0步理解为尚未开始。B64 / G16 / M2：每次收集64个场景、1,024条新候选，再做2次Adam；不是1,024个场景。</p>'+table(['路线', '当前完整PDMS', '相同父IL46增益', '分数归属'], progress)+'</section>'
     body += '<section class="panel"><h2>2. 评测进展与现阶段结论</h2>'+table(['评测点', '阶段', '完整分片', '运行分片'], [(c['id'], c['status'], str(c.get('completed_shards', 0))+'/32', c.get('active_shards', 0)) for c in evaluation.get('cases', {}).values()])
     if not scores:

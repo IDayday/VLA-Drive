@@ -29,6 +29,7 @@ def main():
     from starVLA.rl.flow_grpo.reproducibility import configure_numerics
     from starVLA.rl.flow_grpo.transactions import atomic_json
     from starVLA.rl.d44_native_rl.execution_cache import install_invariant_cache
+    from starVLA.rl.d46_fpo_engineering.frozen_weights import FrozenLinearCache
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8');configure_numerics()
     torch.set_num_threads(2);torch.cuda.set_device(0);device=torch.device('cuda',0)
     cp=Path(a.checkpoint);identity=json.loads((cp/'identity.json').read_text());cfg=identity['recipe']
@@ -68,14 +69,16 @@ def main():
             values.append(float(loss.detach()))
         return values
     for mode in a.modes:
-        assert mode in('baseline','lean','invariant','fused','joint')
+        assert mode in('baseline','lean','invariant','fused','joint','weights','weights_joint','weights_fused')
         actor.execution_fast_prefix=verified or mode!='baseline'
-        actor.execution_fuse_fm_mc=mode in('fused','joint')
-        actor.execution_joint_flow_aux=mode=='joint'
+        actor.execution_fuse_fm_mc=mode in('fused','joint','weights_joint','weights_fused')
+        actor.execution_joint_flow_aux=mode in('joint','weights_joint')
         caches=[]
-        if(mode=='baseline'and verified)or mode=='invariant':
+        if(mode in('baseline','weights')and verified)or mode=='invariant':
             for decision in(actor.action_expert.decision,actor.ref_action_expert.decision):
                 caches.append(install_invariant_cache(decision,rotary=True,additive=True))
+        weight_cache=FrozenLinearCache(actor)if mode.startswith('weights')else None
+        if weight_cache:caches.append(weight_cache)
         try:
             step();torch.cuda.synchronize();torch.cuda.reset_peak_memory_stats();times=[]
             for _ in range(a.iterations):
@@ -95,6 +98,7 @@ def main():
                 peak_allocated_bytes=torch.cuda.max_memory_allocated(),losses=losses,
                 comparison=dict(gradient_relative_L2=(error/max(refnorm,1e-30))**.5,gradient_cosine=dot/max((refnorm*newnorm)**.5,1e-30),
                     gradient_max_abs=maximum,bitexact=exact,missing_gradients=missing,loss_max_abs=max(abs(x-y)for x,y in zip(losses,baseline['losses']))))
+            if weight_cache:row['frozen_weight_cache']=dict(bytes=weight_cache.bytes,hits=weight_cache.hits,misses=weight_cache.misses)
             print(json.dumps(dict(event='timing_measured',mode=mode,seconds=times,at=time.time())),flush=True)
             if a.profile and mode=='baseline':
                 with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,torch.profiler.ProfilerActivity.CUDA])as prof:

@@ -213,6 +213,28 @@ def render(plan,status,state):
         p=ROOT/name;t=p.with_suffix('.tmp');t.write_text(body);os.replace(t,p)
 
 
+def retain_checkpoints(plan,state):
+    policy=read(ROOT/'operations/CHECKPOINT_POLICY.json',{})
+    if policy.get('recent_resumable_checkpoints')!=10:return
+    from .retention import rotate
+    selected=read(ROOT/'NEW_COMPLETE_CHECKPOINT_SELECTION.json',{})
+    for key,route in plan['routes'].items():
+        pinned=[]
+        for point in selected.get(key,{}).values():
+            if isinstance(point,dict)and point.get('checkpoint'):pinned.append(point['checkpoint'])
+        for case in state.get('cases',{}).values():
+            if case['binding']['experiment']==key and case['status']not in E.TERMINAL:
+                pinned.append(case['binding']['checkpoint'])
+        own=[c for c in state.get('cases',{}).values()if c['binding']['experiment']==key and c['status']=='COMPLETE']
+        if own:
+            best=max(own,key=lambda c:read(c['summary'])['PDMS']);pinned.append(best['binding']['checkpoint'])
+        known={c['binding']['checkpoint']for c in state.get('cases',{}).values()}
+        for request in(Path(route['output'])/'evaluation_requests').glob('*.json'):
+            point=read(request,{}).get('checkpoint')
+            if point and point not in known:pinned.append(point)
+        rotate(route['output'],keep=10,pinned=pinned)
+
+
 def main():
     a=argparse.ArgumentParser(__doc__);a.add_argument('--once',action='store_true');args=a.parse_args()
     os.environ.setdefault('WORLD_COMPARE_ROOT',str(PARENT));os.environ.setdefault('WORLD_COMPARE_TASK',TASK)
@@ -225,7 +247,7 @@ def main():
     with(op/'owner.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         atomic_json(op/'OWNER.json',dict(pid=os.getpid(),start_ticks=int(Path('/proc/self/stat').read_text().split()[21]),source=str(SOURCE),at=time.time()))
-        last_render=0;previous_results=None;previous_routes=None
+        last_render=0;previous_results=None;previous_routes=None;last_retention=None
         while not(op/'STOP_OWNER').exists():
             plan=read(op/'PLAN.json');status=route_status(plan);atomic_json(op/'STATE.json',status)
             state=read(op/'EVAL_STATE.json',E.initial_state());recover_preempted(state)
@@ -237,12 +259,19 @@ def main():
                 else:atomic_json(op/'EVAL_STATE.json',state)
             except Exception as error:
                 atomic_json(op/'CONTROLLER_ERROR.json',dict(at=time.time(),error=repr(error)))
+            signature=tuple((k,read(Path(v['output'])/'latest.json',{}).get('checkpoint'))for k,v in plan['routes'].items())
+            if signature!=last_retention:
+                try:retain_checkpoints(plan,state);last_retention=signature
+                except Exception as error:
+                    atomic_json(op/'RETENTION_ERROR.json',dict(at=time.time(),error=repr(error)))
             results=[(c['id'],c['status'])for c in state.get('cases',{}).values()]
+            results += [(str(p),p.stat().st_mtime_ns)for p in sorted((ROOT/'engineering').glob('*_v*/*/RESULT.json'))]
             route_states=[(k,v['status'])for k,v in status['routes'].items()]
             if args.once or time.time()-last_render>=1800 or results!=previous_results or route_states!=previous_routes:
                 render(plan,status,state);last_render=time.time();previous_results=results;previous_routes=route_states
             if args.once:break
             paths=[op]
+            paths += [ROOT/'engineering']+[p for p in(ROOT/'engineering').glob('*_v*/*')if p.is_dir()]
             for r in plan['routes'].values():
                 out=Path(r['output']);paths += [out,out/'checkpoints',out/'evaluation_requests']
             for c in state.get('cases',{}).values():

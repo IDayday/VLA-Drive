@@ -24,6 +24,7 @@ def main():
     from starVLA.rl.d46_fpo_engineering.joint_flow import JointVerifiedActor,OptimizedVerifiedCollection
     from starVLA.rl.d46_fpo_engineering.prefix_cache import collection_prefix_cache
     from starVLA.rl.d44_native_rl.execution_cache import install_invariant_cache
+    from starVLA.rl.d46_fpo_engineering.frozen_weights import FrozenLinearCache
     from starVLA.rl.simwam_recipe.lora_adapter import restore_adapters
     from starVLA.rl.simwam_recipe.reward_readouts import RewardService
     from starVLA.rl.flow_grpo.reproducibility import configure_numerics
@@ -56,10 +57,11 @@ def main():
             actor.execution_fast_prefix=verified or mode!='baseline'
             actor.execution_fuse_fm_mc=mode=='optimized';actor.execution_joint_flow_aux=mode=='optimized'
             caches=[]
-            if verified and mode=='baseline':
+            if verified and mode in('baseline','exact_cache'):
                 for policy in(actor.action_expert,actor.ref_action_expert):caches.append(install_invariant_cache(policy.decision,rotary=True,additive=True))
+            if mode!='baseline':caches.append(FrozenLinearCache(actor))
             if verified:
-                extension=OptimizedVerifiedCollection()if mode=='optimized'else VerifiedExtension()
+                extension=VerifiedExtension()if mode=='baseline'else OptimizedVerifiedCollection()
                 extension.bank=copy.deepcopy(own['state']['verified_history']);extension.rows=[]
                 # Uniform epoch-one workload: score initial IL B1 on first visit.
                 for row in inputs:
@@ -73,9 +75,7 @@ def main():
                 for row in inputs:
                     descriptor=conditions.get(row['token'])
                     if verified:
-                        if mode=='exact_cache':
-                            with collection_prefix_cache(actor):r=extension.collect_scene(actor,descriptor,row['token'],row['log'],service,generator,cfg,0.,version,cost=add)
-                        else:r=extension.collect_scene(actor,descriptor,row['token'],row['log'],service,generator,cfg,0.,version,cost=add)
+                        r=extension.collect_scene(actor,descriptor,row['token'],row['log'],service,generator,cfg,0.,version,cost=add)
                     elif mode!='baseline':
                         with collection_prefix_cache(actor):r=collect_scene(actor,descriptor,row['token'],row['log'],service,generator,cfg,0.,version,cost=add,validate_sample_mean=False)
                     else:r=collect_scene(actor,descriptor,row['token'],row['log'],service,generator,cfg,0.,version,cost=add)
@@ -84,9 +84,14 @@ def main():
                 comparisons=[]
                 if reference is None:reference=rows;reference_rng=generator.get_state().clone()
                 for old,new in zip(reference,rows):
-                    comparisons.append({key:float((old[key]-new[key]).abs().max())for key in('chain','old_mean','ref_mean','std','factors','fm_state','fm_sigma','fm_target','old_energy')})
+                    keys=['chain','old_mean','ref_mean','std','factors','fm_state','fm_sigma','fm_target','old_energy']
+                    for key in('nominal_chain','rescue_teacher','rescue_state','rescue_sigma','rescue_velocity_target','retention_target'):
+                        assert(key in old)==(key in new),'Teacher selection changed'
+                        if key in old:keys.append(key)
+                    comparisons.append({key:float((old[key]-new[key]).abs().max())for key in keys})
                 assert torch.equal(reference_rng,generator.get_state()),'Main sampler RNG changed'
                 assert all(all(v==0 for k,v in row.items()if k!='old_energy')for row in comparisons),'Actual trajectories/score/source terms changed'
+                if mode=='exact_cache':assert all(row['old_energy']==0 for row in comparisons),'Exact flow energy changed'
                 value=dict(mode=mode,seconds=seconds,scenes=len(rows),seconds_per_scene=seconds/len(rows),cost=cost,
                     prefix_builds={k:actor.prepared_context_builds[k]-before[k]for k in before},comparison=comparisons,
                     identical_main_sampler_RNG=True,first_visit=True)

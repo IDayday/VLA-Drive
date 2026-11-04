@@ -8,14 +8,15 @@ from starVLA.model.modules.qwen_world_compare.contracts import ArchitecturePrefi
 def repeat_scene(prefix, count):
     wrapped=isinstance(prefix,ArchitecturePrefix)
     base=prefix.tensors if wrapped else prefix
-    if not len(base.valid)or len(set(base.scene_identity))!=1:
+    names=prefix.scene_identity if wrapped else base.scene_identity
+    if not len(base.valid)or len(set(names))!=1:
         raise ValueError('Collection cache requires exactly one scene')
     def repeat(tensor):
         shape=list(tensor.shape);shape[0]=count
         return tensor.narrow(0,0,1).expand(*shape)
     value=replace(base,layer_kv=tuple((repeat(k),repeat(v))for k,v in base.layer_kv),
         valid=repeat(base.valid),next_positions=repeat(base.next_positions),reasoning=repeat(base.reasoning),
-        scene_identity=base.scene_identity[:1]*count)
+        scene_identity=base.scene_identity[:1]*count if base.scene_identity else())
     return replace(prefix,tensors=value,scene_identity=prefix.scene_identity[:1]*count)if wrapped else value
 
 

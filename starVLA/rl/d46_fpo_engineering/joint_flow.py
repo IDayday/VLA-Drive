@@ -44,6 +44,7 @@ class JointVerifiedActor(VerifiedActor):
 class OptimizedVerifiedCollection(VerifiedExtension):
     """Collection hook only; no new trainer and no formal-resume authority."""
     actor_factory=JointVerifiedActor
+    bulk_metrics=True
     main_collector=staticmethod(partial(collect_scene,defer_flow_energy=True,validate_sample_mean=False))
 
     @torch.no_grad()

@@ -287,40 +287,19 @@ def main(*,extension=None):
                 state['phase']='ROLLOUT_COMMITTED';state['next_inner']=0
                 runtime.validate_ranks(checkpoint.gather(runtime.validate_boundary(state,batch,identity)))
                 path=root/'behavior'/attempt.id/f'collection{state["collections"]:06}'/f'rank{rank}.pt';checkpoint.atomic_torch(path,batch)
-            begin=time.monotonic();optimizer.zero_grad(set_to_none=True);totals={};valid_kl_sum=0.
-            multiplier=scene_lr(state['valid_scene_exposures']/stream.n,warmup=cfg['warmup_epochs'],hold=cfg['hold_until_epoch'],end=cfg['cosine_end_epoch'],floor=cfg['min_lr_ratio'])
-            for group in optimizer.param_groups:
-                stage_multiplier=.5 if cfg['arm']=='D1'and batch['epoch']>=2 and group['name']=='text_lora'else 1.
-                group['lr']=group['initial_lr']*multiplier*stage_multiplier
-                if cfg['arm']=='D6':
-                    current_stage=stage_recipe(cfg,batch['epoch'])[1]
-                    rate=current_stage.text_lr if group['name']=='text_lora'else current_stage.film_lr if group['name']=='film_lora'else 2e-5 if current_stage.post else 0.
-                    warm=min(1.,max(1e-4,(state['valid_scene_exposures']/stream.n)/cfg['warmup_epochs']))
-                    group['lr']=rate*warm
-            for j,r in enumerate(batch['scenes']):
-                r['expect_fresh']=state['next_inner']==0
-                sync=ddp.no_sync()if world>1 and j<len(batch['scenes'])-1 else contextlib.nullcontext()
-                with sync:
-                    loss,metrics=ddp(r)
-                    weighted=loss*(0. if r['padding']else world/batch['valid_scenes']);weighted.backward()
-                for key,value in metrics.items():totals[key]=totals.get(key,0.)+float(value.detach())/len(batch['scenes'])
-                if not r['padding']:valid_kl_sum+=float(metrics['reference_KL_joint'].detach())
-            if cfg['arm']=='D6':
-                for group in optimizer.param_groups:
-                    if group['lr']==0:
-                        for parameter in group['params']:parameter.grad=None
-            norm=torch.nn.utils.clip_grad_norm_(trainables,1.)
-            if not torch.isfinite(norm):raise FloatingPointError('Nonfinite native gradient')
-            grad_roles={}
-            for group in optimizer.param_groups:grad_roles[group['name']]=float(torch.stack([p.grad.float().norm()for p in group['params']if p.grad is not None]).norm())if any(p.grad is not None for p in group['params'])else None
-            optimizer.step();scheduler.step();torch.cuda.synchronize();state['updates']+=1;state['next_inner']+=1;state['phase']='INNER_COMMITTED'
+            from starVLA.rl.d44_native_rl.update import optimizer_update
+            for r in batch['scenes']:r['expect_fresh']=state['next_inner']==0
+            update=optimizer_update(ddp,actor,optimizer,scheduler,batch,cfg,state['valid_scene_exposures']/stream.n,
+                world,trainables,bulk_metrics=extension is not None and getattr(extension,'bulk_metrics',False))
+            totals=update['totals'];valid_kl_sum=update['valid_kl_sum'];norm=update['norm'];grad_roles=update['grad_roles']
+            state['updates']+=1;state['next_inner']+=1;state['phase']='INNER_COMMITTED'
             row=dict(updates=state['updates'],run=identity['sha256'],collection=state['collections'],inner_completed=state['next_inner'],
                 behavior_update=batch['behavior_update'],invocation=attempt.id,scene_epochs=state['valid_scene_exposures']/stream.n,
                 raw_scene_exposures=state['raw_scene_exposures'],scene_exposures=state['valid_scene_exposures'],PG_candidates=state['valid_PG_candidates'],
                 generated_PG_candidates_including_padding=state['new_candidates'],
                 extra_B1_queries=state['extra_B1_queries'],adaptive_G32_queries=state['adaptive_G32_queries'],
                 losses=totals,gradient_norm=float(norm),role_gradient_norms=grad_roles,lr=[g['lr']for g in optimizer.param_groups],
-                update_seconds=time.monotonic()-begin,collection_seconds_generation=sum(r['seconds_generation']for r in batch['scenes']),
+                update_seconds=update['seconds'],collection_seconds_generation=sum(r['seconds_generation']for r in batch['scenes']),
                 collection_seconds_scoring=sum(r['seconds_scoring']for r in batch['scenes']),peak_GPU_bytes=torch.cuda.max_memory_allocated(),
                 global_advantage_std=batch['global_std'],at=time.time(),beta=dual.beta)
             row['exploration']=batch['diagnostics']
