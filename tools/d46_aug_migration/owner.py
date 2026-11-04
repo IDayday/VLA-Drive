@@ -30,7 +30,9 @@ def read(path,default=None):
 
 
 def formal_route(route):
-    return dict(route,source=route.get('formal_source',route['source']))
+    result=dict(route,source=route.get('formal_source',route['source']))
+    if route.get('formal_source_sha'):result['source_sha']=route['formal_source_sha']
+    return result
 
 
 def finished(jobs):
@@ -235,6 +237,10 @@ def main():
                 if complete:pending.append(max(complete,key=lambda c:read(c['summary'])['PDMS'])['binding']['checkpoint'])
                 pending.append(str(Path(route['formal_output'])/'checkpoints/update000000_inner0'))
                 rotate(route['formal_output'],keep=10,pinned=pending)
+                error=op/'EVALUATION_ERROR.json'
+                if error.exists():
+                    history=op/'resolved_errors';history.mkdir(exist_ok=True)
+                    os.replace(error,history/f'{time.time_ns()}.json')
             except Exception:atomic_json(op/'EVALUATION_ERROR.json',dict(at=time.time(),error=traceback.format_exc()))
             signature=(state['stage'],tuple((c['id'],c['status'])for c in evaluations['cases'].values()))
             if signature!=previous or time.time()-last_report>=1800:

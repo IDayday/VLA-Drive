@@ -23,3 +23,11 @@ def test_incomplete_save_is_never_collected(tmp_path):
     point=create(tmp_path,100);(tmp_path/'latest.json').write_text(json.dumps({'checkpoint':str(point)}))
     partial=tmp_path/'checkpoints/update000200_inner0.incomplete.x';partial.mkdir()
     rotate(tmp_path,keep=1);assert partial.exists()and point.exists()
+def test_initial_publication_without_latest_never_prunes(tmp_path):
+    directory=tmp_path/'checkpoints';directory.mkdir()
+    pending=directory/'update000000_inner0';pending.mkdir()
+    (pending/'optimizer.pt').write_bytes(b'in-flight initial save')
+    result=rotate(tmp_path,keep=1)
+    assert result['status']=='WAITING_INITIAL_LATEST'
+    assert result['removed']==[] and (pending/'optimizer.pt').read_bytes()==b'in-flight initial save'
+

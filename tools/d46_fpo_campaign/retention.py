@@ -15,6 +15,10 @@ def rotate(root,*,keep=10,pinned=()):
     if not directory.is_dir():return {'kept':[],'removed':[]}
     with(root/'checkpoint_retention.lock').open('a')as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
+        if not(root/'latest.json').is_file():
+            # The native writer creates checkpoints/ before publishing its
+            # first atomic latest pointer. Keep every payload until then.
+            return {'status':'WAITING_INITIAL_LATEST','kept':[],'removed':[]}
         latest=json.loads((root/'latest.json').read_text())['checkpoint']
         protected={Path(p).resolve()for p in pinned}|{Path(latest).resolve()}
         rows=[]
