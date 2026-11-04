@@ -170,6 +170,8 @@ def main(*,extension=None):
         valid_scene_exposures=0,raw_scene_exposures=0,new_candidates=0,valid_PG_candidates=0,extra_B1_queries=0,adaptive_G32_queries=0,
         padding_scene_exposures=0,adaptive_kl=dual.state_dict(),evaluation_gates=[])
     if cfg['arm']=='D6':state.update(d6_history=self_history.initial(identity['sha256']),stage_id='I',stage_transitions=[])
+    if extension is not None and hasattr(extension,'initialize_state'):
+        extension.initialize_state(state,identity)
     batch=None
     if a.resume:state,batch=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,runtime=runtime)
     if extension is not None:

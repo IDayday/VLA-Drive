@@ -15,6 +15,9 @@ def material_digest(batch):
           'factors','beta','timesteps','deltas','padding','epoch','records','teacher_record')
     keys+=('old_clean_x','ref_clean_x','augustus_kernel')
     keys+=('active_stage','enable_post_feedback','teacher_kind','teacher_ancestry','nominal_record','sampling_source')
+    keys+=('rescue_teacher','rescue_state','rescue_sigma','rescue_velocity_target','rescue_record',
+           'retention_target','retention_version','retention_record','retention_share','retention_kind',
+           'initial_IL_record','initial_IL_action','teacher_query_counts')
     return tensor_digest([{k:r[k]for k in keys if k in r}for r in batch['scenes']])
 
 

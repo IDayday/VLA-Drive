@@ -11,15 +11,16 @@ from starVLA.rl.simwam_recipe.contracts import seed_for
 
 
 @torch.no_grad()
-def deployment_chain(actor,condition,generator):
+def deployment_chain(actor,condition,generator,*,use_ref=False):
     """Exactly model.predict's clean-x arithmetic, including FP32 grid rounding."""
     grid=shift_sigma(torch.linspace(1,0,11,dtype=torch.float32),5.).to(actor.device)
     state=torch.randn((1,8,3),generator=generator).to(actor.device);states=[state.clone()]
     with actor._context_call(condition)as material:
-        prefix=actor._prepare(material,False)
+        prefix=actor._prepare(material,use_ref)
+        policy=actor.ref_action_expert if use_ref else actor.action_expert
         for sigma,nxt in zip(grid[:-1],grid[1:]):
             with torch.autocast(actor.device.type,dtype=torch.bfloat16):
-                prediction=actor.action_expert.denoise_x0(state,sigma.reshape(1),prefix)
+                prediction=policy.denoise_x0(state,sigma.reshape(1),prefix)
             state=clean_x_step(state,prediction,sigma,nxt,validate=False);states.append(state.clone())
     return torch.stack(states,1).detach(),grid
 

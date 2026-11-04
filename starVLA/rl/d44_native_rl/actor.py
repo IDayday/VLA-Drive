@@ -115,6 +115,8 @@ class D44Actor(FourFrameworkRecipeActor):
                         fuse=bool(getattr(self,'execution_fuse_fm_mc',False)))
                     energy=energies.mean(0)
                     pg,proxy=clipped_loss((r['old_energy']-energy)[:,None],r['advantages'],c['clip']);metrics.update({'fpo_'+k:v for k,v in proxy.items()})
+                    if r['expect_fresh']and max(abs(float(proxy['joint_logratio_min'])),abs(float(proxy['joint_logratio_max'])))>1e-4:
+                        raise FloatingPointError('Fresh FPO energy ratio differs from behavior policy')
                 else:
                     energies=[];references=[];predictions=[]
                     for state,sigma,target in zip(r['fm_state'],r['fm_sigma'],r['fm_target']):
@@ -141,6 +143,9 @@ class D44Actor(FourFrameworkRecipeActor):
                 with torch.autocast(self.device.type,dtype=torch.bfloat16):
                     post=loss(self.action_expert,cond,r['chain'][:,-1],r['records'],one)
                 aux=aux+c['post_weight']*post['loss'];metrics.update(post_loss=post['loss'].detach(),event_accuracy=post['event_accuracy'].detach())
+            if hasattr(self,'additional_objective'):
+                extra,extra_metrics=self.additional_objective(r,current_prefix())
+                aux=aux+extra;metrics.update(extra_metrics)
             metrics.update(pg=pg.detach(),reference_KL_joint=anchor.detach(),reference_KL_per_coordinate=anchor.detach()/24,
                 auxiliary_loss=aux.detach(),fresh_ratio_error=logr.detach().expm1().abs().max()if r['expect_fresh']else mean.new_tensor(0.))
             if return_components:return total+aux,metrics,dict(policy=pg,reference=r['beta']*anchor,auxiliary=aux)
