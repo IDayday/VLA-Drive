@@ -47,7 +47,12 @@ def test_real_native_cleanx_JaT_update_preserves_parent_reference(experiment):
         scene=collect_scene(actor,condition,'TRAIN_CPU_0','TRAIN_cpu',SyntheticService(),generator,cfg,0.,{'update':0})
         raw,_=credit([scene],None,0.);adv,_=advantages(raw,torch.tensor([True]),8,1)
         scene.update(advantages=adv[0],padding=False,beta=.001,expect_fresh=True)
-        loss,metrics=actor(scene);loss.backward()
+        loss,metrics=actor(scene)
+        traced,traced_metrics,parts=actor(scene,return_components=True)
+        torch.testing.assert_close(traced,loss,rtol=0,atol=0)
+        assert parts['logratio'].shape==(8,3)and parts['logratio'].requires_grad
+        assert parts['reference_KL_steps'].shape==(8,3)
+        loss.backward()
         assert metrics['fresh_ratio_error']==0 and torch.isfinite(loss)
         gradients=[p.grad for p in actor.parameters()if p.requires_grad and p.grad is not None]
         assert gradients and all(torch.isfinite(g).all()for g in gradients)

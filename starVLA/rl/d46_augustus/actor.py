@@ -138,5 +138,6 @@ class AugustusActor(D44Actor):
                        reference_KL_per_coordinate=coordinate_kl.detach(),auxiliary_loss=total.detach()*0)
         if return_components:
             reference=spec['fixed_reference_beta']*coordinate_kl
-            return total,metrics,dict(policy=total-reference,reference=reference,auxiliary=total*0)
+            return total,metrics,dict(policy=total-reference,reference=reference,auxiliary=total*0,
+                                      logratio=logr,reference_KL_steps=kl)
         return total,metrics
