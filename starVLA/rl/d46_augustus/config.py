@@ -74,12 +74,15 @@ def defaults(experiment_id,*,global_scenes=None,inner_updates=None,registration_
         target_epochs=6.,maximum_epochs=20.,checkpoint_policy='all_off',
         film_last_layers=0 if full else 8,train_action_io=True)
     cfg['augustus']=profile(experiment_id)|dict(scope=EXPERIMENTS[experiment_id],execution=dict(fast_prefix=True,rotary_cache=True))
+    if experiment_id=='AUG7_NATIVE_FP32':cfg['dtype']='FP32_parameters_text_action_states_probability_BF16_frozen_visual'
     return validate(cfg)
 
 
 def validate(cfg,*,parent_checks=True):
     if not isinstance(cfg,dict)or cfg.get('experiment_id')not in EXPERIMENTS:raise ValueError('Unknown AUGUSTUS experiment')
     exp=cfg['experiment_id'];execution=cfg.get('augustus',{}).get('execution',{})
+    if exp=='AUG7_NATIVE_FP32' and cfg.get('dtype')!='FP32_parameters_text_action_states_probability_BF16_frozen_visual':
+        raise ValueError('Text/action precision must match scientific dtype metadata')
     v2=aligned(exp);full=EXPERIMENTS[exp]=='full_text_action'
     expected=profile(exp)|dict(scope=EXPERIMENTS[exp],execution=execution)
     if cfg.get('augustus')!=expected or set(execution)!={'fast_prefix','rotary_cache'}or any(type(v)is not bool for v in execution.values()):
