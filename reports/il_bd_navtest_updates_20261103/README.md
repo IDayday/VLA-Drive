@@ -1,6 +1,6 @@
 # B / D IL：每 2K 检查点 Navtest 动态结果
 
-更新：2026-11-04 12:20:33 UTC
+更新：2026-11-04 12:21:52 UTC
 
 只发布完整 12,146 场景、44 个物理 log、invalid=0 的结果。统一 canonical NAVSIM v1.1，seed2101，B1 单候选 K10/shift5 ODE。
 
@@ -80,6 +80,7 @@
 | 架构 | checkpoint | 状态 |
 |---|---:|---|
 | D | 72000 | RUNNING |
+| D | 74000 | RUNNING |
 
 更新规则：每 60 秒仅检查封存结果与队列元数据；完整结果到达后自动更新本表并推送当前新报告分支。每 2K 评测登记由原 cadence 负责，checkpoint/scorer/训练源码与精度不在发布器中修改。
 
