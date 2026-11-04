@@ -1,5 +1,7 @@
 # D46 AUGUstus regression diagnosis and corrective implementation
 
+**当前状态：用户于 2026-11-04 终止全部 RL 训练。实际运行 0 组，自动派发与恢复已关闭，未经新的明确指令不重启。** Full 在 update441/inner1、LoRA 在 update979/inner1 保存；两组所有 worker 均 EXIT0，保留完整 Adam、scheduler、RNG、rollout 与结果。8 个 CPU 训练调度/复核入口已退出，9 个可用执行环境未发现仍在运行的 RL 训练；D 框架 IL 保持运行，已登记评测可完成。[终止收据](results/ALL_RL_USER_TERMINATION_20261104.json)。
+
 最新资源变更（2026-11-04 UTC）：用户撤回 `vlawm-tsinghua-zt2`。全局禁止新派发，Full 整组在 update441 / inner1 原生保存、四节点 EXIT0，撤回节点本任务进程归零。Adam、scheduler、RNG、rollout 和 scene cursor 保留；LoRA 与评测继续。Full 等待获准且通过准入的替代整节点，属于资源暂停，未判定算法终止。收据见 [TSH2_WITHDRAWAL_20261104.json](results/TSH2_WITHDRAWAL_20261104.json)。
 
 The original FULL and LoRA runs are preserved; neither is resumed with silently changed mathematics. All scores below are complete NAVTEST B1/K10/shift5/seed2101, 12,146 scenes, 44 physical logs, invalid=0. Parent D IL46 is 89.4955209759. NAVTEST_SELECTED=true; no scene labels or priorities enter training.

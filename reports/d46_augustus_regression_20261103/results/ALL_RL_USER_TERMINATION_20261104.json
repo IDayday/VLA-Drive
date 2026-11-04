@@ -1,0 +1,76 @@
+{
+  "schema": "all_RL_user_termination_complete_v1",
+  "status": "ALL_RL_TRAINING_TERMINATED",
+  "at": 1793757041.0982976,
+  "user_instruction": "RL\u8bad\u7ec3\u90fd\u7ec8\u6b62",
+  "active_RL_training": 0,
+  "automatic_training_dispatch": false,
+  "automatic_resume": false,
+  "restart_requires_new_user_instruction": true,
+  "preserved": [
+    "code",
+    "scientific_configs",
+    "checkpoints",
+    "optimizer",
+    "scheduler",
+    "per_rank_RNG",
+    "pending_rollout",
+    "scene_cursor",
+    "results"
+  ],
+  "IL_training_unchanged": true,
+  "protected_IL_ranks": 8,
+  "existing_registered_evaluations_may_finish": true,
+  "training_routes": [
+    {
+      "experiment": "AUG3_FULL_ALIGNED",
+      "updates": 441,
+      "next_inner": 1,
+      "valid_scene_exposures": 28288,
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/AUG3_FULL_ALIGNED_v2/checkpoints/update000441_inner1",
+      "rank_result_agreement": 32,
+      "all_workers_exit0": true,
+      "seal": {
+        "schema": 2,
+        "contract": "qwen_world_abcd_research_checkpoint_v1",
+        "phase": "INNER_COMMITTED",
+        "world": 32,
+        "updates": 441,
+        "next_inner": 1,
+        "files_sha256": "b80e01afcb44ddbcb3530b3317837a3f8d9c98cb53133c694bab2ecf581f336b"
+      }
+    },
+    {
+      "experiment": "AUG4_LORA_ALIGNED",
+      "updates": 979,
+      "next_inner": 1,
+      "valid_scene_exposures": 31360,
+      "checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/AUG4_LORA_ALIGNED_v2/checkpoints/update000979_inner1",
+      "rank_result_agreement": 16,
+      "all_workers_exit0": true,
+      "seal": {
+        "schema": 2,
+        "contract": "qwen_world_abcd_research_checkpoint_v1",
+        "phase": "INNER_COMMITTED",
+        "world": 16,
+        "updates": 979,
+        "next_inner": 1,
+        "files_sha256": "9a148f14e884c217f210faccae0eba8305a2ee15f0becca68c3ae0ad675f9228"
+      }
+    }
+  ],
+  "verified_hosts": [
+    "LOCAL",
+    "training-vlawm-zt4",
+    "training-rl-zt2",
+    "training-vlawm-tsinghua-zt5",
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-zt",
+    "training-vlawm-tsinghua-zt4",
+    "training-vlawm-zt2",
+    "training-vlawm-tsinghua-zt"
+  ],
+  "remaining_RL_training_processes": 0,
+  "CPU_training_dispatchers_stopped": 8,
+  "TSH2_remains_withdrawn": true
+}
