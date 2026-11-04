@@ -207,27 +207,10 @@ def route_status(plan):
 
 
 def render(plan,status,state):
-    import html
-    h=html.escape;rows=[]
-    for key,r in plan['routes'].items():
-        s=status['routes'][key];n=s.get('native',{})
-        rows.append([key,r['description'],str(r['world']),str(n.get('updates','—')),f"{n.get('epoch',0):.5f}",s['status'],' + '.join(r['hosts'])])
-    def table(headers,rows):
-        return '<div class="scroll"><table><tr>'+''.join('<th>'+h(x)+'</th>'for x in headers)+'</tr>'+''.join('<tr>'+''.join('<td>'+h(str(x))+'</td>'for x in row)+'</tr>'for row in rows)+'</table></div>'
-    points=[]
-    for c in state.get('cases',{}).values():
-        if c['status']=='COMPLETE':
-            s=read(c['summary']);points.append((c['binding']['experiment'],c['binding']['updates'],s['PDMS'],c['summary']))
-    best=max([90.32032057511778]+[p[2]for p in points])
-    body='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D46 FPO两条研究线</title><style>body{font:16px/1.8 system-ui;background:#f1f5f9;color:#172033;margin:0}main{max-width:1250px;margin:auto;padding:28px}section{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:22px;margin:18px 0}h1{font-size:27px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:10px;border-bottom:1px solid #e2e8f0}th{background:#eff6ff}.scroll{overflow:auto}.muted{color:#64748b;font-size:14px}a{color:#2563eb}</style><main><h1>D46 FPO：成熟路线延长＋单轨迹吸收与保持</h1>'
-    body+='<p>当前D系最高完整 PDMS <b>'+f'{best:.8f}'+'</b> · IL46基线89.49552098 · 本次实际在训 <b>'+str(status['actual_training'])+'</b> 组（正式状态见下表）</p><p class="muted">更新 '+datetime.now(timezone.utc).isoformat()+'；历史IL70/SafetyEP91.45359756为不同父模型。</p>'
-    body+='<section><h2>当前实验与实际保存进度</h2>'+table(['路线','方法/起点','卡数','最近完整保存Adam','有效曝光E','执行状态','执行容器'],rows)+'<p>成熟线继承自己的FPO1711/inner1完整Adam/RNG；改进线从同一IL46、新Adam开始，资格权重不进入正式训练。B64/G16/M2、LoRA6.42M、MC4、SafetyEP与批级std保持；最多两条正式路线。当前先推进到3E并复核，原生6E配置不被暗改。</p></section>'
-    body+='<section><h2>B1与教师：改进线在做什么</h2><p>B1是原生单轨迹ODE K10/shift5/scene-seed2101，无重排。改进教师从当前TRAIN G16、必要时额外G16中找：NC/DAC/TTC/Comfort均1、PDMS≥.9且比真实B1好≥.02。采用原生CFM与真实B1最后一步监督；额外样本不进入FPO ratio。</p><p>保持教师来自同一实验的初始IL46 B1和自身较早高质量B1；全TRAIN容量103,288，避免小bank与仅回退触发使覆盖过低。保留5%基础/回退加20%的保持系数，实际损失权重见登记配置。监督只在TRAIN评分，NAVTEST场景标签不回流；部署不带教师、bank或评分器。</p></section>'
-    body+='<section><h2>完整官方评测</h2><p>固定12,146场景、44物理logs、invalid0，单B1。原成熟FPO半轮90.32032058（+0.82479960）是历史点；新结果只在全部场景完成后列出。</p>'
-    body+=table(['新完整点','Adam','PDMS','相IL46'],[(p[0],p[1],f'{p[2]:.8f}',f'{p[2]-89.4955209758546:+.6f}')for p in points])
-    body+=table(['评测队列','状态','完整分片/32','运行分片'],[(c['id'],c['status'],c.get('completed_shards',0),c.get('active_shards',0))for c in state.get('cases',{}).values()])+'</section>'
-    body+='<section><h2>资源与停机准备</h2><p>稳定白名单节点承担训练；新增临时节点优先承担可恢复评测。每scene独立落盘、严格身份校验与rank锁；停机后保留成功输出，只重派已确认释放rank锁的缺失分片。未知GPU进程不回收，TSH3的D IL保留。新完整结果立即更新，其余每30分钟更新。</p><p><a href="operations/STATE.json">实际状态账本</a> · <a href="operations/PLAN.json">路线与资源计划</a> · <a href="operations/EVAL_STATE.json">评测账本</a></p></section></main></html>'
-    p=ROOT/'report.html';t=p.with_suffix('.tmp');t.write_text(body);os.replace(t,p)
+    from .reporting import build_fragment, document
+    fragment=build_fragment(plan,status,state)
+    for name,body in(('current_fragment.html',fragment),('report.html',document(fragment))):
+        p=ROOT/name;t=p.with_suffix('.tmp');t.write_text(body);os.replace(t,p)
 
 
 def main():
