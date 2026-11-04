@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 import statistics
 import time
+from .policy import authorized_host_rows
 
 OLD = Path('/mnt/project/qwen-world-postcot-20261025')
 FOUR = Path('/mnt/project/qwen-world-four-frameworks-20261029')
@@ -370,7 +371,7 @@ def snapshot(report_root):
             e.warnings.append('DEV 辅助记录待核验: '+str(path))
         watch_dirs.update([path.parent.parent,path.parent])
     policy=e.read('/mnt/project/server_dispatch_policy.json')
-    allowed=[h for h in policy.get('allowed_hosts',{})if policy.get('global_dispatch_prohibitions',{}).get(h,{}).get('new_task_dispatch_allowed')is not False]
+    allowed=authorized_host_rows(policy)
     source=source_audit(e)
     request=e.read(FOUR/'MATCHED_IL_EVAL_LATEST.json')
     pending_evaluations=[]
@@ -392,7 +393,7 @@ def snapshot(report_root):
     return dict(schema='qwen_world_IL_live_report_v1',generated_unix=time.time(),
         generated_utc=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC'),runs=runs,scores=scores,
         dev_diagnostics=dev,selection=selection,source_audit=source,auxiliary_audit=auxiliary_audit(e),
-        loss_analyses={'RAW':original,'V12':v12},policy_authorized_hosts=allowed,
+        loss_analyses={'RAW':original,'V12':v12},policy_authorized_hosts=list(allowed),
         protocol=dict(name='canonical NAVSIM v1.1',count=12146,seed=2101,inference='single clean-x K10 shift5 ODE',
                       hash=PROTOCOL,token_hash=TOKEN_HASH),
         four_framework_plan=dict(IL_updates=plan.get('IL_updates'),RL_updates=plan.get('RL_updates'),
@@ -400,6 +401,6 @@ def snapshot(report_root):
             no_short_training_elimination=plan.get('no_short_training_elimination')),
         matched_architecture_analysis=e.read(Path(report_root)/'reporting/matched_5k_analysis.json'),
         checkpoint_evaluation_request=request,pending_evaluations=pending_evaluations,
-        policy_host_windows={h:row for h,row in policy.get('allowed_hosts',{}).items()if row.get('temporary')},
+        policy_host_windows={h:row for h,row in allowed.items()if row.get('temporary')},
         warnings=e.warnings,inputs=e.inputs,watch_directories=sorted(str(p)for p in watch_dirs if p.is_dir()),
         read_only=True,new_GPU_forwards=0,new_scores=0,training_mutations=0)

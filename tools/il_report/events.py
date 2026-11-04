@@ -88,7 +88,7 @@ class ILStateEvents(OwnerStateEvents):
             return {fingerprint(['RL_report',at]):dict(kind='RL_phase_report_resource_review',source=str(path))}
         if path.name=='server_dispatch_policy.json':
             data=read_object(path)
-            value={key:data.get(key)for key in ('allowed_hosts','global_dispatch_prohibitions','pending_resource_additions')}
+            value={key:data.get(key)for key in ('allowed_hosts','hosts','global_dispatch_prohibitions','pending_resource_additions')}
             return {fingerprint(['resources',value]):dict(kind='resource_authorization_changed',source=str(path))}
         if path.name=='refresh_request.json':
             return super().signatures(path)

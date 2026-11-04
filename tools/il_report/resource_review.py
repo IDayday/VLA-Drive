@@ -16,6 +16,7 @@ import sys
 import time
 
 from .health import atomic, alive, read
+from .policy import authorized_host_rows
 
 POLICY = Path('/mnt/project/server_dispatch_policy.json')
 OPERATOR = Path('/mnt/project/VLA-Drive-qwen-world-time-owner-adoption-20261029')
@@ -30,7 +31,7 @@ def fingerprint(value):
 
 
 def permission_signature(policy):
-    return fingerprint({k:policy.get(k)for k in ('allowed_hosts','global_dispatch_prohibitions','task_holds','task_authorizations')})
+    return fingerprint({k:policy.get(k)for k in ('allowed_hosts','hosts','global_dispatch_prohibitions','task_holds','task_authorizations')})
 
 
 def lease_held(path):
@@ -45,11 +46,7 @@ def probe_all():
     # actual runtime resource contracts in an already imported package.
     sys.path.insert(0,str(OPERATOR))
     from starVLA.rl.qwen_world_postcot.resources import probe
-    p=read(POLICY);hosts=[];now=time.time()
-    for host,row in p['allowed_hosts'].items():
-        if p.get('global_dispatch_prohibitions',{}).get(host,{}).get('new_task_dispatch_allowed')is False:continue
-        if row.get('temporary')and not row.get('unbounded')and row.get('expires_unix',0)<=now:continue
-        hosts.append(host)
+    p=read(POLICY);hosts=list(authorized_host_rows(p))
     def get(host):
         try:return host,probe(host),None
         except Exception as error:return host,None,str(error)
