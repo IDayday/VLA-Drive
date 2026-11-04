@@ -663,6 +663,14 @@ def D46_dedicated_execution_fragment():
 
 
 def FPO_two_routes_fragment():
+    current=Path('/mnt/project/d46-aug-migration-20261104/current_fragment.html')
+    legacy=_archived_FPO_two_routes_fragment()
+    if current.is_file():
+        return current.read_text()+'<details><summary>已终止FPO：完整历史结果与方法</summary>'+legacy+'</details>'
+    return legacy
+
+
+def _archived_FPO_two_routes_fragment():
     root=Path('/mnt/project/d46-fpo-two-routes-20261104');op=root/'operations'
     plan=read(op/'PLAN.json',{});request=read(op/'REQUEST.json',{})
     if plan.get('schema')!='exact_two_D46_FPO_routes_v1'or request.get('maximum_formal_routes')!=2:return ''
@@ -1566,7 +1574,8 @@ def render_fragment(root=ROOT):
     if current:body+='</details>'
     compact=dict(s);compact['journals']={arm:dict(path=str(Path(next(r['output'] for r in s['current_runs'] if r['id']==arm))/'metrics_rank0.jsonl'),rows=len(rows),first_update=rows[0].get('updates') if rows else None,last_update=rows[-1].get('updates') if rows else None) for arm,rows in s['journals'].items()}
     compact['D46_FPO_actual_training']=read(Path('/mnt/project/d46-fpo-two-routes-20261104/operations/STATE.json'),{}).get('actual_training',0)
-    compact['actual_RL_training_total']=compact['D46_FPO_actual_training']+s['active_formal']+legacy_active
+    compact['D46_AUG_migration_actual_training']=read(Path('/mnt/project/d46-aug-migration-20261104/operations/STATE.json'),{}).get('actual_training',0)
+    compact['actual_RL_training_total']=compact['D46_AUG_migration_actual_training']+compact['D46_FPO_actual_training']+s['active_formal']+legacy_active
     compact['figures']=[str(p) for p in sorted((root/'reporting/figures').glob('performance_*.svg'))]
     atomic_text(root/'report_snapshot.json',json.dumps(compact,ensure_ascii=True,indent=2))
     css='body{font-family:system-ui,sans-serif;background:#f1f5f9;color:#203348;max-width:1450px;margin:24px auto;padding:0 20px;line-height:1.6}th{text-align:left;padding:9px;background:#e8eff7}h2{color:#126b57}a{color:#1763a1}'
