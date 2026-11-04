@@ -205,6 +205,14 @@ def shared_training_host(host,grant):
         grant['starts_unix'] <= time.time() < grant['expires_unix']-grant['checkpoint_guard_seconds'])
 
 
+def idle_only_host(host, grant):
+    hosts = grant.get('idle_only_hosts', [])
+    if host not in hosts:return False
+    if json.loads(Path(grant['record']).read_text()).get('idle_only_hosts', []) != hosts:
+        raise PermissionError('Idle-only host scope differs from immutable resource grant')
+    return True
+
+
 def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
     if not indices:return
     from starVLA.rl.qwen_world_postcot.resources import gpu_activity_issue
@@ -215,6 +223,9 @@ def _gpu_admission(args,host,grant,indices,expected,mapping,locks):
         if mapping and physical!=[mapping[i]for i in indices]:
             raise ResourceRefused('Physical GPU mapping changed under admission lock')
         mapping.update({i:devices[i]['uuid']for i in indices})
+        if idle_only_host(host, grant) and (any(row['uuid'] in physical for row in owners)
+                or any(devices[i]['utilization'] > 10 for i in indices)):
+            raise ResourceRefused('Preemptible hosts admit idle GPUs only; preserve every existing owner')
         if args.share_min_free_mib:
             if not shared_training_host(host,grant):
                 raise ResourceRefused('Sharing host is absent from the current explicit in-window grant')
@@ -308,6 +319,8 @@ def main():
     if indices:env['CUDA_VISIBLE_DEVICES']=','.join(map(str,indices))
     state.update(status='RUNNING',gpu_uuids=[mapping[i]for i in indices],temporary=host not in grant['permanent_hosts'] and host not in grant.get('unbounded_temporary_hosts', []),
         guard_unix=grant['expires_unix']-grant['checkpoint_guard_seconds'],deadline_unix=grant['expires_unix'])
+    state.update(preemptible=idle_only_host(host, grant),
+                 preemptible_authorization_record=grant['record'] if idle_only_host(host, grant) else None)
     def request(*_):
         stop.touch();state['stop_requested_unix']=time.time();write(root/'RUNNING.json',state)
     signal.signal(signal.SIGTERM,request);signal.signal(signal.SIGINT,request)
@@ -317,7 +330,7 @@ def main():
         while child.poll()is None or task_ranks(state):
             state['known_rank_processes']=task_ranks(state);deadline_tick(state,child,root,stop);time.sleep(5)
     state.update(status='FORCED_EXIT_REVIEW_REQUIRED' if state.get('forced_expiry') else 'EXITED' if child.returncode==0 else 'FAILED',
-        returncode=child.returncode,end_unix=time.time(),migration_required=bool(stop.exists()and state['temporary']))
+        returncode=child.returncode,end_unix=time.time(),migration_required=bool(stop.exists()and (state['temporary'] or state['preemptible'])))
     if state.get('forced_expiry'):
         state['last_atomic_checkpoint']=last_complete_checkpoint(state);write(root/'FORCED_EXPIRY.json',state)
     write(root/'RESULT.json',state)

@@ -58,9 +58,15 @@ def review_resource_boundary(request, name):
     result_path = receipt/'RESULT.json'
     if not result_path.exists():return False
     result = json.loads(result_path.read_text())
+    preemptible = result.get('preemptible') is True
+    if preemptible:
+        record = result.get('preemptible_authorization_record')
+        if not record or not Path(record).is_file():return False
+        grant = json.loads(Path(record).read_text())
+        if result.get('host') not in grant.get('idle_only_hosts', []):return False
     if (result.get('status') != 'EXITED' or result.get('returncode') != 0
             or result.get('forced_expiry')
-            or result.get('migration_required') is not True or result.get('temporary') is not True
+            or result.get('migration_required') is not True or not (result.get('temporary') is True or preemptible)
             or not (receipt/'STOP_REQUESTED').exists()):return False
     row_path = request.output/(name+'.json')
     if not row_path.exists():return False
@@ -90,7 +96,13 @@ def review_resource_boundary(request, name):
     # boundary exit BEFORE the worker's next timer writes STOP_REQUESTED.
     guard = result.get('guard_unix'); deadline = result.get('deadline_unix')
     stopped = result.get('stop_requested_unix')
-    if (not isinstance(guard, (int,float)) or not isinstance(deadline, (int,float))
+    if preemptible:
+        start = result.get('start_unix')
+        if (not isinstance(start, (int,float)) or not isinstance(stopped, (int,float))
+                or not 0 <= rank < request.world or not 0 <= done < total
+                or not start <= stopped <= row.get('end_unix',0) <= result.get('end_unix',0)):
+            return False
+    elif (not isinstance(guard, (int,float)) or not isinstance(deadline, (int,float))
             or not guard < deadline or not 0 <= rank < request.world or not 0 <= done < total
             or not guard <= row.get('end_unix',0) <= result.get('end_unix',0) <= deadline
             or (stopped is not None and not guard <= stopped <= result.get('end_unix',0))):
@@ -99,10 +111,16 @@ def review_resource_boundary(request, name):
         at=time.time(), spec_sha256=hashlib.sha256((receipt/'spec.json').read_bytes()).hexdigest(),
         result_sha256=hashlib.sha256(result_path.read_bytes()).hexdigest(),
         rank_receipt_sha256=hashlib.sha256(row_path.read_bytes()).hexdigest(),
-        identity_sha256=identity['sha256'], reason='NATIVE_DEADLINE_SCENE_BOUNDARY_RETURN',
+        identity_sha256=identity['sha256'], reason=('PREEMPTIBLE_SCENE_BOUNDARY_RETURN' if preemptible else 'NATIVE_DEADLINE_SCENE_BOUNDARY_RETURN'),
         rank=rank, world=request.world, completed_scenes_to_reuse=done, remaining_scenes=total-done,
         source_export_world_rank_seed_unchanged=True, old_attempt_preserved=True,
         cached_scores_not_modified=True, no_fake_COMPLETE_or_RESULT=True))
+    if preemptible:
+        fixed=fixed_hosts()
+        request.pin['evaluation_hosts']=fixed
+        write(request.root/'PREEMPTIBLE_FALLBACK_ROUTING.json',dict(
+            fixed_hosts=fixed,at=time.time(),reason='Continue unfinished shards on fixed containers after preemption',
+            scientific_identity_unchanged=True,previous_attempt=str(receipt)))
     return True
 
 
@@ -180,8 +198,15 @@ def protected_hosts():
     return set(policy.get('placement_preferences',{}).get('qwen_world_IL_B_D',{}).get('hosts',[]))
 
 
+def fixed_hosts():
+    policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
+    return policy['active_container_whitelist']['hosts']
+
+
 def cpu_host(delegate):
     hosts=[h for h in delegate.allowed_hosts()if h not in protected_hosts()]
+    hosts=[h for h in hosts if h in fixed_hosts()]
+    if not hosts:raise RuntimeError('No fixed authorized container available for CPU preparation')
     preferred=['training-vlawm-tsinghua-zt2','training-vlawm-zt2','training-vlawm-zt']
     return next((h for h in preferred if h in hosts),hosts[0])
 
@@ -284,12 +309,13 @@ sys.path.insert(0,__SOURCE__)
 from tools.qwen_world_compare.job_worker import _admission_sample,_known_owners,shared_training_host
 from starVLA.rl.qwen_world_compare.contracts import authorization,require_dispatch
 host=require_dispatch(admit_long_job=True)
+if host!=__HOST__:raise PermissionError('SSH target container identity differs from requested host')
 sharing_allowed=shared_training_host(host,authorization()[0])
 devices,owners=_admission_sample();accepted=[];rejected={}
 for index,device in devices.items():
  try:_known_owners(owners,{index:device['uuid']},[index]);accepted.append(device['uuid'])
  except Exception as error:rejected[device['uuid']]=str(error)
-print(json.dumps(dict(accepted=accepted,rejected=rejected,sharing_allowed=sharing_allowed)))'''.replace('__SOURCE__',repr(str(self.admission_source)))
+print(json.dumps(dict(accepted=accepted,rejected=rejected,sharing_allowed=sharing_allowed)))'''.replace('__SOURCE__',repr(str(self.admission_source))).replace('__HOST__',repr(host))
                     admission = json.loads(self.delegate.remote(host, ['/usr/bin/python3', '-c', program]))
                     observed['qualified_worker_admission'] = admission
                 return host, observed, None
@@ -302,12 +328,17 @@ print(json.dumps(dict(accepted=accepted,rejected=rejected,sharing_allowed=sharin
             samples.append({h: d for h, d, e in rows if e is None})
             errors.update({h: e for h, d, e in rows if e is not None})
         routes = []; seen = set()
+        policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
+        idle_only=set(policy.get('opportunistic_resources',{}).get('idle_only_hosts',[]))
         for host, after in samples[1].items():
             before = samples[0].get(host)
             if not before or [g['uuid'] for g in before['gpus']] != [g['uuid'] for g in after['gpus']]:
                 continue
             after['available_memory_bytes'] = after['MemAvailable_bytes']
             for a, b in zip(before['gpus'], after['gpus']):
+                if host in idle_only and (max(a['utilization'],b['utilization'])>10 or
+                        any(o['uuid']==b['uuid'] for s in (before,after) for o in s['owners'])):
+                    continue
                 if (b['uuid'] in seen or min(a['free_MiB'], b['free_MiB']) < min_free_MiB
                         or any(self.admission_source and s['qualified_worker_admission'].get('sharing_allowed') is False for s in(before,after))
                         or any(self.admission_source and b['uuid'] not in s['qualified_worker_admission']['accepted'] for s in (before,after))
@@ -461,6 +492,10 @@ print(json.dumps(dict(pid=p.pid,start_ticks=int((Path('/proc')/str(p.pid)/'stat'
             raise ValueError('One fixed checkpoint per burst')
         directory = root/label; directory.mkdir(exist_ok=args.resume)
         request = Burst(directory, pin); request.world = args.workers
+        fallback=request.root/'PREEMPTIBLE_FALLBACK_ROUTING.json'
+        if fallback.exists():
+            fixed=fixed_hosts()
+            request.pin['evaluation_hosts']=[h for h in json.loads(fallback.read_text())['fixed_hosts'] if h in fixed]
         request.burst_attempts = {}; retry_after = {}
         if pin.get('reuse_export') and not request.export.exists():
             export = Path(pin['reuse_export'])

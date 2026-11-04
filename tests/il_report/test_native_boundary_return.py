@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from tools.il_report.navtest_burst import rank_completion, review_resource_boundary, summary_log
 
@@ -33,7 +34,7 @@ class NativeBoundaryTest(unittest.TestCase):
         row=dict(rank=0,world=32,status='STOPPED_AT_SCENE_BOUNDARY',identity=identity['sha256'],
                  host='allowed',new=214,reused=1,end_unix=119)
         (output/'rank0.json').write_text(json.dumps(row))
-        return SimpleNamespace(output=output,export=export,reg=reg,source=Path('/sealed/scientist'),
+        return SimpleNamespace(root=root,pin={},output=output,export=export,reg=reg,source=Path('/sealed/scientist'),
                                world=32,jobs={'rank0':spec}),row,result
 
     def test_exit0_partial_shard_is_not_complete_and_can_requeue_with_exact_evidence(self):
@@ -97,6 +98,36 @@ class NativeBoundaryTest(unittest.TestCase):
             with summary_log(root)as stream:stream.write('new legitimate full summary')
             self.assertEqual((root/'summary.log').read_text(),'original failed summary evidence')
             self.assertEqual(len(list(root.glob('summary_resume_*.log'))),1)
+
+    def test_revocable_host_without_fixed_deadline_resumes_only_on_fixed_hosts(self):
+        with tempfile.TemporaryDirectory() as d:
+            request,row,result=self.fixture(d)
+            grant=Path(d)/'grant.json';grant.write_text(json.dumps(dict(idle_only_hosts=['allowed'])))
+            result.update(preemptible=True,temporary=False,start_unix=80,guard_unix=0,deadline_unix=0,
+                          preemptible_authorization_record=str(grant))
+            receipt=Path(request.jobs['rank0']['receipt_dir']);path=receipt/'RESULT.json'
+            path.write_text(json.dumps(result));old=path.read_bytes()
+            with patch('tools.il_report.navtest_burst.fixed_hosts',return_value=['fixed']):
+                self.assertTrue(review_resource_boundary(request,'rank0'))
+            self.assertEqual(request.pin['evaluation_hosts'],['fixed'])
+            self.assertEqual(json.loads((request.root/'PREEMPTIBLE_FALLBACK_ROUTING.json').read_text())['fixed_hosts'],['fixed'])
+            self.assertEqual(path.read_bytes(),old)
+            self.assertFalse(rank_completion(request,'rank0'))
+
+    def test_missing_exit_proof_is_not_fabricated_for_lost_host(self):
+        with tempfile.TemporaryDirectory() as d:
+            request,_,_=self.fixture(d)
+            receipt=Path(request.jobs['rank0']['receipt_dir']);(receipt/'RESULT.json').unlink()
+            self.assertFalse(review_resource_boundary(request,'rank0'))
+            self.assertFalse((receipt/'OPERATOR_REQUEUE.json').exists())
+
+    def test_preemptible_marker_requires_matching_grant(self):
+        with tempfile.TemporaryDirectory() as d:
+            request,_,result=self.fixture(d)
+            grant=Path(d)/'grant.json';grant.write_text(json.dumps(dict(idle_only_hosts=['other'])))
+            result.update(preemptible=True,preemptible_authorization_record=str(grant))
+            receipt=Path(request.jobs['rank0']['receipt_dir']);(receipt/'RESULT.json').write_text(json.dumps(result))
+            self.assertFalse(review_resource_boundary(request,'rank0'))
 
 
 if __name__=='__main__':unittest.main()
