@@ -124,7 +124,7 @@ EponaV2 报告的相应消融为 PDMS 89.4→90.4、TTC 95.3→95.7、DAC 97.3�
 
 Qwen、上游、qwen_proj、action encoder/decoder、FFN、norm、时间模块及 attention base weights 冻结。永久 reference 在注入 LoRA 前从 SFT 建立。A 用源初始化，B 初始为 0；第一步 A 的任务梯度可为零，不能据此断言梯度断开。
 
-验收记录包含实际投影调用、A/B 更新、零 LoRA 与 SFT 一致、FP32 merge 后原类加载及完整原 ODE。零初始化 ODE 最大绝对差为 0；非零 LoRA 的已测 merge ODE 误差约 1.19e-7—2.38e-7，velocity 误差约 9.54e-7—1.19e-6。具体样本和布局见 [LoRA 验收](../../ddp_simwam_recipe_20261015/qualification/lora.json)。
+验收记录包含实际投影调用、A/B 更新、零 LoRA 与 SFT 一致、FP32 merge 后原类加载及完整原 ODE。零初始化 ODE 最大绝对差为 0；非零 LoRA 的已测 merge ODE 误差约 1.19e-7—2.38e-7，velocity 误差约 9.54e-7—1.19e-6。具体样本和布局见 LoRA 验收（临时验证附件已清理）。
 
 原 C/N 训练的是完整 action head；不能把历史 C/N 的弱收益解释为“只训练了 LoRA”。也没有证据通过再次切换全头训练就一定解决当前问题。
 

@@ -1,0 +1,19 @@
+--- /mnt/project/qwen-world-rl-optimization-20261030/reporting/safety_focus_report.py
++++ /mnt/project/qwen-world-rl-optimization-20261030/reporting/safety_focus_report.py
+@@ -233,6 +233,16 @@
+     deleted=editorial.get('abcd_research',{}).get('user_termination',{}).get('checkpoints_deleted_by_user')is True
+     header_deck='先看当前任务、训练进度与完整评测效果，再查看方法设计和历史分析。'
+     css+=' .overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}.overview article{background:#fff;color:#172b43;border-radius:10px;padding:20px}.overview-score{font-size:34px;display:block;color:#106c53;line-height:1.4;margin:8px 0}.overview small,.overview span{color:#526b7d}.overview a{color:#1979aa}@media(max-width:750px){.overview{grid-template-columns:1fr}}'
++    # Current D46 work remains visible; every former World panel is archived.
++    if perf_path.is_file() and perf_module.FPO_two_routes_fragment():
++        legacy=''.join(front[1:])+background
++        front=[front[0],'<details class="rl-history" id="legacy-world-history"><summary>更早的 World RL 研究与历史分析（点击展开）</summary>'+legacy+'</details>']
++        background=''
++        summary_top=''
++        header_title='D框架 FPO：当前两条训练路线与评测'
++        header_deck='当前进展、完整分数、两条路线框图与逐项区别优先展示；旧实验在页末折叠。'
++        nav=[('D46-FPO-current','当前两条FPO'),('rl-history','历史D46与IL70'),('legacy-world-history','更早研究归档')]
++        css+=' .fpo-current .hero{color:#172b44}.fpo-current .hero p{color:#5d6d82}.fpo-current .hero{padding:25px;border-bottom:1px solid #bad1e8}.fpo-current .hero small{color:#5d6d82}'
+     return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1800"><title>Qwen-World RL：核心问题与实验进展</title><style>'+css+'</style></head><body><header><small>QWEN-WORLD · RL RESEARCH</small><h1>'+header_title+'</h1>'+summary_top+'<p>'+header_deck+'配置、CPU检查与child启动不计为已完成训练或提分。</p><small>报告生成 '+esc(snapshot['generated_utc'])+' · 常规30分钟＋完整阶段事件更新</small></header><nav>'+''.join('<a href="#'+key+'">'+title+'</a>'for key,title in nav)+'</nav><main>'+''.join(front)+background+'</main><footer>固定路径 '+esc(root/'report.html')+' · 本报告只读汇总，不控制训练、评测或资源</footer></body></html>'
+ 
+ 

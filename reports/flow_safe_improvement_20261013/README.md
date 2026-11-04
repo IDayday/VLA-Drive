@@ -89,7 +89,7 @@ P2−P1终点为+0.11483分，CI [−0.08637,+0.31855]。P2对SFT新增1个DAC�
 
 ![原单候选ODE完整学习曲线](evidence/policy_learning_curves.svg)
 
-NFT固定[官方commit `cbb14f84b8312b620390dfcbe2fab69c1383b104`](https://github.com/NVlabs/DiffusionNFT/tree/cbb14f84b8312b620390dfcbe2fab69c1383b104)，核对实际训练代码的forward-process、旧behavior、正负目标、时间采样和归一化；适配s=1−t、DDP velocity取图像符号反向。采用场景奖励中心化、全局reward std与clip5、beta1，不是负advantage乘普通MSE，也不是exp(−MSE)伪似然。每步FM与NFT计算不同：每轮forward噪声实例数分别262,144与327,680。首轮4096组中954等分（20全零），3142有效组中2997仅EP变化；这是离线信号诊断，不是已证明保持loss压住NFT的全头梯度分解。[信号](evidence/NFT_round1_advantage_signal.json)、[真实完整动作头学习资格](evidence/full_head_learning_qualification.json)、[NFT连续/恢复一致](evidence/NFT_exact_resume_qualification.json)。
+NFT固定[官方commit `cbb14f84b8312b620390dfcbe2fab69c1383b104`](https://github.com/NVlabs/DiffusionNFT/tree/cbb14f84b8312b620390dfcbe2fab69c1383b104)，核对实际训练代码的forward-process、旧behavior、正负目标、时间采样和归一化；适配s=1−t、DDP velocity取图像符号反向。采用场景奖励中心化、全局reward std与clip5、beta1，不是负advantage乘普通MSE，也不是exp(−MSE)伪似然。每步FM与NFT计算不同：每轮forward噪声实例数分别262,144与327,680。首轮4096组中954等分（20全零），3142有效组中2997仅EP变化；这是离线信号诊断，不是已证明保持loss压住NFT的全头梯度分解。[信号](evidence/NFT_round1_advantage_signal.json)、[真实完整动作头学习资格](evidence/full_head_learning_qualification.json)、NFT连续/恢复一致（临时验证附件已清理）。
 
 ## 吸收与安全失真的具体证据
 

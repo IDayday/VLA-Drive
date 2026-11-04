@@ -520,9 +520,11 @@ def D46_augustus_regression_fragment():
     termination=read(D46_ROOT/'USER_TERMINATION.json',{})
     if termination.get('status')=='TERMINATED_BY_USER':
         receipt=D46_ROOT/'operations/TERMINATE_ALL_RL_20261104/COMPLETE.json';closed=read(receipt,{})
-        detail=('当前 RL 训练 0 组。Full update441/inner1、LoRA update979/inner1 已原生保存，所有训练 worker 正常退出。'
+        renewed=read(Path('/mnt/project/d46-fpo-two-routes-20261104/operations/REQUEST.json'),{}).get('maximum_formal_routes')==2
+        detail=(('旧 AUG 训练 0 组。'if renewed else'当前 RL 训练 0 组。')+'Full update441/inner1、LoRA update979/inner1 已原生保存，所有训练 worker 正常退出。'
             if closed.get('status')=='ALL_RL_TRAINING_TERMINATED'else'全部 RL 训练及自动续训入口已请求关闭，正在确认原生保存与退出。')
-        body+='<p style="background:#fee2e2;padding:14px"><b>最新：用户已终止全部 RL 训练。</b>'+esc(detail)+' 保留代码、checkpoint、Adam/RNG 与实验结果；未经新的明确指令不重启。D 框架 IL 训练继续，已登记评测可完成。<a href="'+esc(receipt)+'">终止与保存收据</a></p>'
+        title='历史：旧AUG等路线保持终止；新授权两条FPO见报告开头。'if renewed else'最新：用户已终止全部 RL 训练。'
+        body+='<p style="background:#fee2e2;padding:14px"><b>'+title+'</b>'+esc(detail)+' 保留代码、checkpoint、Adam/RNG 与实验结果；未经新的明确指令不重启。D 框架 IL 训练继续，已登记评测可完成。<a href="'+esc(receipt)+'">终止与保存收据</a></p>'
     elif resource_request.get('host')=='training-vlawm-tsinghua-zt2'and resource_request.get('new_task_dispatch_allowed')is False:
         saved=read(withdrawal/'NATIVE_SAVE_EXIT0.json',{})
         detail=('全参数版已在 Adam '+str(saved['updates'])+' / inner '+str(saved['next_inner'])+' 原生保存，四节点均 EXIT0，Adam/RNG/待完成组内更新完整保留。'
@@ -660,8 +662,25 @@ def D46_dedicated_execution_fragment():
     return '<p><b>两节点真实完整cycle优化资格已完成：'+esc(f'{a["steady_seconds_per_collection"]:.3f}')+'→'+esc(f'{b["steady_seconds_per_collection"]:.3f}')+'秒，'+esc(f'{v["full_cycle_speedup"]:.5f}')+'×</b>（匹配cycle '+esc(f'{v["matched_full_cycle_speedup"]:.5f}')+'×）。同1500原生起点、实际采样/评分/2Adam/控制/I/O；fast的1511 pending→1512原生恢复通过。短资格不是长期吞吐承诺或PDMS提升；融合改变BF16运算分组，不宣称跨执行最终参数逐位一致。<a href="'+esc(path)+'">完整cycle与恢复收据</a>。旧15.75→10.49秒四模式均开启checkpoint，仅作历史微基准，不能当production all_off耗时。</p>'
 
 
+def FPO_two_routes_fragment():
+    root=Path('/mnt/project/d46-fpo-two-routes-20261104');op=root/'operations'
+    plan=read(op/'PLAN.json',{});request=read(op/'REQUEST.json',{})
+    if plan.get('schema')!='exact_two_D46_FPO_routes_v1'or request.get('maximum_formal_routes')!=2:return ''
+    owner=read(op/'OWNER.json',{})
+    module_path=Path(owner.get('source',''))/'tools/d46_fpo_campaign/reporting.py'
+    if module_path.is_file():
+        spec=importlib.util.spec_from_file_location('D46_FPO_current_readonly_report',module_path)
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module.build_fragment(plan,read(op/'STATE.json',{}),read(op/'EVAL_STATE.json',{}))
+    shared=root/'current_fragment.html'
+    return shared.read_text()if shared.is_file()else''
+
+
 def D46_priority_fragment(other_active=None,historical_peak=91.45359756166451):
     """A status receipt is required; a new directory or config proves no training."""
+    current=FPO_two_routes_fragment()
+    if current:
+        return current
     path=D46_ROOT/'PRIORITY_STATUS.json';value=read(path,{})
     augustus_path=D46_ROOT/'operations/AUGUSTUS_PRIORITY_ALL_RESOURCES_20261103/PRIORITY_CHANGE_REQUEST.json'
     augustus=read(augustus_path,{})
@@ -1444,7 +1463,12 @@ def render_fragment(root=ROOT):
     prior_label=('%.8f · '%previous['PDMS']+previous['arm']+' / Adam '+str(previous['updates'])) if previous.get('PDMS',0)>91.45359756166451 else '91.45359756 · SafetyEP Control 10k'
     best_label=('%.8f · '%best['PDMS']+best['arm']+' / Adam '+str(best['updates'])) if best and best['PDMS']>prior_pdms else prior_label
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
-    body=D46_priority_fragment(s['active_formal']+legacy_active,max(prior_pdms,best['PDMS']if best else 0))+'<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>既有 IL70 系 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
+    current=FPO_two_routes_fragment()
+    history=''
+    if current:
+        history='<details class="rl-history" id="rl-history"><summary>历史 RL 实验与结果（已终止或保留，点击展开）</summary><p>下面均为历史路线、历史快照与当时分析，不能用于判断当前两条FPO的执行状态。当前在训数量与最新分数以页面开头为准。</p>'
+        history+='<section style="background:white;padding:22px;border-radius:12px"><h2>历史 D46 / AUG 实验</h2>'+D46_augustus_regression_fragment()+AUG_complete_results_fragment()+D46_early_evaluation_fragment()+D46_FPO_world16_fragment()+'</section>'
+    body=(current+history if current else D46_priority_fragment(s['active_formal']+legacy_active,max(prior_pdms,best['PDMS']if best else 0)))+'<section id="performance-current" style="background:#fff;border:1px solid #cad9e8;border-radius:14px;padding:24px;margin:20px 0"><small>既有 IL70 系 · PERFORMANCE FIRST · '+esc(s['generated_UTC'])+'</small><h2>最高完整 PDMS：'+esc(best_label)+'</h2>'
     evidence=Path(best['summary']) if best and best['PDMS']>prior_pdms else Path(previous['evidence']) if previous.get('PDMS',0)>91.45359756166451 else Path('/mnt/project/qwen-world-safety-exploration-20261031/standard_training_20261101/evaluations/SAFETY_G8_CONTROL_u010000/NAVTEST/SUMMARY.json')
     if evidence.exists():body+='<p><a href="'+esc(evidence)+'">最高分完整评测证据</a></p>'
     legacy_active=sum(r['status']=='实际训练' for r in s['legacy_current_runs'])
@@ -1539,7 +1563,10 @@ def render_fragment(root=ROOT):
     body+='<h3>最近工程结论</h3><p>四种 B/G 的真实八卡窗口已通过。B128/G16 的拆分恢复参数、Adam、scheduler 与八 rank RNG/stream 逐位一致；完整 IL70 的真 ODE 末状态监督和全 scope 梯度通过。S1/S2/S3/S4/S5 辅助启用资格均已完成，尚不能称部署提分。</p><p>G32 按完整组归一化；额外条件 G16 仅用于教师挖掘。padding 排除全部 loss/std/有效曝光；当前 memory 每次 inner 重建计算图。首窗口约18小时/epoch，启动、评测、新辅助项和恢复重放另计。</p>'
     body+='<details><summary>资格/调试记录（保留失败，不作为算法负结果）</summary>'+table(['任务','服务器','状态','返回码'],[(j['id'],j['host'],j['status'],j['returncode']) for j in retired])+'<p>首轮真实评分后，恢复哈希未支持 NumPy 数组而在 Adam 前失败；修正后使用新冻结资格版本，不继承资格权重。中间未完成的源码副本派发已停止并保留收据。</p></details>'
     body+='<p><a href="/mnt/project/qwen-world-performance-rl-20261103/report.html">本轮独立报告</a> · <a href="/mnt/project/qwen-world-performance-rl-20261103/data/AUDIT.json">完整审计</a></p></section>'
+    if current:body+='</details>'
     compact=dict(s);compact['journals']={arm:dict(path=str(Path(next(r['output'] for r in s['current_runs'] if r['id']==arm))/'metrics_rank0.jsonl'),rows=len(rows),first_update=rows[0].get('updates') if rows else None,last_update=rows[-1].get('updates') if rows else None) for arm,rows in s['journals'].items()}
+    compact['D46_FPO_actual_training']=read(Path('/mnt/project/d46-fpo-two-routes-20261104/operations/STATE.json'),{}).get('actual_training',0)
+    compact['actual_RL_training_total']=compact['D46_FPO_actual_training']+s['active_formal']+legacy_active
     compact['figures']=[str(p) for p in sorted((root/'reporting/figures').glob('performance_*.svg'))]
     atomic_text(root/'report_snapshot.json',json.dumps(compact,ensure_ascii=True,indent=2))
     css='body{font-family:system-ui,sans-serif;background:#f1f5f9;color:#203348;max-width:1450px;margin:24px auto;padding:0 20px;line-height:1.6}th{text-align:left;padding:9px;background:#e8eff7}h2{color:#126b57}a{color:#1763a1}'
@@ -1551,4 +1578,4 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(__doc__);parser.add_argument('--root',type=Path,default=ROOT);parser.add_argument('--once',action='store_true')
     args=parser.parse_args();render_fragment(args.root)
     report=read(args.root/'report_snapshot.json',{})
-    print(json.dumps(dict(report=str(args.root/'report.html'),generated_UTC=report.get('generated_UTC'),actual_training=report.get('active_formal'),complete_NAVTEST=len(report.get('complete_results',[])),figures=len(report.get('figures',[])))))
+    print(json.dumps(dict(report=str(args.root/'report.html'),generated_UTC=report.get('generated_UTC'),actual_training=report.get('actual_RL_training_total'),complete_NAVTEST=len(report.get('complete_results',[])),figures=len(report.get('figures',[])))))
