@@ -1,0 +1,73 @@
+{
+  "status": "COMPLETE",
+  "architecture_id": "D",
+  "cohort": "NAVTEST",
+  "scenes": 12146,
+  "scene_denominator": 12146,
+  "invalid_scenes": 0,
+  "physical_logs": 44,
+  "qualification": false,
+  "seed": 2101,
+  "evaluation_identity_sha256": "b375ffea8b5936b9eb0e13f05d05780990ef63660e687cc4f6c80dcff72bd201",
+  "model_sha256": "a1125be060b350b211b73ac88cdbbbe806ba919dd80397afd5c40a701ab199ae",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "token_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "means": {
+    "score": 0.8958388710653202,
+    "no_at_fault_collisions": 0.9869504363576486,
+    "drivable_area_compliance": 0.972748229869916,
+    "time_to_collision_within_bound": 0.9565288984027663,
+    "ego_progress": 0.8349930370030012,
+    "comfort": 0.9997530051045612,
+    "driving_direction_compliance": 0.9847274822986991
+  },
+  "evaluation": "/mnt/project/d46-aug-migration-20261104/evaluations/AUG7_NATIVE_FP32_u001614/evaluation",
+  "PDMS": 89.58388710653202,
+  "comparison_numeric_policy_change": {
+    "current": "float32_text_action_bfloat16_frozen_visual",
+    "baseline": "bfloat16",
+    "isolated_RL_gain": false
+  },
+  "paired": {
+    "mean_delta": 0.0008836613067742087,
+    "CI95": [
+      -0.0005237878517002492,
+      0.002332355856307383
+    ],
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "physical_groups": 44,
+    "repaired_zero": 32,
+    "new_zero": 27,
+    "high_to_zero": 20,
+    "scene_denominator": 12146,
+    "baseline_zero_denominator": 479,
+    "baseline_nonzero_denominator": 11667,
+    "baseline_high_denominator": 11199,
+    "repaired_zero_rate": 0.06680584551148225,
+    "new_zero_rate": 0.0023142195937258937,
+    "high_to_zero_rate": 0.001785873738726672,
+    "safety_transitions": {
+      "no_at_fault_collisions": {
+        "new_failure": 12,
+        "repaired_failure": 4,
+        "baseline_pass": 11987,
+        "baseline_failure": 159
+      },
+      "drivable_area_compliance": {
+        "new_failure": 17,
+        "repaired_failure": 28,
+        "baseline_pass": 11804,
+        "baseline_failure": 342
+      },
+      "time_to_collision_within_bound": {
+        "new_failure": 33,
+        "repaired_failure": 17,
+        "baseline_pass": 11634,
+        "baseline_failure": 512
+      }
+    },
+    "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+  },
+  "sha256": "6e43dda8e1cd54d798f8481b1e7f864d4f76ab8e7b67a9f5bbbbb1b64f2a6b00"
+}

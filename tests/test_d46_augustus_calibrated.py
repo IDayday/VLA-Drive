@@ -39,6 +39,30 @@ def test_lower_kl_is_independent_and_four_rank_layout_is_explicit():
     with pytest.raises(ValueError):ext.validate_world(4)
 
 
+def test_four_rank_initial_native_checkpoint_and_roundtrip(tmp_path):
+    from starVLA.rl.d46_augustus.config import SCHEMA
+    from starVLA.rl.d46_augustus.runtime import AugustusBoundary,FixedKL
+    from starVLA.rl.qwen_world_compare.contracts import fingerprint
+    cfg=defaults('AUG8_NATIVE_KL001')
+    identity=dict(recipe=cfg,world=4,algorithm_schema=SCHEMA,
+                  augustus_protocol_sha256=fingerprint(cfg['augustus']))
+    identity['sha256']=fingerprint(identity)
+    state=dict(updates=0,collections=0,next_inner=0,phase='READY',scene_cursor=0,
+               raw_scene_exposures=0,valid_scene_exposures=0,padding_scene_exposures=0,
+               new_candidates=0,valid_PG_candidates=0,extra_B1_queries=0,
+               adaptive_G32_queries=0,adaptive_kl=FixedKL(cfg).state_dict())
+    payload=dict(state=state,batch=None,identity=identity,optimizer={'state':{}},scheduler={'last_epoch':0})
+    row=AugustusBoundary.validate_boundary(**payload)
+    assert row['updates']==0 and not row['pending']
+    path=tmp_path/'initial.pt';torch.save(payload,path)
+    assert AugustusBoundary.validate_boundary(**torch.load(path,weights_only=False))==row
+    for name,world in [('AUG7_NATIVE_FP32',4),('AUG8_NATIVE_KL001',2)]:
+        bad=copy.deepcopy(payload);recipe=defaults(name)
+        bad['identity'].update(recipe=recipe,world=world,augustus_protocol_sha256=fingerprint(recipe['augustus']))
+        bad['identity'].pop('sha256');bad['identity']['sha256']=fingerprint(bad['identity'])
+        with pytest.raises(ValueError,match='identity/world'):AugustusBoundary.validate_boundary(**bad)
+
+
 @pytest.mark.parametrize('experiment',['AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32','AUG8_NATIVE_KL001'])
 def test_calibrated_collector_fresh_ratio_and_two_inner_updates(experiment):
     spec=importlib.util.spec_from_file_location('calibrated_tiny',Path(__file__).with_name('test_d46_augustus_actor.py'))

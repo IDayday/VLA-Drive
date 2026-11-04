@@ -17,7 +17,7 @@ def test_two_explicit_configs_deployment_grid_ownworld_and_M1_are_strict():
         assert cfg['augustus']['training_sigma_grid']==[1.,2/3,1/3,0.]
         ext=AugustusExtension();ext.cfg=cfg;ext.saved_identity=None
         for world in(8,16,32):ext.validate_world(world)
-        with pytest.raises(ValueError,match='world8/16/32'):ext.validate_world(64)
+        with pytest.raises(ValueError,match='registered world'):ext.validate_world(64)
         ext.saved_identity={'world':8}
         with pytest.raises(ValueError,match='silently change world'):ext.validate_world(16)
         for path,value in [('group',16),('learning_rate',2e-6),('steps',3),('inner_updates',4)]:

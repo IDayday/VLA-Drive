@@ -21,6 +21,11 @@ def source_inventory():
     return files
 
 
+def registered_worlds(cfg):
+    """Use the same layout contract at launch and native checkpoint boundaries."""
+    return (4,8,16,32) if cfg['experiment_id']=='AUG8_NATIVE_KL001' else (8,16,32)
+
+
 class FixedKL:
     def __init__(self,cfg):self.beta=cfg['beta'];self.collections=0;self.ema=0.;self.target=cfg['target_kl']
     def update(self,joint_per_step):
@@ -73,7 +78,7 @@ class AugustusBoundary(Boundary):
     def validate_boundary(state,batch,identity,optimizer=None,scheduler=None,**kw):
         cfg=validate(identity['recipe'],parent_checks=False)
         body=dict(identity);digest=body.pop('sha256',None)
-        if(identity.get('algorithm_schema')!=SCHEMA or fingerprint(body)!=digest or identity.get('world')not in(8,16,32)
+        if(identity.get('algorithm_schema')!=SCHEMA or fingerprint(body)!=digest or identity.get('world')not in registered_worlds(cfg)
             or cfg['global_scenes']%identity['world']or identity.get('augustus_protocol_sha256')!=fingerprint(cfg['augustus'])
             or'any_virtual8'in state or'world16_virtual_sampler'in state):raise ValueError('Foreign AUGUSTUS native identity/world/virtual sampler')
         dual=FixedKL(cfg);dual.load_state_dict(state['adaptive_kl'])
@@ -165,7 +170,7 @@ class AugustusExtension:
                 or self.saved_identity.get('qualification')is not args.qualification):raise ValueError('AUGUSTUS native recipe/mode changed')
         return self.cfg
     def validate_world(self,world):
-        allowed=(4,8,16,32)if self.cfg['experiment_id']=='AUG8_NATIVE_KL001'else(8,16,32)
+        allowed=registered_worlds(self.cfg)
         if world not in allowed or self.cfg['global_scenes']%world:raise ValueError('AUGUSTUS requires divisible B64/128 on registered world')
         if self.saved_identity is not None and self.saved_identity['world']!=world:raise ValueError('Own native resume cannot silently change world')
     def make_stream(self,cfg):return DataStream(cfg,cfg['global_scenes'])
