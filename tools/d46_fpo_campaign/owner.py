@@ -164,7 +164,8 @@ def route_status(plan):
                         try:last=json.loads(line);break
                         except ValueError:continue
                 ranks.append(last)
-            if all(v.get('updates',0)>r.get('start_update',0)and v.get('run')==identity.get('sha256')for v in ranks):
+            if all(v.get('updates',0)>r.get('start_update',0)and v.get('run')==identity.get('sha256')
+                    and v.get('at',0)>=min(x['at']for x in launches)for v in ranks):
                 proof=dict(at=time.time(),all_ranks_committed=True,updates=min(v['updates']for v in ranks),run=identity['sha256'])
                 atomic_json(proof_path,proof)
         status='REVIEW_REQUIRED'if failures else'RUNNING'if len(live)==len(launches)and proof else'INITIALIZING'if live else'SAVED_OR_COMPLETE'
