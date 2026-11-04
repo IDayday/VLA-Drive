@@ -61,7 +61,8 @@ def launch_stage(route,stage):
         atomic_json(job/'INTENT.json',dict(command=command,host=host,at=time.time()))
         receipts.append(native_launch(host,route['source'],job,command,list(range(8)),
             task_root=PARENT,task=TASK,worker_source=SOURCE,
-            admission_wait_seconds=route.get('admission_wait_seconds',0)))
+            admission_wait_seconds=route.get('admission_wait_seconds',0),
+            share_min_free_mib=route.get('share_min_free_mib_by_host',{}).get(host)))
         atomic_json(ROOT/'operations'/(stage.upper()+'_LAUNCHES.json'),receipts)
     return receipts
 

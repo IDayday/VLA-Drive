@@ -423,7 +423,11 @@ def _known_owners(rows,mapping,indices):
         try:args=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().decode().split('\0')
         except (FileNotFoundError,ProcessLookupError,PermissionError)as error:
             raise ResourceRefused('Owner visibility changed before child startup')from error
-        if not known_owner_args(args):
+        known=known_owner_args(args)
+        if not known:
+            from tools.d46_aug_migration.cohosts import registered_readonly_owner
+            known=registered_readonly_owner(args,row.get('used_MiB'))
+        if not known:
             raise ResourceRefused('Unknown GPU owner must not be shared or evicted')
 
 
