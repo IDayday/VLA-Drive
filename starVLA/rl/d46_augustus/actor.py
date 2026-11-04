@@ -81,6 +81,8 @@ class AugustusActor(D44Actor):
         group=self.study_config['group'];spec=self.study_config['augustus']
         grid=torch.tensor(spec['training_sigma_grid'],device=self.device,dtype=torch.float32)
         if init_actions is None:
+            if spec.get('initial_root_scheme')=='deployment_token_seed_v1':
+                raise ValueError('Token-bound recipe requires explicit scene initial actions from collector')
             root_generator=(torch.Generator(device='cpu').manual_seed(spec['initial_root_seed'])
                             if 'initial_root_seed'in spec else generator)
             root=torch.randn((1,8,3),generator=root_generator,device='cpu').to(self.device)

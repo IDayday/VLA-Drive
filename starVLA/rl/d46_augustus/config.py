@@ -8,6 +8,8 @@ from starVLA.rl.qwen_world_compare.contracts import fingerprint
 SCHEMA='d46_augustus_native_v1'
 EXPERIMENTS={'AUG1_FULL':'full_text_action','AUG2_LORA':'lora_text_action'}
 EXPERIMENTS.update(AUG3_FULL_ALIGNED='full_text_action',AUG4_LORA_ALIGNED='lora_text_action')
+# A separate identity: never change the root distribution of an archived run.
+EXPERIMENTS['AUG5_LORA_TOKEN_ROOT']='lora_text_action'
 PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
     training_sigma_grid=[1.,2/3,1/3,0.],noise_scale=[.05,.05,.02],
     noise='official_g_a_sqrt_t',coordinate_reduction='mean24',
@@ -18,7 +20,7 @@ PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
 GRPO_SOURCE='https://raw.githubusercontent.com/volcengine/verl/main/verl/trainer/ppo/core_algos.py'
 
 
-def aligned(experiment):return experiment in ('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED')
+def aligned(experiment):return experiment in ('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED','AUG5_LORA_TOKEN_ROOT')
 
 
 def profile(experiment):
@@ -34,11 +36,14 @@ def profile(experiment):
             advantage='SafetyEP_group_center_sample_std',fixed_reference_beta=.1,
             deployment=dict(steps=10,shift=5.,seed=2101,training_deployment_grid_mismatch=False),
             correction='local D46 adaptation; official JaT kernel on native final3 transitions')
+    if experiment=='AUG5_LORA_TOKEN_ROOT':
+        value.update(schema='d46_augustus_deployment_token_root_v3',
+                     initial_root_scheme='deployment_token_seed_v1')
     return value
 
 
 def defaults(experiment_id,*,global_scenes=None,inner_updates=None,registration_path=None):
-    if experiment_id not in EXPERIMENTS:raise ValueError('Only two explicit AUGUSTUS driving experiments')
+    if experiment_id not in EXPERIMENTS:raise ValueError('Unknown explicit AUGUSTUS driving experiment')
     cfg=defaults46('D0',registration_path=registration_path)
     full=EXPERIMENTS[experiment_id]=='full_text_action';v2=aligned(experiment_id)
     cfg.update(experiment_id=experiment_id,global_scenes=global_scenes or(128 if full else 64),

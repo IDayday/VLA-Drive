@@ -6,12 +6,29 @@ from starVLA.rl.d44_native_rl.safety_credit import FACTORS
 from .config import kernel_identity
 
 
+def scene_initial_actions(cfg,token,device):
+    """Match the *actual* evaluator seed binding, while retaining old identities.
+
+    Sampling on CPU matters: the evaluator moves CPU-generated noise to CUDA.
+    Innovations still consume the caller's rollout RNG; this root does not.
+    """
+    scheme=cfg['augustus'].get('initial_root_scheme')
+    if scheme is None:return None
+    if scheme!='deployment_token_seed_v1' or not isinstance(token,str) or not token:
+        raise ValueError('Unknown or missing deployment scene root binding')
+    from starVLA.rl.simwam_recipe.contracts import seed_for
+    seed=seed_for('native_qwen_sourceflow_ODE',cfg['evaluation_seed'],token)
+    root=torch.randn((1,8,3),generator=torch.Generator(device='cpu').manual_seed(seed))
+    return root.to(device).expand(cfg['group'],-1,-1).clone()
+
+
 @torch.no_grad()
 def collect_scene(actor,descriptor,token,log,service,generator,cfg,epoch,version,*,cost=None,history=None):
     def add(**values):
         if cost is not None:cost(**values)
     g=cfg['group'];start=time.monotonic();add(candidate_requests=g)
-    chain,grid,deltas,indices=actor.sample_action_chain(descriptor,generator=generator)
+    initial=scene_initial_actions(cfg,token,actor.device)
+    chain,grid,deltas,indices=actor.sample_action_chain(descriptor,generator=generator,init_actions=initial)
     add(physical_candidates=g);saved=actor.augustus_sampling
     if chain.shape!=(g,4,8,3)or indices.tolist()!=[0,1,2]or not torch.isfinite(chain).all():
         raise ValueError('AUGUstus three-step native action contract changed')

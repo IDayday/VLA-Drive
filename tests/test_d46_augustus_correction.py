@@ -33,7 +33,7 @@ def test_TTC_counterexample_cannot_receive_positive_credit_with_safe_option():
     assert old[0,1]>0 and new[0,1]<0 and a[0,1]<0 and a[0,0]>0
 
 
-@pytest.mark.parametrize('experiment',['AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED'])
+@pytest.mark.parametrize('experiment',['AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED','AUG5_LORA_TOKEN_ROOT'])
 def test_exact_native_grid_and_initial_parity_then_clipped_reuse(experiment):
     spec=importlib.util.spec_from_file_location('tiny_aug_correction',Path(__file__).with_name('test_d46_augustus_actor.py'))
     m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
@@ -63,4 +63,44 @@ def test_exact_native_grid_and_initial_parity_then_clipped_reuse(experiment):
         assert all(torch.isfinite(p.grad).all()for p in actor.parameters()if p.grad is not None)
         bad=dict(cfg,inner_updates=1)
         with pytest.raises(ValueError):validate(bad)
+    finally:torch.set_num_threads(old_threads)
+
+
+def test_production_collector_binds_root_to_scene_like_official_evaluator():
+    """Old parity tests supplied manual roots and missed the real entry point."""
+    from starVLA.rl.simwam_recipe.contracts import seed_for
+    from starVLA.rl.d46_augustus.collector import scene_initial_actions
+    spec=importlib.util.spec_from_file_location('tiny_aug_root',Path(__file__).with_name('test_d46_augustus_actor.py'))
+    m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+    old_threads=torch.get_num_threads();torch.set_num_threads(1)
+    try:
+        actor,_,cfg,_,condition=m.tiny('AUG5_LORA_TOKEN_ROOT')
+        original=actor.sample_action_chain;seen=[]
+        def capture(*args,**kwargs):
+            seen.append(kwargs['init_actions'].clone())
+            return original(*args,**kwargs)
+        actor.sample_action_chain=capture
+        generator=torch.Generator().manual_seed(420000)
+        scenes=[]
+        for token in ('TRAIN_CPU_0','TRAIN_CPU_1','TRAIN_CPU_0'):
+            before=generator.get_state().clone()
+            scenes.append(m.collect_scene(actor,condition,token,'TRAIN_cpu',m.SyntheticService(),generator,cfg,0.,{'update':0}))
+            assert not torch.equal(generator.get_state(),before)  # Fresh JaT innovations.
+            expected=torch.randn((1,8,3),generator=torch.Generator().manual_seed(
+                seed_for('native_qwen_sourceflow_ODE',2101,token)))
+            assert torch.equal(seen[-1],expected.expand(8,-1,-1))
+        assert not torch.equal(seen[0],seen[1])
+        assert torch.equal(seen[0],seen[2])
+        assert torch.equal(scenes[0]['chain'][:,0],scenes[2]['chain'][:,0])
+        assert not torch.equal(scenes[0]['chain'][:,-1],scenes[2]['chain'][:,-1])
+        with pytest.raises(ValueError,match='explicit scene initial actions'):
+            original(condition,generator=generator)
+        # Old recipe identities remain unchanged; there is no silent resume migration.
+        old=defaults('AUG4_LORA_ALIGNED')
+        assert scene_initial_actions(old,'TRAIN_CPU_0','cpu') is None
+        assert 'initial_root_scheme' not in old['augustus']
+        from starVLA.rl.d46_augustus.config import kernel_identity
+        assert kernel_identity(old)!=kernel_identity(cfg)
+        bad=dict(cfg,experiment_id='AUG4_LORA_ALIGNED')
+        with pytest.raises(ValueError,match='protocol'):validate(bad)
     finally:torch.set_num_threads(old_threads)
