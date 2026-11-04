@@ -1,0 +1,80 @@
+{
+  "utc": "2026-11-04T15:15:05.001686+00:00",
+  "experiment": "AUG7_NATIVE_FP32",
+  "formal_training": true,
+  "world": 16,
+  "hosts": [
+    "training-vlawm-zt",
+    "training-vlawm-tsinghua-zt"
+  ],
+  "scientific_source": "/mnt/project/d46-aug-migration-20261104/runtime/fp32_formal_v2",
+  "scientific_commit": "dc56b7c6c9bba70a1fa7d557dfe96115ded3c091",
+  "parent": "D IL46",
+  "parent_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+  "fresh_Adam0_native_proof": "PASS",
+  "pending_inner_resume": "PASS all16 RNG/Adam/scheduler/frozen",
+  "health": {
+    "status": "FINITE_CONSISTENT_NOT_A_PERFORMANCE_PROOF",
+    "at": 1793805304.730268,
+    "common_update": 17,
+    "scene_exposures": 576,
+    "scene_epochs": 0.005576640074355201,
+    "sampled_rank_update_rows": 272,
+    "global_advantage_std_rank_spread": 0.0,
+    "inner": {
+      "1": {
+        "reference_KL": 1.1123526636653979e-05,
+        "ratio_mean": 1.0,
+        "clip_fraction": 0.0
+      },
+      "2": {
+        "reference_KL": 1.1089759161642121e-05,
+        "ratio_mean": 1.0000004922039807,
+        "clip_fraction": 0.0
+      }
+    },
+    "gradient_norm_mean": 14.102934444651885,
+    "gradient_norm_max": 27.119016647338867,
+    "clipped_update_fraction": 1.0,
+    "role_gradient_squared_norm_fraction": {
+      "action_position": 8.918123479699221e-09,
+      "text_lora": 4.504758228207005e-05,
+      "action_io": 0.999954185534469,
+      "time_modulation": 7.579651254316239e-07
+    },
+    "role_norms_recorded_after_global_clip": true,
+    "exploration": {
+      "effective_PG_group_fraction": 0.6961805555555556,
+      "feasible_candidate_fraction": 0.9547526041666666,
+      "all_zero_groups": 0.8888888888888888,
+      "all_one_groups": 17.444444444444443
+    },
+    "end_to_end": {
+      "from_update": 1,
+      "to_update": 17,
+      "seconds_per_update": 13.323949590325356,
+      "updates_per_hour": 270.19015462307016
+    },
+    "alerts": [],
+    "limits": "Recent all-rank window; raw gradients and quantization require separate replay. No inference of Adam update contribution or PDMS from gradient fractions."
+  },
+  "evaluation": {
+    "case": "AUG7_NATIVE_FP32_u000000",
+    "status": "RUNNING",
+    "completed_scene_rows": 577,
+    "total": 12146,
+    "numerics": {
+      "deterministic": true,
+      "matmul_tf32": false,
+      "cudnn_tf32": false,
+      "bf16_reduction": false,
+      "cublas_workspace": ":4096:8",
+      "flash_deterministic": "1",
+      "model_storage": "float32",
+      "model_forward": "float32_text_action_bfloat16_frozen_visual",
+      "ode_state": "float32"
+    },
+    "partial_mean_not_published": true
+  },
+  "validation_limits": "Startup/first-window evidence only. No AUG7 complete deployment score yet."
+}
