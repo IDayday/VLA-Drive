@@ -60,7 +60,8 @@ def launch_stage(route,stage):
             raise RuntimeError('Fresh formal output must be empty')
         atomic_json(job/'INTENT.json',dict(command=command,host=host,at=time.time()))
         receipts.append(native_launch(host,route['source'],job,command,list(range(8)),
-            task_root=PARENT,task=TASK,worker_source=SOURCE))
+            task_root=PARENT,task=TASK,worker_source=SOURCE,
+            admission_wait_seconds=route.get('admission_wait_seconds',0)))
         atomic_json(ROOT/'operations'/(stage.upper()+'_LAUNCHES.json'),receipts)
     return receipts
 
@@ -195,7 +196,8 @@ def report(state,evaluations):
 
 def main():
     op=ROOT/'operations';plan=read(op/'PLAN.json');route=plan['route']
-    E.TASK=TASK;E.SOURCE=SOURCE;E.SPARE_GPUS={'training-vlawm-zt':tuple(range(8))}
+    E.TASK=TASK;E.SOURCE=SOURCE;E.SPARE_GPUS={host:tuple(range(8))for host in plan.get('evaluation_hosts',['training-vlawm-zt'])}
+    E.ALLOW_NATIVE_TRAINING_SHARE=bool(plan.get('evaluation_share_native_training',False))
     E.state_path=lambda root:op/'EVAL_STATE.json';E.discover=discover;E.launch=evaluation_launch
     E.il_baseline=lambda root:read(PARENT/'PARENT_CONTRACT.json')['complete_navtest']['original_evaluation']
     complete_events.notify=notify

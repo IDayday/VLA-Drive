@@ -11,7 +11,7 @@ class DispatchPreflightFailed(RuntimeError):
     """Remote GPU inventory failed before any worker/Popen was attempted."""
 
 
-def launch(host,source,job,command,gpus,*,share_min_free_mib=None,worker_source=None,profiled_d0_third_slot=False,profiled_native_qualification_third_slot=False,task_root=None,task=None):
+def launch(host,source,job,command,gpus,*,share_min_free_mib=None,worker_source=None,profiled_d0_third_slot=False,profiled_native_qualification_third_slot=False,task_root=None,task=None,admission_wait_seconds=0):
     source=Path(source).resolve();job=Path(job).resolve();job.mkdir(parents=True,exist_ok=True)
     worker_source=Path(worker_source).resolve()if worker_source is not None else source
     if(job/'LAUNCH.json').exists():raise FileExistsError('Invocation already dispatched; inspect its receipt')
@@ -31,6 +31,9 @@ def launch(host,source,job,command,gpus,*,share_min_free_mib=None,worker_source=
         args=args[:-2]+['--share-min-free-mib',str(share_min_free_mib),'--lease-slot','shared']
     if profiled_d0_third_slot:args+=['--profiled-d0-third-slot']
     if profiled_native_qualification_third_slot:args+=['--profiled-native-qualification-third-slot']
+    if admission_wait_seconds:
+        if type(admission_wait_seconds)is not int or not 0<admission_wait_seconds<=1800:raise ValueError('Bounded admission wait required')
+        args+=['--admission-wait-seconds',str(admission_wait_seconds)]
     task_root=str(task_root or '/mnt/project/d44-native-rl-20261103');task=task or 'd44_native_rl_20261103'
     program='import subprocess,os;f=open('+repr(str(job/'transport.log'))+',"ab",buffering=0);p=subprocess.Popen('+repr(args)+',cwd='+repr(str(worker_source))+',env=dict(os.environ,PYTHONPATH='+repr(str(worker_source))+',PYTHONUTF8="1",WORLD_COMPARE_ROOT='+repr(task_root)+',WORLD_COMPARE_TASK='+repr(task)+'),stdout=f,stderr=subprocess.STDOUT,start_new_session=True);print(p.pid)'
     r=subprocess.run(['ssh','-o','BatchMode=yes',host,'/usr/bin/python3','-'],input=program,text=True,capture_output=True,timeout=20)

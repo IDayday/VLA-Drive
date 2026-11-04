@@ -22,6 +22,7 @@ TASK = 'd46_priority_rl_20261103'
 SCHEMA = 'd46_augustus_native_v1'
 PARENT_SHA = '386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d'
 WORLD, POPULATION = 32, 12146
+ALLOW_NATIVE_TRAINING_SHARE = False
 SPARE_GPUS = {'training-vlawm-zt2': (0, 1, 2, 3, 4, 5, 7),
               'training-vlawm-tsinghua-zt4': (4, 7),
               'training-rl-zt2': (1, 7)}
@@ -208,12 +209,14 @@ for line in subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory
   try:
    proc=pathlib.Path('/proc')/str(pid);args=proc.joinpath('cmdline').read_bytes().decode().split('\\0');start=int(proc.joinpath('stat').read_text().split()[21])
    entry=args[args.index('-m')+1]if '-m'in args else None
-   known=entry in ('tools.d46_augustus.evaluate','tools.d44_native_rl.evaluate','tools.qwen_world_compare.evaluate','tools.qwen_world_safety_exploration.evaluate') and known_owner_args(args)
+   evaluation=entry in ('tools.d46_augustus.evaluate','tools.d44_native_rl.evaluate','tools.qwen_world_compare.evaluate','tools.qwen_world_safety_exploration.evaluate')
+   training=ALLOW_TRAINING and entry=='tools.d46_augustus.train'
+   known=(evaluation or training) and known_owner_args(args)
   except(OSError,ValueError,IndexError):known=False;start=None
-  owners.append(dict(pid=pid,start_ticks=start,used_MiB=mem,known=known))
+  owners.append(dict(pid=pid,start_ticks=start,used_MiB=mem,known=known,kind='training'if known and training else'evaluation'))
  rows.append(dict(index=int(i),uuid=u.strip(),free_MiB=int(free),used_MiB=int(used),owners=owners))
 print(json.dumps(rows))
-'''.replace('OPS_SOURCE', repr(str(Path(ops_source).resolve())))
+'''.replace('OPS_SOURCE', repr(str(Path(ops_source).resolve()))).replace('ALLOW_TRAINING',repr(ALLOW_NATIVE_TRAINING_SHARE))
     r = subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=8', host, '/usr/bin/python3', '-'],
                        input=code, text=True, capture_output=True, timeout=20)
     if r.returncode:raise DispatchPreflightFailed(r.stderr)
@@ -228,7 +231,8 @@ def available_slots(host, rows, reserved):
         if any(o.get('known') is not True for o in owners) or len(owners) >= 2:continue
         if not owners and row['free_MiB'] < 79000:continue  # Hidden/unattributed memory.
         if row['used_MiB'] - sum(o['used_MiB'] for o in owners) > 1024:continue
-        existing = max(len(owners), reserved.get((host, row['index']), 0))
+        learners=sum(o.get('kind')=='training' for o in owners)
+        existing = max(len(owners), learners+reserved.get((host, row['index']), 0))
         slots.extend((host, row['index']) for _ in range(max(0, 2 - existing)))
     return slots
 

@@ -26,3 +26,11 @@ def test_formal_launch_never_adopts_qualification_weights(tmp_path,monkeypatch):
     assert len(receipts)==2
     assert all('--resume'not in cmd and '--qualification'not in cmd for cmd in captured)
     assert all(cmd[cmd.index('--output')+1]==route['formal_output']for cmd in captured)
+
+
+def test_learner_plus_pending_eval_reserves_both_slots(monkeypatch):
+    from tools.d46_augustus_ops import evaluations as e
+    host='training-vlawm-zt';monkeypatch.setattr(e,'SPARE_GPUS',{host:(0,)})
+    row=dict(index=0,free_MiB=50000,used_MiB=30000,owners=[dict(known=True,kind='training',used_MiB=30000)])
+    assert e.available_slots(host,[row],{})==[(host,0)]
+    assert e.available_slots(host,[row],{(host,0):1})==[]
