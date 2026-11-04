@@ -1,26 +1,27 @@
 # D46 FPO 两条研究线 · 2026-11-04
 
-当前优先进行训练代码提速，**正式训练0组**。成熟线已完整保存于1921/inner1，改进线47/inner1；Adam、scheduler、各rank RNG与待完成rollout保留。工程测试使用这些状态的独立副本，测试权重不作为训练结果。主开发与控制在 vlawm-tsinghua-zt3，其它RL终止状态保留。
+**两条正式训练已恢复，共24张GPU。**成熟FPO在 `vlawm-tsinghua-zt5 + vlawm-tsinghua-zt` 使用16卡；Verified改进线在 `vlawm-zt` 使用8卡。2026-11-04 08:16 UTC实测所有rank分别提交至2028、78次Adam更新。动态进度以HTML为准。
 
-最新工程测量、改动与待解决问题见 [提速进度](ENGINEERING.md)。D系最高完整单轨迹PDMS仍为 **90.35363365**，来自成熟FPO1711；提速测试尚未产生新的正式部署分数。
+D系最高完整单轨迹PDMS为 **90.35363365**（成熟FPO1711），相同IL46基线 **89.49552098** 提高 **0.85811267**。该点是本轮续训起点的评测，不归功于提速改动。1921、2000步的完整NAVTEST已自动运行；Verified尚无完整RL部署分数。目标92+仍待真实结果。
 
-- **FPO_MATURE**：原FPO自身native1711/inner1接续，16卡Tsh5+WMzt，冻结科学源82d5f784；继承原Adam、scheduler、私有RNG、pending MC4材料。IL46原始初始化不变，历史完整最佳90.32032058。
-- **FPO_VERIFIED**：同一完整IL46、fresh Adam独立初始化。B64/G16/M2、r16共享28层attention LoRA、SafetyEP+批级std、MC4 FPO不变。真实TRAIN B1对照，严格安全舒适且PDMS≥.9、改善≥.02的候选才作为教师；G32扩展只挖教师，不进入FPO ratio。CFM MC2和真实B1最后一步监督；保持初始同run IL46与自身高质量B1，bank全TRAIN容量，部署不含bank或评分器。
+| 正式路线 | 当前执行起点 | 方法与资源 | 自动早评 |
+| --- | --- | --- | --- |
+| FPO_MATURE | 自身1921/inner1完整状态 | B64/G16/M2，MC4 FPO；两节点16卡 | 1921/2000/2400/2800步 |
+| FPO_VERIFIED | 自身47/inner1完整状态 | 相同FPO主目标，加验证教师CFM、真实B1末步监督、历史高分保持；单节点8卡 | 200/400/800步 |
 
-正式权重不继承资格权重。新代码复用稳定原生Trainer/Checkpoint，仅增加状态初始化和附加目标接口。17项针对性CPU检查通过；实际八卡首个更新、pending内层保存与冻结参数检查通过；中途恢复与梯度校准已通过：8个实际救援场景的加权CFM/FPO梯度范数比中位数14.14%、ODE-last/FPO为5.46%；保持梯度在初始自目标处为零，后续收益待评测。未据资格宣称提分。
+两条路线最初均独立从同一个完整D IL46初始化；Verified未继承成熟线权重或Adam。此次仅迁移各自原生训练状态，保留optimizer、scheduler、RNG、pending rollout和历史教师。原pending更新按旧布局完成，之后的新collection才启用合批实现。工程测试权重不进入正式训练。
 
-采用原warmup0.08E/hold0.60E/cosine4E/floor0.05，成熟配方LR2e-6。正式配置与校准收据封存在运行账本。先按1/2/3E完整单B1评测复核；原生6E预算不暗改，外层3E复核保存边界。改进线额外早评400/800更新，避免盲目长训。
+原配方LR峰值2e-6，warmup0.08E/hold0.60E/cosine4E/floor0.05，目标6个场景曝光epoch。1/2/3E持续评估，不再因达到3E机械停训。每100次Adam保存完整原生状态，轮换最近10份；额外固定最佳、latest和正在评测的检查点。异常时从完整保存点恢复，未保存更新可能需要重做。
 
-派发遵守2026-11-04最新五容器白名单；不派发到名单外的旧临时节点，不驱逐未知负载。checkpoint/scene结果位于共享存储；实验暂停与容器授权分别管理。
+提速实现、实测与限制见[工程报告](ENGINEERING.md)。最新五容器白名单覆盖此前临时授权；没有向名单外节点部署。`vlawm-tsinghua-zt3`的D IL继续运行；`vlawm-tsinghua-zt2`存在无法归属的GPU负载，未抢占。32卡重分片代码尚未部署，不能报告其实际加速或GPU恢复资格。
 
-报告：`/mnt/project/d46-fpo-two-routes-20261104/report.html`。主报告展示提速开发、已保存路线与最新完整分数。原完整B1协议K10/shift5/seed2101、12146场景/44物理logs/invalid0、官方评分不变。NAVTEST只作预定评测/模型选择，标签不进入训练。
-
+报告：`/mnt/project/qwen-world-performance-rl-20261103/report.html`；独立页：`/mnt/project/d46-fpo-two-routes-20261104/report.html`。后台自动发现检查点、分片评测和保留恢复点；常规30分钟刷新，有完整新分数立即刷新。B1 K10/shift5/seed2101、12146场景/44物理logs/invalid0及官方评分不变。NAVTEST只作预定评测与模型选择，标签不进入训练。
 
 ## 当前报告与两条路线的区别
 
 主报告：`/mnt/project/qwen-world-performance-rl-20261103/report.html`。
 独立报告：`/mnt/project/d46-fpo-two-routes-20261104/report.html`。
-页面开头展示当前两条训练、全rank共同更新/有效曝光、保存点、新完整成绩和评测队列；两张SVG框图并排，后接逐项差异与后续决策。历史D/AUG/IL70实验在后面默认折叠。常规30分钟、完整结果事件立即更新，保留原唯一report watcher。
+页面开头展示当前两条训练、全rank共同更新/有效曝光、保存点、新完整成绩、完整训练吞吐与评测队列；两张SVG框图并排，后接逐项差异与后续决策。历史D/AUG/IL70实验在后面默认折叠。常规30分钟、完整结果事件立即更新，保留原唯一report watcher。
 
 | 比较项 | 成熟FPO延长 | FPO Verified改进 |
 | --- | --- | --- |
@@ -32,7 +33,7 @@
 | 历史保持 | 冻结IL46参考KL | 同run初始IL46与自身过去strict-high B1；系数.05，退化≥.02增至.25 |
 | 调度 | LR2e-6，warmup.08E/hold.60E/cosine4E/floor5% | 相同注册调度，独立新曝光时钟 |
 | 部署 | 原生单B1 K10/shift5 | 相同；教师、bank、评分器不部署 |
-| 待验证 | 长训是否超过历史90.32032058 | 好候选能否转为B1改善，且高分退化减少 |
+| 待验证 | 长训是否超过已确认90.35363365 | 好候选能否转为B1改善，且高分退化减少 |
 
 辅助系数是原始损失权重，不是梯度占比或beta50预算。当前16卡与8卡不是同资源消融；不同起点进度的早期分数不用于判定最终上限。所有新分数只接受完整12146场景/44logs/invalid0；历史项目IL70/SafetyEP91.45359756另列，不是D父基线。
 

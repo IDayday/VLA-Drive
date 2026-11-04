@@ -1,0 +1,104 @@
+{
+  "scope": "8 collections / 16 Adam updates per mode; engineering comparison, not NAVTEST or long-run throughput",
+  "formal_benchmark_weights_adopted": false,
+  "routes": {
+    "FPO_VERIFIED": {
+      "status": "COMPLETE",
+      "world": 8,
+      "route": "verified",
+      "rows": [
+        {
+          "mode": "baseline",
+          "seconds_per_update": 42.522627748781815,
+          "updates_per_hour": 84.66080744746854,
+          "updates_per_hour_with_save100": 84.64980652178485,
+          "native_save_seconds": 0.5526158735156059,
+          "native_restore_seconds": 0.27963051199913025,
+          "native_roundtrip_exact": true,
+          "final_parameters_bitexact_to_baseline": true,
+          "parameter_max_abs": 0.0,
+          "maximum_rank_update_relative_L2": 0.0,
+          "minimum_rank_update_cosine": 1.0,
+          "TRAIN_B1_scenes": 16,
+          "TRAIN_B1_mean_score": 0.8829222542754455,
+          "TRAIN_B1_baseline_mean_score": 0.8829222542754455,
+          "TRAIN_B1_changed_trajectories": 0,
+          "TRAIN_B1_max_action_delta": 0.0,
+          "peak_allocated_bytes": 47410705920
+        },
+        {
+          "mode": "fast",
+          "seconds_per_update": 31.11588395445142,
+          "updates_per_hour": 115.69653638218387,
+          "updates_per_hour_with_save100": 115.67180745041722,
+          "native_save_seconds": 0.6652118507772684,
+          "native_restore_seconds": 1.7708598654717207,
+          "native_roundtrip_exact": true,
+          "final_parameters_bitexact_to_baseline": false,
+          "parameter_max_abs": 1.8010125586442882e-06,
+          "maximum_rank_update_relative_L2": 0.10832260490698087,
+          "minimum_rank_update_cosine": 0.9941163781126692,
+          "TRAIN_B1_scenes": 16,
+          "TRAIN_B1_mean_score": 0.8831353422864254,
+          "TRAIN_B1_baseline_mean_score": 0.8829222542754455,
+          "TRAIN_B1_changed_trajectories": 16,
+          "TRAIN_B1_max_action_delta": 0.00390625,
+          "peak_allocated_bytes": 26749888000
+        }
+      ],
+      "cycles_per_mode": 8,
+      "source_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_FPO_VERIFIED_B1_v1/checkpoints/update000047_inner1",
+      "formal_outputs_modified": false,
+      "scope": "full B64/G16/M2 collection, canonical scoring, global advantage, DDP, Adam and behavior I/O; finite benchmark, not long-run throughput"
+    },
+    "FPO_MATURE": {
+      "status": "COMPLETE",
+      "world": 16,
+      "route": "mature",
+      "rows": [
+        {
+          "mode": "baseline",
+          "seconds_per_update": 19.865334308240563,
+          "updates_per_hour": 181.22020722835978,
+          "updates_per_hour_with_save100": 181.12877800484742,
+          "native_save_seconds": 1.0027518048882484,
+          "native_restore_seconds": 0.35779750160872936,
+          "native_roundtrip_exact": true,
+          "final_parameters_bitexact_to_baseline": true,
+          "parameter_max_abs": 0.0,
+          "maximum_rank_update_relative_L2": 0.0,
+          "minimum_rank_update_cosine": 1.0,
+          "TRAIN_B1_scenes": 32,
+          "TRAIN_B1_mean_score": 0.9457751262463278,
+          "TRAIN_B1_baseline_mean_score": 0.9457751262463278,
+          "TRAIN_B1_changed_trajectories": 0,
+          "TRAIN_B1_max_action_delta": 0.0,
+          "peak_allocated_bytes": 41366893568
+        },
+        {
+          "mode": "fast",
+          "seconds_per_update": 13.31216528272489,
+          "updates_per_hour": 270.42933463812204,
+          "updates_per_hour_with_save100": 270.3257766417708,
+          "native_save_seconds": 0.5099702961742878,
+          "native_restore_seconds": 0.3687583804130554,
+          "native_roundtrip_exact": true,
+          "final_parameters_bitexact_to_baseline": false,
+          "parameter_max_abs": 1.0593648767098784e-05,
+          "maximum_rank_update_relative_L2": 0.13725597359018119,
+          "minimum_rank_update_cosine": 0.990699683886956,
+          "TRAIN_B1_scenes": 32,
+          "TRAIN_B1_mean_score": 0.9455517513796258,
+          "TRAIN_B1_baseline_mean_score": 0.9457751262463278,
+          "TRAIN_B1_changed_trajectories": 32,
+          "TRAIN_B1_max_action_delta": 0.00390625,
+          "peak_allocated_bytes": 26321025024
+        }
+      ],
+      "cycles_per_mode": 8,
+      "source_checkpoint": "/mnt/project/d46-priority-rl-20261103/runs/D46_D3_FPO_WORLD16_v1/checkpoints/update001921_inner1",
+      "formal_outputs_modified": false,
+      "scope": "full B64/G16/M2 collection, canonical scoring, global advantage, DDP, Adam and behavior I/O; finite benchmark, not long-run throughput"
+    }
+  }
+}

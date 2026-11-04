@@ -104,7 +104,7 @@ def diagram(verified):
 
 def build_fragment(plan, state, evaluation):
     h = lambda x: html.escape(str(x), quote=True)
-    current, scores, progress, diagnostic = [], [], [], []
+    current, scores, progress, diagnostic, throughput = [], [], [], [], []
     for case in evaluation.get('cases', {}).values():
         summary = read(case.get('summary'), {})
         if case.get('status') == 'COMPLETE' and summary.get('status') == 'COMPLETE' and summary.get('scenes') == 12146 and summary.get('invalid_scenes') == 0 and summary.get('physical_logs') == 44:
@@ -122,6 +122,18 @@ def build_fragment(plan, state, evaluation):
         common = min(row['updates'] for row in last) if valid else None
         epoch = min(row.get('scene_epochs', 0) for row in last) if valid else None
         lag = time.time()-min(row.get('at', 0) for row in last) if valid else math.inf
+        # End-to-end wall time from jointly committed updates, including collection
+        # and scoring; never label the backward-only timer as training throughput.
+        if valid:
+            by_rank = [{r['updates']: r for r in rows if r.get('run') == identity.get('training_run_id', identity.get('sha256'))
+                        and r.get('invocation') == last[i].get('invocation')} for i, rows in enumerate(tails)]
+            common_updates = sorted(set.intersection(*(set(rows) for rows in by_rank)))[-33:]
+            if len(common_updates) >= 3:
+                first, end = common_updates[0], common_updates[-1]
+                elapsed = max(rows[end]['at'] for rows in by_rank)-max(rows[first]['at'] for rows in by_rank)
+                if elapsed > 0:
+                    throughput.append((key, f'{first}–{end}', f'{elapsed/(end-first):.2f}',
+                                       f'{3600*(end-first)/elapsed:.1f}', '同一正式进程，含采样/评分/同步与共享资源等待'))
         native = s.get('native', {})
         current.append((key, str(route['world'])+'卡 / '+str(len(route['hosts']))+'节点', s.get('status', '待状态收据'),
             str(common) if common is not None else '待共同提交', f'{epoch:.5f} E' if epoch is not None else '—',
@@ -179,8 +191,10 @@ def build_fragment(plan, state, evaluation):
         body+='<h3>同材料前向反向：局部测量，不等于完整训练加速</h3>'+table(['路线 / 轮次','执行方式','秒 / 实际rank更新','梯度相对L2差异','梯度逐值一致','阶段'],fb)
         body+='<h3>真实采样与官方评分：单独测量</h3>'+table(['路线','执行方式','秒 / 场景','C/P构建次数','采样RNG一致'],collection)
         body+='<p>优先路线：同一策略收集期间复用无梯度C/P；删除重复采样均值验证前向；批量计算MC4/教师辅助项；减少逐标量GPU同步。当前可训练C/P仍须每次inner更新重新构图。MC合并可能改变BF16数值，需按实测梯度差异判断；完整分布式周期、恢复与单轨迹质量通过后再决定正式配置。</p></section>'
-    body += '<section class="panel"><h2>1. 已保存的两条训练路线</h2>'+table(['路线', '资源', '执行状态', '全rank共同 Adam', '实际有效曝光', '最近完整保存 Adam', '日志时效'], current)
+    body += '<section class="panel"><h2>1. 当前正式训练</h2>'+table(['路线', '资源', '执行状态', '全rank共同 Adam', '实际有效曝光', '最近完整保存 Adam', '日志时效'], current)
     body += '<p class="muted">Adam与曝光取所有rank当前日志的最小值；保存点可能落后于训练，不将已保存0步理解为尚未开始。B64 / G16 / M2：每次收集64个场景、1,024条新候选，再做2次Adam；不是1,024个场景。</p>'+table(['路线', '当前完整PDMS', '相同父IL46增益', '分数归属'], progress)+'</section>'
+    body += '<section class="panel"><h2>正式运行速度与保存</h2>'+table(['路线', '最近共同更新区间', '完整周期秒/更新', '折算更新/小时', '口径'], throughput)
+    body += '<p>每100次Adam更新保存完整原生状态，最近10个恢复点轮换；另保留最佳、最新和正在评测的检查点。当前只使用最新五容器白名单；本机D IL继续运行，未知GPU负载不抢占。表中速度来自当前正式运行，会受并行评测影响，不能与独占工程测量直接计算加速比。</p></section>'
     body += '<section class="panel"><h2>2. 评测进展与现阶段结论</h2>'+table(['评测点', '阶段', '完整分片', '运行分片'], [(c['id'], c['status'], str(c.get('completed_shards', 0))+'/32', c.get('active_shards', 0)) for c in evaluation.get('cases', {}).values()])
     if not scores:
         body += '<div class="note"><b>两条正式训练均已产生参数更新；尚不能判断改进线是否提分。</b>八卡保存恢复与真实教师梯度校准已经通过，说明机制已接入训练。收益判断仍等待完整部署评测；训练采样最高分与部分评测均值不作为PDMS成绩。</div>'
@@ -192,14 +206,14 @@ def build_fragment(plan, state, evaluation):
         ('要解决的问题', '原FPO继续覆盖更多数据，后期能否持续提升', 'G组有安全高分轨迹，B1却未学会；新能力与旧高分相互损伤'),
         ('本轮起点', '自身 FPO 1711 / inner1；完整继承Adam、scheduler、RNG和pending材料', '同一个完整IL46，新Adam 0；不继承成熟线或资格权重'),
         ('共同的主算法', 'SafetyEP + 批级std；MC4 CFM energy FPO；clip=0.01；原W3参考KL', '相同主算法；额外教师轨迹不参与FPO ratio'),
-        ('场景/候选与更新', 'B64 / G16 / M2；16卡，每rank 4个场景', 'B64 / G16 / M2；8卡，每rank 8个场景；困难场景最多额外16条教师候选'),
+        ('场景/候选与更新', 'B64 / G16 / M2；当前资源见首表', 'B64 / G16 / M2；困难场景最多额外16条教师候选'),
         ('额外真实评分', '主组G16；无逐场景B1教师探针', '当前B1 + 首次访问的冻结IL46 B1；必要时额外G16'),
         ('新教师从哪里来', '无新增教师辅助损失', '同一TRAIN场景的当前G16/额外G16；NC/DAC/TTC/Comfort均1，PDMS≥0.90，且比当前B1高≥0.02'),
         ('怎样吸收好轨迹', '仅通过FPO优势更新', '0.05×正向CFM（MC2，sigma 0.1–0.9）＋0.02×真实B1最后一步SmoothL1'),
         ('如何保持旧高分', '冻结IL46的原参考KL约束', '保留原参考KL；另保持同run初始IL46/自身历史的真实strict-high B1，容量103,288；基础系数0.05，回退≥0.02时0.25'),
-        ('学习率与训练范围', 'LR 2e-6；warmup .08E / hold .60E / cosine到4E / floor 5%；r16文本attention LoRA 6.42M', '相同注册调度与训练范围；独立新时钟，当前仍在warmup'),
+        ('学习率与训练范围', 'LR 2e-6；warmup .08E / hold .60E / cosine到4E / floor 5%；r16文本attention LoRA 6.42M', '相同注册调度与训练范围；独立曝光时钟，当前LR见下表'),
         ('部署', '一条原生B1 ODE；无重排', '相同；教师、历史bank、评分器不参与部署'),
-        ('当前证据', '同IL46历史完整PDMS 90.32032058（+0.82479960）；本轮继续训练待新评测', '八卡真实更新、pending恢复、教师梯度已验证；新部署收益尚待完整评测'),
+        ('当前证据', '本轮起点1711完整PDMS 90.35363365（+0.85811267）；最新完整点见上表', '八卡真实更新、pending恢复、教师梯度已验证；新部署收益以完整评测为准'),
     ]
     body += '<section class="panel"><h2>4. 逐项区别与损失设计</h2>'+table(['比较项', 'A · 成熟FPO', 'B · 改进FPO'], differences)+'<p class="formula">A: L = L_FPO + beta × KL_W3(当前策略, 冻结IL46)<br>B: L = L_A + I_rescue × (0.05 L_CFM + 0.02 L_ODE-last) + alpha_history L_B1-keep<br>alpha_history = 0（无有效教师）；0.05（有教师）；0.25（相教师回退≥0.02）</p><p class="muted">以上辅助系数是原始损失系数，不是归一化梯度份额，也不是beta50预算。FPO energy ratio是本地策略更新代理；不能称完整轨迹似然比。ODE末步用真实部署链末次输入，之前状态停止梯度；没有端到端回传整条ODE。</p></section>'
     proof = read(ROOT/'operations/VERIFIED_Q2_PROOF_AND_GRADIENT_CALIBRATION.json', {})
@@ -208,7 +222,7 @@ def build_fragment(plan, state, evaluation):
     if proof.get('status') == 'PASS':
         g = proof['gradient_calibration']
         body += '<p>八卡资格：真实 pending inner1 → READY2 恢复通过。8个实际TRAIN教师场景中，加权CFM/FPO梯度范数比中位数 <b>'+f'{100*g["weighted_CFM_to_FPO_median"]:.2f}%</b>，ODE末步/FPO为 <b>'+f'{100*g["weighted_ODE_to_FPO_median"]:.2f}%</b>。初始自身保持梯度为0符合相同策略/目标预期；这不是后续保持有效的证据。</p>'
-    body += '</section><section class="panel"><h2>6. 接下来怎样判断与调整</h2><div class="decision"><div><b>先看真实单轨迹收益</b><br>改进线400/800步早评，常规按曝光门触发；两线先推进1/2/3E复核。保留最佳与完整恢复状态。</div><div><b>区分修复与退化</b><br>逐场景配对零分修复、新增零分、旧高分回落；确认教师激活能转化为B1改善。</div><div><b>按证据倾斜资源</b><br>完整分数改善且退化可控再扩大预算。明确崩溃或持续严重遗忘则保存后复核；不依据资格loss或局部oracle择优。</div></div><p class="muted">历史整个项目的91.45359756来自IL70/SafetyEP，父模型与此处D IL46不同；其详细实验放在页末折叠历史区。</p><p><a href="'+h(ROOT/'operations/STATE.json')+'">训练状态</a> · <a href="'+h(ROOT/'operations/EVAL_STATE.json')+'">评测队列</a> · <a href="'+h(ROOT/'operations/PLAN.json')+'">注册路线</a> · <a href="'+h(ROOT/'report.html')+'">两路线独立报告</a></p></section></div>'
+    body += '</section><section class="panel"><h2>6. 接下来怎样判断与调整</h2><div class="decision"><div><b>先看真实单轨迹收益</b><br>成熟线1921/2000/2400/2800步、改进线200/400/800步早评，随后按曝光门触发。原生目标6E，1/2/3E持续复核，不因到3E自动停训。</div><div><b>区分修复与退化</b><br>逐场景配对零分修复、新增零分、旧高分回落；确认教师激活能转化为B1改善。</div><div><b>按证据倾斜资源</b><br>完整分数改善且退化可控再扩大预算。明确崩溃或持续严重遗忘则保存后复核；不依据资格loss或局部oracle择优。</div></div><p class="muted">历史整个项目的91.45359756来自IL70/SafetyEP，父模型与此处D IL46不同；其详细实验放在页末折叠历史区。</p><p><a href="'+h(ROOT/'operations/STATE.json')+'">训练状态</a> · <a href="'+h(ROOT/'operations/EVAL_STATE.json')+'">评测队列</a> · <a href="'+h(ROOT/'operations/PLAN.json')+'">注册路线</a> · <a href="'+h(ROOT/'report.html')+'">两路线独立报告</a></p></section></div>'
     return body
 
 
