@@ -29,6 +29,16 @@ def test_global_normalization_keeps_safety_contrast_above_small_EP_and_ignores_p
     assert torch.isfinite(zeros).all()and zeros.count_nonzero()==0
 
 
+def test_lower_kl_is_independent_and_four_rank_layout_is_explicit():
+    old=defaults('AUG7_NATIVE_FP32');new=defaults('AUG8_NATIVE_KL001')
+    assert old['beta']==.1 and new['beta']==.001
+    assert {k for k in old if old[k]!=new[k]}=={'experiment_id','beta','augustus'}
+    assert {k for k in old['augustus']if old['augustus'][k]!=new['augustus'][k]}=={'schema','fixed_reference_beta','correction'}
+    ext=AugustusExtension();ext.saved_identity=None;ext.cfg=new;ext.validate_world(4)
+    ext.cfg=old
+    with pytest.raises(ValueError):ext.validate_world(4)
+
+
 @pytest.mark.parametrize('experiment',['AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32','AUG8_NATIVE_KL001'])
 def test_calibrated_collector_fresh_ratio_and_two_inner_updates(experiment):
     spec=importlib.util.spec_from_file_location('calibrated_tiny',Path(__file__).with_name('test_d46_augustus_actor.py'))

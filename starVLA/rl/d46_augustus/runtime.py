@@ -152,7 +152,7 @@ class AugustusExtension:
     def init_control_group():
         from datetime import timedelta
         from starVLA.rl.simwam_recipe import checkpoint as source
-        if not dist.is_initialized()or dist.get_world_size()not in(8,16,32):raise ValueError('AUGUSTUS world8/16/32 required')
+        if not dist.is_initialized()or dist.get_world_size()not in(4,8,16,32):raise ValueError('AUGUSTUS world4/8/16/32 required')
         if source.CONTROL_GROUP is not None:raise ValueError('Do not replace an existing control group')
         source.CONTROL_GROUP=dist.new_group(backend='gloo',timeout=timedelta(seconds=600))
     def read_recipe(self,args):
@@ -165,7 +165,8 @@ class AugustusExtension:
                 or self.saved_identity.get('qualification')is not args.qualification):raise ValueError('AUGUSTUS native recipe/mode changed')
         return self.cfg
     def validate_world(self,world):
-        if world not in(8,16,32)or self.cfg['global_scenes']%world:raise ValueError('AUGUSTUS requires divisible B64/128 on world8/16/32')
+        allowed=(4,8,16,32)if self.cfg['experiment_id']=='AUG8_NATIVE_KL001'else(8,16,32)
+        if world not in allowed or self.cfg['global_scenes']%world:raise ValueError('AUGUSTUS requires divisible B64/128 on registered world')
         if self.saved_identity is not None and self.saved_identity['world']!=world:raise ValueError('Own native resume cannot silently change world')
     def make_stream(self,cfg):return DataStream(cfg,cfg['global_scenes'])
     def identity(self,actual):
