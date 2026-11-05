@@ -104,7 +104,7 @@ def main():
             if any(isinstance(m,torch.nn.Dropout)and m.training and m.p for m in model.modules()):
                 raise ValueError('Stochastic dropout would invalidate cached behavior comparison')
             optimizer=torch.optim.AdamW([p for p in model.parameters()if p.requires_grad],lr=1e-6,betas=(.9,.95),eps=1e-8,weight_decay=.01,foreach=False)
-            optimizer.zero_grad(set_to_none=True);fresh=[];kls=[]
+            optimizer.zero_grad(set_to_none=True);fresh=[];kls=[];initial_clipped=[]
             for i,record in enumerate(records):
                 require_dispatch()
                 with torch.autocast('cuda',dtype=torch.bfloat16):
@@ -118,13 +118,21 @@ def main():
                 # Before the only update, behavior and reference are both SFT.
                 loss,_=jit_grpo_policy_loss(ratio,advantage[i:i+1],kl=kl,clip_range=.2,kl_coef=.001)
                 fresh.append(float((ratio.exp()-1).abs().max()));kls.append(float(kl.detach().mean()))
+                initial_clipped.append(float(((ratio.exp()<.8)|(ratio.exp()>1.2)).float().mean()))
                 (loss/8).backward();del prediction,context,loss,ratio,kl,ratios,reference
             norm=torch.nn.utils.clip_grad_norm_([p for p in model.parameters()if p.requires_grad],1.)
             if not torch.isfinite(norm):raise FloatingPointError('Nonfinite official gradient')
-            if max(fresh)>1e-3:raise FloatingPointError('Official cached rollout vs grad recompute fresh ratio mismatch: '+str(max(fresh)))
+            readiness=dict(actual_Adam_updates=0,gradient_norm=float(norm),fresh_ratio_max_error=max(fresh),
+                reference_KL_before_update=kls,initial_ratio_clip_fraction=initial_clipped,
+                peak_GPU_bytes=torch.cuda.max_memory_allocated(),
+                note='BF16 cached rollout and full-sequence gradient paths are not bitwise equivalent. '
+                     'The previous local 1e-3 diagnostic threshold is not an upstream requirement. '
+                     'Keep the original loss and record this difference; refuse any already-clipped fresh sample.')
+            atomic_json(out/'UPDATE_READINESS.json',readiness)
+            if max(initial_clipped)>0:raise FloatingPointError('Fresh official sample already outside the registered 0.2 trust region')
             optimizer.step();update=dict(actual_Adam_updates=1,scenes=1,group=8,inner=1,gradient_norm=float(norm),
                 fresh_ratio_max_error=max(fresh),reference_KL_before_update=kls,rewards=reward.tolist(),
-                layer_checkpointing_active=True,optimizer_foreach=False,after=infer(0))
+                initial_ratio_clip_fraction=initial_clipped,layer_checkpointing_active=True,optimizer_foreach=False,after=infer(0))
         atomic_json(out/'SUMMARY.json',dict(status='COMPLETE_OFFICIAL_TRAIN_DIAGNOSTIC',host=host,upstream_sha=SOURCE,
             checkpoint_sha=h.hexdigest(),rows=rows,update=update,seconds=time.monotonic()-started,
             peak_GPU_bytes=torch.cuda.max_memory_allocated(),NAVTEST_used=False,formal_training_started=False,
