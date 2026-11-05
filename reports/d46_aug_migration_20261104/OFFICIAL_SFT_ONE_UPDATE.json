@@ -1,0 +1,71 @@
+{
+  "status": "COMPLETE_OFFICIAL_TRAIN_DIAGNOSTIC",
+  "host": "training-vlawm-tsinghua-zt5",
+  "upstream_sha": "edf3422304e4b2987e839a9212cf1176782e7380",
+  "checkpoint_sha": "c9215f97e61b93a4f995e7e3041ab702e66298b7d3adae1a3d5c1c038584d136",
+  "seconds": 109.58340631285682,
+  "peak_GPU_bytes": 38326660096,
+  "NAVTEST_used": false,
+  "formal_training_started": false,
+  "limits": "8 TRAIN scenes; native official one-step action inference, no CoT. Optional single-GPU action-only JaT update uses FP32 master/BF16 autocast, no FSDP. Not the paper full run or a NAVTEST result.",
+  "update": {
+    "actual_Adam_updates": 1,
+    "scenes": 1,
+    "group": 8,
+    "inner": 1,
+    "gradient_norm": 116.36709594726562,
+    "fresh_ratio_max_error": 0.01425248384475708,
+    "reference_KL_before_update": [
+      0.00018120429012924433,
+      0.0006585907540284097,
+      0.00023025371774565428,
+      0.0002074028307106346,
+      0.00018330631428398192,
+      0.00013721984578296542,
+      0.00024054732057265937,
+      0.0001128101721405983
+    ],
+    "rewards": [
+      4.781224477672632,
+      4.70379535681511,
+      4.7475409661446015,
+      4.699546788023136,
+      4.706374474936297,
+      4.679475396647943,
+      4.739729398370806,
+      4.687937763512464
+    ],
+    "initial_ratio_clip_fraction": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "layer_checkpointing_active": true,
+    "optimizer_foreach": false
+  },
+  "TRAIN_before": {
+    "no_at_fault_collisions": 1.0,
+    "drivable_area_compliance": 1.0,
+    "ego_progress": 0.8615241696967881,
+    "time_to_collision_within_bound": 1.0,
+    "comfort": 1.0,
+    "driving_direction_compliance": 1.0,
+    "score": 0.9423017373736617
+  },
+  "TRAIN_after": {
+    "no_at_fault_collisions": 1.0,
+    "drivable_area_compliance": 1.0,
+    "ego_progress": 0.8639441459290061,
+    "time_to_collision_within_bound": 1.0,
+    "comfort": 1.0,
+    "driving_direction_compliance": 1.0,
+    "score": 0.9433100608037526
+  },
+  "source_summary_sha256": "eaf548f7084ef3816088732291736972edd1f8cf06814a91373f57af9d631be5",
+  "population": "ONE TRAIN scene update, G8; 8 TRAIN pre-update diagnostic inference; not a deployment performance evaluation"
+}
