@@ -72,6 +72,7 @@ def main():
     service=RewardService(Path(__file__).resolve().parents[2],workers=1,cache_roots=manifest['canonical_metric_cache_roots'])
     rows=[];update=None
     def infer(i):
+        model.eval()
         torch.manual_seed(2101)
         with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
             value=policy.rollout([dataset[i]],generate_cot=False,num_steps=1,device=device)
@@ -95,7 +96,14 @@ def main():
             scored=service.score((samples[0]['token'],samples[0]['log'],np.stack(trajectories)))
             reward=torch.tensor([5*r['metrics']['score']for r in scored],device=device)
             advantage=(reward-reward.mean())/(reward.std(unbiased=True)+1e-6)
-            optimizer=torch.optim.AdamW([p for p in model.parameters()if p.requires_grad],lr=1e-6,betas=(.9,.95),eps=1e-8,weight_decay=.01)
+            # Upstream checkpointing is conditional on module.training; eval()
+            # above is correct for rollout, but silently disables it in updates.
+            model.train();model._visual.eval()
+            if not(model._text_model.training and model._text_model.gradient_checkpointing):
+                raise RuntimeError('Official update requires active layer checkpointing')
+            if any(isinstance(m,torch.nn.Dropout)and m.training and m.p for m in model.modules()):
+                raise ValueError('Stochastic dropout would invalidate cached behavior comparison')
+            optimizer=torch.optim.AdamW([p for p in model.parameters()if p.requires_grad],lr=1e-6,betas=(.9,.95),eps=1e-8,weight_decay=.01,foreach=False)
             optimizer.zero_grad(set_to_none=True);fresh=[];kls=[]
             for i,record in enumerate(records):
                 require_dispatch()
@@ -110,12 +118,13 @@ def main():
                 # Before the only update, behavior and reference are both SFT.
                 loss,_=jit_grpo_policy_loss(ratio,advantage[i:i+1],kl=kl,clip_range=.2,kl_coef=.001)
                 fresh.append(float((ratio.exp()-1).abs().max()));kls.append(float(kl.detach().mean()))
-                (loss/8).backward();del prediction,context,loss,ratio,kl
+                (loss/8).backward();del prediction,context,loss,ratio,kl,ratios,reference
             norm=torch.nn.utils.clip_grad_norm_([p for p in model.parameters()if p.requires_grad],1.)
             if not torch.isfinite(norm):raise FloatingPointError('Nonfinite official gradient')
             if max(fresh)>1e-3:raise FloatingPointError('Official cached rollout vs grad recompute fresh ratio mismatch: '+str(max(fresh)))
             optimizer.step();update=dict(actual_Adam_updates=1,scenes=1,group=8,inner=1,gradient_norm=float(norm),
-                fresh_ratio_max_error=max(fresh),reference_KL_before_update=kls,rewards=reward.tolist(),after=infer(0))
+                fresh_ratio_max_error=max(fresh),reference_KL_before_update=kls,rewards=reward.tolist(),
+                layer_checkpointing_active=True,optimizer_foreach=False,after=infer(0))
         atomic_json(out/'SUMMARY.json',dict(status='COMPLETE_OFFICIAL_TRAIN_DIAGNOSTIC',host=host,upstream_sha=SOURCE,
             checkpoint_sha=h.hexdigest(),rows=rows,update=update,seconds=time.monotonic()-started,
             peak_GPU_bytes=torch.cuda.max_memory_allocated(),NAVTEST_used=False,formal_training_started=False,
