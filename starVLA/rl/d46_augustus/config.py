@@ -13,6 +13,7 @@ EXPERIMENTS['AUG5_LORA_TOKEN_ROOT']='lora_text_action'
 EXPERIMENTS['AUG6_NATIVE_CALIBRATED']='lora_text_action'
 EXPERIMENTS['AUG7_NATIVE_FP32']='lora_text_action'
 EXPERIMENTS['AUG8_NATIVE_KL001']='lora_text_action'
+EXPERIMENTS['AUG9_SPLIT_ACTION']='lora_text_action'
 PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
     training_sigma_grid=[1.,2/3,1/3,0.],noise_scale=[.05,.05,.02],
     noise='official_g_a_sqrt_t',coordinate_reduction='mean24',
@@ -23,7 +24,10 @@ PROTOCOL=dict(schema='d46_augustus_three_step_policy_v1',training_steps=3,
 GRPO_SOURCE='https://raw.githubusercontent.com/volcengine/verl/main/verl/trainer/ppo/core_algos.py'
 
 
-def calibrated(experiment):return experiment in ('AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32','AUG8_NATIVE_KL001')
+def calibrated(experiment):return experiment in ('AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32','AUG8_NATIVE_KL001','AUG9_SPLIT_ACTION')
+
+
+def official_split(cfg):return cfg['experiment_id']=='AUG9_SPLIT_ACTION'
 
 
 def aligned(experiment):return experiment in ('AUG3_FULL_ALIGNED','AUG4_LORA_ALIGNED','AUG5_LORA_TOKEN_ROOT') or calibrated(experiment)
@@ -59,12 +63,18 @@ def profile(experiment):
             advantage='SafetyEP_group_center_global_population_std_cap5',
             group_std_unbiased=False,second_global_normalization=False,
             correction='local JaT adaptation: deployment root, physical TRAIN covariance, FP32 output, global SafetyEP')
-    if experiment in ('AUG7_NATIVE_FP32','AUG8_NATIVE_KL001'):
+    if experiment in ('AUG7_NATIVE_FP32','AUG8_NATIVE_KL001','AUG9_SPLIT_ACTION'):
         value.update(schema='d46_augustus_native_text_FP32_v5',text_action_precision='float32',
             correction='AUG6 numerical correction: native text C/P and action denoiser FP32; frozen visual encoding unchanged')
     if experiment=='AUG8_NATIVE_KL001':
         value.update(schema='d46_augustus_native_text_FP32_kl001_v6',fixed_reference_beta=.001,
             correction='AUG7 independent same-IL46 run; only reference KL coefficient changed .1 to .001 after actual full-batch gradient replay')
+    if experiment=='AUG9_SPLIT_ACTION':
+        value.update(schema='d46_augustus_released_split_action_v7',
+            reward='released_stage1_5PDMS_reverse_gate_1cm',
+            advantage='released_split_group_population_std_no_epsilon',
+            advantage_epsilon=0.,group_std_unbiased=False,group_std_zero_threshold=1e-6,
+            correction='Released Stage-I action reward and split normalization; D sampling/precision/LoRA unchanged; retain local beta0.1 after low-KL safety regression; no CoT reproduction')
     return value
 
 

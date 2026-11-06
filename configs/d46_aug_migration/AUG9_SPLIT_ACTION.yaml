@@ -1,0 +1,136 @@
+schema: d44_native_rl_v1
+arm: D0
+parent: D_IL46K
+seed: 42
+evaluation_seed: 2101
+global_scenes: 64
+group: 16
+inner_updates: 2
+learning_rate: 1.0e-06
+text_rank: 16
+film_last_layers: 8
+train_action_io: true
+post_feedback: false
+clip: 0.2
+beta: 0.1
+target_kl: 0.015
+entropy: 0.0
+target_epochs: 3.0
+maximum_epochs: 20.0
+reference_coefficient: 0.001
+rescue_start_epoch: 0.5
+post_start_epoch: 4.0
+positive_weight: 0.05
+last_weight: 0.02
+post_weight: 0.05
+nominal_seed: 2101
+mc_samples: 4
+save_every: 100
+scoring_workers: 2
+condition_cache_scenes: 8
+warmup_epochs: 0.08
+hold_until_epoch: 0.6
+cosine_end_epoch: 4.0
+min_lr_ratio: 0.05
+data: /mnt/project/qwen-world-rl-optimization-20261030/data/NAVTRAIN
+population_manifest: /mnt/project/qwen-world-rl-optimization-20261030/data/manifests/FULL_103288.json
+parent_checkpoint: /mnt/project/d46-priority-rl-20261103/IL46_PARENT
+canonical_reward_scale: raw_0_1
+action_shape:
+- 8
+- 3
+steps: 10
+shift: 5.0
+stochastic_steps:
+- 7
+- 8
+- 9
+innovation_clip: null
+coordinate_reduction: sum24
+dtype: FP32_parameters_text_action_states_probability_BF16_frozen_visual
+checkpoint_policy: all_off
+probability_layout: sequential
+sampler_selection: fixed_K10_shift5_no_scorer
+training_uses_navtest: false
+stage_boundaries:
+- 1.0
+- 4.0
+- 8.0
+- 12.0
+historical_teacher_capacity: 8192
+parent_registration:
+  path: /mnt/project/d46-priority-rl-20261103/PARENT_REGISTRATION_v2.json
+  file_sha256: 584dbcf1103fb4f052baa843add861a33bca90023f47827e2a882ef5a66a9632
+initialization: complete_verified_IL46_deployment_policy_plus_zero_RL_delta_fresh_Adam_seed42
+permanent_reference: same_verified_IL46_deployment_policy
+unavailable_IL_auxiliary_readouts: true
+experiment_id: AUG9_SPLIT_ACTION
+augustus:
+  schema: d46_augustus_released_split_action_v7
+  training_steps: 3
+  training_sigma_grid:
+  - 0.6818181872367859
+  - 0.5555555820465088
+  - 0.3571428656578064
+  - 0.0
+  noise_scale:
+  - - 0.004664118401706219
+    - 0.0009523809421807528
+    - 0.00207796529866755
+  - - 0.00929192453622818
+    - 0.002215995918959379
+    - 0.004067143891006708
+  - - 0.013825646601617336
+    - 0.004994470626115799
+    - 0.005944012198597193
+  - - 0.018216047435998917
+    - 0.00877077691257
+    - 0.0077386838383972645
+  - - 0.022593285888433456
+    - 0.013471839018166065
+    - 0.009455922059714794
+  - - 0.027078550308942795
+    - 0.01883545145392418
+    - 0.01106323767453432
+  - - 0.03159799426794052
+    - 0.024997355416417122
+    - 0.012490329332649708
+  - - 0.03609021008014679
+    - 0.03167032077908516
+    - 0.01375547144562006
+  noise: official_g_a_sqrt_t
+  coordinate_reduction: mean24
+  reward: released_stage1_5PDMS_reverse_gate_1cm
+  advantage: released_split_group_population_std_no_epsilon
+  advantage_epsilon: 0.0
+  group_std_unbiased: false
+  second_global_normalization: false
+  clip: 0.2
+  fixed_reference_beta: 0.1
+  initialization: fresh_verified_IL46_or_own_native_resume
+  deployment:
+    steps: 10
+    shift: 5.0
+    seed: 2101
+    training_deployment_grid_mismatch: false
+  deterministic_prefix_grid:
+  - 1.0
+  - 0.97826087474823
+  - 0.9523810148239136
+  - 0.9210526347160339
+  - 0.882352888584137
+  - 0.8333333134651184
+  - 0.7692307829856873
+  - 0.6818181872367859
+  initial_root_seed: 2101
+  correction: Released Stage-I action reward and split normalization; D sampling/precision/LoRA
+    unchanged; retain local beta0.1 after low-KL safety regression; no CoT reproduction
+  initial_root_scheme: deployment_token_seed_v1
+  noise_calibration_sha256: 6a25aadb0b4ee0d36c659e1d6a3a176f8e5127c274851bc860c7dba0c53a1535
+  action_output_precision: float32_linear
+  text_action_precision: float32
+  group_std_zero_threshold: 1.0e-06
+  scope: lora_text_action
+  execution:
+    fast_prefix: true
+    rotary_cache: true

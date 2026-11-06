@@ -10,7 +10,7 @@ from starVLA.rl.qwen_world_compare.recovery_state import tensor_digest
 from starVLA.rl.d44_native_rl.data import DataStream
 from starVLA.rl.d44_native_rl.recovery import Boundary,Attempt,material_digest
 from starVLA.rl.qwen_world_abcd_research import checkpoint
-from .config import SCHEMA,validate,read,kernel_identity,aligned,calibrated
+from .config import SCHEMA,validate,read,kernel_identity,aligned,calibrated,official_split
 
 
 def source_inventory():
@@ -41,7 +41,7 @@ class FixedKL:
         self.collections=value['collections'];self.ema=value['ema']
 
 
-def advantages(raw,valid,G,world,*,global_normalization=False):
+def advantages(raw,valid,G,world,*,global_normalization=False,split_normalization=False):
     """Legacy group std or explicitly registered global population normalization."""
     if(raw.ndim!=2 or raw.shape[1]!=G or G not in(8,16) or valid.shape!=raw.shape[:1]or valid.dtype!=torch.bool
         or raw.requires_grad or not torch.isfinite(raw).all()):raise ValueError('Invalid detached G8 credit/valid mask')
@@ -55,6 +55,10 @@ def advantages(raw,valid,G,world,*,global_normalization=False):
     if moments[2]<=0:raise ValueError('No valid scenes in global collection')
     std=(moments[1]/moments[2]-(moments[0]/moments[2]).square()).clamp_min(0).sqrt()
     if global_normalization:normalized=(raw.double()/(std+1e-8)).clamp(-5,5).float()*valid[:,None]
+    if split_normalization:
+        if global_normalization:raise ValueError('Released split normalization is not global whitening')
+        from .split_credit import normalize_centered
+        normalized=normalize_centered(raw)*valid[:,None]
     return normalized.detach(),std.detach()
 
 
@@ -68,6 +72,11 @@ def credit(scenes,stream,epoch):
 
 
 def recipe_credit(scenes,stream,epoch,cfg):
+    if official_split(cfg):
+        from .split_credit import action_reward
+        scores=torch.stack([action_reward(s)for s in scenes])
+        feasible=torch.stack([(s['factors'][:,:3]==1).all(-1)for s in scenes])
+        return scores-scores.mean(1,keepdim=True),feasible
     if not aligned(cfg['experiment_id']):return credit(scenes,stream,epoch)
     from starVLA.rl.d44_native_rl.safety_credit import raw_credit
     return raw_credit(torch.stack([r['factors']for r in scenes]))
@@ -100,11 +109,17 @@ class AugustusBoundary(Boundary):
                     or not torch.allclose(scene['deltas'],(expected[1:]-expected[:-1]),atol=1e-7,rtol=0)):
                     raise ValueError('Changed AUGUSTUS linear training grid')
                 reward=torch.tensor([q['metrics']['score']for q in scene['records']],device=scene['chain'].device,dtype=torch.float64)
-                if aligned(cfg['experiment_id']):
+                if official_split(cfg):
+                    from .split_credit import action_reward
+                    reward=action_reward(scene);raw=reward-reward.mean()
+                elif aligned(cfg['experiment_id']):
                     from starVLA.rl.d44_native_rl.safety_credit import raw_credit
                     raw,_=raw_credit(scene['factors'][None]);raw=raw[0]
                 else:raw=reward-reward.mean()
-                if calibrated(cfg['experiment_id']):
+                if official_split(cfg):
+                    from .split_credit import normalize_centered
+                    a=normalize_centered(raw)
+                elif calibrated(cfg['experiment_id']):
                     std=float(batch['global_std'])
                     if not math.isfinite(std) or std<0:raise ValueError('Invalid global advantage scale')
                     a=(raw/(std+1e-8)).clamp(-5,5).float()
@@ -123,7 +138,8 @@ class AugustusExtension:
     collect_scene=staticmethod(lambda *args,**kw:__import__('starVLA.rl.d46_augustus.collector',fromlist=['collect_scene']).collect_scene(*args,**kw))
     make_dual=staticmethod(FixedKL)
     def advantages(self,raw,valid,G,world):
-        return advantages(raw,valid,G,world,global_normalization=calibrated(self.cfg['experiment_id']))
+        split=official_split(self.cfg)
+        return advantages(raw,valid,G,world,global_normalization=calibrated(self.cfg['experiment_id'])and not split,split_normalization=split)
     def prepare_model(self,model):
         if self.cfg['augustus'].get('action_output_precision')=='float32_linear':
             from .output_precision import install_fp32_action_output

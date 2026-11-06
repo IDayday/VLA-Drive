@@ -25,7 +25,7 @@ def tail(path,limit=64):
     return rows[-limit:]
 
 
-def snapshot(output,world,now=None):
+def snapshot(output,world,now=None,*,finished=False):
     now=time.time() if now is None else now
     tails=[tail(Path(output)/f'metrics_rank{rank}.jsonl') for rank in range(world)]
     if not all(tails):return dict(status='WAITING_ALL_RANKS',at=now,alerts=['尚未取得全部rank日志'])
@@ -37,7 +37,7 @@ def snapshot(output,world,now=None):
     alerts=[]
     if len(run_ids)!=1:alerts.append('rank身份不一致')
     if max(r['updates'] for r in last)-common>1:alerts.append('rank提交进度不一致')
-    if now-min(r['at'] for r in last)>600:alerts.append('日志超过10分钟未提交')
+    if not finished and now-min(r['at'] for r in last)>600:alerts.append('日志超过10分钟未提交')
     health_keys=('gradient_norm','global_advantage_std')
     if any(not math.isfinite(r[k]) for r in rows for k in health_keys):alerts.append('梯度或优势出现非有限值')
     if any(r['losses']['fresh_ratio_error']>1e-4 for r in rows if r['inner_completed']==1):alerts.append('fresh ratio不等于1')
@@ -58,7 +58,7 @@ def snapshot(output,world,now=None):
                 if v is not None:roles.setdefault(k,[]).append(v*v/sq)
     fraction={k:avg(v) for k,v in roles.items()}
     exploration=[indices[0][u]['exploration'] for u in common_steps if indices[0][u]['inner_completed']==1]
-    return dict(status='REVIEW' if alerts else 'FINITE_CONSISTENT_NOT_A_PERFORMANCE_PROOF',at=now,
+    return dict(status='REVIEW' if alerts else ('COMPLETED_FINITE' if finished else 'FINITE_CONSISTENT_NOT_A_PERFORMANCE_PROOF'),at=now,
         common_update=common,scene_exposures=min(r['scene_exposures'] for r in last),scene_epochs=min(r['scene_epochs'] for r in last),
         sampled_rank_update_rows=len(rows),global_advantage_std_rank_spread=std_spread,inner=inner,
         gradient_norm_mean=avg([r['gradient_norm'] for r in rows]),

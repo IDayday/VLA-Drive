@@ -63,7 +63,7 @@ def test_four_rank_initial_native_checkpoint_and_roundtrip(tmp_path):
         with pytest.raises(ValueError,match='identity/world'):AugustusBoundary.validate_boundary(**bad)
 
 
-@pytest.mark.parametrize('experiment',['AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32','AUG8_NATIVE_KL001'])
+@pytest.mark.parametrize('experiment',['AUG6_NATIVE_CALIBRATED','AUG7_NATIVE_FP32','AUG8_NATIVE_KL001','AUG9_SPLIT_ACTION'])
 def test_calibrated_collector_fresh_ratio_and_two_inner_updates(experiment):
     spec=importlib.util.spec_from_file_location('calibrated_tiny',Path(__file__).with_name('test_d46_augustus_actor.py'))
     m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
@@ -74,7 +74,8 @@ def test_calibrated_collector_fresh_ratio_and_two_inner_updates(experiment):
         assert isinstance(actor.ref_action_expert.decision.action_output,FP32ActionOutput)
         scene=m.collect_scene(actor,condition,'TRAIN_CPU_0','TRAIN_cpu',m.SyntheticService(),torch.Generator().manual_seed(42),cfg,0.,{'update':0})
         raw,_=recipe_credit([scene],None,0.,cfg)
-        a,_=advantages(raw,torch.tensor([True]),16,1,global_normalization=True)
+        ext=AugustusExtension();ext.cfg=cfg
+        a,_=ext.advantages(raw,torch.tensor([True]),16,1)
         scene.update(advantages=a[0],padding=False,beta=cfg['beta'],expect_fresh=True)
         optimizer=torch.optim.AdamW(AugustusExtension.optimizer_groups(actor,cfg),lr=cfg['learning_rate'])
         for inner in range(2):

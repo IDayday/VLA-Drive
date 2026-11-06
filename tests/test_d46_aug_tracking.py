@@ -27,3 +27,9 @@ def test_missing_rank_is_not_healthy_and_different_global_std_is_reported(tmp_pa
     assert snapshot(tmp_path,2)['status']=='WAITING_ALL_RANKS'
     write(tmp_path,1,bad=True)
     assert '全局优势std不一致' in snapshot(tmp_path,2,now=161)['alerts']
+
+
+def test_completed_run_is_not_misreported_as_stalled(tmp_path):
+    write(tmp_path,0);write(tmp_path,1)
+    assert snapshot(tmp_path,2,now=10000,finished=True)['status']=='COMPLETED_FINITE'
+    assert '日志超过10分钟未提交' in snapshot(tmp_path,2,now=10000)['alerts']

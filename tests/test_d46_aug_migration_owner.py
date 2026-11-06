@@ -4,6 +4,11 @@ import pytest
 from tools.d46_aug_migration import owner
 
 
+def test_archived_route_remains_discoverable_after_primary_replacement():
+    plan=dict(route={'experiment':'new'},secondary_route={'experiment':'active'},archived_routes=[{'experiment':'completed'}])
+    assert [r['experiment']for r in owner.registered_routes(plan)]==['new','active','completed']
+
+
 def test_failed_owned_gang_requests_only_its_peer_stop(tmp_path):
     left=tmp_path/'a';right=tmp_path/'b';left.mkdir();right.mkdir()
     (left/'RESULT.json').write_text(json.dumps({'returncode':1}))

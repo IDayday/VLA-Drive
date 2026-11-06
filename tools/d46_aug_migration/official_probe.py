@@ -94,8 +94,13 @@ def main():
                     trajectory=model.apply_action_offset(model.denormalize_actions(record['x0_normed']))
                 records.append(record);trajectories.append(trajectory.cpu().numpy()[0]);del context
             scored=service.score((samples[0]['token'],samples[0]['log'],np.stack(trajectories)))
-            reward=torch.tensor([5*r['metrics']['score']for r in scored],device=device)
-            advantage=(reward-reward.mean())/(reward.std(unbiased=True)+1e-6)
+            from .audit_split_credit import released_functions
+            group_zscore,reverse_travel,_=released_functions(root)
+            reverse_metres=[reverse_travel(t)for t in trajectories]
+            reward_values=np.array([5*r['metrics']['score']*(backward==0)
+                for r,backward in zip(scored,reverse_metres)],dtype=np.float64)
+            reward=torch.from_numpy(reward_values).to(device)
+            advantage=torch.from_numpy(group_zscore(reward_values).astype(np.float32)).to(device)
             # Upstream checkpointing is conditional on module.training; eval()
             # above is correct for rollout, but silently disables it in updates.
             model.train();model._visual.eval()
@@ -133,6 +138,9 @@ def main():
             optimizer.step();update=dict(actual_Adam_updates=1,scenes=1,group=8,inner=1,gradient_norm=float(norm),
                 fresh_ratio_max_error=max(fresh),reference_KL_before_update=kls,rewards=reward.tolist(),
                 initial_ratio_clip_fraction=initial_clipped,layer_checkpointing_active=True,optimizer_foreach=False,after=infer(0))
+            update.update(advantage_rule='released_split_group_population_std_no_epsilon',
+                reverse_travel_m=reverse_metres,advantages=advantage.tolist(),
+                reward_rule='released_stage1_5PDMS_reverse_gate_1cm')
         atomic_json(out/'SUMMARY.json',dict(status='COMPLETE_OFFICIAL_TRAIN_DIAGNOSTIC',host=host,upstream_sha=SOURCE,
             checkpoint_sha=h.hexdigest(),rows=rows,update=update,seconds=time.monotonic()-started,
             peak_GPU_bytes=torch.cuda.max_memory_allocated(),NAVTEST_used=False,formal_training_started=False,
