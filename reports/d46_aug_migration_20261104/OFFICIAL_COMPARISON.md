@@ -1,72 +1,71 @@
-# AUG迁移的关键差异与真实训练诊断
+# 官方AUG与D46迁移：区别、已发现的问题及修正
 
-更新时间：2026-11-04 17:54 UTC。AUG7正式训练保持；旧AUG6和更早RL不恢复。尚未证明新的RL提分。
+更新：2026-11-06。官方比较固定源码`edf3422304e4b2987e839a9212cf1176782e7380`。我们的训练父模型始终为完整D IL46 SHA `386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d`。官方模型诊断使用其独立SFT；不向D转移官方RL权重或Adam。
 
-## 最直接的发现：参考约束可以主导更新，但并非始终有害
+## 结论与证据强度
 
-同一已保存策略、相同fresh轨迹，完整计算每个B64场景的三组真实参数梯度：SafetyEP策略项、官方式PDMS组内标准化策略项、beta0.1参考KL。没有Adam更新或新增评分。先对64场景的梯度向量求和，再算范数/夹角；不是逐场景范数相加。
+1. **确定的实现／分析偏差**：此前官方对照按通用verl样本std理解，实际发布Stage-I启用split分支，使用NumPy总体std、方差门限，不在有效分母加epsilon；官方诊断和反事实工具也有此偏差。本次修正，并直接执行固定官方函数逐值对照。
+2. **确定的算法差异，尚未证明是退化原因**：D加入SafetyEP、全局标准化与cap5，缺少官方倒退门控。这改变奖励目标和场景权重，不只是优化实现。新独立AUG9恢复该动作奖励路径，实际部署效果须等完整评测。
+3. **已验证的数值问题**：BF16文本/动作计算曾把微小参数更新变为较大输出跳变；FP32已修正真实TRAIN局部数值连续性。AUG7满3E提高0.24360，但不能把全部收益归因于此修正，尚未超过D历史最佳。
+4. **已实测不支持的简单改法**：KL从0.1降为官方0.001，AUG8 0.5E新增74零分、修复41，安全恶化。不能继续把参考约束越小越好作为结论；也不能用0.5E断言其最终上限。
+5. **尚未补齐的系统差异**：历史视频、主干与预测CoT训练、全参数更新、训练部署步数均不同。公式正确不等于完整迁移，不能把作者94.0/94.6归于当前D动作loss。
 
-| 检查点 | 完整场景 | KL梯度/策略梯度 | 两者cos | 总梯度与策略cos | 无策略梯度场景 |
-|---|---:|---:|---:|---:|---:|
-| u100 | 64 | 2.0036 | -0.9240 | -0.7433 | 19 |
-| u200 | 64 | 0.9781 | +0.6495 | +0.9103 | 24 |
+## 实际执行配置对照
 
-u100的参考项反转了总体梯度相对奖励项的方向；u200则与奖励方向一致。两者均有大量无奖励梯度场景继续贡献参考约束。**不能称参考项始终阻碍训练，也不能仅凭两次batch证明最终PDMS原因。** 这是减小beta的直接实验依据。两次全部fresh ratio误差为0，排除了本次保存策略与重评分不同步。
+| 项目 | 官方发布Stage I | D AUG7／AUG8 | 本次AUG9 |
+|---|---|---|---|
+| 初始化 | 官方SFT best，新RL optimizer | 同一D IL46，新Adam0 | 同一D IL46，新Adam0 |
+| 观测 | 4历史帧、2Hz，三相机裁剪拼接2048×512；历史ego轨迹文本 | 当前帧三视图及ego/nav | 不变 |
+| 主干 | Qwen3.5-2B，原生Transfusion时间调制 | Qwen3VL-2B，D自身预测／动作结构 | 不变 |
+| 可训练参数 | 文本主干及动作机制，视觉冻结 | 7,010,307参数：text attention LoRA、time FiLM/LoRA、动作接口与位置 | 不变；不是仅动作头 |
+| 采样 | 3步linear JaT SDE，独立随机根；噪声[.05,.05,.02] | 部署根；K10 shift5前7步ODE＋末3步JaT；TRAIN物理尺度校准 | 不变 |
+| 部署 | SFT原生1步ODE | 原生K10 shift5，seed2101，单条 | 不变 |
+| 动作奖励 | planning=5、PDMS=1、其它planning项0；reverse_gate=true | SafetyEP优先安全，安全组比较EP；官方PDMS仍用于评测 | 5×PDMS，倒退门控 |
+| 优势 | `rl_split_advantage=true`；每组population std，无额外全局白化 | SafetyEP组内中心化，全B×G population std，cap5 | 逐组population std，std<1e-6为0，无分母epsilon或cap |
+| KL | action0.001；CoT0.01 | action0.1／0.001 | action0.1：明确保留D适配，不称官方全配方 |
+| CoT | prediction reward及token GRPO，独立优势 | 无CoT RL | 仍无；未伪造预测文本标签 |
+| B/G/M | B32/G8；ppo mini-batch32；实际循环以原driver为准 | B64/G16/M2 | B64/G16/M2 |
+| LR | YAML actor1e-6；其它调度继承原verl配置 | 1e-6；曝光warmup.08E/hold.60E/cosine4E/floor.05 | 不变 |
+| 数值 | BF16路径／FSDP混合精度 | 文本动作FP32、冻结视觉BF16，AdamW(.9,.95) | 不变 |
+| 训练数据 | 官方HF缓存；docs报告103287，精确排除token待核 | 经审计合法NAVTRAIN103288；与NAVTEST token/log隔离 | 不变 |
+| 预算 | 公开Stage I 10 epochs | AUG7完成3E；AUG8在训 | 先登记3E，按效果扩展 |
 
-AUG8_NATIVE_KL001已注册：同IL46、新Adam0，beta由0.1降至官方动作配置0.001；优势、探索、FP32路径、B64/G16/M2、LR/曝光调度不变。为保留评测资源采用4rank，每rank16场景；与AUG7的16rank相比，rank RNG和浮点归约不同，不称逐采样严格配对消融。原8/16/32rank限制已对该新identity显式扩展至4，必须通过真实中途恢复后才从IL正式启动。禁止迁移AUG7权重或Adam。
+公开奖励`reverse_gate`将轨迹从ego原点开始任一小于−1cm的x位移识别为倒退；触发后整个planning/action奖励为0。该bool门控没有GT倒退豁免，另一旧阈值门控才有；没有混淆两者。官方评分器记录仍保持原样，训练门控不修改canonical PDMS。
 
-## 优势分配改变了实际学习重点
+```text
+官方：4帧 + SFT模型 → 3步JaT候选 → PDM + 倒退门控 → 动作组优势 → 动作JaT更新
+                         └→ prediction-CoT → 预测/格式奖励 → CoT组优势 → token更新
 
-完整覆盖AUG6全部129 collection、8256不同TRAIN场景、132096候选。全安全7318组，混合858组，全不安全80组。混合组仅占10.39%，但占SafetyEP/global标准化后约92.4%的优势平方权重；官方式PDMS/group标准化把约85.1%权重分给全安全组。该统计是优势权重，**不是参数梯度贡献**。
+D旧：当前帧 + D IL46 → K10末3步JaT → SafetyEP → 全batch std → 动作JaT更新
+D新：当前帧 + D IL46 → 同一采样链 → PDM + 倒退门控 → 每组std → 动作JaT更新
+```
 
-- 159组官方PDMS有差异而SafetyEP为零；1347候选在两种优势规则下符号不同。
-- 54个全PDMS零分组中51个没有SafetyEP信号。这51组均存在真实碰撞/TTC事件时间或越界持续比例差异。
-- 时间风险可以提供排序信号，但不证明存在安全可达解，也不证明学完会提高PDMS。组内可行候选的严格优先关系仍需保留。
-- 两个完整B64的SafetyEP与PDMS组标准化整体梯度cos分别0.722、0.786；改变优势并非只改变一个学习率倍数。
+## 为什么旧路线收益较弱
 
-![优势分配和真实梯度](credit_and_gradient.png)
+AUG7完成309864个有效场景曝光，9684次Adam；完整NAVTEST89.75409134。相同FP32u0提高0.24360，44-log配对95%区间[+0.11540,+0.36294]，但高分≥0.9群体贡献−0.06501；零分修复30、新增19。NC/TTC退化与EP改善并存，不能说只要延长就会达到92。AUG7后期仍有增益，未据此宣判长期上限；先验证学习信号差异更有信息价值。
 
-## 官方实现与当前D迁移不是同一个完整系统
+AUG8 0.5E89.49181220，相同u0−0.01868，区间[−0.30627,+0.24500]；新增碰撞失败34、修复9，TTC新增失败97、修复23。它与AUG7的rank数不同，非逐采样配对对照；但该路线已实测到的安全退化不能被训练reward提高掩盖。
 
-[原论文](https://arxiv.org/html/2610.16985v1) · [固定版本源码](https://github.com/haha-yuki-haha/AUGUstus/tree/edf3422304e4b2987e839a9212cf1176782e7380) · [官方权重](https://huggingface.co/yuki-hahaha/AUGUstus)
+完整AUG6反馈审计8256不同TRAIN场景中，159组canonical PDMS有差异而SafetyEP无信号，54全零组里51组无SafetyEP信号且存在真实时间风险差异。此前约92.4%优势平方权重集中于仅10.39%的安全混合组。此为优势权重，不是参数梯度；原“官方PDMS组优势”统计实际用的是sample-std近似且未加倒退门控，现明确更正。新工具正扫描AUG7全3E实际反馈，分开记录曝光次数与唯一token，不以局部样本代替全程。
 
-| 项目 | 官方公开实现 | 当前D AUG7 |
-|---|---|---|
-| 观测 | 4历史帧、2Hz；三相机裁剪拼接2048×512；历史ego轨迹入文本 | 当前帧三相机＋ego/nav；无四帧历史输入 |
-| 主干 | Qwen3.5-2B；全层AdaRMSNorm动作时间条件 | Qwen3VL-2B；D自身动作/预测token结构 |
-| 可训练范围 | 文本主干和动作机制；视觉冻结 | 约701万参数：注意力LoRA、末8层time LoRA、动作接口/位置 |
-| 动作优势 | Stage I动作5×PDMS组内sample std；公开YAML split_advantage=true | SafetyEP组内中心化、全batch population std、cap5 |
-| 动作参考KL | 0.001 | 0.1 |
-| CoT | 单独预测奖励、token GRPO；KL0.01 | 无CoT RL目标；当前D父权重未携带可直接复用的官方CoT头 |
-| 阶段二 | endpoint/可行性门控等课程 | 当前未复现 |
-| 采样 | 3步linear；独立随机根；归一化噪声[.05,.05,.02] | 原生K10/shift5前7步确定性＋末3步JaT；同场景共享部署根；物理尺度对齐 |
-| B/G/M | 公开Stage I B32/G8；ppo minibatch32 | B64/G16/M2 |
-| 数值 | 公开模型BF16路径；FSDP混合精度 | 真实微更新跳变后改FP32文本/动作、冻结视觉BF16 |
+完整B64梯度回放u100参考KL/PG范数2.004、cos−0.924；u200为0.978、cos+0.649。参考项可以主导更新，但不是始终有害。既有梯度图中的角色范数在裁剪之后，不能推断Adam更新只发生在动作接口。
 
-论文消融：SFT90.6，动作JaT92.6，但NC/DAC/TTC由99.0/97.9/96.4降至98.0/97.6/94.1，EP84.2→91.8。完整Stage I94.0、Stage II94.6不能全部归功于动作JaT。它也面对安全与效率的张力。以上是作者报告的成绩，不是我们本地复现。
+## 本次已完成与执行中
 
-论文与代码还存在说明差异：论文写共享奖励优势，公开Stage I/II YAML使用分头优势；论文描述平滑噪声，固定源码sample_noise为独立正态。对照实验以实际执行代码为准并记录差异，不据此断言论文错误。
+- 新模块`split_credit.py`复用原ActionCodec，从真实链终点取物理轨迹；official scorer不变。新增AUG9独立identity，继承原runtime与恢复系统。
+- 固定源码函数直接执行对照：G8/G16/G32共1545组，1024条轨迹，归一化与倒退结果最大误差均0；25项定向测试通过，含padding、协议、原生material、报告归档状态。
+- 同步纠正官方单步诊断、TRAIN反事实和梯度审计的归一化，旧实验结果保持历史标记，不重写成新方法收益。
+- AUG9两节点16卡真实第一inner更新→保存pending→原生恢复第二inner；通过才从IL46和Adam0启动3E正式训练。每100更新保存、最近10份＋u0/最佳/评测中固定；后台事件触发完整NAVTEST。
+- 官方SFT另外重跑修正的单次action-only JaT更新。此前原模型已能完成更新；仍不是B32联合CoT Stage-I复现，不报官方NAVTEST成绩。
 
-## 本地官方对照状态
+## 下一阶段的决策依据
 
-已下载固定源码，隔离安装Qwen3.5/transformers环境；八个合法TRAIN场景的4历史帧、官方裁剪/JPEG/libx264视频和ego历史文本已准备。历史位置从原始NAVSIM重建，尚未断言与另行发布的P3 JSON舍入完全一致；不伪造CoT标签。
+先看AUG9相同数值u0的完整分数、零分修复/新增、安全与EP，以及新规则在全量TRAIN上的有效组数。若改善，继续充分训练；若只提高EP而损伤安全，说明单纯恢复官方奖励仍不适合D，应优先改安全约束与部署轨迹吸收，而非继续盲目降低KL。
 
-SFT和Stage I两个完整模型各6.315GB，固定HF revision与SHA；网络存在TLS中断和签名URL过期，下载恢复只接受逐range完成记录，最终整文件SHA正确才加载。**权重尚未完成验证，官方模型推理/实际Adam更新尚未执行。** official_probe直接调用官方模型、diffusion adapter、JaT核；不执行源码中清理Ray进程的launcher。它最多一个TRAIN动作更新，不冒充全CoT-GRPO复现；启动仍需资源准入。
+官方的时间信息、prediction-CoT和全文本更新是下一层需要隔离的系统差异。D没有可直接等价复用的官方AR预测头，不能给一个新辅助loss起CoT名字便声称复现。已取得真实P3 prediction标签，可用于独立原模型联合RL对照；原版SFT→RL曲线需单独建立。现阶段无证据认定LoRA容量不足或缺少CoT是唯一原因。
 
-## 最新完整结果的含义
+来源：[Stage-I配置](https://github.com/haha-yuki-haha/AUGUstus/blob/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/config/stage1.yaml)、[split优势执行路径](https://github.com/haha-yuki-haha/AUGUstus/blob/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/sync_driver.py)、[官方reward](https://github.com/haha-yuki-haha/AUGUstus/blob/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/transfusion_reward.py)、[论文](https://arxiv.org/html/2610.16985v1)。论文数字是作者报告，不是本地复现。
 
-u400相同FP32起点的44物理log配对95%区间为[−0.01999,+0.12406] PDMS，包含0；零分修复8个、新增7个，原高分转零4个。收益尚不可靠，零分问题也未实质解决。
+## Checkpoint保留修复
 
-相同数值u0配对资料见 [u200](AUG7_U200_VS_NUMERIC_U0.json) 和 [u400](AUG7_U400_VS_NUMERIC_U0.json)。
-
-## 训练长度也不能忽略
-
-u400只相当于12800/103288≈0.124个场景曝光epoch；公开Stage I配置为10 epochs。当前早期分数不足以判定D或JaT的最终上限。AUG7继续原先注册训练，AUG8检验约束机制；不能用资格测试或几百步代替充分训练结论。
-
-## 接下来怎么判断
-
-1. AUG7 u200完整单条ODE=89.53839404，相同数值u0=89.51048770，净增仅0.02790635。u400完整89.56281536，相同起点+0.05232766；NC/TTC略降、EP/DAC略升，未突破安全效率拉扯。没有实质性提分证据。
-2. 自动执行AUG8真实资格与pending-inner恢复，再从IL46/Adam0独立正式训练；保留AUG7为对照。每100更新保存，最近10份及最佳/评测固定。
-3. 比较完整分数、零分修复/新增零分、安全和EP，同时看KL与PG真实梯度；不要用KL变小替代提分证据。
-4. 优势分配与时间风险作为下一条独立改进候选，不能把本次反事实权重分析写成训练收益。
-5. 官方完整模型和输入对照用于识别主干/历史信息/CoT差异；不从官方模型向D迁移RL权重，不把NAVTEST反馈返回TRAIN。
+审查发现后台旧规则只固定所有路线的全局最高点，而不是各路线的最高点。已改为每个独立实验保留best＋u0＋最近10份＋评测中权重，新增针对性测试通过。AUG8 u400的原生权重已被旧轮转规则删除，无法声称还能从该点原样恢复；完整分数和逐场景评测保留，当前AUG8最新原生状态完整。AUG7最高u9684仍在。该问题影响回退能力，不改变已报告分数。

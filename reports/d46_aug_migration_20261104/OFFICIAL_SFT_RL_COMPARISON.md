@@ -12,6 +12,10 @@
 
 证据：[真实单次更新](OFFICIAL_SFT_ONE_UPDATE.json)。它不是完整Stage I复现：本次只1个TRAIN场景/G8/M1、action-only、单卡、FP32参数/BF16 autocast；原模型的8场景推理也不是NAVTEST评测。
 
+## 2026-11-06实现复核
+
+上面的单步结果属于旧诊断版本：使用了sample std，遗漏官方reverse gate，不能称作发布Stage-I动作信用的精确复现。实际split分支是population std、std<1e-6置零、有效分母不加epsilon。本次直接调用固定官方函数重跑独立SFT单步更新；旧结果保留，不静默替换。修正版已真实完成1次Adam：梯度范数124.5227，fresh ratio最大偏差仍为1.425%，clip越界比例0，8条候选无倒退门控触发。单TRAIN场景0.94230174→0.94327213，仍不是泛化结果。见[修正版实际单次更新](OFFICIAL_RELEASED_ACTION_UPDATE.json)。
+
 ## 数据和下一阶段
 
 官方P3 TRAIN标注181,752,662 bytes已下载并核验SHA，含103288条记录及真实perception/prediction/planning标签。SFT配置实际cot_components=['prediction']，可用真实solution_prediction构造对应监督；不可将缺失的自由文本reasoning_trace伪造为已获取。官方通用cache脚本会按reasoning_trace缺失过滤一条样本，确切复现其103287人口还需对齐该场景身份；更不能悄悄把全103288称作原发布人口。

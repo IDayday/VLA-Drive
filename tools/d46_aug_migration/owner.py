@@ -165,6 +165,22 @@ def compare_numeric_baselines(evaluations):
         value['sha256']=fingerprint(value);atomic_json(path,value)
 
 
+def checkpoint_pins(evaluations,routes):
+    """Pin each route's best; a stronger other algorithm must not evict it."""
+    pending=[c['binding']['checkpoint']for c in evaluations['cases'].values()if c['status']not in E.TERMINAL]
+    best={}
+    for route in registered_routes(routes):
+        name=route['experiment']
+        complete=[c for c in evaluations['cases'].values()if c['status']=='COMPLETE'and c['binding']['experiment']==name]
+        pending.append(str(Path(route['formal_output'])/'checkpoints/update000000_inner0'))
+        if complete:
+            case=max(complete,key=lambda c:read(c['summary'])['PDMS']);path=case['binding']['checkpoint']
+            pending.append(path)
+            best[name]=dict(checkpoint=path,PDMS=read(case['summary'])['PDMS'],
+                native_available=(Path(path)/'COMPLETE').is_file(),case=case['id'])
+    return pending,best
+
+
 def report(state,evaluations):
     plan=read(ROOT/'operations/PLAN.json');route=plan['route'];out=Path(route['formal_output']);latest=read(out/'latest.json',{})
     current_ids={r['experiment']for r in [route]+([plan['secondary_route']]if plan.get('secondary_route')else[])}
@@ -189,7 +205,7 @@ def report(state,evaluations):
         common2=min((v[-1]['updates']for v in tails2 if v),default=0)if all(tails2)else 0
         live=int(common2>0 and ss.get('stage')=='formal'and any(not(Path(j['job'])/'RESULT.json').exists()for j in ss.get('jobs',[])))
         active+=live;cards+=live*secondary['world']
-        secondary_html=f"<p><b>独立低KL对照 {secondary['experiment']}</b>：{html.escape(ss.get('stage','WAITING_EVALUATION'))}；正式共同更新 {common2}。同IL46、新Adam0；beta0.001，其余科学配方沿用AUG7。4卡执行B64/G16/M2，rank RNG及浮点归约与16卡不同；不称逐抽样配对对照。先完成主线200/400评测，再自动资格、原生恢复和独立正式训练。</p>"
+        secondary_html=f"<p><b>独立低KL对照 {secondary['experiment']}</b>：{html.escape(ss.get('stage','WAITING_EVALUATION'))}；正式共同更新 {common2}。同IL46、新Adam0；beta0.001，其余科学配方沿用AUG7。4卡执行B64/G16/M2，rank RNG及浮点归约与16卡不同；不称逐抽样配对对照。</p>"
     state.update(actual_training=active,common_update=common)
     atomic_json(ROOT/'operations/STATE.json',state)
     from tools.d46_aug_migration.tracking import snapshot
@@ -283,11 +299,9 @@ def main():
             try:
                 evaluations=E.tick(ROOT,evaluations,plan,ops_source=SOURCE)
                 compare_numeric_baselines(evaluations)
-                complete=[c for c in evaluations['cases'].values()if c['status']=='COMPLETE']
-                pending=[c['binding']['checkpoint']for c in evaluations['cases'].values()if c['status']not in E.TERMINAL]
-                if complete:pending.append(max(complete,key=lambda c:read(c['summary'])['PDMS'])['binding']['checkpoint'])
+                pending,best=checkpoint_pins(evaluations,plan)
+                atomic_json(op/'BEST_PER_ROUTE.json',best)
                 for item in registered_routes(plan):
-                    pending.append(str(Path(item['formal_output'])/'checkpoints/update000000_inner0'))
                     if Path(item['formal_output']).exists():rotate(item['formal_output'],keep=10,pinned=pending)
                 error=op/'EVALUATION_ERROR.json'
                 if error.exists():

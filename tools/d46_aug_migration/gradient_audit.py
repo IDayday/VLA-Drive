@@ -19,6 +19,7 @@ from starVLA.rl.d46_augustus.actor import AugustusActor
 from starVLA.rl.d46_augustus.deployment import inspect
 from starVLA.rl.d46_augustus.runtime import AugustusExtension
 from starVLA.rl.d46_augustus.kernel import policy_loss
+from starVLA.rl.d46_augustus.split_credit import action_reward,normalize_centered
 from starVLA.rl.flow_grpo.reproducibility import configure_numerics
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.qwen_world_compare.contracts import require_dispatch
@@ -66,8 +67,8 @@ def main():
         require_dispatch();assert s['token']in stream.data.records
         r={k:v.to(device)if torch.is_tensor(v)else v for k,v in s.items()};r['expect_fresh']=True
         total,metrics,parts=actor(r,return_components=True)
-        scores=torch.tensor([q['metrics']['score']for q in s['records']],device=device,dtype=torch.float64)*5
-        adv=((scores-scores.mean())/(scores.std(unbiased=True)+1e-6)).float()
+        scores=action_reward(r)
+        adv=normalize_centered(scores-scores.mean())
         alternate,_=policy_loss(parts['logratio'],adv,parts['reference_KL_steps'],clip=cfg['augustus']['clip'],beta=0.)
         grads={'SafetyEP':vector(parts['policy'],parameters,True),'PDMS_group':vector(alternate,parameters,True),'reference_beta01':vector(parts['reference'],parameters,False)}
         for k,v in grads.items():totals[k]=totals.get(k,torch.zeros_like(v))+v
@@ -84,6 +85,7 @@ def main():
                 aggregate_cosine_SafetyEP_PDMS=cosine(totals['SafetyEP'],totals['PDMS_group']),
                 reference_beta0001_gradient_is_beta01_div100=True,optimizer_updates=0,PDM_queries=0,NAVTEST_used=False,
                 seconds=time.monotonic()-started,peak_GPU_bytes=torch.cuda.max_memory_allocated(),
+                alternate_rule='released_stage1_5PDMS_reverse_gate_population_std_no_epsilon',
                 limits=('Full single fresh collection'if len(rows)==len(saved)else'Stratified subset of one fresh collection')+'; un-clipped true parameter gradients, not Adam steps or deployment gains.')
     atomic_json(out/'SUMMARY.json',result)
 

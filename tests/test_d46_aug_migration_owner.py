@@ -9,6 +9,18 @@ def test_archived_route_remains_discoverable_after_primary_replacement():
     assert [r['experiment']for r in owner.registered_routes(plan)]==['new','active','completed']
 
 
+def test_retention_pins_each_algorithm_best_even_if_other_algorithm_is_higher(tmp_path):
+    routes=dict(route=dict(experiment='new',formal_output=str(tmp_path/'new')),
+        secondary_route=dict(experiment='active',formal_output=str(tmp_path/'active')))
+    cases={}
+    for name,score in [('new',90.),('active',89.)]:
+        p=tmp_path/(name+'.json');p.write_text(json.dumps(dict(PDMS=score)))
+        cases[name]=dict(id=name,status='COMPLETE',summary=str(p),binding=dict(experiment=name,checkpoint=str(tmp_path/name/'best')))
+    pins,best=owner.checkpoint_pins(dict(cases=cases),routes)
+    assert str(tmp_path/'new/best')in pins and str(tmp_path/'active/best')in pins
+    assert best['active']['native_available']is False
+
+
 def test_failed_owned_gang_requests_only_its_peer_stop(tmp_path):
     left=tmp_path/'a';right=tmp_path/'b';left.mkdir();right.mkdir()
     (left/'RESULT.json').write_text(json.dumps({'returncode':1}))

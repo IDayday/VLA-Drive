@@ -1,0 +1,1098 @@
+{
+  "utc": "2026-11-06 00:26 UTC",
+  "population": 12146,
+  "physical_logs": 44,
+  "invalid": 0,
+  "protocol": "single ODE K10 shift5 seed2101",
+  "NAVTEST_SELECTED": true,
+  "rows": [
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 0,
+      "scene_epochs": 0.0,
+      "PDMS": 89.51048769875148,
+      "metrics": {
+        "score": 0.8951048769875147,
+        "no_at_fault_collisions": 0.9875267577803392,
+        "drivable_area_compliance": 0.9720072451835995,
+        "time_to_collision_within_bound": 0.9580931994072123,
+        "ego_progress": 0.8323085354647548,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9846039848509798
+      },
+      "summary_sha": "26da73adb371794bb6d4ce753c4276bb78bbeb9299e832806733774682af8fb8"
+    },
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 200,
+      "scene_epochs": 0.06196266749283557,
+      "PDMS": 89.5383940439855,
+      "metrics": {
+        "score": 0.895383940439855,
+        "no_at_fault_collisions": 0.9875267577803392,
+        "drivable_area_compliance": 0.9720895768154125,
+        "time_to_collision_within_bound": 0.9580931994072123,
+        "ego_progress": 0.8328632341202509,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9845216532191668
+      },
+      "summary_sha": "3a89ee44ce70debac3b29fdf250595083803a57b5ebab85a75232909bf947113",
+      "paired": {
+        "mean_delta": 0.0002790634523405529,
+        "CI95": [
+          -0.00023637822703067484,
+          0.0008688936944505041
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 6,
+        "new_zero": 5,
+        "high_to_zero": 4,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.012605042016806723,
+        "new_zero_rate": 0.0004284490145672665,
+        "high_to_zero_rate": 0.0003571747477453344,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 1,
+            "repaired_failure": 1,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 4,
+            "repaired_failure": 5,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 4,
+            "repaired_failure": 4,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.0007831349375434723,
+        "G_minus": -0.0005040714852029194,
+        "net": 0.0002790634523405529,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0004397150915041404,
+            "population_contribution": -0.00031586647236733284,
+            "new_zero": 4
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.011090961150481637,
+            "population_contribution": 0.0004346531786291173,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.0006610259279703638,
+            "population_contribution": 0.00016027674607876842,
+            "new_zero": 1
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.00026501061335733865,
+            "population_contribution": -0.0002470537769673263,
+            "new_zero": 4
+          }
+        },
+        "high_to_low": 8,
+        "low_to_high": 8,
+        "initial_high_retained_ge_0_9": 8717,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 8,
+        "repaired_joint_unsafe": 9,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 400,
+      "scene_epochs": 0.12392533498567114,
+      "PDMS": 89.56281535577007,
+      "metrics": {
+        "score": 0.8956281535577006,
+        "no_at_fault_collisions": 0.9873620945167133,
+        "drivable_area_compliance": 0.9722542400790384,
+        "time_to_collision_within_bound": 0.9575992096163346,
+        "ego_progress": 0.8337790225656013,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9846039848509798
+      },
+      "summary_sha": "173349a65451c5a8c22d5377fa86f75bd3bfdf9fed42cc26b844d89530bd7826",
+      "paired": {
+        "mean_delta": 0.0005232765701861221,
+        "CI95": [
+          -0.00019990070102585147,
+          0.001240634536780479
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 8,
+        "new_zero": 7,
+        "high_to_zero": 4,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.01680672268907563,
+        "new_zero_rate": 0.000599828620394173,
+        "high_to_zero_rate": 0.0003571747477453344,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 4,
+            "repaired_failure": 2,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 3,
+            "repaired_failure": 6,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 12,
+            "repaired_failure": 6,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.0013683296410243648,
+        "G_minus": -0.0008450530708382427,
+        "net": 0.0005232765701861223,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0004378207069268832,
+            "population_contribution": -0.000314505653543311,
+            "new_zero": 4
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.014342042489599516,
+            "population_contribution": 0.0005620625905688597,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.001137144537985849,
+            "population_contribution": 0.0002757196331605735,
+            "new_zero": 3
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.00011458594173492187,
+            "population_contribution": -0.00010682172058822002,
+            "new_zero": 4
+          }
+        },
+        "high_to_low": 15,
+        "low_to_high": 11,
+        "initial_high_retained_ge_0_9": 8710,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 15,
+        "repaired_joint_unsafe": 12,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 800,
+      "scene_epochs": 0.24785066997134228,
+      "PDMS": 89.59874910450294,
+      "metrics": {
+        "score": 0.8959874910450294,
+        "no_at_fault_collisions": 0.9871150996212745,
+        "drivable_area_compliance": 0.9726658982381031,
+        "time_to_collision_within_bound": 0.9571052198254569,
+        "ego_progress": 0.8346251654596036,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9848098139305121
+      },
+      "summary_sha": "cada8986996f32f7fd502f002bacbf258220a332f8471cf6fee4dc54c743883c",
+      "paired": {
+        "mean_delta": 0.000882614057514837,
+        "CI95": [
+          -0.00031641745380709747,
+          0.0019337713032114377
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 17,
+        "new_zero": 13,
+        "high_to_zero": 8,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.03571428571428571,
+        "new_zero_rate": 0.0011139674378748928,
+        "high_to_zero_rate": 0.0007143494954906688,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 7,
+            "repaired_failure": 2,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 7,
+            "repaired_failure": 15,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 19,
+            "repaired_failure": 7,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.002386476632171425,
+        "G_minus": -0.0015038625746565876,
+        "net": 0.0008826140575148368,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0009329851044266181,
+            "population_contribution": -0.0006702037737627403,
+            "new_zero": 8
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.03187928521386144,
+            "population_contribution": 0.0012493446205992136,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.0012516080193206813,
+            "population_contribution": 0.00030347321067836377,
+            "new_zero": 5
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.00040305366481150983,
+            "population_contribution": -0.0003757431785493764,
+            "new_zero": 8
+          }
+        },
+        "high_to_low": 25,
+        "low_to_high": 19,
+        "initial_high_retained_ge_0_9": 8700,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 26,
+        "repaired_joint_unsafe": 22,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 1614,
+      "scene_epochs": 0.5000387266671831,
+      "PDMS": 89.58388710653202,
+      "metrics": {
+        "score": 0.8958388710653202,
+        "no_at_fault_collisions": 0.9869504363576486,
+        "drivable_area_compliance": 0.972748229869916,
+        "time_to_collision_within_bound": 0.9565288984027663,
+        "ego_progress": 0.8349930370030012,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9847274822986991
+      },
+      "summary_sha": "6e43dda8e1cd54d798f8481b1e7f864d4f76ab8e7b67a9f5bbbbb1b64f2a6b00",
+      "paired": {
+        "mean_delta": 0.0007339940778056562,
+        "CI95": [
+          -0.000366043167459745,
+          0.0017193348897149635
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 17,
+        "new_zero": 15,
+        "high_to_zero": 9,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.03571428571428571,
+        "new_zero_rate": 0.0012853470437017994,
+        "high_to_zero_rate": 0.0008036431824270024,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 9,
+            "repaired_failure": 2,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 6,
+            "repaired_failure": 15,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 28,
+            "repaired_failure": 9,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.002675193926277376,
+        "G_minus": -0.001941199848471719,
+        "net": 0.000733994077805656,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0013404533885829617,
+            "population_contribution": -0.0009629059620769258,
+            "new_zero": 9
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.031981176479789604,
+            "population_contribution": 0.001253337724714297,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.0018293744923714732,
+            "population_contribution": 0.00044356231516828485,
+            "new_zero": 6
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.0005898102581694961,
+            "population_contribution": -0.0005498453444140626,
+            "new_zero": 9
+          }
+        },
+        "high_to_low": 35,
+        "low_to_high": 22,
+        "initial_high_retained_ge_0_9": 8690,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 36,
+        "repaired_joint_unsafe": 24,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 3228,
+      "scene_epochs": 1.0,
+      "PDMS": 89.68047585157845,
+      "metrics": {
+        "score": 0.8968047585157845,
+        "no_at_fault_collisions": 0.9868681047258356,
+        "drivable_area_compliance": 0.9733245512926066,
+        "time_to_collision_within_bound": 0.9563642351391405,
+        "ego_progress": 0.836784566277276,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9847274822986991
+      },
+      "summary_sha": "45a6a337ae661cf7db04f6219c0e3e3d9b23805fb7fb8e84dfa8e11f0715c874",
+      "paired": {
+        "mean_delta": 0.0016998815282699663,
+        "CI95": [
+          0.00044095966868637406,
+          0.0028121800186997623
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 24,
+        "new_zero": 16,
+        "high_to_zero": 8,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.05042016806722689,
+        "new_zero_rate": 0.0013710368466152527,
+        "high_to_zero_rate": 0.0007143494954906688,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 11,
+            "repaired_failure": 3,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 5,
+            "repaired_failure": 21,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 35,
+            "repaired_failure": 14,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.0038949380723607425,
+        "G_minus": -0.0021950565440907763,
+        "net": 0.0016998815282699663,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0010995897049077394,
+            "population_contribution": -0.0007898831035172095,
+            "new_zero": 8
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.044918986164611006,
+            "population_contribution": 0.0017603686328301366,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.003008232191284277,
+            "population_contribution": 0.000729395998957039,
+            "new_zero": 8
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.00014623105296937864,
+            "population_contribution": -0.00013632259285133167,
+            "new_zero": 8
+          }
+        },
+        "high_to_low": 41,
+        "low_to_high": 31,
+        "initial_high_retained_ge_0_9": 8684,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 42,
+        "repaired_joint_unsafe": 34,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 6456,
+      "scene_epochs": 2.0,
+      "PDMS": 89.69990108784869,
+      "metrics": {
+        "score": 0.8969990108784869,
+        "no_at_fault_collisions": 0.9867857730940227,
+        "drivable_area_compliance": 0.9731598880289807,
+        "time_to_collision_within_bound": 0.9561995718755145,
+        "ego_progress": 0.8375966874596713,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9846451506668862
+      },
+      "summary_sha": "1f3398a6734934aae9153a5fae340aeef40b355bf5538a06c54e9004fa919cb6",
+      "paired": {
+        "mean_delta": 0.0018941338909722832,
+        "CI95": [
+          0.0006181194486934554,
+          0.003069457250469745
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 26,
+        "new_zero": 21,
+        "high_to_zero": 11,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.0546218487394958,
+        "new_zero_rate": 0.0017994858611825194,
+        "high_to_zero_rate": 0.0009822305562996697,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 12,
+            "repaired_failure": 3,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 9,
+            "repaired_failure": 23,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 38,
+            "repaired_failure": 15,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.004498601648941468,
+        "G_minus": -0.0026044677579691857,
+        "net": 0.001894133890972283,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0011716425831231783,
+            "population_contribution": -0.0008416418193437947,
+            "new_zero": 10
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.04895266118961674,
+            "population_contribution": 0.0019184477792077695,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.0033708879630701227,
+            "population_contribution": 0.0008173279311083081,
+            "new_zero": 11
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -5.6230043464522924e-05,
+            "population_contribution": -5.2419955717832464e-05,
+            "new_zero": 11
+          }
+        },
+        "high_to_low": 46,
+        "low_to_high": 34,
+        "initial_high_retained_ge_0_9": 8679,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 48,
+        "repaired_joint_unsafe": 37,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG7_NATIVE_FP32",
+      "updates": 9684,
+      "scene_epochs": 3.0,
+      "PDMS": 89.75409134234901,
+      "metrics": {
+        "score": 0.8975409134234902,
+        "no_at_fault_collisions": 0.9868681047258356,
+        "drivable_area_compliance": 0.9735715461880454,
+        "time_to_collision_within_bound": 0.9561995718755145,
+        "ego_progress": 0.8382550326266972,
+        "comfort": 0.9998353367363741,
+        "driving_direction_compliance": 0.9846863164827927
+      },
+      "summary_sha": "a3b0bc849fa5edcff79c7c265a6371c850ee49c37a3debace69d379146ab258a",
+      "paired": {
+        "mean_delta": 0.0024360364359754722,
+        "CI95": [
+          0.0011539881856333682,
+          0.0036294311218277096
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 30,
+        "new_zero": 19,
+        "high_to_zero": 10,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.06302521008403361,
+        "new_zero_rate": 0.0016281062553556128,
+        "high_to_zero_rate": 0.000892936869363336,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 11,
+            "repaired_failure": 3,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 8,
+            "repaired_failure": 27,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 36,
+            "repaired_failure": 13,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.004852923514577074,
+        "G_minus": -0.002416887078601602,
+        "net": 0.0024360364359754722,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0009050403448309566,
+            "population_contribution": -0.0006501298376955456,
+            "new_zero": 9
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.05676121088724215,
+            "population_contribution": 0.0022244637232279978,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.003553901248788086,
+            "population_contribution": 0.0008617025504430194,
+            "new_zero": 10
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": 0.00023227505272469947,
+            "population_contribution": 0.00021653634299372403,
+            "new_zero": 10
+          }
+        },
+        "high_to_low": 43,
+        "low_to_high": 35,
+        "initial_high_retained_ge_0_9": 8682,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 45,
+        "repaired_joint_unsafe": 39,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG8_NATIVE_KL001",
+      "updates": 0,
+      "scene_epochs": 0.0,
+      "PDMS": 89.51048769875148,
+      "metrics": {
+        "score": 0.8951048769875147,
+        "no_at_fault_collisions": 0.9875267577803392,
+        "drivable_area_compliance": 0.9720072451835995,
+        "time_to_collision_within_bound": 0.9580931994072123,
+        "ego_progress": 0.8323085354647548,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9846039848509798
+      },
+      "summary_sha": "85d56bd3e16dbc85fe2467502338474dc54ebb3b97c1d2ae5385a89452af37f2"
+    },
+    {
+      "experiment": "AUG8_NATIVE_KL001",
+      "updates": 200,
+      "scene_epochs": 0.06196266749283557,
+      "PDMS": 89.54696539284858,
+      "metrics": {
+        "score": 0.8954696539284858,
+        "no_at_fault_collisions": 0.9875267577803392,
+        "drivable_area_compliance": 0.9721719084472255,
+        "time_to_collision_within_bound": 0.9580931994072123,
+        "ego_progress": 0.8329536968105065,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9845628190350733
+      },
+      "summary_sha": "bff93b02569e9fe6ba09974099ed48d27aa88cbc5c4cefbe29443364190375a5",
+      "paired": {
+        "mean_delta": 0.0003647769409711958,
+        "CI95": [
+          -0.0002666409986541053,
+          0.0009875942786727228
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 8,
+        "new_zero": 6,
+        "high_to_zero": 5,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.01680672268907563,
+        "new_zero_rate": 0.0005141388174807198,
+        "high_to_zero_rate": 0.000446468434681668,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 1,
+            "repaired_failure": 1,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 5,
+            "repaired_failure": 7,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 5,
+            "repaired_failure": 5,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.000990324946122009,
+        "G_minus": -0.0006255480051508132,
+        "net": 0.00036477694097119563,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0005931739060369489,
+            "population_contribution": -0.00042610261239686974,
+            "new_zero": 5
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.015021970030322658,
+            "population_contribution": 0.0005887088534853932,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.0008338082583276527,
+            "population_contribution": 0.00020217069988267227,
+            "new_zero": 1
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.0003753591259783722,
+            "population_contribution": -0.00034992519211700217,
+            "new_zero": 5
+          }
+        },
+        "high_to_low": 10,
+        "low_to_high": 10,
+        "initial_high_retained_ge_0_9": 8715,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 10,
+        "repaired_joint_unsafe": 12,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG8_NATIVE_KL001",
+      "updates": 400,
+      "scene_epochs": 0.12392533498567114,
+      "PDMS": 89.62682426337308,
+      "metrics": {
+        "score": 0.8962682426337308,
+        "no_at_fault_collisions": 0.9873620945167133,
+        "drivable_area_compliance": 0.972748229869916,
+        "time_to_collision_within_bound": 0.9574345463527087,
+        "ego_progress": 0.8345908879071059,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9852214720895768
+      },
+      "summary_sha": "043f8ba069f64eb6a515c8b0f9eaea4a74dcd77ace8abf32624748d36e1edd67",
+      "paired": {
+        "mean_delta": 0.0011633656462163725,
+        "CI95": [
+          -0.0004415194855954734,
+          0.0026376260078313295
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 26,
+        "new_zero": 18,
+        "high_to_zero": 12,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.0546218487394958,
+        "new_zero_rate": 0.0015424164524421595,
+        "high_to_zero_rate": 0.0010715242432360033,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 4,
+            "repaired_failure": 2,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 15,
+            "repaired_failure": 24,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 19,
+            "repaired_failure": 11,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.003046821262951975,
+        "G_minus": -0.0018834556167356025,
+        "net": 0.0011633656462163725,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.0012916016033567331,
+            "population_contribution": -0.0009278136003035976,
+            "new_zero": 10
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.04976053040524251,
+            "population_contribution": 0.0019501080580351913,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.0005818168608951192,
+            "population_contribution": 0.00014107118848477902,
+            "new_zero": 8
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.0009115944245286167,
+            "population_contribution": -0.0008498257590101702,
+            "new_zero": 12
+          }
+        },
+        "high_to_low": 28,
+        "low_to_high": 30,
+        "initial_high_retained_ge_0_9": 8697,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 31,
+        "repaired_joint_unsafe": 34,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG8_NATIVE_KL001",
+      "updates": 800,
+      "scene_epochs": 0.24785066997134228,
+      "PDMS": 89.56099978517663,
+      "metrics": {
+        "score": 0.8956099978517663,
+        "no_at_fault_collisions": 0.9869092705417422,
+        "drivable_area_compliance": 0.9720072451835995,
+        "time_to_collision_within_bound": 0.9552115922937593,
+        "ego_progress": 0.8361780928209032,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9852214720895768
+      },
+      "summary_sha": "980c13b971eba1c928081f3903a5e977cd623e5cfa9cb7c46538b70f48033832",
+      "paired": {
+        "mean_delta": 0.0005051208642517143,
+        "CI95": [
+          -0.0017048305740667553,
+          0.002542912248100533
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 36,
+        "new_zero": 42,
+        "high_to_zero": 26,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.07563025210084033,
+        "new_zero_rate": 0.0035989717223650387,
+        "high_to_zero_rate": 0.002321635860344674,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 14,
+            "repaired_failure": 7,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 31,
+            "repaired_failure": 31,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 52,
+            "repaired_failure": 17,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.005086273632195476,
+        "G_minus": -0.004581152767943762,
+        "net": 0.0005051208642517146,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.003442387696723131,
+            "population_contribution": -0.0024728167836250052,
+            "new_zero": 25
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.0675313826446839,
+            "population_contribution": 0.002646545211499221,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": 0.0013667546798781312,
+            "population_contribution": 0.0003313924363774985,
+            "new_zero": 17
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.002157542491503211,
+            "population_contribution": -0.0020113497144155163,
+            "new_zero": 27
+          }
+        },
+        "high_to_low": 74,
+        "low_to_high": 44,
+        "initial_high_retained_ge_0_9": 8651,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 77,
+        "repaired_joint_unsafe": 47,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    },
+    {
+      "experiment": "AUG8_NATIVE_KL001",
+      "updates": 1614,
+      "scene_epochs": 0.5000387266671831,
+      "PDMS": 89.49181219953107,
+      "metrics": {
+        "score": 0.8949181219953106,
+        "no_at_fault_collisions": 0.9854273011691091,
+        "drivable_area_compliance": 0.971266260497283,
+        "time_to_collision_within_bound": 0.9520006586530545,
+        "ego_progress": 0.8394425286743584,
+        "comfort": 0.9997530051045612,
+        "driving_direction_compliance": 0.9850568088259509
+      },
+      "summary_sha": "8217a0cfbf2754386b7584778aaf37aca5d4b322a37cd2ee9c44a190350a5a48",
+      "paired": {
+        "mean_delta": -0.00018675499220384358,
+        "CI95": [
+          -0.003062699281999491,
+          0.002450019300136905
+        ],
+        "bootstrap": 2000,
+        "bootstrap_seed": 42,
+        "physical_groups": 44,
+        "repaired_zero": 41,
+        "new_zero": 74,
+        "high_to_zero": 40,
+        "scene_denominator": 12146,
+        "baseline_zero_denominator": 476,
+        "baseline_nonzero_denominator": 11670,
+        "baseline_high_denominator": 11199,
+        "repaired_zero_rate": 0.0861344537815126,
+        "new_zero_rate": 0.006341045415595544,
+        "high_to_zero_rate": 0.003571747477453344,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_failure": 34,
+            "repaired_failure": 9,
+            "baseline_pass": 11986,
+            "baseline_failure": 160
+          },
+          "drivable_area_compliance": {
+            "new_failure": 43,
+            "repaired_failure": 34,
+            "baseline_pass": 11806,
+            "baseline_failure": 340
+          },
+          "time_to_collision_within_bound": {
+            "new_failure": 97,
+            "repaired_failure": 23,
+            "baseline_pass": 11637,
+            "baseline_failure": 509
+          }
+        },
+        "all_scores_units": "0..1; PDMS_display_explicitly_times100"
+      },
+      "gain_loss": {
+        "G_plus": 0.007806527119811316,
+        "G_minus": -0.007993282112015158,
+        "net": -0.00018675499220384347,
+        "fixed_reference_cohorts": {
+          "numeric_u0_high_ge_0.9": {
+            "scenes": 8725,
+            "mean_delta": -0.004139428724427966,
+            "population_contribution": -0.0029735316664444263,
+            "new_zero": 32
+          },
+          "numeric_u0_zero": {
+            "scenes": 476,
+            "mean_delta": 0.07595426830715993,
+            "population_contribution": 0.0029766368939739933,
+            "new_zero": 0
+          },
+          "numeric_u0_other": {
+            "scenes": 2945,
+            "mean_delta": -0.0007830364104862471,
+            "population_contribution": -0.00018986021973340996,
+            "new_zero": 42
+          },
+          "numeric_u0_joint_safe": {
+            "scenes": 11323,
+            "mean_delta": -0.0026211004869584457,
+            "population_contribution": -0.002443497514723405,
+            "new_zero": 42
+          }
+        },
+        "high_to_low": 120,
+        "low_to_high": 53,
+        "initial_high_retained_ge_0_9": 8605,
+        "initial_high_denominator": 8725,
+        "new_joint_unsafe": 135,
+        "repaired_joint_unsafe": 56,
+        "score_units": "raw [0,1]; multiply by100 for PDMS points",
+        "limits": "Reference cohorts fixed by same numeric u0. Single training seed42/evaluation seed2101; no seed uncertainty estimated. Zero observed failures are not a zero-risk guarantee."
+      }
+    }
+  ]
+}
