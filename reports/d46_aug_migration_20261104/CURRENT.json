@@ -1,80 +1,88 @@
 {
-  "utc": "2026-11-04T15:15:05.001686+00:00",
-  "experiment": "AUG7_NATIVE_FP32",
-  "formal_training": true,
-  "world": 16,
-  "hosts": [
-    "training-vlawm-zt",
-    "training-vlawm-tsinghua-zt"
-  ],
-  "scientific_source": "/mnt/project/d46-aug-migration-20261104/runtime/fp32_formal_v2",
-  "scientific_commit": "dc56b7c6c9bba70a1fa7d557dfe96115ded3c091",
-  "parent": "D IL46",
-  "parent_sha256": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
-  "fresh_Adam0_native_proof": "PASS",
-  "pending_inner_resume": "PASS all16 RNG/Adam/scheduler/frozen",
-  "health": {
+  "experiment": "AUG9_SPLIT_ACTION",
+  "scientific_source": "cbb760959c6c601724b0835c9372fbb074750742",
+  "operations_source": "c3c47091de3eda7d4cf9bdef3c319e917a3bc4b2",
+  "parent_sha": "386a0a27bd197cb002501bcb90c343659001d2e6d4f7bad0cbd5e31a91f8477d",
+  "cpu_targeted_tests": 26,
+  "formula_equivalence": "RELEASED_SPLIT_FORMULA_PARITY.json",
+  "qualification": {
+    "status": "PASS",
+    "world": 16,
+    "updates": 2,
+    "phase": "READY",
+    "next_inner": 0,
+    "allrank_frozen_weights_unchanged": true
+  },
+  "fresh_IL_Adam0": {
+    "status": "PASS",
+    "world": 16,
+    "updates": 0,
+    "phase": "READY",
+    "next_inner": 0,
+    "allrank_RNG_sha256": [
+      "d5f8d3dbbff9d3b32e608a5a4e3e80ab2b88decdc1c41bd4c09e4db7576aa911",
+      "cca00128f2efca21280cdf53c694056fc78a36705f4496b92fabb72ba0ce73c2",
+      "f16d896e70581a6e6e9fef4bd1f315c14dd7dd4426a181379535a0684c66dfd1",
+      "9d568f7e13f57b90802a39c5cb8612888ade61b7d8210015ebe9b797c65e474b",
+      "7b634c8b69da71b0f4b3c2d102aa4fb1bdc058eef91315d2467ba8eeffd176c4",
+      "f0641335bcc0b2597b7a5863d156e14855ae0978c6fcb6ddec85f723dd748050",
+      "a52da6764d0fc9c9a6419ce681a3d8a0b05d3743f1ebeaf11f026a0cc2af0169",
+      "19381e1564742e6d9389a577e98e54f574de37767143f8a0941b87463be23858",
+      "0d42860735a9ec8ad0311ddde26efc4de771b2121d1425350cdb2b9e10ab1fc8",
+      "7c7dfd76da0da092d3ef82d0942547763c52da2e8f5f7a54b16ffa302c6be1f1",
+      "0128fd7cd4fafdef8814d61cb8640483dce94d5b0892daaa699d5cc741b0c247",
+      "310ab8b3f88edeec81235ae0b93ea3df2a63cc0dbbb40cf0e2c835ed1a3e4956",
+      "0e674b7e3ae468be479c6bccfc8dcaf34ae9fafbb869882707e2b9116c85ec8d",
+      "afa0c9198d2d006cdb3400ad3c9d009c22ffea56219e5cd4a73a8712833aa8b2",
+      "1644e7f1c183cc3b4ba8e3dc2c7b184aefacb0469954dc08fd3600014d620c2c",
+      "aa4dae3fde4b14c72089b4040c37aa24f638b633d13632767e8c01bd7cc537c6"
+    ]
+  },
+  "formal_health": {
     "status": "FINITE_CONSISTENT_NOT_A_PERFORMANCE_PROOF",
-    "at": 1793805304.730268,
-    "common_update": 17,
-    "scene_exposures": 576,
-    "scene_epochs": 0.005576640074355201,
-    "sampled_rank_update_rows": 272,
+    "at": 1793925674.0026605,
+    "common_update": 20,
+    "scene_exposures": 640,
+    "scene_epochs": 0.006196266749283557,
+    "sampled_rank_update_rows": 320,
     "global_advantage_std_rank_spread": 0.0,
     "inner": {
       "1": {
-        "reference_KL": 1.1123526636653979e-05,
+        "reference_KL": 3.712164730822311e-05,
         "ratio_mean": 1.0,
         "clip_fraction": 0.0
       },
       "2": {
-        "reference_KL": 1.1089759161642121e-05,
-        "ratio_mean": 1.0000004922039807,
+        "reference_KL": 4.317774626363402e-05,
+        "ratio_mean": 0.9999966450966895,
         "clip_fraction": 0.0
       }
     },
-    "gradient_norm_mean": 14.102934444651885,
-    "gradient_norm_max": 27.119016647338867,
+    "gradient_norm_mean": 10.643607950210571,
+    "gradient_norm_max": 20.799808502197266,
     "clipped_update_fraction": 1.0,
     "role_gradient_squared_norm_fraction": {
-      "action_position": 8.918123479699221e-09,
-      "text_lora": 4.504758228207005e-05,
-      "action_io": 0.999954185534469,
-      "time_modulation": 7.579651254316239e-07
+      "action_position": 7.171245339827527e-08,
+      "text_lora": 5.121679198936811e-05,
+      "action_io": 0.9999470385436752,
+      "time_modulation": 1.6729518820967954e-06
     },
     "role_norms_recorded_after_global_clip": true,
     "exploration": {
-      "effective_PG_group_fraction": 0.6961805555555556,
-      "feasible_candidate_fraction": 0.9547526041666666,
-      "all_zero_groups": 0.8888888888888888,
-      "all_one_groups": 17.444444444444443
+      "effective_PG_group_fraction": 0.7265625,
+      "feasible_candidate_fraction": 0.95546875,
+      "all_zero_groups": 0.8,
+      "all_one_groups": 17.4
     },
     "end_to_end": {
       "from_update": 1,
-      "to_update": 17,
-      "seconds_per_update": 13.323949590325356,
-      "updates_per_hour": 270.19015462307016
+      "to_update": 20,
+      "seconds_per_update": 10.778363403521086,
+      "updates_per_hour": 334.002470061823
     },
     "alerts": [],
     "limits": "Recent all-rank window; raw gradients and quantization require separate replay. No inference of Adam update contribution or PDMS from gradient fractions."
   },
-  "evaluation": {
-    "case": "AUG7_NATIVE_FP32_u000000",
-    "status": "RUNNING",
-    "completed_scene_rows": 577,
-    "total": 12146,
-    "numerics": {
-      "deterministic": true,
-      "matmul_tf32": false,
-      "cudnn_tf32": false,
-      "bf16_reduction": false,
-      "cublas_workspace": ":4096:8",
-      "flash_deterministic": "1",
-      "model_storage": "float32",
-      "model_forward": "float32_text_action_bfloat16_frozen_visual",
-      "ode_state": "float32"
-    },
-    "partial_mean_not_published": true
-  },
-  "validation_limits": "Startup/first-window evidence only. No AUG7 complete deployment score yet."
+  "full_NAVTEST_new_run_score": null,
+  "TRAIN_all_feedback_audit": "/mnt/project/d46-aug-migration-20261104/analysis/AUG7_FULL_RELEASED_CREDIT/PUBLICATION.json"
 }

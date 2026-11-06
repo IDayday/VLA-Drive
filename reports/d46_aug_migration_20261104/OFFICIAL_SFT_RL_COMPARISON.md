@@ -23,3 +23,5 @@
 后续先按官方SFT输入、原生联合奖励和完整推理协议建立自己的SFT基线及Stage I学习曲线，再比较D迁移相对其自身IL46的增益。原始SFT→RL和D IL46→迁移RL是两个不同初始化体系；不能仅凭最终绝对分数归因于loss。继续登记场景曝光、评分次数、ratio/KL、梯度和零分修复/退化。达到完整NAVTEST人口之前不发布正式部署分数。
 
 来源：[官方RL说明](https://github.com/haha-yuki-haha/AUGUstus/blob/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/README.md)、[Stage I配置](https://github.com/haha-yuki-haha/AUGUstus/blob/edf3422304e4b2987e839a9212cf1176782e7380/AUGUstus_GRPO/recipe/transfusion/config/stage1.yaml)。
+
+随后改用原版`policy.sample_grpo`整个采样入口，再次从同SFT和新Adam0完成独立单次更新；包含endpoint裁剪、原生denormalize，JaT原始链保持不变。8个候选没有endpoint越界，见[原版入口复测](OFFICIAL_ORIGINAL_ROLLOUT_UPDATE.json)。目前共3个各1次Adam的独立action-only诊断，未实现完整联合Stage-I。

@@ -2,7 +2,7 @@
 
 更新：2026-11-06。**D历史最高完整PDMS仍为90.35363365；本轮AUG7完成3个曝光epoch，最高89.75409134。** 相同FP32 IL46起点89.51048770，提升0.24360，尚未达到92。
 
-当前主线改为 **AUG9_SPLIT_ACTION**：恢复官方Stage-I动作奖励和分组优势规则，保持D自身采样链、精度、参数范围和beta0.1。两节点16卡真实更新／pending-inner恢复验证通过后，后台从同一IL46与新Adam0进入3E正式训练。AUG8低KL对照保持独立运行；AUG7已完成并归档，不重复续训。实际启动进度以[实时HTML](/mnt/project/d46-aug-migration-20261104/report.html)为准。
+当前主线改为 **AUG9_SPLIT_ACTION**：恢复官方Stage-I动作奖励和分组优势规则，保持D自身采样链、精度、参数范围和beta0.1。两节点16卡真实更新／pending-inner恢复均已通过，后台已从同一IL46与新Adam0进入3E正式训练。启动核验全16rank共同完成20次Adam更新、640场景曝光，fresh ratio误差0；不是新的部署分数。AUG8低KL对照保持独立运行；AUG7已完成并归档，不重复续训。实际启动进度以[实时HTML](/mnt/project/d46-aug-migration-20261104/report.html)为准。
 
 | 已完整评测 | 场景曝光epoch | PDMS | 相同数值起点 |
 |---|---:|---:|---:|
@@ -23,7 +23,7 @@ AUG7 3E相同数值u0的44-log配对95%区间[+0.11540,+0.36294]。修复30个�
 
 ![零分修复与新增](zero_scene_transitions.svg)
 
-本次修正对照真实执行路径，不以论文术语代替代码：官方`rl_split_advantage=true`，动作5×PDMS，倒退门控，population std且std<1e-6置零；旧迁移采用SafetyEP与全局std。之前将官方写成sample std是分析／诊断脚本错误，已纠正，历史结果未篡改。固定原函数的1545组归一化和1024轨迹倒退计算对照误差均0，25项相关测试通过；真实多卡与恢复证据另列。
+本次修正对照真实执行路径，不以论文术语代替代码：官方`rl_split_advantage=true`，动作5×PDMS，倒退门控，population std且std<1e-6置零；旧迁移采用SafetyEP与全局std。之前将官方写成sample std是分析／诊断脚本错误，已纠正，历史结果未篡改。固定原函数的1545组归一化和1024轨迹倒退计算对照误差均0，26项相关测试通过；真实多卡与恢复证据另列。
 
 [详细对比、问题分类和新路线](OFFICIAL_COMPARISON.md) · [完整结果数据](COMPLETE_CURVES_20261106.json) · [公式对照证据](RELEASED_SPLIT_FORMULA_PARITY.json) · [官方SFT对照](OFFICIAL_SFT_RL_COMPARISON.md)
 
