@@ -85,14 +85,17 @@ def main():
             atomic_json(out/f'scene{i:03}.json',row);print(json.dumps(dict(index=i,metrics=row['metrics'])),flush=True)
         if a.adam_updates:
             adapter=TransfusionDiffusionAdapter(model);batch=policy._to_device(policy.collate([dataset[0]]),device)
-            records=[];trajectories=[]
+            records=[];trajectories=[];out_of_range=[]
             for i in range(8):
                 torch.manual_seed(42+i)
                 with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
-                    context=adapter.prepare_context(batch)
-                    record=adapter.sample_sde_with_logprob(context,num_steps=3,noise_level=[.05,.05,.02],noise_schedule='lambda_t')
-                    trajectory=model.apply_action_offset(model.denormalize_actions(record['x0_normed']))
-                records.append(record);trajectories.append(trajectory.cpu().numpy()[0]);del context
+                    sampled=policy.sample_grpo([dataset[0]],num_steps=3,noise_level=[.05,.05,.02],
+                        noise_schedule='lambda_t',generate_cot=False,device=device)
+                record=sampled['record']
+                # The official rollout wrapper clamps only the scored endpoint;
+                # the raw sampled states used by JaT must remain untouched.
+                out_of_range.append(float((record['x0_normed'].abs()>1).float().mean()))
+                records.append(record);trajectories.append(sampled['trajectories'][0]);del sampled
             scored=service.score((samples[0]['token'],samples[0]['log'],np.stack(trajectories)))
             from .audit_split_credit import released_functions
             group_zscore,reverse_travel,_=released_functions(root)
@@ -140,7 +143,8 @@ def main():
                 initial_ratio_clip_fraction=initial_clipped,layer_checkpointing_active=True,optimizer_foreach=False,after=infer(0))
             update.update(advantage_rule='released_split_group_population_std_no_epsilon',
                 reverse_travel_m=reverse_metres,advantages=advantage.tolist(),
-                reward_rule='released_stage1_5PDMS_reverse_gate_1cm')
+                reward_rule='released_stage1_5PDMS_reverse_gate_1cm',
+                official_sample_grpo_wrapper=True,raw_endpoint_out_of_range_fraction=out_of_range)
         atomic_json(out/'SUMMARY.json',dict(status='COMPLETE_OFFICIAL_TRAIN_DIAGNOSTIC',host=host,upstream_sha=SOURCE,
             checkpoint_sha=h.hexdigest(),rows=rows,update=update,seconds=time.monotonic()-started,
             peak_GPU_bytes=torch.cuda.max_memory_allocated(),NAVTEST_used=False,formal_training_started=False,
